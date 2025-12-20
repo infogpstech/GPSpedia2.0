@@ -179,8 +179,8 @@ function handleLogin(payload) {
             status: 'error',
             message: 'Error interno al intentar iniciar sesión.',
             details: {
-                message: error.message,
-                stack: error.stack
+                errorMessage: error.message,
+                errorStack: error.stack
             }
         };
     }
