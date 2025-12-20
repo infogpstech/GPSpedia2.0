@@ -881,7 +881,7 @@ const STORES = ['cortes', 'tutoriales', 'relay'];
 let db;
 
 // --- LÓGICA DE DATOS Y API ---
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwtQ1cRyhRQ5-5gTsYf3Z_Ac8UOTZHoi-LFl3OSLHBb1Wv6mVz1E3DpRrcqT1I1-1dO/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzKVpz7S1_dCeOgNov0WBm46RbVKU7it-8RLA9vde6ZzbfYMz0LWtvPgHK4yHT4G7GG/exec";
 const SESSION_KEY = 'gpsepedia_session';
 
 // --- LÓGICA DE AUTENTICACIÓN Y SESIÓN ---
@@ -912,10 +912,28 @@ async function postToAction(action, payload = {}) {
         if (result.status === 'error') throw new Error(result.details ? `${result.message}: ${result.details.message}` : result.message);
         return result;
     } catch (error) {
-        console.error(`Error en la acción '${action}':`, error);
-        document.getElementById('login-error').textContent = error.message;
-        document.getElementById('login-error').style.display = 'block';
-        throw error;
+        console.error(`Error detallado en la acción '${action}':`, error);
+
+        let userMessage = `Error inesperado: ${error.message}`;
+        if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+            userMessage = "Fallo de conexión con el servidor. Por favor, verifica tu conexión a internet e inténtalo de nuevo. Si el problema persiste, contacta al administrador.";
+        } else if (error.message.includes('JSON')) {
+            userMessage = "La respuesta del servidor no es válida. Por favor, contacta al administrador.";
+        }
+
+        // Loguear el error de forma remota para que el desarrollador pueda verlo
+        remoteLog('FATAL', `Error en postToAction ('${action}')`, {
+            name: error.name,
+            message: error.message,
+            stack: error.stack,
+            url: SCRIPT_URL
+        });
+
+        const loginErrorElement = document.getElementById('login-error');
+        loginErrorElement.textContent = userMessage;
+        loginErrorElement.style.display = 'block';
+
+        throw error; // Re-lanzar el error para que las promesas que dependen de esto fallen
     }
 }
 

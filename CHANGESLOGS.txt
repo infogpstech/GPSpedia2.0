@@ -1,5 +1,10 @@
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.006 - [Fecha Actual]
+
+### Corregido
+- **Lógica de Autenticación:** Se corrigió la comparación de credenciales en `Code.gs` para manejar correctamente las contraseñas numéricas. La comparación ahora convierte explícitamente la contraseña recibida a `String` antes de verificarla, asegurando que tanto las contraseñas de texto como las numéricas funcionen correctamente y evitando el error "Fail to fetch".
+
 ## v3.005 - [Fecha Actual]
 
 ### Corregido
