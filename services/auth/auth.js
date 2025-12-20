@@ -96,133 +96,114 @@ function doPost(e) {
 
 function handleLogin(payload) {
     const { username, password } = payload;
-    let logDetails = {
+
+    // Log initial attempt
+    logToSheet({
         timestamp: new Date().toISOString(),
         attemptedUsername: username,
-        passwordFromFrontend: password,
-        passwordFromSheet: null,
-        frontendPasswordType: typeof password,
-        sheetPasswordType: null,
-        comparisonResult: false,
-        outcome: '',
-        columnMap: null,
-        userRowFound: null
-    };
+        outcome: "Login attempt started."
+    });
 
     try {
-        if (!username || !password) throw new Error("Usuario y contraseña son requeridos.");
+        if (!username || !password) {
+            throw new Error("Usuario y contraseña son requeridos.");
+        }
 
         const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
         const COLS = getColumnMap(SHEET_NAMES.USERS);
-        logDetails.columnMap = COLS; // Log the column map
         const data = userSheet.getDataRange().getValues();
-        const headers = data.shift().map(h => camelCase(h.trim()));
+        const headers = data.shift(); // Keep original headers for object creation
+
+        let userFound = false;
+        let foundUserRow = null;
+        let foundUserIndex = -1;
 
         for (let i = 0; i < data.length; i++) {
-            const userRow = data[i];
-            const sheetUsername = (userRow[COLS.nombreUsuario - 1] || '').toString();
-
-            // Convert both usernames to lowercase for a case-insensitive comparison
-            if (sheetUsername.trim().toLowerCase() !== username.trim().toLowerCase()) {
-                continue;
+            const sheetUsername = (data[i][COLS.nombreUsuario - 1] || '').toString();
+            if (sheetUsername.trim().toLowerCase() === username.trim().toLowerCase()) {
+                userFound = true;
+                foundUserRow = data[i];
+                foundUserIndex = i;
+                break;
             }
+        }
 
-            // User found, now check password and log everything
-            const sheetPassword = (userRow[COLS.password - 1] || '');
-            const frontendPassword = password || '';
+        if (!userFound) {
+            logToSheet({ attemptedUsername: username, outcome: "User not found in sheet." });
+            throw new Error("Credenciales inválidas.");
+        }
 
-            logDetails.passwordFromSheet = sheetPassword;
-            logDetails.sheetPasswordType = typeof sheetPassword;
-            logDetails.userRowFound = userRow; // Log the entire row
+        const sheetPassword = (foundUserRow[COLS.password - 1] || '').toString();
+        const passwordMatch = sheetPassword.trim() === password.trim();
 
-            const passwordMatch = String(sheetPassword).trim() === String(frontendPassword).trim();
-            logDetails.comparisonResult = passwordMatch;
-
-            if (passwordMatch) {
-                logDetails.outcome = 'Login Exitoso';
-                logToSheet(logDetails);
-
-                const userRole = userRow[COLS.privilegios - 1];
-                const userId = userRow[COLS.id - 1];
-            const sessionLimit = SESSION_LIMITS[userRole] || 1;
-
-            let activeSessionsSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.ACTIVE_SESSIONS);
-            if (!activeSessionsSheet) {
-                activeSessionsSheet = getSpreadsheet().insertSheet(SHEET_NAMES.ACTIVE_SESSIONS);
-                activeSessionsSheet.appendRow(['UserID', 'SessionToken', 'Timestamp']);
-            }
-
-            const sessionsData = activeSessionsSheet.getDataRange().getValues();
-            sessionsData.shift();
-
-            const userSessions = sessionsData
-                .map((row, index) => ({
-                    userId: row[0],
-                    token: row[1],
-                    timestamp: new Date(row[2]),
-                    rowIndex: index + 2
-                }))
-                .filter(session => session.userId == userId)
-                .sort((a, b) => a.timestamp - b.timestamp);
-
-            const sessionsToCloseCount = userSessions.length - sessionLimit + 1;
-            if (sessionsToCloseCount > 0) {
-                const sessionsToClose = userSessions.slice(0, sessionsToCloseCount);
-
-                const allUsersData = userSheet.getDataRange().getValues();
-                for (const session of sessionsToClose) {
-                    for (let j = 1; j < allUsersData.length; j++) {
-                        if (allUsersData[j][COLS.sessionToken - 1] === session.token) {
-                            userSheet.getRange(j + 1, COLS.sessionToken).clearContent();
-                            break;
-                        }
-                    }
-                }
-
-                sessionsToClose.reverse().forEach(session => {
-                    activeSessionsSheet.deleteRow(session.rowIndex);
-                });
-            }
-
-            const sessionToken = Utilities.getUuid();
-            userSheet.getRange(i + 2, COLS.sessionToken).setValue(sessionToken);
-
-            activeSessionsSheet.appendRow([userId, sessionToken, new Date().toISOString()]);
-
-            const user = {};
-            headers.forEach((header, index) => {
-                if (header !== 'password') {
-                    user[header] = userRow[index];
-                }
+        if (!passwordMatch) {
+            logToSheet({
+                attemptedUsername: username,
+                outcome: "Password does not match.",
+                passwordFromFrontend: password,
+                passwordFromSheet: sheetPassword
             });
-            user.sessionToken = sessionToken;
-            user.id = userId;
+            throw new Error("Credenciales inválidas.");
+        }
 
-            return { status: 'success', user };
+        // At this point, login is successful
+        logToSheet({ attemptedUsername: username, outcome: "Login successful. Managing session." });
+
+        const userRole = foundUserRow[COLS.privilegios - 1];
+        const userId = foundUserRow[COLS.id - 1];
+        const sessionLimit = SESSION_LIMITS[userRole] || 1;
+
+        // Manage active sessions
+        let activeSessionsSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.ACTIVE_SESSIONS);
+        if (!activeSessionsSheet) {
+            activeSessionsSheet = getSpreadsheet().insertSheet(SHEET_NAMES.ACTIVE_SESSIONS);
+            activeSessionsSheet.appendRow(['UserID', 'SessionToken', 'Timestamp']);
+        }
+
+        const sessionsData = activeSessionsSheet.getDataRange().getValues();
+        sessionsData.shift();
+
+        const userSessions = sessionsData
+            .map((row, index) => ({ userId: row[0], token: row[1], timestamp: new Date(row[2]), rowIndex: index + 2 }))
+            .filter(session => session.userId == userId)
+            .sort((a, b) => a.timestamp - b.timestamp);
+
+        const sessionsToCloseCount = Math.max(0, userSessions.length - sessionLimit + 1);
+        if (sessionsToCloseCount > 0) {
+            const sessionsToClose = userSessions.slice(0, sessionsToCloseCount);
+            sessionsToClose.reverse().forEach(session => {
+                activeSessionsSheet.deleteRow(session.rowIndex);
+            });
+        }
+
+        // Create new session
+        const sessionToken = Utilities.getUuid();
+        userSheet.getRange(foundUserIndex + 2, COLS.sessionToken).setValue(sessionToken);
+        activeSessionsSheet.appendRow([userId, sessionToken, new Date().toISOString()]);
+
+        // Prepare user object to return
+        const user = {};
+        headers.forEach((header, index) => {
+            const camelHeader = camelCase(header);
+            if (camelHeader !== 'password') {
+                user[camelHeader] = foundUserRow[index];
             }
-        }
+        });
+        user.sessionToken = sessionToken;
+        user.id = userId;
 
-        // If the loop finishes, the user was not found or the password was incorrect.
-        // The detailed log inside the loop will have already been written if a user was found.
-        if (!logDetails.userRowFound) { // Only log if we never found a user match
-            logDetails.outcome = 'Fallo de Login: Usuario no encontrado';
-            logToSheet(logDetails);
-        }
-        throw new Error("Credenciales inválidas.");
+        return { status: 'success', user: user };
 
     } catch (error) {
-        if (!logDetails.outcome) { // Si el error ocurrió antes de poder registrar un resultado
-            logDetails.outcome = `Fallo de Login: ${error.message}`;
-            logToSheet(logDetails);
-        }
-        Logger.log(`Error crítico en handleLogin para el usuario '${payload ? payload.username : 'N/A'}': ${error.stack}`);
+        logToSheet({
+            attemptedUsername: username,
+            outcome: "Error during login process.",
+            errorMessage: error.message
+        });
         return {
             status: 'error',
-            message: 'Error interno al intentar iniciar sesión.',
-            details: {
-                errorMessage: error.message,
-                errorStack: error.stack
-            }
+            message: error.message, // Return the specific error message to the frontend
+            details: { errorMessage: error.message }
         };
     }
 }
@@ -252,39 +233,25 @@ function logToSheet(details) {
     try {
         const logSheet = getSpreadsheet().getSheetByName("Logs");
         if (!logSheet) {
-            // No creamos la hoja para no interferir si el usuario la nombró diferente.
-            // Simplemente registramos en Logger si no se encuentra.
-            Logger.log("No se encontró la hoja 'Logs'. Log en Logger: " + JSON.stringify(details));
+            Logger.log("Log sheet not found. Logging to Logger: " + JSON.stringify(details));
             return;
         }
-
-        const headers = [
-            "Timestamp", "Username", "Frontend Password", "Frontend Type",
-            "Sheet Password", "Sheet Type", "Comparison Result", "Outcome",
-            "Column Map", "User Row Found"
-        ];
-
-        // Si la hoja está vacía, añadir encabezados.
+        const headers = ["Timestamp", "Username", "Outcome", "Frontend Password", "Sheet Password", "Error Message"];
         if (logSheet.getLastRow() === 0) {
             logSheet.appendRow(headers);
         }
-
         const logRow = [
-            details.timestamp,
-            details.attemptedUsername,
-            details.passwordFromFrontend,
-            details.frontendPasswordType,
-            details.passwordFromSheet,
-            details.sheetPasswordType,
-            details.comparisonResult.toString(),
-            details.outcome,
-            JSON.stringify(details.columnMap),
-            JSON.stringify(details.userRowFound)
+            details.timestamp || new Date().toISOString(),
+            details.attemptedUsername || 'N/A',
+            details.outcome || 'N/A',
+            details.passwordFromFrontend || '',
+            details.passwordFromSheet || '',
+            details.errorMessage || ''
         ];
         logSheet.appendRow(logRow);
     } catch (e) {
-        Logger.log(`FALLO CRÍTICO en logToSheet: ${e.toString()}`);
-        Logger.log(`Datos del log que no se pudieron escribir: ${JSON.stringify(details)}`);
+        Logger.log(`CRITICAL FAILURE in logToSheet: ${e.toString()}`);
+        Logger.log(`Log data that failed to write: ${JSON.stringify(details)}`);
     }
 }
 
