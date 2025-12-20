@@ -8,11 +8,11 @@ const API_ENDPOINTS = {
 
     // URLs para los nuevos microservicios.
     // REEMPLAZA 'URL_DESPLEGADA_...' con la URL real de cada script después de desplegarlo.
-    AUTH:     "https://script.google.com/macros/s/AKfycbyH7tZZrLQ4fdOs9P3gogLKW7f5VZOd9iTcjeMwnRidM6FkiDzoEPDqsIkaEXzTt6h3/exec",      // GPSpedia-Auth
-    CATALOG:  "URL_DESPLEGADA_CATALOG",   // GPSpedia-Catalog
-    WRITE:    "URL_DESPLEGADA_WRITE",     // GPSpedia-Write
-    USERS:    "URL_DESPLEGADA_USERS",     // GPSpedia-Users
-    FEEDBACK: "URL_DESPLEGADA_FEEDBACK"   // GPSpedia-Feedback
+    AUTH:     "https://script.google.com/macros/s/AKfycbyuC8iBRUg5S6u6He31huFLjN54ePrYQ8AGR-7nbE0BHKkQ4LD8CEWj_mV2CfFwJoA1/exec",      // GPSpedia-Auth
+    CATALOG:  "https://script.google.com/macros/s/AKfycbzuIroWYo3FjY_4enCFtb1xiyoAki-IlxsbNGv9u9Y2nhJ3hl-0MwpycrA-qJWjWX7H_w/exec",   // GPSpedia-Catalog
+    WRITE:    "https://script.google.com/macros/s/AKfycbz8-XmvJKQlvrhIQ0SWCpIn4yVQ2tAlquYTHpoB3_lhrbf8o2uUVqadBC-uJYml6p9Zlw/exec",     // GPSpedia-Write
+    USERS:    "https://script.google.com/macros/s/AKfycbwDDnsmFuDO06Bepc3tHGTlE6nGDVEYusz-yCa8chCF03xqD-cgXUJCw5Qc7J-RDj7k/exec",     // GPSpedia-Users
+    FEEDBACK: "https://script.google.com/macros/s/AKfycbxwZHY912yhLHLS9qjiK4gNb-Jl5GQOSg_zAlHBUZx4ryb5Pc2UbRMtm7cLCn2ywgpL/exec"   // GPSpedia-Feedback
 };
 
 // Mapeo de cada 'action' al servicio que le corresponde.
