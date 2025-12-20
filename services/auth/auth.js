@@ -104,7 +104,9 @@ function handleLogin(payload) {
         frontendPasswordType: typeof password,
         sheetPasswordType: null,
         comparisonResult: false,
-        outcome: ''
+        outcome: '',
+        columnMap: null,
+        userRowFound: null
     };
 
     try {
@@ -112,6 +114,7 @@ function handleLogin(payload) {
 
         const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
         const COLS = getColumnMap(SHEET_NAMES.USERS);
+        logDetails.columnMap = COLS; // Log the column map
         const data = userSheet.getDataRange().getValues();
         const headers = data.shift().map(h => camelCase(h.trim()));
 
@@ -126,10 +129,12 @@ function handleLogin(payload) {
             // User found, now check password and log everything
             const sheetPassword = (userRow[COLS.password - 1] || '');
             const frontendPassword = password || '';
-            const passwordMatch = String(sheetPassword).trim() === String(frontendPassword).trim();
 
             logDetails.passwordFromSheet = sheetPassword;
             logDetails.sheetPasswordType = typeof sheetPassword;
+            logDetails.userRowFound = userRow; // Log the entire row
+
+            const passwordMatch = String(sheetPassword).trim() === String(frontendPassword).trim();
             logDetails.comparisonResult = passwordMatch;
 
             if (passwordMatch) {
@@ -251,7 +256,8 @@ function logToSheet(details) {
 
         const headers = [
             "Timestamp", "Username", "Frontend Password", "Frontend Type",
-            "Sheet Password", "Sheet Type", "Comparison Result", "Outcome"
+            "Sheet Password", "Sheet Type", "Comparison Result", "Outcome",
+            "Column Map", "User Row Found"
         ];
 
         // Si la hoja está vacía, añadir encabezados.
@@ -267,7 +273,9 @@ function logToSheet(details) {
             details.passwordFromSheet,
             details.sheetPasswordType,
             details.comparisonResult.toString(),
-            details.outcome
+            details.outcome,
+            JSON.stringify(details.columnMap),
+            JSON.stringify(details.userRowFound)
         ];
         logSheet.appendRow(logRow);
     } catch (e) {
