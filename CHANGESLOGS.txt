@@ -2,11 +2,15 @@
 
 ## v4.0.0 - 21/12/2023
 - **MIGRACIÓN COMPLETA A ARQUITECTURA MODULAR (PLAN B):**
-  - **Refactorización del Backend:** Se desmanteló el script monolítico `Code.gs` y se migró toda la lógica de negocio a cinco (5) microservicios independientes en Google Apps Script: `Auth`, `Catalog`, `Write`, `Users` y `Feedback`.
-  - **Refactorización del Frontend:** Se introdujo `api-manager.js`, un nuevo módulo que actúa como un enrutador central para todas las llamadas a la API, dirigiendo las solicitudes al microservicio correcto. Todos los archivos HTML (`index.html`, `add_cortes.html`, `users.html`) fueron actualizados para utilizar este nuevo sistema.
-  - **Problema Persistente con Autenticación:** Durante la migración, surgió un bug crítico y persistente en el servicio `Auth.js` que impedía el inicio de sesión ("Credenciales inválidas"). El error resistió múltiples intentos de corrección, incluyendo la mejora de la comparación de contraseñas y la implementación de un sistema de logging avanzado en Google Sheets.
-  - **RESOLUCIÓN DEFINITIVA:** Tras un exhaustivo proceso de depuración, se tomó la decisión de reconstruir el servicio `Auth.js` desde cero, basándose en las especificaciones directas del usuario. La solución final eliminó la lógica dinámica de mapeo de columnas (la causa raíz de los fallos) y la reemplazó con una estructura de columnas hardcoded, simple y robusta. Esta acción resolvió el problema de forma definitiva.
-- **Actualización de Documentación:** Se actualizó `README.md` y `INSTRUCCIONES_DESPLIEGUE.md` para reflejar la nueva arquitectura y los procedimientos.
+  - **Contexto:** Se inició una migración completa del backend monolítico (`Code.gs`) a una arquitectura de cinco microservicios (`Auth`, `Catalog`, `Write`, `Users`, `Feedback`) para mejorar el rendimiento y la mantenibilidad, siguiendo un plan detallado ("Plan B").
+  - **Desarrollo:**
+    1. Se crearon los 5 nuevos servicios de Google Apps Script.
+    2. Se introdujo `api-manager.js` en el frontend como un enrutador central para gestionar las llamadas a los nuevos servicios.
+    3. Se refactorizaron todos los archivos HTML (`index.html`, `add_cortes.html`, `users.html`) para usar el nuevo `api-manager`.
+  - **Problema Crítico Persistente:** Durante y después de la migración, se encontró un bug persistente y crítico en el servicio de autenticación (`Auth.js`) que causaba el error "Credenciales inválidas", impidiendo el inicio de sesión. El problema persistió a pesar de múltiples intentos de depuración, incluyendo la implementación de un sistema de logging avanzado y varias refactorizaciones del código.
+  - **Decisión y Resolución Final:** Se determinó que la complejidad heredada y los múltiples parches en `Auth.js` eran la causa de la inestabilidad. Se tomó la decisión de **descartar el código problemático y reconstruir el servicio `Auth.js` desde cero**, siguiendo las instrucciones directas del usuario para usar una estructura de columnas fija (hardcoded). Esta acción eliminó la causa raíz del problema y finalmente resolvió el bug de autenticación de manera definitiva.
+- **Estado del Proyecto:** La migración a la arquitectura modular está completa y el problema de autenticación ha sido resuelto. El proyecto se encuentra en un estado funcional y estable.
+- **Actualización de Documentación:** Se actualizó `README.md` con el plan arquitectónico completo de la v2.0 y se ajustó `INSTRUCCIONES_DESPLIEGUE.md` para la nueva estructura.
 
 ## v3.009 - 23/07/2024
 - **Plan B:** Se inicia la implementación del Plan B para resolver de forma definitiva el error "Credenciales inválidas".
