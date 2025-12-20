@@ -107,9 +107,9 @@ function handleLogin(payload) {
         for (let i = 0; i < data.length; i++) {
             const userRow = data[i];
             const sheetUsername = (userRow[COLS.nombreUsuario - 1] || '').toString().trim();
-            const sheetPassword = (userRow[COLS.password - 1] || '').toString();
+            const sheetPassword = (userRow[COLS.password - 1] || '').toString().trim();
 
-            if (sheetUsername !== username.trim() || sheetPassword !== String(password)) {
+            if (sheetUsername !== username.trim() || sheetPassword !== String(password).trim()) {
                 continue;
             }
 
