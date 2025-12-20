@@ -1,5 +1,10 @@
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.009 - 23/07/2024
+- **Plan B:** Se inicia la implementación del Plan B para resolver de forma definitiva el error "Credenciales inválidas".
+- **Análisis de Causa Raíz:** Se confirma que el error de "Credenciales inválidas" persiste debido a un fallo de lógica en el manejo de la contraseña en el frontend, y no es un problema de despliegue del AppsScript. La función `sanitizeInput` sigue alterando la contraseña antes de ser enviada.
+- **Próximos Pasos:** Se procederá a eliminar por completo la sanitización del campo de contraseña en `index.html`.
+
 ## v3.008 - 23/07/2024
 - Se actualizó la `SCRIPT_URL` en los archivos `index.html`, `users.html` y `add_cortes.html` a la nueva URL de despliegue proporcionada por el usuario.
 

@@ -806,7 +806,7 @@ body.search-active .app-logo {
             <p id="login-error" style="color: red; display: none;"></p>
         </form>
         <a href="#" id="forgot-password-link" style="color: #a0cfff; text-decoration: none; margin-top: 15px; display: inline-block;">¿Olvidaste tu contraseña?</a>
-        <p style="font-size: 0.8em; color: #ccc; margin-top: 20px;">v3.007</p>
+        <p style="font-size: 0.8em; color: #ccc; margin-top: 20px;">v3.009</p>
     </div>
 </div>
 
@@ -1050,7 +1050,7 @@ function hideLoginShowApp() {
 document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const username = sanitizeInput(document.getElementById('username').value);
-    const password = sanitizeInput(document.getElementById('password').value);
+    const password = document.getElementById('password').value; // Eliminado sanitizeInput
     login(username, password);
 });
 
