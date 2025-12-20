@@ -38,7 +38,54 @@ function logEvent(level, message, details = {}) {
  * FUNCIÓN PRINCIPAL - doGet
  *****************************************************************************************************************/
 function doGet(e) {
+  // --- ENDPOINT DE MIGRACIÓN DE CONTRASEÑAS (USO ÚNICO) ---
+  // Para ejecutar, el admin debe visitar la URL del script con el parámetro ?action=migratePasswords
+  // Ejemplo: https://script.google.com/macros/s/.../exec?action=migratePasswords
+  if (e.parameter.action === 'migratePasswords') {
+    return migratePasswordsToHashes_();
+  }
+
+  // Respuesta estándar si no hay acción de migración
   return ContentService.createTextOutput(`GPSpedia-Auth Service v${SCRIPT_VERSION} is active.`);
+}
+
+/**
+ * FUNCIÓN DE MIGRACIÓN (USO ÚNICO)
+ * Itera sobre todas las contraseñas en la hoja "Users". Si una contraseña
+ * no parece ser un hash (no contiene "$"), la hashea y la reemplaza.
+ */
+function migratePasswordsToHashes_() {
+  try {
+    const usersSheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(USERS_SHEET_NAME);
+    const range = usersSheet.getRange(2, COLS.PASSWORD, usersSheet.getLastRow() - 1, 1);
+    const passwords = range.getValues();
+    let migratedCount = 0;
+
+    const newHashedPasswords = passwords.map(row => {
+      const currentPassword = String(row[0]).trim();
+      // Si la contraseña ya está hasheada (contiene el separador '$'), no la tocamos.
+      if (currentPassword.includes('$')) {
+        return [currentPassword];
+      }
+      // Si es texto plano, generamos una nueva sal y la hasheamos.
+      const salt = generateSalt_();
+      const hashedPassword = hashPassword_(currentPassword, salt);
+      migratedCount++;
+      return [`${salt}$${hashedPassword}`];
+    });
+
+    // Escribir todas las contraseñas (hasheadas y las que ya lo estaban) de vuelta a la hoja.
+    range.setValues(newHashedPasswords);
+
+    const message = `Migración completada. ${migratedCount} contraseñas fueron hasheadas.`;
+    logEvent('INFO', message);
+    return ContentService.createTextOutput(message);
+
+  } catch (error) {
+    const errorMessage = `Error durante la migración de contraseñas: ${error.message}`;
+    logEvent('CRITICAL', errorMessage, { stack: error.stack });
+    return ContentService.createTextOutput(errorMessage);
+  }
 }
 
 /*****************************************************************************************************************
@@ -88,10 +135,9 @@ function handleLogin(payload) {
       const sheetUsername = String(row[COLS.NOMBRE_USUARIO - 1]).trim();
 
       if (sheetUsername.toLowerCase() === username.trim().toLowerCase()) {
-        const sheetPassword = String(row[COLS.PASSWORD - 1]).trim();
-        const frontendPassword = String(password).trim();
+        const storedPassword = String(row[COLS.PASSWORD - 1]).trim();
 
-        if (sheetPassword === frontendPassword) {
+        if (verifyPassword_(password, storedPassword)) {
           const userId = row[COLS.ID - 1];
           const nombre = row[COLS.NOMBRE - 1];
           const sessionToken = Utilities.getUuid();
@@ -166,6 +212,53 @@ function handleValidateSession(payload) {
     logEvent('ERROR', 'Error durante la validación de la sesión.', { errorMessage: error.message, stack: error.stack });
     return createJsonResponse({ valid: false, reason: 'Error interno del servidor.' });
   }
+}
+
+
+/*****************************************************************************************************************
+ * FUNCIONES DE SEGURIDAD - HASHING DE CONTRASEÑAS
+ *****************************************************************************************************************/
+
+/**
+ * Genera una sal (salt) aleatoria para el hashing de la contraseña.
+ * @returns {string} Una cadena de texto única.
+ */
+function generateSalt_() {
+  return Utilities.getUuid();
+}
+
+/**
+ * Calcula el hash SHA-256 de una contraseña con una sal.
+ * @param {string} password - La contraseña en texto plano.
+ * @param {string} salt - La sal aleatoria.
+ * @returns {string} El hash de la contraseña en formato hexadecimal.
+ */
+function hashPassword_(password, salt) {
+  const saltedPassword = password + salt;
+  const hashBytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, saltedPassword);
+  // Convertir el array de bytes a una cadena hexadecimal
+  return hashBytes.map(byte => ('0' + (byte & 0xFF).toString(16)).slice(-2)).join('');
+}
+
+/**
+ * Verifica una contraseña en texto plano contra un hash almacenado.
+ * El formato almacenado es "salt$hash".
+ * @param {string} plaintextPassword - La contraseña que envía el usuario.
+ * @param {string} storedPassword - La contraseña hasheada y salada desde la hoja de cálculo.
+ * @returns {boolean} True si la contraseña es válida, false en caso contrario.
+ */
+function verifyPassword_(plaintextPassword, storedPassword) {
+  // Si el campo de la contraseña no contiene el separador, no es un hash válido.
+  if (!storedPassword || !storedPassword.includes('$')) {
+    // Podría ser una contraseña en texto plano antigua. Por seguridad, la rechazamos.
+    // La migración debe encargarse de que todas las contraseñas estén hasheadas.
+    return false;
+  }
+
+  const [salt, storedHash] = storedPassword.split('$');
+  const hashOfPlaintext = hashPassword_(String(plaintextPassword).trim(), salt);
+
+  return hashOfPlaintext === storedHash;
 }
 
 
