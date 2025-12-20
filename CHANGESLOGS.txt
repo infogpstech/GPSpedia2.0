@@ -1,6 +1,6 @@
 # Registro de Cambios del Proyecto GPSpedia
 
-## v4.0.0 - 21/12/2023
+## v3.1.0 - 21/12/2023
 - **MIGRACIÓN COMPLETA A ARQUITECTURA MODULAR (PLAN B):**
   - **Contexto:** Se inició una migración completa del backend monolítico (`Code.gs`) a una arquitectura de cinco microservicios (`Auth`, `Catalog`, `Write`, `Users`, `Feedback`) para mejorar el rendimiento y la mantenibilidad, siguiendo un plan detallado ("Plan B").
   - **Desarrollo:**
