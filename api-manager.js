@@ -8,7 +8,7 @@ const API_ENDPOINTS = {
 
     // URLs para los nuevos microservicios.
     // REEMPLAZA 'URL_DESPLEGADA_...' con la URL real de cada script después de desplegarlo.
-    AUTH:     "https://script.google.com/macros/s/AKfycbxWBKnQrPb0-MyMIb_rgYCZmCZhF2MN21YHxmYh07BPIOhMtDKDVOIFXvivPvlyPP2v/exec",      // GPSpedia-Auth
+    AUTH:     "https://script.google.com/macros/s/AKfycbyrrVxuX_N_QuiCxFgvTNVztdswGGThJ9SjWz_7vfCkooWZuvydeieMpsPWUEY1T9TH/exec",      // GPSpedia-Auth
     CATALOG:  "https://script.google.com/macros/s/AKfycbzuIroWYo3FjY_4enCFtb1xiyoAki-IlxsbNGv9u9Y2nhJ3hl-0MwpycrA-qJWjWX7H_w/exec",   // GPSpedia-Catalog
     WRITE:    "https://script.google.com/macros/s/AKfycbz8-XmvJKQlvrhIQ0SWCpIn4yVQ2tAlquYTHpoB3_lhrbf8o2uUVqadBC-uJYml6p9Zlw/exec",     // GPSpedia-Write
     USERS:    "https://script.google.com/macros/s/AKfycbwDDnsmFuDO06Bepc3tHGTlE6nGDVEYusz-yCa8chCF03xqD-cgXUJCw5Qc7J-RDj7k/exec",     // GPSpedia-Users
