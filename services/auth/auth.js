@@ -97,7 +97,6 @@ function doPost(e) {
 function handleLogin(payload) {
     const { username, password } = payload;
 
-    // Log initial attempt
     logToSheet({
         timestamp: new Date().toISOString(),
         attemptedUsername: username,
@@ -112,14 +111,14 @@ function handleLogin(payload) {
         const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
         const COLS = getColumnMap(SHEET_NAMES.USERS);
         const data = userSheet.getDataRange().getValues();
-        const headers = data.shift(); // Keep original headers for object creation
+        const headers = data.shift();
 
         let userFound = false;
         let foundUserRow = null;
         let foundUserIndex = -1;
 
         for (let i = 0; i < data.length; i++) {
-            const sheetUsername = (data[i][COLS.nombreUsuario - 1] || '').toString();
+            const sheetUsername = (data[i][COLS.nombreusuario - 1] || '').toString();
             if (sheetUsername.trim().toLowerCase() === username.trim().toLowerCase()) {
                 userFound = true;
                 foundUserRow = data[i];
@@ -146,14 +145,12 @@ function handleLogin(payload) {
             throw new Error("Credenciales inválidas.");
         }
 
-        // At this point, login is successful
         logToSheet({ attemptedUsername: username, outcome: "Login successful. Managing session." });
 
         const userRole = foundUserRow[COLS.privilegios - 1];
         const userId = foundUserRow[COLS.id - 1];
         const sessionLimit = SESSION_LIMITS[userRole] || 1;
 
-        // Manage active sessions
         let activeSessionsSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.ACTIVE_SESSIONS);
         if (!activeSessionsSheet) {
             activeSessionsSheet = getSpreadsheet().insertSheet(SHEET_NAMES.ACTIVE_SESSIONS);
@@ -176,20 +173,18 @@ function handleLogin(payload) {
             });
         }
 
-        // Create new session
         const sessionToken = Utilities.getUuid();
-        userSheet.getRange(foundUserIndex + 2, COLS.sessionToken).setValue(sessionToken);
+        userSheet.getRange(foundUserIndex + 2, COLS.sessiontoken).setValue(sessionToken);
         activeSessionsSheet.appendRow([userId, sessionToken, new Date().toISOString()]);
 
-        // Prepare user object to return
         const user = {};
         headers.forEach((header, index) => {
-            const camelHeader = camelCase(header);
-            if (camelHeader !== 'password') {
-                user[camelHeader] = foundUserRow[index];
+            const cleanHeader = header.toString().toLowerCase().replace(/\s+/g, '');
+            if (cleanHeader !== 'password') {
+                user[cleanHeader] = foundUserRow[index];
             }
         });
-        user.sessionToken = sessionToken;
+        user.sessiontoken = sessionToken;
         user.id = userId;
 
         return { status: 'success', user: user };
@@ -202,7 +197,7 @@ function handleLogin(payload) {
         });
         return {
             status: 'error',
-            message: error.message, // Return the specific error message to the frontend
+            message: error.message,
             details: { errorMessage: error.message }
         };
     }
@@ -214,10 +209,10 @@ function handleValidateSession(payload) {
 
     const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
     const COLS = getColumnMap(SHEET_NAMES.USERS);
-    const data = userSheet.getRange(2, 1, userSheet.getLastRow() - 1, Math.max(COLS.id, COLS.sessionToken)).getValues();
+    const data = userSheet.getRange(2, 1, userSheet.getLastRow() - 1, Math.max(COLS.id, COLS.sessiontoken)).getValues();
 
     for (const row of data) {
-        if (row[COLS.id - 1] == userId && row[COLS.sessionToken - 1] === sessionToken) {
+        if (row[COLS.id - 1] == userId && row[COLS.sessiontoken - 1] === sessionToken) {
             return { valid: true };
         }
     }
@@ -255,24 +250,15 @@ function logToSheet(details) {
     }
 }
 
-
-function camelCase(str) {
-    if (!str) return '';
-    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-zA-Z0-9 ]/g, "").trim().split(' ')
-        .map((word, index) => {
-            if (!word) return '';
-            const lowerWord = word.toLowerCase();
-            return index === 0 ? lowerWord : lowerWord.charAt(0).toUpperCase() + lowerWord.slice(1);
-        }).join('');
-}
-
 function getColumnMap(sheetName) {
     const sheet = getSpreadsheet().getSheetByName(sheetName);
     if (!sheet) throw new Error(`Hoja no encontrada: ${sheetName}`);
     const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
     return headers.reduce((map, header, i) => {
-        map[camelCase(header)] = i + 1;
+        const cleanHeader = header.toString().toLowerCase().replace(/\s+/g, '');
+        if (cleanHeader) {
+            map[cleanHeader] = i + 1;
+        }
         return map;
     }, {});
 }
