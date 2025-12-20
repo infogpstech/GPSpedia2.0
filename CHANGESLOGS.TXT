@@ -1,0 +1,26 @@
+v3.007 - 20/12/2025
+- Se corrigió el error "Credenciales inválidas" al iniciar sesión.
+- Se eliminó la función `sanitizeInput` del frontend (`index.html`) que modificaba incorrectamente las contraseñas con caracteres especiales.
+- Se mejoró la comparación de contraseñas en el backend (`Code.gs`) para que sea estrictamente de texto.
+- Se actualizó la URL del script en `index.html`, `users.html` y `add_cortes.html`.
+- Se agregó un número de versión visible en la pantalla de inicio de sesión para facilitar la depuración.
+- Se creó el archivo `INSTRUCCIONES_DESPLIEGUE.md` para guiar al usuario en el proceso de despliegue correcto.
+
+v3.006 - 19/12/2025
+- Se implementó una solución en el backend (Code.gs) para forzar la comparación de contraseñas como texto, evitando errores cuando la contraseña es puramente numérica.
+
+v3.005 - 19/12/2025
+- Se actualizó el número de versión en Code.gs para reflejar los cambios recientes.
+
+v3.004 - 19/12/2025
+- Se corrigió la función `sanitizeInput` en `index.html` para evitar que altere las contraseñas que contienen caracteres especiales. El error anterior causaba el fallo de "Credenciales inválidas".
+
+v3.003 - 19/12/2025
+- Se cambió el `Content-Type` en las solicitudes `fetch` de `application/json` a `text/plain` en los archivos `index.html`, `add_cortes.html` y `users.html` para solucionar el error "Fail to fetch" relacionado con CORS.
+
+v3.002 - 18/12/2025
+- Se agregó el manejo de errores detallado en la función `postToAction` para capturar y mostrar problemas de red o de análisis JSON.
+- Se implementó un sistema de logging remoto (`remoteLog`) para enviar errores del frontend al backend y facilitar la depuración.
+
+v3.001 - 18/12/2025
+- Se identificó que el error "Fail to fetch" es probablemente un problema de CORS (Cross-Origin Resource Sharing) que ocurre durante la solicitud de pre-vuelo (preflight request) OPTIONS que el navegador envía antes de la solicitud POST real.

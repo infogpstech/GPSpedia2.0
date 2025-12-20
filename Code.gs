@@ -48,7 +48,7 @@ const SESSION_LIMITS = {
  */
 function doGet(e) {
   try {
-    const response = { status: 'success', message: 'GPSpedia Backend v3.005 is active.' };
+    const response = { status: 'success', message: 'GPSpedia Backend v3.007 is active.' };
     return ContentService
       .createTextOutput(JSON.stringify(response))
       .setMimeType(ContentService.MimeType.JSON);
