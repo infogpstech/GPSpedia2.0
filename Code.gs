@@ -107,7 +107,11 @@ function doPost(e) {
 
             // --- Acciones de Usuario ---
             case 'login':
-                response = handleLogin(request.payload);
+                // --- INICIO CÓDIGO DE DIAGNÓSTICO ---
+                // Se omite la lógica de inicio de sesión para probar la conectividad.
+                // Esto devolverá un usuario falso para ver si el error "fetch" cambia.
+                response = { status: 'success', user: { nombre: 'Usuario de Prueba', privilegios: 'Tecnico', sessionToken: 'test-token', id: 'test-id' } };
+                // --- FIN CÓDIGO DE DIAGNÓSTICO ---
                 break;
             case 'validateSession':
                 response = handleValidateSession(request.payload);
