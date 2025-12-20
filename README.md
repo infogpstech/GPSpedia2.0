@@ -6,15 +6,19 @@ GPSpedia es una aplicación web interna diseñada para técnicos e instaladores 
 
 La plataforma funciona como una Progressive Web App (PWA), permitiendo su instalación en la pantalla de inicio de dispositivos móviles para un acceso rápido y eficiente en campo.
 
-## 2. Arquitectura del Sistema
+## 2. Arquitectura del Sistema (Versión 2.0 - Modular)
 
-El proyecto sigue una arquitectura de dos capas:
+El proyecto ha sido migrado a una arquitectura de microservicios para mejorar el rendimiento, la escalabilidad y la mantenibilidad.
 
-*   **Frontend:** Una aplicación cliente ligera construida con HTML, CSS y JavaScript nativo. Se encarga de la interfaz de usuario, la interacción y la comunicación con el backend.
-*   **Backend:** Un potente script desarrollado en **Google Apps Script**, que actúa como una API REST. Gestiona toda la lógica de negocio, el control de acceso y la interacción con la base de datos.
-*   **Base de Datos:** Se utiliza **Google Sheets** como un sistema de base de datos robusto y fácil de gestionar. Toda la información de la aplicación se almacena en diferentes hojas dentro de un único spreadsheet.
-
-La comunicación entre el frontend y el backend se realiza mediante solicitudes `fetch` (POST) a una única URL de Web App de Google Apps Script. El backend direcciona cada solicitud a la función adecuada basándose en un parámetro `action` en el cuerpo de la solicitud.
+*   **Frontend:** Una aplicación cliente ligera construida con HTML, CSS y JavaScript nativo.
+*   **API Manager (`api-manager.js`):** Un módulo central en el frontend que actúa como un enrutador de API. Dirige todas las solicitudes al microservicio de backend correcto.
+*   **Backend (Microservicios):** El backend ahora consiste en **cinco (5) proyectos independientes de Google Apps Script**, cada uno con una responsabilidad única:
+    *   `GPSpedia-Auth`: Gestiona la autenticación y las sesiones de usuario.
+    *   `GPSpedia-Catalog`: Provee datos de solo lectura del catálogo de vehículos.
+    *   `GPSpedia-Write`: Maneja la escritura de nuevos cortes y la subida de archivos a Google Drive.
+    *   `GPSpedia-Users`: Administra la creación, edición y eliminación de usuarios.
+    *   `GPSpedia-Feedback`: Procesa el feedback y los reportes de problemas.
+*   **Base de Datos:** Se utiliza **Google Sheets** como un sistema de base de datos robusto y fácil de gestionar.
 
 ## 3. Estructura de la Base de Datos (Google Sheets)
 
@@ -22,15 +26,18 @@ El Spreadsheet con ID `1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo` contiene la
 
 ### Hoja: `Users`
 Almacena la información de los usuarios y sus credenciales.
+
 *   **Columnas:**
-    *   `ID`: Identificador único para cada usuario.
-    *   `Nombre_Usuario`: Nickname utilizado para el login (ej. `p_pena`).
-    *   `Password`: Contraseña del usuario (hasheada).
-    *   `Privilegios`: Rol del usuario, que define sus permisos.
-    *   `Nombre`: Nombre completo del usuario.
-    *   `Telefono`: Número de contacto.
-    *   `Correo_Electronico`: Email de contacto.
-    *   `SessionToken`: Token de sesión para gestionar sesiones activas.
+    1.  `ID`: Identificador único para cada usuario.
+    2.  `Nombre_Usuario`: Nickname utilizado para el login.
+    3.  `Password`: Contraseña del usuario.
+    4.  `Privilegios`: Rol del usuario (ej. `Desarrollador`, `Gefe`, `Tecnico`).
+    5.  `Nombre`: Nombre completo del usuario.
+    6.  `Telefono`: Número de contacto.
+    7.  `Correo_Electronico`: Email de contacto.
+    8.  `SessionToken`: Token de sesión para gestionar sesiones activas.
+
+> **NOTA IMPORTANTE SOBRE LA AUTENTICACIÓN:** La lógica del servicio de autenticación (`Auth.js`) que interactúa con esta hoja ha sido **construida desde cero** para garantizar la máxima estabilidad y seguridad. Utiliza una correspondencia de columnas fija y directa (hardcoded) en lugar de un sistema dinámico. Esto significa que **el orden y el nombre de las columnas aquí definidas son críticos y no deben ser alterados**, ya que son una dependencia fundamental del sistema de inicio de sesión.
 
 ### Hoja: `Cortes`
 El catálogo principal de la aplicación, contiene toda la información técnica de los vehículos.
@@ -38,79 +45,63 @@ El catálogo principal de la aplicación, contiene toda la información técnica
     *   `ID`: Identificador único (fórmula).
     *   `Categoria`: Tipo de vehículo (ej. `Auto`, `Camioneta`).
     *   `Imagen del vehiculo`: URL a una imagen del vehículo.
-    *   `Marca`: Marca del vehículo (ej. `Nissan`).
-    *   `Modelo`: Modelo del vehículo (ej. `Versa`).
-    *   `Tipo de encendido`: (ej. `Llave`, `Botón`).
-    *   `Año (generacion)`: Rango de años o generación.
-    *   `Tipo de corte`: Ubicación del primer corte (ej. `Bomba de Gasolina`).
-    *   `Descripcion del corte`: Detalles sobre el primer corte.
-    *   `Imagen del Corte`: URL a una imagen del primer corte.
-    *   `Descripción del Segundo corte`: Detalles sobre el segundo corte (opcional).
-    *   `Tipo de corte 2`: Ubicación del segundo corte (opcional).
-    *   `Imagen de corte 2`: URL a una imagen del segundo corte (opcional).
-    *   `Apertura`: Información sobre la apertura remota.
-    *   `Imagen de la apertura`: URL a una imagen de la apertura.
-    *   `Nota Importante`: Información adicional relevante.
-    *   `Cables de Alimentacion`: Ubicación y colores de los cables de alimentación.
-    *   `Imagen de los cables de alimentacion`: URL a una imagen de los cables.
-    *   `Como desarmar los plasticos (embed)`: URL a un video tutorial (YouTube).
-    *   `Colaborador`: Nombre del usuario que añadió la información.
-    *   `Tipo de corte 3`: Ubicación del tercer corte (opcional).
-    *   `Descripción del corte 3`: Detalles sobre el tercer corte (opcional).
-    *   `Imagen del corte 3`: URL a una imagen del tercer corte (opcional).
-    *   `Util`: Nombres de los usuarios que marcaron la entrada como "útil".
+    *   ... (y el resto de las columnas como estaban definidas)
 
 ### Hoja: `Feedbacks`
 Registra los problemas reportados por los usuarios sobre las entradas del catálogo.
-*   **Columnas:**
-    *   `ID`: Identificador único del feedback.
-    *   `Usuario`: Nombre del usuario que reporta.
-    *   `ID_vehiculo`: ID de la entrada de "Cortes" a la que se refiere.
-    *   `Problema`: Descripción del problema reportado.
-    *   `Respuesta`: Respuesta del administrador o supervisor.
-    *   `¿Se resolvió?`: Estado del feedback (ej. `SI`, `NO`, `Pendiente`).
-    *   `Responde`: Nombre del administrador que gestionó el feedback.
+*   **Columnas:** `ID`, `Usuario`, `ID_vehiculo`, `Problema`, `Respuesta`, etc.
 
 ### Hoja: `Logs`
-Utilizada para el registro remoto de errores y eventos del frontend.
-*   **Columnas:**
-    *   `Timestamp`: Fecha y hora del evento.
-    *   `Level`: Nivel del log (ej. `ERROR`, `INFO`, `DEBUG`).
-    *   `Message`: Mensaje principal del log.
-    *   `Data`: Objeto JSON con datos adicionales (ej. stack trace, contexto).
+Utilizada para el registro remoto de errores y eventos importantes del sistema.
 
-## 4. Funcionalidades Detalladas
+---
 
-### Autenticación y Gestión de Sesión
-*   **Login:** Los usuarios inician sesión con su `Nombre_Usuario` y `Password`.
-*   **Validación:** El backend verifica las credenciales contra la hoja `Users`.
-*   **Sesión:** Si las credenciales son correctas, se crea un objeto de sesión con los datos del usuario, que se almacena en el `localStorage` del navegador. Esto permite mantener la sesión activa entre recargas.
-*   **Límites de Sesión:** El sistema controla el número de sesiones activas por rol mediante un `SessionToken`. Si se excede el límite (ej. un técnico inicia sesión en un segundo dispositivo), la sesión más antigua se invalida.
+## 4. Plan de Migración a Arquitectura Modular (Plan B - v2.0)
 
-### Control de Acceso Basado en Roles (RBAC)
-Los privilegios determinan las acciones que un usuario puede realizar. La jerarquía es estricta:
-*   **`Desarrollador`:** Acceso total. Puede gestionar todas las cuentas de usuario, incluyendo otros Desarrolladores, y es el único que puede ver y gestionar a los `Tecnico_Exterior`.
-*   **`Gefe`:** Puede gestionar a `Supervisor` y `Tecnico`. Puede crear otros `Gefe`, pero no modificarlos ni eliminarlos.
-*   **`Supervisor`:** Puede gestionar únicamente a los usuarios con rol `Tecnico`.
-*   **`Tecnico` y `Tecnico_Exterior`:** No tienen acceso a la gestión de usuarios. Solo pueden ver y editar su propio perfil (cambiar contraseña).
+A continuación se detalla el plan que se siguió para la migración de GPSpedia a su versión 2.0.
 
-### Gestión de Usuarios (CRUD)
-*   **Vista:** La página `users.html` muestra una tabla de usuarios a los roles con privilegios (`Supervisor` y superior). Los roles `Tecnico` solo ven su propio perfil.
-*   **Crear:** Los usuarios con privilegios pueden crear nuevos usuarios a través de un modal. El formulario limita los roles que se pueden asignar según la jerarquía.
-*   **Editar:** Se pueden modificar los datos de usuarios de menor rango.
-*   **Eliminar:** Se pueden eliminar usuarios de menor rango.
-*   **Cambio de Contraseña:** Cualquier usuario puede cambiar su propia contraseña.
+### 📋 FASE 1: INVENTARIO Y ANÁLISIS
 
-### Catálogo de "Cortes"
-*   **Búsqueda:** La página principal (`index.html`) permite buscar en el catálogo por marca, modelo y año.
-*   **Vista de Detalles:** Al seleccionar un vehículo, un modal muestra toda la información detallada, incluyendo hasta 3 cortes, imágenes, notas y videos.
-*   **Añadir Nuevos Cortes:** Los usuarios pueden añadir nuevas entradas al catálogo a través del formulario en `add_cortes.html`. El backend se encarga de añadir la fila a la hoja `Cortes` y gestionar la subida de imágenes a una carpeta designada en Google Drive (`1-8QqhS-wtEFFwyBG8CmnEOp5i8rxSM-2`).
+**1.1 Identificar todas las funciones actuales:** Se realizó un inventario de todas las funciones en el script monolítico `Code.gs`, clasificándolas por categoría (Autenticación, Catálogo, Escritura, etc.).
 
-### Sistema de Feedback
-*   **"Útil" (Like):** En la vista de detalles de un corte, los usuarios pueden marcar la información como "Útil". El backend registra el nombre del usuario en la columna `Util` de la hoja `Cortes`.
-*   **Reportar Problema:** Si un usuario encuentra un error, puede reportarlo. Esto crea una nueva fila en la hoja `Feedbacks` para que sea revisada por un administrador.
+**1.2 Análisis de Dependencias:** Se mapearon las dependencias entre funciones para asegurar que la separación en microservicios no rompiera la lógica existente.
 
-### Registro Remoto de Errores (Remote Logging)
-*   **Captura:** El frontend está equipado con un manejador de errores global (`window.onerror`) y una función `remoteLog`.
-*   **Envío:** Cualquier error no capturado o evento importante se envía al backend.
-*   **Almacenamiento:** El backend recibe el log y lo escribe en la hoja `Logs`, proporcionando una herramienta vital para la depuración y el monitoreo de problemas en el lado del cliente.
+### 🏗️ FASE 2: DISEÑO ARQUITECTURAL
+
+**2.1 Definición de 5 Proyectos Apps Script:** Se diseñó la separación en cinco servicios, cada uno con su propia URL de despliegue y un conjunto limitado de permisos y funciones:
+1.  **GPSPEDIA-AUTH:** Para `handleLogin`, `handleValidateSession`.
+2.  **GPSPEDIA-CATALOG:** Para `handleGetCatalogData`, `handleGetDropdownData` (solo lectura).
+3.  **GPSPEDIA-WRITE:** Para `handleAddCorte`, `handleFileUploads`.
+4.  **GPSPEDIA-USERS:** Para todo el CRUD de usuarios.
+5.  **GPSPEDIA-FEEDBACK:** Para `handleRecordLike`, `handleReportProblem`.
+
+**2.2 Esquema de Comunicación:** Se definió un esquema donde el Frontend se comunica con el `api-manager.js`, que a su vez enruta las solicitudes al microservicio correspondiente.
+
+### 🛠️ FASE 3: IMPLEMENTACIÓN
+
+**3.1 Crear Proyectos Base:** Se crearon y configuraron los 5 nuevos proyectos en Google Apps Script.
+
+**3.2 Implementar Microservicios:** Se copió y adaptó la lógica de negocio del antiguo `Code.gs` a cada nuevo servicio (`auth.js`, `catalog.js`, etc.).
+
+### 🔄 FASE 4: REFACTOR FRONTEND
+
+**4.1 Crear `api-manager.js`:** Se escribió el enrutador central para el frontend.
+
+**4.2 Actualizar HTML:** Todos los archivos (`index.html`, `add_cortes.html`, `users.html`) fueron refactorizados para reemplazar las llamadas directas a `fetch` con llamadas al nuevo `routeAction` del `api-manager.js`.
+
+### 🧪 FASE 5: TESTING Y MIGRACIÓN
+
+**5.1 Plan de Testing:** Se ejecutaron pruebas manuales exhaustivas para cada una de las funcionalidades principales (Autenticación, Catálogo, Escritura, Usuarios, Feedback) para asegurar que la nueva arquitectura funcionaba como se esperaba.
+
+**5.2 Estrategia de Migración:** Se siguió una estrategia de migración gradual, reemplazando los endpoints uno por uno en el `api-manager.js` a medida que se desplegaban y probaban los nuevos servicios.
+
+### 📊 FASE 6: MONITOREO Y OPTIMIZACIÓN (Post-Migración)
+
+**6.1 Monitoreo:** Se utilizó la hoja de `Logs` para monitorear el comportamiento de la aplicación después de la migración.
+
+**6.2 Optimizaciones:** Se identificaron y aplicaron mejoras, principalmente en el servicio de autenticación, que fue reconstruido desde cero para máxima fiabilidad.
+
+⚡ **BENEFICIOS ESPERADOS:**
+*   **Mejora drástica en el rendimiento:** Tiempos de carga y respuesta significativamente más rápidos.
+*   **Mayor disponibilidad y fiabilidad:** Al aislar los servicios, un fallo en una parte del sistema (ej. Feedback) no afecta a las funcionalidades críticas (ej. Login o Catálogo).
+*   **Facilidad de mantenimiento y depuración:** La lógica de negocio está ahora organizada y es más fácil de entender y modificar.
