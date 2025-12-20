@@ -48,15 +48,19 @@ const SESSION_LIMITS = {
  */
 function doGet(e) {
   try {
-    // Retorna un mensaje JSON para verificar que el script está activo y mantener la consistencia.
-    const response = { status: 'success', message: 'GPSpedia Backend v3.004 is active.' };
+    const response = { status: 'success', message: 'GPSpedia Backend v3.005 is active.' };
     return ContentService
       .createTextOutput(JSON.stringify(response))
       .setMimeType(ContentService.MimeType.JSON);
   } catch (error) {
-    Logger.log(`Error en doGet: ${error.toString()}`);
+    Logger.log(`Error en doGet: ${error.stack}`);
+    const errorResponse = {
+        status: 'error',
+        message: 'Error en el servidor (doGet).',
+        details: { message: error.message, stack: error.stack }
+    };
     return ContentService
-      .createTextOutput(JSON.stringify({ status: 'error', message: 'Error en el servidor (doGet).', details: error.toString() }))
+      .createTextOutput(JSON.stringify(errorResponse))
       .setMimeType(ContentService.MimeType.JSON);
   }
 }
@@ -107,11 +111,7 @@ function doPost(e) {
 
             // --- Acciones de Usuario ---
             case 'login':
-                // --- INICIO CÓDIGO DE DIAGNÓSTICO ---
-                // Se omite la lógica de inicio de sesión para probar la conectividad.
-                // Esto devolverá un usuario falso para ver si el error "fetch" cambia.
-                response = { status: 'success', user: { nombre: 'Usuario de Prueba', privilegios: 'Tecnico', sessionToken: 'test-token', id: 'test-id' } };
-                // --- FIN CÓDIGO DE DIAGNÓSTICO ---
+                response = handleLogin(request.payload);
                 break;
             case 'validateSession':
                 response = handleValidateSession(request.payload);
@@ -142,13 +142,17 @@ function doPost(e) {
                 throw new Error(`Acción desconocida: ${request.action}`);
         }
     } catch (error) {
-        Logger.log(`Error en doPost: ${error.stack}`);
+        Logger.log(`Error CRÍTICO en doPost: ${error.stack}`);
+        if(e && e.postData && e.postData.contents) {
+          Logger.log(`Request payload que causó el error: ${e.postData.contents}`);
+        }
         response = {
             status: 'error',
-            message: 'Ocurrió un error en el servidor.',
+            message: 'Ocurrió un error inesperado en el servidor.',
             details: {
-                message: error.message,
-                stack: error.stack
+                errorMessage: error.message,
+                errorStack: error.stack,
+                requestAction: (typeof request !== 'undefined' && request) ? request.action : 'N/A (falló antes de parsear)'
             }
         };
     }
@@ -378,9 +382,9 @@ function handleLogin(payload) {
         for (let i = 0; i < data.length; i++) {
             const userRow = data[i];
             const sheetUsername = (userRow[COLS.nombreUsuario - 1] || '').toString().trim();
-            const sheetPassword = (userRow[COLS.password - 1] || '').toString().trim();
+            const sheetPassword = (userRow[COLS.password - 1] || '').toString();
 
-            if (sheetUsername !== username || sheetPassword !== String(password)) {
+            if (sheetUsername !== username.trim() || sheetPassword !== String(password)) {
                 continue; // Siguiente iteración si no coincide
             }
 
