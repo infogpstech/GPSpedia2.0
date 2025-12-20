@@ -851,6 +851,7 @@ body.search-active .app-logo {
   <img id="lightboxImg" src="">
 </div>
 
+<script src="api-manager.js"></script>
 <script>
 // --- LÓGICA DE DEPURACIÓN REMOTA ---
 function remoteLog(level, message, data = {}) {
@@ -900,16 +901,11 @@ function sanitizeInput(input) {
 }
 
 const SESSION_ID_KEY = 'gpsepedia_session_id';
+// La función postToAction ahora es reemplazada por routeAction del api-manager.js
 async function postToAction(action, payload = {}) {
     try {
-        const response = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify({ action, payload })
-        });
-        if (!response.ok) throw new Error(`Error de red: ${response.statusText}`);
-        const result = await response.json();
-        if (result.status === 'error') throw new Error(result.details ? `${result.message}: ${result.details.message}` : result.message);
+        // Usamos el nuevo enrutador
+        const result = await routeAction(action, payload);
         return result;
     } catch (error) {
         console.error(`Error detallado en la acción '${action}':`, error);
@@ -919,21 +915,25 @@ async function postToAction(action, payload = {}) {
             userMessage = "Fallo de conexión con el servidor. Por favor, verifica tu conexión a internet e inténtalo de nuevo. Si el problema persiste, contacta al administrador.";
         } else if (error.message.includes('JSON')) {
             userMessage = "La respuesta del servidor no es válida. Por favor, contacta al administrador.";
+        } else if (error.message.includes('Credenciales inválidas')) {
+            userMessage = "El usuario o la contraseña son incorrectos.";
         }
 
-        // Loguear el error de forma remota para que el desarrollador pueda verlo
+        // Loguear el error de forma remota
         remoteLog('FATAL', `Error en postToAction ('${action}')`, {
             name: error.name,
             message: error.message,
             stack: error.stack,
-            url: SCRIPT_URL
+            // No hay una única URL ahora, el api-manager se encarga de eso.
         });
 
         const loginErrorElement = document.getElementById('login-error');
-        loginErrorElement.textContent = userMessage;
-        loginErrorElement.style.display = 'block';
+        if (loginErrorElement) {
+            loginErrorElement.textContent = userMessage;
+            loginErrorElement.style.display = 'block';
+        }
 
-        throw error; // Re-lanzar el error para que las promesas que dependen de esto fallen
+        throw error; // Re-lanzar el error
     }
 }
 
