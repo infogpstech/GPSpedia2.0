@@ -95,8 +95,19 @@ function doPost(e) {
 // ============================================================================
 
 function handleLogin(payload) {
+    const { username, password } = payload;
+    let logDetails = {
+        timestamp: new Date().toISOString(),
+        attemptedUsername: username,
+        passwordFromFrontend: password,
+        passwordFromSheet: null,
+        frontendPasswordType: typeof password,
+        sheetPasswordType: null,
+        comparisonResult: false,
+        outcome: ''
+    };
+
     try {
-        const { username, password } = payload;
         if (!username || !password) throw new Error("Usuario y contraseña son requeridos.");
 
         const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
@@ -106,15 +117,27 @@ function handleLogin(payload) {
 
         for (let i = 0; i < data.length; i++) {
             const userRow = data[i];
-            const sheetUsername = (userRow[COLS.nombreUsuario - 1] || '').toString().trim();
-            const sheetPassword = (userRow[COLS.password - 1] || '').toString().trim();
+            const sheetUsername = (userRow[COLS.nombreUsuario - 1] || '').toString();
 
-            if (sheetUsername !== username.trim() || sheetPassword !== String(password).trim()) {
+            if (sheetUsername.trim() !== username.trim()) {
                 continue;
             }
 
-            const userRole = userRow[COLS.privilegios - 1];
-            const userId = userRow[COLS.id - 1];
+            // User found, now check password and log everything
+            const sheetPassword = (userRow[COLS.password - 1] || '');
+            const frontendPassword = password || '';
+            const passwordMatch = String(sheetPassword).trim() === String(frontendPassword).trim();
+
+            logDetails.passwordFromSheet = sheetPassword;
+            logDetails.sheetPasswordType = typeof sheetPassword;
+            logDetails.comparisonResult = passwordMatch;
+
+            if (passwordMatch) {
+                logDetails.outcome = 'Login Exitoso';
+                logToSheet(logDetails);
+
+                const userRole = userRow[COLS.privilegios - 1];
+                const userId = userRow[COLS.id - 1];
             const sessionLimit = SESSION_LIMITS[userRole] || 1;
 
             let activeSessionsSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.ACTIVE_SESSIONS);
@@ -170,10 +193,19 @@ function handleLogin(payload) {
             user.id = userId;
 
             return { status: 'success', user };
+            }
         }
 
+        // Si el bucle termina, el usuario no fue encontrado o la contraseña fue incorrecta.
+        logDetails.outcome = 'Fallo de Login: Credenciales Inválidas';
+        logToSheet(logDetails);
         throw new Error("Credenciales inválidas.");
+
     } catch (error) {
+        if (!logDetails.outcome) { // Si el error ocurrió antes de poder registrar un resultado
+            logDetails.outcome = `Fallo de Login: ${error.message}`;
+            logToSheet(logDetails);
+        }
         Logger.log(`Error crítico en handleLogin para el usuario '${payload ? payload.username : 'N/A'}': ${error.stack}`);
         return {
             status: 'error',
@@ -206,6 +238,44 @@ function handleValidateSession(payload) {
 // ============================================================================
 // FUNCIONES AUXILIARES
 // ============================================================================
+
+function logToSheet(details) {
+    try {
+        const logSheet = getSpreadsheet().getSheetByName("Logs");
+        if (!logSheet) {
+            // No creamos la hoja para no interferir si el usuario la nombró diferente.
+            // Simplemente registramos en Logger si no se encuentra.
+            Logger.log("No se encontró la hoja 'Logs'. Log en Logger: " + JSON.stringify(details));
+            return;
+        }
+
+        const headers = [
+            "Timestamp", "Username", "Frontend Password", "Frontend Type",
+            "Sheet Password", "Sheet Type", "Comparison Result", "Outcome"
+        ];
+
+        // Si la hoja está vacía, añadir encabezados.
+        if (logSheet.getLastRow() === 0) {
+            logSheet.appendRow(headers);
+        }
+
+        const logRow = [
+            details.timestamp,
+            details.attemptedUsername,
+            details.passwordFromFrontend,
+            details.frontendPasswordType,
+            details.passwordFromSheet,
+            details.sheetPasswordType,
+            details.comparisonResult.toString(),
+            details.outcome
+        ];
+        logSheet.appendRow(logRow);
+    } catch (e) {
+        Logger.log(`FALLO CRÍTICO en logToSheet: ${e.toString()}`);
+        Logger.log(`Datos del log que no se pudieron escribir: ${JSON.stringify(details)}`);
+    }
+}
+
 
 function camelCase(str) {
     if (!str) return '';
