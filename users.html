@@ -213,7 +213,7 @@ window.onerror = function(message, source, lineno, colno, error) {
     return false;
 };
 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwtQ1cRyhRQ5-5gTsYf3Z_Ac8UOTZHoi-LFl3OSLHBb1Wv6mVz1E3DpRrcqT1I1-1dO/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwpIFH1nX2BZEjAKbpq9HJpEGNlo_0LqD1CwxWsWFo5J0AJDdbfMrKpcsAV4ZFJzFWd/exec";
 const SESSION_KEY = 'gpsepedia_session';
 let currentUser = null;
 let allUsers = [];
@@ -246,7 +246,7 @@ async function postToAction(action, payload = {}) {
     try {
         const response = await fetch(SCRIPT_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify({ action, payload })
         });
         if (!response.ok) throw new Error(`Network error: ${response.statusText}`);

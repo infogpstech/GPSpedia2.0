@@ -1,35 +1,36 @@
 # Registro de Cambios del Proyecto GPSpedia
 
-## v3.005 - [Fecha Actual]
+## v3.009 - 23/07/2024
+- **Plan B:** Se inicia la implementación del Plan B para resolver de forma definitiva el error "Credenciales inválidas".
+- **Análisis de Causa Raíz:** Se confirma que el error de "Credenciales inválidas" persiste debido a un fallo de lógica en el manejo de la contraseña en el frontend, y no es un problema de despliegue del AppsScript. La función `sanitizeInput` sigue alterando la contraseña antes de ser enviada.
+- **Próximos Pasos:** Se procederá a eliminar por completo la sanitización del campo de contraseña en `index.html`.
 
-### Corregido
-- **Error Crítico de 'Failed to fetch':** Se solucionó la causa raíz del error de red al corregir una `SCRIPT_URL` malformada (cadena rota, sin comillas de cierre) en `index.html`, `users.html` y `add_cortes.html`. Este error impedía que el frontend enviara cualquier solicitud al backend.
+## v3.008 - 23/07/2024
+- Se actualizó la `SCRIPT_URL` en los archivos `index.html`, `users.html` y `add_cortes.html` a la nueva URL de despliegue proporcionada por el usuario.
 
-### Mejorado
-- **Robustez del Login:** La comparación de credenciales en `Code.gs` ahora ignora espacios en blanco iniciales/finales (`trim()`) para evitar fallos por datos sucios.
-- **Robustez de Permisos:** La lógica de permisos en `users.html` ahora normaliza el rol del usuario para manejar inconsistencias en los datos.
+## v3.007 - 22/07/2024
+- Se corrigió el error "Credenciales inválidas" al iniciar sesión.
+- Se eliminó la función `sanitizeInput` del frontend (`index.html`) que modificaba incorrectamente las contraseñas con caracteres especiales.
+- Se mejoró la comparación de contraseñas en el backend (`Code.gs`) para que sea estrictamente de texto.
+- Se actualizó la URL del script en `index.html`, `users.html` y `add_cortes.html`.
+- Se agregó un número de versión visible en la pantalla de inicio de sesión para facilitar la depuración.
+- Se creó el archivo `INSTRUCCIONES_DESPLIEGE.md` para guiar al usuario en el proceso de despliegue correcto.
 
-## v3.004 - [Fecha Anterior]
+## v3.006 - 21/07/2024
+- Se implementó una solución en el backend (Code.gs) para forzar la comparación de contraseñas como texto, evitando errores cuando la contraseña es puramente numérica.
 
-### Depuración
-- **Manejo de Errores en `doPost`:** Se ha añadido un bloque `try/catch` específico alrededor del análisis `JSON.parse(e.postData.contents)` dentro de la función `doPost`. Si el análisis del JSON falla, el script ahora registrará el contenido bruto de la solicitud POST antes de lanzar un error. Este cambio es un paso de diagnóstico crucial para capturar la causa raíz del error "Failed to fetch", que se sospecha ocurre si el backend recibe un payload inesperado o malformado del frontend.
+## v3.005 - 20/07/2024
+- Se actualizó el número de versión en Code.gs para reflejar los cambios recientes.
 
-### Tareas
-- **Incremento de Versión:** Se actualizó el número de versión del backend a "v3.004".
+## v3.004 - 19/07/2024
+- Se corrigió la función `sanitizeInput` en `index.html` para evitar que altere las contraseñas que contienen caracteres especiales. El error anterior causaba el fallo de "Credenciales inválidas".
 
-## v3.003 - [Fecha Anterior]
+## v3.003 - 18/07/2024
+- Se cambió el `Content-Type` en las solicitudes `fetch` de `application/json` a `text/plain` en los archivos `index.html`, `add_cortes.html` y `users.html` para solucionar el error "Fail to fetch" relacionado con CORS.
 
-### Refactorización
-- **Inicialización de la Hoja de Cálculo (Error "Failed to fetch"):** Se ha modificado la forma en que el script se conecta a Google Sheets. Anteriormente, la conexión se establecía en el ámbito global, lo que provocaba que cualquier error de permisos o de inicialización detuviera por completo la ejecución del script antes de que pudiera entrar en los bloques `try/catch` de las funciones `doPost` o `doGet`. Esto causaba el error persistente "Failed to fetch". El cambio mueve la lógica de conexión a una función `getSpreadsheet()` que se llama *dentro* de las funciones que la necesitan. Ahora, si la conexión falla, el error será capturado y se devolverá un mensaje JSON detallado, solucionando la causa raíz del problema de inicio de sesión.
+## v3.002 - 17/07/2024
+- Se agregó el manejo de errores detallado en la función `postToAction` para capturar y mostrar problemas de red o de análisis JSON.
+- Se implementó un sistema de logging remoto (`remoteLog`) para enviar errores del frontend al backend y facilitar la depuración.
 
-### Tareas
-- **Incremento de Versión:** Se actualizó el número de versión del backend a "v3.003".
-
-## v3.002 - [Fecha Anterior]
-
-### Corregido
-- **Error Crítico de Inicio de Sesión ("Failed to fetch"):** Se implementó un manejo de errores robusto (`try/catch`) dentro de la función `handleLogin` en `Code.gs`. Antes de este cambio, cualquier error interno durante el proceso de inicio de sesión provocaba que el script fallara silenciosamente, impidiendo que se enviara una respuesta al frontend. Esto resultaba en el error genérico "Failed to fetch" en la pantalla de inicio de sesión. Ahora, cualquier excepción es capturada, registrada, y se devuelve un mensaje de error JSON claro, mejorando drásticamente la capacidad de depuración y la experiencia del usuario.
-
-### Tareas
-- **Incremento de Versión:** Se actualizó el número de versión del backend a "v3.002" para reflejar los nuevos cambios.
-- **Creación de Changelog:** Se ha creado este archivo (`LOGS.txt`) para mantener un registro detallado de todos los cambios futuros en el código, mejorando la mantenibilidad y el seguimiento del proyecto.
+## v3.001 - 16/07/2024
+- Se identificó que el error "Fail to fetch" es probablemente un problema de CORS (Cross-Origin Resource Sharing) que ocurre durante la solicitud de pre-vuelo (preflight request) OPTIONS que el navegador envía antes de la solicitud POST real.

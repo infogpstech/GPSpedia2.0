@@ -806,6 +806,7 @@ body.search-active .app-logo {
             <p id="login-error" style="color: red; display: none;"></p>
         </form>
         <a href="#" id="forgot-password-link" style="color: #a0cfff; text-decoration: none; margin-top: 15px; display: inline-block;">¿Olvidaste tu contraseña?</a>
+        <p style="font-size: 0.8em; color: #ccc; margin-top: 20px;">v3.009</p>
     </div>
 </div>
 
@@ -881,7 +882,7 @@ const STORES = ['cortes', 'tutoriales', 'relay'];
 let db;
 
 // --- LÓGICA DE DATOS Y API ---
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwtQ1cRyhRQ5-5gTsYf3Z_Ac8UOTZHoi-LFl3OSLHBb1Wv6mVz1E3DpRrcqT1I1-1dO/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwpIFH1nX2BZEjAKbpq9HJpEGNlo_0LqD1CwxWsWFo5J0AJDdbfMrKpcsAV4ZFJzFWd/exec";
 const SESSION_KEY = 'gpsepedia_session';
 
 // --- LÓGICA DE AUTENTICACIÓN Y SESIÓN ---
@@ -893,9 +894,8 @@ function sanitizeInput(input) {
     if (['=', '+', '-', '@', '\t', '\r'].includes(sanitized.charAt(0))) {
         sanitized = "'" + sanitized;
     }
-    // Escapar caracteres comunes de SQL para mitigar inyecciones básicas.
-    // Aunque la validación es del lado del cliente, esto añade una capa de "defensa en profundidad".
-    sanitized = sanitized.replace(/'/g, "''").replace(/--/g, "").replace(/;/g, "");
+    // La sanitización de SQL se eliminó para evitar la alteración de contraseñas
+    // con caracteres especiales, que estaba causando fallos de autenticación.
     return sanitized;
 }
 
@@ -904,7 +904,7 @@ async function postToAction(action, payload = {}) {
     try {
         const response = await fetch(SCRIPT_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify({ action, payload })
         });
         if (!response.ok) throw new Error(`Error de red: ${response.statusText}`);
@@ -912,10 +912,28 @@ async function postToAction(action, payload = {}) {
         if (result.status === 'error') throw new Error(result.details ? `${result.message}: ${result.details.message}` : result.message);
         return result;
     } catch (error) {
-        console.error(`Error en la acción '${action}':`, error);
-        document.getElementById('login-error').textContent = error.message;
-        document.getElementById('login-error').style.display = 'block';
-        throw error;
+        console.error(`Error detallado en la acción '${action}':`, error);
+
+        let userMessage = `Error inesperado: ${error.message}`;
+        if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+            userMessage = "Fallo de conexión con el servidor. Por favor, verifica tu conexión a internet e inténtalo de nuevo. Si el problema persiste, contacta al administrador.";
+        } else if (error.message.includes('JSON')) {
+            userMessage = "La respuesta del servidor no es válida. Por favor, contacta al administrador.";
+        }
+
+        // Loguear el error de forma remota para que el desarrollador pueda verlo
+        remoteLog('FATAL', `Error en postToAction ('${action}')`, {
+            name: error.name,
+            message: error.message,
+            stack: error.stack,
+            url: SCRIPT_URL
+        });
+
+        const loginErrorElement = document.getElementById('login-error');
+        loginErrorElement.textContent = userMessage;
+        loginErrorElement.style.display = 'block';
+
+        throw error; // Re-lanzar el error para que las promesas que dependen de esto fallen
     }
 }
 
@@ -1032,7 +1050,7 @@ function hideLoginShowApp() {
 document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const username = sanitizeInput(document.getElementById('username').value);
-    const password = sanitizeInput(document.getElementById('password').value);
+    const password = document.getElementById('password').value; // Eliminado sanitizeInput
     login(username, password);
 });
 
