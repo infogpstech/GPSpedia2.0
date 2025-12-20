@@ -1,5 +1,8 @@
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.008 - 23/07/2024
+- Se actualizó la `SCRIPT_URL` en los archivos `index.html`, `users.html` y `add_cortes.html` a la nueva URL de despliegue proporcionada por el usuario.
+
 ## v3.007 - 22/07/2024
 - Se corrigió el error "Credenciales inválidas" al iniciar sesión.
 - Se eliminó la función `sanitizeInput` del frontend (`index.html`) que modificaba incorrectamente las contraseñas con caracteres especiales.
