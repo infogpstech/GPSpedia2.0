@@ -881,7 +881,7 @@ const STORES = ['cortes', 'tutoriales', 'relay'];
 let db;
 
 // --- LÓGICA DE DATOS Y API ---
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_QozpXbalDlhLbHYD-PRjb96LSQrVLgvpXYhFaYCVmMlCt68pU7drgiRD1vNRH6c/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwPZ7BRzMLp7Vl-lHMTxn4btCOTgS5CGv2fAwb7yjTxisgxQqDspwpbfUloXMTsDI93/exec";
 const SESSION_KEY = 'gpsepedia_session';
 
 // --- LÓGICA DE AUTENTICACIÓN Y SESIÓN ---
@@ -893,9 +893,8 @@ function sanitizeInput(input) {
     if (['=', '+', '-', '@', '\t', '\r'].includes(sanitized.charAt(0))) {
         sanitized = "'" + sanitized;
     }
-    // Escapar caracteres comunes de SQL para mitigar inyecciones básicas.
-    // Aunque la validación es del lado del cliente, esto añade una capa de "defensa en profundidad".
-    sanitized = sanitized.replace(/'/g, "''").replace(/--/g, "").replace(/;/g, "");
+    // La sanitización de SQL se eliminó para evitar la alteración de contraseñas
+    // con caracteres especiales, que estaba causando fallos de autenticación.
     return sanitized;
 }
 
