@@ -1,0 +1,1 @@
+Este es un texto de prueba de diagnóstico. El único propósito de este cambio es verificar si el entorno del agente puede modificar archivos y si esos cambios se reflejan correctamente en el repositorio. Si puedes ver este texto, significa que el problema de guardado de archivos se ha resuelto. Procederemos con el trabajo real después de esta verificación.
