@@ -122,7 +122,8 @@ function handleLogin(payload) {
             const userRow = data[i];
             const sheetUsername = (userRow[COLS.nombreUsuario - 1] || '').toString();
 
-            if (sheetUsername.trim() !== username.trim()) {
+            // Convert both usernames to lowercase for a case-insensitive comparison
+            if (sheetUsername.trim().toLowerCase() !== username.trim().toLowerCase()) {
                 continue;
             }
 
@@ -201,9 +202,12 @@ function handleLogin(payload) {
             }
         }
 
-        // Si el bucle termina, el usuario no fue encontrado o la contraseña fue incorrecta.
-        logDetails.outcome = 'Fallo de Login: Credenciales Inválidas';
-        logToSheet(logDetails);
+        // If the loop finishes, the user was not found or the password was incorrect.
+        // The detailed log inside the loop will have already been written if a user was found.
+        if (!logDetails.userRowFound) { // Only log if we never found a user match
+            logDetails.outcome = 'Fallo de Login: Usuario no encontrado';
+            logToSheet(logDetails);
+        }
         throw new Error("Credenciales inválidas.");
 
     } catch (error) {
