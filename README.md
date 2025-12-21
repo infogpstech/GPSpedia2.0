@@ -46,7 +46,7 @@ Esta sección documenta las tareas de desarrollo y corrección que están pendie
 
 ### Corrección de Errores (Bugs)
 - [ ] **Reparar Secciones "Tutoriales" y "Relay":** Actualmente, estas secciones no cargan datos al ser seleccionadas. Se debe implementar la lógica de `fetch` en la función `mostrarSeccion` de `index.html` para que los datos se soliciten al backend.
-- [ ] **Corregir Lógica de Imágenes del Catálogo:** La imagen que se muestra en las tarjetas de Categoría y Marca no es la correcta. Se debe ajustar la lógica para que se priorice la `imagenDeLaApertura` sobre la `imagenDelVehiculo`.
+- [ ] **Corregir Lógica de Imágenes del Catálogo:** La imagen que se muestra en las tarjetas de Categoría y Marca no es la correcta. Se debe ajustar la lógica para que se priorice la `imagenDelVehiculo`.
 - [ ] **Error de Layout (Header):** El encabezado (barra de búsqueda) no se mantiene fijo en la parte superior al hacer scroll. Se requiere una corrección de CSS para asegurar su posición.
 
 ### Nuevas Funcionalidades y Mejoras de UI/UX
