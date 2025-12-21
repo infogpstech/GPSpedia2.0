@@ -1,5 +1,21 @@
 # Registro de Cambios del Proyecto GPSpedia
 
+## v1.3.0 - 2024-07-30
+- **IMPLEMENTACIÓN DE NAVEGACIÓN JERÁRQUICA Y BÚSQUEDA EN SERVIDOR:**
+  - **Contexto:** La revisión de código anterior (v1.2.0) destacó que la lógica de navegación del frontend era inexistente y la búsqueda estaba rota. Esta actualización implementa esas características críticas.
+  - **Desarrollo:**
+    1.  **Lógica de Navegación Jerárquica:** Se implementaron las funciones `navegar`, `renderNivel` y `retroceder` en `index.html`. Estas funciones ahora se comunican con el endpoint `getNavigationData` del backend para cargar el catálogo de forma jerárquica, nivel por nivel, cumpliendo con la arquitectura definida.
+    2.  **Funcionalidad de Búsqueda en Servidor:** Se añadió una nueva acción `search` al servicio `catalog.js` que permite realizar búsquedas de texto completo en la hoja de cálculo. En `index.html`, se reemplazó la antigua lógica de filtrado del lado del cliente por una nueva función `handleSearch` que consume este endpoint, mostrando los resultados de forma eficiente.
+  - **Resultado:** La funcionalidad principal del catálogo ha sido completamente restaurada y ahora opera de manera eficiente y escalable. La navegación es fluida y la búsqueda es rápida, ya que ambas operaciones aprovechan la lógica del lado del servidor.
+
+## v1.2.0 - 2024-07-29
+- **CORRECCIÓN DE ARQUITECTURA DE NAVEGACIÓN Y RESTAURACIÓN DE UI:**
+  - **Contexto:** Una revisión de código identificó una inconsistencia crítica entre la estrategia de carga de datos del frontend (fetch-all) y la arquitectura del backend (navegación jerárquica). Además, se detectó la ausencia del menú de hamburguesa, un requisito explícito del usuario.
+  - **Desarrollo:**
+    1.  **Refactorización de la Navegación:** Se eliminó por completo la lógica de carga masiva de datos (`getFullCatalog`) del frontend y del backend. Se refactorizó `index.html` para utilizar exclusivamente el endpoint `getNavigationData`, restaurando la estrategia de carga jerárquica y eficiente que minimiza los tiempos de carga iniciales.
+    2.  **Restauración del Menú de Hamburguesa:** Se reintrodujo el menú lateral de hamburguesa en `index.html`, incluyendo el HTML, CSS y JavaScript necesarios para su correcto funcionamiento. El menú ahora maneja la navegación entre secciones y contiene los enlaces de gestión y el botón de cierre de sesión.
+  - **Resultado:** La arquitectura de la aplicación ahora es coherente, con el frontend y el backend trabajando en sintonía. Se ha restaurado una característica de UI clave, mejorando la usabilidad y cumpliendo con todos los requisitos definidos por el usuario.
+
 ## v1.1.0 - 2024-07-28
 - **CORRECCIÓN DE BLOQUEO EN PANTALLA DE SPLASH:**
   - **Contexto:** La aplicación se quedaba atascada en la pantalla de splash debido a conflictos y duplicación en la lógica de inicialización dentro de `index.html`.

@@ -50,22 +50,25 @@ h1,h2,h3,h4 {
 .header-container {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
+    justify-content: space-between; /* Ajustado para espaciar los elementos */
+    flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
     margin-bottom: 20px;
-    gap: 15px;
+    gap: 15px; /* Espacio entre el logo/título y los controles */
     transition: all 0.35s ease-in-out;
 }
+
 .header-branding {
     display: flex;
     align-items: center;
     gap: 15px;
     transition: all 0.35s ease-in-out;
 }
+
 .app-logo {
     max-width: 96px;
     height: auto;
     border-radius: 8px;
+    /* margin-right ya no es necesario gracias a 'gap' */
     transition: all 0.35s ease-in-out;
 }
 h1.app-title {
@@ -75,29 +78,70 @@ h1.app-title {
     color: #333;
     transition: all 0.35s ease-in-out;
 }
+
+#header-controls {
+    transition: all 0.35s ease-in-out;
+}
+
 #install-button {
-    display: none; /* Oculto por defecto */
-    padding: 8px 16px;
-    font-size: 0.9em;
+    display: none; /* Oculto por defecto, JS lo mostrará */
+    position: fixed; /* Fijo en la pantalla */
+    top: 20px;       /* Distancia desde arriba */
+    right: 20px;      /* Distancia desde la derecha */
+    z-index: 1001;   /* Por encima de otros elementos */
+    padding: 10px 20px;
+    font-size: 1em;
     font-weight: bold;
     color: #fff;
-    background-color: #28a745;
+    background-color: #28a745; /* Verde para la acción de instalar */
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, transform 0.2s;
+    white-space: nowrap;
 }
+
 #install-button:hover {
     background-color: #218838;
+    transform: scale(1.05); /* Efecto de zoom ligero */
 }
 
+@media (max-width: 680px) {
+    .header-container {
+        flex-direction: column; /* Apila los elementos verticalmente */
+        align-items: center; /* Centra los elementos */
+        justify-content: center;
+    }
+    .header-branding {
+        justify-content: center;
+        width: 100%;
+    }
+    h1.app-title {
+        font-size: 1.8em;
+    }
+    #header-controls {
+        margin-left: 0; /* Resetea el margen */
+        width: 100%;
+        justify-content: center; /* Centra los botones */
+    }
+}
 
-/* --- ESTILOS DEL BUSCADOR Y HAMBURGUESA --- */
+@media (max-width: 480px) {
+    #install-button {
+        top: 10px;
+        right: 10px;
+        padding: 8px 12px;
+        font-size: 0.9em;
+    }
+    #header-controls {
+        flex-direction: column; /* Apila el saludo y el botón de cerrar sesión */
+        align-items: center;
+    }
+}
+
+/* --- ESTILOS DEL BUSCADOR --- */
 .search-container {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    position: relative; /* Contenedor para el botón de limpiar */
     margin-bottom: 30px;
     padding: 10px 0;
     max-width: 600px;
@@ -105,8 +149,39 @@ h1.app-title {
     margin-right: auto;
     transition: all 0.35s ease-in-out;
 }
-#searchInput {
-    flex-grow: 1;
+
+#clear-search-btn {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #ccc;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    line-height: 24px;
+    text-align: center;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.search-container.has-text #clear-search-btn {
+    opacity: 1;
+    pointer-events: all;
+}
+
+body.search-active .search-container.has-text #clear-search-btn {
+    right: 35px; /* Ajuste de posición cuando la búsqueda está activa */
+}
+
+
+.search-container input[type="text"] {
+    width: 100%;
     padding: 12px 15px;
     border: 1px solid #ccc;
     border-radius: 8px;
@@ -114,11 +189,12 @@ h1.app-title {
     font-size: 1em;
     transition: all 0.35s ease-in-out;
 }
-#searchInput:focus {
+.search-container input[type="text"]:focus {
     border-color: #007bff;
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
     outline: none;
 }
+
 #hamburger-btn {
     flex-shrink: 0;
     background: none;
@@ -213,6 +289,83 @@ h1.app-title {
     font-size: 0.9em;
 }
 
+
+/* --- ESTILOS DE BÚSQUEDA ACTIVA --- */
+body.search-active .app-title,
+body.search-active #header-controls,
+body.search-active .section-selector,
+body.search-active .footer {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-20px);
+    max-height: 0; /* Colapsa el espacio vertical */
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    border: none !important;
+}
+
+body.search-active .container {
+    padding-top: 80px; /* Crea espacio para la barra de búsqueda fija */
+    transition: padding-top 0.35s ease-in-out;
+}
+
+body.search-active .search-container {
+    position: fixed;
+    top: 15px;
+    left: 0;
+    right: 0;
+    padding: 0 20px;
+    margin: 0;
+    max-width: 100%;
+    z-index: 1500;
+}
+
+body.search-active #searchInput {
+    padding-left: 55px; /* Espacio para el logo */
+    height: 48px;
+    box-sizing: border-box;
+}
+
+body.search-active .app-logo {
+    position: fixed;
+    top: 22px;       /* 15px (search-container top) + 7px (para centrar) */
+    left: 30px;      /* 20px (search-container padding) + 10px (margen interno) */
+    max-width: 34px;
+    z-index: 1501;   /* Por encima del input */
+}
+
+
+/* --- ESTILOS DE LA SELECCIÓN DE SECCIÓN --- */
+.section-selector {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    transition: all 0.35s ease-in-out;
+}
+.section-btn {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px 20px;
+    margin: 0 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s, color 0.3s;
+}
+.section-btn.active {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}
+.section-btn:hover:not(.active) {
+    background-color: #e0e0e0;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+
 /* Estilos de la Cuadrícula */
 .grid {
     display: grid;
@@ -224,39 +377,40 @@ h1.app-title {
 }
 
 /* Estilos de la Tarjeta (Card) */
+@keyframes card-enter {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 .card {
     position: relative;
     background: #fff;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     cursor: pointer;
+    padding: 0;
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     width: 100%;
     max-width: 140px;
     justify-self: center;
+    /* Animación de entrada */
+    opacity: 0; /* Estado inicial para la animación */
+    animation: card-enter 0.5s ease-out forwards;
+}
+.animacion-ejecutada .card {
+    /* Deshabilita la animación si el contenedor ya la ejecutó */
+    animation: none;
+    opacity: 1; /* Asegura que la tarjeta sea visible */
 }
 .card:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-}
-.card img {
-    width: 100%;
-    height: 120px;
-    object-fit: contain;
-    display: block;
-}
-.overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0) 100%);
-    color: #fff;
-    padding: 10px 8px 8px 8px;
-    font-size: 0.9em;
-    line-height: 1.3;
-    font-weight: bold;
 }
 
 /* --- ESTILOS DE SKELETON LOADER --- */
@@ -265,12 +419,14 @@ h1.app-title {
     gap: 20px;
     grid-template-columns: repeat(auto-fit, 140px);
     justify-content: center;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 .skeleton-card {
     background: #e0e0e0;
     border-radius: 12px;
     width: 140px;
-    height: 188px;
+    height: 188px; /* Altura total de la tarjeta real */
     position: relative;
     overflow: hidden;
 }
@@ -284,23 +440,257 @@ h1.app-title {
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
     animation: loading-shimmer 1.5s infinite;
 }
-@keyframes loading-shimmer { 100% { left: 150%; } }
-
-/* --- MODAL DE LOGIN Y DETALLE --- */
-/* (Estilos de modales sin cambios significativos) */
-#login-modal, #modalDetalle, .lightbox { /* ... */ }
-
-/* Splash Screen */
-#splash-screen {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: #f4f4f4; display: flex; align-items: center;
-    justify-content: center; z-index: 3000; transition: opacity 0.5s ease-out;
+@keyframes loading-shimmer {
+    0% {
+        left: -150%;
+    }
+    100% {
+        left: 150%;
+    }
 }
-#splash-screen img {
-    max-width: 150px; border-radius: 15px;
-    animation: pulse 1.5s infinite ease-in-out;
+.card img {
+    width: 100%;
+    height: 120px;
+    object-fit: contain;
+    display: block;
+    border-radius: 0;
 }
-@keyframes pulse { 50% { transform: scale(1.05); } }
+.overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0) 100%);
+    color: #fff;
+    padding: 10px 8px 8px 8px;
+    font-size: 0.9em;
+    line-height: 1.3;
+    font-weight: bold;
+    border-radius: 0;
+    z-index: 10;
+}
+
+/* --- ESTILOS DEL MODAL DE LOGIN --- */
+#login-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    backdrop-filter: blur(5px);
+}
+
+#login-modal .modal-content {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 40px;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    text-align: center;
+    color: #f0f0f0;
+}
+
+#login-modal h2 {
+    margin-bottom: 25px;
+    font-size: 2em;
+    font-weight: 300;
+}
+
+#login-modal .form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+#login-modal label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 300;
+    color: #ccc;
+}
+
+#login-modal input {
+    width: 100%;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 1em;
+    box-sizing: border-box;
+}
+
+#login-modal input:focus {
+    outline: none;
+    border-color: rgba(0, 123, 255, 0.5);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+}
+
+#login-modal button {
+    width: 100%;
+    padding: 12px;
+    background: #007bff;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#login-modal button:hover {
+    background: #0056b3;
+}
+
+/* Modal */
+#modalDetalle {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background: rgba(0, 0, 0, 0.6); /* Ligeramente más claro */
+    color: #000;
+    z-index: 1600; /* Aumentado para estar sobre la barra de búsqueda */
+    display: flex; /* Usar flex para centrar */
+    align-items: center;
+    justify-content: center;
+    /* Transiciones para la aparición */
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#modalDetalle.visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+}
+
+#detalleCompleto {
+    background: #fff;
+    padding: 30px;
+    width: 90%;
+    max-width: 800px; /* Ancho máximo para el modal */
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    max-height: 90vh;
+    overflow-y: auto;
+    /* Transición para el efecto de escalado */
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+}
+
+#modalDetalle.visible #detalleCompleto {
+    transform: scale(1);
+}
+
+#detalleCompleto img {
+    display: block;
+    width: auto; /* Ancho automático para mantener proporción */
+    max-width: 100%;
+    max-height: 300px; /* Límite de altura en lugar de altura fija */
+    margin: 15px auto;
+    cursor: pointer;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Sombra más pronunciada */
+}
+.img-vehiculo {
+    max-height: 200px !important; /* Límite de altura más pequeño */
+}
+#detalleCompleto h4 {
+    color: #007bff;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 5px;
+}
+
+/* --- ESTILOS PARA SECCIONES DESPLEGABLES (ACORDEÓN) --- */
+.accordion-btn {
+    background-color: #f0f0f0;
+    color: #007bff; /* Color de texto azul */
+    cursor: pointer;
+    padding: 15px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+    border-radius: 8px;
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.accordion-btn:hover, .accordion-btn.active {
+    background-color: #e0e0e0;
+}
+.accordion-arrow {
+    transition: transform 0.3s ease;
+    width: 20px;
+    height: 20px;
+}
+.accordion-btn.active .accordion-arrow {
+    transform: rotate(180deg); /* Flecha hacia arriba */
+}
+.panel-desplegable {
+    padding: 0 18px;
+    background-color: white;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    border-bottom: 1px solid #eee;
+}
+
+/* Lightbox */
+.lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85); /* Un poco más suave */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1700; /* Aumentado para estar sobre el modal de detalles */
+    /* Transiciones */
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.lightbox.visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+}
+
+.lightbox img {
+    max-width: 95%;
+    max-height: 95%;
+    border-radius: 8px; /* Bordes redondeados sutiles */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    /* Transición para el efecto de zoom */
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+}
+
+.lightbox.visible img {
+    transform: scale(1);
+}
 
 .footer {
     text-align: center;
@@ -310,7 +700,7 @@ h1.app-title {
     color: #fff;
 }
 .footer-links {
-    margin-bottom: 10px;
+    margin-top: 10px;
 }
 .footer-links a {
     color: #007bff;
@@ -321,6 +711,40 @@ h1.app-title {
     text-decoration: underline;
 }
 
+.footer {
+    text-align: center;
+    padding: 20px 0;
+    margin-top: 40px;
+    background-color: #333;
+    color: #fff;
+    font-size: 0.9em;
+    display: none; /* Oculto por defecto */
+    width: 100%;
+    transition: all 0.35s ease-in-out;
+}
+#splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000; /* Por encima de todo */
+    transition: opacity 0.5s ease-out;
+}
+#splash-screen img {
+    max-width: 150px;
+    border-radius: 15px;
+    animation: pulse 1.5s infinite ease-in-out;
+}
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
 </style>
 </head>
 <body>
@@ -332,9 +756,6 @@ h1.app-title {
         <h3 id="menu-username">Usuario</h3>
     </div>
     <nav>
-        <button id="menu-cortes" class="menu-link active">Cortes</button>
-        <button id="menu-tutoriales" class="menu-link">Tutoriales</button>
-        <button id="menu-relay" class="menu-link">Relay</button>
         <a href="add_cortes.html" class="menu-link">Agregar Nuevo</a>
         <a href="users.html" class="menu-link">Gestión de Cuentas</a>
     </nav>
@@ -348,12 +769,29 @@ h1.app-title {
     <img src="https://drive.google.com/thumbnail?id=1NxBx-W_gWmcq3fA9zog6Dpe-WXpH_2e8&sz=w512" alt="Logo de GPSpedia">
 </div>
 
-<!-- Modal de Login -->
+<!-- Login Modal -->
 <div id="login-modal" style="display: none;">
-    <!-- Contenido del modal de login -->
+    <div class="modal-content">
+        <img src="icon-v3-512x512.png" alt="Logo de GPSpedia" style="max-width: 120px; margin-bottom: 20px;">
+        <h2>Iniciar Sesión</h2>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="username">Usuario</label>
+                <input type="text" id="username" required autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" required autocomplete="current-password">
+            </div>
+            <button type="submit">Acceder</button>
+            <p id="login-error" style="color: red; display: none;"></p>
+        </form>
+        <a href="#" id="forgot-password-link" style="color: #a0cfff; text-decoration: none; margin-top: 15px; display: inline-block;">¿Olvidaste tu contraseña?</a>
+    </div>
 </div>
 
 <div class="container" style="display: none;">
+
   <div class="header-container">
       <div class="header-branding">
           <img src="https://drive.google.com/thumbnail?id=1NxBx-W_gWmcq3fA9zog6Dpe-WXpH_2e8&sz=2048" alt="Logo de GPSpedia" class="app-logo">
@@ -366,8 +804,14 @@ h1.app-title {
   </div>
 
   <div class="search-container">
-      <input type="text" id="searchInput" placeholder="Buscar por marca, modelo o año...">
+      <input type="text" id="searchInput" placeholder="Buscar..." oninput="handleSearch(event)">
       <button id="hamburger-btn">☰</button>
+  </div>
+
+  <div class="section-selector">
+      <button id="btn-cortes" class="section-btn active" onclick="mostrarSeccion('cortes')">Cortes</button>
+      <button id="btn-tutoriales" class="section-btn" onclick="mostrarSeccion('tutoriales')">Tutoriales</button>
+      <button id="btn-relay" class="section-btn" onclick="mostrarSeccion('relay')">Relay</button>
   </div>
 
   <div id="contenido" class="content-section"></div>
@@ -375,44 +819,111 @@ h1.app-title {
   <div id="contenido-relay" class="content-section" style="display: none;"></div>
 </div>
 
-<div id="modalDetalle" style="display: none;"><div id="detalleCompleto"></div></div>
-<div id="lightbox" class="lightbox" onclick="cerrarLightbox()"><img id="lightboxImg" src=""></div>
+<div id="modalDetalle">
+  <div id="detalleCompleto"></div>
+</div>
 
-<footer class="footer" style="display: none;">
-    <div class="footer-links">
-        <a href="#">Sobre Nosotros</a>
-        <a href="#">Contáctanos</a>
-        <a href="#">Preguntas Frecuentes</a>
-    </div>
-    <div>Gpspedia 2025© todos los derechos reservados.</div>
-</footer>
+<div id="lightbox" class="lightbox" onclick="cerrarLightbox()">
+  <img id="lightboxImg" src="">
+</div>
 
 <script src="api-manager.js"></script>
 <script>
-// --- VARIABLES GLOBALES Y CONSTANTES ---
-const SESSION_KEY = 'gpsepedia_session';
-let estadoNavegacion = { nivel: 'root', historial: [] };
-let currentCategory = 'cortes';
-let deferredPrompt;
-
-// --- LÓGICA DE INICIALIZACIÓN ---
-document.addEventListener('DOMContentLoaded', () => {
-    setupEventListeners();
-    checkSession();
+// --- LÓGICA DE SEGURIDAD ---
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'F12' || (e.ctrlKey && e.key === 'u') || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i'))) {
+        e.preventDefault();
+    }
 });
+document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+
+
+// --- LÓGICA DE INDEXEDDB ---
+const DB_NAME = 'gpsepedia-db';
+const DB_VERSION = 1;
+const STORES = ['cortes', 'tutoriales', 'relay'];
+let db;
+
+function openDb() {
+    return new Promise((resolve, reject) => {
+        if (db) {
+            resolve(db);
+            return;
+        }
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+        request.onupgradeneeded = (event) => {
+            const dbInstance = event.target.result;
+            STORES.forEach(storeName => {
+                if (!dbInstance.objectStoreNames.contains(storeName)) {
+                    // Usaremos el nombre del almacén como clave única para el objeto de datos.
+                    dbInstance.createObjectStore(storeName, { keyPath: 'id' });
+                }
+            });
+        };
+
+        request.onsuccess = (event) => {
+            db = event.target.result;
+            console.log('Base de datos IndexedDB abierta con éxito.');
+            resolve(db);
+        };
+
+        request.onerror = (event) => {
+            console.error('Error al abrir IndexedDB:', event.target.error);
+            reject(event.target.error);
+        };
+    });
+}
+
+async function saveData(storeName, data) {
+    const db = await openDb();
+    const transaction = db.transaction([storeName], 'readwrite');
+    const store = transaction.objectStore(storeName);
+    // Limpiamos el almacén antes de guardar los nuevos datos para asegurar que siempre esté fresco.
+    await new Promise((resolve, reject) => {
+        const req = store.clear();
+        req.onsuccess = resolve;
+        req.onerror = reject;
+    });
+    // Guardamos todo el conjunto de datos bajo una clave única, el nombre del almacén.
+    return new Promise((resolve, reject) => {
+        const request = store.put({ id: storeName, data: data });
+        request.onsuccess = () => resolve();
+        request.onerror = (e) => reject(e.target.error);
+    });
+}
+
+async function readData(storeName) {
+    const db = await openDb();
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction([storeName], 'readonly');
+        const store = transaction.objectStore(storeName);
+        const request = store.get(storeName);
+        request.onsuccess = () => resolve(request.result ? request.result.data : null);
+        request.onerror = (e) => reject(e.target.error);
+    });
+}
+
 
 // --- LÓGICA DE AUTENTICACIÓN Y SESIÓN ---
-function setupEventListeners() {
-    // Formularios
-    // document.getElementById('login-form').addEventListener('submit', login); // Se añade dinámicamente si es necesario
 
-    // Botones
-    document.getElementById('side-menu-logout-button').addEventListener('click', () => { closeSideMenu(); logout(); });
-    document.getElementById('install-button').addEventListener('click', installPWA);
+let estadoNavegacion = { nivel: 'root', historial: [] };
+let currentCategory = 'cortes';
 
-    // Menú
-    setupMenuListeners();
+function sanitizeInput(input) {
+    if (typeof input !== 'string') return '';
+    // Prevenir inyección de fórmulas de Excel escapando caracteres iniciales peligrosos
+    let sanitized = input.trim();
+    if (['=', '+', '-', '@', '\t', '\r'].includes(sanitized.charAt(0))) {
+        sanitized = "'" + sanitized;
+    }
+    // Escapar caracteres comunes de SQL para mitigar inyecciones básicas.
+    // Aunque la validación es del lado del cliente, esto añade una capa de "defensa en profundidad".
+    sanitized = sanitized.replace(/'/g, "''").replace(/--/g, "").replace(/;/g, "");
+    return sanitized;
 }
+
+const SESSION_KEY = 'gpsepedia_session';
 
 async function checkSession() {
     const sessionData = localStorage.getItem(SESSION_KEY);
@@ -421,12 +932,13 @@ async function checkSession() {
             const user = JSON.parse(sessionData);
             const result = await routeAction('validateSession', { userId: user.id, sessionToken: user.sessionToken });
             if (result.valid) {
-                await initializeAppData(user);
+                await initializeAppData(result.user);
             } else {
-                logout("Tu sesión ha expirado.");
+                logout("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
             }
         } catch (error) {
-            showLoginHideApp("Error al verificar sesión.");
+            console.error("Error during session validation:", error);
+            showLoginHideApp("Error al verificar la sesión. Revisa tu conexión.");
         }
     } else {
         showLoginHideApp();
@@ -435,15 +947,22 @@ async function checkSession() {
 
 async function login(e) {
     e.preventDefault();
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const loginError = document.getElementById('login-error');
+
+    loginError.style.display = 'none';
+    loginError.textContent = '';
+
+    const username = sanitizeInput(usernameInput.value);
+    const password = sanitizeInput(passwordInput.value);
+
     try {
         const result = await routeAction('login', { username, password });
         localStorage.setItem(SESSION_KEY, JSON.stringify(result.user));
         await initializeAppData(result.user);
     } catch (error) {
-        const loginError = document.getElementById('login-error');
-        loginError.textContent = error.message;
+        loginError.textContent = error.message || 'Usuario o contraseña incorrectos.';
         loginError.style.display = 'block';
     }
 }
@@ -455,33 +974,37 @@ function logout(reason = null) {
 
 function showLoginHideApp(reason = null) {
     const splash = document.getElementById('splash-screen');
-    splash.style.opacity = '0';
-    setTimeout(() => { splash.style.display = 'none'; }, 500);
+    splash.style.display = 'none';
 
     document.querySelector('.container').style.display = 'none';
     document.querySelector('.footer').style.display = 'none';
+    document.getElementById('welcome-message').style.display = 'none';
+    document.getElementById('logout-button').style.display = 'none';
 
     const loginModal = document.getElementById('login-modal');
-    // Re-crear el contenido del modal para asegurar que los listeners se apliquen
-    loginModal.innerHTML = `
-        <div class="modal-content">
-            <h2>Iniciar Sesión</h2>
-            <form id="login-form">
-                <div class="form-group"><label for="username">Usuario</label><input type="text" id="username" required></div>
-                <div class="form-group"><label for="password">Contraseña</label><input type="password" id="password" required></div>
-                <button type="submit">Acceder</button>
-                <p id="login-error" style="color: red; display: ${reason ? 'block' : 'none'};">${reason || ''}</p>
-            </form>
-        </div>`;
     loginModal.style.display = 'flex';
-    document.getElementById('login-form').addEventListener('submit', login);
+
+    const loginError = document.getElementById('login-error');
+    if (reason) {
+        loginError.textContent = reason;
+        loginError.style.display = 'block';
+    } else {
+        loginError.style.display = 'none';
+    }
+
+    document.getElementById('username').value = '';
+    document.getElementById('password').value = '';
 }
 
 function hideLoginShowApp() {
     const splash = document.getElementById('splash-screen');
     splash.style.opacity = '0';
-    setTimeout(() => { splash.style.display = 'none'; }, 500);
+    setTimeout(() => {
+        splash.style.display = 'none';
+    }, 500);
+
     document.getElementById('login-modal').style.display = 'none';
+
     document.querySelector('.container').style.display = 'block';
     document.querySelector('.footer').style.display = 'block';
 }
@@ -492,10 +1015,121 @@ async function initializeAppData(user) {
     document.getElementById('welcome-message').style.display = 'block';
     document.getElementById('menu-username').textContent = user.nombre;
 
+    // Inicia la carga de la sección por defecto.
     await mostrarSeccion('cortes');
 }
 
-// --- LÓGICA DE NAVEGACIÓN Y RENDERIZADO ---
+// Reemplazo del listener de inicialización
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('login-form').addEventListener('submit', login);
+    setupMenuListeners();
+    checkSession();
+});
+
+function setupMenuListeners() {
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const sideMenu = document.getElementById('side-menu');
+    const menuOverlay = document.getElementById('menu-overlay');
+    const logoutBtn = document.getElementById('side-menu-logout-button');
+
+    const openSideMenu = () => {
+        sideMenu.classList.add('open');
+        menuOverlay.classList.add('open');
+    };
+
+    const closeSideMenu = () => {
+        sideMenu.classList.remove('open');
+        menuOverlay.classList.remove('open');
+    };
+
+    hamburgerBtn.addEventListener('click', openSideMenu);
+    menuOverlay.addEventListener('click', closeSideMenu);
+    logoutBtn.addEventListener('click', () => {
+        closeSideMenu();
+        logout();
+    });
+
+    document.querySelectorAll('#side-menu .menu-link').forEach(link => {
+        if (link.tagName === 'BUTTON') {
+            link.addEventListener('click', (e) => {
+                const section = e.target.id.replace('menu-', '');
+                mostrarSeccion(section);
+                closeSideMenu();
+            });
+        }
+    });
+}
+
+document.getElementById('forgot-password-link').addEventListener('click', (e) => {
+    e.preventDefault();
+    const username = document.getElementById('username').value;
+    const message = encodeURIComponent(`Hola, necesito recuperar mi contraseña. Mi nombre de usuario es: ${username}`);
+    const whatsappUrl = `https://wa.me/50488422786?text=${message}`;
+    window.open(whatsappUrl, '_blank');
+});
+
+// Listener para detectar cambios de sesión en otras pestañas
+window.addEventListener('storage', (event) => {
+    if (event.key === SESSION_KEY) {
+        checkSession();
+    }
+});
+
+function showSkeletonLoader(container) {
+    let skeletonHTML = '<div class="skeleton-grid">';
+    for (let i = 0; i < 10; i++) { // Muestra 10 tarjetas esqueleto
+        skeletonHTML += '<div class="skeleton-card"></div>';
+    }
+    skeletonHTML += '</div>';
+    container.innerHTML = skeletonHTML;
+}
+
+const COLUMN_NAME_AÑOS = "Año (generacion)";
+
+let datosOriginales = [], datosFiltrados = [], datosTutoriales = [], datosRelay = [],
+    estado = {nivel:"categorias", categoria:null, marca:null, modelo:null},
+    appOpenedFromLink = false;
+
+const backSvg = '<svg style="width:20px;height:20px;margin-right:5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
+
+async function syncAndFetchData(storeName, dataVariableSetter, successCallback, containerId) {
+    const container = document.getElementById(containerId);
+    container.classList.remove('animacion-ejecutada');
+    showSkeletonLoader(container);
+
+    try {
+        const result = await routeAction('getFullCatalog', { category: storeName });
+        const values = result.data || [];
+
+        if (values.length > 0) {
+            await saveData(storeName, values);
+            console.log(`Datos de ${storeName} obtenidos de la red y actualizados en IndexedDB.`);
+            dataVariableSetter(values);
+            successCallback();
+            setTimeout(() => container.classList.add('animacion-ejecutada'), 50);
+        } else {
+             throw new Error("No se encontraron valores en la red.");
+        }
+    } catch (networkError) {
+        console.error(`Fallo al obtener datos de ${storeName} desde la red:`, networkError);
+        try {
+            const localData = await readData(storeName);
+            if (localData && localData.length > 0) {
+                console.log(`Mostrando datos de respaldo (sin conexión) desde IndexedDB para: ${storeName}`);
+                dataVariableSetter(localData);
+                successCallback();
+                container.classList.add('animacion-ejecutada');
+            } else {
+                container.innerHTML = `<p style="color:red; text-align:center;">No se pudo conectar al servidor y no hay datos locales guardados. Por favor, revisa tu conexión a internet.</p>`;
+            }
+        } catch (dbError) {
+            console.error(`Error crítico al leer de IndexedDB para ${storeName}:`, dbError);
+            container.innerHTML = `<p style="color:red; text-align:center;">Error crítico al intentar acceder a los datos locales.</p>`;
+        }
+    }
+}
+
+
 async function mostrarSeccion(seccion) {
     currentCategory = seccion;
 
@@ -515,73 +1149,883 @@ async function mostrarSeccion(seccion) {
 }
 
 async function navegar(nuevoNivel, seleccion = null) {
-    // ... (sin cambios)
-}
-function retroceder() {
-    // ... (sin cambios)
-}
-function renderNivel(result) {
-    // ... (sin cambios)
-}
+    const container = document.getElementById('contenido');
+    showSkeletonLoader(container);
 
-// --- LÓGICA DEL MENÚ HAMBURGUESA ---
-function setupMenuListeners() {
-    const hamburgerBtn = document.getElementById('hamburger-btn');
-    const sideMenu = document.getElementById('side-menu');
-    const menuOverlay = document.getElementById('menu-overlay');
-
-    const openSideMenu = () => {
-        sideMenu.classList.add('open');
-        menuOverlay.classList.add('open');
-    };
-    const closeSideMenu = () => {
-        sideMenu.classList.remove('open');
-        menuOverlay.classList.remove('open');
-    };
-
-    hamburgerBtn.addEventListener('click', openSideMenu);
-    menuOverlay.addEventListener('click', closeSideMenu);
-
-    document.querySelectorAll('#side-menu .menu-link').forEach(link => {
-        if (link.tagName === 'BUTTON') {
-            link.addEventListener('click', (e) => {
-                const section = e.target.id.replace('menu-', '');
-                mostrarSeccion(section);
-                closeSideMenu();
-            });
+    // Actualizar estado y construir la ruta
+    if (nuevoNivel) {
+        if (seleccion) {
+            estadoNavegacion.historial.push(estadoNavegacion.nivel);
+            estadoNavegacion.nivel = nuevoNivel;
+            estadoNavegacion[nuevoNivel] = seleccion;
+        } else {
+            estadoNavegacion.nivel = nuevoNivel;
         }
+    }
+
+    const path = [
+        estadoNavegacion.categoria,
+        estadoNavegacion.marca,
+        estadoNavegacion.modelo
+    ].filter(Boolean); // Filtra nulos o indefinidos
+
+    try {
+        const result = await routeAction('getNavigationData', { path });
+        renderNivel(result);
+    } catch (error) {
+        container.innerHTML = `<p style="color:red;text-align:center;">Error al cargar los datos. Por favor, intenta de nuevo.</p>`;
+        console.error('Error en navegar:', error);
+    }
+}
+
+function retroceder() {
+    if (estadoNavegacion.historial.length > 0) {
+        const nivelAnterior = estadoNavegacion.historial.pop();
+        // Limpiar los niveles inferiores al retroceder
+        if (nivelAnterior === 'categorias') {
+            estadoNavegacion.marca = null;
+            estadoNavegacion.modelo = null;
+        } else if (nivelAnterior === 'marcas') {
+            estadoNavegacion.modelo = null;
+        }
+        estadoNavegacion.nivel = nivelAnterior;
+        navegar(); // Llama a navegar sin argumentos para re-renderizar el estado actual
+    }
+}
+
+function renderNivel(result) {
+    const container = document.getElementById('contenido');
+    container.innerHTML = ''; // Limpiar contenido anterior
+
+    // Añadir botón de retroceso si no estamos en el nivel raíz
+    if (estadoNavegacion.historial.length > 0) {
+        const backBtn = document.createElement('span');
+        backBtn.className = 'backBtn';
+        backBtn.innerHTML = `${backSvg} Volver`;
+        backBtn.onclick = retroceder;
+        container.appendChild(backBtn);
+    }
+
+    if (result.esDetalle) {
+        mostrarDetalleModal(result.data, Object.keys(result.data));
+        return;
+    }
+
+    const grid = document.createElement("div");
+    grid.className = "grid";
+
+    result.data.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const img = document.createElement("img");
+        img.src = item.imagenUrl || 'https://placehold.co/280x200/cccccc/333333?text=Sin+Imagen';
+        img.alt = item.nombre;
+        card.appendChild(img);
+
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+        overlay.innerHTML = `<div>${item.nombre}</div>`;
+        if (item.sublabel) {
+            overlay.innerHTML += `<div style="font-size:0.8em; opacity:0.8; font-weight:normal;">${item.sublabel}</div>`;
+        }
+        card.appendChild(overlay);
+
+        card.onclick = () => {
+            if (result.siguienteNivel === 'detalle') {
+                mostrarDetalleModal(item.fullData, Object.keys(item.fullData));
+            } else {
+                navegar(result.siguienteNivel, item.nombre);
+            }
+        };
+        grid.appendChild(card);
+    });
+
+    container.appendChild(grid);
+}
+
+function mostrarContenidoTutoriales() {
+    const cont = document.getElementById("contenido-tutoriales");
+    cont.innerHTML = "<h4>Tutoriales</h4>";
+    const grid = document.createElement("div"); grid.className = "grid";
+    if (datosTutoriales.length <= 1) { cont.innerHTML += "<p>No hay tutoriales disponibles.</p>"; return; }
+    const header = datosTutoriales[0];
+    const data = datosTutoriales.slice(1);
+
+    data.forEach(fila => {
+        const card = document.createElement("div"); card.className = "card";
+        card.onclick = () => mostrarDetalleTutorial(fila, header);
+
+        const img = document.createElement("img");
+        img.src = convertirAGoogleThumbnail(fila[header.indexOf("Imagen")]);
+        img.alt = fila[header.indexOf("Tema")];
+        card.appendChild(img);
+
+        const overlay = document.createElement("div"); overlay.className = "overlay";
+        overlay.innerHTML = fila[header.indexOf("Tema")];
+        card.appendChild(overlay);
+        grid.appendChild(card);
+    });
+    cont.appendChild(grid);
+}
+
+function mostrarContenidoRelay() {
+    const cont = document.getElementById("contenido-relay");
+    cont.innerHTML = "<h4>Configuración del Relay</h4>";
+    const grid = document.createElement("div"); grid.className = "grid";
+    if (datosRelay.length <= 1) { cont.innerHTML += "<p>No hay configuraciones de relay disponibles.</p>"; return; }
+    const header = datosRelay[0];
+    const data = datosRelay.slice(1);
+
+    data.forEach(fila => {
+        const card = document.createElement("div"); card.className = "card";
+        card.onclick = () => mostrarDetalleRelay(fila, header);
+
+        const img = document.createElement("img");
+        img.src = convertirAGoogleThumbnail(fila[header.indexOf("Imagen")]);
+        img.alt = fila[header.indexOf("Configuración")];
+        card.appendChild(img);
+
+        const overlay = document.createElement("div"); overlay.className = "overlay";
+        overlay.innerHTML = fila[header.indexOf("Configuración")];
+        card.appendChild(overlay);
+        grid.appendChild(card);
+    });
+    cont.appendChild(grid);
+}
+
+function crearElementoDetalle(label, value) {
+    if (!value) return null;
+    const p = document.createElement("p");
+    p.innerHTML = `<strong>${label}:</strong> ${value}`;
+    return p;
+}
+
+function crearImagenDetalle(label, value, container, extraClass = '') {
+    if (!value) return;
+    const h = document.createElement("h4"); h.textContent = label; container.appendChild(h);
+    const img = document.createElement("img");
+    img.src = convertirAGoogleThumbnail(value);
+    img.alt = label;
+    if (extraClass) {
+        img.classList.add(extraClass);
+    }
+    img.onclick = () => mostrarLightbox(value);
+    container.appendChild(img);
+}
+
+function crearVideoDetalle(label, value, container) {
+    if (!value) return;
+    const videoId = extractYouTubeId(value.trim());
+    if (!videoId) return;
+
+    const h = document.createElement("h4");
+    h.textContent = label;
+    container.appendChild(h);
+
+    if (!navigator.onLine) {
+        const p = document.createElement("p");
+        p.textContent = "El video no está disponible sin conexión.";
+        p.style.cssText = "padding: 20px; background: #eee; border-radius: 8px; text-align: center; color: #555;";
+        container.appendChild(p);
+        return;
+    }
+
+    const iframeContainer = document.createElement("div");
+    iframeContainer.style.cssText = "position:relative; padding-bottom:56.25%; height:0; margin-bottom:20px;";
+    const iframe = document.createElement("iframe");
+    iframe.src = `https://www.youtube.com/embed/${videoId}`;
+    iframe.title = label;
+    iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+    iframe.allowFullscreen = true;
+    iframe.style.cssText = "border:none; position:absolute; top:0; left:0; width:100%; height:100%;";
+    iframe.dataset.originalSrc = iframe.src; // Guardar la URL original
+    iframeContainer.appendChild(iframe);
+    container.appendChild(iframeContainer);
+}
+
+// --- GESTIÓN DE HISTORIAL Y ESTADO DE LA UI ---
+const uiState = {
+    isModalOpen: false,
+    isSearchActive: false
+};
+
+// Función centralizada para manejar el botón "atrás" del navegador
+window.addEventListener('popstate', (event) => {
+    const state = event.state || {}; // Treat null state as the base state
+
+    // If we navigate to a state that is NOT a modal, but the modal is currently open, close it visually.
+    if (uiState.isModalOpen && !state.modal) {
+        const detalleCont = document.getElementById("detalleCompleto");
+
+        // Close all active accordions and stop videos within them.
+        detalleCont.querySelectorAll('.accordion-btn.active').forEach(btn => {
+            btn.classList.remove('active');
+            const panel = btn.nextElementSibling;
+            if (panel) {
+                panel.style.maxHeight = null;
+                const iframe = panel.querySelector('iframe');
+                if (iframe) {
+                    iframe.src = ''; // This stops playback.
+                }
+            }
+        });
+
+        // Hide the modal.
+        document.getElementById("modalDetalle").classList.remove("visible");
+
+        // Update state.
+        uiState.isModalOpen = false;
+    }
+
+    // If we navigate to a state that is NOT a search, but search is active, deactivate it.
+    else if (uiState.isSearchActive && !state.search) {
+        uiState.isSearchActive = false;
+        const searchInput = document.getElementById('searchInput');
+        searchInput.value = '';
+        searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+        searchInput.blur();
+        document.body.classList.remove('search-active');
+    }
+});
+
+function pushState(state) {
+    history.pushState(state, '');
+}
+
+function crearBotonCompartir(seccion, id, titulo) {
+    const shareBtn = document.createElement("button");
+    shareBtn.textContent = "Compartir";
+    shareBtn.className = "shareBtn"; // Agregamos una clase para identificarlo
+    shareBtn.style.cssText = "color:white; background:#007bff; border:none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: background-color 0.3s;";
+
+    // Usamos location.origin y location.pathname para construir una URL limpia
+    const shareUrl = `${window.location.origin}${window.location.pathname}?seccion=${seccion}&id=${id}`;
+
+    shareBtn.onclick = async () => {
+        const shareData = {
+            title: 'GPSpedia Detalle',
+            text: `Mira este detalle de GPSpedia: ${titulo}`,
+            url: shareUrl,
+        };
+
+        if (navigator.share) {
+            try {
+                await navigator.share(shareData);
+            } catch (err) {
+                console.error('Error al compartir:', err);
+            }
+        } else {
+            // Fallback para navegadores que no soportan navigator.share (ej. Desktop)
+            try {
+                await navigator.clipboard.writeText(shareUrl);
+                shareBtn.textContent = '¡Enlace Copiado!';
+                setTimeout(() => {
+                    shareBtn.textContent = 'Compartir';
+                }, 2000);
+            } catch (err) {
+                console.error('Error al copiar el enlace:', err);
+                alert('No se pudo copiar el enlace.');
+            }
+        }
+    };
+    return shareBtn;
+}
+
+
+function mostrarDetalleTutorial(fila, header) {
+    // Empujar un nuevo estado al historial para el modal
+    pushState({ modal: true });
+    uiState.isModalOpen = true;
+
+    const modal = document.getElementById("modalDetalle");
+    const cont = document.getElementById("detalleCompleto");
+    cont.innerHTML = "";
+
+    const headerDiv = document.createElement("div");
+    headerDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;";
+
+    const closeBtn = document.createElement("button");
+    closeBtn.textContent = "Cerrar Detalle";
+    closeBtn.onclick = () => cerrarModal();
+    closeBtn.className = "backBtn";
+    closeBtn.style.cssText = "color:white; background:#dc3545; border:none; margin:0;"; // Reset margin
+    headerDiv.appendChild(closeBtn);
+
+    const id = fila[header.indexOf("ID")];
+    const titulo = fila[header.indexOf("Tema")];
+    const shareBtn = crearBotonCompartir('tutoriales', id, titulo);
+    headerDiv.appendChild(shareBtn);
+
+    cont.appendChild(headerDiv);
+
+    const title = document.createElement("h2");
+    title.textContent = fila[header.indexOf("Tema")];
+    title.style.cssText = "color:#007bff; border-bottom:3px solid #007bff; padding-bottom:10px;";
+    cont.appendChild(title);
+    const campos = [
+        { label: "Cómo identificarlo", key: "Como identificarlo" },
+        { label: "Dónde encontrarlo", key: "Donde encontrarlo" },
+        { label: "Detalles", key: "Detalles" }
+    ];
+    campos.forEach(c => {
+        const p = crearElementoDetalle(c.label, fila[header.indexOf(c.key)]);
+        if (p) cont.appendChild(p);
+    });
+    crearImagenDetalle("Imagen", fila[header.indexOf("Imagen")], cont);
+    crearVideoDetalle("Video Guía", fila[header.indexOf("Video")], cont);
+    modal.classList.add("visible");
+}
+
+function mostrarDetalleRelay(fila, header) {
+    // Empujar un nuevo estado al historial para el modal
+    pushState({ modal: true });
+    uiState.isModalOpen = true;
+
+    const modal = document.getElementById("modalDetalle");
+    const cont = document.getElementById("detalleCompleto");
+    cont.innerHTML = "";
+
+    const headerDiv = document.createElement("div");
+    headerDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;";
+
+    const closeBtn = document.createElement("button");
+    closeBtn.textContent = "Cerrar Detalle";
+    closeBtn.onclick = () => cerrarModal();
+    closeBtn.className = "backBtn";
+    closeBtn.style.cssText = "color:white; background:#dc3545; border:none; margin:0;";
+    headerDiv.appendChild(closeBtn);
+
+    const id = fila[header.indexOf("ID")];
+    const titulo = fila[header.indexOf("Configuración")];
+    const shareBtn = crearBotonCompartir('relay', id, titulo);
+    headerDiv.appendChild(shareBtn);
+
+    cont.appendChild(headerDiv);
+
+    const title = document.createElement("h2");
+    title.textContent = `Detalle de: ${fila[header.indexOf("Configuración")]}`;
+    title.style.cssText = "color:#007bff; border-bottom:3px solid #007bff; padding-bottom:10px;";
+    cont.appendChild(title);
+    const campos = [
+        { label: "Función", key: "Función" },
+        { label: "Vehículo donde se utiliza", key: "Vehiculo donde se utiliza" },
+        { label: "PIN 30 (entrada)", key: "PIN 30 (entrada)" },
+        { label: "PIN 85 (bobina +)", key: "PIN 85 (bobina +)" },
+        { label: "PIN 86 (bobina - )", key: "PIN 86 (bobina - )" },
+        { label: "PIN 87a (comun cerrado)", key: "PIN 87a (comun cerrado)" },
+        { label: "PIN 87 (Comunmente Abierto)", key: "PIN 87 (Comunmente Abierto)" },
+        { label: "Observación", key: "Observacion" }
+    ];
+    campos.forEach(c => {
+        const p = crearElementoDetalle(c.label, fila[header.indexOf(c.key)]);
+        if (p) cont.appendChild(p);
+    });
+    crearImagenDetalle("Imagen", fila[header.indexOf("Imagen")], cont);
+    modal.classList.add("visible");
+}
+
+function getHeaderIndexes(header) {
+    if (!header || header.length < 5) {
+        console.error("Error: Encabezado de datos incompleto o no cargado.");
+        return { COL_CAT: 1, COL_MARCA: 3, COL_MODELO: 4, COL_AÑOS: 6, COL_IMG_VEHICULO: 2, COL_IMG_PORTADA: -1, COL_IMG_APERTURA: 14, COL_TIPO_ENCENDIDO: 5 };
+    }
+    const indexAños = header.indexOf(COLUMN_NAME_AÑOS);
+    return {
+        COL_CAT: header.indexOf("Categoria"), COL_MARCA: header.indexOf("Marca"), COL_MODELO: header.indexOf("Modelo"),
+        COL_AÑOS: (indexAños > -1) ? indexAños : 6, COL_TIPO_ENCENDIDO: header.indexOf("Tipo de encendido"),
+        COL_IMG_VEHICULO: header.indexOf("Imagen del vehiculo"), COL_IMG_PORTADA: header.indexOf("Imagen de la portada"),
+        COL_IMG_APERTURA: header.indexOf("Imagen de la apertura"),
+    };
+}
+
+function convertirAGoogleThumbnail(url){
+  if(!url) return "https://placehold.co/280x200/cccccc/333333?text=Sin+Imagen";
+  let idMatch = url.match(/id=([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if(idMatch) return `https://drive.google.com/thumbnail?sz=w1000&id=${idMatch[1]}`;
+  return url;
+}
+
+function mostrarLightbox(src){
+  // Limpiar la imagen anterior para evitar el parpadeo
+  document.getElementById("lightboxImg").src = "";
+
+  let idMatch = src.match(/id=([a-zA-Z0-9_-]+)/) || src.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  let finalUrl = src;
+  if(idMatch && idMatch[1]){
+      finalUrl = `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w2000`;
+  } else {
+       console.warn("Advertencia: No se pudo encontrar un ID de Google Drive válido para el Lightbox. Usando URL original.");
+  }
+  document.getElementById("lightboxImg").src = finalUrl;
+  document.getElementById("lightbox").classList.add("visible");
+}
+function cerrarModal() {
+    // 1. Forzar el cierre de elementos de la UI.
+    const detalleCont = document.getElementById("detalleCompleto");
+
+    // Cierra todos los acordeones activos y detiene los videos dentro de ellos.
+    detalleCont.querySelectorAll('.accordion-btn.active').forEach(btn => {
+        btn.classList.remove('active');
+        const panel = btn.nextElementSibling;
+        if (panel) {
+            panel.style.maxHeight = null;
+            const iframe = panel.querySelector('iframe');
+            if (iframe) iframe.src = '';
+        }
+    });
+    detalleCont.querySelectorAll('iframe').forEach(iframe => { if(iframe.src) iframe.src = ''; });
+    document.getElementById("modalDetalle").classList.remove("visible");
+
+    // 2. Actualizar el estado interno.
+    uiState.isModalOpen = false;
+
+    // 3. Manejar el historial del navegador.
+    if (history.state && history.state.modal) {
+        history.back();
+    }
+
+    // 4. Si la app se abrió desde un enlace, ahora se verifica la sesión.
+    if (appOpenedFromLink) {
+        appOpenedFromLink = false;
+        // Limpiar la URL para quitar los parámetros de sección/id
+        history.pushState({}, '', window.location.pathname);
+        checkSession(); // Ahora que el modal está cerrado, verificar si hay una sesión válida
+    }
+}
+function cerrarLightbox(){document.getElementById("lightbox").classList.remove("visible");}
+
+function extractYouTubeId(url) {
+    if (!url) return null;
+    let videoId = null;
+    try {
+        const urlObj = new URL(url);
+        if (urlObj.hostname.includes('youtube.com') && urlObj.searchParams.get('v')) {
+            videoId = urlObj.searchParams.get('v');
+        } else if (urlObj.hostname.includes('youtu.be') && urlObj.pathname.length > 1) {
+            videoId = urlObj.pathname.substring(1);
+        } else if (urlObj.pathname.includes('/embed/') && urlObj.pathname.length > 7) {
+            const parts = urlObj.pathname.split('/embed/');
+            if (parts.length > 1) videoId = parts[1].split(/[?&]/)[0];
+        }
+    } catch (e) { return null; }
+    return videoId;
+}
+
+function mostrarDetalleModal(fila, header) {
+    pushState({ modal: true });
+    uiState.isModalOpen = true;
+
+    const modal = document.getElementById("modalDetalle");
+    const cont = document.getElementById("detalleCompleto");
+    cont.innerHTML = "";
+    const indexes = getHeaderIndexes(header);
+
+    const headerDiv = document.createElement("div");
+    headerDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;";
+
+    const closeBtn = document.createElement("button");
+    closeBtn.textContent = "Cerrar Detalle";
+    closeBtn.onclick = () => cerrarModal();
+    closeBtn.className = "backBtn";
+    closeBtn.style.cssText = "color:white; background:#dc3545; border:none; margin:0;";
+    headerDiv.appendChild(closeBtn);
+
+    const id = fila[header.indexOf("ID")];
+    const titulo = `${fila[indexes.COL_MODELO]} ${fila[indexes.COL_AÑOS] || ''}`;
+    const shareBtn = crearBotonCompartir('cortes', id, titulo);
+    headerDiv.appendChild(shareBtn);
+
+    cont.appendChild(headerDiv);
+
+    const title = document.createElement("h2");
+    const modeloNombre = fila[indexes.COL_MODELO] || 'Modelo Desconocido';
+    const anosNombre = fila[indexes.COL_AÑOS] || '';
+    title.textContent = `Detalle de ${modeloNombre} ${anosNombre ? `(${anosNombre})` : ''}`;
+    title.style.cssText = "color:#007bff; border-bottom:3px solid #007bff; padding-bottom:10px;";
+    cont.appendChild(title);
+
+    // --- Contenido Principal (Siempre Visible) ---
+    const notaImportante = fila[header.indexOf("Nota Importante")];
+    if (notaImportante) {
+        const p = document.createElement("p");
+        p.innerHTML = `<strong style="color:red;">Nota Importante:</strong> <span style="color:#cc0000; font-weight: bold;">${notaImportante}</span>`;
+        cont.appendChild(p);
+    }
+    crearImagenDetalle("Modelo", fila[header.indexOf("Imagen del vehiculo")], cont, 'img-vehiculo');
+    const tipoCorteEl = crearElementoDetalle("Tipo de Corte", fila[header.indexOf("Tipo de corte")]);
+    if (tipoCorteEl) cont.appendChild(tipoCorteEl);
+    const descCorteEl = crearElementoDetalle("Descripción", fila[header.indexOf("Descripcion del corte")]);
+    if (descCorteEl) cont.appendChild(descCorteEl);
+    crearImagenDetalle("Imagen", fila[header.indexOf("Imagen del Corte")], cont);
+
+    // --- Secciones Desplegables ---
+    const secciones = [
+        {
+            titulo: "Segunda Opción de Corte",
+            campos: [
+                { label: "Tipo de Corte", key: "Tipo de corte 2" },
+                { label: "Descripción", key: "Descripción del Segundo corte" },
+                { label: "Imagen", key: "Imagen de corte 2", esImagen: true }
+            ]
+        },
+        {
+            titulo: "Apertura",
+            campos: [
+                { label: "Detalles", key: "Apertura" },
+                { label: "Imagen", key: "Imagen de la apertura", esImagen: true }
+            ]
+        },
+        {
+            titulo: "Cables de Alimentación",
+            campos: [
+                { label: "Detalles", key: "Cables de Alimentacion" },
+                { label: "Imagen", key: "Imagen de los cables de alimentacion", esImagen: true }
+            ]
+        },
+        {
+            titulo: "Video Guía de Desarme",
+            campos: [{ key: "Como desarmar los plasticos", esVideo: true }]
+        }
+    ];
+
+    secciones.forEach(seccion => {
+        // Comprueba si al menos un campo de la sección tiene contenido
+        const tieneContenido = seccion.campos.some(c => fila[header.indexOf(c.key)]);
+        if (!tieneContenido) return;
+
+        const btn = document.createElement("button");
+        btn.className = "accordion-btn";
+        btn.innerHTML = `
+            ${seccion.titulo}
+            <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+        `;
+        cont.appendChild(btn);
+
+        const panel = document.createElement("div");
+        panel.className = "panel-desplegable";
+
+        seccion.campos.forEach(c => {
+            const valor = fila[header.indexOf(c.key)];
+            if (valor) {
+                if (c.esImagen) {
+                    crearImagenDetalle(c.label || seccion.titulo, valor, panel);
+                } else if (c.esVideo) {
+                    crearVideoDetalle(seccion.titulo, valor, panel);
+                } else {
+                    const el = crearElementoDetalle(c.label, valor);
+                    if (el) panel.appendChild(el);
+                }
+            }
+        });
+        cont.appendChild(panel);
+    });
+
+    modal.classList.add("visible");
+}
+
+// --- LÓGICA DE BÚSQUEDA ACTIVA ---
+const searchInput = document.getElementById('searchInput');
+
+async function handleSearch(event) {
+    const query = event.target.value;
+    const container = document.getElementById('contenido');
+
+    if (query.trim().length < 2) {
+        // Si la búsqueda está vacía, vuelve a la navegación normal.
+        if (estadoNavegacion.nivel !== 'root') {
+            retroceder();
+        } else {
+            navegar('categorias');
+        }
+        return;
+    }
+
+    try {
+        showSkeletonLoader(container);
+        const result = await routeAction('search', { query });
+        renderSearchResults(result.data, query);
+    } catch (error) {
+        container.innerHTML = `<p style="color:red;text-align:center;">Error al realizar la búsqueda.</p>`;
+    }
+}
+
+function renderSearchResults(results, query) {
+    const container = document.getElementById('contenido');
+    container.innerHTML = `<h4>Resultados de búsqueda para: "${query}"</h4>`;
+
+    if (!results || results.length === 0) {
+        container.innerHTML += `<p style="text-align:center;">No se encontraron resultados.</p>`;
+        return;
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'grid';
+
+    results.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.onclick = () => mostrarDetalleModal(item, Object.keys(item));
+
+        const img = document.createElement('img');
+        img.src = convertirAGoogleThumbnail(item.imagenDelVehiculo) || 'https://placehold.co/280x200/cccccc/333333?text=Sin+Imagen';
+        img.alt = item.modelo;
+        card.appendChild(img);
+
+        const overlay = document.createElement('div');
+        overlay.className = 'overlay';
+        overlay.innerHTML = `<div>${item.modelo}</div><div style="font-size:0.8em; opacity:0.8;">${item.anoGeneracion || ''}</div>`;
+        card.appendChild(overlay);
+
+        grid.appendChild(card);
+    });
+
+    container.appendChild(grid);
+}
+
+
+// --- INICIALIZACIÓN Y LÓGICA DE PWA ---
+let deferredPrompt;
+const installButton = document.getElementById('install-button');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevenir que el navegador muestre el aviso de instalación por defecto
+    e.preventDefault();
+    // Guardar el evento para poder mostrarlo más tarde
+    deferredPrompt = e;
+    console.log('`beforeinstallprompt` event was fired. App is installable.');
+
+    // Lógica para mostrar el botón de instalación
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+    if (!isStandalone) {
+        if (isIOS) {
+            // En iOS no se dispara 'beforeinstallprompt', manejaremos un botón personalizado.
+            // La lógica para mostrar el botón de iOS estará en inicializarApp.
+            installButton.style.display = 'none';
+        } else {
+            // Para otros dispositivos (Android, Desktop), mostrar el botón.
+            installButton.style.display = 'block';
+        }
+    }
+});
+
+installButton.addEventListener('click', async () => {
+    if (deferredPrompt) {
+        // Mostrar el aviso de instalación
+        deferredPrompt.prompt();
+
+        // Esperar a que el usuario responda al aviso
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User response to the install prompt: ${outcome}`);
+
+        // Ya no necesitamos el evento, lo reseteamos
+        deferredPrompt = null;
+
+        // Ocultar el botón
+        installButton.style.display = 'none';
+    }
+});
+
+// --- REGISTRO DEL SERVICE WORKER ---
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js').then(registration => {
+            console.log('ServiceWorker registrado con éxito:', registration.scope);
+        }).catch(err => {
+            console.log('Fallo en el registro de ServiceWorker:', err);
+        });
     });
 }
 
-// --- PWA ---
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    if (!window.matchMedia('(display-mode: standalone)').matches) {
-        document.getElementById('install-button').style.display = 'block';
+// --- INICIALIZACIÓN DE LA APLICACIÓN ---
+async function handleSharedLink(seccion, id) {
+    appOpenedFromLink = true;
+
+    let data, header, item, mostrarDetalleFn;
+
+    // 1. Determinar qué datos buscar y qué función de modal usar
+    const seccionMap = {
+        'cortes': { range: RANGE_CORTES, dataSetter: (vals) => datosOriginales = vals, dataRef: () => datosOriginales, modalFn: mostrarDetalleModal },
+        'tutoriales': { range: RANGE_TUTORIALES, dataSetter: (vals) => datosTutoriales = vals, dataRef: () => datosTutoriales, modalFn: mostrarDetalleTutorial },
+        'relay': { range: RANGE_RELAY, dataSetter: (vals) => datosRelay = vals, dataRef: () => datosRelay, modalFn: mostrarDetalleRelay }
+    };
+
+    if (!seccionMap[seccion]) {
+        checkSession(); // Sección no válida, proceder con el inicio normal
+        return;
+    }
+
+    const { range, dataSetter, dataRef, modalFn } = seccionMap[seccion];
+
+    // 2. Intentar cargar los datos de la sección y encontrar el ítem
+    await syncAndFetchData(seccion, range, dataSetter, () => {}, 'contenido');
+    data = dataRef();
+
+    if (data && data.length > 1) {
+        header = data[0];
+        item = data.slice(1).find(fila => fila[header.indexOf("ID")] === id);
+    }
+
+    // 3. Solo si el ítem es válido, se muestra el modal y se oculta el resto
+    if (item) {
+        // Ocultar splash y login AHORA que sabemos que tenemos contenido para mostrar
+        const splash = document.getElementById('splash-screen');
+        splash.style.opacity = '0';
+        setTimeout(() => splash.style.display = 'none', 500);
+        document.getElementById('login-modal').style.display = 'none';
+
+        // Ocultar el contenedor principal para que solo se vea el modal
+        document.querySelector('.container').style.display = 'none';
+
+        mostrarDetalleFn = modalFn;
+        mostrarDetalleFn(item, header);
+
+        // Limpiar la URL para que un refresh no vuelva a abrir el modal
+        history.replaceState({}, document.title, window.location.pathname);
+    } else {
+        // 4. Si el ítem no se encuentra, proceder al flujo de inicio de sesión normal
+        checkSession();
+    }
+}
+
+
+async function inicializarApp() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const seccion = urlParams.get('seccion');
+    const id = urlParams.get('id');
+
+    if (seccion && id) {
+        await handleSharedLink(seccion, id);
+    } else {
+        checkSession();
+    }
+
+    // Lógica para el botón de instalación de iOS
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+    if (!isStandalone && isIOS) {
+        // Crear y mostrar un botón/mensaje específico para iOS
+        const iosInstallMessage = document.createElement('div');
+        iosInstallMessage.id = 'ios-install-message';
+        iosInstallMessage.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #007bff;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            text-align: center;
+            z-index: 1002;
+            font-size: 0.9em;
+            width: 90%;
+            max-width: 400px;
+        `;
+        iosInstallMessage.innerHTML = `
+            Para instalar, pulsa el botón de Compartir
+            <svg style="width:20px; vertical-align:middle;" viewBox="0 0 24 24"><path fill="currentColor" d="M17,14V17A1,1 0 0,1 16,18H8A1,1 0 0,1 7,17V14H5V17A3,3 0 0,0 8,20H16A3,3 0 0,0 19,17V14H17M12,4L7,9H10V15H14V9H17L12,4Z" /></svg>
+            y luego "Añadir a pantalla de inicio".
+            <button onclick="this.parentElement.style.display='none'" style="background:none; border:none; color:white; font-size:1.2em; position:absolute; top:5px; right:10px;">&times;</button>
+        `;
+        document.body.appendChild(iosInstallMessage);
+    }
+}
+
+inicializarApp();
+
+// Event listener para el acordeón
+document.getElementById('detalleCompleto').addEventListener('click', function(e) {
+    const clickedBtn = e.target.closest('.accordion-btn');
+    if (!clickedBtn) return;
+
+    const panel = clickedBtn.nextElementSibling;
+    const isActive = clickedBtn.classList.contains('active');
+
+    // Cerrar todos los paneles y pausar videos
+    this.querySelectorAll('.accordion-btn').forEach(btn => {
+        const currentPanel = btn.nextElementSibling;
+        const iframe = currentPanel.querySelector('iframe');
+
+        if (btn !== clickedBtn || isActive) {
+            btn.classList.remove('active');
+            currentPanel.style.maxHeight = null;
+            if (iframe) {
+                iframe.src = ''; // Detiene el video
+            }
+        }
+    });
+
+    // Abrir el panel clickeado si no estaba ya activo
+    if (!isActive) {
+        clickedBtn.classList.add('active');
+        panel.style.maxHeight = panel.scrollHeight + "px";
+        const iframe = panel.querySelector('iframe');
+        if (iframe && iframe.dataset.originalSrc) {
+            iframe.src = iframe.dataset.originalSrc; // Restaura el video
+        }
     }
 });
-async function installPWA() {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        await deferredPrompt.userChoice;
-        deferredPrompt = null;
-        document.getElementById('install-button').style.display = 'none';
-    }
+
+const searchContainer = document.querySelector('.search-container');
+const clearSearchBtn = document.getElementById('clear-search-btn');
+
+if (searchInput && searchContainer && clearSearchBtn) {
+    searchInput.addEventListener('focus', () => {
+        if (!uiState.isSearchActive) {
+            // Solo empuja el estado si el campo está vacío. Si ya hay texto, no crees un nuevo estado.
+            if(searchInput.value.trim() === '') {
+                pushState({ search: true });
+            }
+            uiState.isSearchActive = true;
+        }
+        document.body.classList.add('search-active');
+    });
+
+    searchInput.addEventListener('blur', () => {
+        if (uiState.isSearchActive) {
+            // No hacemos history.back() al desenfocar para permitir hacer clic en los resultados.
+            // La UI se revierte visualmente, pero el estado del historial permanece.
+            setTimeout(() => {
+                 document.body.classList.remove('search-active');
+            }, 200);
+        }
+    });
+
+    searchInput.addEventListener('input', () => {
+        // Muestra u oculta el botón de limpiar basado en si hay texto
+        if (searchInput.value.length > 0) {
+            searchContainer.classList.add('has-text');
+        } else {
+            searchContainer.classList.remove('has-text');
+        }
+    });
+
+    clearSearchBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        // Dispara el evento 'input' para que la lógica de filtrado se ejecute
+        searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+        // Mantiene el foco en el input para una nueva búsqueda
+        searchInput.focus();
+    });
 }
 
-// --- Service Worker ---
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js'));
-}
-
-// --- FUNCIONES AUXILIARES ---
-function showSkeletonLoader(container) {
-    // ...
-}
-function mostrarDetalleModal(item) {
-    // ...
-}
 </script>
+
+<footer class="footer" style="display: none;">
+    <div class="footer-links">
+        <a href="#">Sobre Nosotros</a>
+        <a href="#">Contáctanos</a>
+        <a href="#">Preguntas Frecuentes</a>
+    </div>
+    <div>Gpspedia 2025© todos los derechos reservados.</div>
+</footer>
+
 </body>
 </html>

@@ -58,6 +58,9 @@ function doPost(e) {
         request = JSON.parse(e.postData.contents);
 
         switch (request.action) {
+            case 'search':
+                response = handleSearch(request.payload);
+                break;
             case 'getNavigationData':
                 response = handleGetNavigationData(request.payload);
                 break;
@@ -80,8 +83,31 @@ function doPost(e) {
 }
 
 // ============================================================================
-// MANEJADOR DE NAVEGACIÓN JERÁRQUICA
+// MANEJADORES DE ACCIONES
 // ============================================================================
+
+function handleSearch(payload) {
+    const { query } = payload;
+    if (!query || query.trim().length < 2) {
+        return { status: 'success', data: [] };
+    }
+
+    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
+    const allData = sheet.getDataRange().getValues();
+    const headers = allData.shift();
+
+    const normalizedQuery = normalizeText(query);
+    const searchTerms = normalizedQuery.split(' ').filter(Boolean);
+
+    const results = allData.filter(row => {
+        const rowText = row.join(' ').toLowerCase();
+        const normalizedRowText = normalizeText(rowText);
+        return searchTerms.every(term => normalizedRowText.includes(term));
+    }).map(row => formatRowToJSON(row, headers));
+
+    return { status: 'success', data: results };
+}
+
 
 function handleGetNavigationData(payload) {
     const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
@@ -197,4 +223,14 @@ function camelCase(str) {
             const lowerWord = word.toLowerCase();
             return index === 0 ? lowerWord : lowerWord.charAt(0).toUpperCase() + lowerWord.slice(1);
         }).join('');
+}
+
+function normalizeText(text) {
+    if (typeof text !== 'string') {
+        return '';
+    }
+    return text
+        .normalize('NFD') // Normaliza a su forma descompuesta (ej. 'é' -> 'e' + '´')
+        .replace(/[\u0300-\u036f]/g, '') // Elimina los diacríticos
+        .toLowerCase();
 }
