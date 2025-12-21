@@ -1,0 +1,72 @@
+=================================================
+ INSTRUCTIVO Y ESTADO DEL PROYECTO GPSpedia 2.0
+=================================================
+Fecha de Generación: 2024-07-31
+Versión del Documento: 1.0
+
+Este documento describe el estado actual del proyecto GPSpedia 2.0, resume los problemas que han sido solucionados recientemente y detalla el estado de cada microservicio del backend.
+
+---------------------------------
+1. ESTADO GENERAL DEL PROYECTO
+---------------------------------
+
+El proyecto ha sido migrado exitosamente a una arquitectura de 5 microservicios, lo cual ha mejorado la modularidad y el mantenimiento. La comunicación entre el frontend y el backend está centralizada a través del `api-manager.js`.
+
+Se han identificado y solucionado dos problemas críticos en el backend, pero persisten varios errores visuales y de lógica en el frontend (catálogo) que impiden el correcto funcionamiento de la aplicación para el usuario final.
+
+---------------------------------
+2. FUNCIONES REVISADAS Y SOLUCIONADAS
+---------------------------------
+
+A continuación, se detallan los problemas que ya han sido revisados y corregidos en el código fuente.
+
+**A. Servicio de Autenticación (`Auth.js`)**
+
+*   **Problema:** Se reportó un error persistente de "Credenciales inválidas" durante el inicio de sesión. La investigación determinó que si una contraseña en la hoja `Users` era puramente numérica (ej. `12345`), Google Sheets la interpretaba como un número, mientras que el frontend la enviaba como una cadena de texto (`"12345"`). La comparación estricta (`===`) en JavaScript fallaba debido a la diferencia de tipos de dato.
+*   **Solución Aplicada:** Se modificó la lógica de comparación de contraseñas en la función `handleLogin`. Ahora, tanto la contraseña obtenida de la hoja de cálculo como la recibida del frontend son explícitamente convertidas a `String` antes de ser limpiadas y comparadas. Esto asegura que la comparación sea siempre entre cadenas de texto, eliminando la ambigüedad.
+
+**B. Servicio de Escritura (`write.js`)**
+
+*   **Problema:** Al agregar un nuevo "corte" (una nueva fila en la hoja `Cortes`), la fórmula para generar el `ID` autoincremental en la primera columna no se estaba copiando correctamente. El método `copyTo` estaba pegando solo el valor estático de la fila anterior, resultando en IDs duplicados.
+*   **Solución Aplicada:** Se ajustó la llamada a `previousRowRange.copyTo()` dentro de la función `handleAddCorte`, especificando el tipo de pegado `SpreadsheetApp.CopyPasteType.PASTE_FORMULA`. Esto asegura que la fórmula de la celda `ID` se copie a la nueva fila, manteniendo la funcionalidad de autoincremento.
+
+---------------------------------
+3. PROBLEMA ACTUAL Y CAMBIOS PENDIENTES (CATÁLOGO)
+---------------------------------
+
+El principal problema pendiente, según el historial de este chat, se encuentra en la lógica de visualización del catálogo en `index.html`. Los siguientes errores deben resolverse:
+
+*   **Secciones "Tutoriales" y "Relay" no funcionan:** Al hacer clic en los botones de estas secciones, el contenido no se carga. La función `mostrarSeccion` necesita ser modificada para que realice una petición al backend (`postToAction('getCatalogData')`) y renderice los datos correspondientes, tal como lo hace la sección "Cortes".
+*   **Lógica de Imágenes Incorrecta:** En la navegación jerárquica (Categoría -> Marca -> Modelo), la imagen que se muestra en la tarjeta no sigue la lógica de negocio deseada. La lógica en `mostrarCategorias` y `mostrarMarcas` debe ser ajustada para priorizar la visualización de la `imagenDeLaApertura` y, si no está disponible, usar la `imagenDelVehiculo`.
+*   **Error de Layout (Footer):** El pie de página (`footer`) no se mantiene en la parte inferior en vistas con poco contenido. Esto es un problema de CSS que se puede solucionar asegurando que el contenedor principal de la aplicación tenga una altura mínima del 100% de la ventana (`min-height: 100vh`).
+
+---------------------------------
+4. ANÁLISIS DETALLADO DE SERVICIOS
+---------------------------------
+
+A continuación se presenta un análisis del estado actual de cada uno de los 5 microservicios del backend.
+
+**A. `Auth.js`**
+*   **Estado:** Funcional y estable.
+*   **Análisis:** La lógica es sólida. El uso de un mapa de columnas `COLS` codificado previene errores de parsing. La gestión de sesiones por rol es correcta. La versión actual en el repositorio contiene código de depuración (`logToSheet`) que debería ser eliminado antes de una versión final de producción para evitar escrituras innecesarias en la hoja "Logs".
+*   **Observaciones:** No se encontraron errores de sintaxis ni de lógica pendiente.
+
+**B. `catalog.js`**
+*   **Estado:** Funcional.
+*   **Análisis:** El servicio cumple su propósito de leer y devolver datos del catálogo de forma eficiente. La lógica para verificar la existencia de un vehículo, incluyendo la comprobación de rangos de años (`isYearInRange`), es correcta y robusta.
+*   **Observaciones:** No se encontraron errores evidentes. La lógica es clara.
+
+**C. `write.js`**
+*   **Estado:** Funcional y estable (tras la corrección del pegado de fórmulas).
+*   **Análisis:** El servicio gestiona correctamente la creación de nuevas filas y la actualización de las existentes. La subida de archivos a Google Drive está bien implementada, creando una estructura de carpetas jerárquica para una mejor organización.
+*   **Observaciones:** No se encontraron errores de sintaxis. La lógica para encontrar el primer "slot" de corte disponible es una buena práctica.
+
+**D. `feedback.js`**
+*   **Estado:** Funcional.
+*   **Análisis:** La lógica es simple y directa. `handleRecordLike` previene duplicados al registrar los "likes". `handleReportProblem` añade correctamente los reportes a la hoja `Feedbacks`.
+*   **Observaciones:** La búsqueda del `vehicleId` en `handleRecordLike` podría ser ineficiente si la hoja "Cortes" crece a miles de filas, pero es aceptable para el estado actual. No se encontraron errores.
+
+**E. `users.js`**
+*   **Estado:** Funcional.
+*   **Análisis:** Este servicio contiene la lógica de negocio más compleja debido a la gestión de roles y permisos. La jerarquía de permisos para crear, editar y eliminar usuarios parece estar implementada correctamente. La función `generateUniqueUsername` para crear nombres de usuario únicos es una característica de usabilidad bien pensada.
+*   **Observaciones:** La lógica de permisos es el punto más propenso a errores. Se recomienda una revisión cuidadosa de las reglas de negocio para asegurar que coinciden con los requerimientos exactos. No se encontraron errores de sintaxis.
