@@ -1,5 +1,11 @@
 # Registro de Cambios del Proyecto GPSpedia
 
+## v1.0.9 - 2024-07-28
+- **ACTUALIZACIÓN DE ENDPOINT DEL SERVICIO DE CATÁLOGO (CORRECCIÓN):**
+  - **Contexto:** Después de corregir la lógica del backend en `services/catalog/catalog.js`, se desplegó una nueva versión del servicio.
+  - **Desarrollo:** Se actualizó la URL del servicio `CATALOG` en `api-manager.js` para apuntar al endpoint más reciente, asegurando que el frontend utilice la versión corregida con la navegación jerárquica.
+  - **Resultado:** El frontend y el backend están ahora sincronizados, utilizando la última versión desplegada y corregida del servicio de catálogo.
+
 ## v1.0.8 - 2024-07-28
 - **CORRECCIÓN CRÍTICA EN `services/catalog/catalog.js`:**
   - **Contexto:** Se detectó que, debido a un error en el proceso de commit anterior, el archivo `services/catalog/catalog.js` no contenía la lógica de navegación jerárquica (`getNavigationData`) necesaria, sino que mantenía la lógica de paginación obsoleta.
