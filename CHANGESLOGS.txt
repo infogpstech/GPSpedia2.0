@@ -1,17 +1,15 @@
 # Registro de Cambios del Proyecto GPSpedia
 
-## v3.1.1 - 31/07/2024
-- **CAMBIO DE ENFOQUE Y ANÁLISIS PROFUNDO:**
-  - **Contexto:** Tras un ciclo de depuración fallido sobre un problema de inicio de sesión ya resuelto, se cambió el enfoque del desarrollo a un análisis exhaustivo del estado actual del proyecto para realinear los objetivos.
+## v3.1.1 - 31/07/2024 (Revisión 2)
+- **CAMBIO DE ENFOQUE Y ANÁLISIS PROFUNDO (CORREGIDO Y AMPLIADO):**
+  - **Contexto:** Tras la retroalimentación del usuario, se realizó una segunda revisión más exhaustiva de la documentación para asegurar que incluyera todos los detalles omitidos en la primera versión.
   - **Acciones Realizadas:**
-    1.  **Análisis Completo del Repositorio:** Se revisó cada archivo del proyecto (`.html`, `.js`) para obtener una comprensión integral de la arquitectura modular y el estado funcional de cada componente.
-    2.  **Actualización de `README.md`:** Se reescribió y expandió significativamente la documentación en `README.md` para reflejar con precisión la arquitectura de 5 microservicios, detallando el propósito y funcionamiento de cada servicio de backend y cada archivo del frontend.
-    3.  **Creación de `INSTRUCTIVO.TXT`:** Se generó un nuevo documento (`INSTRUCTIVO.TXT`) que sirve como un informe del estado actual del proyecto. Este archivo documenta:
-        - El estado general y los problemas pendientes.
-        - Un resumen de los errores ya solucionados en `Auth.js` (comparación de contraseñas por tipo de dato) y `write.js` (copia de fórmulas de ID).
-        - Una descripción detallada de los errores actuales en el catálogo de `index.html` (secciones que no cargan, lógica de imágenes incorrecta y problemas de CSS).
-        - Un análisis de la salud y lógica de cada uno de los 5 microservicios.
-- **Estado del Proyecto:** La fase de análisis y documentación ha concluido. El siguiente paso es proceder con la corrección de los errores identificados en el frontend.
+    1.  **Re-análisis del Historial y `index.html`:** Se cruzó la información del historial del chat con el estado actual del código para identificar con precisión todas las funcionalidades pendientes y los detalles de la base de datos.
+    2.  **Actualización de `README.md` (Versión 2):** Se expandió la documentación para incluir:
+        - La **estructura de columnas detallada** de todas las hojas principales de la base de datos (`Cortes`, `Tutoriales`, `Relay`), no solo la de `Users`.
+        - Una nueva sección de **"Trabajos Pendientes"** en formato de checklist para visualizar claramente los bugs y las nuevas funcionalidades solicitadas (menú hamburguesa, enlaces del footer, etc.).
+    3.  **Actualización de `INSTRUCTIVO.TXT`:** Se añadió una sección de **"Funcionalidades Pendientes de Implementación"** para que el documento refleje de manera completa tanto los errores a corregir como las características nuevas solicitadas.
+- **Estado del Proyecto:** La fase de análisis y documentación se considera ahora completa y alineada con los requerimientos. El siguiente paso es proceder con la corrección de los errores y la implementación de las funcionalidades documentadas.
 
 ## v3.1.0 - 21/12/2023
 - **MIGRACIÓN COMPLETA A ARQUITECTURA MODULAR (PLAN B):**

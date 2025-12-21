@@ -2,71 +2,78 @@
  INSTRUCTIVO Y ESTADO DEL PROYECTO GPSpedia 2.0
 =================================================
 Fecha de Generación: 2024-07-31
-Versión del Documento: 1.0
+Versión del Documento: 1.1
 
-Este documento describe el estado actual del proyecto GPSpedia 2.0, resume los problemas que han sido solucionados recientemente y detalla el estado de cada microservicio del backend.
+Este documento describe el estado actual del proyecto GPSpedia 2.0, resume los problemas solucionados, detalla los errores pendientes y documenta el estado de cada microservicio del backend.
 
 ---------------------------------
 1. ESTADO GENERAL DEL PROYECTO
 ---------------------------------
 
-El proyecto ha sido migrado exitosamente a una arquitectura de 5 microservicios, lo cual ha mejorado la modularidad y el mantenimiento. La comunicación entre el frontend y el backend está centralizada a través del `api-manager.js`.
-
-Se han identificado y solucionado dos problemas críticos en el backend, pero persisten varios errores visuales y de lógica en el frontend (catálogo) que impiden el correcto funcionamiento de la aplicación para el usuario final.
+El proyecto ha sido migrado a una arquitectura de 5 microservicios. Se han solucionado problemas críticos en el backend, pero persisten varios errores y funcionalidades pendientes en el frontend que deben ser abordados para completar la versión 2.0.
 
 ---------------------------------
 2. FUNCIONES REVISADAS Y SOLUCIONADAS
 ---------------------------------
 
-A continuación, se detallan los problemas que ya han sido revisados y corregidos en el código fuente.
-
 **A. Servicio de Autenticación (`Auth.js`)**
-
-*   **Problema:** Se reportó un error persistente de "Credenciales inválidas" durante el inicio de sesión. La investigación determinó que si una contraseña en la hoja `Users` era puramente numérica (ej. `12345`), Google Sheets la interpretaba como un número, mientras que el frontend la enviaba como una cadena de texto (`"12345"`). La comparación estricta (`===`) en JavaScript fallaba debido a la diferencia de tipos de dato.
-*   **Solución Aplicada:** Se modificó la lógica de comparación de contraseñas en la función `handleLogin`. Ahora, tanto la contraseña obtenida de la hoja de cálculo como la recibida del frontend son explícitamente convertidas a `String` antes de ser limpiadas y comparadas. Esto asegura que la comparación sea siempre entre cadenas de texto, eliminando la ambigüedad.
+*   **Problema:** Error de "Credenciales inválidas" debido a una comparación estricta de tipos de dato (número vs. cadena) para la contraseña.
+*   **Solución Aplicada:** Se modificó la lógica para convertir ambas contraseñas a `String` antes de la comparación, asegurando consistencia.
 
 **B. Servicio de Escritura (`write.js`)**
-
-*   **Problema:** Al agregar un nuevo "corte" (una nueva fila en la hoja `Cortes`), la fórmula para generar el `ID` autoincremental en la primera columna no se estaba copiando correctamente. El método `copyTo` estaba pegando solo el valor estático de la fila anterior, resultando en IDs duplicados.
-*   **Solución Aplicada:** Se ajustó la llamada a `previousRowRange.copyTo()` dentro de la función `handleAddCorte`, especificando el tipo de pegado `SpreadsheetApp.CopyPasteType.PASTE_FORMULA`. Esto asegura que la fórmula de la celda `ID` se copie a la nueva fila, manteniendo la funcionalidad de autoincremento.
-
----------------------------------
-3. PROBLEMA ACTUAL Y CAMBIOS PENDIENTES (CATÁLOGO)
----------------------------------
-
-El principal problema pendiente, según el historial en CHANGUESLOGS.TXT, se encuentra en la lógica de visualización del catálogo en `index.html`. Los siguientes errores deben resolverse:
-
-*   **Secciones "Tutoriales" y "Relay" no funcionan:** Al hacer clic en los botones de estas secciones, el contenido no se carga. La función `mostrarSeccion` necesita ser modificada para que realice una petición al backend (`postToAction('getCatalogData')`) y renderice los datos correspondientes, tal como lo hace la sección "Cortes".
-*   **Lógica de Imágenes Incorrecta:** En la navegación jerárquica (Categoría -> Marca -> Modelo), la imagen que se muestra en la tarjeta no sigue la lógica de negocio deseada. La lógica en `mostrarCategorias` y `mostrarMarcas` debe ser ajustada para priorizar la visualización del `imagenDelVehiculo`.
-*   **Error de Layout (header):** El contenedor donde estan los botones de sección (`Cortes`, `Tutoriales`, `Relays`) no se mantiene en la parte superior en vistas con poco contenido. Esto es un problema de CSS que se puede solucionar asegurando que el contenedor principal de la aplicación tenga una altura mínima del 100% de la ventana (`min-height: 100vh`).
+*   **Problema:** La fórmula del `ID` autoincremental no se copiaba a las nuevas filas en la hoja `Cortes`, causando IDs duplicados.
+*   **Solución Aplicada:** Se especificó el tipo de pegado `PASTE_FORMULA` al copiar la fila, preservando la funcionalidad de autoincremento.
 
 ---------------------------------
-4. ANÁLISIS DETALLADO DE SERVICIOS
+3. PROBLEMAS ACTUALES Y CORRECCIONES PENDIENTES
 ---------------------------------
 
-A continuación se presenta un análisis del estado actual de cada uno de los 5 microservicios del backend.
+Los siguientes errores en `index.html` impiden el correcto funcionamiento del catálogo:
+
+*   **Secciones "Tutoriales" y "Relay" no funcionan:** No cargan datos. La función `mostrarSeccion` debe ser modificada para realizar un `fetch` de datos al backend cuando estas pestañas son seleccionadas.
+*   **Lógica de Imágenes Incorrecta:** Las tarjetas de Categoría y Marca no siempre muestran la imagen correcta. La lógica debe ser ajustada para priorizar `imagenDeLaApertura` y luego `imagenDelVehiculo`.
+*   **Error de Layout (Footer):** El pie de página no se mantiene en la parte inferior. Se requiere una corrección de CSS (`min-height: 100vh`) en el contenedor principal.
+
+---------------------------------
+4. FUNCIONALIDADES PENDIENTES DE IMPLEMENTACIÓN
+---------------------------------
+
+Las siguientes solicitudes de mejora de la interfaz de usuario aún no se han implementado:
+
+*   **Centralización en Menú Hamburguesa:**
+    *   Mover los botones de secciones ("Cortes", "Tutoriales", "Relay").
+    *   Mover el botón "Agregar Nuevo".
+    *   Mover el botón de "Cerrar Sesión".
+    *   **Objetivo:** Limpiar la interfaz principal, consolidando la navegación dentro del menú lateral deslizable.
+
+*   **Enlaces Adicionales en el Footer:**
+    *   Agregar los enlaces "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes" al pie de página.
+
+---------------------------------
+5. ANÁLISIS DETALLADO DE SERVICIOS
+---------------------------------
 
 **A. `Auth.js`**
 *   **Estado:** Funcional y estable.
-*   **Análisis:** La lógica es sólida. El uso de un mapa de columnas `COLS` codificado previene errores de parsing. La gestión de sesiones por rol es correcta. La versión actual en el repositorio contiene código de depuración (`logToSheet`) que debe evitar escrituras a la hoja "Logs".
-*   **Observaciones:** No se encontraron errores de sintaxis ni de lógica pendiente.
+*   **Análisis:** Lógica sólida con un mapa de columnas codificado para evitar errores. La versión actual en el repositorio contiene código de depuración (`logToSheet`) que debe ser eliminado antes del despliegue final.
+*   **Observaciones:** Sin errores pendientes.
 
 **B. `catalog.js`**
 *   **Estado:** Funcional.
-*   **Análisis:** El servicio cumple su propósito de leer y devolver datos del catálogo de forma eficiente. La lógica para verificar la existencia de un vehículo, incluyendo la comprobación de rangos de años (`isYearInRange`), es correcta y robusta.
-*   **Observaciones:** No se encontraron errores evidentes. La lógica es clara.
+*   **Análisis:** Cumple su propósito de leer y devolver datos del catálogo de forma eficiente y correcta.
+*   **Observaciones:** Sin errores evidentes.
 
 **C. `write.js`**
-*   **Estado:** Funcional y estable (tras la corrección del pegado de fórmulas).
-*   **Análisis:** El servicio gestiona correctamente la creación de nuevas filas y la actualización de las existentes. La subida de archivos a Google Drive está bien implementada, creando una estructura de carpetas jerárquica para una mejor organización.
-*   **Observaciones:** No se encontraron errores de sintaxis. La lógica para encontrar el primer "slot" de corte disponible es una buena práctica.
+*   **Estado:** Funcional y estable.
+*   **Análisis:** Gestiona correctamente la creación y actualización de registros, así como la subida de archivos a Google Drive.
+*   **Observaciones:** Sin errores de sintaxis o lógica.
 
 **D. `feedback.js`**
 *   **Estado:** Funcional.
-*   **Análisis:** La lógica es simple y directa. `handleRecordLike` previene duplicados al registrar los "likes". `handleReportProblem` añade correctamente los reportes a la hoja `Feedbacks`.
-*   **Observaciones:** La búsqueda del `vehicleId` en `handleRecordLike` podría ser ineficiente si la hoja "Cortes" crece a miles de filas, pero es aceptable para el estado actual. No se encontraron errores.
+*   **Análisis:** Lógica simple y directa para registrar "likes" y reportes de problemas.
+*   **Observaciones:** La búsqueda del `vehicleId` podría ser ineficiente a gran escala, pero es aceptable para el volumen actual.
 
 **E. `users.js`**
 *   **Estado:** Funcional.
-*   **Análisis:** Este servicio contiene la lógica de negocio más compleja debido a la gestión de roles y permisos. La jerarquía de permisos para crear, editar y eliminar usuarios parece estar implementada correctamente. La función `generateUniqueUsername` para crear nombres de usuario únicos es una característica de usabilidad bien pensada.
-*   **Observaciones:** La lógica de permisos es el punto más propenso a errores. Se recomienda una revisión cuidadosa de las reglas de negocio para asegurar que coinciden con los requerimientos exactos. No se encontraron errores de sintaxis.
+*   **Análisis:** Implementa correctamente la lógica de negocio para la gestión de usuarios basada en roles y permisos.
+*   **Observaciones:** La lógica de permisos es compleja y debe ser revisada cuidadosamente si los requerimientos de negocio cambian.

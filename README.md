@@ -15,7 +15,6 @@ La arquitectura de GPSpedia 2.0 se compone de tres capas principales:
 3.  **Base de Datos:** Una única hoja de cálculo de Google Sheets que actúa como base de datos central para todos los servicios.
 
 ### Diagrama de Comunicación
-
 ```
                          ┌──────────────────┐
                          │   API_MANAGER.JS │ (Enrutador Lógico en Frontend)
@@ -41,92 +40,77 @@ La arquitectura de GPSpedia 2.0 se compone de tres capas principales:
                          └──────────────────┘
 ```
 
-## 3. Componentes del Backend (Microservicios)
+## 3. Trabajos Pendientes (Checklist)
+
+Esta sección documenta las tareas de desarrollo y corrección que están pendientes de implementación.
+
+### Corrección de Errores (Bugs)
+- [ ] **Reparar Secciones "Tutoriales" y "Relay":** Actualmente, estas secciones no cargan datos al ser seleccionadas. Se debe implementar la lógica de `fetch` en la función `mostrarSeccion` de `index.html` para que los datos se soliciten al backend.
+- [ ] **Corregir Lógica de Imágenes del Catálogo:** La imagen que se muestra en las tarjetas de Categoría y Marca no es la correcta. Se debe ajustar la lógica para que se priorice la `imagenDeLaApertura` sobre la `imagenDelVehiculo`.
+- [ ] **Solucionar Layout del Footer:** El pie de página no se alinea correctamente en la parte inferior en vistas con poco contenido. Se requiere ajustar el CSS para que el contenedor principal ocupe al menos el 100% de la altura de la pantalla.
+
+### Nuevas Funcionalidades y Mejoras de UI/UX
+- [ ] **Implementar Menú Hamburguesa Funcional:**
+    - [ ] Mover los botones de secciones ("Cortes", "Tutoriales", "Relay") del `section-selector` al interior del menú lateral (`side-menu`).
+    - [ ] Mover el botón "Agregar Nuevo" al menú lateral.
+    - [ ] Mover el botón de "Cerrar Sesión" del header al menú lateral.
+- [ ] **Agregar Enlaces en el Footer:** Añadir los enlaces "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes" en el pie de página de la aplicación.
+
+## 4. Componentes del Backend (Microservicios)
 
 El backend consta de cinco servicios de Google Apps Script, cada uno con una responsabilidad única.
 
-###  servizio 1: `GPSpedia-Auth` (`services/auth/auth.js`)
-- **Responsabilidad:** Gestionar la autenticación y las sesiones de usuario.
-- **Funciones Principales:**
-    - `handleLogin`: Valida las credenciales del usuario contra la hoja `Users`.
-    - `handleValidateSession`: Verifica si un token de sesión es válido.
+### `GPSpedia-Auth` (`services/auth/auth.js`)
+- **Responsabilidad:** Autenticación y sesiones de usuario.
 - **Hojas Accedidas:** `Users` (Lectura), `ActiveSessions` (Lectura/Escritura).
-- **Nota Crítica:** Este servicio utiliza un mapeo de columnas **fijo y codificado (hardcoded)** para acceder a los datos de la hoja `Users`. Cualquier cambio en el orden o nombre de las columnas de `Users` romperá el sistema de inicio de sesión.
+- **Nota Crítica:** Utiliza un mapeo de columnas **fijo y codificado**. Cambios en la estructura de la hoja `Users` romperán el login.
 
-###  servizio 2: `GPSpedia-Catalog` (`services/catalog/catalog.js`)
-- **Responsabilidad:** Proveer acceso de solo lectura a los datos del catálogo.
-- **Funciones Principales:**
-    - `handleGetCatalogData`: Obtiene y formatea todos los datos de las hojas `Cortes`, `Tutoriales` y `Relay`.
-    - `handleGetDropdownData`: Obtiene los valores para los menús desplegables del formulario de `add_cortes.html`.
-    - `handleCheckVehicle`: Verifica si un vehículo ya existe en la base de datos antes de agregar uno nuevo.
+### `GPSpedia-Catalog` (`services/catalog/catalog.js`)
+- **Responsabilidad:** Acceso de solo lectura a los datos del catálogo.
 - **Hojas Accedidas:** `Cortes`, `Tutoriales`, `Relay` (Solo Lectura).
 
-###  servizio 3: `GPSpedia-Write` (`services/write/write.js`)
-- **Responsabilidad:** Manejar todas las operaciones de escritura y subida de archivos.
-- **Funciones Principales:**
-    - `handleAddCorte`: Agrega un nuevo registro de corte o actualiza uno existente en la hoja `Cortes`.
-    - `handleFileUploads`: Procesa los archivos de imagen subidos desde el frontend, los guarda en una carpeta específica de Google Drive y devuelve las URLs.
+### `GPSpedia-Write` (`services/write/write.js`)
+- **Responsabilidad:** Escritura de datos y subida de archivos.
 - **Hojas Accedidas:** `Cortes` (Escritura).
-- **Recursos Adicionales:** Accede a una carpeta de Google Drive (`ID: 1-8QqhS-wtEFFwyBG8CmnEOp5i8rxSM-2`) para almacenar imágenes.
+- **Recursos Adicionales:** Google Drive (`ID: 1-8QqhS-wtEFFwyBG8CmnEOp5i8rxSM-2`).
 
-###  servizio 4: `GPSpedia-Feedback` (`services/feedback/feedback.js`)
-- **Responsabilidad:** Gestionar la retroalimentación de los usuarios.
-- **Funciones Principales:**
-    - `handleRecordLike`: Registra cuando un usuario marca un corte como "útil".
-    - `handleReportProblem`: Guarda un reporte de problema enviado por un usuario en la hoja `Feedbacks`.
-- **Hojas Accedidas:** `Cortes` (Lectura/Escritura en la columna "Util"), `Feedbacks` (Escritura).
+### `GPSpedia-Feedback` (`services/feedback/feedback.js`)
+- **Responsabilidad:** Retroalimentación de usuarios (likes y reportes).
+- **Hojas Accedidas:** `Cortes` (L/E en columna "Util"), `Feedbacks` (Escritura).
 
-###  servizio 5: `GPSpedia-Users` (`services/users/users.js`)
-- **Responsabilidad:** Gestionar el alta, baja y modificación de usuarios (CRUD).
-- **Funciones Principales:**
-    - `handleGetUsers`: Obtiene una lista de usuarios, filtrada según los privilegios del solicitante.
-    - `handleCreateUser`, `handleUpdateUser`, `handleDeleteUser`: Realizan las operaciones CRUD sobre la hoja `Users`, respetando una jerarquía de permisos.
-    - `handleChangePassword`: Permite a un usuario cambiar su propia contraseña.
+### `GPSpedia-Users` (`services/users/users.js`)
+- **Responsabilidad:** Gestión CRUD de usuarios con jerarquía de roles.
 - **Hojas Accedidas:** `Users` (Lectura/Escritura).
 
-## 4. Componentes del Frontend (Cliente)
+## 5. Componentes del Frontend (Cliente)
 
-### `api-manager.js`
-- **Propósito:** Es el componente más crítico del frontend. Actúa como un **enrutador** que dirige todas las solicitudes de la aplicación al microservicio de backend correcto.
-- **Funcionamiento:** Mantiene un mapa de `API_ENDPOINTS` (las URLs de cada servicio desplegado) y un `ACTION_TO_SERVICE_MAP` que asocia cada acción (ej. `'login'`) con un servicio (ej. `'AUTH'`). La función `routeAction` es la única vía de comunicación con el backend.
+- **`api-manager.js`:** Enrutador central que dirige las solicitudes al microservicio correcto.
+- **`index.html`:** Página principal, catálogo y vista de detalles.
+- **`add_cortes.html`:** Formulario para agregar/actualizar cortes.
+- **`users.html`:** Interfaz para gestión de perfiles y usuarios.
+- **`manifest.json` y `service-worker.js`:** Habilitan la funcionalidad PWA y el caching offline.
 
-### `index.html`
-- **Propósito:** Es la página principal de la aplicación y el catálogo principal.
-- **Funcionalidad:**
-    - Muestra la pantalla de inicio de sesión (`login-modal`).
-    - Una vez autenticado, muestra el catálogo de cortes vehiculares.
-    - Permite la navegación jerárquica: Categoría -> Marca -> Modelo -> Versión.
-    - Incluye una barra de búsqueda para filtrar el contenido.
-    - Presenta los datos en tarjetas interactivas que abren un modal con los detalles completos del corte.
-    - Permite cambiar entre las secciones de "Cortes", "Tutoriales" y "Relay".
+## 6. Estructura de la Base de Datos (Google Sheets)
 
-### `add_cortes.html`
-- **Propósito:** Formulario para agregar nuevos cortes de vehículos o actualizar la información de los existentes.
-- **Funcionalidad:**
-    - **Fase 1 (Chequeo):** El usuario introduce los datos básicos del vehículo. El sistema verifica si ya existe.
-    - **Fase 2 (Verificación):** Si el vehículo existe, muestra los datos actuales y ofrece opciones para agregar información faltante (ej. un nuevo corte, datos de apertura, etc.).
-    - **Fase 3 (Entrada de Datos):** El usuario introduce los detalles del nuevo corte, sube imágenes y añade notas.
-    - **Lógica de Subida de Archivos:** Las imágenes seleccionadas se convierten a formato Base64 en el cliente antes de ser enviadas al `GPSpedia-Write` service.
+El Spreadsheet con ID `1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo` contiene las siguientes hojas:
 
-### `users.html`
-- **Propósito:** Interfaz para la gestión de perfiles y usuarios.
-- **Funcionalidad:**
-    - **Mi Perfil:** Muestra la información del usuario que ha iniciado sesión y le permite cambiar su contraseña.
-    - **Gestión de Usuarios:** (Visible solo para roles con permisos) Muestra una tabla con los usuarios del sistema y permite crear, editar o eliminar usuarios según una jerarquía de roles.
+### Hoja: `Users`
+- **Propósito:** Almacena la información de los usuarios. **La estructura es crítica y no debe ser modificada.**
+- **Columnas:** `ID`, `Nombre_Usuario`, `Password`, `Privilegios`, `Nombre`, `Telefono`, `Correo_Electronico`, `SessionToken`.
 
-### `manifest.json` y `service-worker.js`
-- **Propósito:** Proporcionan la funcionalidad de **Aplicación Web Progresiva (PWA)**.
-- **`manifest.json`:** Define el nombre, iconos, colores y comportamiento de la aplicación cuando se instala en un dispositivo.
-- **`service-worker.js`:** Gestiona el almacenamiento en caché de los recursos de la aplicación, permitiendo un funcionamiento offline limitado y tiempos de carga más rápidos. Utiliza una estrategia de "Network-First", intentando obtener siempre la versión más reciente del servidor y recurriendo a la caché solo si la red falla.
+### Hoja: `Cortes`
+- **Propósito:** Catálogo principal de vehículos.
+- **Columnas Principales:** `ID`, `Categoría`, `Marca`, `Modelo`, `Año (Generacion)`, `Tipo de Encendido`, `Colaborador`, `Util`, `Imagen del Vehiculo`, `Tipo de Corte`, `Descripcion del Corte`, `Imagen del Corte`, `Tipo de Corte 2`, `Descripcion del Segundo Corte`, `Imagen de Corte 2`, `Tipo de Corte 3`, `Descripcion del Corte 3`, `Imagen del Corte 3`, `Apertura`, `Imagen de la Apertura`, `Cables de Alimentacion`, `Imagen de los Cables de Alimentacion`, `Nota Importante`, `Como desarmar los plasticos`.
 
-## 5. Estructura de la Base de Datos (Google Sheets)
+### Hoja: `Tutoriales`
+- **Propósito:** Contenido para la sección de tutoriales.
+- **Columnas:** `ID`, `Tema`, `Como identificarlo`, `Donde encontrarlo`, `Detalles`, `Imagen`, `Video`.
 
-El Spreadsheet con ID `1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo` es la única fuente de verdad para la aplicación.
+### Hoja: `Relay`
+- **Propósito:** Contenido para la sección de configuración de relays.
+- **Columnas:** `ID`, `Configuracion`, `Funcion`, `Vehiculo donde se utiliza`, `PIN 30(entrada)`, `PIN 85(bobina +)`, `PIN 86(bobina - )`, `PIN 87a(comun cerrado)`, `PIN 87(Comunmente Abierto)`, `Observacion`, `Imagen`.
 
-- **`Users`:** Almacena la información y credenciales de los usuarios. **La estructura de esta hoja es crítica y no debe ser modificada**.
-- **`Cortes`:** El catálogo principal de vehículos e información de cortes.
-- **`Tutoriales`:** Contenido para la sección de tutoriales.
-- **`Relay`:** Contenido para la sección de configuración de relays.
-- **`Feedbacks`:** Almacena los reportes de problemas enviados por los usuarios.
-- **`Logs`:** Hoja utilizada por los servicios de backend para registrar eventos de depuración y errores.
-- **`ActiveSessions`:** Gestiona las sesiones de usuario activas para controlar el número de inicios de sesión simultáneos por rol.
+### Hojas de Sistema
+- **`Feedbacks`:** Almacena los reportes de problemas.
+- **`Logs`:** Registra eventos y errores del backend para depuración.
+- **`ActiveSessions`:** Gestiona las sesiones activas para controlar inicios de sesión simultáneos.
