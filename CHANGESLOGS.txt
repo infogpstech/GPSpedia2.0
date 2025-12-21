@@ -1,5 +1,14 @@
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.1.2 - 31/07/2024
+- **ANÁLISIS DE LÓGICA Y CORRECCIONES FINALES DE DOCUMENTACIÓN:**
+  - **Contexto:** Se realizó una auditoría final para asegurar la coherencia entre el frontend y el backend, y para corregir omisiones finales en la documentación.
+  - **Acciones Realizadas:**
+    1.  **Corrección de `README.md`:** Se ajustó la descripción del bug de layout para apuntar correctamente al "Header/Search Bar" y se añadió la tarea pendiente del "Botón de Instalación PWA" al checklist.
+    2.  **Análisis Lógico Frontend-Backend:** Se llevó a cabo una revisión línea por línea de todas las llamadas a la API desde los archivos `.html` para compararlas con las expectativas de los 5 microservicios.
+    3.  **Documentación de Discrepancias:** Se añadió la sección "Análisis de Coherencia Lógica" a `INSTRUCTIVO.TXT`, documentando una inconsistencia menor encontrada en la llamada a la acción `checkVehicle` (el frontend envía `tipo-encendido` y el backend espera `tipoEncendido`).
+- **Estado del Proyecto:** La documentación está ahora completa, corregida y refleja con alta fidelidad el estado del código y las tareas pendientes. El proyecto está listo para pasar a la fase de desarrollo y corrección de errores.
+
 ## v3.1.1 - 31/07/2024 (Revisión 2)
 - **CAMBIO DE ENFOQUE Y ANÁLISIS PROFUNDO (CORREGIDO Y AMPLIADO):**
   - **Contexto:** Tras la retroalimentación del usuario, se realizó una segunda revisión más exhaustiva de la documentación para asegurar que incluyera todos los detalles omitidos en la primera versión.
