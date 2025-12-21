@@ -115,3 +115,25 @@ El Spreadsheet con ID `1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo` contiene la
 - **`Feedbacks`:** Almacena los reportes de problemas.
 - **`Logs`:** Registra eventos y errores del backend para depuración.
 - **`ActiveSessions`:** Gestiona las sesiones activas para controlar inicios de sesión simultáneos.
+
+## 7. Guía y Normas para el Desarrollo
+
+Para mantener la consistencia, calidad y mantenibilidad del proyecto, es mandatorio seguir las siguientes normas en todo momento:
+
+### A. Control de Versiones y Documentación
+1.  **Actualización de Versión:**
+    *   Cualquier cambio, por menor que sea, debe ir acompañado de una actualización en el número de versión visible para el usuario.
+    *   **Archivos HTML (e.g., `index.html`):** Actualizar el número de versión en el modal de login.
+    *   **Archivos de Servicio (`.js`, `.gs`):** Actualizar el número de versión en el mensaje de estado `doGet` para confirmar el despliegue exitoso.
+
+2.  **Documentación Interna Obligatoria:**
+    *   Antes de iniciar cualquier tarea, se debe consultar la documentación interna: `README.md`, `INSTRUCTIVO.TXT` y `CHANGESLOGS.txt`.
+    *   Al finalizar cualquier cambio, se deben actualizar estos tres archivos de manera detallada.
+
+3.  **Formato del `CHANGESLOGS.txt`:**
+    *   Cada entrada debe incluir el archivo modificado y, de ser posible, el número de línea exacto donde se realizó el cambio para facilitar la revisión.
+
+### B. Calidad del Código
+1.  **Comentarios en el Código:**
+    *   Toda línea de código nueva o modificada debe ir acompañada de un comentario claro y conciso que explique su función o el cambio realizado.
+    *   El objetivo es que cualquier desarrollador pueda entender el propósito del código sin necesidad de análisis profundos.

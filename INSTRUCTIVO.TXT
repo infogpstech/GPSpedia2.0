@@ -7,6 +7,21 @@ Versión del Documento: 2.0 (Resultado de Auditoría)
 Este documento detalla los resultados de una auditoría completa del proyecto GPSpedia 2.0. Se han verificado las funcionalidades descritas en el README.md y se han identificado discrepancias, bugs confirmados y funcionalidades pendientes.
 
 ---------------------------------
+NORMAS OBLIGATORIAS DE DESARROLLO
+---------------------------------
+
+Para mantener la consistencia, calidad y mantenibilidad del proyecto, es mandatorio seguir las siguientes normas en todo momento:
+
+**A. Control de Versiones y Documentación:**
+1.  **Actualización de Versión:** Cualquier cambio debe reflejarse en el número de versión visible en `index.html` (modal de login) y en los mensajes `doGet` de los servicios de Apps Script.
+2.  **Consulta de Documentación:** Antes de cualquier desarrollo, se debe revisar `README.md`, `INSTRUCTIVO.TXT` y `CHANGESLOGS.txt`.
+3.  **Actualización de Documentación:** Al finalizar, se deben actualizar los tres documentos mencionados con los detalles de los cambios.
+4.  **Detalle en `CHANGESLOGS.txt`:** Cada entrada debe especificar el archivo y número de línea modificado.
+
+**B. Calidad del Código:**
+1.  **Comentarios:** Toda línea de código nueva o modificada debe tener un comentario explicando su propósito.
+
+---------------------------------
 1. DISCREPANCIAS CON LA DOCUMENTACIÓN
 ---------------------------------
 

@@ -1,3 +1,18 @@
+=================================================
+ NORMAS OBLIGATORIAS PARA EL REGISTRO DE CAMBIOS
+=================================================
+
+**IMPORTANTE:** Antes de registrar un nuevo cambio, asegúrese de haber seguido todas las normas de desarrollo descritas en `README.md` y `INSTRUCTIVO.TXT`.
+
+1.  **Actualizar Versión:** Confirme que el número de versión (`vX.X.X`) es correcto y ha sido actualizado en los archivos correspondientes (`index.html`, servicios `.js`/`.gs`).
+2.  **Documentación Interna:** Verifique que `README.md` y `INSTRUCTIVO.TXT` han sido actualizados para reflejar los cambios realizados.
+3.  **Formato Detallado:**
+    *   **Archivo y Línea:** Cada cambio listado debe especificar el nombre del archivo modificado y el número de línea exacto.
+    *   **Comentarios de Código:** Confirme que las líneas de código nuevas o modificadas tienen comentarios explicativos.
+    *   **Claridad:** Describa el "qué" y el "porqué" del cambio de manera clara y concisa.
+
+-------------------------------------------------
+
 # Registro de Cambios del Proyecto GPSpedia
 
 ## v3.1.2 - 31/07/2024
