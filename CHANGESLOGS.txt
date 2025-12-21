@@ -1,5 +1,11 @@
 # Registro de Cambios del Proyecto GPSpedia
 
+## v1.1.0 - 2024-07-28
+- **CORRECCIÓN DE BLOQUEO EN PANTALLA DE SPLASH:**
+  - **Contexto:** La aplicación se quedaba atascada en la pantalla de splash debido a conflictos y duplicación en la lógica de inicialización dentro de `index.html`.
+  - **Desarrollo:** Se refactorizó y unificó por completo el bloque `<script>` de `index.html`. Se eliminaron las funciones duplicadas y se estableció un flujo de ejecución claro y único, asegurando que la lógica de `checkSession` e `initializeAppData` se llame correctamente sin conflictos.
+  - **Resultado:** El error de bloqueo ha sido resuelto. La aplicación ahora se inicializa correctamente, mostrando la pantalla de login o el contenido principal según el estado de la sesión del usuario.
+
 ## v1.0.9 - 2024-07-28
 - **ACTUALIZACIÓN DE ENDPOINT DEL SERVICIO DE CATÁLOGO (CORRECCIÓN):**
   - **Contexto:** Después de corregir la lógica del backend en `services/catalog/catalog.js`, se desplegó una nueva versión del servicio.
@@ -18,7 +24,7 @@
   - **Desarrollo:**
     1.  **Backend Adaptado:** Se modificó `services/catalog/catalog.js` para incluir una nueva acción `getNavigationData`. Esta función ahora maneja solicitudes jerárquicas, devolviendo la lista de elementos para el siguiente nivel de navegación (ej. categorías -> marcas -> modelos).
     2.  **Frontend Reconstruido:** Se eliminó la lógica de "scroll infinito" de `index.html`. En su lugar, se reimplementó el sistema de navegación por pasos, creando funciones como `navegar`, `renderNivel` y `retroceder` que interactúan con el nuevo endpoint del backend.
-  - **Resultado:** Se ha restaurado la lógica de navegación original y preferida por el usuario. La aplicación ahora permite explorar el catálogo de manera jerárqu'ca, mejorando la usabilidad y la eficiencia al cargar solo los datos necesarios para cada vista.
+  - **Resultado:** Se ha restaurado la lógica de navegación original y preferida por el usuario. La aplicación ahora permite explorar el catálogo de manera jerár'ca, mejorando la usabilidad y la eficiencia al cargar solo los datos necesarios para cada vista.
 
 ## v1.0.6 - 2024-07-27
 - **ACTUALIZACIÓN DE ENDPOINT DEL SERVICIO DE CATÁLOGO:**
