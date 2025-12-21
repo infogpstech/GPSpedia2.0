@@ -1,5 +1,14 @@
 # Registro de Cambios del Proyecto GPSpedia
 
+## v1.0.5 - 2024-07-27
+- **OPTIMIZACIÓN INTEGRAL DEL SERVICIO DE CATÁLOGO (`catalog.js`):**
+  - **Contexto:** Se detectaron problemas de rendimiento y funcionalidad en la carga y visualización del catálogo de vehículos. La carga inicial era lenta, los nuevos registros no aparecían al principio y el filtrado por categorías no funcionaba.
+  - **Desarrollo:**
+    1.  **Filtro y Ordenación en Backend:** Se refactorizó la función `handleGetCatalogData` para que maneje la lógica de filtrado y ordenación directamente en el servidor. Ahora solo se cargan los datos de la categoría solicitada (`cortes`, `tutoriales`, `relay`), y los resultados se devuelven en orden cronológico inverso, asegurando que los registros más nuevos aparezcan primero.
+    2.  **Implementación de Paginación:** Se añadió lógica de paginación en el backend. La función ahora acepta parámetros `page` y `pageSize` para devolver los datos en bloques manejables. Esto reduce drásticamente el tiempo de carga inicial y el consumo de ancho de banda.
+    3.  **Optimización de Carga de Imágenes:** Se implementó una función (`createThumbnailUrl`) que genera URLs de miniaturas optimizadas (300px) para las imágenes y diagramas de Google Drive. El backend ahora devuelve tanto las URLs originales como las de las miniaturas, permitiendo al frontend cargar vistas previas ligeras y posponer la carga de imágenes en alta resolución.
+  - **Resultado:** El servicio de catálogo ahora es significativamente más rápido, eficiente y escalable. La carga de datos es más ágil, la interfaz responde mejor y se ha solucionado el problema de ordenación y filtrado.
+
 ## v1.0.4 - 2024-07-26
 - **CORRECCIÓN DE ERROR EN PARÁMETROS DE `checkVehicle`:**
   - **Contexto:** Después de corregir el enrutamiento, la función `checkVehicle` seguía fallando con el error "Parámetros de búsqueda incompletos". Un análisis del código legado (v1.5) reveló la causa raíz.
@@ -40,7 +49,7 @@
     3. Se añadió la función `handleValidateSession` para verificar la validez de los tokens de sesión contra la hoja `ActiveSessions`.
     4. Se integró un módulo de logging (`logEvent`) que registra todos los eventos importantes (logins exitosos, fallidos, errores) en la hoja "Logs".
     5. Se estableció la versión del nuevo servicio en `v1.0`, reflejada tanto en el `doGet` del script como en la interfaz de `index.html`.
-  - **Mejora de Seguridad:** Se implementó un sistema de hashing de contraseñas (SHA-256 con salt) para reemplazar el almacenamiento en texto plano, mejorando significativamente la seguridad de las credenciales de usuario. Se añadió una función de migración para actualizar las contraseñas existentes.
+  - **Mejora de Seguridad:** Se implementó un sistema de hashing de contraseñas (SHA-265 con salt) para reemplazar el almacenamiento en texto plano, mejorando significativamente la seguridad de las credenciales de usuario. Se añadió una función de migración para actualizar las contraseñas existentes.
   - **Resultado:** Este nuevo servicio aísla la lógica de autenticación, mejora la robustez y proporciona un sistema de depuración claro, sentando una base estable y segura para el sistema.
 
 ## v3.1.0 - 21/12/2023

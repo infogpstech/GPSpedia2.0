@@ -17,8 +17,8 @@ function getSpreadsheet() {
 
 const SHEET_NAMES = {
     CORTES: "Cortes",
-    TUTORIALES: "Tutoriales",
-    RELAY: "Relay"
+    TUTORIALES: "Tutorial",
+    RELAY: "Configuración del Relay"
 };
 
 // ============================================================================
@@ -29,7 +29,7 @@ function doGet(e) {
   try {
     const response = {
       status: 'success',
-      message: 'GPSpedia CATALOG-SERVICE v1.0 is active.'
+      message: 'GPSpedia CATALOG-SERVICE v1.1 is active.'
     };
     return ContentService
       .createTextOutput(JSON.stringify(response))
@@ -55,7 +55,7 @@ function doPost(e) {
 
         switch (request.action) {
             case 'getCatalogData':
-                response = handleGetCatalogData();
+                response = handleGetCatalogData(request.payload);
                 break;
             case 'getDropdownData':
                  response = handleGetDropdownData();
@@ -86,36 +86,68 @@ function doPost(e) {
 // MANEJADORES DE ACCIONES (HANDLERS)
 // ============================================================================
 
-function handleGetCatalogData() {
-    const sheetsToFetch = {
+function handleGetCatalogData(payload) {
+    // Parámetros de paginación y categoría con valores por defecto
+    const category = (payload && payload.category) ? payload.category : 'cortes';
+    const page = (payload && payload.page) ? parseInt(payload.page, 10) : 1;
+    const pageSize = (payload && payload.pageSize) ? parseInt(payload.pageSize, 10) : 10;
+
+    const SHEET_MAP = {
         cortes: SHEET_NAMES.CORTES,
         tutoriales: SHEET_NAMES.TUTORIALES,
         relay: SHEET_NAMES.RELAY
     };
-    const allData = {};
 
-    for (const key in sheetsToFetch) {
-        try {
-            const sheet = getSpreadsheet().getSheetByName(sheetsToFetch[key]);
-            if (sheet) {
-                const data = sheet.getDataRange().getValues();
-                const headers = data.shift().map(header => camelCase(header.trim()));
-                allData[key] = data.map(row => {
-                    const obj = {};
-                    headers.forEach((header, i) => {
-                        obj[header] = row[i];
-                    });
-                    return obj;
-                });
-            } else {
-                allData[key] = [];
-            }
-        } catch (e) {
-            Logger.log(`Error cargando la hoja ${sheetsToFetch[key]}: ${e.message}`);
-            allData[key] = [];
-        }
+    const sheetName = SHEET_MAP[category];
+    if (!sheetName) {
+        throw new Error(`Categoría no válida: ${category}`);
     }
-    return { status: 'success', data: allData };
+
+    const sheet = getSpreadsheet().getSheetByName(sheetName);
+    if (!sheet) {
+        return { status: 'success', data: [], category: category, totalPages: 0, currentPage: 1 };
+    }
+
+    const data = sheet.getDataRange().getValues();
+    if (data.length < 2) {
+        return { status: 'success', data: [], category: category, totalPages: 0, currentPage: 1 };
+    }
+
+    const headers = data.shift().map(header => camelCase(header.trim()));
+
+    // Invertir los datos para que los más recientes aparezcan primero.
+    const reversedData = data.reverse();
+
+    // Lógica de paginación
+    const totalRecords = reversedData.length;
+    const totalPages = Math.ceil(totalRecords / pageSize);
+    const startIndex = (page - 1) * pageSize;
+    const paginatedData = reversedData.slice(startIndex, startIndex + pageSize);
+
+    const formattedData = paginatedData.map(row => {
+        const obj = {};
+        headers.forEach((header, i) => {
+            obj[header] = row[i];
+        });
+
+        // Generar URLs de miniaturas para optimizar la carga
+        if (obj.imagenUrl) {
+            obj.imagenThumbnailUrl = createThumbnailUrl(obj.imagenUrl);
+        }
+        if (obj.diagramaUrl) {
+            obj.diagramaThumbnailUrl = createThumbnailUrl(obj.diagramaUrl);
+        }
+
+        return obj;
+    });
+
+    return {
+        status: 'success',
+        data: formattedData,
+        category: category,
+        totalPages: totalPages,
+        currentPage: page
+    };
 }
 
 function handleGetDropdownData() {
@@ -179,6 +211,20 @@ function handleCheckVehicle(payload) {
 // ============================================================================
 // FUNCIONES AUXILIARES
 // ============================================================================
+
+function createThumbnailUrl(driveUrl) {
+    if (typeof driveUrl !== 'string' || driveUrl.trim() === '') {
+        return driveUrl;
+    }
+    const regex = /drive\.google\.com\/(?:file\/d\/|open\?id=)([a-zA-Z0-9_-]+)/;
+    const match = driveUrl.match(regex);
+    if (match && match[1]) {
+        const fileId = match[1];
+        // Se usa s300 para una miniatura de 300px de ancho, optimizando la carga
+        return `https://lh3.googleusercontent.com/d/${fileId}=s300`;
+    }
+    return driveUrl;
+}
 
 function camelCase(str) {
     if (!str) return '';
