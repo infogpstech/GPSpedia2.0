@@ -1,5 +1,15 @@
 # Registro de Cambios del Proyecto GPSpedia
 
+## v1.0.1 - 2024-07-25
+- **REFACTORIZACIÓN Y FINALIZACIÓN DEL SERVICIO DE ESCRITURA (`write.js`):**
+  - **Contexto:** Se completó y robusteció el microservicio `services/write/write.js` para manejar la adición y actualización de registros de vehículos, basándose en la lógica estable del sistema legado.
+  - **Desarrollo:**
+    1.  **Eliminación de Mapeo Dinámico:** Se reemplazó la función `getColumnMap` por un objeto `COLS` hardcoded, eliminando una fuente potencial de errores y mejorando la estabilidad, en línea con la arquitectura del nuevo `Auth.gs`.
+    2.  **Implementación de `checkVehicle`:** Se añadió la función `handleCheckVehicle` que faltaba, permitiendo al frontend verificar si un vehículo ya existe antes de decidir si crear un nuevo registro o actualizar uno existente.
+    3.  **Mejora en Creación de Filas:** Se adoptó el método `copyTo`/`clearContent` del código legado para la creación de nuevas filas. Esto garantiza que todas las propiedades de la fila anterior, incluyendo **fórmulas, validaciones de datos y formatos condicionales**, se hereden correctamente.
+    4.  **Módulo de Depuración:** Se implementó un módulo de depuración en la función `doGet` que permite simular llamadas `doPost` a través de parámetros en la URL, facilitando las pruebas del backend con herramientas como cURL.
+  - **Resultado:** El servicio de escritura ahora es más robusto, completo y fácil de depurar. La correcta herencia de propiedades en las nuevas filas asegura la integridad de los datos en la hoja de cálculo.
+
 ## v1.0 - 2024-07-24
 - **RECONSTRUCCIÓN DEL SERVICIO DE AUTENTICACIÓN:**
   - **Contexto:** Para resolver de forma definitiva los persistentes errores de "Credenciales inválidas" y "Cannot read properties of null", se tomó la decisión de reconstruir el servicio de autenticación desde cero.
