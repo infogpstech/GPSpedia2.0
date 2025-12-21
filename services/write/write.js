@@ -102,6 +102,7 @@ function handleAddCorte(payload) {
         const newRowRange = sheet.getRange(targetRow, 1, 1, sheet.getMaxColumns());
         previousRowRange.copyTo(newRowRange, SpreadsheetApp.CopyPasteType.PASTE_FORMAT, false);
         previousRowRange.copyTo(newRowRange, SpreadsheetApp.CopyPasteType.PASTE_DATA_VALIDATION, false);
+        previousRowRange.copyTo(newRowRange, SpreadsheetApp.CopyPasteType.PASTE_FORMULA, false);
         newRowRange.clearContent();
 
         sheet.getRange(targetRow, COLS.categoria).setValue(categoria);

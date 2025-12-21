@@ -1,5 +1,25 @@
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.1.2 - 31/07/2024
+- **ANÁLISIS DE LÓGICA Y CORRECCIONES FINALES DE DOCUMENTACIÓN:**
+  - **Contexto:** Se realizó una auditoría final para asegurar la coherencia entre el frontend y el backend, y para corregir omisiones finales en la documentación.
+  - **Acciones Realizadas:**
+    1.  **Corrección de `README.md`:** Se ajustó la descripción del bug de layout para apuntar correctamente al "Header/Search Bar" y se añadió la tarea pendiente del "Botón de Instalación PWA" al checklist.
+    2.  **Análisis Lógico Frontend-Backend:** Se llevó a cabo una revisión línea por línea de todas las llamadas a la API desde los archivos `.html` para compararlas con las expectativas de los 5 microservicios.
+    3.  **Documentación de Discrepancias:** Se añadió la sección "Análisis de Coherencia Lógica" a `INSTRUCTIVO.TXT`, documentando una inconsistencia menor encontrada en la llamada a la acción `checkVehicle` (el frontend envía `tipo-encendido` y el backend espera `tipoEncendido`).
+- **Estado del Proyecto:** La documentación está ahora completa, corregida y refleja con alta fidelidad el estado del código y las tareas pendientes. El proyecto está listo para pasar a la fase de desarrollo y corrección de errores.
+
+## v3.1.1 - 31/07/2024 (Revisión 2)
+- **CAMBIO DE ENFOQUE Y ANÁLISIS PROFUNDO (CORREGIDO Y AMPLIADO):**
+  - **Contexto:** Tras la retroalimentación del usuario, se realizó una segunda revisión más exhaustiva de la documentación para asegurar que incluyera todos los detalles omitidos en la primera versión.
+  - **Acciones Realizadas:**
+    1.  **Re-análisis del Historial y `index.html`:** Se cruzó la información del historial del chat con el estado actual del código para identificar con precisión todas las funcionalidades pendientes y los detalles de la base de datos.
+    2.  **Actualización de `README.md` (Versión 2):** Se expandió la documentación para incluir:
+        - La **estructura de columnas detallada** de todas las hojas principales de la base de datos (`Cortes`, `Tutoriales`, `Relay`), no solo la de `Users`.
+        - Una nueva sección de **"Trabajos Pendientes"** en formato de checklist para visualizar claramente los bugs y las nuevas funcionalidades solicitadas (menú hamburguesa, enlaces del footer, etc.).
+    3.  **Actualización de `INSTRUCTIVO.TXT`:** Se añadió una sección de **"Funcionalidades Pendientes de Implementación"** para que el documento refleje de manera completa tanto los errores a corregir como las características nuevas solicitadas.
+- **Estado del Proyecto:** La fase de análisis y documentación se considera ahora completa y alineada con los requerimientos. El siguiente paso es proceder con la corrección de los errores y la implementación de las funcionalidades documentadas.
+
 ## v3.1.0 - 21/12/2023
 - **MIGRACIÓN COMPLETA A ARQUITECTURA MODULAR (PLAN B):**
   - **Contexto:** Se inició una migración completa del backend monolítico (`Code.gs`) a una arquitectura de cinco microservicios (`Auth`, `Catalog`, `Write`, `Users`, `Feedback`) para mejorar el rendimiento y la mantenibilidad, siguiendo un plan detallado ("Plan B").
@@ -9,7 +29,7 @@
     3. Se refactorizaron todos los archivos HTML (`index.html`, `add_cortes.html`, `users.html`) para usar el nuevo `api-manager`.
   - **Problema Crítico Persistente:** Durante y después de la migración, se encontró un bug persistente y crítico en el servicio de autenticación (`Auth.js`) que causaba el error "Credenciales inválidas", impidiendo el inicio de sesión. El problema persistió a pesar de múltiples intentos de depuración, incluyendo la implementación de un sistema de logging avanzado y varias refactorizaciones del código.
   - **Decisión y Resolución Final:** Se determinó que la complejidad heredada y los múltiples parches en `Auth.js` eran la causa de la inestabilidad. Se tomó la decisión de **descartar el código problemático y reconstruir el servicio `Auth.js` desde cero**, siguiendo las instrucciones y detalles de su funcionamiento en README.MD para usar una estructura de columnas fija (hardcoded). Esta acción pretendia eliminar la causa raíz del problema y finalmente NO resolvió el bug de autenticación de manera, el error aun persistia.
-- El ultimo commit no soluciono el problema, sin embargo el mensaje de error al intentar iniciar sesión cambio a "Error inesperado: Cannot read properties of null (reading 'getDataRange')" 
+- El ultimo commit no soluciono el problema, sin embargo el mensaje de error al intentar iniciar sesión cambio a "Error inesperado: Cannot read properties of null (reading 'getDataRange')"
 - **Estado del Proyecto:** La migración a la arquitectura modular está completa y el problema de autenticación NO ha sido resuelto. El proyecto se ha encontrado con un impase, ya que el problema de autenticación no permite el ingreso al sistema y comprobar las demas funcionalidades del sistema.
 - **Actualización de Documentación:** Se actualizó `README.md` con el plan arquitectónico completo de la v2.0 y se ajustó `INSTRUCCIONES_DESPLIEGUE.md` para la nueva estructura.
 

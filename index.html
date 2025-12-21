@@ -18,7 +18,7 @@ body {
     background: #f4f4f4;
     display: flex;
     flex-direction: column;
-    min-height: 100%;
+    min-height: 100vh;
 }
 h1,h2,h3,h4 {
     margin: 10px 0;
@@ -29,7 +29,7 @@ h1,h2,h3,h4 {
     margin: 0 auto;
     width: 100%;
     box-sizing: border-box;
-    flex: 1 0 auto;
+    flex-grow: 1;
 }
 .backBtn {
     margin-bottom: 15px;
@@ -1108,7 +1108,18 @@ function mostrarSeccion(seccion) {
     document.getElementById(`btn-${seccion}`).classList.add('active');
 
     if (renderFunction) {
-        renderFunction(); // Renderiza con los datos ya cargados en memoria.
+        if (seccion === 'tutoriales' || seccion === 'relay') {
+            postToAction('getCatalogData').then(result => {
+                if (seccion === 'tutoriales') {
+                    datosTutoriales = result.data.tutoriales || [];
+                } else if (seccion === 'relay') {
+                    datosRelay = result.data.relay || [];
+                }
+                renderFunction();
+            });
+        } else {
+            renderFunction(); // Renderiza con los datos ya cargados en memoria.
+        }
     }
 }
 
@@ -1585,10 +1596,11 @@ function mostrarCategorias() {
     const categorias = [...new Set(datosOriginales.map(item => item.categoria))].filter(c => c).sort();
     const grid = document.createElement("div"); grid.className = "grid";
     categorias.forEach(cat => {
-        const ejemplo = datosOriginales.find(item => item.categoria === cat && item.imagenDelVehiculo);
+        const itemsInCategory = datosOriginales.filter(item => item.categoria === cat);
+        const ejemplo = itemsInCategory.find(item => item.imagenDeLaApertura) || itemsInCategory.find(item => item.imagenDelVehiculo);
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarMarcas(cat);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo?.imagenDelVehiculo); img.alt = `Categoría ${cat}`; card.appendChild(img);
+        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo?.imagenDeLaApertura || ejemplo?.imagenDelVehiculo); img.alt = `Categoría ${cat}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay"; overlay.innerHTML = cat; card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -1626,13 +1638,15 @@ function mostrarMarcas(categoria) {
     estado = { nivel: "marcas", categoria: categoria };
     const cont = document.getElementById("contenido");
     cont.innerHTML = `<span class="backBtn" onclick="irAPaginaPrincipal()">${backSvg} Volver</span><h4>Marcas de ${categoria}</h4>`;
-    const marcas = [...new Set(datosOriginales.filter(item => item.categoria === categoria).map(item => item.marca))].filter(m => m).sort();
+    const itemsInCategory = datosOriginales.filter(item => item.categoria === categoria);
+    const marcas = [...new Set(itemsInCategory.map(item => item.marca))].filter(m => m).sort();
     const grid = document.createElement("div"); grid.className = "grid";
     marcas.forEach(m => {
-        const ejemplo = datosOriginales.find(item => item.marca === m && item.imagenDelVehiculo);
+        const itemsInBrand = itemsInCategory.filter(item => item.marca === m);
+        const ejemplo = itemsInBrand.find(item => item.imagenDeLaApertura) || itemsInBrand.find(item => item.imagenDelVehiculo);
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarModelos(categoria, m);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo?.imagenDelVehiculo); img.alt = `Marca ${m}`; card.appendChild(img);
+        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo?.imagenDeLaApertura || ejemplo?.imagenDelVehiculo); img.alt = `Marca ${m}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay"; overlay.innerHTML = m; card.appendChild(overlay);
         grid.appendChild(card);
     });

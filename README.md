@@ -2,198 +2,116 @@
 
 ## 1. Descripción General
 
-GPSpedia es una aplicación web interna diseñada para técnicos e instaladores de GPS. Su objetivo principal es centralizar y estandarizar el conocimiento sobre los puntos de corte de corriente e ignición en una amplia variedad de vehículos.
+GPSpedia es una Aplicación Web Progresiva (PWA) interna diseñada para técnicos e instaladores de GPS. Su objetivo principal es centralizar y estandarizar el conocimiento sobre los puntos de corte de corriente e ignición en una amplia variedad de vehículos, mejorando la eficiencia y reduciendo errores en las instalaciones.
 
-En su versión 2.0, la aplicación ha sido completamente refactorizada para utilizar una **arquitectura de microservicios**, mejorando drásticamente el rendimiento, la escalabilidad y la facilidad de mantenimiento.
+La versión 2.0 representa una refactorización completa del sistema original, migrando de una arquitectura monolítica a una basada en **microservicios**. Este cambio mejora drásticamente el rendimiento, la escalabilidad y la facilidad de mantenimiento del proyecto.
 
-## 2. Plan Detallado de Migración a Arquitectura Modular (Plan B)
+## 2. Arquitectura del Sistema
 
-Este documento sirve como la documentación oficial de la nueva arquitectura de GPSpedia.
+La arquitectura de GPSpedia 2.0 se compone de tres capas principales:
 
-### 📋 FASE 1: INVENTARIO Y ANÁLISIS
+1.  **Frontend (Cliente):** Una PWA construida con HTML, CSS y JavaScript puro. Se encarga de toda la interfaz de usuario y la interacción.
+2.  **Backend (Servidor):** Compuesto por cinco microservicios independientes, cada uno desplegado como un proyecto de Google Apps Script.
+3.  **Base de Datos:** Una única hoja de cálculo de Google Sheets que actúa como base de datos central para todos los servicios.
 
-#### 1.1 Inventario de Funciones
-Se identificaron y categorizaron todas las funciones del sistema original:
-
+### Diagrama de Comunicación
 ```
-CURRENT Code.gs FUNCTIONS INVENTORY:
-─────────────────────────────────────
-CATEGORÍA       | FUNCIONES         | VOLUMEN | CRÍTICO
-─────────────────────────────────────
-AUTH/LOGIN      | handleLogin       | Alto    | Sí
-                | handleValidateSession
-                | SESSION_LIMITS
-─────────────────────────────────────
-CATÁLOGO/LECTURA| handleGetCatalogData | Muy Alto | Sí
-                | handleGetDropdownData
-                | handleCheckVehicle
-                | camelCase
-                | getColumnMap
-─────────────────────────────────────
-ESCRITURA       | handleAddCorte    | Alto    | Sí
-                | handleFileUploads
-                | getOrCreateFolder
-                | updateRowData
-                | isYearInRange
-─────────────────────────────────────
-FEEDBACK        | handleRecordLike  | Bajo    | No
-                | handleReportProblem
-─────────────────────────────────────
-USUARIOS        | handleGetUsers    | Medio   | Sí
-                | handleCreateUser
-                | handleUpdateUser
-                | handleDeleteUser
-                | handleChangePassword
-                | generateUniqueUsername
-─────────────────────────────────────
-AUXILIARES      | arrayToMap        | Bajo    | Sí
-                | (compartidas)
-─────────────────────────────────────
+                         ┌──────────────────┐
+                         │   API_MANAGER.JS │ (Enrutador Lógico en Frontend)
+                         └──────────────────┘
+                                   │
+           ┌───────────────────────┼───────────────────────┐
+           ▼                       ▼                       ▼
+┌───────────────────┐   ┌────────────────────┐   ┌──────────────────┐
+│ GPSpedia-Auth     │   │ GPSpedia-Catalog   │   │ GPSpedia-Write   │
+│ (auth.js)         │   │ (catalog.js)       │   │ (write.js)       │
+└───────────────────┘   └────────────────────┘   └──────────────────┘
+           ▲                       ▲                       ▲
+           │                       │                       │
+┌───────────────────┐   ┌────────────────────┐             │
+│ GPSpedia-Users    │   │ GPSpedia-Feedback  │             │
+│ (users.js)        │   │ (feedback.js)      │             │
+└───────────────────┘   └────────────────────┘             │
+           │                       │                       │
+           └───────────────────────▼───────────────────────┘
+                                   │
+                         ┌──────────────────┐
+                         │  GOOGLE SHEETS   │ (Base de Datos Central)
+                         └──────────────────┘
 ```
 
-#### 1.2 Análisis de Dependencias
+## 3. Trabajos Pendientes (Checklist)
 
-```
-DEPENDENCY MAP:
-1. handleAddCorte → handleFileUploads → getOrCreateFolder
-2. handleLogin → SESSION_LIMITS → ActiveSessions
-3. Most handlers → getColumnMap → camelCase
-4. handleCheckVehicle → isYearInRange
-```
+Esta sección documenta las tareas de desarrollo y corrección que están pendientes de implementación.
 
-### 🏗️ FASE 2: DISEÑO ARQUITECTURAL
+### Corrección de Errores (Bugs)
+- [ ] **Reparar Secciones "Tutoriales" y "Relay":** Actualmente, estas secciones no cargan datos al ser seleccionadas. Se debe implementar la lógica de `fetch` en la función `mostrarSeccion` de `index.html` para que los datos se soliciten al backend.
+- [ ] **Corregir Lógica de Imágenes del Catálogo:** La imagen que se muestra en las tarjetas de Categoría y Marca no es la correcta. Se debe ajustar la lógica para que se priorice la `imagenDelVehiculo`.
+- [ ] **Error de Layout (Header):** El encabezado (barra de búsqueda) no se mantiene fijo en la parte superior al hacer scroll. Se requiere una corrección de CSS para asegurar su posición.
 
-#### 2.1 Definición de 5 Proyectos Apps Script
+### Nuevas Funcionalidades y Mejoras de UI/UX
+- [ ] **Implementar Menú Hamburguesa Funcional:**
+    - [ ] Mover los botones de secciones ("Cortes", "Tutoriales", "Relay") del `section-selector` al interior del menú lateral (`side-menu`).
+    - [ ] Mover el botón "Agregar Nuevo" al menú lateral.
+    - [ ] Mover el botón de "Cerrar Sesión" del header al menú lateral.
+- [ ] **Agregar Botón de Instalación PWA:** Añadir un botón de instalación personalizado que solo sea visible en navegadores web y esté oculto cuando la aplicación ya se está ejecutando como una PWA.
+- [ ] **Agregar Enlaces en el Footer:** Añadir los enlaces "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes" en el pie de página de la aplicación y agregar el html que contenga esa información y el formulario de contacto. 
 
-Se diseñó la separación en cinco microservicios independientes:
+## 4. Componentes del Backend (Microservicios)
 
-```
-PROYECTO 1: GPSPEDIA-AUTH (autenticacion.js)
-────────────────────────────────────────────
-FUNCIONES:
-• handleLogin
-• handleValidateSession
-• SESSION_LIMITS management
-• ActiveSessions sheet handling
-HOJAS ACCEDIDAS: Users, ActiveSessions
-PERMISOS: Lectura/Escritura en 2 hojas
+El backend consta de cinco servicios de Google Apps Script, cada uno con una responsabilidad única.
 
-────────────────────────────────────────────
-PROYECTO 2: GPSPEDIA-CATALOG (catalog.js)
-────────────────────────────────────────────
-FUNCIONES:
-• handleGetCatalogData
-• handleGetDropdownData
-• handleCheckVehicle
-• camelCase (local)
-• getColumnMap (versión catálogo)
-• isYearInRange
-HOJAS ACCEDIDAS: Cortes, Tutoriales, Relay
-PERMISOS: SOLO LECTURA
+### `GPSpedia-Auth` (`services/auth/auth.js`)
+- **Responsabilidad:** Autenticación y sesiones de usuario.
+- **Hojas Accedidas:** `Users` (Lectura), `ActiveSessions` (Lectura/Escritura).
+- **Nota Crítica:** Utiliza un mapeo de columnas **fijo y codificado**. Cambios en la estructura de la hoja `Users` romperán el login.
 
-────────────────────────────────────────────
-PROYECTO 3: GPSPEDIA-WRITE (write.js)
-────────────────────────────────────────────
-FUNCIONES:
-• handleAddCorte
-• handleFileUploads
-• getOrCreateFolder
-• updateRowData
-• camelCase (local)
-• getColumnMap (versión cortes)
-HOJAS ACCEDIDAS: Cortes (escritura)
-PERMISOS: Lectura/Escritura en 1 hoja + Drive
+### `GPSpedia-Catalog` (`services/catalog/catalog.js`)
+- **Responsabilidad:** Acceso de solo lectura a los datos del catálogo.
+- **Hojas Accedidas:** `Cortes`, `Tutoriales`, `Relay` (Solo Lectura).
 
-────────────────────────────────────────────
-PROYECTO 4: GPSPEDIA-USERS (users.js)
-────────────────────────────────────────────
-FUNCIONES:
-• handleGetUsers
-• handleCreateUser
-• handleUpdateUser
-• handleDeleteUser
-• handleChangePassword
-• generateUniqueUsername
-• getColumnMap (versión users)
-HOJAS ACCEDIDAS: Users
-PERMISOS: Lectura/Escritura en 1 hoja
+### `GPSpedia-Write` (`services/write/write.js`)
+- **Responsabilidad:** Escritura de datos y subida de archivos.
+- **Hojas Accedidas:** `Cortes` (Escritura).
+- **Recursos Adicionales:** Google Drive (`ID: 1-8QqhS-wtEFFwyBG8CmnEOp5i8rxSM-2`).
 
-────────────────────────────────────────────
-PROYECTO 5: GPSPEDIA-FEEDBACK (feedback.js)
-────────────────────────────────────────────
-FUNCIONES:
-• handleRecordLike
-• handleReportProblem
-HOJAS ACCEDIDAS: Cortes (solo campo "util"), Feedbacks
-PERMISOS: Lectura/Escritura limitada
-```
+### `GPSpedia-Feedback` (`services/feedback/feedback.js`)
+- **Responsabilidad:** Retroalimentación de usuarios (likes y reportes).
+- **Hojas Accedidas:** `Cortes` (L/E en columna "Util"), `Feedbacks` (Escritura).
 
-#### 2.2 Esquema de Comunicación
+### `GPSpedia-Users` (`services/users/users.js`)
+- **Responsabilidad:** Gestión CRUD de usuarios con jerarquía de roles.
+- **Hojas Accedidas:** `Users` (Lectura/Escritura).
 
-```
-FRONTEND (HTML/JS) → API_MANAGER.JS → MÚLTIPLES APPS SCRIPTS
-    │
-    ├─► AUTH-SCRIPT (login, session)
-    ├─► CATALOG-SCRIPT (data loading)
-    ├─► WRITE-SCRIPT (add cortes)
-    └─► USERS-SCRIPT (user management)
-```
+## 5. Componentes del Frontend (Cliente)
 
-### 🛠️ FASE 3: IMPLEMENTACIÓN
+- **`api-manager.js`:** Enrutador central que dirige las solicitudes al microservicio correcto.
+- **`index.html`:** Página principal, catálogo y vista de detalles.
+- **`add_cortes.html`:** Formulario para agregar/actualizar cortes.
+- **`users.html`:** Interfaz para gestión de perfiles y usuarios.
+- **`manifest.json` y `service-worker.js`:** Habilitan la funcionalidad PWA y el caching offline.
 
-Se crearon y desplegaron los 5 proyectos de Apps Script, cada uno con su propio archivo de código (`auth.js`, `catalog.js`, etc.).
-
-### 🔄 FASE 4: REFACTOR FRONTEND
-
-**4.1 Crear `api-manager.js`:** Se escribió un módulo central en el frontend para actuar como un enrutador, abstrayendo la complejidad de tener múltiples endpoints de backend.
-
-**4.2 Actualizar HTML:** Todos los archivos (`index.html`, `add_cortes.html`, `users.html`) fueron refactorizados para usar el `api-manager.js`, centralizando toda la lógica de comunicación.
-
-### 🧪 FASE 5: TESTING Y MIGRACIÓN
-
-Se ejecutó un plan de testing exhaustivo para cada servicio y se siguió una estrategia de migración gradual para minimizar el riesgo.
-
-```
-TEST SUITE (Resumen):
-✔️ Autenticación: Login, logout, validación de sesión.
-✔️ Catálogo: Carga de datos, filtros, búsqueda.
-✔️ Escritura: Añadir nuevos vehículos, subir imágenes.
-✔️ Usuarios: CRUD de usuarios según roles.
-✔️ Feedback: Funcionalidad de "útil" y reporte de problemas.
-```
-
-### 🚨 RIESGOS Y MITIGACIÓN
-
-*   **Riesgo:** Sesiones no persistentes entre scripts.
-    *   **Mitigación:** Se utilizó la misma hoja `ActiveSessions` para todos los servicios relevantes.
-*   **Riesgo:** Complejidad en el frontend.
-    *   **Mitigación:** `api-manager.js` abstrae y centraliza toda la complejidad.
-
----
-
-## 3. Estructura de la Base de Datos (Google Sheets)
+## 6. Estructura de la Base de Datos (Google Sheets)
 
 El Spreadsheet con ID `1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo` contiene las siguientes hojas:
 
 ### Hoja: `Users`
-Almacena la información de los usuarios y sus credenciales.
+- **Propósito:** Almacena la información de los usuarios. **La estructura es crítica y no debe ser modificada.**
+- **Columnas:** `ID`, `Nombre_Usuario`, `Password`, `Privilegios`, `Nombre`, `Telefono`, `Correo_Electronico`, `SessionToken`.
 
-*   **Columnas y Orden:**
-    1.  `ID`
-    2.  `Nombre_Usuario`
-    3.  `Password`
-    4.  `Privilegios`
-    5.  `Nombre`
-    6.  `Telefono`
-    7.  `Correo_Electronico`
-    8.  `SessionToken`
+### Hoja: `Cortes`
+- **Propósito:** Catálogo principal de vehículos.
+- **Columnas Principales:** `ID`, `Categoría`, `Marca`, `Modelo`, `Año (Generacion)`, `Tipo de Encendido`, `Colaborador`, `Util`, `Imagen del Vehiculo`, `Tipo de Corte`, `Descripcion del Corte`, `Imagen del Corte`, `Tipo de Corte 2`, `Descripcion del Segundo Corte`, `Imagen de Corte 2`, `Tipo de Corte 3`, `Descripcion del Corte 3`, `Imagen del Corte 3`, `Apertura`, `Imagen de la Apertura`, `Cables de Alimentacion`, `Imagen de los Cables de Alimentacion`, `Nota Importante`, `Como desarmar los plasticos`.
 
-> **NOTA CRÍTICA SOBRE LA AUTENTICACIÓN:** Después de un largo y persistente problema de "Credenciales inválidas" durante la migración, se tomó la decisión de **reconstruir el servicio de autenticación (`Auth.js`) desde cero**. La versión final y funcional utiliza una correspondencia de columnas **fija y directa (hardcoded)**, basada exactamente en el orden y los nombres listados arriba.
->
-> **ADVERTENCIA:** **NO ALTERAR, RENOMBRAR NI REORDENAR LAS COLUMNAS DE LA HOJA `Users`**. Hacerlo romperá el sistema de inicio de sesión de forma inmediata. El `Auth.js` actual depende directamente de esta estructura.
+### Hoja: `Tutoriales`
+- **Propósito:** Contenido para la sección de tutoriales.
+- **Columnas:** `ID`, `Tema`, `Como identificarlo`, `Donde encontrarlo`, `Detalles`, `Imagen`, `Video`.
 
-### Otras Hojas
-*   `Cortes`: Catálogo principal de vehículos.
-*   `Feedbacks`: Reportes de problemas.
-*   `Logs`: Registro de eventos y errores.
-*   `ActiveSessions`: Gestiona las sesiones de usuario activas.
+### Hoja: `Relay`
+- **Propósito:** Contenido para la sección de configuración de relays.
+- **Columnas:** `ID`, `Configuracion`, `Funcion`, `Vehiculo donde se utiliza`, `PIN 30(entrada)`, `PIN 85(bobina +)`, `PIN 86(bobina - )`, `PIN 87a(comun cerrado)`, `PIN 87(Comunmente Abierto)`, `Observacion`, `Imagen`.
+
+### Hojas de Sistema
+- **`Feedbacks`:** Almacena los reportes de problemas.
+- **`Logs`:** Registra eventos y errores del backend para depuración.
+- **`ActiveSessions`:** Gestiona las sesiones activas para controlar inicios de sesión simultáneos.

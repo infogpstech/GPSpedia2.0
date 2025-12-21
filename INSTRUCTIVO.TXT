@@ -1,0 +1,94 @@
+=================================================
+ INSTRUCTIVO Y ESTADO DEL PROYECTO GPSpedia 2.0
+=================================================
+Fecha de Generación: 2024-07-31
+Versión del Documento: 1.2
+
+Este documento describe el estado actual del proyecto GPSpedia 2.0, resume los problemas solucionados, detalla los errores pendientes y documenta el estado y la coherencia de cada microservicio.
+
+---------------------------------
+1. ESTADO GENERAL DEL PROYECTO
+---------------------------------
+
+El proyecto ha sido migrado a una arquitectura de 5 microservicios. Se han solucionado problemas críticos en el backend, pero persisten varios errores y funcionalidades pendientes en el frontend que deben ser abordados para completar la versión 2.0.
+
+---------------------------------
+2. FUNCIONES REVISADAS Y SOLUCIONADAS
+---------------------------------
+
+**A. Servicio de Autenticación (`Auth.js`)**
+*   **Problema:** Error de "Credenciales inválidas" debido a una comparación estricta de tipos de dato (número vs. cadena) para la contraseña.
+*   **Solución Aplicada:** Se modificó la lógica para convertir ambas contraseñas a `String` antes de la comparación.
+
+**B. Servicio de Escritura (`write.js`)**
+*   **Problema:** La fórmula del `ID` autoincremental no se copiaba a las nuevas filas en la hoja `Cortes`.
+*   **Solución Aplicada:** Se especificó el tipo de pegado `PASTE_FORMULA` al copiar la fila.
+
+---------------------------------
+3. PROBLEMAS ACTUALES Y CORRECCIONES PENDIENTES
+---------------------------------
+
+*   **Secciones "Tutoriales" y "Relay" no funcionan:** No cargan datos. Requieren implementar la lógica de `fetch` en `mostrarSeccion`.
+*   **Lógica de Imágenes Incorrecta:** Las tarjetas de Categoría y Marca no priorizan la `imagenDeLVehiculo`.
+*   **Error de Layout (Header):** El encabezado/barra de búsqueda no se mantiene fijo en la parte superior.
+
+---------------------------------
+4. FUNCIONALIDADES PENDIENTES DE IMPLEMENTACIÓN
+---------------------------------
+
+*   **Centralización en Menú Hamburguesa:** Mover botones de secciones, "Agregar Nuevo" y "Cerrar Sesión" al menú lateral.
+*   **Botón de Instalación PWA:** Agregar un botón de instalación PWA personalizado visible solo en navegadores.
+*   **Enlaces Adicionales en el Footer:** Añadir "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes" y crear los html con sus respectivos css con la informacion y el formulario para el contacto. 
+
+---------------------------------
+5. ANÁLISIS DETALLADO DE SERVICIOS
+---------------------------------
+(Análisis de estado y lógica interna)
+
+**A. `Auth.js`**
+*   **Estado:** Funcional y estable.
+*   **Observaciones:** Contiene código de depuración (`logToSheet`) que debe ser eliminado en producción.
+
+**B. `catalog.js`**
+*   **Estado:** Funcional.
+*   **Observaciones:** Lógica de lectura de datos clara y sin errores evidentes.
+
+**C. `write.js`**
+*   **Estado:** Funcional y estable.
+*   **Observaciones:** Lógica de escritura y subida de archivos robusta.
+
+**D. `feedback.js`**
+*   **Estado:** Funcional.
+*   **Observaciones:** Lógica simple y directa. Aceptable para el volumen de datos actual.
+
+**E. `users.js`**
+*   **Estado:** Funcional.
+*   **Observaciones:** Lógica de permisos compleja que requiere revisión cuidadosa ante cualquier cambio en las reglas de negocio.
+
+---------------------------------
+6. ANÁLISIS DE COHERENCIA LÓGICA (FRONTEND vs. BACKEND)
+---------------------------------
+
+Esta sección documenta las discrepancias encontradas entre las llamadas que realiza el frontend y lo que los microservicios de backend esperan recibir.
+
+**A. `index.html`**
+*   **Llamadas a `auth.js`, `catalog.js`, `feedback.js`:**
+    *   **Estado:** ✅ Coherente.
+    *   **Análisis:** Todas las llamadas (`validateSession`, `login`, `getCatalogData`, `recordLike`, `reportProblem`) coinciden perfectamente en `action` y estructura de `payload` con sus respectivos manejadores en el backend.
+
+**B. `add_cortes.html`**
+*   **Llamada a `getDropdownData` (catalog.js):**
+    *   **Estado:** ✅ Coherente.
+*   **Llamada a `addCorte` (write.js):**
+    *   **Estado:** ✅ Coherente.
+*   **Llamada a `checkVehicle` (catalog.js):**
+    *   **Estado:** ⚠️ **Inconsistencia Menor.**
+    *   **Análisis:**
+        - El frontend envía el parámetro `tipo-encendido` (con guion).
+        - El backend espera recibir el parámetro `tipoEncendido` (en camelCase).
+    *   **Impacto Potencial:** Bajo. Actualmente, el backend parece estar manejando esta discrepancia (posiblemente a través de la función `camelCase` que normaliza los encabezados), por lo que no está causando un fallo visible. Sin embargo, es una "falla silenciosa" que podría romperse si la lógica de normalización en el backend cambia. Se recomienda corregir el nombre del parámetro en el frontend para asegurar una coherencia estricta.
+
+**C. `users.html`**
+*   **Llamadas a `users.js`:**
+    *   **Estado:** ✅ Coherente.
+    *   **Análisis:** Todas las llamadas (`getUsers`, `createUser`, `updateUser`, `deleteUser`, `changePassword`) coinciden perfectamente en `action` y estructura de `payload`.
