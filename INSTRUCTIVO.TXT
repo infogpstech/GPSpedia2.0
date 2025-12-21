@@ -32,7 +32,7 @@ Los siguientes errores en `index.html` impiden el correcto funcionamiento del ca
 
 *   **Secciones "Tutoriales" y "Relay" no funcionan:** No cargan datos. La función `mostrarSeccion` debe ser modificada para realizar un `fetch` de datos al backend cuando estas pestañas son seleccionadas.
 *   **Lógica de Imágenes Incorrecta:** Las tarjetas de Categoría y Marca no siempre muestran la imagen correcta. La lógica debe ser ajustada para priorizar `imagenDeLaApertura` y luego `imagenDelVehiculo`.
-*   **Error de Layout (Footer):** El pie de página no se mantiene en la parte inferior. Se requiere una corrección de CSS (`min-height: 100vh`) en el contenedor principal.
+*   **Error de Layout (Header):** El encabezado (barra de búsqueda)no se mantiene en la parte superior. Se requiere una corrección de CSS (`min-height: 100vh`) en el contenedor principal.
 
 ---------------------------------
 4. FUNCIONALIDADES PENDIENTES DE IMPLEMENTACIÓN
@@ -45,6 +45,7 @@ Las siguientes solicitudes de mejora de la interfaz de usuario aún no se han im
     *   Mover el botón "Agregar Nuevo".
     *   Mover el botón de "Cerrar Sesión".
     *   **Objetivo:** Limpiar la interfaz principal, consolidando la navegación dentro del menú lateral deslizable.
+*Agregar el boton para instalar la PWA y utilizar css, html y csss para que solo sea visible en el navegado y este oculto en el PWA.
 
 *   **Enlaces Adicionales en el Footer:**
     *   Agregar los enlaces "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes" al pie de página.
