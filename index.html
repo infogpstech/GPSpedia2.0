@@ -819,6 +819,7 @@ body.search-active .app-logo {
       </div>
       <div id="header-controls" style="display: flex; align-items: center; gap: 15px;">
           <span id="welcome-message" style="display: none; color: #333; font-weight: bold;"></span>
+          <button id="logout-button" style="display: none; background-color: #dc3545; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: background-color 0.3s;">Cerrar Sesión</button>
           <button id="install-button" style="display: none;">Instalar Aplicación</button>
       </div>
   </div>
@@ -1830,6 +1831,25 @@ async function inicializarApp() {
         document.body.appendChild(iosInstallMessage);
     }
 }
+
+// Ocultar el splash screen después de un tiempo para asegurar que no se quede atascado
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        const splash = document.getElementById('splash-screen');
+        const session = localStorage.getItem(SESSION_KEY);
+        // Si no hay sesión, el splash se ocultará cuando se muestre el login.
+        // Si hay sesión, el splash se ocultará cuando se muestre la app.
+        // Este es un fallback por si algo falla.
+        if (!session) {
+             const splash = document.getElementById('splash-screen');
+            splash.style.opacity = '0';
+            setTimeout(() => {
+                splash.style.display = 'none';
+            }, 500);
+        }
+    }, 3000); // 3 segundos de tiempo de espera máximo
+});
+
 
 inicializarApp();
 

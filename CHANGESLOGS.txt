@@ -1,12 +1,3 @@
-## v3.1.1 - 2024-07-31
-- **CORRECCIÓN DE ERROR CRÍTICO DE PANTALLA EN BLANCO Y CONDICIÓN DE CARRERA:**
-  - **Contexto:** El usuario reportó un error crítico donde la aplicación mostraba una pantalla en blanco después de la pantalla de bienvenida, impidiendo el acceso.
-  - **Diagnóstico y Desarrollo:** El análisis reveló dos problemas interrelacionados:
-    1.  **Error de JavaScript:** Una función (`showLoginHideApp`) intentaba manipular un elemento del DOM (`logout-button`) que ya no existía en el header, causando un error que detenía la ejecución del script.
-    2.  **Condición de Carrera:** Se identificó un conflicto en la inicialización de la aplicación, donde una función (`inicializarApp`) y un listener de eventos (`window.addEventListener('load', ...)`) competían entre sí, resultando en un comportamiento impredecible.
-  - **Solución:** Se implementó una solución de dos partes: se eliminó el `logout-button` redundante del header y se eliminó el listener `window.addEventListener('load', ...)` para establecer un único y claro punto de entrada para la inicialización de la aplicación.
-  - **Resultado:** Se ha resuelto de forma definitiva el error de la pantalla en blanco. La aplicación ahora arranca de manera estable y predecible, transicionando correctamente al modal de inicio de sesión.
-
 # Registro de Cambios del Proyecto GPSpedia
 
 ## v3.1.0 - 21/12/2023
