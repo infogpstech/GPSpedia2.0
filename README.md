@@ -55,7 +55,7 @@ Esta sección documenta las tareas de desarrollo y corrección que están pendie
     - [ ] Mover el botón "Agregar Nuevo" al menú lateral.
     - [ ] Mover el botón de "Cerrar Sesión" del header al menú lateral.
 - [ ] **Agregar Botón de Instalación PWA:** Añadir un botón de instalación personalizado que solo sea visible en navegadores web y esté oculto cuando la aplicación ya se está ejecutando como una PWA.
-- [ ] **Agregar Enlaces en el Footer:** Añadir los enlaces "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes" en el pie de página de la aplicación.
+- [ ] **Agregar Enlaces en el Footer:** Añadir los enlaces "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes" en el pie de página de la aplicación y agregar el html que contenga esa información y el formulario de contacto. 
 
 ## 4. Componentes del Backend (Microservicios)
 
