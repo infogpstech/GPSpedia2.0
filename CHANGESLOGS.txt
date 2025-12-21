@@ -1,5 +1,11 @@
 # Registro de Cambios del Proyecto GPSpedia
 
+## v1.0.6 - 2024-07-27
+- **ACTUALIZACIÓN DE ENDPOINT DEL SERVICIO DE CATÁLOGO:**
+  - **Contexto:** Después de desplegar las últimas optimizaciones en el servicio de catálogo, se generó una nueva URL para el microservicio.
+  - **Desarrollo:** Se actualizó la URL del servicio `CATALOG` en el archivo de configuración `api-manager.js` para apuntar al nuevo endpoint desplegado.
+  - **Resultado:** El frontend ahora se comunica con la versión más reciente y optimizada del servicio de catálogo, asegurando que las mejoras de rendimiento y funcionalidad estén activas en producción.
+
 ## v1.0.5 - 2024-07-27
 - **OPTIMIZACIÓN INTEGRAL DEL SERVICIO DE CATÁLOGO (`catalog.js`):**
   - **Contexto:** Se detectaron problemas de rendimiento y funcionalidad en la carga y visualización del catálogo de vehículos. La carga inicial era lenta, los nuevos registros no aparecían al principio y el filtrado por categorías no funcionaba.
