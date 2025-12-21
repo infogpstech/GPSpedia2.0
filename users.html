@@ -234,6 +234,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (['Desarrollador', 'Gefe', 'Supervisor'].includes(userRole)) {
         document.getElementById('user-management-section').style.display = 'block';
         fetchUsers();
+    } else if (['Tecnico', 'Tecnico_Exterior'].includes(userRole)) {
+        document.getElementById('user-management-section').style.display = 'none';
+    } else {
+        // Por defecto, ocultar la gestión de usuarios si el rol no es reconocido o está vacío
+        document.getElementById('user-management-section').style.display = 'none';
     }
 });
 

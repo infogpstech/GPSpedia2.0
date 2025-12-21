@@ -1,5 +1,13 @@
 # Registro de Cambios del Proyecto GPSpedia
 
+## v1.0.7 - 2024-07-28
+- **RESTAURACIÓN DE LA NAVEGACIÓN JERÁRQUICA DEL CATÁLOGO:**
+  - **Contexto:** La implementación de "scroll infinito" no se alineaba con la experiencia de usuario deseada, que requería una navegación por pasos similar a la de la v1.0.
+  - **Desarrollo:**
+    1.  **Backend Adaptado:** Se modificó `services/catalog/catalog.js` para incluir una nueva acción `getNavigationData`. Esta función ahora maneja solicitudes jerárquicas, devolviendo la lista de elementos para el siguiente nivel de navegación (ej. categorías -> marcas -> modelos).
+    2.  **Frontend Reconstruido:** Se eliminó la lógica de "scroll infinito" de `index.html`. En su lugar, se reimplementó el sistema de navegación por pasos, creando funciones como `navegar`, `renderNivel` y `retroceder` que interactúan con el nuevo endpoint del backend.
+  - **Resultado:** Se ha restaurado la lógica de navegación original y preferida por el usuario. La aplicación ahora permite explorar el catálogo de manera jerárqu'ca, mejorando la usabilidad y la eficiencia al cargar solo los datos necesarios para cada vista.
+
 ## v1.0.6 - 2024-07-27
 - **ACTUALIZACIÓN DE ENDPOINT DEL SERVICIO DE CATÁLOGO:**
   - **Contexto:** Después de desplegar las últimas optimizaciones en el servicio de catálogo, se generó una nueva URL para el microservicio.
@@ -55,53 +63,5 @@
     3. Se añadió la función `handleValidateSession` para verificar la validez de los tokens de sesión contra la hoja `ActiveSessions`.
     4. Se integró un módulo de logging (`logEvent`) que registra todos los eventos importantes (logins exitosos, fallidos, errores) en la hoja "Logs".
     5. Se estableció la versión del nuevo servicio en `v1.0`, reflejada tanto en el `doGet` del script como en la interfaz de `index.html`.
-  - **Mejora de Seguridad:** Se implementó un sistema de hashing de contraseñas (SHA-265 con salt) para reemplazar el almacenamiento en texto plano, mejorando significativamente la seguridad de las credenciales de usuario. Se añadió una función de migración para actualizar las contraseñas existentes.
+  - **Mejora de Seguridad:** Se implementó un sistema de hashing de contraseñas (SHA-256 con salt) para reemplazar el almacenamiento en texto plano, mejorando significativamente la seguridad de las credenciales de usuario. Se añadió una función de migración para actualizar las contraseñas existentes.
   - **Resultado:** Este nuevo servicio aísla la lógica de autenticación, mejora la robustez y proporciona un sistema de depuración claro, sentando una base estable y segura para el sistema.
-
-## v3.1.0 - 21/12/2023
-- **MIGRACIÓN COMPLETA A ARQUITECTURA MODULAR (PLAN B):**
-  - **Contexto:** Se inició una migración completa del backend monolítico (`Code.gs`) a una arquitectura de cinco microservicios (`Auth`, `Catalog`, `Write`, `Users`, `Feedback`) para mejorar el rendimiento y la mantenibilidad, siguiendo un plan detallado ("Plan B").
-  - **Desarrollo:**
-    1. Se crearon los 5 nuevos servicios de Google Apps Script.
-    2. Se introdujo `api-manager.js` en el frontend como un enrutador central para gestionar las llamadas a los nuevos servicios.
-    3. Se refactorizaron todos los archivos HTML (`index.html`, `add_cortes.html`, `users.html`) para usar el nuevo `api-manager`.
-  - **Problema Crítico Persistente:** Durante y después de la migración, se encontró un bug persistente y crítico en el servicio de autenticación (`Auth.js`) que causaba el error "Credenciales inválidas", impidiendo el inicio de sesión. El problema persistió a pesar de múltiples intentos de depuración, incluyendo la implementación de un sistema de logging avanzado y varias refactorizaciones del código.
-  - **Decisión y Resolución Final:** Se determinó que la complejidad heredada y los múltiples parches en `Auth.js` eran la causa de la inestabilidad. Se tomó la decisión de **descartar el código problemático y reconstruir el servicio `Auth.js` desde cero**, siguiendo las instrucciones y detalles de su funcionamiento en README.MD para usar una estructura de columnas fija (hardcoded). Esta acción pretendia eliminar la causa raíz del problema y finalmente NO resolvió el bug de autenticación de manera, el error aun persistia.
-- El ultimo commit no soluciono el problema, sin embargo el mensaje de error al intentar iniciar sesión cambio a "Error inesperado: Cannot read properties of null (reading 'getDataRange')" 
-- **Estado del Proyecto:** La migración a la arquitectura modular está completa y el problema de autenticación NO ha sido resuelto. El proyecto se ha encontrado con un impase, ya que el problema de autenticación no permite el ingreso al sistema y comprobar las demas funcionalidades del sistema.
-- **Actualización de Documentación:** Se actualizó `README.md` con el plan arquitectónico completo de la v2.0 y se ajustó `INSTRUCCIONES_DESPLIEGUE.md` para la nueva estructura.
-
-## v3.009 - 23/07/2024
-- **Plan B:** Se inicia la implementación del Plan B para resolver de forma definitiva el error "Credenciales inválidas".
-- **Análisis de Causa Raíz:** Se confirma que el error de "Credenciales inválidas" persiste debido a un fallo de lógica en el manejo de la contraseña en el frontend, y no es un problema de despliegue del AppsScript. La función `sanitizeInput` sigue alterando la contraseña antes de ser enviada.
-- **Próximos Pasos:** Se procederá a eliminar por completo la sanitización del campo de contraseña en `index.html`.
-
-## v3.008 - 23/07/2024
-- Se actualizó la `SCRIPT_URL` en los archivos `index.html`, `users.html` y `add_cortes.html` a la nueva URL de despliegue proporcionada por el usuario.
-
-## v3.007 - 22/07/2024
-- Se corrigió el error "Credenciales inválidas" al iniciar sesión.
-- Se eliminó la función `sanitizeInput` del frontend (`index.html`) que modificaba incorrectamente las contraseñas con caracteres especiales.
-- Se mejoró la comparación de contraseñas en el backend (`Code.gs`) para que sea estrictamente de texto.
-- Se actualizó la URL del script en `index.html`, `users.html` y `add_cortes.html`.
-- Se agregó un número de versión visible en la pantalla de inicio de sesión para facilitar la depuración.
-- Se creó el archivo `INSTRUCCIONES_DESPLIEGE.md` para guiar al usuario en el proceso de despliegue correcto.
-
-## v3.006 - 21/07/2024
-- Se implementó una solución en el backend (Code.gs) para forzar la comparación de contraseñas como texto, evitando errores cuando la contraseña es puramente numérica.
-
-## v3.005 - 20/07/2024
-- Se actualizó el número de versión en Code.gs para reflejar los cambios recientes.
-
-## v3.004 - 19/07/2024
-- Se corrigió la función `sanitizeInput` en `index.html` para evitar que altere las contraseñas que contienen caracteres especiales. El error anterior causaba el fallo de "Credenciales inválidas".
-
-## v3.003 - 18/07/2024
-- Se cambió el `Content-Type` en las solicitudes `fetch` de `application/json` a `text/plain` en los archivos `index.html`, `add_cortes.html` y `users.html` para solucionar el error "Fail to fetch" relacionado con CORS.
-
-## v3.002 - 17/07/2024
-- Se agregó el manejo de errores detallado en la función `postToAction` para capturar y mostrar problemas de red o de análisis JSON.
-- Se implementó un sistema de logging remoto (`remoteLog`) para enviar errores del frontend al backend y facilitar la depuración.
-
-## v3.001 - 16/07/2024
-- Se identificó que el error "Fail to fetch" es probablemente un problema de CORS (Cross-Origin Resource Sharing) que ocurre durante la solicitud de pre-vuelo (preflight request) OPTIONS que el navegador envía antes de la solicitud POST real.
