@@ -24,7 +24,7 @@ const ACTION_TO_SERVICE_MAP = {
     // Catalog Service
     'getCatalogData': 'CATALOG',
     'getDropdownData': 'CATALOG',
-    'checkVehicle': 'CATALOG',
+    'checkVehicle': 'WRITE',
 
     // Write Service
     'addCorte': 'WRITE',

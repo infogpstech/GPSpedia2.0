@@ -1,5 +1,11 @@
 # Registro de Cambios del Proyecto GPSpedia
 
+## v1.0.3 - 2024-07-26
+- **CORRECCIÓN DE ENRUTAMIENTO EN `api-manager.js`:**
+  - **Contexto:** Se detectó un error en la función `checkVehicle` que impedía verificar la existencia de un vehículo. La causa era un enrutamiento incorrecto en el frontend.
+  - **Desarrollo:** Se corrigió el mapa `ACTION_TO_SERVICE_MAP` en `api-manager.js` para que la acción `checkVehicle` apunte al servicio correcto (`WRITE`) en lugar de al servicio `CATALOG`.
+  - **Resultado:** La funcionalidad para comprobar si un vehículo ya existe antes de crearlo o actualizarlo ha sido restaurada.
+
 ## v1.0.2 - 2024-07-25
 - **CORRECCIÓN CRÍTICA DE GESTIÓN DE SESIONES EN `Auth.gs`:**
   - **Contexto:** Se detectó un error crítico que provocaba el cierre inesperado de sesiones y bloqueaba el reingreso de los usuarios.
