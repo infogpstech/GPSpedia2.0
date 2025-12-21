@@ -29,7 +29,7 @@ El proyecto ha sido migrado a una arquitectura de 5 microservicios. Se han soluc
 ---------------------------------
 
 *   **Secciones "Tutoriales" y "Relay" no funcionan:** No cargan datos. Requieren implementar la lógica de `fetch` en `mostrarSeccion`.
-*   **Lógica de Imágenes Incorrecta:** Las tarjetas de Categoría y Marca no priorizan la `imagenDeLaApertura`.
+*   **Lógica de Imágenes Incorrecta:** Las tarjetas de Categoría y Marca no priorizan la `imagenDeLVehiculo`.
 *   **Error de Layout (Header):** El encabezado/barra de búsqueda no se mantiene fijo en la parte superior.
 
 ---------------------------------
