@@ -34,11 +34,11 @@ A continuación, se detallan los problemas que ya han sido revisados y corregido
 3. PROBLEMA ACTUAL Y CAMBIOS PENDIENTES (CATÁLOGO)
 ---------------------------------
 
-El principal problema pendiente, según el historial de este chat, se encuentra en la lógica de visualización del catálogo en `index.html`. Los siguientes errores deben resolverse:
+El principal problema pendiente, según el historial en CHANGUESLOGS.TXT, se encuentra en la lógica de visualización del catálogo en `index.html`. Los siguientes errores deben resolverse:
 
 *   **Secciones "Tutoriales" y "Relay" no funcionan:** Al hacer clic en los botones de estas secciones, el contenido no se carga. La función `mostrarSeccion` necesita ser modificada para que realice una petición al backend (`postToAction('getCatalogData')`) y renderice los datos correspondientes, tal como lo hace la sección "Cortes".
-*   **Lógica de Imágenes Incorrecta:** En la navegación jerárquica (Categoría -> Marca -> Modelo), la imagen que se muestra en la tarjeta no sigue la lógica de negocio deseada. La lógica en `mostrarCategorias` y `mostrarMarcas` debe ser ajustada para priorizar la visualización de la `imagenDeLaApertura` y, si no está disponible, usar la `imagenDelVehiculo`.
-*   **Error de Layout (Footer):** El pie de página (`footer`) no se mantiene en la parte inferior en vistas con poco contenido. Esto es un problema de CSS que se puede solucionar asegurando que el contenedor principal de la aplicación tenga una altura mínima del 100% de la ventana (`min-height: 100vh`).
+*   **Lógica de Imágenes Incorrecta:** En la navegación jerárquica (Categoría -> Marca -> Modelo), la imagen que se muestra en la tarjeta no sigue la lógica de negocio deseada. La lógica en `mostrarCategorias` y `mostrarMarcas` debe ser ajustada para priorizar la visualización del `imagenDelVehiculo`.
+*   **Error de Layout (header):** El contenedor donde estan los botones de sección (`Cortes`, `Tutoriales`, `Relays`) no se mantiene en la parte superior en vistas con poco contenido. Esto es un problema de CSS que se puede solucionar asegurando que el contenedor principal de la aplicación tenga una altura mínima del 100% de la ventana (`min-height: 100vh`).
 
 ---------------------------------
 4. ANÁLISIS DETALLADO DE SERVICIOS
@@ -48,7 +48,7 @@ A continuación se presenta un análisis del estado actual de cada uno de los 5 
 
 **A. `Auth.js`**
 *   **Estado:** Funcional y estable.
-*   **Análisis:** La lógica es sólida. El uso de un mapa de columnas `COLS` codificado previene errores de parsing. La gestión de sesiones por rol es correcta. La versión actual en el repositorio contiene código de depuración (`logToSheet`) que debería ser eliminado antes de una versión final de producción para evitar escrituras innecesarias en la hoja "Logs".
+*   **Análisis:** La lógica es sólida. El uso de un mapa de columnas `COLS` codificado previene errores de parsing. La gestión de sesiones por rol es correcta. La versión actual en el repositorio contiene código de depuración (`logToSheet`) que debe evitar escrituras a la hoja "Logs".
 *   **Observaciones:** No se encontraron errores de sintaxis ni de lógica pendiente.
 
 **B. `catalog.js`**
