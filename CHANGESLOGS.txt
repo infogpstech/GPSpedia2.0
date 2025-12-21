@@ -1,5 +1,11 @@
 # Registro de Cambios del Proyecto GPSpedia
 
+## v1.0.8 - 2024-07-28
+- **CORRECCIÓN CRÍTICA EN `services/catalog/catalog.js`:**
+  - **Contexto:** Se detectó que, debido a un error en el proceso de commit anterior, el archivo `services/catalog/catalog.js` no contenía la lógica de navegación jerárquica (`getNavigationData`) necesaria, sino que mantenía la lógica de paginación obsoleta.
+  - **Desarrollo:** Se reemplazó por completo el contenido de `services/catalog/catalog.js` con la versión correcta y verificada que implementa la navegación jerárquica.
+  - **Resultado:** El backend ahora está correctamente alineado con el frontend. El servicio de catálogo puede manejar las solicitudes de navegación por pasos, desbloqueando la funcionalidad principal del catálogo.
+
 ## v1.0.7 - 2024-07-28
 - **RESTAURACIÓN DE LA NAVEGACIÓN JERÁRQUICA DEL CATÁLOGO:**
   - **Contexto:** La implementación de "scroll infinito" no se alineaba con la experiencia de usuario deseada, que requería una navegación por pasos similar a la de la v1.0.
