@@ -1,5 +1,11 @@
 # Registro de Cambios del Proyecto GPSpedia
 
+## v1.0.4 - 2024-07-26
+- **CORRECCIÓN DE ERROR EN PARÁMETROS DE `checkVehicle`:**
+  - **Contexto:** Después de corregir el enrutamiento, la función `checkVehicle` seguía fallando con el error "Parámetros de búsqueda incompletos". Un análisis del código legado (v1.5) reveló la causa raíz.
+  - **Desarrollo:** Se identificó una discrepancia entre el `name` del campo del formulario en `add_cortes.html` y el nombre del parámetro esperado por el backend. El frontend enviaba `tipo-encendido` (con guion), mientras que el backend (`write.js`) esperaba `tipoEncendido` (camelCase). Se corrigió el atributo `name` en el `select` del HTML para que coincidiera con el backend.
+  - **Resultado:** El error ha sido resuelto. El frontend ahora envía los parámetros con los nombres correctos, permitiendo que la función `checkVehicle` opere como se espera.
+
 ## v1.0.3 - 2024-07-26
 - **CORRECCIÓN DE ENRUTAMIENTO EN `api-manager.js`:**
   - **Contexto:** Se detectó un error en la función `checkVehicle` que impedía verificar la existencia de un vehículo. La causa era un enrutamiento incorrecto en el frontend.
