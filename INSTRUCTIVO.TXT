@@ -38,7 +38,7 @@ El proyecto ha sido migrado a una arquitectura de 5 microservicios. Se han soluc
 
 *   **Centralización en Menú Hamburguesa:** Mover botones de secciones, "Agregar Nuevo" y "Cerrar Sesión" al menú lateral.
 *   **Botón de Instalación PWA:** Agregar un botón de instalación PWA personalizado visible solo en navegadores.
-*   **Enlaces Adicionales en el Footer:** Añadir "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes".
+*   **Enlaces Adicionales en el Footer:** Añadir "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes" y crear los html con sus respectivos css con la informacion y el formulario para el contacto. 
 
 ---------------------------------
 5. ANÁLISIS DETALLADO DE SERVICIOS
