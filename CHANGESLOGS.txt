@@ -1,101 +1,58 @@
+## v3.1.1 - 2024-07-31
+- **CORRECCIÓN DE ERROR CRÍTICO DE PANTALLA EN BLANCO Y CONDICIÓN DE CARRERA:**
+  - **Contexto:** El usuario reportó un error crítico donde la aplicación mostraba una pantalla en blanco después de la pantalla de bienvenida, impidiendo el acceso.
+  - **Diagnóstico y Desarrollo:** El análisis reveló dos problemas interrelacionados:
+    1.  **Error de JavaScript:** Una función (`showLoginHideApp`) intentaba manipular un elemento del DOM (`logout-button`) que ya no existía en el header, causando un error que detenía la ejecución del script.
+    2.  **Condición de Carrera:** Se identificó un conflicto en la inicialización de la aplicación, donde una función (`inicializarApp`) y un listener de eventos (`window.addEventListener('load', ...)`) competían entre sí, resultando en un comportamiento impredecible.
+  - **Solución:** Se implementó una solución de dos partes: se eliminó el `logout-button` redundante del header y se eliminó el listener `window.addEventListener('load', ...)` para establecer un único y claro punto de entrada para la inicialización de la aplicación.
+  - **Resultado:** Se ha resuelto de forma definitiva el error de la pantalla en blanco. La aplicación ahora arranca de manera estable y predecible, transicionando correctamente al modal de inicio de sesión.
+
 # Registro de Cambios del Proyecto GPSpedia
 
-## v1.3.0 - 2024-07-30
-- **IMPLEMENTACIÓN DE NAVEGACIÓN JERÁRQUICA Y BÚSQUEDA EN SERVIDOR:**
-  - **Contexto:** La revisión de código anterior (v1.2.0) destacó que la lógica de navegación del frontend era inexistente y la búsqueda estaba rota. Esta actualización implementa esas características críticas.
+## v3.1.0 - 21/12/2023
+- **MIGRACIÓN COMPLETA A ARQUITECTURA MODULAR (PLAN B):**
+  - **Contexto:** Se inició una migración completa del backend monolítico (`Code.gs`) a una arquitectura de cinco microservicios (`Auth`, `Catalog`, `Write`, `Users`, `Feedback`) para mejorar el rendimiento y la mantenibilidad, siguiendo un plan detallado ("Plan B").
   - **Desarrollo:**
-    1.  **Lógica de Navegación Jerárquica:** Se implementaron las funciones `navegar`, `renderNivel` y `retroceder` en `index.html`. Estas funciones ahora se comunican con el endpoint `getNavigationData` del backend para cargar el catálogo de forma jerárquica, nivel por nivel, cumpliendo con la arquitectura definida.
-    2.  **Funcionalidad de Búsqueda en Servidor:** Se añadió una nueva acción `search` al servicio `catalog.js` que permite realizar búsquedas de texto completo en la hoja de cálculo. En `index.html`, se reemplazó la antigua lógica de filtrado del lado del cliente por una nueva función `handleSearch` que consume este endpoint, mostrando los resultados de forma eficiente.
-  - **Resultado:** La funcionalidad principal del catálogo ha sido completamente restaurada y ahora opera de manera eficiente y escalable. La navegación es fluida y la búsqueda es rápida, ya que ambas operaciones aprovechan la lógica del lado del servidor.
+    1. Se crearon los 5 nuevos servicios de Google Apps Script.
+    2. Se introdujo `api-manager.js` en el frontend como un enrutador central para gestionar las llamadas a los nuevos servicios.
+    3. Se refactorizaron todos los archivos HTML (`index.html`, `add_cortes.html`, `users.html`) para usar el nuevo `api-manager`.
+  - **Problema Crítico Persistente:** Durante y después de la migración, se encontró un bug persistente y crítico en el servicio de autenticación (`Auth.js`) que causaba el error "Credenciales inválidas", impidiendo el inicio de sesión. El problema persistió a pesar de múltiples intentos de depuración, incluyendo la implementación de un sistema de logging avanzado y varias refactorizaciones del código.
+  - **Decisión y Resolución Final:** Se determinó que la complejidad heredada y los múltiples parches en `Auth.js` eran la causa de la inestabilidad. Se tomó la decisión de **descartar el código problemático y reconstruir el servicio `Auth.js` desde cero**, siguiendo las instrucciones y detalles de su funcionamiento en README.MD para usar una estructura de columnas fija (hardcoded). Esta acción pretendia eliminar la causa raíz del problema y finalmente NO resolvió el bug de autenticación de manera, el error aun persistia.
+- El ultimo commit no soluciono el problema, sin embargo el mensaje de error al intentar iniciar sesión cambio a "Error inesperado: Cannot read properties of null (reading 'getDataRange')"
+- **Estado del Proyecto:** La migración a la arquitectura modular está completa y el problema de autenticación NO ha sido resuelto. El proyecto se ha encontrado con un impase, ya que el problema de autenticación no permite el ingreso al sistema y comprobar las demas funcionalidades del sistema.
+- **Actualización de Documentación:** Se actualizó `README.md` con el plan arquitectónico completo de la v2.0 y se ajustó `INSTRUCCIONES_DESPLIEGUE.md` para la nueva estructura.
 
-## v1.2.0 - 2024-07-29
-- **CORRECCIÓN DE ARQUITECTURA DE NAVEGACIÓN Y RESTAURACIÓN DE UI:**
-  - **Contexto:** Una revisión de código identificó una inconsistencia crítica entre la estrategia de carga de datos del frontend (fetch-all) y la arquitectura del backend (navegación jerárquica). Además, se detectó la ausencia del menú de hamburguesa, un requisito explícito del usuario.
-  - **Desarrollo:**
-    1.  **Refactorización de la Navegación:** Se eliminó por completo la lógica de carga masiva de datos (`getFullCatalog`) del frontend y del backend. Se refactorizó `index.html` para utilizar exclusivamente el endpoint `getNavigationData`, restaurando la estrategia de carga jerárquica y eficiente que minimiza los tiempos de carga iniciales.
-    2.  **Restauración del Menú de Hamburguesa:** Se reintrodujo el menú lateral de hamburguesa en `index.html`, incluyendo el HTML, CSS y JavaScript necesarios para su correcto funcionamiento. El menú ahora maneja la navegación entre secciones y contiene los enlaces de gestión y el botón de cierre de sesión.
-  - **Resultado:** La arquitectura de la aplicación ahora es coherente, con el frontend y el backend trabajando en sintonía. Se ha restaurado una característica de UI clave, mejorando la usabilidad y cumpliendo con todos los requisitos definidos por el usuario.
+## v3.009 - 23/07/2024
+- **Plan B:** Se inicia la implementación del Plan B para resolver de forma definitiva el error "Credenciales inválidas".
+- **Análisis de Causa Raíz:** Se confirma que el error de "Credenciales inválidas" persiste debido a un fallo de lógica en el manejo de la contraseña en el frontend, y no es un problema de despliegue del AppsScript. La función `sanitizeInput` sigue alterando la contraseña antes de ser enviada.
+- **Próximos Pasos:** Se procederá a eliminar por completo la sanitización del campo de contraseña en `index.html`.
 
-## v1.1.0 - 2024-07-28
-- **CORRECCIÓN DE BLOQUEO EN PANTALLA DE SPLASH:**
-  - **Contexto:** La aplicación se quedaba atascada en la pantalla de splash debido a conflictos y duplicación en la lógica de inicialización dentro de `index.html`.
-  - **Desarrollo:** Se refactorizó y unificó por completo el bloque `<script>` de `index.html`. Se eliminaron las funciones duplicadas y se estableció un flujo de ejecución claro y único, asegurando que la lógica de `checkSession` e `initializeAppData` se llame correctamente sin conflictos.
-  - **Resultado:** El error de bloqueo ha sido resuelto. La aplicación ahora se inicializa correctamente, mostrando la pantalla de login o el contenido principal según el estado de la sesión del usuario.
+## v3.008 - 23/07/2024
+- Se actualizó la `SCRIPT_URL` en los archivos `index.html`, `users.html` y `add_cortes.html` a la nueva URL de despliegue proporcionada por el usuario.
 
-## v1.0.9 - 2024-07-28
-- **ACTUALIZACIÓN DE ENDPOINT DEL SERVICIO DE CATÁLOGO (CORRECCIÓN):**
-  - **Contexto:** Después de corregir la lógica del backend en `services/catalog/catalog.js`, se desplegó una nueva versión del servicio.
-  - **Desarrollo:** Se actualizó la URL del servicio `CATALOG` en `api-manager.js` para apuntar al endpoint más reciente, asegurando que el frontend utilice la versión corregida con la navegación jerárquica.
-  - **Resultado:** El frontend y el backend están ahora sincronizados, utilizando la última versión desplegada y corregida del servicio de catálogo.
+## v3.007 - 22/07/2024
+- Se corrigió el error "Credenciales inválidas" al iniciar sesión.
+- Se eliminó la función `sanitizeInput` del frontend (`index.html`) que modificaba incorrectamente las contraseñas con caracteres especiales.
+- Se mejoró la comparación de contraseñas en el backend (`Code.gs`) para que sea estrictamente de texto.
+- Se actualizó la URL del script en `index.html`, `users.html` y `add_cortes.html`.
+- Se agregó un número de versión visible en la pantalla de inicio de sesión para facilitar la depuración.
+- Se creó el archivo `INSTRUCCIONES_DESPLIEGE.md` para guiar al usuario en el proceso de despliegue correcto.
 
-## v1.0.8 - 2024-07-28
-- **CORRECCIÓN CRÍTICA EN `services/catalog/catalog.js`:**
-  - **Contexto:** Se detectó que, debido a un error en el proceso de commit anterior, el archivo `services/catalog/catalog.js` no contenía la lógica de navegación jerárquica (`getNavigationData`) necesaria, sino que mantenía la lógica de paginación obsoleta.
-  - **Desarrollo:** Se reemplazó por completo el contenido de `services/catalog/catalog.js` con la versión correcta y verificada que implementa la navegación jerárquica.
-  - **Resultado:** El backend ahora está correctamente alineado con el frontend. El servicio de catálogo puede manejar las solicitudes de navegación por pasos, desbloqueando la funcionalidad principal del catálogo.
+## v3.006 - 21/07/2024
+- Se implementó una solución en el backend (Code.gs) para forzar la comparación de contraseñas como texto, evitando errores cuando la contraseña es puramente numérica.
 
-## v1.0.7 - 2024-07-28
-- **RESTAURACIÓN DE LA NAVEGACIÓN JERÁRQUICA DEL CATÁLOGO:**
-  - **Contexto:** La implementación de "scroll infinito" no se alineaba con la experiencia de usuario deseada, que requería una navegación por pasos similar a la de la v1.0.
-  - **Desarrollo:**
-    1.  **Backend Adaptado:** Se modificó `services/catalog/catalog.js` para incluir una nueva acción `getNavigationData`. Esta función ahora maneja solicitudes jerárquicas, devolviendo la lista de elementos para el siguiente nivel de navegación (ej. categorías -> marcas -> modelos).
-    2.  **Frontend Reconstruido:** Se eliminó la lógica de "scroll infinito" de `index.html`. En su lugar, se reimplementó el sistema de navegación por pasos, creando funciones como `navegar`, `renderNivel` y `retroceder` que interactúan con el nuevo endpoint del backend.
-  - **Resultado:** Se ha restaurado la lógica de navegación original y preferida por el usuario. La aplicación ahora permite explorar el catálogo de manera jerár'ca, mejorando la usabilidad y la eficiencia al cargar solo los datos necesarios para cada vista.
+## v3.005 - 20/07/2024
+- Se actualizó el número de versión en Code.gs para reflejar los cambios recientes.
 
-## v1.0.6 - 2024-07-27
-- **ACTUALIZACIÓN DE ENDPOINT DEL SERVICIO DE CATÁLOGO:**
-  - **Contexto:** Después de desplegar las últimas optimizaciones en el servicio de catálogo, se generó una nueva URL para el microservicio.
-  - **Desarrollo:** Se actualizó la URL del servicio `CATALOG` en el archivo de configuración `api-manager.js` para apuntar al nuevo endpoint desplegado.
-  - **Resultado:** El frontend ahora se comunica con la versión más reciente y optimizada del servicio de catálogo, asegurando que las mejoras de rendimiento y funcionalidad estén activas en producción.
+## v3.004 - 19/07/2024
+- Se corrigió la función `sanitizeInput` en `index.html` para evitar que altere las contraseñas que contienen caracteres especiales. El error anterior causaba el fallo de "Credenciales inválidas".
 
-## v1.0.5 - 2024-07-27
-- **OPTIMIZACIÓN INTEGRAL DEL SERVICIO DE CATÁLOGO (`catalog.js`):**
-  - **Contexto:** Se detectaron problemas de rendimiento y funcionalidad en la carga y visualización del catálogo de vehículos. La carga inicial era lenta, los nuevos registros no aparecían al principio y el filtrado por categorías no funcionaba.
-  - **Desarrollo:**
-    1.  **Filtro y Ordenación en Backend:** Se refactorizó la función `handleGetCatalogData` para que maneje la lógica de filtrado y ordenación directamente en el servidor. Ahora solo se cargan los datos de la categoría solicitada (`cortes`, `tutoriales`, `relay`), y los resultados se devuelven en orden cronológico inverso, asegurando que los registros más nuevos aparezcan primero.
-    2.  **Implementación de Paginación:** Se añadió lógica de paginación en el backend. La función ahora acepta parámetros `page` y `pageSize` para devolver los datos en bloques manejables. Esto reduce drásticamente el tiempo de carga inicial y el consumo de ancho de banda.
-    3.  **Optimización de Carga de Imágenes:** Se implementó una función (`createThumbnailUrl`) que genera URLs de miniaturas optimizadas (300px) para las imágenes y diagramas de Google Drive. El backend ahora devuelve tanto las URLs originales como las de las miniaturas, permitiendo al frontend cargar vistas previas ligeras y posponer la carga de imágenes en alta resolución.
-  - **Resultado:** El servicio de catálogo ahora es significativamente más rápido, eficiente y escalable. La carga de datos es más ágil, la interfaz responde mejor y se ha solucionado el problema de ordenación y filtrado.
+## v3.003 - 18/07/2024
+- Se cambió el `Content-Type` en las solicitudes `fetch` de `application/json` a `text/plain` en los archivos `index.html`, `add_cortes.html` y `users.html` para solucionar el error "Fail to fetch" relacionado con CORS.
 
-## v1.0.4 - 2024-07-26
-- **CORRECCIÓN DE ERROR EN PARÁMETROS DE `checkVehicle`:**
-  - **Contexto:** Después de corregir el enrutamiento, la función `checkVehicle` seguía fallando con el error "Parámetros de búsqueda incompletos". Un análisis del código legado (v1.5) reveló la causa raíz.
-  - **Desarrollo:** Se identificó una discrepancia entre el `name` del campo del formulario en `add_cortes.html` y el nombre del parámetro esperado por el backend. El frontend enviaba `tipo-encendido` (con guion), mientras que el backend (`write.js`) esperaba `tipoEncendido` (camelCase). Se corrigió el atributo `name` en el `select` del HTML para que coincidiera con el backend.
-  - **Resultado:** El error ha sido resuelto. El frontend ahora envía los parámetros con los nombres correctos, permitiendo que la función `checkVehicle` opere como se espera.
+## v3.002 - 17/07/2024
+- Se agregó el manejo de errores detallado en la función `postToAction` para capturar y mostrar problemas de red o de análisis JSON.
+- Se implementó un sistema de logging remoto (`remoteLog`) para enviar errores del frontend al backend y facilitar la depuración.
 
-## v1.0.3 - 2024-07-26
-- **CORRECCIÓN DE ENRUTAMIENTO EN `api-manager.js`:**
-  - **Contexto:** Se detectó un error en la función `checkVehicle` que impedía verificar la existencia de un vehículo. La causa era un enrutamiento incorrecto en el frontend.
-  - **Desarrollo:** Se corrigió el mapa `ACTION_TO_SERVICE_MAP` en `api-manager.js` para que la acción `checkVehicle` apunte al servicio correcto (`WRITE`) en lugar de al servicio `CATALOG`.
-  - **Resultado:** La funcionalidad para comprobar si un vehículo ya existe antes de crearlo o actualizarlo ha sido restaurada.
-
-## v1.0.2 - 2024-07-25
-- **CORRECCIÓN CRÍTICA DE GESTIÓN DE SESIONES EN `Auth.gs`:**
-  - **Contexto:** Se detectó un error crítico que provocaba el cierre inesperado de sesiones y bloqueaba el reingreso de los usuarios.
-  - **Desarrollo:**
-    1.  **Eliminación de Expiración de Sesión:** Se eliminó por completo el límite de tiempo de 24 horas en las sesiones. Las sesiones ahora son perpetuas y solo se invalidan cuando el usuario cierra sesión manualmente o inicia sesión desde un nuevo dispositivo.
-    2.  **Implementación de Política de Sesión Única:** Se añadió una nueva lógica en la función `handleLogin` que busca y elimina todas las sesiones activas antiguas de un usuario antes de crear una nueva. Esto asegura que solo la sesión más reciente sea válida, cumpliendo con el requisito de "una sola sesión activa".
-    3.  **Depuración de Fallo de Login:** Se añadió un logging de depuración temporal y detallado a la función de verificación de contraseñas para diagnosticar por qué fallaba el reingreso. Esto permitirá identificar si el problema es de tipo de dato (número vs. texto) o un error en la lógica de hashing.
-  - **Resultado:** El sistema de sesiones ahora es mucho más estable y se alinea con los requisitos del usuario. Las sesiones persistirán al cerrar y reabrir la aplicación. El logging adicional permitirá resolver el problema de reingreso de forma definitiva.
-
-## v1.0.1 - 2024-07-25
-- **REFACTORIZACIÓN Y FINALIZACIÓN DEL SERVICIO DE ESCRITURA (`write.js`):**
-  - **Contexto:** Se completó y robusteció el microservicio `services/write/write.js` para manejar la adición y actualización de registros de vehículos, basándose en la lógica estable del sistema legado.
-  - **Desarrollo:**
-    1.  **Eliminación de Mapeo Dinámico:** Se reemplazó la función `getColumnMap` por un objeto `COLS` hardcoded, eliminando una fuente potencial de errores y mejorando la estabilidad, en línea con la arquitectura del nuevo `Auth.gs`.
-    2.  **Implementación de `checkVehicle`:** Se añadió la función `handleCheckVehicle` que faltaba, permitiendo al frontend verificar si un vehículo ya existe antes de decidir si crear un nuevo registro o actualizar uno existente.
-    3.  **Mejora en Creación de Filas:** Se adoptó el método `copyTo`/`clearContent` del código legado para la creación de nuevas filas. Esto garantiza que todas las propiedades de la fila anterior, incluyendo **fórmulas, validaciones de datos y formatos condicionales**, se hereden correctamente.
-    4.  **Módulo de Depuración:** Se implementó un módulo de depuración en la función `doGet` que permite simular llamadas `doPost` a través de parámetros en la URL, facilitando las pruebas del backend con herramientas como cURL.
-  - **Resultado:** El servicio de escritura ahora es más robusto, completo y fácil de depurar. La correcta herencia de propiedades en las nuevas filas asegura la integridad de los datos en la hoja de cálculo.
-
-## v1.0 - 2024-07-24
-- **RECONSTRUCCIÓN DEL SERVICIO DE AUTENTICACIÓN:**
-  - **Contexto:** Para resolver de forma definitiva los persistentes errores de "Credenciales inválidas" y "Cannot read properties of null", se tomó la decisión de reconstruir el servicio de autenticación desde cero.
-  - **Desarrollo:**
-    1. Se creó un nuevo archivo `services/Auth.gs` dedicado exclusivamente a la autenticación y gestión de sesiones.
-    2. Se implementó la lógica de `handleLogin` utilizando una estructura de columnas fija (hardcoded) para la hoja `Users`, eliminando la posibilidad de errores por mapeo dinámico.
-    3. Se añadió la función `handleValidateSession` para verificar la validez de los tokens de sesión contra la hoja `ActiveSessions`.
-    4. Se integró un módulo de logging (`logEvent`) que registra todos los eventos importantes (logins exitosos, fallidos, errores) en la hoja "Logs".
-    5. Se estableció la versión del nuevo servicio en `v1.0`, reflejada tanto en el `doGet` del script como en la interfaz de `index.html`.
-  - **Mejora de Seguridad:** Se implementó un sistema de hashing de contraseñas (SHA-256 con salt) para reemplazar el almacenamiento en texto plano, mejorando significativamente la seguridad de las credenciales de usuario. Se añadió una función de migración para actualizar las contraseñas existentes.
-  - **Resultado:** Este nuevo servicio aísla la lógica de autenticación, mejora la robustez y proporciona un sistema de depuración claro, sentando una base estable y segura para el sistema.
+## v3.001 - 16/07/2024
+- Se identificó que el error "Fail to fetch" es probablemente un problema de CORS (Cross-Origin Resource Sharing) que ocurre durante la solicitud de pre-vuelo (preflight request) OPTIONS que el navegador envía antes de la solicitud POST real.
