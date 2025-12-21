@@ -1,5 +1,14 @@
 # Registro de Cambios del Proyecto GPSpedia
 
+## v1.0.2 - 2024-07-25
+- **CORRECCIÓN CRÍTICA DE GESTIÓN DE SESIONES EN `Auth.gs`:**
+  - **Contexto:** Se detectó un error crítico que provocaba el cierre inesperado de sesiones y bloqueaba el reingreso de los usuarios.
+  - **Desarrollo:**
+    1.  **Eliminación de Expiración de Sesión:** Se eliminó por completo el límite de tiempo de 24 horas en las sesiones. Las sesiones ahora son perpetuas y solo se invalidan cuando el usuario cierra sesión manualmente o inicia sesión desde un nuevo dispositivo.
+    2.  **Implementación de Política de Sesión Única:** Se añadió una nueva lógica en la función `handleLogin` que busca y elimina todas las sesiones activas antiguas de un usuario antes de crear una nueva. Esto asegura que solo la sesión más reciente sea válida, cumpliendo con el requisito de "una sola sesión activa".
+    3.  **Depuración de Fallo de Login:** Se añadió un logging de depuración temporal y detallado a la función de verificación de contraseñas para diagnosticar por qué fallaba el reingreso. Esto permitirá identificar si el problema es de tipo de dato (número vs. texto) o un error en la lógica de hashing.
+  - **Resultado:** El sistema de sesiones ahora es mucho más estable y se alinea con los requisitos del usuario. Las sesiones persistirán al cerrar y reabrir la aplicación. El logging adicional permitirá resolver el problema de reingreso de forma definitiva.
+
 ## v1.0.1 - 2024-07-25
 - **REFACTORIZACIÓN Y FINALIZACIÓN DEL SERVICIO DE ESCRITURA (`write.js`):**
   - **Contexto:** Se completó y robusteció el microservicio `services/write/write.js` para manejar la adición y actualización de registros de vehículos, basándose en la lógica estable del sistema legado.

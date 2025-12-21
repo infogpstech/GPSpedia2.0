@@ -142,12 +142,15 @@ function handleLogin(payload) {
           const nombre = row[COLS.NOMBRE - 1];
           const sessionToken = Utilities.getUuid();
 
+          // --- IMPLEMENTACIÓN DE SESIÓN ÚNICA ---
+          // Antes de crear una nueva sesión, invalidar todas las sesiones antiguas para este usuario.
+          invalidateOldSessions_(ss, userId);
+
           const sessionsSheet = ss.getSheetByName(ACTIVE_SESSIONS_SHEET_NAME);
-          const expiration = new Date(Date.now() + (24 * 60 * 60 * 1000));
-          sessionsSheet.appendRow([userId, sessionToken, new Date(), expiration]);
+          sessionsSheet.appendRow([userId, sessionToken, new Date().toISOString()]);
           usersSheet.getRange(i + 1, COLS.SESSION_TOKEN).setValue(sessionToken);
 
-          logEvent('INFO', `Login exitoso para el usuario '${username}'.`);
+          logEvent('INFO', `Login exitoso para el usuario '${username}'. Sesiones antiguas invalidadas.`);
 
           return createJsonResponse({
             status: 'success',
@@ -192,16 +195,10 @@ function handleValidateSession(payload) {
       const row = data[i];
       const sheetUserId = String(row[0]).trim();
       const sheetToken = String(row[1]).trim();
-      const expiration = new Date(row[3]);
 
       if (sheetUserId === String(userId).trim() && sheetToken === String(sessionToken).trim()) {
-        if (expiration > new Date()) {
-          logEvent('INFO', `Sesión válida encontrada para el usuario ID '${userId}'.`);
-          return createJsonResponse({ valid: true });
-        } else {
-          logEvent('WARN', `Sesión expirada encontrada para el usuario ID '${userId}'.`);
-          return createJsonResponse({ valid: false, reason: 'Sesión expirada.' });
-        }
+        logEvent('INFO', `Sesión válida encontrada para el usuario ID '${userId}'.`);
+        return createJsonResponse({ valid: true });
       }
     }
 
@@ -211,6 +208,34 @@ function handleValidateSession(payload) {
   } catch (error) {
     logEvent('ERROR', 'Error durante la validación de la sesión.', { errorMessage: error.message, stack: error.stack });
     return createJsonResponse({ valid: false, reason: 'Error interno del servidor.' });
+  }
+}
+
+/**
+ * Invalida todas las sesiones antiguas de un usuario en la hoja "ActiveSessions".
+ * Esto se hace eliminando las filas correspondientes.
+ * @param {Spreadsheet} ss - La instancia activa del Spreadsheet.
+ * @param {string} userId - El ID del usuario para quien se invalidarán las sesiones.
+ */
+function invalidateOldSessions_(ss, userId) {
+  const sessionsSheet = ss.getSheetByName(ACTIVE_SESSIONS_SHEET_NAME);
+  const data = sessionsSheet.getDataRange().getValues();
+  const rowsToDelete = [];
+
+  // Recorrer las filas en reversa para eliminar de forma segura.
+  for (let i = data.length - 1; i >= 1; i--) {
+    const rowUserId = String(data[i][0]).trim();
+    if (rowUserId === String(userId).trim()) {
+      rowsToDelete.push(i + 1); // +1 porque los índices de fila son 1-based.
+    }
+  }
+
+  if (rowsToDelete.length > 0) {
+    logEvent('INFO', `Invalidando ${rowsToDelete.length} sesión(es) antigua(s) para el usuario ID '${userId}'.`);
+    // Eliminar las filas encontradas. Apps Script maneja la eliminación en batch de manera eficiente.
+    for (const rowIndex of rowsToDelete) {
+      sessionsSheet.deleteRow(rowIndex);
+    }
   }
 }
 
@@ -248,17 +273,33 @@ function hashPassword_(password, salt) {
  * @returns {boolean} True si la contraseña es válida, false en caso contrario.
  */
 function verifyPassword_(plaintextPassword, storedPassword) {
-  // Si el campo de la contraseña no contiene el separador, no es un hash válido.
+  // -- INICIO DE LOGGING DE DEPURACIÓN TEMPORAL --
+  logEvent('DEBUG', 'Iniciando verificación de contraseña.', {
+    storedPasswordType: typeof storedPassword,
+    storedPasswordValue: storedPassword,
+    plaintextPasswordType: typeof plaintextPassword
+  });
+
   if (!storedPassword || !storedPassword.includes('$')) {
-    // Podría ser una contraseña en texto plano antigua. Por seguridad, la rechazamos.
-    // La migración debe encargarse de que todas las contraseñas estén hasheadas.
+    logEvent('DEBUG', 'Fallo de verificación: La contraseña almacenada no es un hash válido (no contiene "$").');
     return false;
   }
 
   const [salt, storedHash] = storedPassword.split('$');
-  const hashOfPlaintext = hashPassword_(String(plaintextPassword).trim(), salt);
+  const trimmedPlaintext = String(plaintextPassword).trim();
+  const hashOfPlaintext = hashPassword_(trimmedPlaintext, salt);
 
-  return hashOfPlaintext === storedHash;
+  const verificationResult = hashOfPlaintext === storedHash;
+
+  logEvent('DEBUG', 'Resultado de la verificación de contraseña.', {
+    saltUsed: salt,
+    hashFromSheet: storedHash,
+    hashCalculated: hashOfPlaintext,
+    passwordsMatch: verificationResult
+  });
+  // -- FIN DE LOGGING DE DEPURACIÓN TEMPORAL --
+
+  return verificationResult;
 }
 
 
