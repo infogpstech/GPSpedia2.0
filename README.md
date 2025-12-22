@@ -42,20 +42,22 @@ La arquitectura de GPSpedia 2.0 se compone de tres capas principales:
 
 ## 3. Trabajos Pendientes (Checklist)
 
-Esta sección documenta las tareas de desarrollo y corrección que están pendientes de implementación.
+Esta sección documenta las tareas de desarrollo, corrección y regresiones pendientes.
 
-### Corrección de Errores (Bugs)
-- [ ] **Reparar Secciones "Tutoriales" y "Relay":** Actualmente, estas secciones no cargan datos al ser seleccionadas. Se debe implementar la lógica de `fetch` en la función `mostrarSeccion` de `index.html` para que los datos se soliciten al backend.
-- [ ] **Corregir Lógica de Imágenes del Catálogo:** La imagen que se muestra en las tarjetas de Categoría y Marca no es la correcta. Se debe ajustar la lógica para que se priorice la `imagenDelVehiculo`.
-- [ ] **Error de Layout (Header):** El encabezado (barra de búsqueda) no se mantiene fijo en la parte superior al hacer scroll. Se requiere una corrección de CSS para asegurar su posición.
+### Bugs y Regresiones por Corregir
+- [ ] **Carga de Información en Secciones:** Las secciones "Tutoriales" y "Relay" no cargan su contenido.
+- [ ] **Organización del Pie de Página:** Los enlaces del footer deben aparecer debajo del aviso de copyright.
+- [ ] **Layout del Modal de Detalle:** El nombre del colaborador debe estar posicionado sobre los botones de feedback.
+- [ ] **Estilo de Botones de Feedback:** Los botones "Útil" y "Reportar" en el modal no tienen el estilo aplicado.
+- [ ] **Visibilidad de Tercera Opción de Corte:** La tercera opción de corte no es visible en el modal, incluso si existen los datos.
+- [ ] **Posición del Botón Limpiar Búsqueda:** El botón "x" de la barra de búsqueda se muestra fuera de su contenedor.
 
-### Nuevas Funcionalidades y Mejoras de UI/UX
-- [ ] **Implementar Menú Hamburguesa Funcional:**
-    - [ ] Mover los botones de secciones ("Cortes", "Tutoriales", "Relay") del `section-selector` al interior del menú lateral (`side-menu`).
-    - [ ] Mover el botón "Agregar Nuevo" al menú lateral.
-    - [ ] Mover el botón de "Cerrar Sesión" del header al menú lateral.
-- [ ] **Agregar Botón de Instalación PWA:** Añadir un botón de instalación personalizado que solo sea visible en navegadores web y esté oculto cuando la aplicación ya se está ejecutando como una PWA.
-- [ ] **Agregar Enlaces en el Footer:** Añadir los enlaces "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes" en el pie de página de la aplicación y agregar el html que contenga esa información y el formulario de contacto. 
+### Nuevas Funcionalidades Pendientes
+- [ ] **Crear Página de Información (`info.html`):**
+    - [ ] Desarrollar una página estática con las secciones "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes".
+    - [ ] **"Sobre Nosotros":** Redactar un texto para consumidores finales basado en la descripción del proyecto en `README.md`, omitiendo detalles técnicos internos.
+    - [ ] **"Contáctenos":** Crear un formulario con los campos: "Nombre de la Organización", "Correo Electrónico", "Número de Teléfono" y "Mensaje". La información deberá enviarse a una nueva hoja de cálculo en Google Sheets.
+    - [ ] **"Preguntas Frecuentes":** Implementar una sección (preferiblemente un acordeón) que explique de manera clara y concisa cada una de las funcionalidades del catálogo para un usuario nuevo (ej. cómo crear una cuenta, cómo agregar un corte, cómo usar el feedback). Se deben evitar detalles sobre la jerarquía de roles.
 
 ## 4. Componentes del Backend (Microservicios)
 
@@ -137,3 +139,7 @@ Para mantener la consistencia, calidad y mantenibilidad del proyecto, es mandato
 1.  **Comentarios en el Código:**
     *   Toda línea de código nueva o modificada debe ir acompañada de un comentario claro y conciso que explique su función o el cambio realizado.
     *   El objetivo es que cualquier desarrollador pueda entender el propósito del código sin necesidad de análisis profundos.
+
+### C. Proceso de Aprobación
+1.  **Verificación Post-Commit:**
+    *   No se debe 'marcar' una tarea como realizada antes de hacer un commit. La verificación final de una tarea la realiza el Project Manager después de que los cambios han sido entregados.
