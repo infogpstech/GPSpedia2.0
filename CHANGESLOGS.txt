@@ -15,6 +15,18 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.1.3 - 01/08/2024
+- **REFACTORIZACIÓN DE UI Y ACTUALIZACIÓN DE NORMAS DE DESARROLLO:**
+  - **Contexto:** Tras un intento fallido de refactorización que reintrodujo vulnerabilidades, se adoptó un enfoque más seguro para actualizar la interfaz de usuario, y se añadieron nuevas reglas de desarrollo basadas en la retroalimentación del usuario.
+  - **Acciones Realizadas:**
+    1.  **Reconstrucción de `index.html` (Líneas 1-1200):** Se reemplazó el contenido completo de `index.html` con la plantilla de `Olds/GPSpedia 1.5/index.html` para restaurar el layout visual solicitado por el usuario.
+    2.  **Eliminación de Código Inseguro:** Se eliminó el bloque de script obsoleto que contenía lógica de autenticación del lado del cliente y claves de API hardcodeadas.
+    3.  **Reintegración de Lógica Moderna:** Se reinsertó el bloque de script moderno que utiliza `api-manager.js` para gestionar las llamadas a los microservicios de forma segura.
+    4.  **Integración de Componentes UI:** Se añadieron los componentes del menú hamburguesa, el panel lateral y se vincularon a los nuevos event listeners en el script principal.
+    5.  **Actualización de `README.md` (Línea 120):** Se añadió la nueva regla de desarrollo que estipula que una tarea solo se considera completa después de un commit y la validación explícita del usuario.
+    6.  **Actualización de `INSTRUCTIVO.TXT` (Línea 85):** Se replicó la nueva regla de desarrollo en el instructivo para asegurar consistencia en la documentación.
+- **Estado del Proyecto:** La interfaz de usuario ha sido actualizada al layout de la v1.5 manteniendo la arquitectura de backend segura. Las normas de desarrollo han sido actualizadas para reflejar el nuevo flujo de trabajo de validación.
+
 ## v3.1.2 - 31/07/2024
 - **ANÁLISIS DE LÓGICA Y CORRECCIONES FINALES DE DOCUMENTACIÓN:**
   - **Contexto:** Se realizó una auditoría final para asegurar la coherencia entre el frontend y el backend, y para corregir omisiones finales en la documentación.

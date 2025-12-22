@@ -21,6 +21,9 @@ Para mantener la consistencia, calidad y mantenibilidad del proyecto, es mandato
 **B. Calidad del Código:**
 1.  **Comentarios:** Toda línea de código nueva o modificada debe tener un comentario explicando su propósito.
 
+**C. Proceso de Aprobación:**
+1.  **Verificación Post-Commit:** No se debe 'marcar' una tarea como realizada antes de hacer un commit. La verificación final de una tarea la realiza el Project Manager después de que los cambios han sido entregados.
+
 ---------------------------------
 1. DISCREPANCIAS CON LA DOCUMENTACIÓN
 ---------------------------------
