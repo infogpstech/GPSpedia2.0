@@ -15,6 +15,13 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.2.2 - 05/08/2024
+- **CONFIGURACIÓN: ACTUALIZACIÓN DE ENDPOINT DEL SERVICIO DE CATÁLOGO:**
+  - **Contexto:** Después de un nuevo despliegue del servicio `GPSpedia-Catalog`, se recibió una nueva URL para el endpoint.
+  - **Acciones Realizadas:**
+    1.  **Actualización de URL (`api-manager.js`, Línea 10):** Se actualizó la constante `API_ENDPOINTS.CATALOG` con la nueva URL de despliegue para asegurar que el frontend se comunique con la versión más reciente del servicio.
+- **Estado del Proyecto:** El frontend ahora apunta a la versión más reciente del servicio de catálogo.
+
 ## v3.2.1 - 05/08/2024
 - **CORRECCIÓN FINAL DEL MAPEO DE COLUMNAS EN `GPSpedia-Catalog`:**
   - **Contexto:** La implementación anterior del mapeo de columnas fijo (v3.1.8) se basó en una estructura de columnas incorrecta obtenida de la documentación, lo que resultó en un fallo continuo en la carga de datos. Esta versión corrige el problema de forma definitiva utilizando la estructura exacta proporcionada por el Project Manager.
