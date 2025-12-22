@@ -15,6 +15,16 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.1.8 - 04/08/2024
+- **REFACTORIZACIÓN Y CORRECCIÓN DE `GPSpedia-Catalog` SERVICE:**
+  - **Contexto:** Se abordó la primera fase de la corrección de la deuda técnica identificada en la auditoría del sistema (v3.1.5), centrada en el servicio de catálogo.
+  - **Acciones Realizadas:**
+    1.  **Refactorización a Mapeo de Columnas Fijo (`services/catalog/catalog.js`, Líneas 30-85):** Se eliminó por completo la función `getColumnMap` y toda la lógica de mapeo dinámico. Se implementaron los objetos `COLS_CORTES`, `COLS_TUTORIALES` y `COLS_RELAY` con índices fijos (hardcoded), alineando el servicio con las normas de arquitectura del proyecto para garantizar estabilidad y mantenibilidad.
+    2.  **Actualización de Lógica de Acceso a Datos (`services/catalog/catalog.js`, Líneas 145-250):** Todas las funciones (`handleGetCatalogData`, `handleGetDropdownData`, `handleCheckVehicle`) fueron modificadas para utilizar los nuevos mapas de columnas fijos.
+    3.  **Corrección de Bug de Carga de Contenido (`services/catalog/catalog.js`, Línea 175):** Se añadió `.reverse()` a los arrays de datos de las secciones "Tutoriales" y "Relay". Esto soluciona el bug que impedía que se mostraran los registros más recientes en la interfaz.
+    4.  **Actualización de Versión del Servicio (`services/catalog/catalog.js`, Línea 95):** Se actualizó el número de versión en el mensaje de estado `doGet` a `v1.1` para facilitar la verificación del despliegue.
+- **Estado del Proyecto:** El servicio `GPSpedia-Catalog` es ahora más robusto y estable. El bug de carga de contenido para "Tutoriales" y "Relay" ha sido solucionado en el backend.
+
 ## v3.1.7 - 03/08/2024
 - **DOCUMENTACIÓN DE MEJORA DE DEBUGGING:**
   - **Contexto:** Se ha añadido una nueva tarea pendiente a la documentación para la implementación de un sistema de debugging integral.

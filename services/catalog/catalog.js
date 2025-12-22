@@ -8,6 +8,7 @@
 const SPREADSHEET_ID = "1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo";
 let spreadsheet = null;
 
+// Función para obtener la instancia del Spreadsheet, optimizada para no abrirlo múltiples veces.
 function getSpreadsheet() {
   if (spreadsheet === null) {
     spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
@@ -22,6 +23,67 @@ const SHEET_NAMES = {
 };
 
 // ============================================================================
+// MAPEO DE COLUMNAS FIJO (HARDCODED)
+// ============================================================================
+// Mapeo para la hoja "Cortes". Basado en la documentación de README.md. Los índices son 0-based.
+const COLS_CORTES = {
+    id: 0,
+    categoria: 1,
+    marca: 2,
+    modelo: 3,
+    anoGeneracion: 4,
+    tipoDeEncendido: 5,
+    colaborador: 6,
+    util: 7,
+    imagenDelVehiculo: 8,
+    tipoDeCorte: 9,
+    descripcionDelCorte: 10,
+    imagenDelCorte: 11,
+    tipoDeCorte2: 12,
+    descripcionDelSegundoCorte: 13,
+    imagenDeCorte2: 14,
+    tipoDeCorte3: 15,
+    descripcionDelCorte3: 16,
+    imagenDelCorte3: 17,
+    apertura: 18,
+    imagenDeLaApertura: 19,
+    cablesDeAlimentacion: 20,
+    imagenDeLosCablesDeAlimentacion: 21,
+    notaImportante: 22,
+    comoDesarmarLosPlasticos: 23
+};
+const HEADERS_CORTES = Object.keys(COLS_CORTES);
+
+// Mapeo para la hoja "Tutoriales".
+const COLS_TUTORIALES = {
+    id: 0,
+    tema: 1,
+    comoIdentificarlo: 2,
+    dondeEncontrarlo: 3,
+    detalles: 4,
+    imagen: 5,
+    video: 6
+};
+const HEADERS_TUTORIALES = Object.keys(COLS_TUTORIALES);
+
+// Mapeo para la hoja "Relay".
+const COLS_RELAY = {
+    id: 0,
+    configuracion: 1,
+    funcion: 2,
+    vehiculoDondeSeUtiliza: 3,
+    pin30Entrada: 4,
+    pin85Bobina: 5,
+    pin86Bobina: 6,
+    pin87aComunCerrado: 7,
+    pin87ComunmenteAbierto: 8,
+    observacion: 9,
+    imagen: 10
+};
+const HEADERS_RELAY = Object.keys(COLS_RELAY);
+
+
+// ============================================================================
 // ROUTER PRINCIPAL (doGet y doPost)
 // ============================================================================
 
@@ -29,7 +91,7 @@ function doGet(e) {
   try {
     const response = {
       status: 'success',
-      message: 'GPSpedia CATALOG-SERVICE v1.0 is active.'
+      message: 'GPSpedia CATALOG-SERVICE v1.1 is active.' // Versión actualizada para reflejar el cambio.
     };
     return ContentService
       .createTextOutput(JSON.stringify(response))
@@ -87,31 +149,40 @@ function doPost(e) {
 // ============================================================================
 
 function handleGetCatalogData() {
-    const sheetsToFetch = {
-        cortes: SHEET_NAMES.CORTES,
-        tutoriales: SHEET_NAMES.TUTORIALES,
-        relay: SHEET_NAMES.RELAY
+    const sheetConfig = {
+        cortes: { name: SHEET_NAMES.CORTES, headers: HEADERS_CORTES },
+        tutoriales: { name: SHEET_NAMES.TUTORIALES, headers: HEADERS_TUTORIALES },
+        relay: { name: SHEET_NAMES.RELAY, headers: HEADERS_RELAY }
     };
     const allData = {};
 
-    for (const key in sheetsToFetch) {
+    for (const key in sheetConfig) {
         try {
-            const sheet = getSpreadsheet().getSheetByName(sheetsToFetch[key]);
+            const config = sheetConfig[key];
+            const sheet = getSpreadsheet().getSheetByName(config.name);
             if (sheet) {
                 const data = sheet.getDataRange().getValues();
-                const headers = data.shift().map(header => camelCase(header.trim()));
-                allData[key] = data.map(row => {
+                data.shift(); // Eliminar la fila de encabezados del spreadsheet
+
+                const mappedData = data.map(row => {
                     const obj = {};
-                    headers.forEach((header, i) => {
+                    config.headers.forEach((header, i) => {
                         obj[header] = row[i];
                     });
                     return obj;
                 });
+
+                // Se invierte el array para las secciones "tutoriales" y "relay" para mostrar los más nuevos primero.
+                if (key === 'tutoriales' || key === 'relay') {
+                    mappedData.reverse();
+                }
+                allData[key] = mappedData;
+
             } else {
                 allData[key] = [];
             }
         } catch (e) {
-            Logger.log(`Error cargando la hoja ${sheetsToFetch[key]}: ${e.message}`);
+            Logger.log(`Error cargando la hoja ${sheetConfig[key].name}: ${e.message}`);
             allData[key] = [];
         }
     }
@@ -122,6 +193,7 @@ function handleGetDropdownData() {
     const cortesSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
     if (!cortesSheet) throw new Error(`La hoja "${SHEET_NAMES.CORTES}" no fue encontrada.`);
 
+    // getValues requiere un índice de columna 1-based. Se usan valores fijos.
     const getValues = (col) => {
         const rule = cortesSheet.getRange(2, col).getDataValidation();
         if (rule && rule.getCriteriaType() == SpreadsheetApp.DataValidationCriteria.VALUE_IN_LIST) {
@@ -130,13 +202,13 @@ function handleGetDropdownData() {
         return [];
     };
 
-    const COLS = getColumnMap(SHEET_NAMES.CORTES);
     return {
         status: 'success',
         dropdowns: {
-            categoria: getValues(COLS.categoria),
-            tipoDeEncendido: getValues(COLS.tipoDeEncendido),
-            tipoDeCorte: getValues(COLS.tipoDeCorte)
+            // Se utilizan los índices de columna (1-based) fijos correspondientes a la estructura de la hoja.
+            categoria: getValues(COLS_CORTES.categoria + 1), // Col B
+            tipoDeEncendido: getValues(COLS_CORTES.tipoDeEncendido + 1), // Col F
+            tipoDeCorte: getValues(COLS_CORTES.tipoDeCorte + 1) // Col J
         }
     };
 }
@@ -149,9 +221,7 @@ function handleCheckVehicle(payload) {
 
     const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
     const data = sheet.getDataRange().getValues();
-    const headers = data.shift();
-    const normalizedHeaders = headers.map(h => camelCase(h.trim()));
-    const COLS = arrayToMap(normalizedHeaders);
+    data.shift(); // Eliminar encabezados
 
     const paramMarca = marca.trim().toLowerCase();
     const paramModelo = modelo.trim().toLowerCase();
@@ -160,26 +230,29 @@ function handleCheckVehicle(payload) {
 
     for (let i = 0; i < data.length; i++) {
         const row = data[i];
-        const sheetMarca = (row[COLS.marca] || "").toString().trim().toLowerCase();
-        const sheetModelo = (row[COLS.modelo] || "").toString().trim().toLowerCase();
-        const sheetAnioRaw = (row[COLS.anoGeneracion] || "").toString();
-        const sheetTipoEncendido = (row[COLS.tipoDeEncendido] || "").toString().trim().toLowerCase();
+        // Acceso a datos usando el mapa de columnas fijo COLS_CORTES (0-based)
+        const sheetMarca = (row[COLS_CORTES.marca] || "").toString().trim().toLowerCase();
+        const sheetModelo = (row[COLS_CORTES.modelo] || "").toString().trim().toLowerCase();
+        const sheetAnioRaw = (row[COLS_CORTES.anoGeneracion] || "").toString();
+        const sheetTipoEncendido = (row[COLS_CORTES.tipoDeEncendido] || "").toString().trim().toLowerCase();
 
         if (sheetMarca === paramMarca && sheetModelo === paramModelo && isYearInRange(paramAnio, sheetAnioRaw) && sheetTipoEncendido === paramTipoEncendido) {
-            const existingRowData = normalizedHeaders.reduce((obj, header, index) => {
+            const existingRowData = HEADERS_CORTES.reduce((obj, header, index) => {
                 obj[header] = row[index];
                 return obj;
             }, {});
-            return { status: 'success', exists: true, data: existingRowData, rowIndex: i + 2 };
+            return { status: 'success', exists: true, data: existingRowData, rowIndex: i + 2 }; // i + 2 para obtener el número de fila correcto en la hoja
         }
     }
     return { status: 'success', exists: false };
 }
 
+
 // ============================================================================
 // FUNCIONES AUXILIARES
 // ============================================================================
 
+// Se mantiene la función camelCase para consistencia con otros módulos, aunque ya no es crítica aquí.
 function camelCase(str) {
     if (!str) return '';
     return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -189,23 +262,6 @@ function camelCase(str) {
             const lowerWord = word.toLowerCase();
             return index === 0 ? lowerWord : lowerWord.charAt(0).toUpperCase() + lowerWord.slice(1);
         }).join('');
-}
-
-function getColumnMap(sheetName) {
-    const sheet = getSpreadsheet().getSheetByName(sheetName);
-    if (!sheet) throw new Error(`Hoja no encontrada: ${sheetName}`);
-    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-    return headers.reduce((map, header, i) => {
-        map[camelCase(header)] = i + 1;
-        return map;
-    }, {});
-}
-
-function arrayToMap(arr) {
-    return arr.reduce((obj, item, index) => {
-        obj[item] = index;
-        return obj;
-    }, {});
 }
 
 function isYearInRange(inputYear, sheetYearValue) {
