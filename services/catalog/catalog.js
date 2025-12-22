@@ -18,67 +18,67 @@ function getSpreadsheet() {
 
 const SHEET_NAMES = {
     CORTES: "Cortes",
-    TUTORIALES: "Tutoriales",
-    RELAY: "Relay"
+    TUTORIALES: "Tutorial",
+    RELAY: "Configuración del Relay"
 };
 
 // ============================================================================
 // MAPEO DE COLUMNAS FIJO (HARDCODED)
 // ============================================================================
-// Mapeo para la hoja "Cortes". Basado en la documentación de README.md. Los índices son 0-based.
+// Mapeo para la hoja "Cortes". Basado en la estructura final proporcionada por el usuario.
 const COLS_CORTES = {
     id: 0,
     categoria: 1,
-    marca: 2,
-    modelo: 3,
-    anoGeneracion: 4,
+    imagenDelVehiculo: 2,
+    marca: 3,
+    modelo: 4,
     tipoDeEncendido: 5,
-    colaborador: 6,
-    util: 7,
-    imagenDelVehiculo: 8,
-    tipoDeCorte: 9,
-    descripcionDelCorte: 10,
-    imagenDelCorte: 11,
-    tipoDeCorte2: 12,
-    descripcionDelSegundoCorte: 13,
-    imagenDeCorte2: 14,
-    tipoDeCorte3: 15,
-    descripcionDelCorte3: 16,
-    imagenDelCorte3: 17,
-    apertura: 18,
-    imagenDeLaApertura: 19,
-    cablesDeAlimentacion: 20,
-    imagenDeLosCablesDeAlimentacion: 21,
-    notaImportante: 22,
-    comoDesarmarLosPlasticos: 23
+    anoGeneracion: 6,
+    tipoDeCorte: 7,
+    descripcionDelCorte: 8,
+    imagenDelCorte: 9,
+    descripcionDelSegundoCorte: 10,
+    tipoDeCorte2: 11,
+    imagenDeCorte2: 12,
+    apertura: 13,
+    imagenDeLaApertura: 14,
+    notaImportante: 15,
+    cablesDeAlimentacion: 16,
+    imagenDeLosCablesDeAlimentacion: 17,
+    comoDesarmarLosPlasticos: 18,
+    colaborador: 19,
+    tipoDeCorte3: 20,
+    descripcionDelCorte3: 21,
+    imagenDelCorte3: 22,
+    util: 23
 };
 const HEADERS_CORTES = Object.keys(COLS_CORTES);
 
-// Mapeo para la hoja "Tutoriales".
+// Mapeo para la hoja "Tutorial".
 const COLS_TUTORIALES = {
     id: 0,
     tema: 1,
-    comoIdentificarlo: 2,
-    dondeEncontrarlo: 3,
-    detalles: 4,
-    imagen: 5,
+    imagen: 2,
+    comoIdentificarlo: 3,
+    dondeEncontrarlo: 4,
+    detalles: 5,
     video: 6
 };
 const HEADERS_TUTORIALES = Object.keys(COLS_TUTORIALES);
 
-// Mapeo para la hoja "Relay".
+// Mapeo para la hoja "Configuración del Relay".
 const COLS_RELAY = {
     id: 0,
     configuracion: 1,
     funcion: 2,
     vehiculoDondeSeUtiliza: 3,
     pin30Entrada: 4,
-    pin85Bobina: 5,
-    pin86Bobina: 6,
+    pin85BobinaPositivo: 5,
+    pin86BobinaNegativo: 6,
     pin87aComunCerrado: 7,
     pin87ComunmenteAbierto: 8,
-    observacion: 9,
-    imagen: 10
+    imagen: 9,
+    observacion: 10
 };
 const HEADERS_RELAY = Object.keys(COLS_RELAY);
 
@@ -150,9 +150,9 @@ function doPost(e) {
 
 function handleGetCatalogData() {
     const sheetConfig = {
-        cortes: { name: SHEET_NAMES.CORTES, headers: HEADERS_CORTES },
-        tutoriales: { name: SHEET_NAMES.TUTORIALES, headers: HEADERS_TUTORIALES },
-        relay: { name: SHEET_NAMES.RELAY, headers: HEADERS_RELAY }
+        cortes: { name: SHEET_NAMES.CORTES, headers: HEADERS_CORTES, columnMap: COLS_CORTES },
+        tutoriales: { name: SHEET_NAMES.TUTORIALES, headers: HEADERS_TUTORIALES, columnMap: COLS_TUTORIALES },
+        relay: { name: SHEET_NAMES.RELAY, headers: HEADERS_RELAY, columnMap: COLS_RELAY }
     };
     const allData = {};
 
@@ -166,8 +166,9 @@ function handleGetCatalogData() {
 
                 const mappedData = data.map(row => {
                     const obj = {};
-                    config.headers.forEach((header, i) => {
-                        obj[header] = row[i];
+                    config.headers.forEach(header => {
+                        const colIndex = config.columnMap[header];
+                        obj[header] = row[colIndex];
                     });
                     return obj;
                 });
@@ -237,8 +238,9 @@ function handleCheckVehicle(payload) {
         const sheetTipoEncendido = (row[COLS_CORTES.tipoDeEncendido] || "").toString().trim().toLowerCase();
 
         if (sheetMarca === paramMarca && sheetModelo === paramModelo && isYearInRange(paramAnio, sheetAnioRaw) && sheetTipoEncendido === paramTipoEncendido) {
-            const existingRowData = HEADERS_CORTES.reduce((obj, header, index) => {
-                obj[header] = row[index];
+            const existingRowData = HEADERS_CORTES.reduce((obj, header) => {
+                const colIndex = COLS_CORTES[header];
+                obj[header] = row[colIndex];
                 return obj;
             }, {});
             return { status: 'success', exists: true, data: existingRowData, rowIndex: i + 2 }; // i + 2 para obtener el número de fila correcto en la hoja
@@ -251,18 +253,6 @@ function handleCheckVehicle(payload) {
 // ============================================================================
 // FUNCIONES AUXILIARES
 // ============================================================================
-
-// Se mantiene la función camelCase para consistencia con otros módulos, aunque ya no es crítica aquí.
-function camelCase(str) {
-    if (!str) return '';
-    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-zA-Z0-9 ]/g, "").trim().split(' ')
-        .map((word, index) => {
-            if (!word) return '';
-            const lowerWord = word.toLowerCase();
-            return index === 0 ? lowerWord : lowerWord.charAt(0).toUpperCase() + lowerWord.slice(1);
-        }).join('');
-}
 
 function isYearInRange(inputYear, sheetYearValue) {
     const year = parseInt(inputYear.trim(), 10);
