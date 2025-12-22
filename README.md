@@ -45,7 +45,7 @@ La arquitectura de GPSpedia 2.0 se compone de tres capas principales:
 Esta sección documenta las tareas de desarrollo, corrección y regresiones pendientes.
 
 ### Bugs y Regresiones por Corregir
-- [ ] **Carga de Información en Secciones:** Las secciones "Tutoriales" y "Relay" no cargan su contenido.
+- [x] **Carga de Información en Secciones:** Las secciones "Tutoriales" y "Relay" no cargan su contenido. *(Solucionado en v3.1.8 con la refactorización del backend).*
 - [ ] **Organización del Pie de Página:** Los enlaces del footer deben aparecer debajo del aviso de copyright.
 - [ ] **Layout del Modal de Detalle:** El nombre del colaborador debe estar posicionado sobre los botones de feedback.
 - [ ] **Estilo de Botones de Feedback:** Los botones "Útil" y "Reportar" en el modal no tienen el estilo aplicado.
@@ -68,6 +68,11 @@ Esta sección documenta las tareas de desarrollo, corrección y regresiones pend
         - [ ] Visualizar el estado y los errores de los servicios.
         - [ ] Guardar registros (error, advertencia, etc.) en la hoja "Logs" de Google Sheets.
         - [ ] Activar/desactivar funciones del navegador para prevenir debugging externo (ej. F12, menú contextual, copiar, zoom).
+- [ ] **Implementar Estrategia de Carga de Imágenes Optimizada (Lazy Load):**
+    - [ ] **Tarjetas del catálogo:** Cargar miniaturas de baja resolución (ej. `sz=w200`) para acelerar la carga inicial.
+    - [ ] **Modal de detalle:** Al abrir el modal, cargar miniaturas de resolución media (ej. `sz=w800`).
+    - [ ] **Lightbox:** Al hacer clic en una imagen del modal, mostrar la imagen en su resolución original (ej. `sz=w2048`) en un lightbox.
+    - [ ] **Seguridad en Lightbox:** En la vista de lightbox, deshabilitar el menú contextual, la función de copiar y las herramientas de desarrollador (F12) para proteger las imágenes. La única interacción permitida debe ser el zoom.
 
 ### Revisiones y Ajustes de UI Pendientes
 - [ ] **Ajuste del Encabezado Principal (`index.html`):**
@@ -131,13 +136,13 @@ El Spreadsheet con ID `1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo` contiene la
 
 ### Hoja: `Cortes`
 - **Propósito:** Catálogo principal de vehículos.
-- **Columnas Principales:** `ID`, `Categoría`, `Marca`, `Modelo`, `Año (Generacion)`, `Tipo de Encendido`, `Colaborador`, `Util`, `Imagen del Vehiculo`, `Tipo de Corte`, `Descripcion del Corte`, `Imagen del Corte`, `Tipo de Corte 2`, `Descripcion del Segundo Corte`, `Imagen de Corte 2`, `Tipo de Corte 3`, `Descripcion del Corte 3`, `Imagen del Corte 3`, `Apertura`, `Imagen de la Apertura`, `Cables de Alimentacion`, `Imagen de los Cables de Alimentacion`, `Nota Importante`, `Como desarmar los plasticos`.
+- **Columnas:** `ID`, `Categoría`, `Marca`, `Modelo`, `Año (Generacion)`, `Tipo de Encendido`, `Colaborador`, `Util`, `Imagen del Vehiculo`, `Tipo de Corte`, `Descripcion del Corte`, `Imagen del Corte`, `Tipo de Corte 2`, `Descripcion del Segundo Corte`, `Imagen de Corte 2`, `Tipo de Corte 3`, `Descripcion del Corte 3`, `Imagen del Corte 3`, `Apertura`, `Imagen de la Apertura`, `Cables de Alimentacion`, `Imagen de los Cables de Alimentacion`, `Nota Importante`, `Como desarmar los plasticos`.
 
-### Hoja: `Tutoriales`
+### Hoja: `Tutorial`
 - **Propósito:** Contenido para la sección de tutoriales.
 - **Columnas:** `ID`, `Tema`, `Como identificarlo`, `Donde encontrarlo`, `Detalles`, `Imagen`, `Video`.
 
-### Hoja: `Relay`
+### Hoja: `Configuración del Relay`
 - **Propósito:** Contenido para la sección de configuración de relays.
 - **Columnas:** `ID`, `Configuracion`, `Funcion`, `Vehiculo donde se utiliza`, `PIN 30(entrada)`, `PIN 85(bobina +)`, `PIN 86(bobina - )`, `PIN 87a(comun cerrado)`, `PIN 87(Comunmente Abierto)`, `Observacion`, `Imagen`.
 

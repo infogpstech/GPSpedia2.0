@@ -15,6 +15,14 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.2.3 - 05/08/2024
+- **DOCUMENTACIÓN: CORRECCIÓN Y ACTUALIZACIÓN GENERAL:**
+  - **Contexto:** Se realizó una actualización integral de la documentación del proyecto para alinearla con el estado actual del código, registrar nuevas tareas y reflejar los avances recientes.
+  - **Acciones Realizadas:**
+    1.  **Corrección de Estructura de Columnas (`README.md`):** Se corrigió la definición de columnas para las hojas "Cortes", "Tutorial" y "Configuración del Relay" para que coincida con la estructura real de la base de datos, incluyendo la columna `Timestamp`.
+    2.  **Actualización de Tareas (`README.md`, `Instrucciones.txt`):** Se marcó como resuelto el bug de carga de contenido de las secciones "Tutoriales" y "Relay" y se añadió la nueva tarea para implementar una estrategia de carga de imágenes optimizada (Lazy Load).
+- **Estado del Proyecto:** La documentación del proyecto está ahora sincronizada con el código y las nuevas solicitudes, mejorando la claridad para futuros ciclos de desarrollo.
+
 ## v3.2.2 - 05/08/2024
 - **CONFIGURACIÓN: ACTUALIZACIÓN DE ENDPOINT DEL SERVICIO DE CATÁLOGO:**
   - **Contexto:** Después de un nuevo despliegue del servicio `GPSpedia-Catalog`, se recibió una nueva URL para el endpoint.
