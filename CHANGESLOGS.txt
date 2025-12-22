@@ -15,6 +15,14 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.1.7 - 03/08/2024
+- **DOCUMENTACIÓN DE MEJORA DE DEBUGGING:**
+  - **Contexto:** Se ha añadido una nueva tarea pendiente a la documentación para la implementación de un sistema de debugging integral.
+  - **Acciones Realizadas:**
+    1.  **Actualización de `README.md` (Línea 90):** Se ha añadido la tarea "Implementación de Sistema de Debugging Integral" a la sección de "Mejoras de Funcionalidad Pendientes".
+    2.  **Actualización de `INSTRUCTIVO.TXT` (Línea 95):** Se ha replicado la nueva tarea en la lista de pendientes del instructivo.
+- **Estado del Proyecto:** La documentación ha sido actualizada para incluir esta nueva mejora funcional.
+
 ## v3.1.6 - 03/08/2024
 - **DOCUMENTACIÓN DE NUEVAS TAREAS PENDIENTES Y FLUJO DE TRABAJO:**
   - **Contexto:** Se ha actualizado la documentación interna para reflejar una nueva serie de mejoras de funcionalidad, ajustes de UI y correcciones de bugs solicitadas por el Project Manager.

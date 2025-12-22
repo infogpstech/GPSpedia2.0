@@ -61,6 +61,13 @@ Esta sección documenta las tareas de desarrollo, corrección y regresiones pend
     - [ ] Modificar el formato del campo "Colaborador" para incluir la contribución específica entre paréntesis.
     - [ ] Ejemplo: `Byron López (Cort 1, Apert.)`.
     - [ ] Si hay múltiples colaboradores, deben aparecer en líneas separadas. Ejemplo: `Byron López (Cort 1, Apert.)\nJoel Reyes (Cort 2, C. Alimen.)`.
+- [ ] **Implementación de Sistema de Debugging Integral:**
+    - [ ] **Backend:** Cada microservicio debe tener su propio módulo de debugging para responder a llamadas cURL.
+    - [ ] **Frontend:** Crear una consola de debugging en `index.html`, accesible solo para el rol "Desarrollador".
+    - [ ] **Funcionalidades de la Consola:**
+        - [ ] Visualizar el estado y los errores de los servicios.
+        - [ ] Guardar registros (error, advertencia, etc.) en la hoja "Logs" de Google Sheets.
+        - [ ] Activar/desactivar funciones del navegador para prevenir debugging externo (ej. F12, menú contextual, copiar, zoom).
 
 ### Revisiones y Ajustes de UI Pendientes
 - [ ] **Ajuste del Encabezado Principal (`index.html`):**
