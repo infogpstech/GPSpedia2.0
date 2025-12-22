@@ -48,6 +48,12 @@ h1,h2,h3,h4 {
 
 /* --- ESTILOS DEL ENCABEZADO (Header) --- */
 .header-container {
+    position: sticky;
+    top: 0;
+    background-color: #f4f4f4;
+    z-index: 1000;
+    padding-top: 10px;
+    padding-bottom: 10px;
     display: flex;
     align-items: center;
     justify-content: space-between; /* Ajustado para espaciar los elementos */
@@ -141,6 +147,12 @@ h1.app-title {
 
 /* --- ESTILOS DEL BUSCADOR --- */
 .search-container {
+    position: sticky;
+    top: 90px; /* Ajusta este valor según la altura de tu header */
+    background-color: #f4f4f4;
+    z-index: 999;
+    padding-top: 10px;
+    padding-bottom: 20px;
     position: relative;
     display: flex; /* Nuevo */
     align-items: center; /* Nuevo */
@@ -806,7 +818,7 @@ body.search-active .app-logo {
             <p id="login-error" style="color: red; display: none;"></p>
         </form>
         <a href="#" id="forgot-password-link" style="color: #a0cfff; text-decoration: none; margin-top: 15px; display: inline-block;">¿Olvidaste tu contraseña?</a>
-        <p style="font-size: 0.8em; color: #ccc; margin-top: 20px;">v3.009</p>
+        <p style="font-size: 0.8em; color: #ccc; margin-top: 20px;">v3.1.3</p>
     </div>
 </div>
 
@@ -820,8 +832,8 @@ body.search-active .app-logo {
       <div id="header-controls" style="display: flex; align-items: center; gap: 15px;">
           <span id="welcome-message" style="display: none; color: #333; font-weight: bold;"></span>
           <button id="logout-button" style="display: none; background-color: #dc3545; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: background-color 0.3s;">Cerrar Sesión</button>
-          <button id="install-button" style="display: none;">Instalar Aplicación</button>
       </div>
+      <button id="install-button" style="display: none;">Instalar Aplicación</button>
   </div>
 
   <div class="search-container">
@@ -829,13 +841,6 @@ body.search-active .app-logo {
       <button id="clear-search-btn" title="Limpiar búsqueda">&times;</button>
       <button id="hamburger-btn"><i class="fa-solid fa-bars"></i></button>
   </div>
-  </div>
-
-  <div class="section-selector">
-      <button id="btn-cortes" class="section-btn active" onclick="mostrarSeccion('cortes')">Cortes</button>
-      <button id="btn-tutoriales" class="section-btn" onclick="mostrarSeccion('tutoriales')">Tutoriales</button>
-      <button id="btn-relay" class="section-btn" onclick="mostrarSeccion('relay')">Relay</button>
-      <button id="btn-add" class="section-btn" style="background-color: #28a745; color: white;" onclick="window.location.href='add_cortes.html'">Agregar Nuevo</button>
   </div>
 
   <div id="contenido" class="content-section"></div>
@@ -1095,6 +1100,7 @@ function mostrarSeccion(seccion) {
     }
 
     document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
+    // '.section-btn' ya no existe, pero lo dejamos por si se reutiliza en el futuro.
     document.querySelectorAll('.section-btn').forEach(b => b.classList.remove('active'));
 
     const containerId = `contenido${seccion === 'cortes' ? '' : '-' + seccion}`;
@@ -1105,7 +1111,7 @@ function mostrarSeccion(seccion) {
     }[seccion];
 
     document.getElementById(containerId).style.display = 'block';
-    document.getElementById(`btn-${seccion}`).classList.add('active');
+    // '.section-btn' ya no existe, la clase 'active' se podría manejar en el menú lateral si se desea.
 
     if (renderFunction) {
         if (seccion === 'tutoriales' || seccion === 'relay') {
@@ -1597,10 +1603,10 @@ function mostrarCategorias() {
     const grid = document.createElement("div"); grid.className = "grid";
     categorias.forEach(cat => {
         const itemsInCategory = datosOriginales.filter(item => item.categoria === cat);
-        const ejemplo = itemsInCategory.find(item => item.imagenDeLaApertura) || itemsInCategory.find(item => item.imagenDelVehiculo);
+        const ejemplo = itemsInCategory.find(item => item.imagenDelVehiculo) || itemsInCategory.find(item => item.imagenDeLaApertura);
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarMarcas(cat);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo?.imagenDeLaApertura || ejemplo?.imagenDelVehiculo); img.alt = `Categoría ${cat}`; card.appendChild(img);
+        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo?.imagenDelVehiculo || ejemplo?.imagenDeLaApertura); img.alt = `Categoría ${cat}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay"; overlay.innerHTML = cat; card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -1643,10 +1649,10 @@ function mostrarMarcas(categoria) {
     const grid = document.createElement("div"); grid.className = "grid";
     marcas.forEach(m => {
         const itemsInBrand = itemsInCategory.filter(item => item.marca === m);
-        const ejemplo = itemsInBrand.find(item => item.imagenDeLaApertura) || itemsInBrand.find(item => item.imagenDelVehiculo);
+        const ejemplo = itemsInBrand.find(item => item.imagenDelVehiculo) || itemsInBrand.find(item => item.imagenDeLaApertura);
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarModelos(categoria, m);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo?.imagenDeLaApertura || ejemplo?.imagenDelVehiculo); img.alt = `Marca ${m}`; card.appendChild(img);
+        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo?.imagenDelVehiculo || ejemplo?.imagenDeLaApertura); img.alt = `Marca ${m}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay"; overlay.innerHTML = m; card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -1980,6 +1986,11 @@ document.querySelectorAll('#side-menu .menu-link').forEach(link => {
             const section = link.id.replace('menu-', '');
             mostrarSeccion(section);
             closeSideMenu();
+        } else if (href.startsWith('#')) { // Manejar enlaces de anclaje para secciones
+            e.preventDefault();
+            const section = href.substring(1);
+            mostrarSeccion(section);
+            closeSideMenu();
         }
         // Para enlaces a otras páginas, el menú se cerrará automáticamente en la carga de la nueva página.
     });
@@ -2050,7 +2061,12 @@ async function handleReportSubmit(vehicleId) {
 </script>
 
 <footer class="footer" style="display: none;">
-  Gpspedia 2025© todos los derechos reservados.
+  <div>Gpspedia 2025© todos los derechos reservados.</div>
+  <div style="margin-top: 10px;">
+    <a href="sobre.html" style="color: #a0cfff; margin: 0 10px;">Sobre Nosotros</a>
+    <a href="contacto.html" style="color: #a0cfff; margin: 0 10px;">Contáctanos</a>
+    <a href="faq.html" style="color: #a0cfff; margin: 0 10px;">Preguntas Frecuentes</a>
+  </div>
 </footer>
 
 </body>

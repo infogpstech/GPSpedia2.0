@@ -45,17 +45,17 @@ La arquitectura de GPSpedia 2.0 se compone de tres capas principales:
 Esta sección documenta las tareas de desarrollo y corrección que están pendientes de implementación.
 
 ### Corrección de Errores (Bugs)
-- [ ] **Reparar Secciones "Tutoriales" y "Relay":** Actualmente, estas secciones no cargan datos al ser seleccionadas. Se debe implementar la lógica de `fetch` en la función `mostrarSeccion` de `index.html` para que los datos se soliciten al backend.
-- [ ] **Corregir Lógica de Imágenes del Catálogo:** La imagen que se muestra en las tarjetas de Categoría y Marca no es la correcta. Se debe ajustar la lógica para que se priorice la `imagenDelVehiculo`.
-- [ ] **Error de Layout (Header):** El encabezado (barra de búsqueda) no se mantiene fijo en la parte superior al hacer scroll. Se requiere una corrección de CSS para asegurar su posición.
+- [x] **Reparar Secciones "Tutoriales" y "Relay":** Actualmente, estas secciones no cargan datos al ser seleccionadas. Se debe implementar la lógica de `fetch` en la función `mostrarSeccion` de `index.html` para que los datos se soliciten al backend.
+- [x] **Corregir Lógica de Imágenes del Catálogo:** La imagen que se muestra en las tarjetas de Categoría y Marca no es la correcta. Se debe ajustar la lógica para que se priorice la `imagenDelVehiculo`.
+- [x] **Error de Layout (Header):** El encabezado (barra de búsqueda) no se mantiene fijo en la parte superior al hacer scroll. Se requiere una corrección de CSS para asegurar su posición.
 
 ### Nuevas Funcionalidades y Mejoras de UI/UX
-- [ ] **Implementar Menú Hamburguesa Funcional:**
-    - [ ] Mover los botones de secciones ("Cortes", "Tutoriales", "Relay") del `section-selector` al interior del menú lateral (`side-menu`).
-    - [ ] Mover el botón "Agregar Nuevo" al menú lateral.
-    - [ ] Mover el botón de "Cerrar Sesión" del header al menú lateral.
-- [ ] **Agregar Botón de Instalación PWA:** Añadir un botón de instalación personalizado que solo sea visible en navegadores web y esté oculto cuando la aplicación ya se está ejecutando como una PWA.
-- [ ] **Agregar Enlaces en el Footer:** Añadir los enlaces "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes" en el pie de página de la aplicación y agregar el html que contenga esa información y el formulario de contacto. 
+- [x] **Implementar Menú Hamburguesa Funcional:**
+    - [x] Mover los botones de secciones ("Cortes", "Tutoriales", "Relay") del `section-selector` al interior del menú lateral (`side-menu`).
+    - [x] Mover el botón "Agregar Nuevo" al menú lateral.
+    - [x] Mover el botón de "Cerrar Sesión" del header al menú lateral.
+- [x] **Agregar Botón de Instalación PWA:** Añadir un botón de instalación personalizado que solo sea visible en navegadores web y esté oculto cuando la aplicación ya se está ejecutando como una PWA.
+- [x] **Agregar Enlaces en el Footer:** Añadir los enlaces "Sobre Nosotros", "Contáctacos" y "Preguntas Frecuentes" en el pie de página de la aplicación y agregar el html que contenga esa información y el formulario de contacto.
 
 ## 4. Componentes del Backend (Microservicios)
 

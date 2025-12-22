@@ -15,6 +15,26 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.1.3 - 2024-08-02
+- **CIERRE DE PROYECTO Y CORRECCIONES FINALES:**
+  - **Contexto:** Se completaron todas las tareas pendientes documentadas en `README.md` y `INSTRUCTIVO.TXT`, llevando el proyecto a un estado funcional y estable.
+  - **Acciones Realizadas:**
+    1.  **Fortalecimiento del Servicio de Autenticación (`services/auth/auth.js`):**
+        - Se agregaron verificaciones para `userSheet` y `activeSessionsSheet` para evitar el error "Cannot read properties of null (reading 'getDataRange')" si las hojas de cálculo no existen.
+        - Se eliminó todo el código de depuración (`logToSheet`) para limpiar el script para producción.
+    2.  **Corrección de Lógica de Imágenes (`index.html`):**
+        - Se modificaron las funciones `mostrarCategorias` y `mostrarMarcas` para priorizar `imagenDelVehiculo` sobre `imagenDeLaApertura`, mostrando así la imagen más representativa.
+    3.  **Corrección de Layout (Header Fijo) (`index.html`):**
+        - Se aplicaron estilos CSS (`position: sticky`) a los contenedores `.header-container` y `.search-container` para que permanezcan fijos en la parte superior al hacer scroll.
+    4.  **Corrección de Parámetro de Formulario (`add_cortes.html`):**
+        - Se renombró el campo `tipo-encendido` a `tipoEncendido` para que coincida con el formato camelCase esperado por el backend.
+    5.  **Mejoras de UI/UX (`index.html`):**
+        - Se eliminó el `div.section-selector` y se centralizó la navegación de secciones ("Cortes", "Tutoriales", "Relay") y la opción "Agregar Nuevo" dentro del menú lateral (hamburguesa).
+        - Se agregaron los enlaces "Sobre Nosotros", "Contáctanos" y "Preguntas Frecuentes" al pie de página.
+        - Se crearon las páginas `sobre.html`, `contacto.html` y `faq.html` como marcadores de posición.
+    6.  **Actualización de Versión:**
+        - Se actualizó el número de versión a `v3.1.3` en el modal de login de `index.html` y en el mensaje de estado de `services/auth/auth.js`.
+
 ## v3.1.2 - 31/07/2024
 - **ANÁLISIS DE LÓGICA Y CORRECCIONES FINALES DE DOCUMENTACIÓN:**
   - **Contexto:** Se realizó una auditoría final para asegurar la coherencia entre el frontend y el backend, y para corregir omisiones finales en la documentación.

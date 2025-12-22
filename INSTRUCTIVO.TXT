@@ -60,7 +60,7 @@ Se encontraron inconsistencias entre el estado actual del código y la documenta
 ---------------------------------
 
 *   **Centralización en Menú Hamburguesa:**
-    *   **Tarea:** Mover los botones de navegación de secciones ("Cortes", "Tutoriales", "Relay") y el botón "Agregar Nuevo" desde el div `.section-selector` al interior del menú lateral (`#side-menu`). El botón "Cerrar Sesión" también debe ser centralizado en este menú.
+    *   **Tarea:** [COMPLETADO] Mover los botones de navegación de secciones ("Cortes", "Tutoriales", "Relay") y el botón "Agregar Nuevo" desde el div `.section-selector` al interior del menú lateral (`#side-menu`). El botón "Cerrar Sesión" también debe ser centralizado en este menú.
 
 *   **Enlaces Adicionales en el Footer:**
-    *   **Tarea:** El `<footer>` de `index.html` actualmente solo muestra el copyright. Es necesario añadir los enlaces "Sobre Nosotros", "Contáctanos" y "Preguntas Frecuentes" y crear los archivos HTML correspondientes.
+    *   **Tarea:** [COMPLETADO] El `<footer>` de `index.html` actualmente solo muestra el copyright. Es necesario añadir los enlaces "Sobre Nosotros", "Contáctanos" y "Preguntas Frecuentes" y crear los archivos HTML correspondientes.

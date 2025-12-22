@@ -33,40 +33,17 @@ const SESSION_LIMITS = {
 };
 
 // ============================================================================
-// MÓDULO DE DEPURACIÓN
-// ============================================================================
-/**
- * Escribe un mensaje de registro en la hoja 'Logs' de la spreadsheet.
- * @param {string} level - El nivel del log (e.g., INFO, DEBUG, ERROR).
- * @param {string} message - El mensaje a registrar.
- * @param {object} [details={}] - Un objeto con detalles adicionales para registrar.
- */
-function logToSheet(level, message, details = {}) {
-    try {
-        const logSheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAMES.LOGS);
-        const timestamp = new Date().toISOString();
-        const detailsString = Object.keys(details).length > 0 ? JSON.stringify(details) : '';
-        logSheet.appendRow([timestamp, level, message, detailsString]);
-    } catch (e) {
-        // Fallback en caso de que el logging falle.
-        console.error("Fallo al escribir en la hoja de logs:", e.message);
-    }
-}
-
-
-// ============================================================================
 // ROUTER PRINCIPAL
 // ============================================================================
 function doGet(e) {
-  return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'GPSpedia AUTH-SERVICE is active. v1.1-debug' })).setMimeType(ContentService.MimeType.JSON);
+  // Retorna un mensaje simple para verificar que el servicio está activo y desplegado.
+  return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'GPSpedia AUTH-SERVICE is active. v3.1.3' })).setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {
     let response;
     try {
-        logToSheet('INFO', 'doPost received a request.');
         const request = JSON.parse(e.postData.contents);
-        logToSheet('DEBUG', `Request parsed. Action: ${request.action}`, { payload: request.payload });
 
         switch (request.action) {
             case 'login':
@@ -79,8 +56,10 @@ function doPost(e) {
                 throw new Error(`Acción desconocida: ${request.action}`);
         }
     } catch (error) {
-        logToSheet('ERROR', `Error in doPost: ${error.message}`, { stack: error.stack });
-        response = { status: 'error', message: error.message };
+        // En un entorno de producción, es mejor tener un manejo de errores más genérico
+        // para no exponer detalles internos del servidor.
+        console.error("Error en doPost:", { message: error.message, stack: error.stack });
+        response = { status: 'error', message: "Se produjo un error inesperado en el servidor." };
     }
     return ContentService.createTextOutput(JSON.stringify(response)).setMimeType(ContentService.MimeType.JSON);
 }
@@ -91,14 +70,16 @@ function doPost(e) {
 function handleLogin(payload) {
     try {
         const { username, password } = payload;
-        logToSheet('INFO', 'handleLogin started.', { username: username });
 
         if (!username || !password) {
-            logToSheet('WARN', 'Login attempt with missing username or password.');
             throw new Error("Usuario y contraseña son requeridos.");
         }
 
         const userSheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAMES.USERS);
+        if (!userSheet) {
+            console.error('La hoja "Users" no se pudo encontrar en la base de datos.');
+            throw new Error('Error de configuración: La hoja de usuarios no existe.');
+        }
         const data = userSheet.getDataRange().getValues();
         data.shift(); // Remove headers
 
@@ -110,33 +91,20 @@ function handleLogin(payload) {
             if (sheetUsername.trim().toLowerCase() === username.trim().toLowerCase()) {
                 foundUserRow = data[i];
                 foundUserIndex = i;
-                logToSheet('DEBUG', `User found at row index ${i}.`, { username: sheetUsername });
                 break;
             }
         }
 
         if (!foundUserRow) {
-            logToSheet('WARN', 'User not found in sheet.', { attemptedUsername: username });
             throw new Error("Credenciales inválidas.");
         }
 
         const sheetPassword = foundUserRow[COLS.PASSWORD - 1];
         const isPasswordMatch = String(sheetPassword).trim() === String(password).trim();
 
-        logToSheet('DEBUG', 'Password comparison details.', {
-            sheetPassword: String(sheetPassword),
-            sheetPasswordTrimmed: String(sheetPassword).trim(),
-            frontendPassword: String(password),
-            frontendPasswordTrimmed: String(password).trim(),
-            comparisonResult: isPasswordMatch
-        });
-
         if (!isPasswordMatch) {
-            logToSheet('WARN', 'Password mismatch for user.', { username: username });
             throw new Error("Credenciales inválidas.");
         }
-
-        logToSheet('INFO', 'Password match successful. Proceeding with session management.', { username: username });
 
         const userRole = (foundUserRow[COLS.PRIVILEGIOS - 1] || '').toString().toLowerCase();
         const userId = foundUserRow[COLS.ID - 1];
@@ -144,6 +112,10 @@ function handleLogin(payload) {
 
         // Manage sessions
         const activeSessionsSheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAMES.ACTIVE_SESSIONS);
+        if (!activeSessionsSheet) {
+            console.error('La hoja "ActiveSessions" no se pudo encontrar en la base de datos.');
+            throw new Error('Error de configuración: La hoja de sesiones no existe.');
+        }
         const sessionsData = activeSessionsSheet.getDataRange().getValues();
         sessionsData.shift();
 
@@ -152,7 +124,6 @@ function handleLogin(payload) {
             .filter(session => session.userId == userId);
 
         if (userSessions.length >= sessionLimit) {
-            logToSheet('INFO', `Session limit reached for user. Clearing oldest sessions.`, { userId: userId, limit: sessionLimit });
             userSessions.reverse().slice(sessionLimit - 1).forEach(session => {
                 activeSessionsSheet.deleteRow(session.rowIndex);
             });
@@ -161,7 +132,6 @@ function handleLogin(payload) {
         const sessionToken = Utilities.getUuid();
         userSheet.getRange(foundUserIndex + 2, COLS.SESSION_TOKEN).setValue(sessionToken);
         activeSessionsSheet.appendRow([userId, sessionToken, new Date().toISOString()]);
-        logToSheet('INFO', 'New session created and stored.', { userId: userId });
 
         const user = {
             id: userId,
@@ -173,11 +143,11 @@ function handleLogin(payload) {
             sessionToken: sessionToken
         };
 
-        logToSheet('INFO', 'Login successful. Returning user object.', { userId: userId });
         return { status: 'success', user: user };
 
     } catch (error) {
-        logToSheet('ERROR', `Error in handleLogin: ${error.message}`, { stack: error.stack });
+        console.error("Error en handleLogin:", { message: error.message, stack: error.stack });
+        // Devuelve el mensaje de error real para que el frontend pueda manejarlo.
         return { status: 'error', message: error.message };
     }
 }
@@ -186,25 +156,27 @@ function handleValidateSession(payload) {
     try {
         const { userId, sessionToken } = payload;
         if (!userId || !sessionToken) {
-            logToSheet('WARN', 'validateSession called with missing userId or sessionToken.');
             return { valid: false };
         }
 
         const userSheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAMES.USERS);
+        // Si la hoja de usuarios no existe, la sesión no puede ser válida.
+        if (!userSheet) {
+            console.error('La hoja "Users" no se pudo encontrar durante la validación de sesión.');
+            return { valid: false };
+        }
         const data = userSheet.getDataRange().getValues();
         data.shift();
 
         for (const row of data) {
             if (row[COLS.ID - 1] == userId && row[COLS.SESSION_TOKEN - 1] === sessionToken) {
-                logToSheet('INFO', 'Session validation successful.', { userId: userId });
                 return { valid: true };
             }
         }
 
-        logToSheet('WARN', 'Session validation failed.', { userId: userId });
         return { valid: false };
     } catch (error) {
-        logToSheet('ERROR', `Error in handleValidateSession: ${error.message}`, { stack: error.stack });
+        console.error("Error en handleValidateSession:", { message: error.message, stack: error.stack });
         return { valid: false, error: error.message };
     }
 }
