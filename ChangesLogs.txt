@@ -15,6 +15,13 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.1.9 - 04/08/2024
+- **CONFIGURACIÓN: ACTUALIZACIÓN DE ENDPOINT DEL SERVICIO DE CATÁLOGO:**
+  - **Contexto:** Después de desplegar la nueva versión del servicio `GPSpedia-Catalog` (v1.1), se recibió la nueva URL del endpoint.
+  - **Acciones Realizadas:**
+    1.  **Actualización de URL (`api-manager.js`, Línea 10):** Se ha actualizado la constante `API_ENDPOINTS.CATALOG` con la nueva URL de despliegue para asegurar que el frontend se comunique con la versión más reciente del servicio.
+- **Estado del Proyecto:** El frontend ahora apunta al servicio de catálogo actualizado, consumiendo la lógica refactorizada y la corrección del bug de ordenamiento.
+
 ## v3.1.8 - 04/08/2024
 - **REFACTORIZACIÓN Y CORRECCIÓN DE `GPSpedia-Catalog` SERVICE:**
   - **Contexto:** Se abordó la primera fase de la corrección de la deuda técnica identificada en la auditoría del sistema (v3.1.5), centrada en el servicio de catálogo.
