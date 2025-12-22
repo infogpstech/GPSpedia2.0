@@ -15,6 +15,30 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.1.4 - 02/08/2024
+- **DOCUMENTACIÓN DE REGRESIÓN Y ESTADO DEL PROYECTO:**
+  - **Contexto:** Un intento de corrección de bugs y refactorización (v1.1.0) resultó en una regresión severa, eliminando implementaciones previas y reintroduciendo errores. Esta entrada documenta el estado actual del proyecto según la revisión del usuario.
+  - **Correcciones Fallidas o Reintroducidas (Trabajo Incompleto):**
+    1.  **Carga de Contenido de Secciones (`index.html`):** La lógica para cargar dinámicamente el contenido de "Tutoriales" y "Relay" se ha perdido.
+    2.  **Organización del Pie de Página (`index.html`, aprox. Línea 2082):** El layout del footer volvió a un estado incorrecto, con los links de navegación apareciendo sobre el aviso de copyright.
+    3.  **Layout del Modal de Detalle (`index.html`, función `mostrarDetalleModal`):** El nombre del colaborador aparece incorrectamente debajo de los botones de feedback.
+    4.  **Estilo de Botones de Feedback (`index.html`):** Los botones "Útil" y "Reportar" en el modal carecen del estilo solicitado.
+    5.  **Visibilidad de Opciones de Corte (`index.html`):** La "Tercera Opción de Corte" no se muestra en el modal de detalle, incluso cuando los datos existen.
+    6.  **Posición del Botón de Limpiar Búsqueda (`index.html`):** El botón "x" para limpiar la búsqueda aparece fuera de la barra de búsqueda.
+  - **Correcciones Implementadas Correctamente:**
+    1.  **Navegación y Búsqueda:** Se solucionó el bug que causaba el colapso de la aplicación al buscar y el error en los botones "Volver a...".
+    2.  **Layout Principal:** Se corrigió el colapso del contenedor principal durante la búsqueda.
+    3.  **Menú Hamburguesa:** La funcionalidad del menú lateral fue implementada correctamente.
+    4.  **Botón de Instalación PWA:** El botón ahora se muestra condicionalmente de forma correcta.
+    5.  **Estilo de Alertas:** Los mensajes de alerta del sistema (ej. `alert()`) han sido estilizados.
+  - **Nuevas Implementaciones Pendientes:**
+    1.  **Creación de Página de Información:** Desarrollar una nueva página HTML (`info.html`) que contenga tres secciones: "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes".
+    2.  **Sección "Sobre Nosotros":** Adaptar el contenido del `README.md` para crear una descripción del proyecto orientada al consumidor final.
+    3.  **Sección "Contáctenos":** Implementar un formulario con campos para "Nombre de la Organización", "Correo Electrónico", "Teléfono" y "Mensaje". La data debe enviarse a una nueva hoja de Google Sheets.
+    4.  **Sección "Preguntas Frecuentes":** Crear un acordeón de preguntas y respuestas que expliquen todas las funcionalidades clave del catálogo para un usuario nuevo.
+
+- **Estado del Proyecto:** El proyecto se encuentra en un estado de regresión funcional. La prioridad es corregir los errores reintroducidos antes de abordar las nuevas implementaciones.
+
 ## v3.1.3 - 01/08/2024
 - **REFACTORIZACIÓN DE UI Y ACTUALIZACIÓN DE NORMAS DE DESARROLLO:**
   - **Contexto:** Tras un intento fallido de refactorización que reintrodujo vulnerabilidades, se adoptó un enfoque más seguro para actualizar la interfaz de usuario, y se añadieron nuevas reglas de desarrollo basadas en la retroalimentación del usuario.
@@ -94,3 +118,10 @@
 
 ## v3.001 - 16/07/2024
 - Se identificó que el error "Fail to fetch" es probablemente un problema de CORS (Cross-Origin Resource Sharing) que ocurre durante la solicitud de pre-vuelo (preflight request) OPTIONS que el navegador envía antes de la solicitud POST real.
+v1.1.0 - 2024-07-29
+- Corrección: El pie de página ahora muestra los enlaces de navegación debajo de los derechos de autor.
+- Corrección: Las secciones "Tutoriales" y "Relay" ahora cargan su contenido correctamente.
+- Corrección: La búsqueda ya no se bloquea al usar ciertos caracteres.
+- Corrección: Los botones "Volver a..." en la navegación de búsqueda funcionan correctamente.
+- Corrección: Las imágenes en los modales ahora muestran un marcador de posición si la URL está dañada.
+- Corrección: Se ha solucionado el diseño del pie de página del modal, posicionando correctamente el nombre del colaborador y los botones de feedback.

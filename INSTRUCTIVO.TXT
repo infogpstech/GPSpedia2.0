@@ -1,69 +1,71 @@
 =================================================
  INSTRUCTIVO Y AUDITORÍA DEL PROYECTO GPSpedia 2.0
 =================================================
-Fecha de Auditoría: 2024-08-01
-Versión del Documento: 2.0 (Resultado de Auditoría)
+Fecha de Auditoría: 2024-08-02
+Versión del Documento: 2.1 (Post-Regresión)
 
-Este documento detalla los resultados de una auditoría completa del proyecto GPSpedia 2.0. Se han verificado las funcionalidades descritas en el README.md y se han identificado discrepancias, bugs confirmados y funcionalidades pendientes.
+Este documento detalla el estado actual del proyecto GPSpedia 2.0, incluyendo regresiones, bugs confirmados y funcionalidades pendientes.
 
 ---------------------------------
 NORMAS OBLIGATORIAS DE DESARROLLO
 ---------------------------------
 
-Para mantener la consistencia, calidad y mantenibilidad del proyecto, es mandatorio seguir las siguientes normas en todo momento:
-
 **A. Control de Versiones y Documentación:**
-1.  **Actualización de Versión:** Cualquier cambio debe reflejarse en el número de versión visible en `index.html` (modal de login) y en los mensajes `doGet` de los servicios de Apps Script.
-2.  **Consulta de Documentación:** Antes de cualquier desarrollo, se debe revisar `README.md`, `INSTRUCTIVO.TXT` y `CHANGESLOGS.txt`.
-3.  **Actualización de Documentación:** Al finalizar, se deben actualizar los tres documentos mencionados con los detalles de los cambios.
-4.  **Detalle en `CHANGESLOGS.txt`:** Cada entrada debe especificar el archivo y número de línea modificado.
+1.  **Actualización de Versión:** Cualquier cambio debe reflejarse en el número de versión visible en `index.html` y en los servicios de Apps Script.
+2.  **Consulta y Actualización de Documentación:** Antes y después de cualquier desarrollo, se deben consultar y actualizar `README.md`, `INSTRUCTIVO.TXT` y `CHANGESLOGS.txt`.
+3.  **Detalle en `CHANGESLOGS.txt`:** Cada entrada debe especificar el archivo y número de línea modificado.
 
 **B. Calidad del Código:**
-1.  **Comentarios:** Toda línea de código nueva o modificada debe tener un comentario explicando su propósito.
+1.  **Comentarios:** Todo código nuevo o modificado debe tener un comentario explicando su propósito.
 
 **C. Proceso de Aprobación:**
-1.  **Verificación Post-Commit:** No se debe 'marcar' una tarea como realizada antes de hacer un commit. La verificación final de una tarea la realiza el Project Manager después de que los cambios han sido entregados.
+1.  **Verificación Post-Commit:** Una tarea solo se considera completada después de un commit y la validación explícita del Project Manager.
 
 ---------------------------------
-1. DISCREPANCIAS CON LA DOCUMENTACIÓN
+ESTADO ACTUAL DEL PROYECTO (POST-REGRESIÓN v3.1.4)
 ---------------------------------
 
-Se encontraron inconsistencias entre el estado actual del código y la documentación (`INSTRUCTIVO.TXT` v1.2 y `README.md`).
+Un intento de refactorización resultó en una regresión severa. A continuación se detalla el estado funcional del proyecto.
 
-*   **Secciones "Tutoriales" y "Relay":**
-    *   **Documentación:** Afirma que la lógica para buscar datos (`fetch`) no existe en la función `mostrarSeccion`.
-    *   **Realidad:** ✅ **La lógica SÍ existe.** La función `mostrarSeccion` en `index.html` contiene una llamada `postToAction('getCatalogData')` que se ejecuta correctamente para estas secciones. El error, si persiste, debe estar en la renderización de los datos (`mostrarContenidoTutoriales`, `mostrarContenidoRelay`) o en la respuesta del backend.
+### Funcionalidades que SÍ Operan Correctamente:
+*   **Navegación y Búsqueda:** El bug que causaba el colapso de la aplicación al buscar y el error en los botones "Volver a..." ha sido solucionado.
+*   **Layout Principal:** El contenedor principal ya no colapsa durante una búsqueda.
+*   **Menú Hamburguesa:** El menú lateral es funcional.
+*   **Botón de Instalación PWA:** El botón se muestra condicionalmente de forma correcta.
+*   **Estilo de Alertas:** Las alertas nativas del navegador (`alert()`) han sido estilizadas.
 
-*   **Botón de Instalación PWA:**
-    *   **Documentación:** Lo describe como una funcionalidad pendiente de implementación.
-    *   **Realidad:** ✅ **La funcionalidad SÍ existe.** El archivo `index.html` ya contiene un `event listener` para el evento `beforeinstallprompt`, que gestiona la lógica para mostrar el botón de instalación.
+### Bugs y Regresiones por Corregir:
+1.  **Carga de Información en Secciones:**
+    *   **Síntoma:** Las secciones "Tutoriales" y "Relay" no cargan su contenido al ser seleccionadas.
+    *   **Causa Probable:** La lógica de `fetch` en la función `mostrarSeccion` de `index.html` puede estar ausente o ser incorrecta.
+2.  **Organización del Pie de Página:**
+    *   **Síntoma:** Los enlaces del footer ("Sobre Nosotros", etc.) se muestran incorrectamente sobre el aviso de copyright.
+    *   **Causa Probable:** Error en la estructura HTML o CSS del `<footer>` en `index.html` (aprox. línea 2082).
+3.  **Layout del Modal de Detalle:**
+    *   **Síntoma:** El nombre del colaborador se muestra debajo de los botones de feedback ("Útil", "Reportar").
+    *   **Causa Probable:** Orden incorrecto de los elementos o reglas CSS en la función `mostrarDetalleModal` en `index.html`.
+4.  **Estilo de Botones de Feedback:**
+    *   **Síntoma:** Los botones de feedback en el modal no tienen el estilo aplicado.
+    *   **Causa Probable:** Las clases de CSS no se están aplicando correctamente a los botones generados en `mostrarDetalleModal`.
+5.  **Visibilidad de Tercera Opción de Corte:**
+    *   **Síntoma:** La "Tercera Opción de Corte" no aparece en el modal de detalles, aunque los datos existan en la base de datos.
+    *   **Causa Probable:** Error en la lógica condicional que renderiza las secciones desplegables dentro de `mostrarDetalleModal`.
+6.  **Posición del Botón Limpiar Búsqueda:**
+    *   **Síntoma:** El botón "x" para limpiar la barra de búsqueda se muestra fuera de su contenedor.
+    *   **Causa Probable:** Conflicto de CSS relacionado con `position: absolute` o `relative` en el `.search-container` de `index.html`.
 
----------------------------------
-2. BUGS CONFIRMADOS
----------------------------------
-
-*   **Lógica de Imágenes Incorrecta en el Catálogo:**
-    *   **Síntoma:** Las tarjetas de "Categoría" y "Marca" no siempre muestran la imagen más representativa (la del vehículo).
-    *   **Causa:** El código en `index.html` (funciones `mostrarCategorias` y `mostrarMarcas`) prioriza la `imagenDeLaApertura` sobre la `imagenDelVehiculo`. La corrección requiere invertir este orden de preferencia.
-
-*   **Error de Layout (Header Fijo):**
-    *   **Síntoma:** El encabezado y la barra de búsqueda no se mantienen fijos en la parte superior al hacer scroll.
-    *   **Causa:** Los elementos `.header-container` y `.search-container` no tienen las propiedades CSS `position: fixed` o `position: sticky` aplicadas por defecto. Solo se vuelven fijos cuando la búsqueda está activa.
-
-*   **Inconsistencia de Parámetros (Frontend vs. Backend):**
-    *   **Síntoma:** Falla silenciosa que podría causar errores en el futuro.
-    *   **Causa:** El formulario en `add_cortes.html` envía el parámetro `tipo-encendido` (con guion), mientras que el microservicio `GPSpedia-Catalog` espera `tipoEncendido` (en camelCase) en la función `handleCheckVehicle`. Se debe corregir el atributo `name` en el HTML.
-
-*   **Código de Depuración en Producción:**
-    *   **Síntoma:** El microservicio `GPSpedia-Auth` (`services/auth/auth.js`) realiza escrituras innecesarias en la hoja "Logs".
-    *   **Causa:** El servicio contiene múltiples llamadas a la función `logToSheet`, la cual debe ser eliminada o desactivada en un entorno de producción para mejorar el rendimiento y la limpieza del código.
-
----------------------------------
-3. FUNCIONALIDADES PENDIENTES (CONFIRMADAS)
----------------------------------
-
-*   **Centralización en Menú Hamburguesa:**
-    *   **Tarea:** Mover los botones de navegación de secciones ("Cortes", "Tutoriales", "Relay") y el botón "Agregar Nuevo" desde el div `.section-selector` al interior del menú lateral (`#side-menu`). El botón "Cerrar Sesión" también debe ser centralizado en este menú.
-
-*   **Enlaces Adicionales en el Footer:**
-    *   **Tarea:** El `<footer>` de `index.html` actualmente solo muestra el copyright. Es necesario añadir los enlaces "Sobre Nosotros", "Contáctanos" y "Preguntas Frecuentes" y crear los archivos HTML correspondientes.
+### Nuevas Funcionalidades Pendientes:
+1.  **Creación de Página de Información (`info.html`):**
+    *   **Tarea:** Desarrollar una nueva página HTML estática que contenga las siguientes tres secciones, utilizando los mismos estilos de `index.html`.
+    *   **Sección "Sobre Nosotros":**
+        *   **Contenido:** Adaptar la descripción del proyecto del `README.md` a un lenguaje orientado al consumidor final, omitiendo detalles técnicos internos como la estructura de la base de datos o el diagrama de arquitectura.
+    *   **Sección "Contáctenos":**
+        *   **Formulario:** Implementar un formulario con los siguientes campos: "Nombre de la Organización", "Correo Electrónico", "Número de Teléfono" y "Mensaje".
+        *   **Backend:** La información del formulario deberá ser enviada a una nueva hoja de cálculo en Google Sheets (detalles de la hoja a ser proporcionados).
+    *   **Sección "Preguntas Frecuentes":**
+        *   **Formato:** Usar un formato de acordeón donde cada pregunta se expande para mostrar la respuesta.
+        *   **Contenido:** Redactar preguntas y respuestas que expliquen de manera clara y concisa CADA UNA de las funcionalidades del catálogo para un usuario nuevo. Ejemplos de preguntas:
+            *   ¿Cómo creo una cuenta nueva? (Respuesta: Contactándonos directamente).
+            *   ¿Cómo agrego un nuevo corte?
+            *   ¿Para qué sirven los botones "Útil" y "Reportar"?
+        *   **Restricción:** No exponer información sobre la jerarquía de roles de usuario.
