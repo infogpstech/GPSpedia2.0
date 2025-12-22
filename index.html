@@ -6,6 +6,7 @@
 <title>GPSpedia | Catálogo Técnico</title>
 <link rel="icon" href="https://drive.google.com/thumbnail?id=1NxBx-W_gWmcq3fA9zog6Dpe-WXpH_2e8&sz=w256">
 <link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 /* Estilos Globales */
 html {
@@ -18,7 +19,7 @@ body {
     background: #f4f4f4;
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    min-height: 100%;
 }
 h1,h2,h3,h4 {
     margin: 10px 0;
@@ -29,7 +30,7 @@ h1,h2,h3,h4 {
     margin: 0 auto;
     width: 100%;
     box-sizing: border-box;
-    flex-grow: 1;
+    flex: 1 0 auto;
 }
 .backBtn {
     margin-bottom: 15px;
@@ -141,29 +142,13 @@ h1.app-title {
 
 /* --- ESTILOS DEL BUSCADOR --- */
 .search-container {
-    position: relative;
-    display: flex; /* Nuevo */
-    align-items: center; /* Nuevo */
-    gap: 10px; /* Nuevo */
+    position: relative; /* Contenedor para el botón de limpiar */
     margin-bottom: 30px;
     padding: 10px 0;
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
     transition: all 0.35s ease-in-out;
-}
-
-#searchInput {
-    flex-grow: 1; /* El input ocupa el espacio disponible */
-}
-
-#hamburger-btn {
-    flex-shrink: 0; /* Evita que el botón se encoja */
-    margin-left: auto; /* Empuja el botón a la derecha */
-}
-
-#logout-button {
-    display: none !important; /* Ocultar siempre el botón principal de logout */
 }
 
 #clear-search-btn {
@@ -211,59 +196,13 @@ body.search-active .search-container.has-text #clear-search-btn {
     outline: none;
 }
 
-/* --- ESTILOS DE BÚSQUEDA ACTIVA --- */
-body.search-active .app-title,
-body.search-active #header-controls,
-body.search-active .section-selector,
-body.search-active .footer {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-20px);
-    max-height: 0; /* Colapsa el espacio vertical */
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    border: none !important;
-}
-
-body.search-active .container {
-    padding-top: 80px; /* Crea espacio para la barra de búsqueda fija */
-    transition: padding-top 0.35s ease-in-out;
-}
-
-body.search-active .search-container {
-    position: fixed;
-    top: 15px;
-    left: 0;
-    right: 0;
-    padding: 0 20px;
-    margin: 0;
-    max-width: 100%;
-    z-index: 1500;
-}
-
-body.search-active #searchInput {
-    padding-left: 55px; /* Espacio para el logo */
-    height: 48px;
-    box-sizing: border-box;
-}
-
-body.search-active .app-logo {
-    position: fixed;
-    top: 22px;       /* 15px (search-container top) + 7px (para centrar) */
-    left: 30px;      /* 20px (search-container padding) + 10px (margen interno) */
-    max-width: 34px;
-    z-index: 1501;   /* Por encima del input */
-}
-
 /* --- ESTILOS DEL MENÚ HAMBURGUESA --- */
 #hamburger-btn {
     background: none;
     border: none;
     font-size: 24px;
     cursor: pointer;
-    color: var(--secondary-color);
+    color: #333;
     padding: 10px;
     border-radius: 8px;
     transition: background-color 0.2s;
@@ -315,7 +254,53 @@ body.search-active .app-logo {
 #side-menu nav a i {
     width: 20px; /* Ancho fijo para alinear iconos */
     text-align: center;
-    color: var(--primary-color);
+    color: #007bff;
+}
+
+/* --- ESTILOS DE BÚSQUEDA ACTIVA --- */
+body.search-active .app-title,
+body.search-active #header-controls,
+body.search-active .section-selector,
+body.search-active .footer {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-20px);
+    max-height: 0; /* Colapsa el espacio vertical */
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    border: none !important;
+}
+
+body.search-active .container {
+    padding-top: 80px; /* Crea espacio para la barra de búsqueda fija */
+    transition: padding-top 0.35s ease-in-out;
+}
+
+body.search-active .search-container {
+    position: fixed;
+    top: 15px;
+    left: 0;
+    right: 0;
+    padding: 0 20px;
+    margin: 0;
+    max-width: 100%;
+    z-index: 1500;
+}
+
+body.search-active #searchInput {
+    padding-left: 55px; /* Espacio para el logo */
+    height: 48px;
+    box-sizing: border-box;
+}
+
+body.search-active .app-logo {
+    position: fixed;
+    top: 22px;       /* 15px (search-container top) + 7px (para centrar) */
+    left: 30px;      /* 20px (search-container padding) + 10px (margen interno) */
+    max-width: 34px;
+    z-index: 1501;   /* Por encima del input */
 }
 
 
@@ -628,56 +613,6 @@ body.search-active .app-logo {
 .accordion-btn.active .accordion-arrow {
     transform: rotate(180deg); /* Flecha hacia arriba */
 }
-
-/* --- ESTILOS DE FEEDBACK --- */
-.feedback-btn {
-    padding: 8px 12px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #f0f0f0;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 0.9em;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-.feedback-btn:hover {
-    background-color: #e0e0e0;
-    border-color: #bbb;
-}
-.util-btn .util-count {
-    background-color: var(--primary-color);
-    color: white;
-    padding: 2px 6px;
-    border-radius: 10px;
-    font-size: 0.8em;
-    font-weight: bold;
-}
-.report-btn {
-    color: #c0392b;
-}
-
-.report-textarea {
-    width: 100%;
-    min-height: 80px;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    margin-bottom: 10px;
-    box-sizing: border-box;
-}
-
-.submit-report-btn {
-    width: 100%;
-    padding: 10px;
-    border: none;
-    border-radius: 8px;
-    background-color: var(--primary-color);
-    color: white;
-    cursor: pointer;
-}
-
 .panel-desplegable {
     padding: 0 18px;
     background-color: white;
@@ -768,7 +703,7 @@ body.search-active .app-logo {
 <div id="menu-overlay"></div>
 <div id="side-menu">
     <div style="padding: 20px; border-bottom: 1px solid #eee; text-align: center;">
-        <h3 id="menu-username" style="margin: 0; color: var(--primary-color);"></h3>
+        <h3 id="menu-username" style="margin: 0; color: #007bff;"></h3>
     </div>
     <nav>
         <a href="#" id="menu-cortes" class="menu-link"><i class="fa-solid fa-car-on"></i> Cortes</a>
@@ -778,10 +713,9 @@ body.search-active .app-logo {
         <a href="users.html" class="menu-link"><i class="fa-solid fa-users-cog"></i> Mi Perfil / Usuarios</a>
     </nav>
     <div style="margin-top: auto; padding: 20px;">
-        <button id="side-menu-logout-button" style="width: 100%; background: var(--error-color); color: var(--light-text); border: none; padding: 12px; border-radius: 8px; cursor: pointer;">Cerrar Sesión</button>
+        <button id="side-menu-logout-button" style="width: 100%; background: #dc3545; color: #fff; border: none; padding: 12px; border-radius: 8px; cursor: pointer;">Cerrar Sesión</button>
     </div>
 </div>
-
 
 <!-- Splash Screen -->
 <div id="splash-screen">
@@ -789,7 +723,7 @@ body.search-active .app-logo {
 </div>
 
 <!-- Login Modal -->
-<div id="login-modal">
+<div id="login-modal" style="display: none;">
     <div class="modal-content">
         <img src="icon-v3-512x512.png" alt="Logo de GPSpedia" style="max-width: 120px; margin-bottom: 20px;">
         <h2>Iniciar Sesión</h2>
@@ -806,7 +740,6 @@ body.search-active .app-logo {
             <p id="login-error" style="color: red; display: none;"></p>
         </form>
         <a href="#" id="forgot-password-link" style="color: #a0cfff; text-decoration: none; margin-top: 15px; display: inline-block;">¿Olvidaste tu contraseña?</a>
-        <p style="font-size: 0.8em; color: #ccc; margin-top: 20px;">v3.009</p>
     </div>
 </div>
 
@@ -824,11 +757,10 @@ body.search-active .app-logo {
       </div>
   </div>
 
-  <div class="search-container">
-      <input type="text" id="searchInput" placeholder="Buscar Corte..." oninput="filtrarContenido(this.value)">
+  <div class="search-container" style="display: flex; align-items: center; gap: 10px;">
+      <input type="text" id="searchInput" placeholder="Buscar Corte..." oninput="filtrarContenido(this.value)" style="flex-grow: 1;">
       <button id="clear-search-btn" title="Limpiar búsqueda">&times;</button>
       <button id="hamburger-btn"><i class="fa-solid fa-bars"></i></button>
-  </div>
   </div>
 
   <div class="section-selector">
@@ -975,21 +907,25 @@ async function login(username, password) {
 }
 
 async function initializeAppData(user) {
-    hideLoginShowApp();
-    document.getElementById('welcome-message').textContent = `Bienvenido, ${user.nombre}`;
-    document.getElementById('welcome-message').style.display = 'block';
+    return new Promise(async (resolve, reject) => {
+        hideLoginShowApp();
+        document.getElementById('welcome-message').textContent = `Bienvenido, ${user.nombre}`;
+        document.getElementById('welcome-message').style.display = 'block';
 
-    showSkeletonLoader(document.getElementById('contenido'));
+        showSkeletonLoader(document.getElementById('contenido'));
 
-    try {
-        const result = await postToAction('getCatalogData');
-        datosOriginales = result.data.cortes || [];
-        datosTutoriales = result.data.tutoriales || [];
-        datosRelay = result.data.relay || [];
-        mostrarCategorias();
-    } catch (error) {
-        document.getElementById('contenido').innerHTML = `<p style="color:red; text-align:center;">No se pudo cargar el catálogo. ${error.message}</p>`;
-    }
+        try {
+            const result = await postToAction('getCatalogData');
+            datosOriginales = result.data.cortes || [];
+            datosTutoriales = result.data.tutoriales || [];
+            datosRelay = result.data.relay || [];
+            mostrarCategorias();
+            resolve(); // Resolve the promise after content is rendered
+        } catch (error) {
+            document.getElementById('contenido').innerHTML = `<p style="color:red; text-align:center;">No se pudo cargar el catálogo. ${error.message}</p>`;
+            reject(error); // Reject the promise on error
+        }
+    });
 }
 
 function logout(reason = null) {
@@ -1158,8 +1094,7 @@ function mostrarContenidoTutoriales() {
 function mostrarContenidoRelay() {
     const cont = document.getElementById("contenido-relay");
     cont.innerHTML = "<h4>Configuración del Relay</h4>";
-    const grid = document.createElement("div");
-    grid.className = "grid";
+    const grid = document.createElement("div"); grid.className = "grid";
     if (!datosRelay || datosRelay.length === 0) {
         cont.innerHTML += "<p>No hay configuraciones de relay disponibles.</p>";
         return;
