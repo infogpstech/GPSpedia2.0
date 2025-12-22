@@ -15,6 +15,36 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.1.7 - 03/08/2024
+- **DOCUMENTACIÓN DE MEJORA DE DEBUGGING:**
+  - **Contexto:** Se ha añadido una nueva tarea pendiente a la documentación para la implementación de un sistema de debugging integral.
+  - **Acciones Realizadas:**
+    1.  **Actualización de `README.md` (Línea 90):** Se ha añadido la tarea "Implementación de Sistema de Debugging Integral" a la sección de "Mejoras de Funcionalidad Pendientes".
+    2.  **Actualización de `INSTRUCTIVO.TXT` (Línea 95):** Se ha replicado la nueva tarea en la lista de pendientes del instructivo.
+- **Estado del Proyecto:** La documentación ha sido actualizada para incluir esta nueva mejora funcional.
+
+## v3.1.6 - 03/08/2024
+- **DOCUMENTACIÓN DE NUEVAS TAREAS PENDIENTES Y FLUJO DE TRABAJO:**
+  - **Contexto:** Se ha actualizado la documentación interna para reflejar una nueva serie de mejoras de funcionalidad, ajustes de UI y correcciones de bugs solicitadas por el Project Manager.
+  - **Acciones Realizadas:**
+    1.  **Actualización de `README.md` (Línea 40):** Se han añadido a la sección "Trabajos Pendientes" las siguientes tareas:
+        - Mejora del sistema de búsqueda para que sea más flexible.
+        - Mejora del formato de contribución de colaboradores.
+        - Corrección de un bug que muestra `undefined` en el nombre de usuario.
+        - Múltiples ajustes de diseño y espaciado en `index.html`.
+    2.  **Actualización de `INSTRUCTIVO.TXT` (Línea 25):** Se ha replicado la lista de nuevas tareas pendientes y se ha añadido una nueva sección "Proceso de Trabajo por Fases" para estandarizar el flujo de desarrollo, revisión y aprobación de cambios.
+- **Estado del Proyecto:** La documentación está al día con las últimas solicitudes. El proyecto está listo para iniciar el desarrollo de las nuevas tareas en el orden de prioridad que se defina.
+
+## v3.1.5 - 03/08/2024
+- **AUDITORÍA COMPLETA DEL SISTEMA Y ACTUALIZACIÓN DE DOCUMENTACIÓN:**
+  - **Contexto:** Se realizó una auditoría exhaustiva de todo el repositorio para identificar inconsistencias, riesgos técnicos y las causas raíz de los bugs pendientes.
+  - **Acciones Realizadas:**
+    1.  **Análisis de Backend:** Se revisaron todos los microservicios (`auth.js`, `catalog.js`, `write.js`, `users.js`). Se detectó una inconsistencia arquitectónica crítica donde tres de los cuatro servicios principales utilizaban un mapeo de columnas dinámico, contrario a las normas del proyecto que exigen un mapeo fijo (hardcoded) para garantizar la estabilidad.
+    2.  **Análisis de Frontend:** Se investigaron todos los bugs visuales y funcionales reportados en `index.html`. Se identificaron las causas probables para cada uno, incluyendo selectores de CSS faltantes, orden incorrecto de elementos en el DOM y lógica de renderizado incompleta.
+    3.  **Actualización de `README.md` (Línea 235):** Se añadió una nueva sección "8. Auditoría del Sistema" que contiene el informe completo y detallado de todos los hallazgos, riesgos y recomendaciones.
+    4.  **Actualización de Versión en `index.html` (Línea 1118):** Se actualizó el número de versión en el pie de página a `v3.1.5` para reflejar los cambios en la documentación.
+- **Estado del Proyecto:** La documentación ahora refleja con precisión el estado técnico del sistema. La prioridad principal es la refactorización del backend para alinear todos los servicios con el patrón de mapeo de columnas fijo.
+
 ## v3.1.4 - 02/08/2024
 - **DOCUMENTACIÓN DE REGRESIÓN Y ESTADO DEL PROYECTO:**
   - **Contexto:** Un intento de corrección de bugs y refactorización (v1.1.0) resultó en una regresión severa, eliminando implementaciones previas y reintroduciendo errores. Esta entrada documenta el estado actual del proyecto según la revisión del usuario.
@@ -40,7 +70,7 @@
 - **Estado del Proyecto:** El proyecto se encuentra en un estado de regresión funcional. La prioridad es corregir los errores reintroducidos antes de abordar las nuevas implementaciones.
 
 ## v3.1.3 - 01/08/2024
-- **REFACTORIZACIÓN DE UI Y ACTUALIZACIÓN DE NORMAS DE DESARROLLO:**
+- **REFACTORIZACIÓN DE UI E ACTUALIZACIÓN DE NORMAS DE DESARROLLO:**
   - **Contexto:** Tras un intento fallido de refactorización que reintrodujo vulnerabilidades, se adoptó un enfoque más seguro para actualizar la interfaz de usuario, y se añadieron nuevas reglas de desarrollo basadas en la retroalimentación del usuario.
   - **Acciones Realizadas:**
     1.  **Reconstrucción de `index.html` (Líneas 1-1200):** Se reemplazó el contenido completo de `index.html` con la plantilla de `Olds/GPSpedia 1.5/index.html` para restaurar el layout visual solicitado por el usuario.
