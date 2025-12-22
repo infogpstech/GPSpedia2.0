@@ -1,10 +1,10 @@
 =================================================
  INSTRUCTIVO Y AUDITORÍA DEL PROYECTO GPSpedia 2.0
 =================================================
-Fecha de Auditoría: 2024-08-02
-Versión del Documento: 2.1 (Post-Regresión)
+Fecha de Auditoría: 2024-08-03
+Versión del Documento: 3.0
 
-Este documento detalla el estado actual del proyecto GPSpedia 2.0, incluyendo regresiones, bugs confirmados y funcionalidades pendientes.
+Este documento detalla el estado actual del proyecto GPSpedia 2.0, incluyendo regresiones, bugs confirmados, funcionalidades pendientes y el flujo de trabajo para el desarrollo.
 
 ---------------------------------
 NORMAS OBLIGATORIAS DE DESARROLLO
@@ -22,50 +22,54 @@ NORMAS OBLIGATORIAS DE DESARROLLO
 1.  **Verificación Post-Commit:** Una tarea solo se considera completada después de un commit y la validación explícita del Project Manager.
 
 ---------------------------------
-ESTADO ACTUAL DEL PROYECTO (POST-REGRESIÓN v3.1.4)
+PROCESO DE TRABAJO POR FASES
 ---------------------------------
 
-Un intento de refactorización resultó en una regresión severa. A continuación se detalla el estado funcional del proyecto.
+Para organizar el desarrollo y asegurar la calidad, el trabajo se dividirá en fases. Cada fase se enfocará en un conjunto específico de tareas y culminará en un commit.
 
-### Funcionalidades que SÍ Operan Correctamente:
-*   **Navegación y Búsqueda:** El bug que causaba el colapso de la aplicación al buscar y el error en los botones "Volver a..." ha sido solucionado.
-*   **Layout Principal:** El contenedor principal ya no colapsa durante una búsqueda.
-*   **Menú Hamburguesa:** El menú lateral es funcional.
-*   **Botón de Instalación PWA:** El botón se muestra condicionalmente de forma correcta.
-*   **Estilo de Alertas:** Las alertas nativas del navegador (`alert()`) han sido estilizadas.
+1.  **Asignación de Tareas:** Se define un conjunto de tareas (ej. "Ajustes de UI en `index.html`").
+2.  **Desarrollo y Commit:** Se realizan todos los cambios de código necesarios para completar la fase.
+3.  **Revisión Post-Commit:** El Project Manager revisa los cambios.
+    *   **Si es satisfactorio:** Se marca la tarea como completada en `README.md` y `INSTRUCTIVO.TXT`. Se registra el éxito en `CHANGESLOGS.txt`.
+    *   **Si NO es satisfactorio:** Se registra el problema en `CHANGESLOGS.txt` y se crea una nueva tarea para solucionarlo. No se marcan las tareas como completadas.
+4.  **Nuevas Solicitudes:** Cualquier nueva implementación o cambio solicitado se agregará primero a la lista de pendientes en `README.md` y `INSTRUCTIVO.TXT` sin marcar. Solo se marcarán como completadas después de un ciclo de desarrollo y una revisión post-commit exitosa.
 
-### Bugs y Regresiones por Corregir:
-1.  **Carga de Información en Secciones:**
-    *   **Síntoma:** Las secciones "Tutoriales" y "Relay" no cargan su contenido al ser seleccionadas.
-    *   **Causa Probable:** La lógica de `fetch` en la función `mostrarSeccion` de `index.html` puede estar ausente o ser incorrecta.
-2.  **Organización del Pie de Página:**
-    *   **Síntoma:** Los enlaces del footer ("Sobre Nosotros", etc.) se muestran incorrectamente sobre el aviso de copyright.
-    *   **Causa Probable:** Error en la estructura HTML o CSS del `<footer>` en `index.html` (aprox. línea 2082).
-3.  **Layout del Modal de Detalle:**
-    *   **Síntoma:** El nombre del colaborador se muestra debajo de los botones de feedback ("Útil", "Reportar").
-    *   **Causa Probable:** Orden incorrecto de los elementos o reglas CSS en la función `mostrarDetalleModal` en `index.html`.
-4.  **Estilo de Botones de Feedback:**
-    *   **Síntoma:** Los botones de feedback en el modal no tienen el estilo aplicado.
-    *   **Causa Probable:** Las clases de CSS no se están aplicando correctamente a los botones generados en `mostrarDetalleModal`.
-5.  **Visibilidad de Tercera Opción de Corte:**
-    *   **Síntoma:** La "Tercera Opción de Corte" no aparece en el modal de detalles, aunque los datos existan en la base de datos.
-    *   **Causa Probable:** Error en la lógica condicional que renderiza las secciones desplegables dentro de `mostrarDetalleModal`.
-6.  **Posición del Botón Limpiar Búsqueda:**
-    *   **Síntoma:** El botón "x" para limpiar la barra de búsqueda se muestra fuera de su contenedor.
-    *   **Causa Probable:** Conflicto de CSS relacionado con `position: absolute` o `relative` en el `.search-container` de `index.html`.
+---------------------------------
+ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
+---------------------------------
 
-### Nuevas Funcionalidades Pendientes:
-1.  **Creación de Página de Información (`info.html`):**
-    *   **Tarea:** Desarrollar una nueva página HTML estática que contenga las siguientes tres secciones, utilizando los mismos estilos de `index.html`.
-    *   **Sección "Sobre Nosotros":**
-        *   **Contenido:** Adaptar la descripción del proyecto del `README.md` a un lenguaje orientado al consumidor final, omitiendo detalles técnicos internos como la estructura de la base de datos o el diagrama de arquitectura.
-    *   **Sección "Contáctenos":**
-        *   **Formulario:** Implementar un formulario con los siguientes campos: "Nombre de la Organización", "Correo Electrónico", "Número de Teléfono" y "Mensaje".
-        *   **Backend:** La información del formulario deberá ser enviada a una nueva hoja de cálculo en Google Sheets (detalles de la hoja a ser proporcionados).
-    *   **Sección "Preguntas Frecuentes":**
-        *   **Formato:** Usar un formato de acordeón donde cada pregunta se expande para mostrar la respuesta.
-        *   **Contenido:** Redactar preguntas y respuestas que expliquen de manera clara y concisa CADA UNA de las funcionalidades del catálogo para un usuario nuevo. Ejemplos de preguntas:
-            *   ¿Cómo creo una cuenta nueva? (Respuesta: Contactándonos directamente).
-            *   ¿Cómo agrego un nuevo corte?
-            *   ¿Para qué sirven los botones "Útil" y "Reportar"?
-        *   **Restricción:** No exponer información sobre la jerarquía de roles de usuario.
+### Bugs y Regresiones por Corregir
+- [ ] **Carga de Información en Secciones:** Las secciones "Tutoriales" y "Relay" no cargan su contenido.
+- [ ] **Organización del Pie de Página:** Los enlaces del footer deben aparecer debajo del aviso de copyright.
+- [ ] **Layout del Modal de Detalle:** El nombre del colaborador debe estar posicionado sobre los botones de feedback.
+- [ ] **Estilo de Botones de Feedback:** Los botones "Útil" y "Reportar" en el modal no tienen el estilo aplicado.
+- [ ] **Visibilidad de Tercera Opción de Corte:** La tercera opción de corte no es visible en el modal, incluso si existen los datos.
+- [ ] **Posición del Botón Limpiar Búsqueda:** El botón "x" de la barra de búsqueda se muestra fuera de su contenedor.
+- [ ] **Error en Carga de Nombre de Usuario:** En la gestión de usuarios (`users.js`), el "Nombre de usuario" se muestra como `undefined`.
+
+### Mejoras de Funcionalidad Pendientes
+- [ ] **Mejora del Sistema de Búsqueda (`checkVehicle`):**
+    - [ ] Implementar una lógica de búsqueda flexible que muestre múltiples opciones si hay coincidencias parciales (ej. "Frontier" debe poder encontrar "Frontier NP300 SE").
+    - [ ] La búsqueda debe considerar coincidencias con palabras separadas o la primera palabra completa.
+- [ ] **Mejora del Sistema de Feedback (Colaborador):**
+    - [ ] Modificar el formato del campo "Colaborador" para incluir la contribución específica entre paréntesis.
+    - [ ] Ejemplo: `Byron López (Cort 1, Apert.)`.
+    - [ ] Si hay múltiples colaboradores, deben aparecer en líneas separadas. Ejemplo: `Byron López (Cort 1, Apert.)\nJoel Reyes (Cort 2, C. Alimen.)`.
+
+### Revisiones y Ajustes de UI Pendientes
+- [ ] **Ajuste del Encabezado Principal (`index.html`):**
+    - [ ] Posicionar el encabezado (`GPSpedia`) a la izquierda.
+    - [ ] Mostrar el saludo de bienvenida justo debajo del título, con una fuente un 20% más pequeña.
+- [ ] **Ajuste de "Últimos Agregados" (`index.html`):**
+    - [ ] En vista móvil/PWA, mostrar los últimos 6 cortes en lugar de 5.
+    - [ ] En vista web, mostrar una mayor cantidad de tarjetas según el ancho de la pantalla.
+- [ ] **Ajuste de Espaciado General (`index.html`):**
+    - [ ] Reducir los espacios verticales y horizontales entre los contenedores principales (header, barra de búsqueda, botones de sección, contenido, footer).
+    - [ ] Ajustar el espaciado vertical de las tarjetas para mantener la consistencia visual tras la reducción del espaciado horizontal.
+
+### Nuevas Funcionalidades Pendientes
+- [ ] **Creación de Página de Información (`info.html`):**
+    - [ ] Desarrollar una página estática con las secciones "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes".
+    - [ ] **"Sobre Nosotros":** Adaptar la descripción del `README.md` a un lenguaje para el consumidor final.
+    - [ ] **"Contáctenos":** Crear un formulario (Nombre Organización, Correo, Teléfono, Mensaje) que envíe datos a una nueva hoja de Google Sheets.
+    - [ ] **"Preguntas Frecuentes":** Crear un acordeón explicando las funcionalidades del catálogo para nuevos usuarios.

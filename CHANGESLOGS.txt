@@ -15,6 +15,18 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.1.6 - 03/08/2024
+- **DOCUMENTACIÓN DE NUEVAS TAREAS PENDIENTES Y FLUJO DE TRABAJO:**
+  - **Contexto:** Se ha actualizado la documentación interna para reflejar una nueva serie de mejoras de funcionalidad, ajustes de UI y correcciones de bugs solicitadas por el Project Manager.
+  - **Acciones Realizadas:**
+    1.  **Actualización de `README.md` (Línea 40):** Se han añadido a la sección "Trabajos Pendientes" las siguientes tareas:
+        - Mejora del sistema de búsqueda para que sea más flexible.
+        - Mejora del formato de contribución de colaboradores.
+        - Corrección de un bug que muestra `undefined` en el nombre de usuario.
+        - Múltiples ajustes de diseño y espaciado en `index.html`.
+    2.  **Actualización de `INSTRUCTIVO.TXT` (Línea 25):** Se ha replicado la lista de nuevas tareas pendientes y se ha añadido una nueva sección "Proceso de Trabajo por Fases" para estandarizar el flujo de desarrollo, revisión y aprobación de cambios.
+- **Estado del Proyecto:** La documentación está al día con las últimas solicitudes. El proyecto está listo para iniciar el desarrollo de las nuevas tareas en el orden de prioridad que se defina.
+
 ## v3.1.5 - 03/08/2024
 - **AUDITORÍA COMPLETA DEL SISTEMA Y ACTUALIZACIÓN DE DOCUMENTACIÓN:**
   - **Contexto:** Se realizó una auditoría exhaustiva de todo el repositorio para identificar inconsistencias, riesgos técnicos y las causas raíz de los bugs pendientes.

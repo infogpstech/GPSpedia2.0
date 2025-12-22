@@ -51,6 +51,27 @@ Esta sección documenta las tareas de desarrollo, corrección y regresiones pend
 - [ ] **Estilo de Botones de Feedback:** Los botones "Útil" y "Reportar" en el modal no tienen el estilo aplicado.
 - [ ] **Visibilidad de Tercera Opción de Corte:** La tercera opción de corte no es visible en el modal, incluso si existen los datos.
 - [ ] **Posición del Botón Limpiar Búsqueda:** El botón "x" de la barra de búsqueda se muestra fuera de su contenedor.
+- [ ] **Error en Carga de Nombre de Usuario:** En la gestión de usuarios, el "Nombre de usuario" se muestra como `undefined` en la lista.
+
+### Mejoras de Funcionalidad Pendientes
+- [ ] **Mejora del Sistema de Búsqueda (`checkVehicle`):**
+    - [ ] Implementar una lógica de búsqueda flexible que muestre múltiples opciones si hay coincidencias parciales (ej. "Frontier" debe poder encontrar "Frontier NP300 SE").
+    - [ ] La búsqueda debe considerar coincidencias con palabras separadas o la primera palabra completa.
+- [ ] **Mejora del Sistema de Feedback (Colaborador):**
+    - [ ] Modificar el formato del campo "Colaborador" para incluir la contribución específica entre paréntesis.
+    - [ ] Ejemplo: `Byron López (Cort 1, Apert.)`.
+    - [ ] Si hay múltiples colaboradores, deben aparecer en líneas separadas. Ejemplo: `Byron López (Cort 1, Apert.)\nJoel Reyes (Cort 2, C. Alimen.)`.
+
+### Revisiones y Ajustes de UI Pendientes
+- [ ] **Ajuste del Encabezado Principal (`index.html`):**
+    - [ ] Posicionar el encabezado (`GPSpedia`) a la izquierda.
+    - [ ] Mostrar el saludo de bienvenida justo debajo del título, con una fuente un 20% más pequeña.
+- [ ] **Ajuste de "Últimos Agregados" (`index.html`):**
+    - [ ] En vista móvil/PWA, mostrar los últimos 6 cortes en lugar de 5.
+    - [ ] En vista web, mostrar una mayor cantidad de tarjetas según el ancho de la pantalla.
+- [ ] **Ajuste de Espaciado General (`index.html`):**
+    - [ ] Reducir los espacios verticales y horizontales entre los contenedores principales (header, barra de búsqueda, botones de sección, contenido, footer).
+    - [ ] Ajustar el espaciado vertical de las tarjetas para mantener la consistencia visual tras la reducción del espaciado horizontal.
 
 ### Nuevas Funcionalidades Pendientes
 - [ ] **Crear Página de Información (`info.html`):**
