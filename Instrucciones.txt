@@ -67,20 +67,23 @@ ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
 - [ ] **Búsqueda Flexible:** Mejorar `checkVehicle` para que devuelva coincidencias parciales y múltiples resultados.
 - [ ] **Debugging Integral:** Implementar un sistema de debugging en backend y frontend accesible por rol.
 - [ ] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes para mejorar el rendimiento.
-- [ ] **Soporte para Rango de Años:** Refactorizar la base de datos y la lógica para usar `anoDesde` y `anoHasta` en lugar de un año fijo.
+- [ ] **Soporte para Rango de Años (Feedback-driven):** Implementar la lógica de `suggestYear` en el backend y la UI correspondiente en el frontend.
 - [ ] **Sistema de Versionamiento Híbrido:** Aplicar el nuevo sistema de versionamiento a todos los componentes del código fuente.
 
 ### Revisiones de UI/UX
 - [ ] **Ajustes de Layout:** Realizar ajustes de espaciado, encabezado y visualización de "Últimos Agregados" según las especificaciones.
+- [ ] **Modal de Detalle - Logo de Marca:** Implementar la visualización del logo de la marca en una esquina (`altura: 50px`, `anchura: auto`).
+- [ ] **Modal de Detalle - Imagen de Relay:** Limitar la altura de la imagen de referencia del relay a `250px`.
+- [ ] **Listado de Marcas - Logos:** Mostrar el logo de cada marca en la vista de listado de marcas.
 
 ### Nuevas Funcionalidades
 - [ ] **Página de Información (`info.html`):** Crear una página estática con las secciones "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes", con su respectivo formulario de contacto.
 
 ### Plan Estratégico v4 (Final y Optimizado)
-- [ ] **Fase 1: Migración a Base de Datos Optimizada (DB v2.0).**
-- [ ] **Fase 2: Sistema de Feedback Avanzado y Calidad de Datos.**
-- [ ] **Fase 3: Funcionalidades de Gestión y Experiencia de Usuario.**
-- [ ] **Fase 4: Mejoras Adicionales (Offline, Notas Personales, Relay Anidado).**
+- [ ] **Fase 1: Migración y Lógica de Datos Fundamental** (Gestión de Años Simplificada, Logos Automatizados).
+- [ ] **Fase 2: Sistema de Feedback Avanzado y Calidad de Datos** (Feedback Granular, Expansión de Años por Feedback).
+- [ ] **Fase 3: Funcionalidades de Gestión y Experiencia de Usuario** (Dashboard, Edición In-Modal, Visualización de Logos).
+- [ ] **Fase 4: Mejoras Adicionales** (Offline, Notas Personales, Modal de Relay Anidado con ajuste de imagen).
 
 **Nota:** Para la ejecución de la Fase 1, se ha desarrollado un **Plan de Implementación Técnica Detallado** que describe los cambios específicos requeridos en los servicios de backend. Este plan se encuentra documentado en la sección correspondiente del archivo `README.md` y debe ser consultado antes de iniciar el desarrollo.
 

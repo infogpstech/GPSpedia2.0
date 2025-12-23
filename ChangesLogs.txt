@@ -15,6 +15,14 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.4.0 - 14/08/2024
+- **DOCUMENTACIÓN: INTEGRACIÓN DE NUEVAS ESPECIFICACIONES DE LÓGICA Y UI:**
+  - **Contexto:** Se han añadido nuevas especificaciones detalladas proporcionadas por el usuario al plan estratégico y a la lista de tareas pendientes.
+  - **Acciones Realizadas:**
+    1.  **Actualización del Plan Estratégico (`README.md`, `Instrucciones.txt`):** Se ha enriquecido el "Plan Estratégico v4" con la lógica de negocio para la gestión automatizada de logos de marca y la gestión simplificada de años (guardando solo en `anoDesde` e implementando la expansión de rango a través de feedback).
+    2.  **Actualización de Tareas Pendientes (`README.md`, `Instrucciones.txt`):** Se han añadido nuevas tareas a la lista de "Revisiones de UI/UX" para reflejar los requisitos de visualización de logos en el modal y en los listados, y para ajustar el tamaño de la imagen en el modal de Relay.
+- **Estado del Proyecto:** La documentación estratégica se ha actualizado para servir como una guía de desarrollo aún más precisa, asegurando que las futuras implementaciones de frontend y backend se alineen con la visión detallada del usuario.
+
 ## v3.3.9 - 14/08/2024
 - **DOCUMENTACIÓN: ENRIQUECIMIENTO DEL ESQUEMA DE BASE DE DATOS V2.0:**
   - **Contexto:** Para mejorar la claridad y utilidad de la documentación como guía de desarrollo, se ha enriquecido la sección de la arquitectura de la base de datos v2.0 con descripciones detalladas para cada columna.

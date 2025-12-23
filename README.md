@@ -44,33 +44,45 @@ La arquitectura de GPSpedia 2.0 se compone de tres capas principales:
 
 Esta sección define la hoja de ruta para la siguiente gran versión de GPSpedia, centrada en una re-arquitectura de datos y la implementación de funcionalidades de alta eficiencia.
 
-### Fase 1: Migración a Base de Datos Optimizada (DB v2.0)
-- **Objetivo:** Crear una base de datos en un **nuevo Google Spreadsheet** para soportar funcionalidades avanzadas, manteniendo la compatibilidad con la v1.5.
+### Fase 1: Migración y Lógica de Datos Fundamental
+- **Objetivo:** Migrar a la nueva base de datos (DB v2.0) y establecer la lógica de negocio principal para la gestión de datos.
 - **Tareas Clave:**
     - [ ] **Diseñar Nuevo Esquema:** Implementar la estructura granular detallada en la sección "Diseño Detallado de `GPSpedia_DB_v2.0`".
     - [ ] **Script de Migración:** Desarrollar un endpoint para migrar y transformar los datos de la base de datos antigua a la nueva.
+    - [ ] **Lógica de Gestión de Años Simplificada:**
+        - El formulario de entrada solo solicitará un único año.
+        - Este año se guardará en la columna `anoDesde` al crear un nuevo registro. `anoHasta` quedará vacío.
+    - [ ] **Lógica de Gestión de Logos Automatizada:**
+        - Al agregar un nuevo vehículo, el sistema buscará una coincidencia en la hoja `LogosMarcas` por el campo `marca`.
+        - Si se encuentra, se asociará automáticamente. Si no, se usará un logo temporal de GPSpedia. El usuario no seleccionará el logo.
 
 ### Fase 2: Sistema de Feedback Avanzado y Calidad de Datos
-- **Objetivo:** Mejorar la calidad de los datos y la utilidad del feedback.
+- **Objetivo:** Mejorar la calidad de los datos a través de la interacción del usuario.
 - **Tareas Clave:**
     - [ ] **Feedback Granular:** Implementar "likes" y colaborador por cada corte individual.
     - [ ] **Ordenamiento por Utilidad:** El backend ordenará los cortes de un vehículo según su popularidad antes de enviarlos al frontend.
     - [ ] **Campos Obligatorios:** Forzar el llenado de `tipo`, `ubicación`, `color` e `imagen` para cada nuevo corte.
+    - [ ] **Expansión de Rango de Años por Feedback:**
+        - Implementar una nueva función de feedback que permita a los usuarios sugerir que un corte aplica a un año diferente.
+        - El backend recibirá el nuevo año y actualizará `anoDesde` (si el nuevo año es menor) o `anoHasta` (si el nuevo año es mayor), expandiendo dinámicamente el rango de aplicabilidad.
 
 ### Fase 3: Funcionalidades de Gestión y Experiencia de Usuario
-- **Objetivo:** Introducir herramientas de gestión y mejorar la experiencia del usuario.
+- **Objetivo:** Introducir herramientas de gestión y mejorar la experiencia visual y de usuario.
 - **Tareas Clave:**
     - [ ] **Dashboard de Desempeño:** Crear una vista para Supervisores con métricas de contribución de técnicos.
     - [ ] **Edición "In-Modal":** Permitir la edición de datos directamente desde el modal de detalles, con permisos por rol.
     - [ ] **Enlaces de un solo uso:** Generar enlaces temporales (24h) y de un solo uso para compartir información.
     - [ ] **Notificaciones Inteligentes:** Reemplazar el banner de instalación con notificaciones "toast" sobre nuevos cortes.
+    - [ ] **Visualización de Logos:**
+        - Mostrar el logo de la marca (formato PNG/WEBP sin fondo) en una esquina del modal de detalle (`altura: 50px`, `anchura: auto`).
+        - En la vista de listado de marcas, mostrar el logo correspondiente si existe al menos un vehículo de esa marca.
 
 ### Fase 4: Mejoras Adicionales
 - **Objetivo:** Añadir funcionalidades de alto valor para el trabajo en campo.
 - **Tareas Clave:**
     - [ ] **Modo Offline Robusto:** Implementar caching avanzado.
     - [ ] **Notas Personales:** Permitir a los usuarios guardar notas privadas por vehículo.
-    - [ ] **Modal de Relay Anidado:** Mostrar detalles de configuraciones de Relay en un modal secundario.
+    - [ ] **Modal de Relay Anidado:** Mostrar detalles de configuraciones de Relay en un modal secundario, con la imagen de referencia limitada a `250px` de altura.
 
 ---
 
@@ -79,16 +91,19 @@ Esta sección define la hoja de ruta para la siguiente gran versión de GPSpedia
 Esta sección describe los pasos técnicos específicos requeridos para ejecutar la Fase 1 del Plan Estratégico.
 
 #### 1. Modificaciones al Servicio `GPSpedia-Write` (`write.js`)
-- **Objetivo:** Crear un endpoint seguro y de un solo uso para migrar los datos de la DB v1.5 a la v2.0.
+- **Objetivo:** Adaptar el servicio para la lógica de la DB v2.0, incluyendo la migración y la gestión de años/logos.
 - **Acciones Técnicas:**
+    - **Modificar `addCorte`:**
+        - La función ya no recibirá `anoDesde` ni `anoHasta`. Recibirá un único `anio`.
+        - Al crear una nueva fila, escribirá el `anio` en la columna `anoDesde` y dejará `anoHasta` en blanco.
+        - Antes de escribir, consultará la hoja `LogosMarcas` para encontrar la URL del logo. Si no la encuentra, usará una URL temporal del logo de GPSpedia.
     - **Crear Nuevo Endpoint `executeMigration`:**
         - **Activación:** La función `doGet(e)` se activará con el parámetro `action=executeMigration`.
         - **Seguridad:** Se implementará una verificación para asegurar que solo los usuarios con rol "Desarrollador" puedan ejecutar la migración.
         - **Lógica de Lectura:** Se conectará a la `GPSpedia_DB_v1.5` y leerá todas las filas de la hoja "Cortes".
         - **Lógica de Transformación (por fila):**
-            - **`versionesAplicables`:** Se inicializará con el valor del campo `modelo` para preparar la futura consolidación.
-            - **`anoDesde`/`anoHasta`:** Se analizará `Año (Generacion)` para extraer rangos (ej. "2015-2019") o duplicar el año si es un valor único.
-            - **Cortes Granulares:** Se mapearán los datos de los cortes existentes a las nuevas columnas (`tipoCorte1`, `ubicacionCorte1`, `imgCorte1`, etc.), dejando `colorCableCorteX` vacío ya que no existe en el origen.
+            - **`anoDesde`/`anoHasta`:** Se analizará `Año (Generacion)` para extraer rangos o duplicar el año en `anoDesde`.
+            - **Cortes y Logos:** Se mapearán los datos de los cortes y se buscará el logo correspondiente.
         - **Lógica de Escritura:** Se conectará a la nueva `GPSpedia_DB_v2.0` y escribirá los datos transformados.
         - **Respuesta:** Devolverá un JSON confirmando el éxito y el número de filas procesadas.
 
@@ -101,11 +116,12 @@ Esta sección describe los pasos técnicos específicos requeridos para ejecutar
     - **Implementar Ordenamiento por Utilidad:** En `handleGetCatalogData`, los bloques de corte se reordenarán en el objeto JSON de respuesta basándose en el conteo de "likes" en `utilCorteX` antes de ser enviados al frontend.
 
 #### 3. Modificaciones al Servicio `GPSpedia-Feedback` (`feedback.js`)
-- **Objetivo:** Adaptar el servicio para gestionar feedback por corte individual.
+- **Objetivo:** Adaptar el servicio para gestionar feedback por corte individual y la expansión de años.
 - **Acciones Técnicas:**
     - **Actualizar `SPREADSHEET_ID`:** Apuntará al ID de la nueva `GPSpedia_DB_v2.0`.
-    - **Refactorizar `recordLike`:** La función ahora aceptará un `corteIndex` (1, 2, o 3) en el payload para identificar y actualizar la columna `utilCorteX` correcta.
-    - **Crear `assignCollaborator`:** Se desarrollará una nueva acción para asignar un colaborador a un corte específico, requiriendo `vehicleId`, `corteIndex`, y `userName`.
+    - **Refactorizar `recordLike`:** La función ahora aceptará un `corteIndex` (1, 2, o 3) para actualizar la columna `utilCorteX` correcta.
+    - **Crear `assignCollaborator`:** Se desarrollará para asignar un colaborador a un corte específico.
+    - **Crear `suggestYear`:** Nueva acción que recibirá un `vehicleId` y un `newYear`. La lógica leerá `anoDesde` y `anoHasta`, comparará el `newYear` y actualizará el campo correspondiente si el nuevo año expande el rango.
 
 ## 4. Trabajos Pendientes (Checklist)
 
@@ -120,11 +136,14 @@ Esta sección documenta las tareas de desarrollo, corrección y regresiones pend
 - [ ] **Búsqueda Flexible:** Mejorar `checkVehicle` para que devuelva coincidencias parciales y múltiples resultados.
 - [ ] **Debugging Integral:** Implementar un sistema de debugging en backend y frontend accesible por rol.
 - [ ] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes para mejorar el rendimiento.
-- [ ] **Soporte para Rango de Años:** Refactorizar la base de datos y la lógica para usar `anoDesde` y `anoHasta` en lugar de un año fijo.
+- [ ] **Soporte para Rango de Años (Feedback-driven):** Implementar la lógica de `suggestYear` en el backend y la UI correspondiente en el frontend.
 - [ ] **Sistema de Versionamiento Híbrido:** Aplicar el nuevo sistema de versionamiento a todos los componentes del código fuente.
 
 ### Revisiones de UI/UX
 - [ ] **Ajustes de Layout:** Realizar ajustes de espaciado, encabezado y visualización de "Últimos Agregados" según las especificaciones.
+- [ ] **Modal de Detalle - Logo de Marca:** Implementar la visualización del logo de la marca en una esquina (`altura: 50px`, `anchura: auto`).
+- [ ] **Modal de Detalle - Imagen de Relay:** Limitar la altura de la imagen de referencia del relay a `250px`.
+- [ ] **Listado de Marcas - Logos:** Mostrar el logo de cada marca en la vista de listado de marcas.
 
 ### Nuevas Funcionalidades
 - [ ] **Página de Información (`info.html`):** Crear una página estática con las secciones "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes", con su respectivo formulario de contacto.
