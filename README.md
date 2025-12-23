@@ -235,7 +235,7 @@ A continuación se detalla la estructura de cada hoja en la nueva base de datos.
 
 ##### 5. Hoja: `Relay`
 - **Propósito:** Almacenar información técnica sobre configuraciones de relays.
-- **Columnas:** `id`, `configuracion`, `funcion`, `vehiculoDondeSeUtiliza`, `pin30Entrada`, `pin85Bobina`, `pin86Bobina`, `pin87aComunCerrado`, `pin87ComunmenteAbierto`, `imagen`, `observacion`.
+- **Columnas:** `id`, `configuracion`, `funcion`, `vehiculoDondeSeUtiliza`, `pin30Entrada`, `pin85BobinaPositivo`, `pin86bobinaNegativo`, `pin87aComunCerrado`, `pin87ComunmenteAbierto`, `imagen`, `observacion`.
 
 ##### 6. Hoja: `ActiveSessions`
 - **Propósito:** Rastrear las sesiones de usuario activas para la validación.

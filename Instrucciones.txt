@@ -116,7 +116,7 @@ ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
 - **Columnas:** `id`, `tema`, `imagen`, `comoIdentificarlo`, `dondeEncontrarlo`, `detalles`, `video`.
 
 ##### 5. Hoja: `Relay`
-- **Columnas:** `id`, `configuracion`, `funcion`, `vehiculoDondeSeUtiliza`, `pin30Entrada`, `pin85Bobina`, `pin86Bobina`, `pin87aComunCerrado`, `pin87ComunmenteAbierto`, `imagen`, `observacion`.
+- **Columnas:** `id`, `configuracion`, `funcion`, `vehiculoDondeSeUtiliza`, `pin30Entrada`, `pin85BobinaPositivo`, `pin86bobinaNegativo`, `pin87aComunCerrado`, `pin87ComunmenteAbierto`, `imagen`, `observacion`.
 
 ##### 6. Hoja: `ActiveSessions`
 - **Columnas:** `idUsuario`, `sessionToken`, `timestamp`.

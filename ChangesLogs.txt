@@ -15,6 +15,13 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.3.4 - 14/08/2024
+- **DOCUMENTACIÓN: CORRECCIÓN FINAL DEL ESQUEMA DE LA HOJA 'RELAY':**
+  - **Contexto:** Basado en la última aclaración del usuario, se ha realizado una corrección final a la documentación de la estructura de la base de datos v2.0.
+  - **Acciones Realizadas:**
+    1.  **Ajuste de Columnas de Hoja 'Relay' (`README.md`, `Instrucciones.txt`):** Se han actualizado los nombres de las columnas `pin85Bobina` y `pin86Bobina` a `pin85BobinaPositivo` y `pin86bobinaNegativo` respectivamente, para que coincidan exactamente con la implementación final en la hoja de cálculo.
+- **Estado del Proyecto:** La documentación del esquema de la base de datos v2.0 está ahora completamente sincronizada con la estructura real de la hoja de cálculo, eliminando cualquier ambigüedad para el futuro desarrollo del backend.
+
 ## v3.3.3 - 14/08/2024
 - **DOCUMENTACIÓN: ACTUALIZACIÓN DEL ESQUEMA DE BASE DE DATOS V2.0:**
   - **Contexto:** Se ha actualizado la documentación para reflejar la estructura final y confirmada de la nueva base de datos (`GPSpedia_DB_v2.0`) que se utilizará para la migración.
