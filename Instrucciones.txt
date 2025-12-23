@@ -39,7 +39,7 @@ ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
 ---------------------------------
 
 ### Bugs y Regresiones por Corregir
-- [ ] **Carga de Información en Secciones:** Las secciones "Tutoriales" y "Relay" no cargan su contenido.
+- [x] **Carga de Información en Secciones:** Las secciones "Tutoriales" y "Relay" no cargan su contenido. *(Solucionado en v3.1.8 con la refactorización del backend).*
 - [ ] **Organización del Pie de Página:** Los enlaces del footer deben aparecer debajo del aviso de copyright.
 - [ ] **Layout del Modal de Detalle:** El nombre del colaborador debe estar posicionado sobre los botones de feedback.
 - [ ] **Estilo de Botones de Feedback:** Los botones "Útil" y "Reportar" en el modal no tienen el estilo aplicado.
@@ -62,6 +62,11 @@ ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
         - [ ] Visualizar el estado y los errores de los servicios.
         - [ ] Guardar registros (error, advertencia, etc.) en la hoja "Logs" de Google Sheets.
         - [ ] Activar/desactivar funciones del navegador para prevenir debugging externo (ej. F12, menú contextual, copiar, zoom).
+- [ ] **Implementar Estrategia de Carga de Imágenes Optimizada (Lazy Load):**
+    - [ ] **Tarjetas del catálogo:** Cargar miniaturas de baja resolución (ej. `sz=w200`) para acelerar la carga inicial.
+    - [ ] **Modal de detalle:** Al abrir el modal, cargar miniaturas de resolución media (ej. `sz=w800`).
+    - [ ] **Lightbox:** Al hacer clic en una imagen del modal, mostrar la imagen en su resolución original (ej. `sz=w2048`) en un lightbox.
+    - [ ] **Seguridad en Lightbox:** En la vista de lightbox, deshabilitar el menú contextual, la función de copiar y las herramientas de desarrollador (F12) para proteger las imágenes. La única interacción permitida debe ser el zoom.
 
 ### Revisiones y Ajustes de UI Pendientes
 - [ ] **Ajuste del Encabezado Principal (`index.html`):**

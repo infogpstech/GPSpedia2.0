@@ -15,6 +15,47 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.2.3 - 05/08/2024
+- **DOCUMENTACIÓN: CORRECCIÓN Y ACTUALIZACIÓN GENERAL:**
+  - **Contexto:** Se realizó una actualización integral de la documentación del proyecto para alinearla con el estado actual del código, registrar nuevas tareas y reflejar los avances recientes.
+  - **Acciones Realizadas:**
+    1.  **Corrección de Estructura de Columnas (`README.md`):** Se corrigió la definición de columnas para las hojas "Cortes", "Tutorial" y "Configuración del Relay" para que coincida con la estructura real de la base de datos, incluyendo la columna `Timestamp`.
+    2.  **Actualización de Tareas (`README.md`, `Instrucciones.txt`):** Se marcó como resuelto el bug de carga de contenido de las secciones "Tutoriales" y "Relay" y se añadió la nueva tarea para implementar una estrategia de carga de imágenes optimizada (Lazy Load).
+- **Estado del Proyecto:** La documentación del proyecto está ahora sincronizada con el código y las nuevas solicitudes, mejorando la claridad para futuros ciclos de desarrollo.
+
+## v3.2.2 - 05/08/2024
+- **CONFIGURACIÓN: ACTUALIZACIÓN DE ENDPOINT DEL SERVICIO DE CATÁLOGO:**
+  - **Contexto:** Después de un nuevo despliegue del servicio `GPSpedia-Catalog`, se recibió una nueva URL para el endpoint.
+  - **Acciones Realizadas:**
+    1.  **Actualización de URL (`api-manager.js`, Línea 10):** Se actualizó la constante `API_ENDPOINTS.CATALOG` con la nueva URL de despliegue para asegurar que el frontend se comunique con la versión más reciente del servicio.
+- **Estado del Proyecto:** El frontend ahora apunta a la versión más reciente del servicio de catálogo.
+
+## v3.2.1 - 05/08/2024
+- **CORRECCIÓN FINAL DEL MAPEO DE COLUMNAS EN `GPSpedia-Catalog`:**
+  - **Contexto:** La implementación anterior del mapeo de columnas fijo (v3.1.8) se basó en una estructura de columnas incorrecta obtenida de la documentación, lo que resultó en un fallo continuo en la carga de datos. Esta versión corrige el problema de forma definitiva utilizando la estructura exacta proporcionada por el Project Manager.
+  - **Acciones Realizadas:**
+    1.  **Actualización de Mapeo de Columnas (`services/catalog/catalog.js`, Líneas 30-85):** Se han actualizado los objetos `COLS_CORTES`, `COLS_TUTORIALES` y `COLS_RELAY` para que coincidan con la estructura de columnas precisa de las hojas "Cortes", "Tutorial" y "Configuración del Relay".
+    2.  **Corrección de Typo Crítico (`services/catalog/catalog.js`, Línea 13):** Se corrigió un error tipográfico en el nombre de la variable `SPREADSHEET_ID` que impedía por completo el funcionamiento del servicio.
+    3.  **Ajuste de Versión del Servicio (`services/catalog/catalog.js`, Línea 95):** Se ajustó la versión del servicio a `v1.1` en el mensaje de `doGet` para mantener la coherencia con el ciclo de despliegue.
+- **Estado del Proyecto:** El servicio `GPSpedia-Catalog` ahora lee y procesa los datos de las hojas de Google con la estructura correcta, solucionando la causa raíz de los errores de visualización de datos en el catálogo.
+
+## v3.1.9 - 04/08/2024
+- **CONFIGURACIÓN: ACTUALIZACIÓN DE ENDPOINT DEL SERVICIO DE CATÁLOGO:**
+  - **Contexto:** Después de desplegar la nueva versión del servicio `GPSpedia-Catalog` (v1.1), se recibió la nueva URL del endpoint.
+  - **Acciones Realizadas:**
+    1.  **Actualización de URL (`api-manager.js`, Línea 10):** Se ha actualizado la constante `API_ENDPOINTS.CATALOG` con la nueva URL de despliegue para asegurar que el frontend se comunique con la versión más reciente del servicio.
+- **Estado del Proyecto:** El frontend ahora apunta al servicio de catálogo actualizado, consumiendo la lógica refactorizada y la corrección del bug de ordenamiento.
+
+## v3.1.8 - 04/08/2024
+- **REFACTORIZACIÓN Y CORRECCIÓN DE `GPSpedia-Catalog` SERVICE:**
+  - **Contexto:** Se abordó la primera fase de la corrección de la deuda técnica identificada en la auditoría del sistema (v3.1.5), centrada en el servicio de catálogo.
+  - **Acciones Realizadas:**
+    1.  **Refactorización a Mapeo de Columnas Fijo (`services/catalog/catalog.js`, Líneas 30-85):** Se eliminó por completo la función `getColumnMap` y toda la lógica de mapeo dinámico. Se implementaron los objetos `COLS_CORTES`, `COLS_TUTORIALES` y `COLS_RELAY` con índices fijos (hardcoded), alineando el servicio con las normas de arquitectura del proyecto para garantizar estabilidad y mantenibilidad.
+    2.  **Actualización de Lógica de Acceso a Datos (`services/catalog/catalog.js`, Líneas 145-250):** Todas las funciones (`handleGetCatalogData`, `handleGetDropdownData`, `handleCheckVehicle`) fueron modificadas para utilizar los nuevos mapas de columnas fijos.
+    3.  **Corrección de Bug de Carga de Contenido (`services/catalog/catalog.js`, Línea 175):** Se añadió `.reverse()` a los arrays de datos de las secciones "Tutoriales" y "Relay". Esto soluciona el bug que impedía que se mostraran los registros más recientes en la interfaz.
+    4.  **Actualización de Versión del Servicio (`services/catalog/catalog.js`, Línea 95):** Se actualizó el número de versión en el mensaje de estado `doGet` a `v1.1` para facilitar la verificación del despliegue.
+- **Estado del Proyecto:** El servicio `GPSpedia-Catalog` es ahora más robusto y estable. El bug de carga de contenido para "Tutoriales" y "Relay" ha sido solucionado en el backend.
+
 ## v3.1.7 - 03/08/2024
 - **DOCUMENTACIÓN DE MEJORA DE DEBUGGING:**
   - **Contexto:** Se ha añadido una nueva tarea pendiente a la documentación para la implementación de un sistema de debugging integral.
