@@ -42,43 +42,39 @@ La arquitectura de GPSpedia 2.0 se compone de tres capas principales:
 
 ## 3. Plan Estratégico de Evolución (GPSpedia v3.3) - v3 Final
 
-Esta sección define la hoja de ruta oficial para la siguiente gran versión de GPSpedia. El plan se centra en una re-arquitectura de la base de datos y la implementación de funcionalidades de alta eficiencia.
+Esta sección define la hoja de ruta oficial para la siguiente gran versión de GPSpedia, centrada en una re-arquitectura de datos y la implementación de funcionalidades de alta eficiencia.
 
 ### Fase 1: Migración a Nueva Infraestructura de Base de Datos (DB v2)
 - **Objetivo:** Crear una base de datos optimizada en un **nuevo Google Spreadsheet** (`GPSpedia_DB_v2.0`) para soportar funcionalidades avanzadas, manteniendo el spreadsheet actual intacto por compatibilidad con GPSpedia v1.5.
-- **Tareas Clave:**
-    - [ ] **Diseñar Nuevo Esquema Granular:** Implementar la nueva estructura de hojas y columnas (ver sección 6 para detalles), que incluye la consolidación de modelos con `versionesAplicables` y feedback por corte individual.
-    - [ ] **Crear Script de Migración Automatizada:** Desarrollar un endpoint (`?action=executeMigration`) en `GPSpedia-Write` (protegido para rol "Desarrollador") que transfiera y transforme los datos del spreadsheet antiguo al nuevo.
-    - [ ] **Actualizar Configuración Global:** Modificar la constante `SPREADSHEET_ID` en todos los microservicios para apuntar a la nueva base de datos.
-- **Nota Crítica de Compatibilidad:** La columna `Año (Generacion)` del spreadsheet antiguo se preserva y no debe ser modificada, garantizando el funcionamiento de la v1.5.
+- **Tareas Clave y Detalles Técnicos:**
+    - [ ] **Diseñar Nuevo Esquema Granular:** Implementar la nueva estructura de hojas y columnas (ver sección 6.1 para detalles), que incluye:
+        - **Consolidación de Modelos:** La nueva columna `versionesAplicables` permitirá agrupar múltiples variantes (ej. "NP300, SE, LE") en una sola fila, reduciendo la redundancia. La lógica de búsqueda se mejorará para buscar en `modelo` y `versionesAplicables`.
+        - **Feedback por Corte:** Se crearán columnas individuales (`tipoCorteX`, `ubicacionCorteX`, `colorCableCorteX`, `imgCorteX`, `utilCorteX`, `colaboradorCorteX`) para cada uno de los tres posibles cortes, permitiendo feedback y atribución granular.
+    - [ ] **Crear Script de Migración Automatizada:** Desarrollar un endpoint (`?action=executeMigration`) en `GPSpedia-Write` (protegido para rol "Desarrollador") que transfiera y transforme los datos.
+- **Nota Crítica de Compatibilidad:** La columna `Año (Generacion)` del spreadsheet antiguo se preserva, garantizando el funcionamiento de la v1.5.
 
 ### Fase 2: Sistema de Feedback Avanzado y Calidad de Datos
 - **Objetivo:** Mejorar drásticamente la calidad de los datos y la utilidad del feedback.
-- **Tareas Clave:**
-    - [ ] **Feedback Granular por Corte:**
-        - **Backend:** Modificar `feedback.js` para que la acción `recordLike` acepte un índice de corte y actualice la columna `utilCorteX` correspondiente.
-        - **Frontend:** Re-diseñar el modal de detalles para mostrar un botón "Útil" y el colaborador para **cada corte individual**, y ordenar los cortes por número de "likes".
-    - [ ] **Validación de Datos Obligatorios:** Implementar validaciones en el frontend (`add_cortes.html`) y backend (`write.js`) para asegurar que cada nuevo corte incluya obligatoriamente: `tipo de corte`, `ubicación`, `color de cable` e `imagen`.
+- **Tareas Clave y Detalles Técnicos:**
+    - [ ] **Feedback Granular y Ordenamiento por Utilidad:**
+        - **Backend:** La lógica de `recordLike` en `feedback.js` aceptará un índice de corte para actualizar la columna `utilCorteX` correcta. Antes de enviar los datos al cliente, `catalog.js` ordenará los bloques de corte (corte1, corte2, corte3) de cada vehículo según la cantidad de "likes", asegurando que el más útil siempre se muestre primero.
+        - **Frontend:** El modal de detalles mostrará un botón "Útil" y un colaborador para cada sección de corte individual.
+    - [ ] **Validación de Datos Obligatorios:** El formulario de `add_cortes.html` y el backend (`write.js`) forzarán que cada nuevo corte enviado deba contener obligatoriamente los 4 campos clave: `tipo`, `ubicación`, `color de cable` e `imagen`.
 
 ### Fase 3: Funcionalidades de Gestión y Experiencia de Usuario
 - **Objetivo:** Introducir herramientas de gestión y mejorar la experiencia del usuario final.
-- **Tareas Clave:**
-    - [ ] **Dashboard de Desempeño (Jefes/Supervisores):**
-        - **Backend:** Crear un nuevo endpoint que analice la hoja `ActividadUsuario` y las columnas `colaboradorCorteX` para generar estadísticas de contribución por técnico.
-        - **Frontend:** Desarrollar una nueva página (`dashboard.html`) con acceso restringido para visualizar estas métricas.
-    - [ ] **Ranking de "Más Buscados":**
-        - **Backend:** Modificar `catalog.js` para incrementar `contadorBusquedas` en cada búsqueda y crear un endpoint `getMostSearched`.
-        - **Frontend:** Añadir una sección en `index.html` para mostrar los vehículos más populares.
-    - [ ] **Edición "In-Modal" con Permisos por Rol:**
-        - **Backend:** Crear un endpoint `updateVehicleData` en `write.js` con lógica de permisos por rol (Técnico: solo añadir; Supervisor: modificar; Desarrollador: borrar).
-        - **Frontend:** Adaptar el modal para mostrar campos como editables o solo texto según el rol del usuario.
+- **Tareas Clave y Detalles Técnicos:**
+    - [ ] **Dashboard de Desempeño:**
+        - **Backend:** Un nuevo endpoint (`getTechnicianPerformance`) analizará la hoja `ActividadUsuario` para generar un ranking de técnicos basado en contribuciones, likes recibidos y reportes enviados.
+        - **Frontend:** Una nueva página `dashboard.html` (para Jefes/Supervisores) mostrará una tabla con: `Nombre del Técnico`, `Nuevos Cortes Aportados`, `Likes Recibidos` y `Reportes Enviados`.
+    - [ ] **Ranking de "Más Buscados":** Se implementará un contador `contadorBusquedas` en la hoja `Cortes` que se incrementará con cada búsqueda exitosa. Una nueva sección en la UI principal mostrará los vehículos con el contador más alto.
+    - [ ] **Edición "In-Modal" con Permisos por Rol:** El modal de detalles permitirá la edición de campos según el rol del usuario, con lógica de permisos aplicada en el backend.
     - [ ] **Sistema de Compartir de Un Solo Uso:**
-        - **Backend:** Implementar la lógica para generar y validar tokens de un solo uso en la nueva hoja `TokensCompartir`.
-        - **Frontend:** Modificar la función de compartir para que solicite un token al backend y construya una URL temporal.
+        - **Backend:** Se usará una nueva hoja `TokensCompartir` para generar tokens con una **fecha de caducidad de 24 horas**. Un trigger periódico purgará los tokens expirados.
+        - **Frontend:** Al compartir, se generará una URL con el token. Al ser usada, el token se marcará como `USADO` y el enlace quedará invalidado para usos futuros.
     - [ ] **Sistema de Notificaciones Inteligentes:**
-        - **Eliminar Notificación de "Instalar App".**
-        - **Backend:** Modificar `getCatalogData` para que, basado en un timestamp, devuelva una lista de cortes agregados recientemente.
-        - **Frontend:** Al iniciar, mostrar una notificación no intrusiva con los nuevos cortes.
+        - **Eliminación:** Se eliminará la notificación emergente de "Instalar Aplicación".
+        - **Nueva Lógica:** El backend (`getCatalogData`) comparará un timestamp del cliente para devolver una lista de cortes nuevos. El frontend mostrará una notificación "toast" no intrusiva (ej. "+5 nuevos cortes agregados") y un indicador visual en el menú.
 
 ### Fase 4: Mejoras Adicionales de Eficiencia
 - **Objetivo:** Añadir funcionalidades de alto valor para el trabajo en campo.
@@ -179,37 +175,40 @@ El backend consta de cinco servicios de Google Apps Script, cada uno con una res
 - **`users.html`:** Interfaz para gestión de perfiles y usuarios.
 - **`manifest.json` y `service-worker.js`:** Habilitan la funcionalidad PWA y el caching offline.
 
-## 6. Estructura de la Base de Datos (Google Sheets)
+## 6. Estructura de la Base de Datos (Visión General)
 
-El Spreadsheet con ID `1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo` contiene las siguientes hojas:
+La arquitectura de GPSpedia evoluciona a un modelo de dos bases de datos para garantizar la compatibilidad hacia atrás mientras se implementan nuevas funcionalidades.
 
-### Hoja: `Users`
-- **Propósito:** Almacena la información de los usuarios. **La estructura es crítica y no debe ser modificada.**
-- **Columnas:** `ID`, `Nombre_Usuario`, `Password`, `Privilegios`, `Nombre`, `Telefono`, `Correo_Electronico`, `SessionToken`.
+- **`GPSpedia_DB_v1.5` (ID: `1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo`):** El spreadsheet actual. Se convierte en una base de datos de solo lectura para la versión v2+ de la aplicación, pero sigue siendo la fuente de datos principal para la v1.5. **No debe ser modificado estructuralmente.**
+- **`GPSpedia_DB_v2.0` (Nuevo Spreadsheet):** La nueva base de datos optimizada que soportará todas las funcionalidades futuras.
 
-### Hoja: `Cortes`
-- **Propósito:** Catálogo principal de vehículos.
-- **Columnas (Alta Granularidad):**
-    - `id`, `categoria`, `marca`, `modelo`, `versionesAplicables` (nuevo, para consolidar variantes como "NP300, SE, LE"), `anoDesde`, `anoHasta`, `tipoEncendido`, `imagenVehiculo`, `videoGuiaDesarmeURL`, `contadorBusquedas` (nuevo).
-    - **Por cada corte (x3):** `tipoCorteX`, `ubicacionCorteX` (nuevo), `colorCableCorteX` (nuevo), `imgCorteX`, `utilCorteX` (nuevo), `colaboradorCorteX` (nuevo).
+### 6.1. Diseño Detallado de `GPSpedia_DB_v2.0`
+
+#### Hoja: `Cortes`
+- **Propósito:** Catálogo principal con estructura granular para datos de alta calidad.
+- **Columnas:**
+    - `id`, `categoria` (Estandarizada), `marca`, `modelo`, `versionesAplicables` (para consolidar variantes), `anoDesde`, `anoHasta`, `tipoEncendido`, `imagenVehiculo`, `videoGuiaDesarmeURL`, `contadorBusquedas`.
+    - **Bloque por Corte (x3):** Para cada corte (1, 2, y 3), se incluyen las siguientes columnas, siendo las primeras 4 obligatorias si el bloque se utiliza:
+        - `tipoCorteX` (Obligatorio)
+        - `ubicacionCorteX` (Obligatorio)
+        - `colorCableCorteX` (Obligatorio)
+        - `imgCorteX` (Obligatorio)
+        - `utilCorteX`
+        - `colaboradorCorteX`
     - `timestamp`.
 
-### Hoja: `Tutorial` y `Configuración del Relay`
-- **Propósito:** Se mantienen sin cambios estructurales y serán migrados a la nueva base de datos.
+#### Hoja: `LogosMarca` (Nueva)
+- **Propósito:** Centralizar la gestión de logos de marcas.
+- **Columnas:** `id`, `nombreMarca` (clave normalizada, ej. "toyota"), `urlLogo`.
 
-### Hojas de Sistema (DB v2)
-- **`Users` y `ActiveSessions`:** Se mantienen sin cambios estructurales.
-- **`Feedbacks` y `Contactanos`:** Se mantienen las estructuras ya definidas para la gestión de mensajes.
+#### Hojas de Sistema
+- **`Users`, `ActiveSessions`, `Tutoriales`, `Relay`, `Feedbacks`, `Contactanos`, `Logs`:** Estas hojas se migrarán al nuevo spreadsheet, manteniendo sus estructuras ya definidas.
 - **`ActividadUsuario` (Nueva):**
-    - **Propósito:** Registrar cada acción de usuario (likes, reportes, contribuciones) para alimentar el dashboard de desempeño.
+    - **Propósito:** Registrar cada acción de usuario (likes, reportes, contribuciones) para el dashboard de desempeño.
     - **Columnas:** `id`, `timestamp`, `idUsuario`, `nombreUsuario`, `tipoActividad`, `idElementoAsociado`, `detalle`.
 - **`TokensCompartir` (Nueva):**
-    - **Propósito:** Gestionar los enlaces de un solo uso para compartir detalles de vehículos.
-    - **Columnas:** `token`, `idVehiculo`, `estado` ('NO_USADO', 'USADO'), `fechaCreacion`.
-- **`LogosMarca` (Nueva):**
-    - **Propósito:** Centralizar la gestión de logos de marcas para consistencia visual.
-    - **Columnas:** `id`, `nombreMarca`, `urlLogo`.
-- **`Logs`:** Se mantiene para el registro de errores del sistema.
+    - **Propósito:** Gestionar los enlaces de un solo uso.
+    - **Columnas:** `token`, `idVehiculo`, `estado` ('NO_USADO', 'USADO'), `fechaCreacion`, `fechaExpiracion` (nuevo, para purga automática).
 
 ## 7. Sistema de Versionamiento Híbrido
 

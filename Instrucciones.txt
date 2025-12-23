@@ -92,22 +92,22 @@ ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
 - [ ] **Implementar el nuevo Sistema de Versionamiento Híbrido en todos los archivos de código fuente.**
 
 ### Plan Estratégico de Evolución (GPSpedia v3.3) - v3 Final
-- [ ] **Fase 1: Migración a Nueva Infraestructura de Base de Datos (DB v2).**
-- [ ] **Fase 2: Sistema de Feedback Avanzado y Calidad de Datos.**
-- [ ] **Fase 3: Funcionalidades de Gestión y Experiencia de Usuario.**
-- [ ] **Fase 4: Mejoras Adicionales de Eficiencia.**
+- [ ] **Fase 1: Migración a Nueva Infraestructura de Base de Datos (DB v2).** Incluye diseño de esquema granular y creación de script de migración.
+- [ ] **Fase 2: Sistema de Feedback Avanzado y Calidad de Datos.** Incluye feedback por corte, ordenamiento por utilidad y validación de datos obligatorios.
+- [ ] **Fase 3: Funcionalidades de Gestión y Experiencia de Usuario.** Incluye dashboard de desempeño, ranking de "Más Buscados", edición in-modal, sistema de compartir de un solo uso y notificaciones inteligentes.
+- [ ] **Fase 4: Mejoras Adicionales de Eficiencia.** Incluye modo offline y notas personales.
 
 ---
 ### Diseño de la Base de Datos v2 (GPSpedia_DB_v2.0)
 
 #### Hoja: `Cortes` (Alta Granularidad)
-- **Columnas Clave:** `id`, `categoria`, `marca`, `modelo`, `versionesAplicables`, `anoDesde`, `anoHasta`, `tipoEncendido`, `imagenVehiculo`, `videoGuiaDesarmeURL`, `contadorBusquedas`.
-- **Columnas por Corte (x3):** `tipoCorteX`, `ubicacionCorteX`, `colorCableCorteX`, `imgCorteX`, `utilCorteX`, `colaboradorCorteX`.
+- **Columnas Clave:** `id`, `categoria`, `marca`, `modelo`, `versionesAplicables` (para consolidar variantes), `anoDesde`, `anoHasta`, `tipoEncendido`, `imagenVehiculo`, `videoGuiaDesarmeURL`, `contadorBusquedas`.
+- **Columnas por Corte (x3):** `tipoCorteX`, `ubicacionCorteX`, `colorCableCorteX`, `imgCorteX` (los 4 son obligatorios), `utilCorteX`, `colaboradorCorteX`.
 
 #### Hojas de Sistema (Nuevas)
-- **`ActividadUsuario`:** Para el dashboard de desempeño. Columnas: `id`, `timestamp`, `idUsuario`, `tipoActividad`, `idElementoAsociado`.
-- **`TokensCompartir`:** Para enlaces de un solo uso. Columnas: `token`, `idVehiculo`, `estado`, `fechaCreacion`.
-- **`LogosMarca`:** Para centralizar logos. Columnas: `nombreMarca`, `urlLogo`.
+- **`ActividadUsuario`:** Para el dashboard de desempeño.
+- **`TokensCompartir`:** Para enlaces de un solo uso (con expiración).
+- **`LogosMarca`:** Para centralizar logos de marcas.
 
 ---
 ### Revisiones y Ajustes de UI Pendientes

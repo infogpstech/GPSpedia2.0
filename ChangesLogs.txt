@@ -16,13 +16,13 @@
 # Registro de Cambios del Proyecto GPSpedia
 
 ## v3.2.7 - 09/08/2024
-- **DOCUMENTACIÓN: DEFINICIÓN DE LA NUEVA POLÍTICA DE VERSIONAMIENTO HÍBRIDO:**
-  - **Contexto:** Para mejorar la mantenibilidad y el seguimiento del ciclo de vida de cada componente de software, se ha diseñado y documentado una nueva política de versionamiento dual.
+- **DOCUMENTACIÓN: REFINAMIENTO DEL PLAN ESTRATÉGICO Y POLÍTICA DE VERSIONAMIENTO:**
+  - **Contexto:** Se ha refinado y ampliado la documentación estratégica del proyecto para incluir un nivel de detalle técnico y funcional superior, y para formalizar una nueva política de versionamiento.
   - **Acciones Realizadas:**
-    1.  **Añadida Sección de Versionamiento (`README.md`, `Instrucciones.txt`):** Se ha añadido una nueva sección principal a la documentación que describe el "Sistema de Versionamiento Híbrido", detallando la diferencia entre la Versión Global (pública) and la Versión de Componente (interna).
-    2.  **Definición de Reglas:** Se han establecido las reglas para el formato `ARQUITECTURA.ARCHIVO.EDICION`, incluyendo las versiones iniciales para componentes de frontend (v2.0.0) y backend (v1.0.0).
-    3.  **Registro de Nueva Tarea:** Se ha añadido la tarea "Implementar el nuevo Sistema de Versionamiento Híbrido" a las listas de pendientes en ambos documentos.
-- **Estado del Proyecto:** La documentación ha sido actualizada con una nueva norma de desarrollo clave. El siguiente paso es la implementación de este sistema en todos los archivos de código fuente.
+    1.  **Ampliación del Plan Estratégico (`README.md`, `Instrucciones.txt`):** Se ha reemplazado el plan estratégico v3 con una versión final más detallada, especificando la lógica de negocio para la consolidación de modelos, el feedback granular, el dashboard de desempeño, el sistema de compartir con expiración de tokens y las notificaciones inteligentes.
+    2.  **Definición de Política de Versionamiento (`README.md`, `Instrucciones.txt`):** Se ha añadido una nueva sección que establece un "Sistema de Versionamiento Híbrido", separando la Versión Global (pública) de la Versión de Componente (interna) para cada archivo.
+    3.  **Registro de Nuevas Tareas:** Se han añadido las tareas correspondientes para la implementación del plan estratégico y del nuevo sistema de versionamiento a las listas de pendientes.
+- **Estado del Proyecto:** La documentación del proyecto ahora contiene una hoja de ruta y unas normas de desarrollo extremadamente detalladas, estableciendo una base sólida para las futuras fases de implementación.
 
 ## v3.2.6 - 08/08/2024
 - **DOCUMENTACIÓN: REFINAMIENTO DEL PLAN ESTRATÉGICO Y DISEÑO DE DB V3:**
