@@ -15,6 +15,14 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.2.9 - 11/08/2024
+- **DOCUMENTACIÓN: CREACIÓN DEL PLAN DE IMPLEMENTACIÓN TÉCNICA DETALLADO:**
+  - **Contexto:** Para asegurar que la futura implementación de código sea precisa y siga una guía clara, se ha creado un plan técnico detallado para la Fase 1 del Plan Estratégico v4.
+  - **Acciones Realizadas:**
+    1.  **Añadido Plan Técnico Detallado (`README.md`, Línea 78):** Se ha insertado una nueva sección "Plan de Implementación Técnica Detallado: Fase 1" que describe con especificidad los cambios necesarios en los servicios `GPSpedia-Write`, `GPSpedia-Catalog` y `GPSpedia-Feedback` para la migración a la DB v2.0.
+    2.  **Sincronización de Instructivo (`Instrucciones.txt`, Línea 82):** Se ha añadido una nota en el instructivo que hace referencia al nuevo plan técnico en el `README.md`, asegurando que sea consultado antes de iniciar el desarrollo.
+- **Estado del Proyecto:** La documentación ahora no solo contiene la hoja de ruta estratégica, sino también un plan técnico detallado y listo para ser ejecutado por los desarrolladores en la siguiente fase del proyecto.
+
 ## v3.2.8 - 10/08/2024
 - **DOCUMENTACIÓN: FINALIZACIÓN Y OPTIMIZACIÓN DEL PLAN ESTRATÉGICO V4:**
   - **Contexto:** Basado en la última retroalimentación, se ha consolidado y optimizado toda la documentación del proyecto en torno a una nueva versión final del plan estratégico (v4), y se ha limpiado la lista de tareas pendientes para reflejar las nuevas prioridades.

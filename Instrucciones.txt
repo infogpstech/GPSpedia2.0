@@ -80,6 +80,8 @@ ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
 - [ ] **Fase 3: Funcionalidades de Gestión y Experiencia de Usuario.**
 - [ ] **Fase 4: Mejoras Adicionales (Offline, Notas Personales, Relay Anidado).**
 
+**Nota:** Para la ejecución de la Fase 1, se ha desarrollado un **Plan de Implementación Técnica Detallado** que describe los cambios específicos requeridos en los servicios de backend. Este plan se encuentra documentado en la sección correspondiente del archivo `README.md` y debe ser consultado antes de iniciar el desarrollo.
+
 ---
 ### Diseño de la Base de Datos v2 (GPSpedia_DB_v2.0)
 

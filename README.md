@@ -74,6 +74,39 @@ Esta sección define la hoja de ruta para la siguiente gran versión de GPSpedia
 
 ---
 
+### **Plan de Implementación Técnica Detallado: Fase 1**
+
+Esta sección describe los pasos técnicos específicos requeridos para ejecutar la Fase 1 del Plan Estratégico.
+
+#### 1. Modificaciones al Servicio `GPSpedia-Write` (`write.js`)
+- **Objetivo:** Crear un endpoint seguro y de un solo uso para migrar los datos de la DB v1.5 a la v2.0.
+- **Acciones Técnicas:**
+    - **Crear Nuevo Endpoint `executeMigration`:**
+        - **Activación:** La función `doGet(e)` se activará con el parámetro `action=executeMigration`.
+        - **Seguridad:** Se implementará una verificación para asegurar que solo los usuarios con rol "Desarrollador" puedan ejecutar la migración.
+        - **Lógica de Lectura:** Se conectará a la `GPSpedia_DB_v1.5` y leerá todas las filas de la hoja "Cortes".
+        - **Lógica de Transformación (por fila):**
+            - **`versionesAplicables`:** Se inicializará con el valor del campo `modelo` para preparar la futura consolidación.
+            - **`anoDesde`/`anoHasta`:** Se analizará `Año (Generacion)` para extraer rangos (ej. "2015-2019") o duplicar el año si es un valor único.
+            - **Cortes Granulares:** Se mapearán los datos de los cortes existentes a las nuevas columnas (`tipoCorte1`, `ubicacionCorte1`, `imgCorte1`, etc.), dejando `colorCableCorteX` vacío ya que no existe en el origen.
+        - **Lógica de Escritura:** Se conectará a la nueva `GPSpedia_DB_v2.0` y escribirá los datos transformados.
+        - **Respuesta:** Devolverá un JSON confirmando el éxito y el número de filas procesadas.
+
+#### 2. Modificaciones al Servicio `GPSpedia-Catalog` (`catalog.js`)
+- **Objetivo:** Adaptar el servicio para leer desde la DB v2.0 y soportar las nuevas funcionalidades.
+- **Acciones Técnicas:**
+    - **Actualizar `SPREADSHEET_ID`:** La constante apuntará al ID de la nueva `GPSpedia_DB_v2.0`.
+    - **Reescribir `COLS_CORTES`:** El objeto de mapeo de columnas se actualizará para reflejar la nueva estructura granular.
+    - **Refactorizar Lógica de Búsqueda:** `handleCheckVehicle` se modificará para buscar coincidencias en `modelo` y `versionesAplicables`.
+    - **Implementar Ordenamiento por Utilidad:** En `handleGetCatalogData`, los bloques de corte se reordenarán en el objeto JSON de respuesta basándose en el conteo de "likes" en `utilCorteX` antes de ser enviados al frontend.
+
+#### 3. Modificaciones al Servicio `GPSpedia-Feedback` (`feedback.js`)
+- **Objetivo:** Adaptar el servicio para gestionar feedback por corte individual.
+- **Acciones Técnicas:**
+    - **Actualizar `SPREADSHEET_ID`:** Apuntará al ID de la nueva `GPSpedia_DB_v2.0`.
+    - **Refactorizar `recordLike`:** La función ahora aceptará un `corteIndex` (1, 2, o 3) en el payload para identificar y actualizar la columna `utilCorteX` correcta.
+    - **Crear `assignCollaborator`:** Se desarrollará una nueva acción para asignar un colaborador a un corte específico, requiriendo `vehicleId`, `corteIndex`, y `userName`.
+
 ## 4. Trabajos Pendientes (Checklist)
 
 Esta sección documenta las tareas de desarrollo, corrección y regresiones pendientes de la versión actual.
