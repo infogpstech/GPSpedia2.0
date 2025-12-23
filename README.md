@@ -163,16 +163,56 @@ El backend consta de cinco servicios de Google Apps Script, cada uno con una res
 - **`users.html`:** Interfaz para gestión de perfiles y usuarios.
 - **`manifest.json` y `service-worker.js`:** Habilitan la funcionalidad PWA y el caching offline.
 
-## 6. Estructura de la Base de Datos (Visión General)
+## 6. Arquitectura de la Base de Datos
 
-La arquitectura de GPSpedia evoluciona a un modelo de dos bases de datos para garantizar la compatibilidad hacia atrás mientras se implementan nuevas funcionalidades.
+La documentación de la base de datos se divide en dos secciones principales: la arquitectura heredada (v1.5) y la nueva arquitectura propuesta (v2.0).
 
-- **`GPSpedia_DB_v1.5` (ID: `1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo`):** La base de datos actual. **Funciona exclusivamente para la aplicación v1.5** y no será utilizada por las nuevas versiones. Su estructura permanecerá intacta para garantizar el funcionamiento de la versión antigua.
-- **`GPSpedia_DB_v2.0` (Nuevo Spreadsheet):** La nueva base de datos diseñada desde cero para soportar todas las funcionalidades futuras. Es totalmente independiente de la v1.5 y no requiere compatibilidad hacia atrás.
+### 6.1. Arquitectura de Base de Datos v1.5 (Heredada)
 
-### 6.1. Diseño Detallado de `GPSpedia_DB_v2.0`
+Esta sección detalla la estructura y las deficiencias de la base de datos original, que funciona exclusivamente para la aplicación v1.5.
 
-#### Hoja: `Cortes`
+- **ID de Google Sheet:** `1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo`
+- **Principio de Diseño:** Una estructura monolítica donde cada fila representa un vehículo, pero la información de múltiples "cortes" se almacena en un número creciente de columnas dentro de esa misma fila.
+
+#### Estructura de Hojas y Columnas (v1.5)
+
+##### Hoja: `Cortes`
+- **Propósito:** Almacena toda la información técnica de los vehículos.
+- **Columnas Clave:**
+    - `ID`, `Categoria`, `Marca`, `Modelo`, `Año (Generacion)`
+    - `Tipo de Encendido`, `Colaborador`, `Util` (para "likes" de todo el vehículo)
+    - **Corte 1:** `Tipo de Corte`, `Descripcion del Corte`, `Imagen del Corte`
+    - **Corte 2:** `Tipo de Corte 2`, `Descripcion del Segundo Corte`, `Imagen de Corte 2`
+    - **Corte 3:** `Tipo de Corte 3`, `Descripcion del Corte 3`, `Imagen del Corte 3`
+    - **Información Adicional:** `Apertura`, `Imagen de la Apertura`, `Cables de Alimentacion`, `Imagen de los Cables de Alimentacion`, `Como desarmar los Plasticos`, `Nota Importante`, `Timestamp`.
+
+##### Hoja: `Users`
+- **Propósito:** Gestión de usuarios y credenciales.
+- **Columnas Clave:**
+    - `ID`, `Nombre_Usuario`, `Password` (texto plano), `Privilegios`, `Nombre`, `Telefono`, `Correo_Electronico`, `SessionToken`.
+
+##### Hoja: `Tutoriales` y `Relay`
+- **Propósito:** Almacenan información de soporte y configuraciones.
+- **Estructura:** Siguen un esquema simple con columnas como `ID`, `Tema`/`Configuracion`, `Imagen`, `Video`, y campos de texto descriptivos.
+
+#### Deficiencias de la Arquitectura v1.5
+- **Fragilidad por Mapeo Dinámico:** La mayoría de los servicios (`catalog.js`, `write.js`, `users.js`) dependen de la función `getColumnMap`, que lee los nombres de las columnas en tiempo de ejecución. **Un simple cambio en el nombre de una columna en la hoja de cálculo (ej. "Año" en lugar de "Año (Generacion)") rompe la aplicación sin generar errores claros en el backend.**
+- **Falta de Granularidad:** El sistema de "likes" (`Util`) y el campo `Colaborador` se aplican a toda la fila del vehículo. Es imposible saber qué corte específico es el más útil o quién aportó cada corte individual.
+- **Inflexibilidad en los Años:** La columna `Año (Generacion)` almacena un solo año o un rango de texto, lo que dificulta las búsquedas y la gestión de modelos que abarcan varios años.
+- **Inconsistencia Arquitectónica:** El servicio `auth.js` utiliza un mapa de columnas fijo (hardcoded), mientras que el resto de los servicios utiliza un mapa dinámico, creando una inconsistencia en cómo la aplicación accede a su propia base de datos.
+
+---
+
+### 6.2. Arquitectura de Base de Datos v2.0 (Nueva)
+
+Esta es la nueva arquitectura diseñada para resolver las deficiencias de la v1.5.
+
+- **ID de Google Sheet:** (Se asignará a un nuevo spreadsheet)
+- **Principio de Diseño:** Una estructura granular y robusta, diseñada para ser explícita, flexible y a prueba de errores de formato. Es totalmente independiente de la v1.5.
+
+#### Diseño Detallado de `GPSpedia_DB_v2.0`
+
+##### Hoja: `Cortes`
 - **Propósito:** Catálogo principal con estructura granular para datos de alta calidad.
 - **Columnas:**
     - `id`, `categoria` (Estandarizada), `marca`, `modelo`, `versionesAplicables` (para consolidar variantes), `anoDesde`, `anoHasta`, `tipoEncendido`, `configRelay` (Validación de datos desde hoja `Relay`), `imagenVehiculo`, `videoGuiaDesarmeURL`, `contadorBusquedas`.

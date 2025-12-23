@@ -83,16 +83,24 @@ ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
 **Nota:** Para la ejecución de la Fase 1, se ha desarrollado un **Plan de Implementación Técnica Detallado** que describe los cambios específicos requeridos en los servicios de backend. Este plan se encuentra documentado en la sección correspondiente del archivo `README.md` y debe ser consultado antes de iniciar el desarrollo.
 
 ---
-### Diseño de la Base de Datos v2 (GPSpedia_DB_v2.0)
+### Arquitectura de la Base de Datos
 
-#### Hoja: `Cortes` (Alta Granularidad)
-- **Columnas Clave:** `id`, `categoria`, `marca`, `modelo`, `versionesAplicables` (para consolidar variantes), `anoDesde`, `anoHasta`, `tipoEncendido`, `configRelay` (Validación de datos), `imagenVehiculo`, `videoGuiaDesarmeURL`, `contadorBusquedas`.
-- **Columnas por Corte (x3):** `tipoCorteX`, `ubicacionCorteX`, `colorCableCorteX`, `imgCorteX` (los 4 son obligatorios), `utilCorteX`, `colaboradorCorteX`.
+#### Arquitectura v1.5 (Heredada)
+- **ID de Google Sheet:** `1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo`
+- **Estructura de Hojas:**
+    - **`Cortes`:** Contiene la información técnica principal, con columnas como `ID`, `Categoria`, `Marca`, `Modelo`, `Año (Generacion)`, `Tipo de Corte`, `Descripcion del Corte`, `Imagen del Corte`, etc.
+    - **`Users`:** Gestiona los usuarios y sus credenciales (`ID`, `Nombre_Usuario`, `Password`, `Privilegios`).
+- **Deficiencias Clave:**
+    - **Dependencia del Mapeo Dinámico:** El código lee los nombres de las columnas en lugar de usar posiciones fijas, lo que lo hace frágil a cualquier cambio en los encabezados de la hoja de cálculo.
+    - **Falta de Granularidad:** Los "likes" y colaboradores se aplican a todo el vehículo, no a cortes individuales.
+    - **Inconsistencia Arquitectónica:** Coexisten dos métodos de acceso a la base de datos (dinámico y fijo), complicando el mantenimiento.
 
-#### Hojas de Sistema (Nuevas)
-- **`ActividadUsuario`:** Para el dashboard de desempeño.
-- **`TokensCompartir`:** Para enlaces de un solo uso (con expiración).
-- **`LogosMarca`:** Para centralizar logos de marcas.
+#### Arquitectura v2.0 (Nueva)
+- **Principio:** Una base de datos nueva, independiente y diseñada con una estructura granular para máxima robustez.
+- **Hoja `Cortes` (Alta Granularidad):**
+    - **Columnas Clave:** `id`, `categoria`, `marca`, `modelo`, `versionesAplicables`, `anoDesde`, `anoHasta`, `tipoEncendido`, `configRelay` (Validación de datos), `imagenVehiculo`, `videoGuiaDesarmeURL`, `contadorBusquedas`.
+    - **Columnas por Corte (x3):** `tipoCorteX`, `ubicacionCorteX`, `colorCableCorteX`, `imgCorteX` (los 4 son obligatorios), `utilCorteX`, `colaboradorCorteX`.
+- **Hojas de Sistema (Nuevas):** `ActividadUsuario`, `TokensCompartir`, `LogosMarca`.
 
 ---
 ### Revisiones y Ajustes de UI Pendientes
