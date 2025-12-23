@@ -220,10 +220,7 @@ A continuación se detalla la estructura de cada hoja en la nueva base de datos.
 
 ##### 2. Hoja: `Cortes`
 - **Propósito:** Catálogo principal con estructura granular para datos de alta calidad.
-- **Columnas:**
-    - `id`, `categoria`, `marca`, `modelo`, `versionesAplicables`, `anoDesde`, `anoHasta`, `tipoEncendido`, `imagenVehiculo`, `videoGuiaDesarmeUrl`, `contadorBusqueda`, `notaImportante`, `timestamp`.
-    - **Bloque por Corte (x3):** Para cada corte (1, 2, y 3), se incluyen las siguientes columnas:
-        - `tipoCorteX`, `ubicacionCorteX`, `colorCableCorteX`, `imgCorteX`, `utilCorteX`, `colaboradorCorteX`.
+- **Columnas:** `id`, `categoria`, `marca`, `modelo`, `versionesAplicables`, `anoDesde`, `anoHasta`, `tipoEncendido`, `imagenVehiculo`, `videoGuiaDesarmeUrl`, `contadorBusqueda`, `tipoCorte1`, `ubicacionCorte1`, `colorCableCorte1`, `configRelay1`, `imgCorte1`, `utilCorte1`, `colaboradorCorte1`, `tipoCorte2`, `ubicacionCorte2`, `colorCableCorte2`, `configRelay2`, `imgCorte2`, `utilCorte2`, `colaboradorCorte2`, `tipoCorte3`, `ubicacionCorte3`, `colorCableCorte3`, `configRelay3`, `imgCorte3`, `utilCorte3`, `colaboradorCorte3`, `timestamp`, `notaImportante`.
 
 ##### 3. Hoja: `LogosMarcas`
 - **Propósito:** Centralizar la gestión de logos de marcas para el frontend.

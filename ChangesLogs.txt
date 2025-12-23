@@ -15,6 +15,20 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.3.6 - 14/08/2024
+- **DOCUMENTACIÓN: CORRECCIÓN FINAL Y DEFINITIVA DEL ESQUEMA DE 'CORTES':**
+  - **Contexto:** Basado en la lista de columnas definitiva proporcionada por el usuario para la hoja 'Cortes', se realiza la última corrección a la documentación.
+  - **Acciones Realizadas:**
+    1.  **Reestructuración de Columnas de 'Cortes' (`README.md`, `Instrucciones.txt`):** Se ha reemplazado la estructura de bloques por una lista plana y única de todas las columnas de la hoja 'Cortes', asegurando una correspondencia 1:1 con la hoja de cálculo final.
+- **Estado del Proyecto:** La documentación de la base de datos v2.0 ha alcanzado su estado final y definitivo, reflejando con total precisión la estructura que se implementará.
+
+## v3.3.5 - 14/08/2024
+- **DOCUMENTACIÓN: AJUSTE FINAL DEL ESQUEMA DE LA HOJA 'CORTES':**
+  - **Contexto:** Basado en la última actualización del usuario sobre la estructura de la hoja 'Cortes', se ha realizado un ajuste final en la documentación.
+  - **Acciones Realizadas:**
+    1.  **Inclusión de `configRelayX` (`README.md`, `Instrucciones.txt`):** Se ha añadido la columna `configRelayX` a cada uno de los tres bloques de corte en la definición de la hoja 'Cortes'. Esto asegura que la documentación refleje la capacidad de asignar una configuración de relay a cada corte individualmente.
+- **Estado del Proyecto:** La documentación de la base de datos v2.0 está ahora completamente finalizada y sincronizada con la estructura definitiva de la hoja de cálculo.
+
 ## v3.3.4 - 14/08/2024
 - **DOCUMENTACIÓN: CORRECCIÓN FINAL DEL ESQUEMA DE LA HOJA 'RELAY':**
   - **Contexto:** Basado en la última aclaración del usuario, se ha realizado una corrección final a la documentación de la estructura de la base de datos v2.0.
