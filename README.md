@@ -125,6 +125,7 @@ Esta sección documenta las tareas de desarrollo, corrección y regresiones pend
     - [ ] **Cambio de Esquema:** En la hoja "Cortes", reemplazar la columna `Año (Generacion)` por `anoDesde` y `anoHasta`.
     - [ ] **Migración de Datos:** Crear un script (posiblemente en `write.js`) para migrar los datos de la columna antigua a las dos nuevas.
     - [ ] **Actualización de Servicios:** Modificar todos los servicios (`catalog.js`, `write.js`, `feedback.js`) y el frontend (`index.html`, `add_cortes.html`) para que utilicen la nueva estructura de años.
+- [ ] **Implementar el nuevo Sistema de Versionamiento Híbrido en todos los archivos de código fuente.**
 
 ### Revisiones y Ajustes de UI Pendientes
 - [ ] **Ajuste del Encabezado Principal (`index.html`):**
@@ -210,7 +211,34 @@ El Spreadsheet con ID `1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo` contiene la
     - **Columnas:** `id`, `nombreMarca`, `urlLogo`.
 - **`Logs`:** Se mantiene para el registro de errores del sistema.
 
-## 7. Guía y Normas para el Desarrollo
+## 7. Sistema de Versionamiento Híbrido
+
+El proyecto utiliza un sistema de versionamiento dual para un control preciso y claro del ciclo de vida del software.
+
+### A. Versión Global (Pública)
+- **Propósito:** Representa el estado general del proyecto en un momento dado, visible para el usuario final.
+- **Formato:** `vMAJOR.MINOR.PATCH` (ej. `v3.2.7`).
+- **Ubicación:**
+    - `ChangesLogs.txt`: Cada `submit` genera una nueva entrada con la versión global incrementada.
+    - `index.html`: El pie de página muestra esta versión.
+
+### B. Versión de Componente (Interna)
+- **Propósito:** Rastrea el ciclo de vida de cada archivo de código fuente de forma independiente para entender su madurez y cambios.
+- **Formato:** `ARQUITECTURA.ARCHIVO.EDICION` (ej. `2.1.0`).
+    - **ARQUITECTURA (MAJOR):** Indica la versión de la arquitectura a la que pertenece el componente.
+    - **ARCHIVO (MINOR):** Se incrementa para cambios significativos o nuevas funcionalidades dentro del archivo.
+    - **EDICION (PATCH):** Se incrementa para correcciones de bugs o cambios menores. Se reinicia a `0` cuando `ARCHIVO` se incrementa. Sigue la regla `0-9`. De `2.1.9` pasa a `2.2.0`.
+- **Reglas de Aplicación:**
+    - **Componentes Frontend (`.html`, `api-manager.js`):**
+        - **Versión de Arquitectura:** `2`.
+        - **Versión Inicial:** `2.0.0`.
+        - **Ubicación:** Comentario en la primera línea del archivo (ej. `<!-- GPSpedia Frontend Component | Version: 2.0.0 -->`).
+    - **Componentes Backend (Microservicios `.gs`):**
+        - **Versión de Arquitectura:** `1`.
+        - **Versión Inicial:** `1.0.0`.
+        - **Ubicación:** Comentario en la primera línea y en el mensaje de estado de la función `doGet()` (ej. `GPSpedia Auth-SERVICE v1.0.0 is active.`).
+
+## 8. Guía y Normas para el Desarrollo
 
 Para mantener la consistencia, calidad y mantenibilidad del proyecto, es mandatorio seguir las siguientes normas en todo momento:
 

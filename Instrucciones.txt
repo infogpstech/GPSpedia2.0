@@ -22,6 +22,24 @@ NORMAS OBLIGATORIAS DE DESARROLLO
 1.  **Verificación Post-Commit:** Una tarea solo se considera completada después de un commit y la validación explícita del Project Manager.
 
 ---------------------------------
+SISTEMA DE VERSIONAMIENTO HÍBRIDO
+---------------------------------
+
+El proyecto utiliza un sistema de dos niveles:
+
+1.  **Versión Global (Pública):**
+    *   **Formato:** `vMAJOR.MINOR.PATCH` (ej. `v3.2.7`).
+    *   **Función:** Representa el estado general del proyecto. Se actualiza en `ChangesLogs.txt` y `index.html` en cada `submit`.
+
+2.  **Versión de Componente (Interna):**
+    *   **Formato:** `ARQUITECTURA.ARCHIVO.EDICION` (ej. `2.1.0`).
+    *   **Función:** Rastrea la madurez de cada archivo de código (`.html`, `.gs`, `.js`).
+    *   **Reglas:**
+        *   **Frontend (arq. `2`):** `index.html`, `api-manager.js`, etc., inician en `2.0.0`.
+        *   **Backend (arq. `1`):** Cada microservicio (`auth.js`, etc.) inicia en `1.0.0`.
+    *   **Ubicación:** Debe registrarse en un comentario en la cabecera de cada archivo.
+
+---------------------------------
 PROCESO DE TRABAJO POR FASES
 ---------------------------------
 
@@ -71,6 +89,7 @@ ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
     - [ ] **Cambio de Esquema:** En la hoja "Cortes", reemplazar `Año (Generacion)` por `anoDesde` y `anoHasta`.
     - [ ] **Migración de Datos:** Planificar la migración de datos existentes a las nuevas columnas.
     - [ ] **Actualización de Código:** Actualizar todos los servicios y el frontend para usar la nueva estructura.
+- [ ] **Implementar el nuevo Sistema de Versionamiento Híbrido en todos los archivos de código fuente.**
 
 ### Plan Estratégico de Evolución (GPSpedia v3.3) - v3 Final
 - [ ] **Fase 1: Migración a Nueva Infraestructura de Base de Datos (DB v2).**

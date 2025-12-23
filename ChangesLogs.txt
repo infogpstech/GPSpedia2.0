@@ -15,6 +15,15 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.2.7 - 09/08/2024
+- **DOCUMENTACIÓN: DEFINICIÓN DE LA NUEVA POLÍTICA DE VERSIONAMIENTO HÍBRIDO:**
+  - **Contexto:** Para mejorar la mantenibilidad y el seguimiento del ciclo de vida de cada componente de software, se ha diseñado y documentado una nueva política de versionamiento dual.
+  - **Acciones Realizadas:**
+    1.  **Añadida Sección de Versionamiento (`README.md`, `Instrucciones.txt`):** Se ha añadido una nueva sección principal a la documentación que describe el "Sistema de Versionamiento Híbrido", detallando la diferencia entre la Versión Global (pública) and la Versión de Componente (interna).
+    2.  **Definición de Reglas:** Se han establecido las reglas para el formato `ARQUITECTURA.ARCHIVO.EDICION`, incluyendo las versiones iniciales para componentes de frontend (v2.0.0) y backend (v1.0.0).
+    3.  **Registro de Nueva Tarea:** Se ha añadido la tarea "Implementar el nuevo Sistema de Versionamiento Híbrido" a las listas de pendientes en ambos documentos.
+- **Estado del Proyecto:** La documentación ha sido actualizada con una nueva norma de desarrollo clave. El siguiente paso es la implementación de este sistema en todos los archivos de código fuente.
+
 ## v3.2.6 - 08/08/2024
 - **DOCUMENTACIÓN: REFINAMIENTO DEL PLAN ESTRATÉGICO Y DISEÑO DE DB V3:**
   - **Contexto:** Basado en nueva retroalimentación, se ha refinado el plan estratégico (v3.3) a su versión final (v3), detallando con mayor granularidad la nueva arquitectura de la base de datos y las nuevas funcionalidades.
