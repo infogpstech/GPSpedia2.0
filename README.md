@@ -167,15 +167,15 @@ El backend consta de cinco servicios de Google Apps Script, cada uno con una res
 
 La arquitectura de GPSpedia evoluciona a un modelo de dos bases de datos para garantizar la compatibilidad hacia atrás mientras se implementan nuevas funcionalidades.
 
-- **`GPSpedia_DB_v1.5` (ID: `1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo`):** El spreadsheet actual. Se convierte en una base de datos de solo lectura para la versión v2+ de la aplicación, pero sigue siendo la fuente de datos principal para la v1.5. **No debe ser modificado estructuralmente.**
-- **`GPSpedia_DB_v2.0` (Nuevo Spreadsheet):** La nueva base de datos optimizada que soportará todas las funcionalidades futuras.
+- **`GPSpedia_DB_v1.5` (ID: `1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo`):** La base de datos actual. **Funciona exclusivamente para la aplicación v1.5** y no será utilizada por las nuevas versiones. Su estructura permanecerá intacta para garantizar el funcionamiento de la versión antigua.
+- **`GPSpedia_DB_v2.0` (Nuevo Spreadsheet):** La nueva base de datos diseñada desde cero para soportar todas las funcionalidades futuras. Es totalmente independiente de la v1.5 y no requiere compatibilidad hacia atrás.
 
 ### 6.1. Diseño Detallado de `GPSpedia_DB_v2.0`
 
 #### Hoja: `Cortes`
 - **Propósito:** Catálogo principal con estructura granular para datos de alta calidad.
 - **Columnas:**
-    - `id`, `categoria` (Estandarizada), `marca`, `modelo`, `versionesAplicables` (para consolidar variantes), `anoDesde`, `anoHasta`, `tipoEncendido`, `imagenVehiculo`, `videoGuiaDesarmeURL`, `contadorBusquedas`.
+    - `id`, `categoria` (Estandarizada), `marca`, `modelo`, `versionesAplicables` (para consolidar variantes), `anoDesde`, `anoHasta`, `tipoEncendido`, `configRelay` (Validación de datos desde hoja `Relay`), `imagenVehiculo`, `videoGuiaDesarmeURL`, `contadorBusquedas`.
     - **Bloque por Corte (x3):** Para cada corte (1, 2, y 3), se incluyen las siguientes columnas, siendo las primeras 4 obligatorias si el bloque se utiliza:
         - `tipoCorteX` (Obligatorio)
         - `ubicacionCorteX` (Obligatorio)

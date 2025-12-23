@@ -86,7 +86,7 @@ ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
 ### Diseño de la Base de Datos v2 (GPSpedia_DB_v2.0)
 
 #### Hoja: `Cortes` (Alta Granularidad)
-- **Columnas Clave:** `id`, `categoria`, `marca`, `modelo`, `versionesAplicables` (para consolidar variantes), `anoDesde`, `anoHasta`, `tipoEncendido`, `imagenVehiculo`, `videoGuiaDesarmeURL`, `contadorBusquedas`.
+- **Columnas Clave:** `id`, `categoria`, `marca`, `modelo`, `versionesAplicables` (para consolidar variantes), `anoDesde`, `anoHasta`, `tipoEncendido`, `configRelay` (Validación de datos), `imagenVehiculo`, `videoGuiaDesarmeURL`, `contadorBusquedas`.
 - **Columnas por Corte (x3):** `tipoCorteX`, `ubicacionCorteX`, `colorCableCorteX`, `imgCorteX` (los 4 son obligatorios), `utilCorteX`, `colaboradorCorteX`.
 
 #### Hojas de Sistema (Nuevas)

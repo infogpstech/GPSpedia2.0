@@ -15,6 +15,15 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.3.0 - 12/08/2024
+- **DOCUMENTACIÓN: REFINAMIENTO DEL ESQUEMA DE BASE DE DATOS V2.0:**
+  - **Contexto:** Basado en la retroalimentación del usuario, se han realizado clarificaciones y adiciones importantes al diseño de la nueva base de datos (`GPSpedia_DB_v2.0`).
+  - **Acciones Realizadas:**
+    1.  **Aclaración de Independencia de la DB (`README.md`, Línea 171):** Se ha modificado la descripción para dejar explícito que la `GPSpedia_DB_v2.0` es una base de datos completamente nueva y no necesita mantener ninguna compatibilidad hacia atrás con la v1.5.
+    2.  **Adición de Columna `configRelay` (`README.md`, Línea 180):** Se ha añadido la nueva columna `configRelay` a la definición de la hoja "Cortes". Esta columna funcionará como una validación de datos vinculada a la hoja "Relay".
+    3.  **Sincronización de Instructivo (`Instrucciones.txt`, Línea 88):** Se ha actualizado el esquema de la hoja "Cortes" en el instructivo para incluir la nueva columna `configRelay`, manteniendo la consistencia de la documentación.
+- **Estado del Proyecto:** El diseño de la base de datos v2.0 ha sido finalizado y documentado con precisión. El proyecto está listo para la fase de implementación de la migración y adaptación de los servicios.
+
 ## v3.2.9 - 11/08/2024
 - **DOCUMENTACIÓN: CREACIÓN DEL PLAN DE IMPLEMENTACIÓN TÉCNICA DETALLADO:**
   - **Contexto:** Para asegurar que la futura implementación de código sea precisa y siga una guía clara, se ha creado un plan técnico detallado para la Fase 1 del Plan Estratégico v4.
@@ -89,7 +98,7 @@
   - **Acciones Realizadas:**
     1.  **Actualización de Mapeo de Columnas (`services/catalog/catalog.js`, Líneas 30-85):** Se han actualizado los objetos `COLS_CORTES`, `COLS_TUTORIALES` y `COLS_RELAY` para que coincidan con la estructura de columnas precisa de las hojas "Cortes", "Tutorial" y "Configuración del Relay".
     2.  **Corrección de Typo Crítico (`services/catalog/catalog.js`, Línea 13):** Se corrigió un error tipográfico en el nombre de la variable `SPREADSHEET_ID` que impedía por completo el funcionamiento del servicio.
-    3.  **Ajuste de Versión del Servicio (`services/catalog/catalog.js`, Línea 95):** Se ajustó la versión del servicio a `v1.1` en el mensaje de `doGet` para mantener la coherencia con el ciclo de despliegue.
+    3.  **Ajuste de Versión del Servicio (`services/catalog/catalog.js`, Línea 95):** Se ajustó la versión del servicio a `v1.1` en el mensaje de `doGet` para mantener la coherencia con el ciclo de despliegugit diffme.
 - **Estado del Proyecto:** El servicio `GPSpedia-Catalog` ahora lee y procesa los datos de las hojas de Google con la estructura correcta, solucionando la causa raíz de los errores de visualización de datos en el catálogo.
 
 ## v3.1.9 - 04/08/2024
