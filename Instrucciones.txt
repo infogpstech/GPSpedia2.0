@@ -67,6 +67,10 @@ ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
     - [ ] **Modal de detalle:** Al abrir el modal, cargar miniaturas de resolución media (ej. `sz=w800`).
     - [ ] **Lightbox:** Al hacer clic en una imagen del modal, mostrar la imagen en su resolución original (ej. `sz=w2048`) en un lightbox.
     - [ ] **Seguridad en Lightbox:** En la vista de lightbox, deshabilitar el menú contextual, la función de copiar y las herramientas de desarrollador (F12) para proteger las imágenes. La única interacción permitida debe ser el zoom.
+- [ ] **Refactorizar Base de Datos y Lógica para Soportar Rangos de Años:**
+    - [ ] **Cambio de Esquema:** En la hoja "Cortes", reemplazar `Año (Generacion)` por `anoDesde` y `anoHasta`.
+    - [ ] **Migración de Datos:** Planificar la migración de datos existentes a las nuevas columnas.
+    - [ ] **Actualización de Código:** Actualizar todos los servicios y el frontend para usar la nueva estructura.
 
 ### Revisiones y Ajustes de UI Pendientes
 - [ ] **Ajuste del Encabezado Principal (`index.html`):**

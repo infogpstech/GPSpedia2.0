@@ -15,6 +15,15 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.2.4 - 06/08/2024
+- **DOCUMENTACIÓN: DEFINICIÓN DE ARQUITECTURA PARA RANGOS DE AÑOS:**
+  - **Contexto:** Para soportar la futura automatización de rangos de años basada en el feedback de los usuarios, se ha tomado la decisión de modificar la estructura de la base de datos. Esta actualización de la documentación plasma ese cambio arquitectónico antes de su implementación.
+  - **Acciones Realizadas:**
+    1.  **Actualización de Esquema de DB (`README.md`, Línea 142):** Se ha modificado la definición de la hoja "Cortes", reemplazando la columna `Año (Generacion)` por dos nuevas columnas: `anoDesde` y `anoHasta`.
+    2.  **Registro de Nueva Tarea (`README.md`, Línea 74):** Se ha añadido una nueva tarea principal a la lista de pendientes: "Refactorizar Base de Datos y Lógica para Soportar Rangos de Años", detallando los pasos necesarios para la migración.
+    3.  **Sincronización de Tareas (`Instrucciones.txt`, Línea 68):** Se ha replicado la nueva tarea en el archivo de instrucciones para mantener la consistencia en toda la documentación del proyecto.
+- **Estado del Proyecto:** La documentación ha sido actualizada para reflejar un cambio arquitectónico clave. El proyecto está ahora preparado para una futura fase de implementación que aborde la migración de datos y la refactorización del código necesario.
+
 ## v3.2.3 - 05/08/2024
 - **DOCUMENTACIÓN: CORRECCIÓN Y ACTUALIZACIÓN GENERAL:**
   - **Contexto:** Se realizó una actualización integral de la documentación del proyecto para alinearla con el estado actual del código, registrar nuevas tareas y reflejar los avances recientes.

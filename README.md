@@ -73,6 +73,10 @@ Esta sección documenta las tareas de desarrollo, corrección y regresiones pend
     - [ ] **Modal de detalle:** Al abrir el modal, cargar miniaturas de resolución media (ej. `sz=w800`).
     - [ ] **Lightbox:** Al hacer clic en una imagen del modal, mostrar la imagen en su resolución original (ej. `sz=w2048`) en un lightbox.
     - [ ] **Seguridad en Lightbox:** En la vista de lightbox, deshabilitar el menú contextual, la función de copiar y las herramientas de desarrollador (F12) para proteger las imágenes. La única interacción permitida debe ser el zoom.
+- [ ] **Refactorizar Base de Datos y Lógica para Soportar Rangos de Años:**
+    - [ ] **Cambio de Esquema:** En la hoja "Cortes", reemplazar la columna `Año (Generacion)` por `anoDesde` y `anoHasta`.
+    - [ ] **Migración de Datos:** Crear un script (posiblemente en `write.js`) para migrar los datos de la columna antigua a las dos nuevas.
+    - [ ] **Actualización de Servicios:** Modificar todos los servicios (`catalog.js`, `write.js`, `feedback.js`) y el frontend (`index.html`, `add_cortes.html`) para que utilicen la nueva estructura de años.
 
 ### Revisiones y Ajustes de UI Pendientes
 - [ ] **Ajuste del Encabezado Principal (`index.html`):**
@@ -136,7 +140,7 @@ El Spreadsheet con ID `1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo` contiene la
 
 ### Hoja: `Cortes`
 - **Propósito:** Catálogo principal de vehículos.
-- **Columnas:** `ID`, `Categoría`, `Marca`, `Modelo`, `Año (Generacion)`, `Tipo de Encendido`, `Colaborador`, `Util`, `Imagen del Vehiculo`, `Tipo de Corte`, `Descripcion del Corte`, `Imagen del Corte`, `Tipo de Corte 2`, `Descripcion del Segundo Corte`, `Imagen de Corte 2`, `Tipo de Corte 3`, `Descripcion del Corte 3`, `Imagen del Corte 3`, `Apertura`, `Imagen de la Apertura`, `Cables de Alimentacion`, `Imagen de los Cables de Alimentacion`, `Nota Importante`, `Como desarmar los plasticos`.
+- **Columnas:** `ID`, `Categoría`, `Marca`, `Modelo`, `anoDesde`, `anoHasta`, `Tipo de Encendido`, `Colaborador`, `Util`, `Imagen del Vehiculo`, `Tipo de Corte`, `Descripcion del Corte`, `Imagen del Corte`, `Tipo de Corte 2`, `Descripcion del Segundo Corte`, `Imagen de Corte 2`, `Tipo de Corte 3`, `Descripcion del Corte 3`, `Imagen del Corte 3`, `Apertura`, `Imagen de la Apertura`, `Cables de Alimentacion`, `Imagen de los Cables de Alimentacion`, `Nota Importante`, `Como desarmar los plasticos`.
 
 ### Hoja: `Tutorial`
 - **Propósito:** Contenido para la sección de tutoriales.
