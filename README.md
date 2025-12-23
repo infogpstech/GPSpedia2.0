@@ -40,57 +40,94 @@ La arquitectura de GPSpedia 2.0 se compone de tres capas principales:
                          └──────────────────┘
 ```
 
-## 3. Trabajos Pendientes (Checklist)
+## 3. Plan Estratégico v4 (Final y Optimizado)
 
-Esta sección documenta las tareas de desarrollo, corrección y regresiones pendientes.
+Esta sección define la hoja de ruta para la siguiente gran versión de GPSpedia, centrada en una re-arquitectura de datos y la implementación de funcionalidades de alta eficiencia.
 
-### Bugs y Regresiones por Corregir
-- [x] **Carga de Información en Secciones:** Las secciones "Tutoriales" y "Relay" no cargan su contenido. *(Solucionado en v3.1.8 con la refactorización del backend).*
-- [ ] **Organización del Pie de Página:** Los enlaces del footer deben aparecer debajo del aviso de copyright.
-- [ ] **Layout del Modal de Detalle:** El nombre del colaborador debe estar posicionado sobre los botones de feedback.
-- [ ] **Estilo de Botones de Feedback:** Los botones "Útil" y "Reportar" en el modal no tienen el estilo aplicado.
-- [ ] **Visibilidad de Tercera Opción de Corte:** La tercera opción de corte no es visible en el modal, incluso si existen los datos.
-- [ ] **Posición del Botón Limpiar Búsqueda:** El botón "x" de la barra de búsqueda se muestra fuera de su contenedor.
-- [ ] **Error en Carga de Nombre de Usuario:** En la gestión de usuarios, el "Nombre de usuario" se muestra como `undefined` en la lista.
+### Fase 1: Migración a Base de Datos Optimizada (DB v2.0)
+- **Objetivo:** Crear una base de datos en un **nuevo Google Spreadsheet** para soportar funcionalidades avanzadas, manteniendo la compatibilidad con la v1.5.
+- **Tareas Clave:**
+    - [ ] **Diseñar Nuevo Esquema:** Implementar la estructura granular detallada en la sección "Diseño Detallado de `GPSpedia_DB_v2.0`".
+    - [ ] **Script de Migración:** Desarrollar un endpoint para migrar y transformar los datos de la base de datos antigua a la nueva.
 
-### Mejoras de Funcionalidad Pendientes
-- [ ] **Mejora del Sistema de Búsqueda (`checkVehicle`):**
-    - [ ] Implementar una lógica de búsqueda flexible que muestre múltiples opciones si hay coincidencias parciales (ej. "Frontier" debe poder encontrar "Frontier NP300 SE").
-    - [ ] La búsqueda debe considerar coincidencias con palabras separadas o la primera palabra completa.
-- [ ] **Mejora del Sistema de Feedback (Colaborador):**
-    - [ ] Modificar el formato del campo "Colaborador" para incluir la contribución específica entre paréntesis.
-    - [ ] Ejemplo: `Byron López (Cort 1, Apert.)`.
-    - [ ] Si hay múltiples colaboradores, deben aparecer en líneas separadas. Ejemplo: `Byron López (Cort 1, Apert.)\nJoel Reyes (Cort 2, C. Alimen.)`.
-- [ ] **Implementación de Sistema de Debugging Integral:**
-    - [ ] **Backend:** Cada microservicio debe tener su propio módulo de debugging para responder a llamadas cURL.
-    - [ ] **Frontend:** Crear una consola de debugging en `index.html`, accesible solo para el rol "Desarrollador".
-    - [ ] **Funcionalidades de la Consola:**
-        - [ ] Visualizar el estado y los errores de los servicios.
-        - [ ] Guardar registros (error, advertencia, etc.) en la hoja "Logs" de Google Sheets.
-        - [ ] Activar/desactivar funciones del navegador para prevenir debugging externo (ej. F12, menú contextual, copiar, zoom).
-- [ ] **Implementar Estrategia de Carga de Imágenes Optimizada (Lazy Load):**
-    - [ ] **Tarjetas del catálogo:** Cargar miniaturas de baja resolución (ej. `sz=w200`) para acelerar la carga inicial.
-    - [ ] **Modal de detalle:** Al abrir el modal, cargar miniaturas de resolución media (ej. `sz=w800`).
-    - [ ] **Lightbox:** Al hacer clic en una imagen del modal, mostrar la imagen en su resolución original (ej. `sz=w2048`) en un lightbox.
-    - [ ] **Seguridad en Lightbox:** En la vista de lightbox, deshabilitar el menú contextual, la función de copiar y las herramientas de desarrollador (F12) para proteger las imágenes. La única interacción permitida debe ser el zoom.
+### Fase 2: Sistema de Feedback Avanzado y Calidad de Datos
+- **Objetivo:** Mejorar la calidad de los datos y la utilidad del feedback.
+- **Tareas Clave:**
+    - [ ] **Feedback Granular:** Implementar "likes" y colaborador por cada corte individual.
+    - [ ] **Ordenamiento por Utilidad:** El backend ordenará los cortes de un vehículo según su popularidad antes de enviarlos al frontend.
+    - [ ] **Campos Obligatorios:** Forzar el llenado de `tipo`, `ubicación`, `color` e `imagen` para cada nuevo corte.
 
-### Revisiones y Ajustes de UI Pendientes
-- [ ] **Ajuste del Encabezado Principal (`index.html`):**
-    - [ ] Posicionar el encabezado (`GPSpedia`) a la izquierda.
-    - [ ] Mostrar el saludo de bienvenida justo debajo del título, con una fuente un 20% más pequeña.
-- [ ] **Ajuste de "Últimos Agregados" (`index.html`):**
-    - [ ] En vista móvil/PWA, mostrar los últimos 6 cortes en lugar de 5.
-    - [ ] En vista web, mostrar una mayor cantidad de tarjetas según el ancho de la pantalla.
-- [ ] **Ajuste de Espaciado General (`index.html`):**
-    - [ ] Reducir los espacios verticales y horizontales entre los contenedores principales (header, barra de búsqueda, botones de sección, contenido, footer).
-    - [ ] Ajustar el espaciado vertical de las tarjetas para mantener la consistencia visual tras la reducción del espaciado horizontal.
+### Fase 3: Funcionalidades de Gestión y Experiencia de Usuario
+- **Objetivo:** Introducir herramientas de gestión y mejorar la experiencia del usuario.
+- **Tareas Clave:**
+    - [ ] **Dashboard de Desempeño:** Crear una vista para Supervisores con métricas de contribución de técnicos.
+    - [ ] **Edición "In-Modal":** Permitir la edición de datos directamente desde el modal de detalles, con permisos por rol.
+    - [ ] **Enlaces de un solo uso:** Generar enlaces temporales (24h) y de un solo uso para compartir información.
+    - [ ] **Notificaciones Inteligentes:** Reemplazar el banner de instalación con notificaciones "toast" sobre nuevos cortes.
 
-### Nuevas Funcionalidades Pendientes
-- [ ] **Crear Página de Información (`info.html`):**
-    - [ ] Desarrollar una página estática con las secciones "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes".
-    - [ ] **"Sobre Nosotros":** Redactar un texto para consumidores finales basado en la descripción del proyecto en `README.md`, omitiendo detalles técnicos internos.
-    - [ ] **"Contáctenos":** Crear un formulario con los campos: "Nombre de la Organización", "Correo Electrónico", "Número de Teléfono" y "Mensaje". La información deberá enviarse a una nueva hoja de cálculo en Google Sheets.
-    - [ ] **"Preguntas Frecuentes":** Implementar una sección (preferiblemente un acordeón) que explique de manera clara y concisa cada una de las funcionalidades del catálogo para un usuario nuevo (ej. cómo crear una cuenta, cómo agregar un corte, cómo usar el feedback). Se deben evitar detalles sobre la jerarquía de roles.
+### Fase 4: Mejoras Adicionales
+- **Objetivo:** Añadir funcionalidades de alto valor para el trabajo en campo.
+- **Tareas Clave:**
+    - [ ] **Modo Offline Robusto:** Implementar caching avanzado.
+    - [ ] **Notas Personales:** Permitir a los usuarios guardar notas privadas por vehículo.
+    - [ ] **Modal de Relay Anidado:** Mostrar detalles de configuraciones de Relay en un modal secundario.
+
+---
+
+### **Plan de Implementación Técnica Detallado: Fase 1**
+
+Esta sección describe los pasos técnicos específicos requeridos para ejecutar la Fase 1 del Plan Estratégico.
+
+#### 1. Modificaciones al Servicio `GPSpedia-Write` (`write.js`)
+- **Objetivo:** Crear un endpoint seguro y de un solo uso para migrar los datos de la DB v1.5 a la v2.0.
+- **Acciones Técnicas:**
+    - **Crear Nuevo Endpoint `executeMigration`:**
+        - **Activación:** La función `doGet(e)` se activará con el parámetro `action=executeMigration`.
+        - **Seguridad:** Se implementará una verificación para asegurar que solo los usuarios con rol "Desarrollador" puedan ejecutar la migración.
+        - **Lógica de Lectura:** Se conectará a la `GPSpedia_DB_v1.5` y leerá todas las filas de la hoja "Cortes".
+        - **Lógica de Transformación (por fila):**
+            - **`versionesAplicables`:** Se inicializará con el valor del campo `modelo` para preparar la futura consolidación.
+            - **`anoDesde`/`anoHasta`:** Se analizará `Año (Generacion)` para extraer rangos (ej. "2015-2019") o duplicar el año si es un valor único.
+            - **Cortes Granulares:** Se mapearán los datos de los cortes existentes a las nuevas columnas (`tipoCorte1`, `ubicacionCorte1`, `imgCorte1`, etc.), dejando `colorCableCorteX` vacío ya que no existe en el origen.
+        - **Lógica de Escritura:** Se conectará a la nueva `GPSpedia_DB_v2.0` y escribirá los datos transformados.
+        - **Respuesta:** Devolverá un JSON confirmando el éxito y el número de filas procesadas.
+
+#### 2. Modificaciones al Servicio `GPSpedia-Catalog` (`catalog.js`)
+- **Objetivo:** Adaptar el servicio para leer desde la DB v2.0 y soportar las nuevas funcionalidades.
+- **Acciones Técnicas:**
+    - **Actualizar `SPREADSHEET_ID`:** La constante apuntará al ID de la nueva `GPSpedia_DB_v2.0`.
+    - **Reescribir `COLS_CORTES`:** El objeto de mapeo de columnas se actualizará para reflejar la nueva estructura granular.
+    - **Refactorizar Lógica de Búsqueda:** `handleCheckVehicle` se modificará para buscar coincidencias en `modelo` y `versionesAplicables`.
+    - **Implementar Ordenamiento por Utilidad:** En `handleGetCatalogData`, los bloques de corte se reordenarán en el objeto JSON de respuesta basándose en el conteo de "likes" en `utilCorteX` antes de ser enviados al frontend.
+
+#### 3. Modificaciones al Servicio `GPSpedia-Feedback` (`feedback.js`)
+- **Objetivo:** Adaptar el servicio para gestionar feedback por corte individual.
+- **Acciones Técnicas:**
+    - **Actualizar `SPREADSHEET_ID`:** Apuntará al ID de la nueva `GPSpedia_DB_v2.0`.
+    - **Refactorizar `recordLike`:** La función ahora aceptará un `corteIndex` (1, 2, o 3) en el payload para identificar y actualizar la columna `utilCorteX` correcta.
+    - **Crear `assignCollaborator`:** Se desarrollará una nueva acción para asignar un colaborador a un corte específico, requiriendo `vehicleId`, `corteIndex`, y `userName`.
+
+## 4. Trabajos Pendientes (Checklist)
+
+Esta sección documenta las tareas de desarrollo, corrección y regresiones pendientes de la versión actual.
+
+### Bugs y Regresiones Críticas
+- [ ] **Layout del Modal:** Corregir la posición del nombre del colaborador y el estilo de los botones de feedback.
+- [ ] **Visibilidad de Cortes:** Asegurar que las tres opciones de corte sean visibles en el modal si existen los datos.
+- [ ] **UI General:** Solucionar bugs visuales (pie de página, botón de limpiar búsqueda, carga de nombre de usuario).
+
+### Mejoras de Funcionalidad Prioritarias
+- [ ] **Búsqueda Flexible:** Mejorar `checkVehicle` para que devuelva coincidencias parciales y múltiples resultados.
+- [ ] **Debugging Integral:** Implementar un sistema de debugging en backend y frontend accesible por rol.
+- [ ] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes para mejorar el rendimiento.
+- [ ] **Soporte para Rango de Años:** Refactorizar la base de datos y la lógica para usar `anoDesde` y `anoHasta` en lugar de un año fijo.
+- [ ] **Sistema de Versionamiento Híbrido:** Aplicar el nuevo sistema de versionamiento a todos los componentes del código fuente.
+
+### Revisiones de UI/UX
+- [ ] **Ajustes de Layout:** Realizar ajustes de espaciado, encabezado y visualización de "Últimos Agregados" según las especificaciones.
+
+### Nuevas Funcionalidades
+- [ ] **Página de Información (`info.html`):** Crear una página estática con las secciones "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes", con su respectivo formulario de contacto.
 
 ## 4. Componentes del Backend (Microservicios)
 
@@ -126,32 +163,109 @@ El backend consta de cinco servicios de Google Apps Script, cada uno con una res
 - **`users.html`:** Interfaz para gestión de perfiles y usuarios.
 - **`manifest.json` y `service-worker.js`:** Habilitan la funcionalidad PWA y el caching offline.
 
-## 6. Estructura de la Base de Datos (Google Sheets)
+## 6. Arquitectura de la Base de Datos
 
-El Spreadsheet con ID `1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo` contiene las siguientes hojas:
+La documentación de la base de datos se divide en dos secciones principales: la arquitectura heredada (v1.5) y la nueva arquitectura propuesta (v2.0).
 
-### Hoja: `Users`
-- **Propósito:** Almacena la información de los usuarios. **La estructura es crítica y no debe ser modificada.**
-- **Columnas:** `ID`, `Nombre_Usuario`, `Password`, `Privilegios`, `Nombre`, `Telefono`, `Correo_Electronico`, `SessionToken`.
+### 6.1. Arquitectura de Base de Datos v1.5 (Heredada)
 
-### Hoja: `Cortes`
-- **Propósito:** Catálogo principal de vehículos.
-- **Columnas:** `ID`, `Categoría`, `Marca`, `Modelo`, `Año (Generacion)`, `Tipo de Encendido`, `Colaborador`, `Util`, `Imagen del Vehiculo`, `Tipo de Corte`, `Descripcion del Corte`, `Imagen del Corte`, `Tipo de Corte 2`, `Descripcion del Segundo Corte`, `Imagen de Corte 2`, `Tipo de Corte 3`, `Descripcion del Corte 3`, `Imagen del Corte 3`, `Apertura`, `Imagen de la Apertura`, `Cables de Alimentacion`, `Imagen de los Cables de Alimentacion`, `Nota Importante`, `Como desarmar los plasticos`.
+Esta sección detalla la estructura y las deficiencias de la base de datos original, que funciona exclusivamente para la aplicación v1.5.
 
-### Hoja: `Tutorial`
-- **Propósito:** Contenido para la sección de tutoriales.
-- **Columnas:** `ID`, `Tema`, `Como identificarlo`, `Donde encontrarlo`, `Detalles`, `Imagen`, `Video`.
+- **ID de Google Sheet:** `1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo`
+- **Principio de Diseño:** Una estructura monolítica donde cada fila representa un vehículo, pero la información de múltiples "cortes" se almacena en un número creciente de columnas dentro de esa misma fila.
 
-### Hoja: `Configuración del Relay`
-- **Propósito:** Contenido para la sección de configuración de relays.
-- **Columnas:** `ID`, `Configuracion`, `Funcion`, `Vehiculo donde se utiliza`, `PIN 30(entrada)`, `PIN 85(bobina +)`, `PIN 86(bobina - )`, `PIN 87a(comun cerrado)`, `PIN 87(Comunmente Abierto)`, `Observacion`, `Imagen`.
+#### Estructura de Hojas y Columnas (v1.5)
 
-### Hojas de Sistema
-- **`Feedbacks`:** Almacena los reportes de problemas.
-- **`Logs`:** Registra eventos y errores del backend para depuración.
-- **`ActiveSessions`:** Gestiona las sesiones activas para controlar inicios de sesión simultáneos.
+##### Hoja: `Cortes`
+- **Propósito:** Almacena toda la información técnica de los vehículos.
+- **Columnas Clave:**
+    - `ID`, `Categoria`, `Marca`, `Modelo`, `Año (Generacion)`
+    - `Tipo de Encendido`, `Colaborador`, `Util` (para "likes" de todo el vehículo)
+    - **Corte 1:** `Tipo de Corte`, `Descripcion del Corte`, `Imagen del Corte`
+    - **Corte 2:** `Tipo de Corte 2`, `Descripcion del Segundo Corte`, `Imagen de Corte 2`
+    - **Corte 3:** `Tipo de Corte 3`, `Descripcion del Corte 3`, `Imagen del Corte 3`
+    - **Información Adicional:** `Apertura`, `Imagen de la Apertura`, `Cables de Alimentacion`, `Imagen de los Cables de Alimentacion`, `Como desarmar los Plasticos`, `Nota Importante`, `Timestamp`.
 
-## 7. Guía y Normas para el Desarrollo
+##### Hoja: `Users`
+- **Propósito:** Gestión de usuarios y credenciales.
+- **Columnas Clave:**
+    - `ID`, `Nombre_Usuario`, `Password` (texto plano), `Privilegios`, `Nombre`, `Telefono`, `Correo_Electronico`, `SessionToken`.
+
+##### Hoja: `Tutoriales` y `Relay`
+- **Propósito:** Almacenan información de soporte y configuraciones.
+- **Estructura:** Siguen un esquema simple con columnas como `ID`, `Tema`/`Configuracion`, `Imagen`, `Video`, y campos de texto descriptivos.
+
+#### Deficiencias de la Arquitectura v1.5
+- **Fragilidad por Mapeo Dinámico:** La mayoría de los servicios (`catalog.js`, `write.js`, `users.js`) dependen de la función `getColumnMap`, que lee los nombres de las columnas en tiempo de ejecución. **Un simple cambio en el nombre de una columna en la hoja de cálculo (ej. "Año" en lugar de "Año (Generacion)") rompe la aplicación sin generar errores claros en el backend.**
+- **Falta de Granularidad:** El sistema de "likes" (`Util`) y el campo `Colaborador` se aplican a toda la fila del vehículo. Es imposible saber qué corte específico es el más útil o quién aportó cada corte individual.
+- **Inflexibilidad en los Años:** La columna `Año (Generacion)` almacena un solo año o un rango de texto, lo que dificulta las búsquedas y la gestión de modelos que abarcan varios años.
+- **Inconsistencia Arquitectónica:** El servicio `auth.js` utiliza un mapa de columnas fijo (hardcoded), mientras que el resto de los servicios utiliza un mapa dinámico, creando una inconsistencia en cómo la aplicación accede a su propia base de datos.
+
+---
+
+### 6.2. Arquitectura de Base de Datos v2.0 (Nueva)
+
+Esta es la nueva arquitectura diseñada para resolver las deficiencias de la v1.5.
+
+- **ID de Google Sheet:** (Se asignará a un nuevo spreadsheet)
+- **Principio de Diseño:** Una estructura granular y robusta, diseñada para ser explícita, flexible y a prueba de errores de formato. Es totalmente independiente de la v1.5.
+
+#### Diseño Detallado de `GPSpedia_DB_v2.0`
+
+##### Hoja: `Cortes`
+- **Propósito:** Catálogo principal con estructura granular para datos de alta calidad.
+- **Columnas:**
+    - `id`, `categoria` (Estandarizada), `marca`, `modelo`, `versionesAplicables` (para consolidar variantes), `anoDesde`, `anoHasta`, `tipoEncendido`, `configRelay` (Validación de datos desde hoja `Relay`), `imagenVehiculo`, `videoGuiaDesarmeURL`, `contadorBusquedas`.
+    - **Bloque por Corte (x3):** Para cada corte (1, 2, y 3), se incluyen las siguientes columnas, siendo las primeras 4 obligatorias si el bloque se utiliza:
+        - `tipoCorteX` (Obligatorio)
+        - `ubicacionCorteX` (Obligatorio)
+        - `colorCableCorteX` (Obligatorio)
+        - `imgCorteX` (Obligatorio)
+        - `utilCorteX`
+        - `colaboradorCorteX`
+    - `timestamp`.
+
+#### Hoja: `LogosMarca` (Nueva)
+- **Propósito:** Centralizar la gestión de logos de marcas.
+- **Columnas:** `id`, `nombreMarca` (clave normalizada, ej. "toyota"), `urlLogo`.
+
+#### Hojas de Sistema
+- **`Users`, `ActiveSessions`, `Tutoriales`, `Relay`, `Feedbacks`, `Contactanos`, `Logs`:** Estas hojas se migrarán al nuevo spreadsheet, manteniendo sus estructuras ya definidas.
+- **`ActividadUsuario` (Nueva):**
+    - **Propósito:** Registrar cada acción de usuario (likes, reportes, contribuciones) para el dashboard de desempeño.
+    - **Columnas:** `id`, `timestamp`, `idUsuario`, `nombreUsuario`, `tipoActividad`, `idElementoAsociado`, `detalle`.
+- **`TokensCompartir` (Nueva):**
+    - **Propósito:** Gestionar los enlaces de un solo uso.
+    - **Columnas:** `token`, `idVehiculo`, `estado` ('NO_USADO', 'USADO'), `fechaCreacion`, `fechaExpiracion` (nuevo, para purga automática).
+
+## 7. Sistema de Versionamiento Híbrido
+
+El proyecto utiliza un sistema de versionamiento dual para un control preciso y claro del ciclo de vida del software.
+
+### A. Versión Global (Pública)
+- **Propósito:** Representa el estado general del proyecto en un momento dado, visible para el usuario final.
+- **Formato:** `vMAJOR.MINOR.PATCH` (ej. `v3.2.7`).
+- **Ubicación:**
+    - `ChangesLogs.txt`: Cada `submit` genera una nueva entrada con la versión global incrementada.
+    - `index.html`: El pie de página muestra esta versión.
+
+### B. Versión de Componente (Interna)
+- **Propósito:** Rastrea el ciclo de vida de cada archivo de código fuente de forma independiente para entender su madurez y cambios.
+- **Formato:** `ARQUITECTURA.ARCHIVO.EDICION` (ej. `2.1.0`).
+    - **ARQUITECTURA (MAJOR):** Indica la versión de la arquitectura a la que pertenece el componente.
+    - **ARCHIVO (MINOR):** Se incrementa para cambios significativos o nuevas funcionalidades dentro del archivo.
+    - **EDICION (PATCH):** Se incrementa para correcciones de bugs o cambios menores. Se reinicia a `0` cuando `ARCHIVO` se incrementa. Sigue la regla `0-9`. De `2.1.9` pasa a `2.2.0`.
+- **Reglas de Aplicación:**
+    - **Componentes Frontend (`.html`, `api-manager.js`):**
+        - **Versión de Arquitectura:** `2`.
+        - **Versión Inicial:** `2.0.0`.
+        - **Ubicación:** Comentario en la primera línea del archivo (ej. `<!-- GPSpedia Frontend Component | Version: 2.0.0 -->`).
+    - **Componentes Backend (Microservicios `.gs`):**
+        - **Versión de Arquitectura:** `1`.
+        - **Versión Inicial:** `1.0.0`.
+        - **Ubicación:** Comentario en la primera línea y en el mensaje de estado de la función `doGet()` (ej. `GPSpedia Auth-SERVICE v1.0.0 is active.`).
+
+## 8. Guía y Normas para el Desarrollo
 
 Para mantener la consistencia, calidad y mantenibilidad del proyecto, es mandatorio seguir las siguientes normas en todo momento:
 

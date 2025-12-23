@@ -22,6 +22,24 @@ NORMAS OBLIGATORIAS DE DESARROLLO
 1.  **Verificación Post-Commit:** Una tarea solo se considera completada después de un commit y la validación explícita del Project Manager.
 
 ---------------------------------
+SISTEMA DE VERSIONAMIENTO HÍBRIDO
+---------------------------------
+
+El proyecto utiliza un sistema de dos niveles:
+
+1.  **Versión Global (Pública):**
+    *   **Formato:** `vMAJOR.MINOR.PATCH` (ej. `v3.2.7`).
+    *   **Función:** Representa el estado general del proyecto. Se actualiza en `ChangesLogs.txt` y `index.html` en cada `submit`.
+
+2.  **Versión de Componente (Interna):**
+    *   **Formato:** `ARQUITECTURA.ARCHIVO.EDICION` (ej. `2.1.0`).
+    *   **Función:** Rastrea la madurez de cada archivo de código (`.html`, `.gs`, `.js`).
+    *   **Reglas:**
+        *   **Frontend (arq. `2`):** `index.html`, `api-manager.js`, etc., inician en `2.0.0`.
+        *   **Backend (arq. `1`):** Cada microservicio (`auth.js`, etc.) inicia en `1.0.0`.
+    *   **Ubicación:** Debe registrarse en un comentario en la cabecera de cada archivo.
+
+---------------------------------
 PROCESO DE TRABAJO POR FASES
 ---------------------------------
 
@@ -38,36 +56,53 @@ Para organizar el desarrollo y asegurar la calidad, el trabajo se dividirá en f
 ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
 ---------------------------------
 
-### Bugs y Regresiones por Corregir
-- [x] **Carga de Información en Secciones:** Las secciones "Tutoriales" y "Relay" no cargan su contenido. *(Solucionado en v3.1.8 con la refactorización del backend).*
-- [ ] **Organización del Pie de Página:** Los enlaces del footer deben aparecer debajo del aviso de copyright.
-- [ ] **Layout del Modal de Detalle:** El nombre del colaborador debe estar posicionado sobre los botones de feedback.
-- [ ] **Estilo de Botones de Feedback:** Los botones "Útil" y "Reportar" en el modal no tienen el estilo aplicado.
-- [ ] **Visibilidad de Tercera Opción de Corte:** La tercera opción de corte no es visible en el modal, incluso si existen los datos.
-- [ ] **Posición del Botón Limpiar Búsqueda:** El botón "x" de la barra de búsqueda se muestra fuera de su contenedor.
-- [ ] **Error en Carga de Nombre de Usuario:** En la gestión de usuarios (`users.js`), el "Nombre de usuario" se muestra como `undefined`.
+### Bugs y Regresiones Críticas
+- [ ] **Layout del Modal:** Corregir la posición del nombre del colaborador y el estilo de los botones de feedback.
+- [ ] **Visibilidad de Cortes:** Asegurar que las tres opciones de corte sean visibles en el modal si existen los datos.
+- [ ] **UI General:** Solucionar bugs visuales (pie de página, botón de limpiar búsqueda, carga de nombre de usuario).
 
-### Mejoras de Funcionalidad Pendientes
-- [ ] **Mejora del Sistema de Búsqueda (`checkVehicle`):**
-    - [ ] Implementar una lógica de búsqueda flexible que muestre múltiples opciones si hay coincidencias parciales (ej. "Frontier" debe poder encontrar "Frontier NP300 SE").
-    - [ ] La búsqueda debe considerar coincidencias con palabras separadas o la primera palabra completa.
-- [ ] **Mejora del Sistema de Feedback (Colaborador):**
-    - [ ] Modificar el formato del campo "Colaborador" para incluir la contribución específica entre paréntesis.
-    - [ ] Ejemplo: `Byron López (Cort 1, Apert.)`.
-    - [ ] Si hay múltiples colaboradores, deben aparecer en líneas separadas. Ejemplo: `Byron López (Cort 1, Apert.)\nJoel Reyes (Cort 2, C. Alimen.)`.
-- [ ] **Implementación de Sistema de Debugging Integral:**
-    - [ ] **Backend:** Cada microservicio debe tener su propio módulo de debugging para responder a llamadas cURL.
-    - [ ] **Frontend:** Crear una consola de debugging en `index.html`, accesible solo para el rol "Desarrollador".
-    - [ ] **Funcionalidades de la Consola:**
-        - [ ] Visualizar el estado y los errores de los servicios.
-        - [ ] Guardar registros (error, advertencia, etc.) en la hoja "Logs" de Google Sheets.
-        - [ ] Activar/desactivar funciones del navegador para prevenir debugging externo (ej. F12, menú contextual, copiar, zoom).
-- [ ] **Implementar Estrategia de Carga de Imágenes Optimizada (Lazy Load):**
-    - [ ] **Tarjetas del catálogo:** Cargar miniaturas de baja resolución (ej. `sz=w200`) para acelerar la carga inicial.
-    - [ ] **Modal de detalle:** Al abrir el modal, cargar miniaturas de resolución media (ej. `sz=w800`).
-    - [ ] **Lightbox:** Al hacer clic en una imagen del modal, mostrar la imagen en su resolución original (ej. `sz=w2048`) en un lightbox.
-    - [ ] **Seguridad en Lightbox:** En la vista de lightbox, deshabilitar el menú contextual, la función de copiar y las herramientas de desarrollador (F12) para proteger las imágenes. La única interacción permitida debe ser el zoom.
+### Mejoras de Funcionalidad Prioritarias
+- [ ] **Búsqueda Flexible:** Mejorar `checkVehicle` para que devuelva coincidencias parciales y múltiples resultados.
+- [ ] **Debugging Integral:** Implementar un sistema de debugging en backend y frontend accesible por rol.
+- [ ] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes para mejorar el rendimiento.
+- [ ] **Soporte para Rango de Años:** Refactorizar la base de datos y la lógica para usar `anoDesde` y `anoHasta` en lugar de un año fijo.
+- [ ] **Sistema de Versionamiento Híbrido:** Aplicar el nuevo sistema de versionamiento a todos los componentes del código fuente.
 
+### Revisiones de UI/UX
+- [ ] **Ajustes de Layout:** Realizar ajustes de espaciado, encabezado y visualización de "Últimos Agregados" según las especificaciones.
+
+### Nuevas Funcionalidades
+- [ ] **Página de Información (`info.html`):** Crear una página estática con las secciones "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes", con su respectivo formulario de contacto.
+
+### Plan Estratégico v4 (Final y Optimizado)
+- [ ] **Fase 1: Migración a Base de Datos Optimizada (DB v2.0).**
+- [ ] **Fase 2: Sistema de Feedback Avanzado y Calidad de Datos.**
+- [ ] **Fase 3: Funcionalidades de Gestión y Experiencia de Usuario.**
+- [ ] **Fase 4: Mejoras Adicionales (Offline, Notas Personales, Relay Anidado).**
+
+**Nota:** Para la ejecución de la Fase 1, se ha desarrollado un **Plan de Implementación Técnica Detallado** que describe los cambios específicos requeridos en los servicios de backend. Este plan se encuentra documentado en la sección correspondiente del archivo `README.md` y debe ser consultado antes de iniciar el desarrollo.
+
+---
+### Arquitectura de la Base de Datos
+
+#### Arquitectura v1.5 (Heredada)
+- **ID de Google Sheet:** `1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo`
+- **Estructura de Hojas:**
+    - **`Cortes`:** Contiene la información técnica principal, con columnas como `ID`, `Categoria`, `Marca`, `Modelo`, `Año (Generacion)`, `Tipo de Corte`, `Descripcion del Corte`, `Imagen del Corte`, etc.
+    - **`Users`:** Gestiona los usuarios y sus credenciales (`ID`, `Nombre_Usuario`, `Password`, `Privilegios`).
+- **Deficiencias Clave:**
+    - **Dependencia del Mapeo Dinámico:** El código lee los nombres de las columnas en lugar de usar posiciones fijas, lo que lo hace frágil a cualquier cambio en los encabezados de la hoja de cálculo.
+    - **Falta de Granularidad:** Los "likes" y colaboradores se aplican a todo el vehículo, no a cortes individuales.
+    - **Inconsistencia Arquitectónica:** Coexisten dos métodos de acceso a la base de datos (dinámico y fijo), complicando el mantenimiento.
+
+#### Arquitectura v2.0 (Nueva)
+- **Principio:** Una base de datos nueva, independiente y diseñada con una estructura granular para máxima robustez.
+- **Hoja `Cortes` (Alta Granularidad):**
+    - **Columnas Clave:** `id`, `categoria`, `marca`, `modelo`, `versionesAplicables`, `anoDesde`, `anoHasta`, `tipoEncendido`, `configRelay` (Validación de datos), `imagenVehiculo`, `videoGuiaDesarmeURL`, `contadorBusquedas`.
+    - **Columnas por Corte (x3):** `tipoCorteX`, `ubicacionCorteX`, `colorCableCorteX`, `imgCorteX` (los 4 son obligatorios), `utilCorteX`, `colaboradorCorteX`.
+- **Hojas de Sistema (Nuevas):** `ActividadUsuario`, `TokensCompartir`, `LogosMarca`.
+
+---
 ### Revisiones y Ajustes de UI Pendientes
 - [ ] **Ajuste del Encabezado Principal (`index.html`):**
     - [ ] Posicionar el encabezado (`GPSpedia`) a la izquierda.
@@ -83,5 +118,5 @@ ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
 - [ ] **Creación de Página de Información (`info.html`):**
     - [ ] Desarrollar una página estática con las secciones "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes".
     - [ ] **"Sobre Nosotros":** Adaptar la descripción del `README.md` a un lenguaje para el consumidor final.
-    - [ ] **"Contáctenos":** Crear un formulario (Nombre Organización, Correo, Teléfono, Mensaje) que envíe datos a una nueva hoja de Google Sheets.
+    - [ ] **"Contáctenos":** Crear un formulario (Nombre Organización, Correo, Teléfono, Mensaje) que envíe datos a la nueva hoja `Contactanos`.
     - [ ] **"Preguntas Frecuentes":** Crear un acordeón explicando las funcionalidades del catálogo para nuevos usuarios.

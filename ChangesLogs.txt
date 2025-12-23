@@ -15,6 +15,78 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.3.1 - 13/08/2024
+- **DOCUMENTACIÓN: ANÁLISIS Y DETALLE DE LA ARQUITECTURA HEREDADA (V1.5):**
+  - **Contexto:** Para justificar plenamente la migración a la v2.0 y documentar el punto de partida, se realizó un análisis del código fuente para reconstruir y detallar la arquitectura de la base de datos v1.5 y sus deficiencias.
+  - **Acciones Realizadas:**
+    1.  **Análisis de Código Fuente:** Se revisaron los servicios `catalog.js`, `write.js`, `auth.js`, `users.js` y `feedback.js` para determinar con precisión la estructura de las hojas `Cortes`, `Users`, `ActiveSessions`, `Tutoriales`, `Relay` y `Feedbacks` en la base de datos v1.5.
+    2.  **Creación de Sección de Arquitectura Heredada (`README.md`, Línea 171):** Se añadió una nueva sección principal "6.1. Arquitectura de Base de Datos v1.5 (Heredada)" que detalla la estructura de columnas de cada hoja y explica sus deficiencias clave (mapeo dinámico, falta de granularidad, inconsistencia).
+    3.  **Reorganización de la Documentación:** Se reestructuró la sección de la base de datos para presentar una narrativa clara "problema (v1.5) -> solución (v2.0)".
+    4.  **Sincronización de Instructivo (`Instrucciones.txt`):** Se replicó la nueva estructura de documentación de la base de datos en `Instrucciones.txt` para mantener la consistencia.
+- **Estado del Proyecto:** La documentación ahora refleja de manera exhaustiva tanto la arquitectura heredada como la nueva arquitectura propuesta, proporcionando un contexto técnico completo para la migración.
+
+## v3.3.0 - 12/08/2024
+- **DOCUMENTACIÓN: REFINAMIENTO DEL ESQUEMA DE BASE DE DATOS V2.0:**
+  - **Contexto:** Basado en la retroalimentación del usuario, se han realizado clarificaciones y adiciones importantes al diseño de la nueva base de datos (`GPSpedia_DB_v2.0`).
+  - **Acciones Realizadas:**
+    1.  **Aclaración de Independencia de la DB (`README.md`, Línea 171):** Se ha modificado la descripción para dejar explícito que la `GPSpedia_DB_v2.0` es una base de datos completamente nueva y no necesita mantener ninguna compatibilidad hacia atrás con la v1.5.
+    2.  **Adición de Columna `configRelay` (`README.md`, Línea 180):** Se ha añadido la nueva columna `configRelay` a la definición de la hoja "Cortes". Esta columna funcionará como una validación de datos vinculada a la hoja "Relay".
+    3.  **Sincronización de Instructivo (`Instrucciones.txt`, Línea 88):** Se ha actualizado el esquema de la hoja "Cortes" en el instructivo para incluir la nueva columna `configRelay`, manteniendo la consistencia de la documentación.
+- **Estado del Proyecto:** El diseño de la base de datos v2.0 ha sido finalizado y documentado con precisión. El proyecto está listo para la fase de implementación de la migración y adaptación de los servicios.
+
+## v3.2.9 - 11/08/2024
+- **DOCUMENTACIÓN: CREACIÓN DEL PLAN DE IMPLEMENTACIÓN TÉCNICA DETALLADO:**
+  - **Contexto:** Para asegurar que la futura implementación de código sea precisa y siga una guía clara, se ha creado un plan técnico detallado para la Fase 1 del Plan Estratégico v4.
+  - **Acciones Realizadas:**
+    1.  **Añadido Plan Técnico Detallado (`README.md`, Línea 78):** Se ha insertado una nueva sección "Plan de Implementación Técnica Detallado: Fase 1" que describe con especificidad los cambios necesarios en los servicios `GPSpedia-Write`, `GPSpedia-Catalog` y `GPSpedia-Feedback` para la migración a la DB v2.0.
+    2.  **Sincronización de Instructivo (`Instrucciones.txt`, Línea 82):** Se ha añadido una nota en el instructivo que hace referencia al nuevo plan técnico en el `README.md`, asegurando que sea consultado antes de iniciar el desarrollo.
+- **Estado del Proyecto:** La documentación ahora no solo contiene la hoja de ruta estratégica, sino también un plan técnico detallado y listo para ser ejecutado por los desarrolladores en la siguiente fase del proyecto.
+
+## v3.2.8 - 10/08/2024
+- **DOCUMENTACIÓN: FINALIZACIÓN Y OPTIMIZACIÓN DEL PLAN ESTRATÉGICO V4:**
+  - **Contexto:** Basado en la última retroalimentación, se ha consolidado y optimizado toda la documentación del proyecto en torno a una nueva versión final del plan estratégico (v4), y se ha limpiado la lista de tareas pendientes para reflejar las nuevas prioridades.
+  - **Acciones Realizadas:**
+    1.  **Actualización a Plan Estratégico v4 (`README.md`, `Instrucciones.txt`):** Se ha reemplazado la versión anterior del plan con el "Plan Estratégico v4 (Final y Optimizado)", que representa la hoja de ruta definitiva y más detallada para el futuro de GPSpedia.
+    2.  **Optimización de Tareas Pendientes (`README.md`, `Instrucciones.txt`):** Se ha refactorizado la lista de "Trabajos Pendientes", eliminando tareas redundantes o absorbidas por el nuevo plan estratégico y agrupando las tareas restantes por prioridad (Bugs Críticos, Mejoras Prioritarias, etc.) para mayor claridad.
+    3.  **Sincronización de Documentación:** Se ha asegurado que `README.md` y `Instrucciones.txt` estén perfectamente sincronizados con la nueva visión del proyecto.
+- **Estado del Proyecto:** La documentación del proyecto ha alcanzado su estado más claro y optimizado. El plan estratégico y la lista de tareas pendientes ahora reflejan con precisión la visión final y los próximos pasos a seguir.
+
+## v3.2.7 - 09/08/2024
+- **DOCUMENTACIÓN: REFINAMIENTO DEL PLAN ESTRATÉGICO Y POLÍTICA DE VERSIONAMIENTO:**
+  - **Contexto:** Se ha refinado y ampliado la documentación estratégica del proyecto para incluir un nivel de detalle técnico y funcional superior, y para formalizar una nueva política de versionamiento.
+  - **Acciones Realizadas:**
+    1.  **Ampliación del Plan Estratégico (`README.md`, `Instrucciones.txt`):** Se ha reemplazado el plan estratégico v3 con una versión final más detallada, especificando la lógica de negocio para la consolidación de modelos, el feedback granular, el dashboard de desempeño, el sistema de compartir con expiración de tokens y las notificaciones inteligentes.
+    2.  **Definición de Política de Versionamiento (`README.md`, `Instrucciones.txt`):** Se ha añadido una nueva sección que establece un "Sistema de Versionamiento Híbrido", separando la Versión Global (pública) de la Versión de Componente (interna) para cada archivo.
+    3.  **Registro de Nuevas Tareas:** Se han añadido las tareas correspondientes para la implementación del plan estratégico y del nuevo sistema de versionamiento a las listas de pendientes.
+- **Estado del Proyecto:** La documentación del proyecto ahora contiene una hoja de ruta y unas normas de desarrollo extremadamente detalladas, estableciendo una base sólida para las futuras fases de implementación.
+
+## v3.2.6 - 08/08/2024
+- **DOCUMENTACIÓN: REFINAMIENTO DEL PLAN ESTRATÉGICO Y DISEÑO DE DB V3:**
+  - **Contexto:** Basado en nueva retroalimentación, se ha refinado el plan estratégico (v3.3) a su versión final (v3), detallando con mayor granularidad la nueva arquitectura de la base de datos y las nuevas funcionalidades.
+  - **Acciones Realizadas:**
+    1.  **Actualización del Plan Estratégico (`README.md`, `Instrucciones.txt`):** Se reemplazó el plan existente con la versión 3 final, que incluye: feedback por corte, consolidación de modelos con `versionesAplicables`, dashboard de desempeño y el sistema de compartir de un solo uso.
+    2.  **Actualización del Esquema de DB (`README.md`, `Instrucciones.txt`):** Se actualizó la documentación para reflejar el diseño final de la base de datos v2, incluyendo la estructura de alta granularidad para la hoja `Cortes` y la definición de las nuevas hojas de sistema: `ActividadUsuario`, `TokensCompartir` y `LogosMarca`.
+    3.  **Refinamiento de Tareas:** Se ajustaron las descripciones de las tareas para reflejar las nuevas especificaciones, como la lógica del sistema de notificaciones y la mejora en la búsqueda.
+- **Estado del Proyecto:** La documentación contiene ahora la hoja de ruta definitiva y detallada para la siguiente fase de desarrollo de GPSpedia, asegurando que todos los nuevos requisitos estén claramente definidos antes de la implementación.
+
+## v3.2.5 - 07/08/2024
+- **DOCUMENTACIÓN: PLAN ESTRATÉGICO DE EVOLUCIÓN (V3.3):**
+  - **Contexto:** Se ha diseñado un plan estratégico a mediano plazo para la evolución del proyecto, centrado en la migración de la base de datos y la implementación de nuevas funcionalidades de alta eficiencia para el técnico. Este plan ha sido documentado para guiar los futuros ciclos de desarrollo.
+  - **Acciones Realizadas:**
+    1.  **Añadido Plan Estratégico (`README.md`, Línea 42):** Se ha insertado una nueva sección principal "Plan Estratégico de Evolución (GPSpedia v3.3)" que detalla las fases de la nueva hoja de ruta, incluyendo la migración de la base de datos, la función de "Más Buscados", la edición "in-modal" y otras mejoras de eficiencia.
+    2.  **Sincronización de Plan (`Instrucciones.txt`, Línea 75):** Se ha replicado el nuevo plan estratégico en el instructivo para mantener la consistencia en la documentación.
+    3.  **Aclaración de Compatibilidad (`README.md`, Línea 58):** Se añadió una nota explícita indicando que la columna `Año (Generacion)` del spreadsheet antiguo se mantendrá por compatibilidad con la v1.5, pero no será utilizada en las nuevas implementaciones.
+- **Estado del Proyecto:** La documentación ha sido actualizada con una hoja de ruta clara para las próximas versiones, asegurando que el desarrollo futuro esté alineado con los objetivos estratégicos.
+
+## v3.2.4 - 06/08/2024
+- **DOCUMENTACIÓN: DEFINICIÓN DE ARQUITECTURA PARA RANGOS DE AÑOS:**
+  - **Contexto:** Para soportar la futura automatización de rangos de años basada en el feedback de los usuarios, se ha tomado la decisión de modificar la estructura de la base de datos. Esta actualización de la documentación plasma ese cambio arquitectónico antes de su implementación.
+  - **Acciones Realizadas:**
+    1.  **Actualización de Esquema de DB (`README.md`, Línea 142):** Se ha modificado la definición de la hoja "Cortes", reemplazando la columna `Año (Generacion)` por dos nuevas columnas: `anoDesde` y `anoHasta`.
+    2.  **Registro de Nueva Tarea (`README.md`, Línea 74):** Se ha añadido una nueva tarea principal a la lista de pendientes: "Refactorizar Base de Datos y Lógica para Soportar Rangos de Años", detallando los pasos necesarios para la migración.
+    3.  **Sincronización de Tareas (`Instrucciones.txt`, Línea 68):** Se ha replicado la nueva tarea en el archivo de instrucciones para mantener la consistencia en toda la documentación del proyecto.
+- **Estado del Proyecto:** La documentación ha sido actualizada para reflejar un cambio arquitectónico clave. El proyecto está ahora preparado para una futura fase de implementación que aborde la migración de datos y la refactorización del código necesario.
+
 ## v3.2.3 - 05/08/2024
 - **DOCUMENTACIÓN: CORRECCIÓN Y ACTUALIZACIÓN GENERAL:**
   - **Contexto:** Se realizó una actualización integral de la documentación del proyecto para alinearla con el estado actual del código, registrar nuevas tareas y reflejar los avances recientes.
@@ -22,177 +94,3 @@
     1.  **Corrección de Estructura de Columnas (`README.md`):** Se corrigió la definición de columnas para las hojas "Cortes", "Tutorial" y "Configuración del Relay" para que coincida con la estructura real de la base de datos, incluyendo la columna `Timestamp`.
     2.  **Actualización de Tareas (`README.md`, `Instrucciones.txt`):** Se marcó como resuelto el bug de carga de contenido de las secciones "Tutoriales" y "Relay" y se añadió la nueva tarea para implementar una estrategia de carga de imágenes optimizada (Lazy Load).
 - **Estado del Proyecto:** La documentación del proyecto está ahora sincronizada con el código y las nuevas solicitudes, mejorando la claridad para futuros ciclos de desarrollo.
-
-## v3.2.2 - 05/08/2024
-- **CONFIGURACIÓN: ACTUALIZACIÓN DE ENDPOINT DEL SERVICIO DE CATÁLOGO:**
-  - **Contexto:** Después de un nuevo despliegue del servicio `GPSpedia-Catalog`, se recibió una nueva URL para el endpoint.
-  - **Acciones Realizadas:**
-    1.  **Actualización de URL (`api-manager.js`, Línea 10):** Se actualizó la constante `API_ENDPOINTS.CATALOG` con la nueva URL de despliegue para asegurar que el frontend se comunique con la versión más reciente del servicio.
-- **Estado del Proyecto:** El frontend ahora apunta a la versión más reciente del servicio de catálogo.
-
-## v3.2.1 - 05/08/2024
-- **CORRECCIÓN FINAL DEL MAPEO DE COLUMNAS EN `GPSpedia-Catalog`:**
-  - **Contexto:** La implementación anterior del mapeo de columnas fijo (v3.1.8) se basó en una estructura de columnas incorrecta obtenida de la documentación, lo que resultó en un fallo continuo en la carga de datos. Esta versión corrige el problema de forma definitiva utilizando la estructura exacta proporcionada por el Project Manager.
-  - **Acciones Realizadas:**
-    1.  **Actualización de Mapeo de Columnas (`services/catalog/catalog.js`, Líneas 30-85):** Se han actualizado los objetos `COLS_CORTES`, `COLS_TUTORIALES` y `COLS_RELAY` para que coincidan con la estructura de columnas precisa de las hojas "Cortes", "Tutorial" y "Configuración del Relay".
-    2.  **Corrección de Typo Crítico (`services/catalog/catalog.js`, Línea 13):** Se corrigió un error tipográfico en el nombre de la variable `SPREADSHEET_ID` que impedía por completo el funcionamiento del servicio.
-    3.  **Ajuste de Versión del Servicio (`services/catalog/catalog.js`, Línea 95):** Se ajustó la versión del servicio a `v1.1` en el mensaje de `doGet` para mantener la coherencia con el ciclo de despliegue.
-- **Estado del Proyecto:** El servicio `GPSpedia-Catalog` ahora lee y procesa los datos de las hojas de Google con la estructura correcta, solucionando la causa raíz de los errores de visualización de datos en el catálogo.
-
-## v3.1.9 - 04/08/2024
-- **CONFIGURACIÓN: ACTUALIZACIÓN DE ENDPOINT DEL SERVICIO DE CATÁLOGO:**
-  - **Contexto:** Después de desplegar la nueva versión del servicio `GPSpedia-Catalog` (v1.1), se recibió la nueva URL del endpoint.
-  - **Acciones Realizadas:**
-    1.  **Actualización de URL (`api-manager.js`, Línea 10):** Se ha actualizado la constante `API_ENDPOINTS.CATALOG` con la nueva URL de despliegue para asegurar que el frontend se comunique con la versión más reciente del servicio.
-- **Estado del Proyecto:** El frontend ahora apunta al servicio de catálogo actualizado, consumiendo la lógica refactorizada y la corrección del bug de ordenamiento.
-
-## v3.1.8 - 04/08/2024
-- **REFACTORIZACIÓN Y CORRECCIÓN DE `GPSpedia-Catalog` SERVICE:**
-  - **Contexto:** Se abordó la primera fase de la corrección de la deuda técnica identificada en la auditoría del sistema (v3.1.5), centrada en el servicio de catálogo.
-  - **Acciones Realizadas:**
-    1.  **Refactorización a Mapeo de Columnas Fijo (`services/catalog/catalog.js`, Líneas 30-85):** Se eliminó por completo la función `getColumnMap` y toda la lógica de mapeo dinámico. Se implementaron los objetos `COLS_CORTES`, `COLS_TUTORIALES` y `COLS_RELAY` con índices fijos (hardcoded), alineando el servicio con las normas de arquitectura del proyecto para garantizar estabilidad y mantenibilidad.
-    2.  **Actualización de Lógica de Acceso a Datos (`services/catalog/catalog.js`, Líneas 145-250):** Todas las funciones (`handleGetCatalogData`, `handleGetDropdownData`, `handleCheckVehicle`) fueron modificadas para utilizar los nuevos mapas de columnas fijos.
-    3.  **Corrección de Bug de Carga de Contenido (`services/catalog/catalog.js`, Línea 175):** Se añadió `.reverse()` a los arrays de datos de las secciones "Tutoriales" y "Relay". Esto soluciona el bug que impedía que se mostraran los registros más recientes en la interfaz.
-    4.  **Actualización de Versión del Servicio (`services/catalog/catalog.js`, Línea 95):** Se actualizó el número de versión en el mensaje de estado `doGet` a `v1.1` para facilitar la verificación del despliegue.
-- **Estado del Proyecto:** El servicio `GPSpedia-Catalog` es ahora más robusto y estable. El bug de carga de contenido para "Tutoriales" y "Relay" ha sido solucionado en el backend.
-
-## v3.1.7 - 03/08/2024
-- **DOCUMENTACIÓN DE MEJORA DE DEBUGGING:**
-  - **Contexto:** Se ha añadido una nueva tarea pendiente a la documentación para la implementación de un sistema de debugging integral.
-  - **Acciones Realizadas:**
-    1.  **Actualización de `README.md` (Línea 90):** Se ha añadido la tarea "Implementación de Sistema de Debugging Integral" a la sección de "Mejoras de Funcionalidad Pendientes".
-    2.  **Actualización de `INSTRUCTIVO.TXT` (Línea 95):** Se ha replicado la nueva tarea en la lista de pendientes del instructivo.
-- **Estado del Proyecto:** La documentación ha sido actualizada para incluir esta nueva mejora funcional.
-
-## v3.1.6 - 03/08/2024
-- **DOCUMENTACIÓN DE NUEVAS TAREAS PENDIENTES Y FLUJO DE TRABAJO:**
-  - **Contexto:** Se ha actualizado la documentación interna para reflejar una nueva serie de mejoras de funcionalidad, ajustes de UI y correcciones de bugs solicitadas por el Project Manager.
-  - **Acciones Realizadas:**
-    1.  **Actualización de `README.md` (Línea 40):** Se han añadido a la sección "Trabajos Pendientes" las siguientes tareas:
-        - Mejora del sistema de búsqueda para que sea más flexible.
-        - Mejora del formato de contribución de colaboradores.
-        - Corrección de un bug que muestra `undefined` en el nombre de usuario.
-        - Múltiples ajustes de diseño y espaciado en `index.html`.
-    2.  **Actualización de `INSTRUCTIVO.TXT` (Línea 25):** Se ha replicado la lista de nuevas tareas pendientes y se ha añadido una nueva sección "Proceso de Trabajo por Fases" para estandarizar el flujo de desarrollo, revisión y aprobación de cambios.
-- **Estado del Proyecto:** La documentación está al día con las últimas solicitudes. El proyecto está listo para iniciar el desarrollo de las nuevas tareas en el orden de prioridad que se defina.
-
-## v3.1.5 - 03/08/2024
-- **AUDITORÍA COMPLETA DEL SISTEMA Y ACTUALIZACIÓN DE DOCUMENTACIÓN:**
-  - **Contexto:** Se realizó una auditoría exhaustiva de todo el repositorio para identificar inconsistencias, riesgos técnicos y las causas raíz de los bugs pendientes.
-  - **Acciones Realizadas:**
-    1.  **Análisis de Backend:** Se revisaron todos los microservicios (`auth.js`, `catalog.js`, `write.js`, `users.js`). Se detectó una inconsistencia arquitectónica crítica donde tres de los cuatro servicios principales utilizaban un mapeo de columnas dinámico, contrario a las normas del proyecto que exigen un mapeo fijo (hardcoded) para garantizar la estabilidad.
-    2.  **Análisis de Frontend:** Se investigaron todos los bugs visuales y funcionales reportados en `index.html`. Se identificaron las causas probables para cada uno, incluyendo selectores de CSS faltantes, orden incorrecto de elementos en el DOM y lógica de renderizado incompleta.
-    3.  **Actualización de `README.md` (Línea 235):** Se añadió una nueva sección "8. Auditoría del Sistema" que contiene el informe completo y detallado de todos los hallazgos, riesgos y recomendaciones.
-    4.  **Actualización de Versión en `index.html` (Línea 1118):** Se actualizó el número de versión en el pie de página a `v3.1.5` para reflejar los cambios en la documentación.
-- **Estado del Proyecto:** La documentación ahora refleja con precisión el estado técnico del sistema. La prioridad principal es la refactorización del backend para alinear todos los servicios con el patrón de mapeo de columnas fijo.
-
-## v3.1.4 - 02/08/2024
-- **DOCUMENTACIÓN DE REGRESIÓN Y ESTADO DEL PROYECTO:**
-  - **Contexto:** Un intento de corrección de bugs y refactorización (v1.1.0) resultó en una regresión severa, eliminando implementaciones previas y reintroduciendo errores. Esta entrada documenta el estado actual del proyecto según la revisión del usuario.
-  - **Correcciones Fallidas o Reintroducidas (Trabajo Incompleto):**
-    1.  **Carga de Contenido de Secciones (`index.html`):** La lógica para cargar dinámicamente el contenido de "Tutoriales" y "Relay" se ha perdido.
-    2.  **Organización del Pie de Página (`index.html`, aprox. Línea 2082):** El layout del footer volvió a un estado incorrecto, con los links de navegación apareciendo sobre el aviso de copyright.
-    3.  **Layout del Modal de Detalle (`index.html`, función `mostrarDetalleModal`):** El nombre del colaborador aparece incorrectamente debajo de los botones de feedback.
-    4.  **Estilo de Botones de Feedback (`index.html`):** Los botones "Útil" y "Reportar" en el modal carecen del estilo solicitado.
-    5.  **Visibilidad de Opciones de Corte (`index.html`):** La "Tercera Opción de Corte" no se muestra en el modal de detalle, incluso cuando los datos existen.
-    6.  **Posición del Botón de Limpiar Búsqueda (`index.html`):** El botón "x" para limpiar la búsqueda aparece fuera de la barra de búsqueda.
-  - **Correcciones Implementadas Correctamente:**
-    1.  **Navegación y Búsqueda:** Se solucionó el bug que causaba el colapso de la aplicación al buscar y el error en los botones "Volver a...".
-    2.  **Layout Principal:** Se corrigió el colapso del contenedor principal durante la búsqueda.
-    3.  **Menú Hamburguesa:** La funcionalidad del menú lateral fue implementada correctamente.
-    4.  **Botón de Instalación PWA:** El botón ahora se muestra condicionalmente de forma correcta.
-    5.  **Estilo de Alertas:** Los mensajes de alerta del sistema (ej. `alert()`) han sido estilizados.
-  - **Nuevas Implementaciones Pendientes:**
-    1.  **Creación de Página de Información:** Desarrollar una nueva página HTML (`info.html`) que contenga tres secciones: "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes".
-    2.  **Sección "Sobre Nosotros":** Adaptar el contenido del `README.md` para crear una descripción del proyecto orientada al consumidor final.
-    3.  **Sección "Contáctenos":** Implementar un formulario con campos para "Nombre de la Organización", "Correo Electrónico", "Teléfono" y "Mensaje". La data debe enviarse a una nueva hoja de Google Sheets.
-    4.  **Sección "Preguntas Frecuentes":** Crear un acordeón de preguntas y respuestas que expliquen todas las funcionalidades clave del catálogo para un usuario nuevo.
-
-- **Estado del Proyecto:** El proyecto se encuentra en un estado de regresión funcional. La prioridad es corregir los errores reintroducidos antes de abordar las nuevas implementaciones.
-
-## v3.1.3 - 01/08/2024
-- **REFACTORIZACIÓN DE UI E ACTUALIZACIÓN DE NORMAS DE DESARROLLO:**
-  - **Contexto:** Tras un intento fallido de refactorización que reintrodujo vulnerabilidades, se adoptó un enfoque más seguro para actualizar la interfaz de usuario, y se añadieron nuevas reglas de desarrollo basadas en la retroalimentación del usuario.
-  - **Acciones Realizadas:**
-    1.  **Reconstrucción de `index.html` (Líneas 1-1200):** Se reemplazó el contenido completo de `index.html` con la plantilla de `Olds/GPSpedia 1.5/index.html` para restaurar el layout visual solicitado por el usuario.
-    2.  **Eliminación de Código Inseguro:** Se eliminó el bloque de script obsoleto que contenía lógica de autenticación del lado del cliente y claves de API hardcodeadas.
-    3.  **Reintegración de Lógica Moderna:** Se reinsertó el bloque de script moderno que utiliza `api-manager.js` para gestionar las llamadas a los microservicios de forma segura.
-    4.  **Integración de Componentes UI:** Se añadieron los componentes del menú hamburguesa, el panel lateral y se vincularon a los nuevos event listeners en el script principal.
-    5.  **Actualización de `README.md` (Línea 120):** Se añadió la nueva regla de desarrollo que estipula que una tarea solo se considera completa después de un commit y la validación explícita del usuario.
-    6.  **Actualización de `INSTRUCTIVO.TXT` (Línea 85):** Se replicó la nueva regla de desarrollo en el instructivo para asegurar consistencia en la documentación.
-- **Estado del Proyecto:** La interfaz de usuario ha sido actualizada al layout de la v1.5 manteniendo la arquitectura de backend segura. Las normas de desarrollo han sido actualizadas para reflejar el nuevo flujo de trabajo de validación.
-
-## v3.1.2 - 31/07/2024
-- **ANÁLISIS DE LÓGICA Y CORRECCIONES FINALES DE DOCUMENTACIÓN:**
-  - **Contexto:** Se realizó una auditoría final para asegurar la coherencia entre el frontend y el backend, y para corregir omisiones finales en la documentación.
-  - **Acciones Realizadas:**
-    1.  **Corrección de `README.md`:** Se ajustó la descripción del bug de layout para apuntar correctamente al "Header/Search Bar" y se añadió la tarea pendiente del "Botón de Instalación PWA" al checklist.
-    2.  **Análisis Lógico Frontend-Backend:** Se llevó a cabo una revisión línea por línea de todas las llamadas a la API desde los archivos `.html` para compararlas con las expectativas de los 5 microservicios.
-    3.  **Documentación de Discrepancias:** Se añadió la sección "Análisis de Coherencia Lógica" a `INSTRUCTIVO.TXT`, documentando una inconsistencia menor encontrada en la llamada a la acción `checkVehicle` (el frontend envía `tipo-encendido` y el backend espera `tipoEncendido`).
-- **Estado del Proyecto:** La documentación está ahora completa, corregida y refleja con alta fidelidad el estado del código y las tareas pendientes. El proyecto está listo para pasar a la fase de desarrollo y corrección de errores.
-
-## v3.1.1 - 31/07/2024 (Revisión 2)
-- **CAMBIO DE ENFOQUE Y ANÁLISIS PROFUNDO (CORREGIDO Y AMPLIADO):**
-  - **Contexto:** Tras la retroalimentación del usuario, se realizó una segunda revisión más exhaustiva de la documentación para asegurar que incluyera todos los detalles omitidos en la primera versión.
-  - **Acciones Realizadas:**
-    1.  **Re-análisis del Historial y `index.html`:** Se cruzó la información del historial del chat con el estado actual del código para identificar con precisión todas las funcionalidades pendientes y los detalles de la base de datos.
-    2.  **Actualización de `README.md` (Versión 2):** Se expandió la documentación para incluir:
-        - La **estructura de columnas detallada** de todas las hojas principales de la base de datos (`Cortes`, `Tutoriales`, `Relay`), no solo la de `Users`.
-        - Una nueva sección de **"Trabajos Pendientes"** en formato de checklist para visualizar claramente los bugs y las nuevas funcionalidades solicitadas (menú hamburguesa, enlaces del footer, etc.).
-    3.  **Actualización de `INSTRUCTIVO.TXT`:** Se añadió una sección de **"Funcionalidades Pendientes de Implementación"** para que el documento refleje de manera completa tanto los errores a corregir como las características nuevas solicitadas.
-- **Estado del Proyecto:** La fase de análisis y documentación se considera ahora completa y alineada con los requerimientos. El siguiente paso es proceder con la corrección de los errores y la implementación de las funcionalidades documentadas.
-
-## v3.1.0 - 21/12/2023
-- **MIGRACIÓN COMPLETA A ARQUITECTURA MODULAR (PLAN B):**
-  - **Contexto:** Se inició una migración completa del backend monolítico (`Code.gs`) a una arquitectura de cinco microservicios (`Auth`, `Catalog`, `Write`, `Users`, `Feedback`) para mejorar el rendimiento y la mantenibilidad, siguiendo un plan detallado ("Plan B").
-  - **Desarrollo:**
-    1. Se crearon los 5 nuevos servicios de Google Apps Script.
-    2. Se introdujo `api-manager.js` en el frontend como un enrutador central para gestionar las llamadas a los nuevos servicios.
-    3. Se refactorizaron todos los archivos HTML (`index.html`, `add_cortes.html`, `users.html`) para usar el nuevo `api-manager`.
-  - **Problema Crítico Persistente:** Durante y después de la migración, se encontró un bug persistente y crítico en el servicio de autenticación (`Auth.js`) que causaba el error "Credenciales inválidas", impidiendo el inicio de sesión. El problema persistió a pesar de múltiples intentos de depuración, incluyendo la implementación de un sistema de logging avanzado y varias refactorizaciones del código.
-  - **Decisión y Resolución Final:** Se determinó que la complejidad heredada y los múltiples parches en `Auth.js` eran la causa de la inestabilidad. Se tomó la decisión de **descartar el código problemático y reconstruir el servicio `Auth.js` desde cero**, siguiendo las instrucciones y detalles de su funcionamiento en README.MD para usar una estructura de columnas fija (hardcoded). Esta acción pretendia eliminar la causa raíz del problema y finalmente NO resolvió el bug de autenticación de manera, el error aun persistia.
-- El ultimo commit no soluciono el problema, sin embargo el mensaje de error al intentar iniciar sesión cambio a "Error inesperado: Cannot read properties of null (reading 'getDataRange')"
-- **Estado del Proyecto:** La migración a la arquitectura modular está completa y el problema de autenticación NO ha sido resuelto. El proyecto se ha encontrado con un impase, ya que el problema de autenticación no permite el ingreso al sistema y comprobar las demas funcionalidades del sistema.
-- **Actualización de Documentación:** Se actualizó `README.md` con el plan arquitectónico completo de la v2.0 y se ajustó `INSTRUCCIONES_DESPLIEGUE.md` para la nueva estructura.
-
-## v3.009 - 23/07/2024
-- **Plan B:** Se inicia la implementación del Plan B para resolver de forma definitiva el error "Credenciales inválidas".
-- **Análisis de Causa Raíz:** Se confirma que el error de "Credenciales inválidas" persiste debido a un fallo de lógica en el manejo de la contraseña en el frontend, y no es un problema de despliegue del AppsScript. La función `sanitizeInput` sigue alterando la contraseña antes de ser enviada.
-- **Próximos Pasos:** Se procederá a eliminar por completo la sanitización del campo de contraseña en `index.html`.
-
-## v3.008 - 23/07/2024
-- Se actualizó la `SCRIPT_URL` en los archivos `index.html`, `users.html` y `add_cortes.html` a la nueva URL de despliegue proporcionada por el usuario.
-
-## v3.007 - 22/07/2024
-- Se corrigió el error "Credenciales inválidas" al iniciar sesión.
-- Se eliminó la función `sanitizeInput` del frontend (`index.html`) que modificaba incorrectamente las contraseñas con caracteres especiales.
-- Se mejoró la comparación de contraseñas en el backend (`Code.gs`) para que sea estrictamente de texto.
-- Se actualizó la URL del script en `index.html`, `users.html` y `add_cortes.html`.
-- Se agregó un número de versión visible en la pantalla de inicio de sesión para facilitar la depuración.
-- Se creó el archivo `INSTRUCCIONES_DESPLIEGE.md` para guiar al usuario en el proceso de despliegue correcto.
-
-## v3.006 - 21/07/2024
-- Se implementó una solución en el backend (Code.gs) para forzar la comparación de contraseñas como texto, evitando errores cuando la contraseña es puramente numérica.
-
-## v3.005 - 20/07/2024
-- Se actualizó el número de versión en Code.gs para reflejar los cambios recientes.
-
-## v3.004 - 19/07/2024
-- Se corrigió la función `sanitizeInput` en `index.html` para evitar que altere las contraseñas que contienen caracteres especiales. El error anterior causaba el fallo de "Credenciales inválidas".
-
-## v3.003 - 18/07/2024
-- Se cambió el `Content-Type` en las solicitudes `fetch` de `application/json` a `text/plain` en los archivos `index.html`, `add_cortes.html` y `users.html` para solucionar el error "Fail to fetch" relacionado con CORS.
-
-## v3.002 - 17/07/2024
-- Se agregó el manejo de errores detallado en la función `postToAction` para capturar y mostrar problemas de red o de análisis JSON.
-- Se implementó un sistema de logging remoto (`remoteLog`) para enviar errores del frontend al backend y facilitar la depuración.
-
-## v3.001 - 16/07/2024
-- Se identificó que el error "Fail to fetch" es probablemente un problema de CORS (Cross-Origin Resource Sharing) que ocurre durante la solicitud de pre-vuelo (preflight request) OPTIONS que el navegador envía antes de la solicitud POST real.
-v1.1.0 - 2024-07-29
-- Corrección: El pie de página ahora muestra los enlaces de navegación debajo de los derechos de autor.
-- Corrección: Las secciones "Tutoriales" y "Relay" ahora cargan su contenido correctamente.
-- Corrección: La búsqueda ya no se bloquea al usar ciertos caracteres.
-- Corrección: Los botones "Volver a..." en la navegación de búsqueda funcionan correctamente.
-- Corrección: Las imágenes en los modales ahora muestran un marcador de posición si la URL está dañada.
-- Corrección: Se ha solucionado el diseño del pie de página del modal, posicionando correctamente el nombre del colaborador y los botones de feedback.
