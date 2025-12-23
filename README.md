@@ -216,15 +216,52 @@ A continuación se detalla la estructura de cada hoja en la nueva base de datos.
 
 ##### 1. Hoja: `Users`
 - **Propósito:** Gestión de usuarios, credenciales y perfiles.
-- **Columnas:** `id`, `nombreUsuario`, `password`, `privilegios`, `nombre`, `telefono`, `correoElectronico`, `sessionToken`.
+| Columna | Descripción |
+| :--- | :--- |
+| `id` | Identificador único numérico para cada usuario. |
+| `nombreUsuario`| Nombre de usuario para el login (debe ser único). |
+| `password` | Contraseña del usuario (se migrará a formato hash). |
+| `privilegios` | Rol del usuario (ej. 'Tecnico', 'Supervisor'). |
+| `nombre` | Nombre completo del usuario para visualización. |
+| `telefono` | Número de contacto del usuario. |
+| `correoElectronico`| Correo electrónico del usuario. |
+| `sessionToken`| Token de sesión activa para validación. |
 
 ##### 2. Hoja: `Cortes`
 - **Propósito:** Catálogo principal con estructura granular para datos de alta calidad.
-- **Columnas:** `id`, `categoria`, `marca`, `modelo`, `versionesAplicables`, `anoDesde`, `anoHasta`, `tipoEncendido`, `imagenVehiculo`, `videoGuiaDesarmeUrl`, `contadorBusqueda`, `tipoCorte1`, `ubicacionCorte1`, `colorCableCorte1`, `configRelay1`, `imgCorte1`, `utilCorte1`, `colaboradorCorte1`, `tipoCorte2`, `ubicacionCorte2`, `colorCableCorte2`, `configRelay2`, `imgCorte2`, `utilCorte2`, `colaboradorCorte2`, `tipoCorte3`, `ubicacionCorte3`, `colorCableCorte3`, `configRelay3`, `imgCorte3`, `utilCorte3`, `colaboradorCorte3`, `timestamp`, `notaImportante`.
+| Columna | Descripción y Validación de Datos |
+| :--- | :--- |
+| `id` | Identificador único numérico para cada registro de vehículo. |
+| `categoria` | **(Validación de Datos)** Segmento del vehículo. La lista de opciones se carga dinámicamente desde una hoja de cálculo. Ej: 'Pickup', 'SUV', 'Sedán'. |
+| `marca` | Nombre del fabricante del vehículo. Ej: 'Toyota'. |
+| `modelo` | Nombre del modelo del vehículo. Ej: 'Hilux'. |
+| `versionesAplicables`| Nombres de modelos alternativos o relacionados a los que aplica este corte. Ej: 'Frontier, NP300'. |
+| `anoDesde` | Año de inicio de la generación o versión del modelo. |
+| `anoHasta` | Año de fin de la generación o versión del modelo. |
+| `tipoEncendido` | **(Validación de Datos)** Tipo de sistema de encendido. La lista se carga dinámicamente. Ej: 'Botón', 'Llave', 'Switch'. |
+| `imagenVehiculo` | URL de la imagen principal del vehículo. |
+| `videoGuiaDesarmeUrl`| URL de un video tutorial para el desarme. |
+| `contadorBusqueda` | Contador numérico de cuántas veces se ha consultado este registro. |
+| `tipoCorteX` | **(Validación de Datos)** Tipo de corte a realizar. La lista se carga dinámicamente. Ej: 'Ignición', 'Bomba de Gasolina', 'Motor de Arranque'. |
+| `ubicacionCorteX`| Descripción textual de la ubicación del cable o componente a intervenir. |
+| `colorCableCorteX`| Color o combinación de colores del cable a cortar. |
+| `configRelayX` | **(Relación)** ID numérico que corresponde a una entrada en la hoja `Relay`, especificando la configuración a usar. |
+| `imgCorteX` | URL de la imagen que muestra el detalle del corte. |
+| `utilCorteX` | Contador de "likes" o "útil" para este corte específico. |
+| `colaboradorCorteX`| Nombre del usuario que aportó la información de este corte. |
+| `timestamp` | Fecha y hora de la última modificación del registro. |
+| `notaImportante` | Campo de texto para advertencias o detalles cruciales. |
+
+*Nota: La `X` en columnas como `tipoCorteX` se reemplaza por los números 1, 2 y 3 para representar los tres posibles cortes por vehículo.*
 
 ##### 3. Hoja: `LogosMarcas`
 - **Propósito:** Centralizar la gestión de logos de marcas para el frontend.
-- **Columnas:** `id`, `nombreMarca`, `urlLogo`, `fabricanteNombre`.
+| Columna | Descripción |
+| :--- | :--- |
+| `id` | Identificador único numérico. |
+| `nombreMarca` | Nombre normalizado de la marca. |
+| `urlLogo` | URL del archivo de imagen del logo. |
+| `fabricanteNombre`| Nombre del grupo fabricante (ej. 'Volkswagen Group'). |
 
 ##### 4. Hoja: `Tutorial`
 - **Propósito:** Almacenar guías y tutoriales multimedia.

@@ -15,6 +15,20 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.3.9 - 14/08/2024
+- **DOCUMENTACIÓN: ENRIQUECIMIENTO DEL ESQUEMA DE BASE DE DATOS V2.0:**
+  - **Contexto:** Para mejorar la claridad y utilidad de la documentación como guía de desarrollo, se ha enriquecido la sección de la arquitectura de la base de datos v2.0 con descripciones detalladas para cada columna.
+  - **Acciones Realizadas:**
+    1.  **Detalle de Columnas y Validaciones (`README.md`, `Instrucciones.txt`):** Se ha reformatado la descripción de las hojas `Users`, `Cortes` y `LogosMarcas` a un formato de tabla. Se añadieron descripciones explícitas para cada columna, destacando su propósito y, crucialmente, las reglas de validación de datos (ej. para `categoria`, `tipoEncendido`, `tipoCorteX`) y las relaciones entre hojas (ej. para `configRelayX`).
+- **Estado del Proyecto:** La documentación de la base de datos ahora no solo define la estructura, sino que también sirve como un manual técnico detallado, facilitando el desarrollo y la comprensión del modelo de datos.
+
+## v3.3.8 - 14/08/2024
+- **DOCUMENTACIÓN: CORRECCIÓN FINAL DEL ORDEN DE COLUMNAS EN 'CORTES':**
+  - **Contexto:** Basado en la aclaración final del usuario, se ha corregido el orden de las columnas en la documentación de la hoja 'Cortes' para que coincida exactamente con la estructura definitiva de la hoja de cálculo.
+  - **Acciones Realizadas:**
+    1.  **Reordenamiento de Columnas (`README.md`, `Instrucciones.txt`):** Se ha ajustado el orden de las columnas `notaImportante` y `timestamp` para que la documentación refleje con precisión la secuencia final.
+- **Estado del Proyecto:** La documentación de la base de datos v2.0 ha alcanzado su estado final y definitivo, estando ahora 100% sincronizada con la hoja de cálculo real.
+
 ## v3.3.6 - 14/08/2024
 - **DOCUMENTACIÓN: CORRECCIÓN FINAL Y DEFINITIVA DEL ESQUEMA DE 'CORTES':**
   - **Contexto:** Basado en la lista de columnas definitiva proporcionada por el usuario para la hoja 'Cortes', se realiza la última corrección a la documentación.
