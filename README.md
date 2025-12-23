@@ -291,56 +291,6 @@ Para mantener la consistencia, calidad y mantenibilidad del proyecto, es mandato
 1.  **Verificación Post-Commit:**
     *   No se debe 'marcar' una tarea como realizada antes de hacer un commit. La verificación final de una tarea la realiza el Project Manager después de que los cambios han sido entregados.
 
-## 8. Auditoría del Sistema (Realizada el 2024-08-03)
+## 8. Auditoría del Sistema
 
-Esta sección presenta los resultados de una auditoría completa del código fuente y la documentación del proyecto GPSpedia 2.0. El objetivo es identificar inconsistencias, riesgos y las causas raíz de los bugs reportados.
-
-### Hallazgos Críticos
-
-#### A. Inconsistencia Arquitectónica Grave en el Backend
-
-Se ha detectado una contradicción directa y de alto riesgo entre la documentación del proyecto, las normas de desarrollo y la implementación de tres de los cuatro microservicios principales.
-
-1.  **El Problema:**
-    *   Los servicios `GPSpedia-Catalog`, `GPSpedia-Write` y `GPSpedia-Users` utilizan una función dinámica (`getColumnMap`) para determinar el índice de las columnas basándose en los nombres de las cabeceras de la hoja de Google Sheets.
-    *   Esto viola explícitamente la **"Nota Crítica"** documentada en `README.md` para el servicio `GPSpedia-Auth`, que subraya la necesidad de un **mapeo de columnas fijo y codificado (hardcoded)**. El servicio `Auth` sí implementa correctamente este patrón, utilizando un objeto `COLS` constante.
-
-2.  **Riesgo Asociado:**
-    *   **Alta Fragilidad:** Cualquier cambio, por mínimo que sea, en el nombre de una columna en la base de datos (ej. "Año (Generacion)" a "Año") romperá inmediata y silenciosamente todas las operaciones de los servicios afectados.
-    *   **Mantenimiento Complejo:** Introduce una capa de incertidumbre. La depuración de errores se vuelve más difícil, ya que el código puede funcionar un día y fallar al siguiente por un cambio externo no relacionado con el código en sí.
-    *   **Inconsistencia:** La coexistencia de dos patrones de acceso a datos contradictorios (`fijo` vs. `dinámico`) en la misma arquitectura dificulta el mantenimiento y la incorporación de nuevos desarrolladores.
-
-3.  **Recomendación:**
-    *   **Prioridad Máxima:** Refactorizar inmediatamente los servicios `catalog.js`, `write.js` y `users.js` para que utilicen un objeto `COLS` constante y fijo, similar al implementado en `auth.js`. Esto alineará todo el backend con la arquitectura definida y eliminará el riesgo de fallos inesperados.
-
-### Análisis de Bugs del Frontend (`index.html`)
-
-Se ha verificado que todos los bugs listados en la documentación son reproducibles y se han identificado sus causas probables.
-
-1.  **Carga de Información en Secciones "Tutoriales" y "Relay":**
-    *   **Causa:** La función `mostrarSeccion(seccion)` en `index.html` es correcta, pero la lógica de renderizado (`mostrarContenidoTutoriales` y `mostrarContenidoRelay`) se basa en las variables globales `datosTutoriales` y `datosRelay`. Estas variables se cargan una sola vez al inicio en `initializeAppData`. Sin embargo, el análisis del `catalog.js` revela que la función `handleGetCatalogData` **no invierte el orden de los datos**. Los elementos más nuevos quedan al final, y es probable que el frontend solo esté mostrando los primeros N elementos, que son los más antiguos.
-    *   **Solución Sugerida:** Invertir los arrays de datos en el backend (`catalog.js`) antes de enviarlos al frontend, usando `.reverse()`.
-
-2.  **Organización del Pie de Página:**
-    *   **Causa:** Existe un error de maquetación en el `footer` de `index.html`. El texto de copyright está fuera del contenedor `div.footer-links`, lo que provoca que se rendericen como bloques separados. Además, el CSS del `footer` no está gestionando correctamente la disposición de estos elementos.
-    *   **Solución Sugerida:** Mover el texto de copyright dentro de un `div` propio y ajustar el CSS del `footer` para usar `flex-direction: column` y `align-items: center` para asegurar el orden correcto.
-
-3.  **Layout del Modal de Detalle (Colaborador y Feedback):**
-    *   **Causa:** En la función `mostrarDetalleModal` de `index.html`, el `div` que contiene la información del colaborador (`colaboradorInfo`) se añade al `footerModal` *antes* que el `div` de los botones de feedback (`feedbackContainer`). Sin embargo, el CSS (`display: flex; justify-content: space-between;`) posiciona los elementos en los extremos, pero el orden visual sigue siendo incorrecto.
-    *   **Solución Sugerida:** Simplemente invertir el orden en el que se añaden los elementos al `footerModal` en el DOM. Añadir primero `feedbackContainer` y luego `colaboradorInfo` para que el `space-between` funcione como se espera.
-
-4.  **Estilo de Botones de Feedback:**
-    *   **Causa:** Los botones "Útil" y "Reportar" se crean dinámicamente en JavaScript (`mostrarDetalleModal`) y se les asignan las clases `feedback-btn`, `util-btn`, y `report-btn`. Sin embargo, **no existen reglas CSS definidas** en el bloque `<style>` de `index.html` para estas clases.
-    *   **Solución Sugerida:** Añadir las reglas de CSS necesarias para dar estilo a `.feedback-btn`, `.util-btn`, y `.report-btn` (colores de fondo, bordes, padding, etc.).
-
-5.  **Visibilidad de Tercera Opción de Corte:**
-    *   **Causa:** La lógica en `mostrarDetalleModal` que genera las secciones desplegables tiene un `if` condicional: `if (seccion.campos.some(c => c.value))`. Esto significa que si al menos uno de los campos de la sección tiene un valor, se crea el botón. Sin embargo, no hay un `if` separado para cada campo dentro del panel. Es muy probable que los datos para `tipoDeCorte3` y `descripcionDelCorte3` existan, pero la `imagenDelCorte3` esté vacía, y la lógica actual no maneja esto correctamente.
-    *   **Solución Sugerida:** Revisar la lógica de renderizado dentro del panel desplegable para asegurar que cada campo (`tipo`, `descripción`, `imagen`) se renderice individualmente solo si tiene un valor, en lugar de depender de una única condición para todo el bloque.
-
-6.  **Posición del Botón Limpiar Búsqueda:**
-    *   **Causa:** El botón "x" (`#clear-search-btn`) tiene `position: absolute`. Su contenedor (`.search-container`) tiene `position: relative`, lo cual es correcto. El problema radica en que cuando la búsqueda se activa (`body.search-active`), se aplican reglas CSS que añaden `padding-left` al input, pero no se ajusta la posición `right` del botón de limpiar para compensar este cambio.
-    *   **Solución Sugerida:** Añadir una regla CSS específica: `body.search-active .search-container.has-text #clear-search-btn { right: 35px; }` para reubicar el botón cuando la búsqueda está activa y hay texto.
-
-### Conclusión de la Auditoría
-
-El proyecto es funcional pero presenta una **deuda técnica significativa** en el backend que debe ser abordada con urgencia para garantizar la estabilidad a largo plazo. Los bugs del frontend son de naturaleza visual y lógica, y pueden ser corregidos con modificaciones específicas en `index.html`. Se recomienda crear un plan de acción que priorice la refactorización del backend antes de abordar las nuevas funcionalidades.
+Para consultar los resultados detallados, el análisis de factibilidad y las recomendaciones estratégicas del proyecto, por favor, refiérase al archivo `Auditoria.txt` en la raíz del repositorio.

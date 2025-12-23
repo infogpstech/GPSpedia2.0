@@ -15,6 +15,15 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.3.2 - 14/08/2024
+- **AUDITORÍA: ANÁLISIS INTEGRAL DEL PROYECTO Y CENTRALIZACIÓN DE LA DOCUMENTACIÓN:**
+  - **Contexto:** Se realizó una auditoría completa del proyecto para evaluar su estado actual, verificar la coherencia entre el código y la documentación, y analizar la factibilidad del plan estratégico.
+  - **Acciones Realizadas:**
+    1.  **Creación de Informe de Auditoría (`Auditoria.txt`):** Se ha creado un nuevo archivo `Auditoria.txt` que contiene un análisis exhaustivo del sistema, incluyendo la identificación de una inconsistencia arquitectónica crítica en el backend, la validación de bugs del frontend, un análisis de factibilidad del "Plan Estratégico v4" y recomendaciones estratégicas.
+    2.  **Centralización de la Documentación (`README.md`, `Instrucciones.txt`):** Se ha refactorizado la documentación principal para eliminar las secciones de auditoría duplicadas y redundantes. Ahora, ambos archivos contienen una referencia directa al nuevo `Auditoria.txt`, consolidando la información de auditoría en una única fuente de verdad.
+    3.  **Actualización del Título (`Instrucciones.txt`):** Se ha modificado el título del archivo para reflejar que su propósito principal es ser un instructivo, separándolo conceptualmente del informe de auditoría.
+- **Estado del Proyecto:** La auditoría ha sido completada y sus resultados están centralizados. La documentación principal ha sido limpiada, mejorando la claridad y la organización del proyecto para futuras fases de desarrollo.
+
 ## v3.3.1 - 13/08/2024
 - **DOCUMENTACIÓN: ANÁLISIS Y DETALLE DE LA ARQUITECTURA HEREDADA (V1.5):**
   - **Contexto:** Para justificar plenamente la migración a la v2.0 y documentar el punto de partida, se realizó un análisis del código fuente para reconstruir y detallar la arquitectura de la base de datos v1.5 y sus deficiencias.

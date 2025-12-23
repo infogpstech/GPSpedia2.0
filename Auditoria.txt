@@ -1,0 +1,95 @@
+=================================================
+ INFORME DE AUDITORÍA DEL PROYECTO GPSpedia
+=================================================
+**Fecha de Auditoría:** 2024-08-14
+**Versión del Informe:** 1.0
+**Auditor:** Jules
+
+### 1. Resumen Ejecutivo
+
+El propósito de esta auditoría es analizar el estado actual del proyecto GPSpedia, comparar la implementación de código con la documentación existente (`README.md`, `Instrucciones.txt`, `ChangesLogs.txt`), evaluar la factibilidad del "Plan Estratégico v4" y proporcionar recomendaciones para el futuro desarrollo.
+
+**Hallazgos Principales:**
+- El proyecto presenta una **grave inconsistencia arquitectónica** en el backend. Cuatro de los cinco microservicios utilizan un método de acceso a datos frágil (mapeo dinámico de columnas) que contradice directamente las normas de desarrollo y la implementación del servicio de autenticación. Esta es la principal fuente de riesgo de inestabilidad del sistema.
+- La documentación es exhaustiva y, en gran medida, precisa, describiendo correctamente la mayoría de las funcionalidades y los bugs existentes. Sin embargo, contiene información obsoleta sobre el acceso a datos que no refleja la realidad de la mayor parte del código.
+- Los bugs del frontend reportados en la documentación han sido validados a nivel de código y sus causas raíz confirmadas.
+- El "Plan Estratégico v4" es técnicamente factible, pero su éxito depende de que se resuelva la deuda técnica del backend **antes** de proceder con la implementación de nuevas funcionalidades.
+
+### 2. Comparativa: Documentación vs. Código Real
+
+#### A. Puntos Coincidentes
+- **Arquitectura General:** El código implementa fielmente la arquitectura de microservicios descrita, con un `api-manager.js` en el frontend que enruta las acciones a los cinco servicios de backend (`Auth`, `Catalog`, `Write`, `Users`, `Feedback`).
+- **Lógica de Negocio:** Las funcionalidades como la jerarquía de roles de usuario, el flujo de agregar/actualizar cortes y la gestión de sesiones están implementadas tal como se describen.
+- **Bugs del Frontend:** El análisis del código de `index.html` confirma las causas probables de los bugs visuales y de lógica documentados (maquetación del footer, orden de elementos en el modal, falta de estilos CSS, etc.).
+
+#### B. Discrepancias y Hallazgos Críticos
+
+- **INCONSISTENCIA ARQUITECTÓNICA GRAVE (ACCESO A DATOS):**
+  - **Documentación:** El `README.md` y `Instrucciones.txt` establecen la necesidad de usar un **mapeo de columnas fijo (hardcoded)** para garantizar la robustez del sistema, citándolo como una "Nota Crítica" en el servicio `GPSpedia-Auth`.
+  - **Realidad del Código:**
+    - `services/auth/auth.js`: **Cumple** con la norma. Utiliza un objeto `COLS` constante para acceder a las columnas por su índice fijo.
+    - `services/catalog/catalog.js`, `services/users/users.js`, `services/feedback/feedback.js`, `services/write/write.js`: **NO CUMPLEN**. Estos cuatro servicios utilizan una función `getColumnMap` que lee las cabeceras de la hoja de cálculo en tiempo de ejecución.
+  - **Corrección en Documentación:**
+    - ~~La arquitectura del backend utiliza un mapeo de columnas fijo y codificado para garantizar la estabilidad.~~
+    - **Nota Aclaratoria:** Existe una grave inconsistencia. Solo el servicio de autenticación (`auth.js`) sigue la norma de usar un mapeo de columnas fijo. Los otros cuatro servicios (`catalog`, `users`, `feedback`, `write`) utilizan un mapeo dinámico que lee las cabeceras de la hoja de cálculo, haciéndolos extremadamente frágiles a cualquier cambio en la base de datos y contradiciendo la arquitectura recomendada.
+
+- **VULNERABILIDAD DE SEGURIDAD (CONTRASEÑAS):**
+  - **Documentación:** La sección "Deficiencias de la Arquitectura v1.5" menciona correctamente que las contraseñas se manejan en texto plano.
+  - **Realidad del Código:** Los servicios `auth.js` y `users.js` confirman que las contraseñas se comparan y se escriben directamente en la hoja de cálculo sin ningún tipo de hash, validando esta crítica vulnerabilidad.
+
+- **ARCHIVOS DE DOCUMENTACIÓN:**
+  - **Documentación:** Se exige la existencia de `INSTRUCTIVO.TXT` y `CHANGESLOGS.txt`.
+  - **Realidad del Código:** Los archivos existen como `Instrucciones.txt` y `ChangesLogs.txt`. La discrepancia es menor (capitalización), pero demuestra una falta de estandarización estricta en los nombres de archivo.
+
+### 3. Análisis de Factibilidad del "Plan Estratégico v4"
+
+El plan es ambicioso y bien estructurado. Su factibilidad técnica es, en general, alta, pero está condicionada a la resolución de la deuda técnica existente.
+
+- **Fase 1 (Migración a DB v2.0):** **Alta Factibilidad.** El plan técnico detallado es claro. Sin embargo, intentar la migración sin antes estandarizar el acceso a datos (usando mapeo fijo) es muy arriesgado.
+- **Fase 2 (Feedback Avanzado):** **Alta Factibilidad.** Las modificaciones requeridas en `feedback.js` y `catalog.js` son extensiones lógicas de la funcionalidad actual.
+- **Fase 3 (Gestión y UX):** **Factibilidad Media-Alta.** El dashboard de desempeño es la tarea más compleja, ya que la agregación de datos en Apps Script puede ser lenta. Las demás tareas (edición in-modal, enlaces de un solo uso) son factibles.
+- **Fase 4 (Mejoras Adicionales):** **Factibilidad Media.** El "Modo Offline Robusto" es una tarea de alta complejidad que requiere una planificación cuidadosa y podría considerarse un proyecto separado. Las otras mejoras son más sencillas.
+
+#### Consecuencias y Proyecciones:
+- **En qué mejora:**
+  - **Estabilidad:** La migración a la DB v2.0 y, más importante aún, la estandarización del acceso a datos, eliminará la causa raíz de la mayoría de los fallos históricos, aumentando drásticamente la fiabilidad del sistema.
+  - **Calidad de Datos:** El feedback granular, los campos obligatorios y la estructura de la DB v2.0 mejorarán significativamente la precisión y utilidad de la información para los técnicos.
+  - **Mantenibilidad:** Una base de código consistente y una base de datos robusta reducirán los costos de mantenimiento y acelerarán el desarrollo futuro.
+- **En qué empeora (Riesgos):**
+  - **Deuda Técnica Arrastrada:** Si el Plan v4 se implementa **sin** corregir primero la inconsistencia del mapeo de columnas, la fragilidad del sistema simplemente se trasladará a la nueva arquitectura, invalidando gran parte del beneficio de la migración.
+  - **Complejidad de la Migración:** El script de migración es un punto único de fallo. Debe ser diseñado para ser idempotente (poder ejecutarse varias veces sin duplicar datos) y con un manejo de errores robusto.
+
+### 4. Recomendaciones Estratégicas
+
+Para garantizar el éxito del "Plan Estratégico v4", se recomienda el siguiente orden de operaciones:
+
+1.  **PRIORIDAD CERO (Bloqueante): Refactorizar el Acceso a Datos.**
+    - **Acción:** Modificar `catalog.js`, `write.js`, `users.js`, y `feedback.js` para que eliminen la función `getColumnMap` y utilicen un objeto `COLS` constante y fijo, idéntico al patrón ya implementado en `auth.js`.
+    - **Justificación:** Esta es la acción más crítica. Unifica la arquitectura, elimina la principal fuente de inestabilidad y es un prerrequisito indispensable para una migración de base de datos segura.
+
+2.  **PRIORIDAD ALTA: Implementar Hashing de Contraseñas.**
+    - **Acción:** Como parte de la Fase 1 (Migración), el script debe transformar las contraseñas de texto plano a un formato con hash y salt (ej. SHA-256) en la nueva `GPSpedia_DB_v2.0`. El servicio `auth.js` debe ser actualizado para manejar el nuevo formato.
+    - **Justificación:** Elimina una vulnerabilidad de seguridad crítica. Es más fácil hacerlo durante la migración que después.
+
+3.  **SECUENCIA DE IMPLEMENTACIÓN DEL PLAN V4:**
+    - **Primero:** Ejecutar la **Fase 1 (Migración)** y la **Fase 2 (Feedback Avanzado)**. Estas fases construyen la base de datos y la lógica de backend fundamentales.
+    - **Segundo:** Abordar la **Fase 3 (Gestión y UX)**, ya que depende de la nueva estructura de datos.
+    - **Tercero:** Considerar la **Fase 4 (Mejoras Adicionales)**, tratando el "Modo Offline" como un subproyecto de mayor envergadura que podría necesitar su propio ciclo de planificación.
+
+### 5. Funciones y Dependencias Vinculadas a las Mejoras
+
+- **Refactorización de Acceso a Datos:**
+  - **Archivos Afectados:** `catalog.js`, `write.js`, `users.js`, `feedback.js`.
+  - **Dependencias:** Ninguna. Es un cambio interno de backend.
+
+- **Fase 1: Migración a DB v2.0:**
+  - **Funciones Clave:** `doGet` en `write.js` (nuevo endpoint `executeMigration`), `handleCheckVehicle` y `handleGetCatalogData` en `catalog.js`.
+  - **Dependencias:** Requiere la creación del nuevo Google Sheet para la `GPSpedia_DB_v2.0` con el esquema correcto.
+
+- **Fase 2: Sistema de Feedback Avanzado:**
+  - **Funciones Clave:** `recordLike` y nueva `assignCollaborator` en `feedback.js`; `handleGetCatalogData` en `catalog.js`; `handleAddCorte` en `write.js`.
+  - **Dependencias:** Requiere que el frontend (`index.html`, `add_cortes.html`) se actualice para enviar los parámetros adicionales (ej. `corteIndex`).
+
+- **Fase 3: Funciones de Gestión y UX:**
+  - **Funciones Clave:** Nuevos endpoints en backend para gestionar `ActividadUsuario` y `TokensCompartir`. Refactorización de `write.js` para soportar edición. Lógica de UI principalmente en `index.html`.
+  - **Dependencias:** Requiere la existencia de las nuevas hojas de cálculo en la DB v2.0.

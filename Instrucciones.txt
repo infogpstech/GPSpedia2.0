@@ -1,10 +1,12 @@
 =================================================
- INSTRUCTIVO Y AUDITORÍA DEL PROYECTO GPSpedia 2.0
+ INSTRUCTIVO DEL PROYECTO GPSpedia 2.0
 =================================================
-Fecha de Auditoría: 2024-08-03
-Versión del Documento: 3.0
+**Versión del Documento:** 3.1
+**Fecha de Actualización:** 2024-08-14
 
-Este documento detalla el estado actual del proyecto GPSpedia 2.0, incluyendo regresiones, bugs confirmados, funcionalidades pendientes y el flujo de trabajo para el desarrollo.
+Este documento detalla las normas de desarrollo, el estado de las tareas pendientes y el flujo de trabajo para el proyecto GPSpedia 2.0.
+
+Para un análisis detallado del sistema, los hallazgos de la auditoría y las recomendaciones estratégicas, consulte el archivo `Auditoria.txt`.
 
 ---------------------------------
 NORMAS OBLIGATORIAS DE DESARROLLO
