@@ -72,22 +72,25 @@ ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
     - [ ] **Migración de Datos:** Planificar la migración de datos existentes a las nuevas columnas.
     - [ ] **Actualización de Código:** Actualizar todos los servicios y el frontend para usar la nueva estructura.
 
-### Plan Estratégico de Evolución (GPSpedia v3.3)
-- [ ] **Fase 1: Migración a Nueva Infraestructura de Base de Datos:**
-    - [ ] Diseñar el nuevo esquema de base de datos optimizado.
-    - [ ] Crear y verificar el script de migración de datos.
-    - [ ] Actualizar todos los servicios para que apunten al nuevo Spreadsheet.
-- [ ] **Fase 2: Implementación de "Más Buscados":**
-    - [ ] Desarrollar el backend para contar búsquedas y servir la lista.
-    - [ ] Implementar la nueva sección de "Más Buscados" en el frontend.
-- [ ] **Fase 3: Implementación de Edición "In-Modal" con Permisos:**
-    - [ ] Crear el endpoint `updateVehicleData` con lógica de permisos por rol.
-    - [ ] Adaptar la UI del modal para permitir la edición basada en los permisos del usuario.
-- [ ] **Fase 4: Nuevas Propuestas de Eficiencia:**
-    - [ ] Implementar un modo offline robusto para consulta de datos.
-    - [ ] Desarrollar la funcionalidad de notas personales por vehículo.
-    - [ ] Añadir la capacidad de compartir detalles de vehículos mediante código QR.
+### Plan Estratégico de Evolución (GPSpedia v3.3) - v3 Final
+- [ ] **Fase 1: Migración a Nueva Infraestructura de Base de Datos (DB v2).**
+- [ ] **Fase 2: Sistema de Feedback Avanzado y Calidad de Datos.**
+- [ ] **Fase 3: Funcionalidades de Gestión y Experiencia de Usuario.**
+- [ ] **Fase 4: Mejoras Adicionales de Eficiencia.**
 
+---
+### Diseño de la Base de Datos v2 (GPSpedia_DB_v2.0)
+
+#### Hoja: `Cortes` (Alta Granularidad)
+- **Columnas Clave:** `id`, `categoria`, `marca`, `modelo`, `versionesAplicables`, `anoDesde`, `anoHasta`, `tipoEncendido`, `imagenVehiculo`, `videoGuiaDesarmeURL`, `contadorBusquedas`.
+- **Columnas por Corte (x3):** `tipoCorteX`, `ubicacionCorteX`, `colorCableCorteX`, `imgCorteX`, `utilCorteX`, `colaboradorCorteX`.
+
+#### Hojas de Sistema (Nuevas)
+- **`ActividadUsuario`:** Para el dashboard de desempeño. Columnas: `id`, `timestamp`, `idUsuario`, `tipoActividad`, `idElementoAsociado`.
+- **`TokensCompartir`:** Para enlaces de un solo uso. Columnas: `token`, `idVehiculo`, `estado`, `fechaCreacion`.
+- **`LogosMarca`:** Para centralizar logos. Columnas: `nombreMarca`, `urlLogo`.
+
+---
 ### Revisiones y Ajustes de UI Pendientes
 - [ ] **Ajuste del Encabezado Principal (`index.html`):**
     - [ ] Posicionar el encabezado (`GPSpedia`) a la izquierda.
@@ -103,5 +106,5 @@ ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
 - [ ] **Creación de Página de Información (`info.html`):**
     - [ ] Desarrollar una página estática con las secciones "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes".
     - [ ] **"Sobre Nosotros":** Adaptar la descripción del `README.md` a un lenguaje para el consumidor final.
-    - [ ] **"Contáctenos":** Crear un formulario (Nombre Organización, Correo, Teléfono, Mensaje) que envíe datos a una nueva hoja de Google Sheets.
+    - [ ] **"Contáctenos":** Crear un formulario (Nombre Organización, Correo, Teléfono, Mensaje) que envíe datos a la nueva hoja `Contactanos`.
     - [ ] **"Preguntas Frecuentes":** Crear un acordeón explicando las funcionalidades del catálogo para nuevos usuarios.

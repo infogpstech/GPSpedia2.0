@@ -15,6 +15,15 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.2.6 - 08/08/2024
+- **DOCUMENTACIÓN: REFINAMIENTO DEL PLAN ESTRATÉGICO Y DISEÑO DE DB V3:**
+  - **Contexto:** Basado en nueva retroalimentación, se ha refinado el plan estratégico (v3.3) a su versión final (v3), detallando con mayor granularidad la nueva arquitectura de la base de datos y las nuevas funcionalidades.
+  - **Acciones Realizadas:**
+    1.  **Actualización del Plan Estratégico (`README.md`, `Instrucciones.txt`):** Se reemplazó el plan existente con la versión 3 final, que incluye: feedback por corte, consolidación de modelos con `versionesAplicables`, dashboard de desempeño y el sistema de compartir de un solo uso.
+    2.  **Actualización del Esquema de DB (`README.md`, `Instrucciones.txt`):** Se actualizó la documentación para reflejar el diseño final de la base de datos v2, incluyendo la estructura de alta granularidad para la hoja `Cortes` y la definición de las nuevas hojas de sistema: `ActividadUsuario`, `TokensCompartir` y `LogosMarca`.
+    3.  **Refinamiento de Tareas:** Se ajustaron las descripciones de las tareas para reflejar las nuevas especificaciones, como la lógica del sistema de notificaciones y la mejora en la búsqueda.
+- **Estado del Proyecto:** La documentación contiene ahora la hoja de ruta definitiva y detallada para la siguiente fase de desarrollo de GPSpedia, asegurando que todos los nuevos requisitos estén claramente definidos antes de la implementación.
+
 ## v3.2.5 - 07/08/2024
 - **DOCUMENTACIÓN: PLAN ESTRATÉGICO DE EVOLUCIÓN (V3.3):**
   - **Contexto:** Se ha diseñado un plan estratégico a mediano plazo para la evolución del proyecto, centrado en la migración de la base de datos y la implementación de nuevas funcionalidades de alta eficiencia para el técnico. Este plan ha sido documentado para guiar los futuros ciclos de desarrollo.
