@@ -98,11 +98,40 @@ ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
     - **Inconsistencia Arquitectónica:** Coexisten dos métodos de acceso a la base de datos (dinámico y fijo), complicando el mantenimiento.
 
 #### Arquitectura v2.0 (Nueva)
-- **Principio:** Una base de datos nueva, independiente y diseñada con una estructura granular para máxima robustez.
-- **Hoja `Cortes` (Alta Granularidad):**
-    - **Columnas Clave:** `id`, `categoria`, `marca`, `modelo`, `versionesAplicables`, `anoDesde`, `anoHasta`, `tipoEncendido`, `configRelay` (Validación de datos), `imagenVehiculo`, `videoGuiaDesarmeURL`, `contadorBusquedas`.
-    - **Columnas por Corte (x3):** `tipoCorteX`, `ubicacionCorteX`, `colorCableCorteX`, `imgCorteX` (los 4 son obligatorios), `utilCorteX`, `colaboradorCorteX`.
-- **Hojas de Sistema (Nuevas):** `ActividadUsuario`, `TokensCompartir`, `LogosMarca`.
+- **ID de Google Sheet:** `1M6zAVch_EGKGGRXIo74Nbn_ihH1APZ7cdr2kNdWfiDs`
+- **Principio de Diseño:** Una estructura granular y robusta, diseñada para ser explícita, flexible y a prueba de errores de formato. Es totalmente independiente de la v1.5.
+
+##### 1. Hoja: `Users`
+- **Columnas:** `id`, `nombreUsuario`, `password`, `privilegios`, `nombre`, `telefono`, `correoElectronico`, `sessionToken`.
+
+##### 2. Hoja: `Cortes`
+- **Columnas:**
+    - `id`, `categoria`, `marca`, `modelo`, `versionesAplicables`, `anoDesde`, `anoHasta`, `tipoEncendido`, `imagenVehiculo`, `videoGuiaDesarmeUrl`, `contadorBusqueda`, `notaImportante`, `timestamp`.
+    - **Bloque por Corte (x3):** `tipoCorteX`, `ubicacionCorteX`, `colorCableCorteX`, `imgCorteX`, `utilCorteX`, `colaboradorCorteX`.
+
+##### 3. Hoja: `LogosMarcas`
+- **Columnas:** `id`, `nombreMarca`, `urlLogo`, `fabricanteNombre`.
+
+##### 4. Hoja: `Tutorial`
+- **Columnas:** `id`, `tema`, `imagen`, `comoIdentificarlo`, `dondeEncontrarlo`, `detalles`, `video`.
+
+##### 5. Hoja: `Relay`
+- **Columnas:** `id`, `configuracion`, `funcion`, `vehiculoDondeSeUtiliza`, `pin30Entrada`, `pin85Bobina`, `pin86Bobina`, `pin87aComunCerrado`, `pin87ComunmenteAbierto`, `imagen`, `observacion`.
+
+##### 6. Hoja: `ActiveSessions`
+- **Columnas:** `idUsuario`, `sessionToken`, `timestamp`.
+
+##### 7. Hoja: `Feedbacks`
+- **Columnas:** `id`, `usuario`, `idVehiculo`, `problema`, `respuesta`, `seResolvio`, `responde`, `reporteDeUtil`.
+
+##### 8. Hoja: `Contactanos`
+- **Columnas:** `contactoId`, `userId`, `asunto`, `mensaje`, `respuestaMensaje`, `idUsuarioResponde`.
+
+##### 9. Hoja: `Logs`
+- **Columnas:** `timestamp`, `level`, `message`, `data`.
+
+##### 10. Hoja: `ActividadUsuario`
+- **Columnas:** `id`, `timestamp`, `idUsuario`, `nombreUsuario`, `tipoActividad`, `idElementoAsociado`, `detalle`.
 
 ---
 ### Revisiones y Ajustes de UI Pendientes

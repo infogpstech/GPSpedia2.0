@@ -15,6 +15,14 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.3.3 - 14/08/2024
+- **DOCUMENTACIÓN: ACTUALIZACIÓN DEL ESQUEMA DE BASE DE DATOS V2.0:**
+  - **Contexto:** Se ha actualizado la documentación para reflejar la estructura final y confirmada de la nueva base de datos (`GPSpedia_DB_v2.0`) que se utilizará para la migración.
+  - **Acciones Realizadas:**
+    1.  **Actualización de ID de Spreadsheet (`README.md`, `Instrucciones.txt`):** Se ha añadido el ID de la nueva hoja de cálculo de Google Sheets (`1M6zAVch_EGKGGRXIo74Nbn_ihH1APZ7cdr2kNdWfiDs`) a la sección "Arquitectura de Base de Datos v2.0".
+    2.  **Detalle de Estructura de Hojas (`README.md`, `Instrucciones.txt`):** Se ha reemplazado el diseño de base de datos anterior por la estructura final y detallada de las 10 hojas, incluyendo los nombres de columna corregidos y normalizados a formato `camelCase` según la confirmación del usuario.
+- **Estado del Proyecto:** La documentación del proyecto ahora contiene una descripción precisa y actualizada de la nueva arquitectura de base de datos, asegurando que los futuros desarrollos de migración y refactorización se basen en el esquema correcto.
+
 ## v3.3.2 - 14/08/2024
 - **AUDITORÍA: ANÁLISIS INTEGRAL DEL PROYECTO Y CENTRALIZACIÓN DE LA DOCUMENTACIÓN:**
   - **Contexto:** Se realizó una auditoría completa del proyecto para evaluar su estado actual, verificar la coherencia entre el código y la documentación, y analizar la factibilidad del plan estratégico.

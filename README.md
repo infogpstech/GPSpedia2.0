@@ -205,38 +205,57 @@ Esta sección detalla la estructura y las deficiencias de la base de datos origi
 
 ### 6.2. Arquitectura de Base de Datos v2.0 (Nueva)
 
-Esta es la nueva arquitectura diseñada para resolver las deficiencias de la v1.5.
+Esta es la nueva arquitectura diseñada para resolver las deficiencias de la v1.5 y soportar las futuras funcionalidades del proyecto.
 
-- **ID de Google Sheet:** (Se asignará a un nuevo spreadsheet)
+- **ID de Google Sheet:** `1M6zAVch_EGKGGRXIo74Nbn_ihH1APZ7cdr2kNdWfiDs`
 - **Principio de Diseño:** Una estructura granular y robusta, diseñada para ser explícita, flexible y a prueba de errores de formato. Es totalmente independiente de la v1.5.
 
 #### Diseño Detallado de `GPSpedia_DB_v2.0`
 
-##### Hoja: `Cortes`
+A continuación se detalla la estructura de cada hoja en la nueva base de datos. Los nombres de las columnas están normalizados a formato `camelCase` para mantener la consistencia en el código.
+
+##### 1. Hoja: `Users`
+- **Propósito:** Gestión de usuarios, credenciales y perfiles.
+- **Columnas:** `id`, `nombreUsuario`, `password`, `privilegios`, `nombre`, `telefono`, `correoElectronico`, `sessionToken`.
+
+##### 2. Hoja: `Cortes`
 - **Propósito:** Catálogo principal con estructura granular para datos de alta calidad.
 - **Columnas:**
-    - `id`, `categoria` (Estandarizada), `marca`, `modelo`, `versionesAplicables` (para consolidar variantes), `anoDesde`, `anoHasta`, `tipoEncendido`, `configRelay` (Validación de datos desde hoja `Relay`), `imagenVehiculo`, `videoGuiaDesarmeURL`, `contadorBusquedas`.
-    - **Bloque por Corte (x3):** Para cada corte (1, 2, y 3), se incluyen las siguientes columnas, siendo las primeras 4 obligatorias si el bloque se utiliza:
-        - `tipoCorteX` (Obligatorio)
-        - `ubicacionCorteX` (Obligatorio)
-        - `colorCableCorteX` (Obligatorio)
-        - `imgCorteX` (Obligatorio)
-        - `utilCorteX`
-        - `colaboradorCorteX`
-    - `timestamp`.
+    - `id`, `categoria`, `marca`, `modelo`, `versionesAplicables`, `anoDesde`, `anoHasta`, `tipoEncendido`, `imagenVehiculo`, `videoGuiaDesarmeUrl`, `contadorBusqueda`, `notaImportante`, `timestamp`.
+    - **Bloque por Corte (x3):** Para cada corte (1, 2, y 3), se incluyen las siguientes columnas:
+        - `tipoCorteX`, `ubicacionCorteX`, `colorCableCorteX`, `imgCorteX`, `utilCorteX`, `colaboradorCorteX`.
 
-#### Hoja: `LogosMarca` (Nueva)
-- **Propósito:** Centralizar la gestión de logos de marcas.
-- **Columnas:** `id`, `nombreMarca` (clave normalizada, ej. "toyota"), `urlLogo`.
+##### 3. Hoja: `LogosMarcas`
+- **Propósito:** Centralizar la gestión de logos de marcas para el frontend.
+- **Columnas:** `id`, `nombreMarca`, `urlLogo`, `fabricanteNombre`.
 
-#### Hojas de Sistema
-- **`Users`, `ActiveSessions`, `Tutoriales`, `Relay`, `Feedbacks`, `Contactanos`, `Logs`:** Estas hojas se migrarán al nuevo spreadsheet, manteniendo sus estructuras ya definidas.
-- **`ActividadUsuario` (Nueva):**
-    - **Propósito:** Registrar cada acción de usuario (likes, reportes, contribuciones) para el dashboard de desempeño.
-    - **Columnas:** `id`, `timestamp`, `idUsuario`, `nombreUsuario`, `tipoActividad`, `idElementoAsociado`, `detalle`.
-- **`TokensCompartir` (Nueva):**
-    - **Propósito:** Gestionar los enlaces de un solo uso.
-    - **Columnas:** `token`, `idVehiculo`, `estado` ('NO_USADO', 'USADO'), `fechaCreacion`, `fechaExpiracion` (nuevo, para purga automática).
+##### 4. Hoja: `Tutorial`
+- **Propósito:** Almacenar guías y tutoriales multimedia.
+- **Columnas:** `id`, `tema`, `imagen`, `comoIdentificarlo`, `dondeEncontrarlo`, `detalles`, `video`.
+
+##### 5. Hoja: `Relay`
+- **Propósito:** Almacenar información técnica sobre configuraciones de relays.
+- **Columnas:** `id`, `configuracion`, `funcion`, `vehiculoDondeSeUtiliza`, `pin30Entrada`, `pin85Bobina`, `pin86Bobina`, `pin87aComunCerrado`, `pin87ComunmenteAbierto`, `imagen`, `observacion`.
+
+##### 6. Hoja: `ActiveSessions`
+- **Propósito:** Rastrear las sesiones de usuario activas para la validación.
+- **Columnas:** `idUsuario`, `sessionToken`, `timestamp`.
+
+##### 7. Hoja: `Feedbacks`
+- **Propósito:** Gestionar los reportes de problemas enviados por los usuarios.
+- **Columnas:** `id`, `usuario`, `idVehiculo`, `problema`, `respuesta`, `seResolvio`, `responde`, `reporteDeUtil`.
+
+##### 8. Hoja: `Contactanos`
+- **Propósito:** Recibir y gestionar los mensajes enviados a través del formulario de contacto.
+- **Columnas:** `contactoId`, `userId`, `asunto`, `mensaje`, `respuestaMensaje`, `idUsuarioResponde`.
+
+##### 9. Hoja: `Logs`
+- **Propósito:** Registrar eventos importantes y errores del sistema para depuración.
+- **Columnas:** `timestamp`, `level`, `message`, `data`.
+
+##### 10. Hoja: `ActividadUsuario`
+- **Propósito:** Registrar acciones de los usuarios para futuras analíticas y dashboards de desempeño.
+- **Columnas:** `id`, `timestamp`, `idUsuario`, `nombreUsuario`, `tipoActividad`, `idElementoAsociado`, `detalle`.
 
 ## 7. Sistema de Versionamiento Híbrido
 
