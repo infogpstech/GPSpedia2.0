@@ -15,6 +15,15 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.2.8 - 10/08/2024
+- **DOCUMENTACIÓN: FINALIZACIÓN Y OPTIMIZACIÓN DEL PLAN ESTRATÉGICO V4:**
+  - **Contexto:** Basado en la última retroalimentación, se ha consolidado y optimizado toda la documentación del proyecto en torno a una nueva versión final del plan estratégico (v4), y se ha limpiado la lista de tareas pendientes para reflejar las nuevas prioridades.
+  - **Acciones Realizadas:**
+    1.  **Actualización a Plan Estratégico v4 (`README.md`, `Instrucciones.txt`):** Se ha reemplazado la versión anterior del plan con el "Plan Estratégico v4 (Final y Optimizado)", que representa la hoja de ruta definitiva y más detallada para el futuro de GPSpedia.
+    2.  **Optimización de Tareas Pendientes (`README.md`, `Instrucciones.txt`):** Se ha refactorizado la lista de "Trabajos Pendientes", eliminando tareas redundantes o absorbidas por el nuevo plan estratégico y agrupando las tareas restantes por prioridad (Bugs Críticos, Mejoras Prioritarias, etc.) para mayor claridad.
+    3.  **Sincronización de Documentación:** Se ha asegurado que `README.md` y `Instrucciones.txt` estén perfectamente sincronizados con la nueva visión del proyecto.
+- **Estado del Proyecto:** La documentación del proyecto ha alcanzado su estado más claro y optimizado. El plan estratégico y la lista de tareas pendientes ahora reflejan con precisión la visión final y los próximos pasos a seguir.
+
 ## v3.2.7 - 09/08/2024
 - **DOCUMENTACIÓN: REFINAMIENTO DEL PLAN ESTRATÉGICO Y POLÍTICA DE VERSIONAMIENTO:**
   - **Contexto:** Se ha refinado y ampliado la documentación estratégica del proyecto para incluir un nivel de detalle técnico y funcional superior, y para formalizar una nueva política de versionamiento.

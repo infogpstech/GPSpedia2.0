@@ -56,46 +56,29 @@ Para organizar el desarrollo y asegurar la calidad, el trabajo se dividirá en f
 ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
 ---------------------------------
 
-### Bugs y Regresiones por Corregir
-- [x] **Carga de Información en Secciones:** Las secciones "Tutoriales" y "Relay" no cargan su contenido. *(Solucionado en v3.1.8 con la refactorización del backend).*
-- [ ] **Organización del Pie de Página:** Los enlaces del footer deben aparecer debajo del aviso de copyright.
-- [ ] **Layout del Modal de Detalle:** El nombre del colaborador debe estar posicionado sobre los botones de feedback.
-- [ ] **Estilo de Botones de Feedback:** Los botones "Útil" y "Reportar" en el modal no tienen el estilo aplicado.
-- [ ] **Visibilidad de Tercera Opción de Corte:** La tercera opción de corte no es visible en el modal, incluso si existen los datos.
-- [ ] **Posición del Botón Limpiar Búsqueda:** El botón "x" de la barra de búsqueda se muestra fuera de su contenedor.
-- [ ] **Error en Carga de Nombre de Usuario:** En la gestión de usuarios (`users.js`), el "Nombre de usuario" se muestra como `undefined`.
+### Bugs y Regresiones Críticas
+- [ ] **Layout del Modal:** Corregir la posición del nombre del colaborador y el estilo de los botones de feedback.
+- [ ] **Visibilidad de Cortes:** Asegurar que las tres opciones de corte sean visibles en el modal si existen los datos.
+- [ ] **UI General:** Solucionar bugs visuales (pie de página, botón de limpiar búsqueda, carga de nombre de usuario).
 
-### Mejoras de Funcionalidad Pendientes
-- [ ] **Mejora del Sistema de Búsqueda (`checkVehicle`):**
-    - [ ] Implementar una lógica de búsqueda flexible que muestre múltiples opciones si hay coincidencias parciales (ej. "Frontier" debe poder encontrar "Frontier NP300 SE").
-    - [ ] La búsqueda debe considerar coincidencias con palabras separadas o la primera palabra completa.
-- [ ] **Mejora del Sistema de Feedback (Colaborador):**
-    - [ ] Modificar el formato del campo "Colaborador" para incluir la contribución específica entre paréntesis.
-    - [ ] Ejemplo: `Byron López (Cort 1, Apert.)`.
-    - [ ] Si hay múltiples colaboradores, deben aparecer en líneas separadas. Ejemplo: `Byron López (Cort 1, Apert.)\nJoel Reyes (Cort 2, C. Alimen.)`.
-- [ ] **Implementación de Sistema de Debugging Integral:**
-    - [ ] **Backend:** Cada microservicio debe tener su propio módulo de debugging para responder a llamadas cURL.
-    - [ ] **Frontend:** Crear una consola de debugging en `index.html`, accesible solo para el rol "Desarrollador".
-    - [ ] **Funcionalidades de la Consola:**
-        - [ ] Visualizar el estado y los errores de los servicios.
-        - [ ] Guardar registros (error, advertencia, etc.) en la hoja "Logs" de Google Sheets.
-        - [ ] Activar/desactivar funciones del navegador para prevenir debugging externo (ej. F12, menú contextual, copiar, zoom).
-- [ ] **Implementar Estrategia de Carga de Imágenes Optimizada (Lazy Load):**
-    - [ ] **Tarjetas del catálogo:** Cargar miniaturas de baja resolución (ej. `sz=w200`) para acelerar la carga inicial.
-    - [ ] **Modal de detalle:** Al abrir el modal, cargar miniaturas de resolución media (ej. `sz=w800`).
-    - [ ] **Lightbox:** Al hacer clic en una imagen del modal, mostrar la imagen en su resolución original (ej. `sz=w2048`) en un lightbox.
-    - [ ] **Seguridad en Lightbox:** En la vista de lightbox, deshabilitar el menú contextual, la función de copiar y las herramientas de desarrollador (F12) para proteger las imágenes. La única interacción permitida debe ser el zoom.
-- [ ] **Refactorizar Base de Datos y Lógica para Soportar Rangos de Años:**
-    - [ ] **Cambio de Esquema:** En la hoja "Cortes", reemplazar `Año (Generacion)` por `anoDesde` y `anoHasta`.
-    - [ ] **Migración de Datos:** Planificar la migración de datos existentes a las nuevas columnas.
-    - [ ] **Actualización de Código:** Actualizar todos los servicios y el frontend para usar la nueva estructura.
-- [ ] **Implementar el nuevo Sistema de Versionamiento Híbrido en todos los archivos de código fuente.**
+### Mejoras de Funcionalidad Prioritarias
+- [ ] **Búsqueda Flexible:** Mejorar `checkVehicle` para que devuelva coincidencias parciales y múltiples resultados.
+- [ ] **Debugging Integral:** Implementar un sistema de debugging en backend y frontend accesible por rol.
+- [ ] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes para mejorar el rendimiento.
+- [ ] **Soporte para Rango de Años:** Refactorizar la base de datos y la lógica para usar `anoDesde` y `anoHasta` en lugar de un año fijo.
+- [ ] **Sistema de Versionamiento Híbrido:** Aplicar el nuevo sistema de versionamiento a todos los componentes del código fuente.
 
-### Plan Estratégico de Evolución (GPSpedia v3.3) - v3 Final
-- [ ] **Fase 1: Migración a Nueva Infraestructura de Base de Datos (DB v2).** Incluye diseño de esquema granular y creación de script de migración.
-- [ ] **Fase 2: Sistema de Feedback Avanzado y Calidad de Datos.** Incluye feedback por corte, ordenamiento por utilidad y validación de datos obligatorios.
-- [ ] **Fase 3: Funcionalidades de Gestión y Experiencia de Usuario.** Incluye dashboard de desempeño, ranking de "Más Buscados", edición in-modal, sistema de compartir de un solo uso y notificaciones inteligentes.
-- [ ] **Fase 4: Mejoras Adicionales de Eficiencia.** Incluye modo offline y notas personales.
+### Revisiones de UI/UX
+- [ ] **Ajustes de Layout:** Realizar ajustes de espaciado, encabezado y visualización de "Últimos Agregados" según las especificaciones.
+
+### Nuevas Funcionalidades
+- [ ] **Página de Información (`info.html`):** Crear una página estática con las secciones "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes", con su respectivo formulario de contacto.
+
+### Plan Estratégico v4 (Final y Optimizado)
+- [ ] **Fase 1: Migración a Base de Datos Optimizada (DB v2.0).**
+- [ ] **Fase 2: Sistema de Feedback Avanzado y Calidad de Datos.**
+- [ ] **Fase 3: Funcionalidades de Gestión y Experiencia de Usuario.**
+- [ ] **Fase 4: Mejoras Adicionales (Offline, Notas Personales, Relay Anidado).**
 
 ---
 ### Diseño de la Base de Datos v2 (GPSpedia_DB_v2.0)

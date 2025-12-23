@@ -40,47 +40,37 @@ La arquitectura de GPSpedia 2.0 se compone de tres capas principales:
                          └──────────────────┘
 ```
 
-## 3. Plan Estratégico de Evolución (GPSpedia v3.3) - v3 Final
+## 3. Plan Estratégico v4 (Final y Optimizado)
 
-Esta sección define la hoja de ruta oficial para la siguiente gran versión de GPSpedia, centrada en una re-arquitectura de datos y la implementación de funcionalidades de alta eficiencia.
+Esta sección define la hoja de ruta para la siguiente gran versión de GPSpedia, centrada en una re-arquitectura de datos y la implementación de funcionalidades de alta eficiencia.
 
-### Fase 1: Migración a Nueva Infraestructura de Base de Datos (DB v2)
-- **Objetivo:** Crear una base de datos optimizada en un **nuevo Google Spreadsheet** (`GPSpedia_DB_v2.0`) para soportar funcionalidades avanzadas, manteniendo el spreadsheet actual intacto por compatibilidad con GPSpedia v1.5.
-- **Tareas Clave y Detalles Técnicos:**
-    - [ ] **Diseñar Nuevo Esquema Granular:** Implementar la nueva estructura de hojas y columnas (ver sección 6.1 para detalles), que incluye:
-        - **Consolidación de Modelos:** La nueva columna `versionesAplicables` permitirá agrupar múltiples variantes (ej. "NP300, SE, LE") en una sola fila, reduciendo la redundancia. La lógica de búsqueda se mejorará para buscar en `modelo` y `versionesAplicables`.
-        - **Feedback por Corte:** Se crearán columnas individuales (`tipoCorteX`, `ubicacionCorteX`, `colorCableCorteX`, `imgCorteX`, `utilCorteX`, `colaboradorCorteX`) para cada uno de los tres posibles cortes, permitiendo feedback y atribución granular.
-    - [ ] **Crear Script de Migración Automatizada:** Desarrollar un endpoint (`?action=executeMigration`) en `GPSpedia-Write` (protegido para rol "Desarrollador") que transfiera y transforme los datos.
-- **Nota Crítica de Compatibilidad:** La columna `Año (Generacion)` del spreadsheet antiguo se preserva, garantizando el funcionamiento de la v1.5.
+### Fase 1: Migración a Base de Datos Optimizada (DB v2.0)
+- **Objetivo:** Crear una base de datos en un **nuevo Google Spreadsheet** para soportar funcionalidades avanzadas, manteniendo la compatibilidad con la v1.5.
+- **Tareas Clave:**
+    - [ ] **Diseñar Nuevo Esquema:** Implementar la estructura granular detallada en la sección "Diseño Detallado de `GPSpedia_DB_v2.0`".
+    - [ ] **Script de Migración:** Desarrollar un endpoint para migrar y transformar los datos de la base de datos antigua a la nueva.
 
 ### Fase 2: Sistema de Feedback Avanzado y Calidad de Datos
-- **Objetivo:** Mejorar drásticamente la calidad de los datos y la utilidad del feedback.
-- **Tareas Clave y Detalles Técnicos:**
-    - [ ] **Feedback Granular y Ordenamiento por Utilidad:**
-        - **Backend:** La lógica de `recordLike` en `feedback.js` aceptará un índice de corte para actualizar la columna `utilCorteX` correcta. Antes de enviar los datos al cliente, `catalog.js` ordenará los bloques de corte (corte1, corte2, corte3) de cada vehículo según la cantidad de "likes", asegurando que el más útil siempre se muestre primero.
-        - **Frontend:** El modal de detalles mostrará un botón "Útil" y un colaborador para cada sección de corte individual.
-    - [ ] **Validación de Datos Obligatorios:** El formulario de `add_cortes.html` y el backend (`write.js`) forzarán que cada nuevo corte enviado deba contener obligatoriamente los 4 campos clave: `tipo`, `ubicación`, `color de cable` e `imagen`.
+- **Objetivo:** Mejorar la calidad de los datos y la utilidad del feedback.
+- **Tareas Clave:**
+    - [ ] **Feedback Granular:** Implementar "likes" y colaborador por cada corte individual.
+    - [ ] **Ordenamiento por Utilidad:** El backend ordenará los cortes de un vehículo según su popularidad antes de enviarlos al frontend.
+    - [ ] **Campos Obligatorios:** Forzar el llenado de `tipo`, `ubicación`, `color` e `imagen` para cada nuevo corte.
 
 ### Fase 3: Funcionalidades de Gestión y Experiencia de Usuario
-- **Objetivo:** Introducir herramientas de gestión y mejorar la experiencia del usuario final.
-- **Tareas Clave y Detalles Técnicos:**
-    - [ ] **Dashboard de Desempeño:**
-        - **Backend:** Un nuevo endpoint (`getTechnicianPerformance`) analizará la hoja `ActividadUsuario` para generar un ranking de técnicos basado en contribuciones, likes recibidos y reportes enviados.
-        - **Frontend:** Una nueva página `dashboard.html` (para Jefes/Supervisores) mostrará una tabla con: `Nombre del Técnico`, `Nuevos Cortes Aportados`, `Likes Recibidos` y `Reportes Enviados`.
-    - [ ] **Ranking de "Más Buscados":** Se implementará un contador `contadorBusquedas` en la hoja `Cortes` que se incrementará con cada búsqueda exitosa. Una nueva sección en la UI principal mostrará los vehículos con el contador más alto.
-    - [ ] **Edición "In-Modal" con Permisos por Rol:** El modal de detalles permitirá la edición de campos según el rol del usuario, con lógica de permisos aplicada en el backend.
-    - [ ] **Sistema de Compartir de Un Solo Uso:**
-        - **Backend:** Se usará una nueva hoja `TokensCompartir` para generar tokens con una **fecha de caducidad de 24 horas**. Un trigger periódico purgará los tokens expirados.
-        - **Frontend:** Al compartir, se generará una URL con el token. Al ser usada, el token se marcará como `USADO` y el enlace quedará invalidado para usos futuros.
-    - [ ] **Sistema de Notificaciones Inteligentes:**
-        - **Eliminación:** Se eliminará la notificación emergente de "Instalar Aplicación".
-        - **Nueva Lógica:** El backend (`getCatalogData`) comparará un timestamp del cliente para devolver una lista de cortes nuevos. El frontend mostrará una notificación "toast" no intrusiva (ej. "+5 nuevos cortes agregados") y un indicador visual en el menú.
+- **Objetivo:** Introducir herramientas de gestión y mejorar la experiencia del usuario.
+- **Tareas Clave:**
+    - [ ] **Dashboard de Desempeño:** Crear una vista para Supervisores con métricas de contribución de técnicos.
+    - [ ] **Edición "In-Modal":** Permitir la edición de datos directamente desde el modal de detalles, con permisos por rol.
+    - [ ] **Enlaces de un solo uso:** Generar enlaces temporales (24h) y de un solo uso para compartir información.
+    - [ ] **Notificaciones Inteligentes:** Reemplazar el banner de instalación con notificaciones "toast" sobre nuevos cortes.
 
-### Fase 4: Mejoras Adicionales de Eficiencia
+### Fase 4: Mejoras Adicionales
 - **Objetivo:** Añadir funcionalidades de alto valor para el trabajo en campo.
-- **Propuestas a Implementar:**
-    - [ ] **Modo Offline Robusto:** Implementar caching de datos e imágenes con un Service Worker.
-    - [ ] **Notas Personales por Vehículo:** Desarrollar la funcionalidad para que los usuarios guarden notas privadas en cada vehículo.
+- **Tareas Clave:**
+    - [ ] **Modo Offline Robusto:** Implementar caching avanzado.
+    - [ ] **Notas Personales:** Permitir a los usuarios guardar notas privadas por vehículo.
+    - [ ] **Modal de Relay Anidado:** Mostrar detalles de configuraciones de Relay en un modal secundario.
 
 ---
 
@@ -88,58 +78,23 @@ Esta sección define la hoja de ruta oficial para la siguiente gran versión de 
 
 Esta sección documenta las tareas de desarrollo, corrección y regresiones pendientes de la versión actual.
 
-### Bugs y Regresiones por Corregir
-- [x] **Carga de Información en Secciones:** Las secciones "Tutoriales" y "Relay" no cargan su contenido. *(Solucionado en v3.1.8 con la refactorización del backend).*
-- [ ] **Organización del Pie de Página:** Los enlaces del footer deben aparecer debajo del aviso de copyright.
-- [ ] **Layout del Modal de Detalle:** El nombre del colaborador debe estar posicionado sobre los botones de feedback.
-- [ ] **Estilo de Botones de Feedback:** Los botones "Útil" y "Reportar" en el modal no tienen el estilo aplicado.
-- [ ] **Visibilidad de Tercera Opción de Corte:** La tercera opción de corte no es visible en el modal, incluso si existen los datos.
-- [ ] **Posición del Botón Limpiar Búsqueda:** El botón "x" de la barra de búsqueda se muestra fuera de su contenedor.
-- [ ] **Error en Carga de Nombre de Usuario:** En la gestión de usuarios, el "Nombre de usuario" se muestra como `undefined` en la lista.
+### Bugs y Regresiones Críticas
+- [ ] **Layout del Modal:** Corregir la posición del nombre del colaborador y el estilo de los botones de feedback.
+- [ ] **Visibilidad de Cortes:** Asegurar que las tres opciones de corte sean visibles en el modal si existen los datos.
+- [ ] **UI General:** Solucionar bugs visuales (pie de página, botón de limpiar búsqueda, carga de nombre de usuario).
 
-### Mejoras de Funcionalidad Pendientes
-- [ ] **Mejora del Sistema de Búsqueda (`checkVehicle`):**
-    - [ ] Implementar una lógica de búsqueda flexible que muestre múltiples opciones si hay coincidencias parciales (ej. "Frontier" debe poder encontrar "Frontier NP300 SE").
-    - [ ] La búsqueda debe considerar coincidencias con palabras separadas o la primera palabra completa.
-- [ ] **Mejora del Sistema de Feedback (Colaborador):**
-    - [ ] Modificar el formato del campo "Colaborador" para incluir la contribución específica entre paréntesis.
-    - [ ] Ejemplo: `Byron López (Cort 1, Apert.)`.
-    - [ ] Si hay múltiples colaboradores, deben aparecer en líneas separadas. Ejemplo: `Byron López (Cort 1, Apert.)\nJoel Reyes (Cort 2, C. Alimen.)`.
-- [ ] **Implementación de Sistema de Debugging Integral:**
-    - [ ] **Backend:** Cada microservicio debe tener su propio módulo de debugging para responder a llamadas cURL.
-    - [ ] **Frontend:** Crear una consola de debugging en `index.html`, accesible solo para el rol "Desarrollador".
-    - [ ] **Funcionalidades de la Consola:**
-        - [ ] Visualizar el estado y los errores de los servicios.
-        - [ ] Guardar registros (error, advertencia, etc.) en la hoja "Logs" de Google Sheets.
-        - [ ] Activar/desactivar funciones del navegador para prevenir debugging externo (ej. F12, menú contextual, copiar, zoom).
-- [ ] **Implementar Estrategia de Carga de Imágenes Optimizada (Lazy Load):**
-    - [ ] **Tarjetas del catálogo:** Cargar miniaturas de baja resolución (ej. `sz=w200`) para acelerar la carga inicial.
-    - [ ] **Modal de detalle:** Al abrir el modal, cargar miniaturas de resolución media (ej. `sz=w800`).
-    - [ ] **Lightbox:** Al hacer clic en una imagen del modal, mostrar la imagen en su resolución original (ej. `sz=w2048`) en un lightbox.
-    - [ ] **Seguridad en Lightbox:** En la vista de lightbox, deshabilitar el menú contextual, la función de copiar y las herramientas de desarrollador (F12) para proteger las imágenes. La única interacción permitida debe ser el zoom.
-- [ ] **Refactorizar Base de Datos y Lógica para Soportar Rangos de Años:**
-    - [ ] **Cambio de Esquema:** En la hoja "Cortes", reemplazar la columna `Año (Generacion)` por `anoDesde` y `anoHasta`.
-    - [ ] **Migración de Datos:** Crear un script (posiblemente en `write.js`) para migrar los datos de la columna antigua a las dos nuevas.
-    - [ ] **Actualización de Servicios:** Modificar todos los servicios (`catalog.js`, `write.js`, `feedback.js`) y el frontend (`index.html`, `add_cortes.html`) para que utilicen la nueva estructura de años.
-- [ ] **Implementar el nuevo Sistema de Versionamiento Híbrido en todos los archivos de código fuente.**
+### Mejoras de Funcionalidad Prioritarias
+- [ ] **Búsqueda Flexible:** Mejorar `checkVehicle` para que devuelva coincidencias parciales y múltiples resultados.
+- [ ] **Debugging Integral:** Implementar un sistema de debugging en backend y frontend accesible por rol.
+- [ ] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes para mejorar el rendimiento.
+- [ ] **Soporte para Rango de Años:** Refactorizar la base de datos y la lógica para usar `anoDesde` y `anoHasta` en lugar de un año fijo.
+- [ ] **Sistema de Versionamiento Híbrido:** Aplicar el nuevo sistema de versionamiento a todos los componentes del código fuente.
 
-### Revisiones y Ajustes de UI Pendientes
-- [ ] **Ajuste del Encabezado Principal (`index.html`):**
-    - [ ] Posicionar el encabezado (`GPSpedia`) a la izquierda.
-    - [ ] Mostrar el saludo de bienvenida justo debajo del título, con una fuente un 20% más pequeña.
-- [ ] **Ajuste de "Últimos Agregados" (`index.html`):**
-    - [ ] En vista móvil/PWA, mostrar los últimos 6 cortes en lugar de 5.
-    - [ ] En vista web, mostrar una mayor cantidad de tarjetas según el ancho de la pantalla.
-- [ ] **Ajuste de Espaciado General (`index.html`):**
-    - [ ] Reducir los espacios verticales y horizontales entre los contenedores principales (header, barra de búsqueda, botones de sección, contenido, footer).
-    - [ ] Ajustar el espaciado vertical de las tarjetas para mantener la consistencia visual tras la reducción del espaciado horizontal.
+### Revisiones de UI/UX
+- [ ] **Ajustes de Layout:** Realizar ajustes de espaciado, encabezado y visualización de "Últimos Agregados" según las especificaciones.
 
-### Nuevas Funcionalidades Pendientes
-- [ ] **Crear Página de Información (`info.html`):**
-    - [ ] Desarrollar una página estática con las secciones "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes".
-    - [ ] **"Sobre Nosotros":** Redactar un texto para consumidores finales basado en la descripción del proyecto en `README.md`, omitiendo detalles técnicos internos.
-    - [ ] **"Contáctenos":** Crear un formulario con los campos: "Nombre de la Organización", "Correo Electrónico", "Número de Teléfono" y "Mensaje". La información deberá enviarse a una nueva hoja de cálculo en Google Sheets.
-    - [ ] **"Preguntas Frecuentes":** Implementar una sección (preferiblemente un acordeón) que explique de manera clara y concisa cada una de las funcionalidades del catálogo para un usuario nuevo (ej. cómo crear una cuenta, cómo agregar un corte, cómo usar el feedback). Se deben evitar detalles sobre la jerarquía de roles.
+### Nuevas Funcionalidades
+- [ ] **Página de Información (`info.html`):** Crear una página estática con las secciones "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes", con su respectivo formulario de contacto.
 
 ## 4. Componentes del Backend (Microservicios)
 
