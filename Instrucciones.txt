@@ -72,6 +72,22 @@ ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
     - [ ] **Migración de Datos:** Planificar la migración de datos existentes a las nuevas columnas.
     - [ ] **Actualización de Código:** Actualizar todos los servicios y el frontend para usar la nueva estructura.
 
+### Plan Estratégico de Evolución (GPSpedia v3.3)
+- [ ] **Fase 1: Migración a Nueva Infraestructura de Base de Datos:**
+    - [ ] Diseñar el nuevo esquema de base de datos optimizado.
+    - [ ] Crear y verificar el script de migración de datos.
+    - [ ] Actualizar todos los servicios para que apunten al nuevo Spreadsheet.
+- [ ] **Fase 2: Implementación de "Más Buscados":**
+    - [ ] Desarrollar el backend para contar búsquedas y servir la lista.
+    - [ ] Implementar la nueva sección de "Más Buscados" en el frontend.
+- [ ] **Fase 3: Implementación de Edición "In-Modal" con Permisos:**
+    - [ ] Crear el endpoint `updateVehicleData` con lógica de permisos por rol.
+    - [ ] Adaptar la UI del modal para permitir la edición basada en los permisos del usuario.
+- [ ] **Fase 4: Nuevas Propuestas de Eficiencia:**
+    - [ ] Implementar un modo offline robusto para consulta de datos.
+    - [ ] Desarrollar la funcionalidad de notas personales por vehículo.
+    - [ ] Añadir la capacidad de compartir detalles de vehículos mediante código QR.
+
 ### Revisiones y Ajustes de UI Pendientes
 - [ ] **Ajuste del Encabezado Principal (`index.html`):**
     - [ ] Posicionar el encabezado (`GPSpedia`) a la izquierda.

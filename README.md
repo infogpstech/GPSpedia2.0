@@ -40,9 +40,43 @@ La arquitectura de GPSpedia 2.0 se compone de tres capas principales:
                          └──────────────────┘
 ```
 
-## 3. Trabajos Pendientes (Checklist)
+## 3. Plan Estratégico de Evolución (GPSpedia v3.3)
 
-Esta sección documenta las tareas de desarrollo, corrección y regresiones pendientes.
+Esta sección define la hoja de ruta para las próximas mejoras significativas del proyecto, enfocadas en la escalabilidad de la base de datos y la mejora de la eficiencia para el usuario final.
+
+### Fase 1: Migración a Nueva Infraestructura de Base de Datos
+- **Objetivo:** Crear una base de datos optimizada en un nuevo Google Spreadsheet para soportar futuras funcionalidades, manteniendo el spreadsheet actual intacto por compatibilidad con versiones anteriores (v1.5).
+- **Tareas Clave:**
+    - [ ] **Diseñar Nuevo Esquema:** Definir y documentar la estructura de columnas optimizada, incluyendo `anoDesde`, `anoHasta` y `contadorBusquedas`.
+    - [ ] **Crear Script de Migración:** Desarrollar un script de un solo uso para transferir y transformar los datos al nuevo spreadsheet.
+    - [ ] **Actualizar Configuración de Servicios:** Modificar el `SPREADSHEET_ID` en todos los microservicios para apuntar a la nueva base de datos.
+    - [ ] **Documentar Compatibilidad:** Añadir una nota aclarando que la columna `Año (Generacion)` del spreadsheet antiguo se preserva por compatibilidad, pero no es utilizada por la nueva versión de la aplicación.
+- **Nota Importante sobre `Año (Generacion)`:** La columna `Año (Generacion)` en el spreadsheet actual **seguirá existiendo y no debe ser modificada**, ya que es utilizada por la v1.5 de GPSpedia. La nueva implementación leerá y escribirá únicamente en el nuevo spreadsheet con la estructura `anoDesde`/`anoHasta`.
+
+### Fase 2: Implementación de "Más Buscados"
+- **Objetivo:** Proporcionar acceso rápido a los vehículos más consultados.
+- **Tareas Clave:**
+    - [ ] **Backend:** Modificar `catalog.js` para incrementar `contadorBusquedas` en cada búsqueda y crear un nuevo endpoint `getMostSearched`.
+    - [ ] **Frontend:** Añadir una nueva sección en `index.html` que consuma el nuevo endpoint y muestre los resultados.
+
+### Fase 3: Implementación de Edición "In-Modal" con Permisos por Rol
+- **Objetivo:** Permitir la adición y corrección de datos directamente desde el modal de detalles, con una jerarquía de permisos.
+- **Tareas Clave:**
+    - [ ] **Backend:** Crear en `write.js` un endpoint `updateVehicleData` con lógica de permisos (Técnico: solo añadir; Supervisor/Gefe: modificar; Desarrollador: borrar).
+    - [ ] **Frontend:** Modificar el modal en `index.html` para renderizar campos como texto, inputs editables o botones de "Añadir" según el rol del usuario.
+
+### Fase 4: Nuevas Propuestas de Eficiencia para el Técnico
+- **Objetivo:** Añadir funcionalidades de alto valor para el trabajo en campo.
+- **Propuestas a Implementar:**
+    - [ ] **Modo Offline Robusto:** Usar Service Workers y Cache API para permitir la consulta del catálogo sin conexión. Las acciones de escritura se guardarán en IndexedDB y se sincronizarán al recuperar la conexión.
+    - [ ] **Notas Personales por Vehículo:** Crear una nueva hoja y endpoints para que los usuarios puedan guardar notas privadas en cada vehículo, visibles solo para ellos.
+    - [ ] **Compartir con Código QR:** Integrar una librería de generación de QR en el modal para permitir compartir detalles de vehículos de forma rápida entre dispositivos.
+
+---
+
+## 4. Trabajos Pendientes (Checklist)
+
+Esta sección documenta las tareas de desarrollo, corrección y regresiones pendientes de la versión actual.
 
 ### Bugs y Regresiones por Corregir
 - [x] **Carga de Información en Secciones:** Las secciones "Tutoriales" y "Relay" no cargan su contenido. *(Solucionado en v3.1.8 con la refactorización del backend).*

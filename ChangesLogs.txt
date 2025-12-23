@@ -15,6 +15,15 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.2.5 - 07/08/2024
+- **DOCUMENTACIÓN: PLAN ESTRATÉGICO DE EVOLUCIÓN (V3.3):**
+  - **Contexto:** Se ha diseñado un plan estratégico a mediano plazo para la evolución del proyecto, centrado en la migración de la base de datos y la implementación de nuevas funcionalidades de alta eficiencia para el técnico. Este plan ha sido documentado para guiar los futuros ciclos de desarrollo.
+  - **Acciones Realizadas:**
+    1.  **Añadido Plan Estratégico (`README.md`, Línea 42):** Se ha insertado una nueva sección principal "Plan Estratégico de Evolución (GPSpedia v3.3)" que detalla las fases de la nueva hoja de ruta, incluyendo la migración de la base de datos, la función de "Más Buscados", la edición "in-modal" y otras mejoras de eficiencia.
+    2.  **Sincronización de Plan (`Instrucciones.txt`, Línea 75):** Se ha replicado el nuevo plan estratégico en el instructivo para mantener la consistencia en la documentación.
+    3.  **Aclaración de Compatibilidad (`README.md`, Línea 58):** Se añadió una nota explícita indicando que la columna `Año (Generacion)` del spreadsheet antiguo se mantendrá por compatibilidad con la v1.5, pero no será utilizada en las nuevas implementaciones.
+- **Estado del Proyecto:** La documentación ha sido actualizada con una hoja de ruta clara para las próximas versiones, asegurando que el desarrollo futuro esté alineado con los objetivos estratégicos.
+
 ## v3.2.4 - 06/08/2024
 - **DOCUMENTACIÓN: DEFINICIÓN DE ARQUITECTURA PARA RANGOS DE AÑOS:**
   - **Contexto:** Para soportar la futura automatización de rangos de años basada en el feedback de los usuarios, se ha tomado la decisión de modificar la estructura de la base de datos. Esta actualización de la documentación plasma ese cambio arquitectónico antes de su implementación.
