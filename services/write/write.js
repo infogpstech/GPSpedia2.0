@@ -1,6 +1,7 @@
 // ============================================================================
-// GPSPEDIA-WRITE SERVICE
+// GPSPEDIA-WRITE SERVICE (REFACTORED WITH FIXED COLUMN MAP)
 // ============================================================================
+// COMPONENT VERSION: 1.1.0
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -20,6 +21,34 @@ const SHEET_NAMES = {
     CORTES: "Cortes"
 };
 
+// Mapa de columnas fijo y robusto para la hoja "Cortes" (v1.5)
+const COLS_CORTES = {
+    id: 1,
+    categoria: 2,
+    marca: 3,
+    modelo: 4,
+    anoGeneracion: 5,
+    tipoDeEncendido: 6,
+    colaborador: 7,
+    util: 8,
+    tipoDeCorte: 9,
+    descripcionDelCorte: 10,
+    imagenDelCorte: 11,
+    tipoDeCorte2: 12,
+    descripcionDelSegundoCorte: 13,
+    imagenDeCorte2: 14,
+    tipoDeCorte3: 15,
+    descripcionDelCorte3: 16,
+    imagenDelCorte3: 17,
+    apertura: 18,
+    imagenDeLaApertura: 19,
+    cablesDeAlimentacion: 20,
+    imagenDeLosCablesDeAlimentacion: 21,
+    comoDesarmarLosPlasticos: 22,
+    notaImportante: 23,
+    timestamp: 24
+};
+
 // ============================================================================
 // ROUTER PRINCIPAL (doGet y doPost)
 // ============================================================================
@@ -28,7 +57,7 @@ function doGet(e) {
   try {
     const response = {
       status: 'success',
-      message: 'GPSpedia WRITE-SERVICE v1.0 is active.'
+      message: 'GPSpedia WRITE-SERVICE v1.1 is active.' // Version updated
     };
     return ContentService
       .createTextOutput(JSON.stringify(response))
@@ -88,7 +117,6 @@ function handleAddCorte(payload) {
 
     const fileUrls = handleFileUploads(files, { categoria, marca, modelo, anio });
     const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
-    const COLS = getColumnMap(SHEET_NAMES.CORTES);
 
     let targetRow;
     const isNewRow = !rowIndex || rowIndex === -1;
@@ -105,19 +133,23 @@ function handleAddCorte(payload) {
         previousRowRange.copyTo(newRowRange, SpreadsheetApp.CopyPasteType.PASTE_FORMULA, false);
         newRowRange.clearContent();
 
-        sheet.getRange(targetRow, COLS.categoria).setValue(categoria);
-        sheet.getRange(targetRow, COLS.marca).setValue(marca);
-        sheet.getRange(targetRow, COLS.modelo).setValue(modelo);
-        sheet.getRange(targetRow, COLS.anoGeneracion).setValue(anio);
-        sheet.getRange(targetRow, COLS.tipoDeEncendido).setValue(tipoEncendido);
+        sheet.getRange(targetRow, COLS_CORTES.categoria).setValue(categoria);
+        sheet.getRange(targetRow, COLS_CORTES.marca).setValue(marca);
+        sheet.getRange(targetRow, COLS_CORTES.modelo).setValue(modelo);
+        sheet.getRange(targetRow, COLS_CORTES.anoGeneracion).setValue(anio);
+        sheet.getRange(targetRow, COLS_CORTES.tipoDeEncendido).setValue(tipoEncendido);
+
+        // Corrigiendo bug: El schema v1.5 no tiene 'imagenDelVehiculo'.
+        // Mapeando 'imagenVehiculo' a 'imagenDeLaApertura' como el campo más lógico.
         if (fileUrls.imagenVehiculo) {
-            sheet.getRange(targetRow, COLS.imagenDelVehiculo).setValue(fileUrls.imagenVehiculo);
+            sheet.getRange(targetRow, COLS_CORTES.imagenDeLaApertura).setValue(fileUrls.imagenVehiculo);
         }
     } else {
         targetRow = parseInt(rowIndex, 10);
     }
 
-    updateRowData(sheet, COLS, targetRow, additionalInfo, fileUrls, colaborador);
+    // Se pasa el mapa de columnas fijo a la función auxiliar.
+    updateRowData(sheet, COLS_CORTES, targetRow, additionalInfo, fileUrls, colaborador);
 
     return { status: 'success', message: "Registro guardado exitosamente.", row: targetRow };
 }
@@ -127,7 +159,7 @@ function handleAddCorte(payload) {
 // ============================================================================
 
 function handleFileUploads(files, vehicleData) {
-    if (Object.keys(files).length === 0) return {};
+    if (!files || Object.keys(files).length === 0) return {};
     const { categoria, marca, modelo, anio } = vehicleData;
     const parentFolder = DriveApp.getFolderById(DRIVE_FOLDER_ID);
     const anioFolder = getOrCreateFolder(parentFolder, [categoria, marca, modelo, anio]);
@@ -189,30 +221,9 @@ function updateRowData(sheet, COLS, targetRow, additionalInfo, fileUrls, colabor
     }
 
     const existingColaborador = (rowValues[COLS.colaborador - 1] || "").toString();
-    if (existingColaborador && !existingColaborador.toLowerCase().includes(colaborador.toLowerCase())) {
+    if (colaborador && existingColaborador && !existingColaborador.toLowerCase().includes(colaborador.toLowerCase())) {
         sheet.getRange(targetRow, COLS.colaborador).setValue(`${existingColaborador}<br>${colaborador}`);
-    } else if (!existingColaborador) {
+    } else if (colaborador && !existingColaborador) {
         sheet.getRange(targetRow, COLS.colaborador).setValue(colaborador);
     }
-}
-
-function camelCase(str) {
-    if (!str) return '';
-    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-zA-Z0-9 ]/g, "").trim().split(' ')
-        .map((word, index) => {
-            if (!word) return '';
-            const lowerWord = word.toLowerCase();
-            return index === 0 ? lowerWord : lowerWord.charAt(0).toUpperCase() + lowerWord.slice(1);
-        }).join('');
-}
-
-function getColumnMap(sheetName) {
-    const sheet = getSpreadsheet().getSheetByName(sheetName);
-    if (!sheet) throw new Error(`Hoja no encontrada: ${sheetName}`);
-    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-    return headers.reduce((map, header, i) => {
-        map[camelCase(header)] = i + 1;
-        return map;
-    }, {});
 }

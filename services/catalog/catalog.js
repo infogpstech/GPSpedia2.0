@@ -1,6 +1,7 @@
 // ============================================================================
-// GPSPEDIA-CATALOG SERVICE
+// GPSPEDIA-CATALOG SERVICE (REFACTORED WITH FIXED COLUMN MAP)
 // ============================================================================
+// COMPONENT VERSION: 1.1.0
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -21,6 +22,60 @@ const SHEET_NAMES = {
     RELAY: "Relay"
 };
 
+// Mapa de columnas fijo para la hoja "Cortes" (v1.5)
+const COLS_CORTES = {
+    id: 1,
+    categoria: 2,
+    marca: 3,
+    modelo: 4,
+    anoGeneracion: 5,
+    tipoDeEncendido: 6,
+    colaborador: 7,
+    util: 8,
+    tipoDeCorte: 9,
+    descripcionDelCorte: 10,
+    imagenDelCorte: 11,
+    tipoDeCorte2: 12,
+    descripcionDelSegundoCorte: 13,
+    imagenDeCorte2: 14,
+    tipoDeCorte3: 15,
+    descripcionDelCorte3: 16,
+    imagenDelCorte3: 17,
+    apertura: 18,
+    imagenDeLaApertura: 19,
+    cablesDeAlimentacion: 20,
+    imagenDeLosCablesDeAlimentacion: 21,
+    comoDesarmarLosPlasticos: 22,
+    notaImportante: 23,
+    timestamp: 24
+};
+
+// Mapa de columnas fijo para la hoja "Tutoriales"
+const COLS_TUTORIALES = {
+    id: 1,
+    tema: 2,
+    imagen: 3,
+    comoIdentificarlo: 4,
+    dondeEncontrarlo: 5,
+    detalles: 6,
+    video: 7
+};
+
+// Mapa de columnas fijo para la hoja "Relay"
+const COLS_RELAY = {
+    id: 1,
+    configuracion: 2,
+    funcion: 3,
+    vehiculoDondeSeUtiliza: 4,
+    pin30Entrada: 5,
+    pin85BobinaPositivo: 6,
+    pin86bobinaNegativo: 7,
+    pin87aComunCerrado: 8,
+    pin87ComunmenteAbierto: 9,
+    imagen: 10,
+    observacion: 11
+};
+
 // ============================================================================
 // ROUTER PRINCIPAL (doGet y doPost)
 // ============================================================================
@@ -29,13 +84,12 @@ function doGet(e) {
   try {
     const response = {
       status: 'success',
-      message: 'GPSpedia CATALOG-SERVICE v1.0 is active.'
+      message: 'GPSpedia CATALOG-SERVICE v1.1 is active.' // Version updated
     };
     return ContentService
       .createTextOutput(JSON.stringify(response))
       .setMimeType(ContentService.MimeType.JSON);
   } catch (error) {
-    // Manejo de errores simplificado para doGet
     const errorResponse = {
         status: 'error',
         message: 'Error en el servidor (doGet).',
@@ -86,32 +140,44 @@ function doPost(e) {
 // MANEJADORES DE ACCIONES (HANDLERS)
 // ============================================================================
 
+/**
+ * Convierte una fila de datos (array) en un objeto usando un mapa de columnas.
+ * @param {Array} row - La fila de datos de la hoja de cálculo.
+ * @param {Object} colMap - El mapa de columnas (ej. COLS_CORTES).
+ * @returns {Object} El objeto resultante.
+ */
+function mapRowToObject(row, colMap) {
+    const obj = {};
+    for (const key in colMap) {
+        // El índice en el array es la posición de la columna - 1
+        obj[key] = row[colMap[key] - 1];
+    }
+    return obj;
+}
+
 function handleGetCatalogData() {
-    const sheetsToFetch = {
-        cortes: SHEET_NAMES.CORTES,
-        tutoriales: SHEET_NAMES.TUTORIALES,
-        relay: SHEET_NAMES.RELAY
-    };
     const allData = {};
+
+    // Mapeo de claves de respuesta a hojas y mapas de columnas
+    const sheetsToFetch = {
+        cortes: { name: SHEET_NAMES.CORTES, map: COLS_CORTES },
+        tutoriales: { name: SHEET_NAMES.TUTORIALES, map: COLS_TUTORIALES },
+        relay: { name: SHEET_NAMES.RELAY, map: COLS_RELAY }
+    };
 
     for (const key in sheetsToFetch) {
         try {
-            const sheet = getSpreadsheet().getSheetByName(sheetsToFetch[key]);
+            const sheetInfo = sheetsToFetch[key];
+            const sheet = getSpreadsheet().getSheetByName(sheetInfo.name);
             if (sheet) {
                 const data = sheet.getDataRange().getValues();
-                const headers = data.shift().map(header => camelCase(header.trim()));
-                allData[key] = data.map(row => {
-                    const obj = {};
-                    headers.forEach((header, i) => {
-                        obj[header] = row[i];
-                    });
-                    return obj;
-                });
+                data.shift(); // Eliminar la fila de encabezado
+                allData[key] = data.map(row => mapRowToObject(row, sheetInfo.map));
             } else {
                 allData[key] = [];
             }
         } catch (e) {
-            Logger.log(`Error cargando la hoja ${sheetsToFetch[key]}: ${e.message}`);
+            Logger.log(`Error cargando la hoja ${sheetsToFetch[key].name}: ${e.message}`);
             allData[key] = [];
         }
     }
@@ -122,21 +188,22 @@ function handleGetDropdownData() {
     const cortesSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
     if (!cortesSheet) throw new Error(`La hoja "${SHEET_NAMES.CORTES}" no fue encontrada.`);
 
-    const getValues = (col) => {
-        const rule = cortesSheet.getRange(2, col).getDataValidation();
+    // Obtiene valores de validación de una columna específica
+    const getValues = (colPosition) => {
+        const rule = cortesSheet.getRange(2, colPosition).getDataValidation();
         if (rule && rule.getCriteriaType() == SpreadsheetApp.DataValidationCriteria.VALUE_IN_LIST) {
             return rule.getCriteriaValues()[0];
         }
         return [];
     };
 
-    const COLS = getColumnMap(SHEET_NAMES.CORTES);
+    // Usar las posiciones de columna fijas de COLS_CORTES
     return {
         status: 'success',
         dropdowns: {
-            categoria: getValues(COLS.categoria),
-            tipoDeEncendido: getValues(COLS.tipoDeEncendido),
-            tipoDeCorte: getValues(COLS.tipoDeCorte)
+            categoria: getValues(COLS_CORTES.categoria),
+            tipoDeEncendido: getValues(COLS_CORTES.tipoDeEncendido),
+            tipoDeCorte: getValues(COLS_CORTES.tipoDeCorte)
         }
     };
 }
@@ -149,9 +216,7 @@ function handleCheckVehicle(payload) {
 
     const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
     const data = sheet.getDataRange().getValues();
-    const headers = data.shift();
-    const normalizedHeaders = headers.map(h => camelCase(h.trim()));
-    const COLS = arrayToMap(normalizedHeaders);
+    data.shift(); // Eliminar encabezados
 
     const paramMarca = marca.trim().toLowerCase();
     const paramModelo = modelo.trim().toLowerCase();
@@ -160,16 +225,13 @@ function handleCheckVehicle(payload) {
 
     for (let i = 0; i < data.length; i++) {
         const row = data[i];
-        const sheetMarca = (row[COLS.marca] || "").toString().trim().toLowerCase();
-        const sheetModelo = (row[COLS.modelo] || "").toString().trim().toLowerCase();
-        const sheetAnioRaw = (row[COLS.anoGeneracion] || "").toString();
-        const sheetTipoEncendido = (row[COLS.tipoDeEncendido] || "").toString().trim().toLowerCase();
+        const sheetMarca = (row[COLS_CORTES.marca - 1] || "").toString().trim().toLowerCase();
+        const sheetModelo = (row[COLS_CORTES.modelo - 1] || "").toString().trim().toLowerCase();
+        const sheetAnioRaw = (row[COLS_CORTES.anoGeneracion - 1] || "").toString();
+        const sheetTipoEncendido = (row[COLS_CORTES.tipoDeEncendido - 1] || "").toString().trim().toLowerCase();
 
         if (sheetMarca === paramMarca && sheetModelo === paramModelo && isYearInRange(paramAnio, sheetAnioRaw) && sheetTipoEncendido === paramTipoEncendido) {
-            const existingRowData = normalizedHeaders.reduce((obj, header, index) => {
-                obj[header] = row[index];
-                return obj;
-            }, {});
+            const existingRowData = mapRowToObject(row, COLS_CORTES);
             return { status: 'success', exists: true, data: existingRowData, rowIndex: i + 2 };
         }
     }
@@ -179,34 +241,6 @@ function handleCheckVehicle(payload) {
 // ============================================================================
 // FUNCIONES AUXILIARES
 // ============================================================================
-
-function camelCase(str) {
-    if (!str) return '';
-    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-zA-Z0-9 ]/g, "").trim().split(' ')
-        .map((word, index) => {
-            if (!word) return '';
-            const lowerWord = word.toLowerCase();
-            return index === 0 ? lowerWord : lowerWord.charAt(0).toUpperCase() + lowerWord.slice(1);
-        }).join('');
-}
-
-function getColumnMap(sheetName) {
-    const sheet = getSpreadsheet().getSheetByName(sheetName);
-    if (!sheet) throw new Error(`Hoja no encontrada: ${sheetName}`);
-    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-    return headers.reduce((map, header, i) => {
-        map[camelCase(header)] = i + 1;
-        return map;
-    }, {});
-}
-
-function arrayToMap(arr) {
-    return arr.reduce((obj, item, index) => {
-        obj[item] = index;
-        return obj;
-    }, {});
-}
 
 function isYearInRange(inputYear, sheetYearValue) {
     const year = parseInt(inputYear.trim(), 10);
