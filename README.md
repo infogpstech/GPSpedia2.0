@@ -127,6 +127,9 @@ Esta sección describe los pasos técnicos específicos requeridos para ejecutar
 
 Esta sección documenta las tareas de desarrollo, corrección y regresiones pendientes de la versión actual.
 
+### Tareas Completadas Recientemente
+- [X] **Refactorización del Acceso a Datos del Backend:** Se han actualizado todos los microservicios (`catalog`, `write`, `users`, `feedback`) para utilizar un mapa de columnas fijo, eliminando la inconsistencia arquitectónica y mejorando la estabilidad del sistema.
+
 ### Bugs y Regresiones Críticas
 - [ ] **Layout del Modal:** Corregir la posición del nombre del colaborador y el estilo de los botones de feedback.
 - [ ] **Visibilidad de Cortes:** Asegurar que las tres opciones de corte sean visibles en el modal si existen los datos.
