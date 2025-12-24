@@ -58,6 +58,9 @@ Para organizar el desarrollo y asegurar la calidad, el trabajo se dividirá en f
 ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
 ---------------------------------
 
+### Tareas Completadas Recientemente
+- [X] **Refactorización del Acceso a Datos del Backend:** Se han actualizado todos los microservicios (`catalog`, `write`, `users`, `feedback`) para utilizar un mapa de columnas fijo, eliminando la inconsistencia arquitectónica y mejorando la estabilidad del sistema.
+
 ### Bugs y Regresiones Críticas
 - [ ] **Layout del Modal:** Corregir la posición del nombre del colaborador y el estilo de los botones de feedback.
 - [ ] **Visibilidad de Cortes:** Asegurar que las tres opciones de corte sean visibles en el modal si existen los datos.
@@ -99,6 +102,8 @@ ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
     - **Dependencia del Mapeo Dinámico:** El código lee los nombres de las columnas en lugar de usar posiciones fijas, lo que lo hace frágil a cualquier cambio en los encabezados de la hoja de cálculo.
     - **Falta de Granularidad:** Los "likes" y colaboradores se aplican a todo el vehículo, no a cortes individuales.
     - **Inconsistencia Arquitectónica:** Coexisten dos métodos de acceso a la base de datos (dinámico y fijo), complicando el mantenimiento.
+
+> **Nota de Auditoría (2024-08-16):** Esta deficiencia crítica ha sido **resuelta**. El análisis confirma que todos los servicios de backend han sido refactorizados para utilizar un mapa de columnas fijo, unificando la arquitectura.
 
 #### Arquitectura v2.0 (Nueva)
 - **ID de Google Sheet:** `1M6zAVch_EGKGGRXIo74Nbn_ihH1APZ7cdr2kNdWfiDs`
