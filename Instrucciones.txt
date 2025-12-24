@@ -1,0 +1,181 @@
+=================================================
+ INSTRUCTIVO DEL PROYECTO GPSpedia 2.0
+=================================================
+**Versión del Documento:** 3.1
+**Fecha de Actualización:** 2024-08-14
+
+Este documento detalla las normas de desarrollo, el estado de las tareas pendientes y el flujo de trabajo para el proyecto GPSpedia 2.0.
+
+Para un análisis detallado del sistema, los hallazgos de la auditoría y las recomendaciones estratégicas, consulte el archivo `Auditoria.txt`.
+
+---------------------------------
+NORMAS OBLIGATORIAS DE DESARROLLO
+---------------------------------
+
+**A. Control de Versiones y Documentación:**
+1.  **Actualización de Versión:** Cualquier cambio debe reflejarse en el número de versión visible en `index.html` y en los servicios de Apps Script.
+2.  **Consulta y Actualización de Documentación:** Antes y después de cualquier desarrollo, se deben consultar y actualizar `README.md`, `INSTRUCTIVO.TXT` y `CHANGESLOGS.txt`.
+3.  **Detalle en `CHANGESLOGS.txt`:** Cada entrada debe especificar el archivo y número de línea modificado.
+
+**B. Calidad del Código:**
+1.  **Comentarios:** Todo código nuevo o modificado debe tener un comentario explicando su propósito.
+
+**C. Proceso de Aprobación:**
+1.  **Verificación Post-Commit:** Una tarea solo se considera completada después de un commit y la validación explícita del Project Manager.
+
+---------------------------------
+SISTEMA DE VERSIONAMIENTO HÍBRIDO
+---------------------------------
+
+El proyecto utiliza un sistema de dos niveles:
+
+1.  **Versión Global (Pública):**
+    *   **Formato:** `vMAJOR.MINOR.PATCH` (ej. `v3.2.7`).
+    *   **Función:** Representa el estado general del proyecto. Se actualiza en `ChangesLogs.txt` y `index.html` en cada `submit`.
+
+2.  **Versión de Componente (Interna):**
+    *   **Formato:** `ARQUITECTURA.ARCHIVO.EDICION` (ej. `2.1.0`).
+    *   **Función:** Rastrea la madurez de cada archivo de código (`.html`, `.gs`, `.js`).
+    *   **Reglas:**
+        *   **Frontend (arq. `2`):** `index.html`, `api-manager.js`, etc., inician en `2.0.0`.
+        *   **Backend (arq. `1`):** Cada microservicio (`auth.js`, etc.) inicia en `1.0.0`.
+    *   **Ubicación:** Debe registrarse en un comentario en la cabecera de cada archivo.
+
+---------------------------------
+PROCESO DE TRABAJO POR FASES
+---------------------------------
+
+Para organizar el desarrollo y asegurar la calidad, el trabajo se dividirá en fases. Cada fase se enfocará en un conjunto específico de tareas y culminará en un commit.
+
+1.  **Asignación de Tareas:** Se define un conjunto de tareas (ej. "Ajustes de UI en `index.html`").
+2.  **Desarrollo y Commit:** Se realizan todos los cambios de código necesarios para completar la fase.
+3.  **Revisión Post-Commit:** El Project Manager revisa los cambios.
+    *   **Si es satisfactorio:** Se marca la tarea como completada en `README.md` y `INSTRUCTIVO.TXT`. Se registra el éxito en `CHANGESLOGS.txt`.
+    *   **Si NO es satisfactorio:** Se registra el problema en `CHANGESLOGS.txt` y se crea una nueva tarea para solucionarlo. No se marcan las tareas como completadas.
+4.  **Nuevas Solicitudes:** Cualquier nueva implementación o cambio solicitado se agregará primero a la lista de pendientes en `README.md` y `INSTRUCTIVO.TXT` sin marcar. Solo se marcarán como completadas después de un ciclo de desarrollo y una revisión post-commit exitosa.
+
+---------------------------------
+ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
+---------------------------------
+
+### Tareas Completadas Recientemente
+- [X] **Resolución del Bug Crítico "Pantalla Blanca":** Se refactorizó el frontend (`index.html`) para alinearlo con la nueva estructura de datos `camelCase` del backend v2.0, solucionando la incompatibilidad que impedía la renderización de la aplicación.
+- [X] **Implementación del Sistema de Notificación de Errores:** Se añadió un sistema de notificaciones globales en `index.html` y `api-manager.js` para mostrar al usuario los errores de comunicación con la API, mejorando la depuración y la transparencia.
+- [X] **Refactorización del Acceso a Datos del Backend:** Se han actualizado todos los microservicios (`catalog`, `write`, `users`, `feedback`) para utilizar un mapa de columnas fijo, eliminando la inconsistencia arquitectónica y mejorando la estabilidad del sistema.
+
+### Bugs y Regresiones Críticas
+- [ ] **Inconsistencias de Versionamiento:** Sincronizar la versión global (ChangesLogs, UI) y las versiones de componentes (cabeceras en todos los archivos `.html` y `.js`) para cumplir con las normas del proyecto.
+- [ ] **Layout del Modal:** Corregir la posición del nombre del colaborador y el estilo de los botones de feedback.
+- [ ] **Visibilidad de Cortes:** Asegurar que las tres opciones de corte sean visibles en el modal si existen los datos.
+- [ ] **UI General:** Solucionar bugs visuales (pie de página, botón de limpiar búsqueda, carga de nombre de usuario).
+
+### Mejoras de Funcionalidad Prioritarias
+- [ ] **Búsqueda Flexible:** Mejorar `checkVehicle` para que devuelva coincidencias parciales y múltiples resultados.
+- [ ] **Debugging Integral:** Implementar un sistema de debugging en backend y frontend accesible por rol.
+- [ ] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes para mejorar el rendimiento.
+- [ ] **Soporte para Rango de Años (Feedback-driven):** Implementar la lógica de `suggestYear` en el backend y la UI correspondiente en el frontend.
+- [ ] **Sistema de Versionamiento Híbrido:** Aplicar el nuevo sistema de versionamiento a todos los componentes del código fuente.
+
+### Revisiones de UI/UX
+- [ ] **Ajustes de Layout:** Realizar ajustes de espaciado, encabezado y visualización de "Últimos Agregados" según las especificaciones.
+- [ ] **Modal de Detalle - Logo de Marca:** Implementar la visualización del logo de la marca en una esquina (`altura: 50px`, `anchura: auto`).
+- [ ] **Modal de Detalle - Imagen de Relay:** Limitar la altura de la imagen de referencia del relay a `250px`.
+- [ ] **Listado de Marcas - Logos:** Mostrar el logo de cada marca en la vista de listado de marcas.
+
+### Nuevas Funcionalidades
+- [ ] **Página de Información (`info.html`):** Crear una página estática con las secciones "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes", con su respectivo formulario de contacto.
+
+### Plan Estratégico v4 (Final y Optimizado)
+- [ ] **Fase 1: Migración y Lógica de Datos Fundamental** (Gestión de Años Simplificada, Logos Automatizados).
+- [ ] **Fase 2: Sistema de Feedback Avanzado y Calidad de Datos** (Feedback Granular, Expansión de Años por Feedback).
+- [ ] **Fase 3: Funcionalidades de Gestión y Experiencia de Usuario** (Dashboard, Edición In-Modal, Visualización de Logos).
+- [ ] **Fase 4: Mejoras Adicionales** (Offline, Notas Personales, Modal de Relay Anidado con ajuste de imagen).
+
+**Nota:** Para la ejecución de la Fase 1, se ha desarrollado un **Plan de Implementación Técnica Detallado** que describe los cambios específicos requeridos en los servicios de backend. Este plan se encuentra documentado en la sección correspondiente del archivo `README.md` y debe ser consultado antes de iniciar el desarrollo.
+
+---
+### Arquitectura de la Base de Datos
+
+#### Arquitectura v1.5 (Heredada)
+- **ID de Google Sheet:** `1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo`
+- **Estructura de Hojas:**
+    - **`Cortes`:** Contiene la información técnica principal, con columnas como `ID`, `Categoria`, `Marca`, `Modelo`, `Año (Generacion)`, `Tipo de Corte`, `Descripcion del Corte`, `Imagen del Corte`, etc.
+    - **`Users`:** Gestiona los usuarios y sus credenciales (`ID`, `Nombre_Usuario`, `Password`, `Privilegios`).
+- **Deficiencias Clave:**
+    - **Dependencia del Mapeo Dinámico:** El código lee los nombres de las columnas en lugar de usar posiciones fijas, lo que lo hace frágil a cualquier cambio en los encabezados de la hoja de cálculo.
+    - **Falta de Granularidad:** Los "likes" y colaboradores se aplican a todo el vehículo, no a cortes individuales.
+    - **Inconsistencia Arquitectónica:** Coexisten dos métodos de acceso a la base de datos (dinámico y fijo), complicando el mantenimiento.
+
+> **Nota de Auditoría (2024-08-16):** Esta deficiencia crítica ha sido **resuelta**. El análisis confirma que todos los servicios de backend han sido refactorizados para utilizar un mapa de columnas fijo, unificando la arquitectura.
+
+#### Arquitectura v2.0 (Nueva)
+- **ID de Google Sheet:** `1M6zAVch_EGKGGRXIo74Nbn_ihH1APZ7cdr2kNdWfiDs`
+- **Principio de Diseño:** Una estructura granular y robusta, diseñada para ser explícita, flexible y a prueba de errores de formato. Es totalmente independiente de la v1.5.
+
+A continuación se detalla la estructura de cada hoja en la nueva base de datos. Los nombres de las columnas están normalizados a formato `camelCase` para mantener la consistencia en el código.
+
+##### 1. Hoja: `Users`
+- **Propósito:** Gestión de usuarios, credenciales y perfiles.
+- **Columnas:** `id`, `nombreUsuario`, `password`, `privilegios`, `nombre`, `telefono`, `correoElectronico`, `sessionToken`.
+
+##### 2. Hoja: `Cortes`
+- **Propósito:** Catálogo principal con estructura granular para datos de alta calidad.
+- **Descripción de Columnas Clave:**
+    - `id`: Identificador único numérico para cada registro de vehículo.
+    - `categoria`: **(Validación de Datos)** Segmento del vehículo. La lista de opciones se carga dinámicamente desde una hoja de cálculo. Ej: 'Pickup', 'SUV', 'Sedán'.
+    - `versionesAplicables`: Nombres de modelos alternativos o relacionados a los que aplica este corte. Ej: 'Frontier, NP300'.
+    - `tipoEncendido`: **(Validación de Datos)** Tipo de sistema de encendido. La lista se carga dinámicamente. Ej: 'Botón', 'Llave', 'Switch'.
+    - `tipoCorteX`: **(Validación de Datos)** Tipo de corte a realizar. La lista se carga dinámicamente. Ej: 'Ignición', 'Bomba de Gasolina'.
+    - `configRelayX`: **(Relación)** ID numérico que corresponde a una entrada en la hoja `Relay`, especificando la configuración a usar.
+- **Lista Completa de Columnas:** `id`, `categoria`, `marca`, `modelo`, `versionesAplicables`, `anoDesde`, `anoHasta`, `tipoEncendido`, `imagenVehiculo`, `videoGuiaDesarmeUrl`, `contadorBusqueda`, `tipoCorte1`, `ubicacionCorte1`, `colorCableCorte1`, `configRelay1`, `imgCorte1`, `utilCorte1`, `colaboradorCorte1`, `tipoCorte2`, `ubicacionCorte2`, `colorCableCorte2`, `configRelay2`, `imgCorte2`, `utilCorte2`, `colaboradorCorte2`, `tipoCorte3`, `ubicacionCorte3`, `colorCableCorte3`, `configRelay3`, `imgCorte3`, `utilCorte3`, `colaboradorCorte3`, `timestamp`, `notaImportante`.
+
+##### 3. Hoja: `LogosMarcas`
+- **Propósito:** Centralizar la gestión de logos de marcas para el frontend.
+- **Columnas:** `id`, `nombreMarca`, `urlLogo`, `fabricanteNombre`.
+
+##### 4. Hoja: `Tutorial`
+- **Propósito:** Almacenar guías y tutoriales multimedia.
+- **Columnas:** `id`, `tema`, `imagen`, `comoIdentificarlo`, `dondeEncontrarlo`, `detalles`, `video`.
+
+##### 5. Hoja: `Relay`
+- **Propósito:** Almacenar información técnica sobre configuraciones de relays.
+- **Columnas:** `id`, `configuracion`, `funcion`, `vehiculoDondeSeUtiliza`, `pin30Entrada`, `pin85BobinaPositivo`, `pin86bobinaNegativo`, `pin87aComunCerrado`, `pin87ComunmenteAbierto`, `imagen`, `observacion`.
+
+##### 6. Hoja: `ActiveSessions`
+- **Propósito:** Rastrear las sesiones de usuario activas para la validación.
+- **Columnas:** `idUsuario`, `sessionToken`, `timestamp`.
+
+##### 7. Hoja: `Feedbacks`
+- **Propósito:** Gestionar los reportes de problemas enviados por los usuarios.
+- **Columnas:** `id`, `usuario`, `idVehiculo`, `problema`, `respuesta`, `seResolvio`, `responde`, `reporteDeUtil`.
+
+##### 8. Hoja: `Contactanos`
+- **Propósito:** Recibir y gestionar los mensajes enviados a través del formulario de contacto.
+- **Columnas:** `contactoId`, `userId`, `asunto`, `mensaje`, `respuestaMensaje`, `idUsuarioResponde`.
+
+##### 9. Hoja: `Logs`
+- **Propósito:** Registrar eventos importantes y errores del sistema para depuración.
+- **Columnas:** `timestamp`, `level`, `message`, `data`.
+
+##### 10. Hoja: `ActividadUsuario`
+- **Propósito:** Registrar acciones de los usuarios para futuras analíticas y dashboards de desempeño.
+- **Columnas:** `id`, `timestamp`, `idUsuario`, `nombreUsuario`, `tipoActividad`, `idElementoAsociado`, `detalle`.
+
+---
+### Revisiones y Ajustes de UI Pendientes
+- [ ] **Ajuste del Encabezado Principal (`index.html`):**
+    - [ ] Posicionar el encabezado (`GPSpedia`) a la izquierda.
+    - [ ] Mostrar el saludo de bienvenida justo debajo del título, con una fuente un 20% más pequeña.
+- [ ] **Ajuste de "Últimos Agregados" (`index.html`):**
+    - [ ] En vista móvil/PWA, mostrar los últimos 6 cortes en lugar de 5.
+    - [ ] En vista web, mostrar una mayor cantidad de tarjetas según el ancho de la pantalla.
+- [ ] **Ajuste de Espaciado General (`index.html`):**
+    - [ ] Reducir los espacios verticales y horizontales entre los contenedores principales (header, barra de búsqueda, botones de sección, contenido, footer).
+    - [ ] Ajustar el espaciado vertical de las tarjetas para mantener la consistencia visual tras la reducción del espaciado horizontal.
+
+### Nuevas Funcionalidades Pendientes
+- [ ] **Creación de Página de Información (`info.html`):**
+    - [ ] Desarrollar una página estática con las secciones "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes".
+    - [ ] **"Sobre Nosotros":** Adaptar la descripción del `README.md` a un lenguaje para el consumidor final.
+    - [ ] **"Contáctenos":** Crear un formulario (Nombre Organización, Correo, Teléfono, Mensaje) que envíe datos a la nueva hoja `Contactanos`.
+    - [ ] **"Preguntas Frecuentes":** Crear un acordeón explicando las funcionalidades del catálogo para nuevos usuarios.

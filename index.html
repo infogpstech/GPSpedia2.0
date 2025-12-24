@@ -1,3 +1,4 @@
+<!-- GPSpedia Frontend Component | Version: 2.0.1 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,6 +7,7 @@
 <title>GPSpedia | Catálogo Técnico</title>
 <link rel="icon" href="https://drive.google.com/thumbnail?id=1NxBx-W_gWmcq3fA9zog6Dpe-WXpH_2e8&sz=w256">
 <link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 /* Estilos Globales */
 html {
@@ -141,29 +143,13 @@ h1.app-title {
 
 /* --- ESTILOS DEL BUSCADOR --- */
 .search-container {
-    position: relative;
-    display: flex; /* Nuevo */
-    align-items: center; /* Nuevo */
-    gap: 10px; /* Nuevo */
+    position: relative; /* Contenedor para el botón de limpiar */
     margin-bottom: 30px;
     padding: 10px 0;
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
     transition: all 0.35s ease-in-out;
-}
-
-#searchInput {
-    flex-grow: 1; /* El input ocupa el espacio disponible */
-}
-
-#hamburger-btn {
-    flex-shrink: 0; /* Evita que el botón se encoja */
-    margin-left: auto; /* Empuja el botón a la derecha */
-}
-
-#logout-button {
-    display: none !important; /* Ocultar siempre el botón principal de logout */
 }
 
 #clear-search-btn {
@@ -211,59 +197,13 @@ body.search-active .search-container.has-text #clear-search-btn {
     outline: none;
 }
 
-/* --- ESTILOS DE BÚSQUEDA ACTIVA --- */
-body.search-active .app-title,
-body.search-active #header-controls,
-body.search-active .section-selector,
-body.search-active .footer {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-20px);
-    max-height: 0; /* Colapsa el espacio vertical */
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    border: none !important;
-}
-
-body.search-active .container {
-    padding-top: 80px; /* Crea espacio para la barra de búsqueda fija */
-    transition: padding-top 0.35s ease-in-out;
-}
-
-body.search-active .search-container {
-    position: fixed;
-    top: 15px;
-    left: 0;
-    right: 0;
-    padding: 0 20px;
-    margin: 0;
-    max-width: 100%;
-    z-index: 1500;
-}
-
-body.search-active #searchInput {
-    padding-left: 55px; /* Espacio para el logo */
-    height: 48px;
-    box-sizing: border-box;
-}
-
-body.search-active .app-logo {
-    position: fixed;
-    top: 22px;       /* 15px (search-container top) + 7px (para centrar) */
-    left: 30px;      /* 20px (search-container padding) + 10px (margen interno) */
-    max-width: 34px;
-    z-index: 1501;   /* Por encima del input */
-}
-
 /* --- ESTILOS DEL MENÚ HAMBURGUESA --- */
 #hamburger-btn {
     background: none;
     border: none;
     font-size: 24px;
     cursor: pointer;
-    color: var(--secondary-color);
+    color: #333;
     padding: 10px;
     border-radius: 8px;
     transition: background-color 0.2s;
@@ -315,7 +255,53 @@ body.search-active .app-logo {
 #side-menu nav a i {
     width: 20px; /* Ancho fijo para alinear iconos */
     text-align: center;
-    color: var(--primary-color);
+    color: #007bff;
+}
+
+/* --- ESTILOS DE BÚSQUEDA ACTIVA --- */
+body.search-active .app-title,
+body.search-active #header-controls,
+body.search-active .section-selector,
+body.search-active .footer {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-20px);
+    max-height: 0; /* Colapsa el espacio vertical */
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    border: none !important;
+}
+
+body.search-active .container {
+    padding-top: 80px; /* Crea espacio para la barra de búsqueda fija */
+    transition: padding-top 0.35s ease-in-out;
+}
+
+body.search-active .search-container {
+    position: fixed;
+    top: 15px;
+    left: 0;
+    right: 0;
+    padding: 0 20px;
+    margin: 0;
+    max-width: 100%;
+    z-index: 1500;
+}
+
+body.search-active #searchInput {
+    padding-left: 55px; /* Espacio para el logo */
+    height: 48px;
+    box-sizing: border-box;
+}
+
+body.search-active .app-logo {
+    position: fixed;
+    top: 22px;       /* 15px (search-container top) + 7px (para centrar) */
+    left: 30px;      /* 20px (search-container padding) + 10px (margen interno) */
+    max-width: 34px;
+    z-index: 1501;   /* Por encima del input */
 }
 
 
@@ -628,56 +614,6 @@ body.search-active .app-logo {
 .accordion-btn.active .accordion-arrow {
     transform: rotate(180deg); /* Flecha hacia arriba */
 }
-
-/* --- ESTILOS DE FEEDBACK --- */
-.feedback-btn {
-    padding: 8px 12px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #f0f0f0;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 0.9em;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-.feedback-btn:hover {
-    background-color: #e0e0e0;
-    border-color: #bbb;
-}
-.util-btn .util-count {
-    background-color: var(--primary-color);
-    color: white;
-    padding: 2px 6px;
-    border-radius: 10px;
-    font-size: 0.8em;
-    font-weight: bold;
-}
-.report-btn {
-    color: #c0392b;
-}
-
-.report-textarea {
-    width: 100%;
-    min-height: 80px;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    margin-bottom: 10px;
-    box-sizing: border-box;
-}
-
-.submit-report-btn {
-    width: 100%;
-    padding: 10px;
-    border: none;
-    border-radius: 8px;
-    background-color: var(--primary-color);
-    color: white;
-    cursor: pointer;
-}
-
 .panel-desplegable {
     padding: 0 18px;
     background-color: white;
@@ -737,6 +673,23 @@ body.search-active .app-logo {
     width: 100%;
     transition: all 0.35s ease-in-out;
 }
+.footer-links {
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+.footer-links a {
+    color: #a0cfff;
+    text-decoration: none;
+    transition: color 0.2s;
+    font-size: 0.8em; /* Adjusted to be smaller than the main footer text */
+}
+.footer-links a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
 #splash-screen {
     position: fixed;
     top: 0;
@@ -760,15 +713,36 @@ body.search-active .app-logo {
     50% { transform: scale(1.05); }
     100% { transform: scale(1); }
 }
+
+/* --- ESTILOS DEL TOAST DE ERROR GLOBAL --- */
+#error-toast {
+    display: none; /* Oculto por defecto */
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #dc3545; /* Rojo de error */
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 4000; /* Por encima de todo */
+    font-size: 1em;
+    max-width: 90%;
+    text-align: center;
+}
 </style>
 </head>
 <body>
+
+<!-- Notificación de Error Global -->
+<div id="error-toast"></div>
 
 <!-- Side Menu (Hamburger) -->
 <div id="menu-overlay"></div>
 <div id="side-menu">
     <div style="padding: 20px; border-bottom: 1px solid #eee; text-align: center;">
-        <h3 id="menu-username" style="margin: 0; color: var(--primary-color);"></h3>
+        <h3 id="menu-username" style="margin: 0; color: #007bff;"></h3>
     </div>
     <nav>
         <a href="#" id="menu-cortes" class="menu-link"><i class="fa-solid fa-car-on"></i> Cortes</a>
@@ -778,10 +752,9 @@ body.search-active .app-logo {
         <a href="users.html" class="menu-link"><i class="fa-solid fa-users-cog"></i> Mi Perfil / Usuarios</a>
     </nav>
     <div style="margin-top: auto; padding: 20px;">
-        <button id="side-menu-logout-button" style="width: 100%; background: var(--error-color); color: var(--light-text); border: none; padding: 12px; border-radius: 8px; cursor: pointer;">Cerrar Sesión</button>
+        <button id="side-menu-logout-button" style="width: 100%; background: #dc3545; color: #fff; border: none; padding: 12px; border-radius: 8px; cursor: pointer;">Cerrar Sesión</button>
     </div>
 </div>
-
 
 <!-- Splash Screen -->
 <div id="splash-screen">
@@ -789,7 +762,7 @@ body.search-active .app-logo {
 </div>
 
 <!-- Login Modal -->
-<div id="login-modal">
+<div id="login-modal" style="display: none;">
     <div class="modal-content">
         <img src="icon-v3-512x512.png" alt="Logo de GPSpedia" style="max-width: 120px; margin-bottom: 20px;">
         <h2>Iniciar Sesión</h2>
@@ -806,7 +779,6 @@ body.search-active .app-logo {
             <p id="login-error" style="color: red; display: none;"></p>
         </form>
         <a href="#" id="forgot-password-link" style="color: #a0cfff; text-decoration: none; margin-top: 15px; display: inline-block;">¿Olvidaste tu contraseña?</a>
-        <p style="font-size: 0.8em; color: #ccc; margin-top: 20px;">v3.009</p>
     </div>
 </div>
 
@@ -820,22 +792,22 @@ body.search-active .app-logo {
       <div id="header-controls" style="display: flex; align-items: center; gap: 15px;">
           <span id="welcome-message" style="display: none; color: #333; font-weight: bold;"></span>
           <button id="logout-button" style="display: none; background-color: #dc3545; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: background-color 0.3s;">Cerrar Sesión</button>
-          <button id="install-button" style="display: none;">Instalar Aplicación</button>
       </div>
   </div>
 
-  <div class="search-container">
-      <input type="text" id="searchInput" placeholder="Buscar Corte..." oninput="filtrarContenido(this.value)">
+  <!-- El botón de instalación se mueve fuera del header-controls para que no se oculte con la búsqueda -->
+  <button id="install-button" style="display: none;">Instalar Aplicación</button>
+
+  <div class="search-container" style="display: flex; align-items: center; gap: 10px;">
+      <input type="text" id="searchInput" placeholder="Buscar Corte..." oninput="filtrarContenido(this.value)" style="flex-grow: 1;">
       <button id="clear-search-btn" title="Limpiar búsqueda">&times;</button>
       <button id="hamburger-btn"><i class="fa-solid fa-bars"></i></button>
-  </div>
   </div>
 
   <div class="section-selector">
       <button id="btn-cortes" class="section-btn active" onclick="mostrarSeccion('cortes')">Cortes</button>
       <button id="btn-tutoriales" class="section-btn" onclick="mostrarSeccion('tutoriales')">Tutoriales</button>
       <button id="btn-relay" class="section-btn" onclick="mostrarSeccion('relay')">Relay</button>
-      <button id="btn-add" class="section-btn" style="background-color: #28a745; color: white;" onclick="window.location.href='add_cortes.html'">Agregar Nuevo</button>
   </div>
 
   <div id="contenido" class="content-section"></div>
@@ -851,6 +823,7 @@ body.search-active .app-logo {
   <img id="lightboxImg" src="">
 </div>
 
+<script src="api-manager.js"></script>
 <script>
 // --- LÓGICA DE DEPURACIÓN REMOTA ---
 function remoteLog(level, message, data = {}) {
@@ -900,16 +873,11 @@ function sanitizeInput(input) {
 }
 
 const SESSION_ID_KEY = 'gpsepedia_session_id';
+// La función postToAction ahora es reemplazada por routeAction del api-manager.js
 async function postToAction(action, payload = {}) {
     try {
-        const response = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify({ action, payload })
-        });
-        if (!response.ok) throw new Error(`Error de red: ${response.statusText}`);
-        const result = await response.json();
-        if (result.status === 'error') throw new Error(result.details ? `${result.message}: ${result.details.message}` : result.message);
+        // Usamos el nuevo enrutador
+        const result = await routeAction(action, payload);
         return result;
     } catch (error) {
         console.error(`Error detallado en la acción '${action}':`, error);
@@ -919,22 +887,49 @@ async function postToAction(action, payload = {}) {
             userMessage = "Fallo de conexión con el servidor. Por favor, verifica tu conexión a internet e inténtalo de nuevo. Si el problema persiste, contacta al administrador.";
         } else if (error.message.includes('JSON')) {
             userMessage = "La respuesta del servidor no es válida. Por favor, contacta al administrador.";
+        } else if (error.message.includes('Credenciales inválidas')) {
+            userMessage = "El usuario o la contraseña son incorrectos.";
         }
 
-        // Loguear el error de forma remota para que el desarrollador pueda verlo
+        // Loguear el error de forma remota
         remoteLog('FATAL', `Error en postToAction ('${action}')`, {
             name: error.name,
             message: error.message,
             stack: error.stack,
-            url: SCRIPT_URL
+            // No hay una única URL ahora, el api-manager se encarga de eso.
         });
 
         const loginErrorElement = document.getElementById('login-error');
-        loginErrorElement.textContent = userMessage;
-        loginErrorElement.style.display = 'block';
+        if (loginErrorElement && loginErrorElement.offsetParent !== null) {
+            // Solo muestra el error en el modal de login si está visible
+            loginErrorElement.textContent = userMessage;
+            loginErrorElement.style.display = 'block';
+        } else {
+            // Si no, usa el sistema de notificación global
+            showGlobalError(userMessage);
+        }
 
-        throw error; // Re-lanzar el error para que las promesas que dependen de esto fallen
+        throw error; // Re-lanzar el error
     }
+}
+
+let errorToastTimeout;
+function showGlobalError(message) {
+    const toast = document.getElementById('error-toast');
+    if (!toast) return;
+
+    toast.textContent = message;
+    toast.style.display = 'block';
+
+    // Limpiar cualquier timeout anterior para resetear el timer
+    if (errorToastTimeout) {
+        clearTimeout(errorToastTimeout);
+    }
+
+    // Ocultar el toast después de 7 segundos
+    errorToastTimeout = setTimeout(() => {
+        toast.style.display = 'none';
+    }, 7000);
 }
 
 async function checkSession() {
@@ -975,21 +970,25 @@ async function login(username, password) {
 }
 
 async function initializeAppData(user) {
-    hideLoginShowApp();
-    document.getElementById('welcome-message').textContent = `Bienvenido, ${user.nombre}`;
-    document.getElementById('welcome-message').style.display = 'block';
+    return new Promise(async (resolve, reject) => {
+        hideLoginShowApp();
+        document.getElementById('welcome-message').textContent = `Bienvenido, ${user.nombre}`;
+        document.getElementById('welcome-message').style.display = 'block';
 
-    showSkeletonLoader(document.getElementById('contenido'));
+        showSkeletonLoader(document.getElementById('contenido'));
 
-    try {
-        const result = await postToAction('getCatalogData');
-        datosOriginales = result.data.cortes || [];
-        datosTutoriales = result.data.tutoriales || [];
-        datosRelay = result.data.relay || [];
-        mostrarCategorias();
-    } catch (error) {
-        document.getElementById('contenido').innerHTML = `<p style="color:red; text-align:center;">No se pudo cargar el catálogo. ${error.message}</p>`;
-    }
+        try {
+            const result = await postToAction('getCatalogData');
+            datosOriginales = result.data.cortes || [];
+            datosTutoriales = result.data.tutoriales || [];
+            datosRelay = result.data.relay || [];
+            mostrarCategorias();
+            resolve(); // Resolve the promise after content is rendered
+        } catch (error) {
+            document.getElementById('contenido').innerHTML = `<p style="color:red; text-align:center;">No se pudo cargar el catálogo. ${error.message}</p>`;
+            reject(error); // Reject the promise on error
+        }
+    });
 }
 
 function logout(reason = null) {
@@ -1108,7 +1107,7 @@ function mostrarSeccion(seccion) {
     document.getElementById(`btn-${seccion}`).classList.add('active');
 
     if (renderFunction) {
-        renderFunction(); // Renderiza con los datos ya cargados en memoria.
+        renderFunction();
     }
 }
 
@@ -1147,8 +1146,7 @@ function mostrarContenidoTutoriales() {
 function mostrarContenidoRelay() {
     const cont = document.getElementById("contenido-relay");
     cont.innerHTML = "<h4>Configuración del Relay</h4>";
-    const grid = document.createElement("div");
-    grid.className = "grid";
+    const grid = document.createElement("div"); grid.className = "grid";
     if (!datosRelay || datosRelay.length === 0) {
         cont.innerHTML += "<p>No hay configuraciones de relay disponibles.</p>";
         return;
@@ -1267,6 +1265,7 @@ function mostrarDetalleTutorial(item) {
     const cont = document.getElementById("detalleCompleto");
     cont.innerHTML = "";
 
+    // Header
     const headerDiv = document.createElement("div");
     headerDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;";
     const closeBtn = document.createElement("button");
@@ -1400,89 +1399,90 @@ function mostrarDetalleModal(item) {
     closeBtn.className = "backBtn";
     closeBtn.style.cssText = "color:white; background:#dc3545; border:none; margin:0;";
     headerDiv.appendChild(closeBtn);
-    const titulo = `${item.modelo} ${item.anoGeneracion || ''}`;
+    const yearRange = item.anoHasta ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
+    const titulo = `${item.marca} ${item.modelo} ${yearRange || ''}`;
     headerDiv.appendChild(crearBotonCompartir('cortes', item.id, titulo));
     cont.appendChild(headerDiv);
 
     const title = document.createElement("h2");
-    title.textContent = `Detalle de ${item.modelo} ${item.anoGeneracion ? `(${item.anoGeneracion})` : ''}`;
+    title.textContent = `Detalle de ${titulo}`;
     title.style.cssText = "color:#007bff; border-bottom:3px solid #007bff; padding-bottom:10px;";
     cont.appendChild(title);
 
-    // Contenido Principal
+    // Contenido Principal y Notas
     if (item.notaImportante) {
         const p = document.createElement("p");
         p.innerHTML = `<strong style="color:red;">Nota Importante:</strong> <span style="color:#cc0000; font-weight: bold;">${item.notaImportante}</span>`;
         cont.appendChild(p);
     }
-    crearImagenDetalle("Modelo", item.imagenDelVehiculo, cont, 'img-vehiculo');
-    const tipoCorteEl = crearElementoDetalle("Tipo de Corte", item.tipoDeCorte);
-    if (tipoCorteEl) cont.appendChild(tipoCorteEl);
-    const descCorteEl = crearElementoDetalle("Descripción", item.descripcionDelCorte);
-    if (descCorteEl) cont.appendChild(descCorteEl);
-    crearImagenDetalle("Imagen", item.imagenDelCorte, cont);
+    crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, 'img-vehiculo');
 
-    // Secciones Desplegables
-    const secciones = [
-        { titulo: "Segunda Opción de Corte", campos: [{ label: "Tipo", value: item.tipoDeCorte2 }, { label: "Descripción", value: item.descripcionDelSegundoCorte }, { label: "Imagen", value: item.imagenDeCorte2, esImagen: true }] },
-        { titulo: "Tercera Opción de Corte", campos: [{ label: "Tipo", value: item.tipoDeCorte3 }, { label: "Descripción", value: item.descripcionDelCorte3 }, { label: "Imagen", value: item.imagenDelCorte3, esImagen: true }] },
-        { titulo: "Apertura", campos: [{ label: "Detalles", value: item.apertura }, { label: "Imagen", value: item.imagenDeLaApertura, esImagen: true }] },
-        { titulo: "Cables de Alimentación", campos: [{ label: "Detalles", value: item.cablesDeAlimentacion }, { label: "Imagen", value: item.imagenDeLosCablesDeAlimentacion, esImagen: true }] },
-        { titulo: "Video Guía de Desarme", campos: [{ value: item.comoDesarmarLosPlasticos, esVideo: true }] }
-    ];
+    // Secciones de Cortes Dinámicas
+    for (let i = 1; i <= 3; i++) {
+        const tipoCorte = item[`tipoCorte${i}`];
+        if (!tipoCorte) continue;
 
-    secciones.forEach(seccion => {
-        if (seccion.campos.some(c => c.value)) {
-            const btn = document.createElement("button");
-            btn.className = "accordion-btn";
-            btn.innerHTML = `${seccion.titulo} <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
-            cont.appendChild(btn);
-            const panel = document.createElement("div");
-            panel.className = "panel-desplegable";
-            seccion.campos.forEach(c => {
-                if (c.value) {
-                    if (c.esImagen) crearImagenDetalle(c.label || seccion.titulo, c.value, panel);
-                    else if (c.esVideo) crearVideoDetalle(seccion.titulo, c.value, panel);
-                    else { const el = crearElementoDetalle(c.label, c.value); if (el) panel.appendChild(el); }
-                }
-            });
-            cont.appendChild(panel);
+        const ubicacion = item[`ubicacionCorte${i}`];
+        const colorCable = item[`colorCableCorte${i}`];
+        const imgCorte = item[`imgCorte${i}`];
+        const colaborador = item[`colaboradorCorte${i}`];
+        const utilCount = item[`utilCorte${i}`] || 0;
+
+        let descripcionHTML = '';
+        if (ubicacion) descripcionHTML += `<strong>Ubicación:</strong> ${ubicacion}<br>`;
+        if (colorCable) descripcionHTML += `<strong>Color(es) de Cable:</strong> ${colorCable}`;
+
+        const btn = document.createElement("button");
+        btn.className = "accordion-btn";
+        btn.innerHTML = `${tipoCorte} <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+        cont.appendChild(btn);
+
+        const panel = document.createElement("div");
+        panel.className = "panel-desplegable";
+
+        if (descripcionHTML) {
+            const p = document.createElement("p");
+            p.innerHTML = descripcionHTML;
+            panel.appendChild(p);
         }
-    });
 
-    // Footer del Modal
-    const footerModal = document.createElement("div");
-    footerModal.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;";
-    const colaboradorInfo = document.createElement("div");
-    colaboradorInfo.style.cssText = "font-size: 0.8em; color: #555; background: rgba(0, 123, 255, 0.1); padding: 5px 10px; border-radius: 8px;";
-    colaboradorInfo.innerHTML = `Agregado por: <strong style="color: #0056b3;">${item.colaborador || 'N/A'}</strong>`;
-    footerModal.appendChild(colaboradorInfo);
+        crearImagenDetalle("Imagen del Corte", imgCorte, panel);
 
-    const feedbackContainer = document.createElement("div");
-    feedbackContainer.style.cssText = "display: flex; gap: 10px;";
-    const utilBtn = document.createElement("button");
-    const utilCount = (item.util || '').split(',').filter(Boolean).length;
-    utilBtn.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> Útil <span class="util-count">${utilCount}</span>`;
-    utilBtn.className = "feedback-btn util-btn";
-    utilBtn.onclick = () => handleLike(item.id, utilBtn);
-    feedbackContainer.appendChild(utilBtn);
+        const footerModal = document.createElement("div");
+        footerModal.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;";
+        const colaboradorInfo = document.createElement("div");
+        colaboradorInfo.style.cssText = "font-size: 0.8em; color: #555; background: rgba(0, 123, 255, 0.1); padding: 5px 10px; border-radius: 8px;";
+        colaboradorInfo.innerHTML = `Agregado por: <strong style="color: #0056b3;">${colaborador || 'N/A'}</strong>`;
+        footerModal.appendChild(colaboradorInfo);
 
-    const reportBtn = document.createElement("button");
-    reportBtn.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Reportar`;
-    reportBtn.className = "feedback-btn report-btn";
-    reportBtn.onclick = () => toggleReportSection(item.id);
-    feedbackContainer.appendChild(reportBtn);
+        const feedbackContainer = document.createElement("div");
+        feedbackContainer.style.cssText = "display: flex; gap: 10px;";
+        const utilBtn = document.createElement("button");
+        utilBtn.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> Útil <span class="util-count">${utilCount}</span>`;
+        utilBtn.className = "feedback-btn util-btn";
+        utilBtn.onclick = () => handleLike(item.id, i, utilBtn);
+        feedbackContainer.appendChild(utilBtn);
 
-    footerModal.appendChild(feedbackContainer);
-    cont.appendChild(footerModal);
+        const reportBtn = document.createElement("button");
+        reportBtn.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Reportar`;
+        reportBtn.className = "feedback-btn report-btn";
+        reportBtn.onclick = () => toggleReportSection(item.id, i);
+        feedbackContainer.appendChild(reportBtn);
 
-    // Sección de Reporte (oculta)
-    const reportSection = document.createElement("div");
-    reportSection.id = `report-section-${item.id}`;
-    reportSection.style.display = 'none';
-    reportSection.style.marginTop = '15px';
-    reportSection.innerHTML = `<textarea id="report-input-${item.id}" class="report-textarea" placeholder="Describe el problema..."></textarea><button id="submit-report-${item.id}" class="submit-report-btn">Enviar</button>`;
-    cont.appendChild(reportSection);
+        footerModal.appendChild(feedbackContainer);
+        panel.appendChild(footerModal);
+
+        const reportSection = document.createElement("div");
+        reportSection.id = `report-section-${item.id}-${i}`;
+        reportSection.style.display = 'none';
+        reportSection.style.marginTop = '15px';
+        reportSection.innerHTML = `<textarea id="report-input-${item.id}-${i}" class="report-textarea" placeholder="Describe el problema..."></textarea><button id="submit-report-${item.id}-${i}" class="submit-report-btn">Enviar</button>`;
+        panel.appendChild(reportSection);
+
+        cont.appendChild(panel);
+    }
+
+    crearVideoDetalle("Video Guía de Desarme", item.videoGuiaDesarmeUrl, cont);
 
     document.getElementById("modalDetalle").classList.add("visible");
 }
@@ -1497,7 +1497,7 @@ function filtrarContenido(textoBusqueda) {
     }
     const palabrasBusqueda = busqueda.split(' ').filter(p => p);
     datosFiltrados = datosOriginales.filter(item => {
-        const itemTexto = `${item.categoria} ${item.marca} ${item.modelo} ${item.anoGeneracion} ${item.tipoDeEncendido}`.toLowerCase();
+        const itemTexto = `${item.categoria} ${item.marca} ${item.modelo} ${item.anoDesde} ${item.anoHasta} ${item.tipoEncendido} ${item.versionesAplicables}`.toLowerCase();
         return palabrasBusqueda.every(palabra => itemTexto.includes(palabra));
     });
 
@@ -1513,17 +1513,18 @@ function mostrarResultadosBusquedaMarca(busquedaTexto) {
     const cont = document.getElementById("contenido");
     if (datosFiltrados.length === 1) {
         mostrarDetalleModal(datosFiltrados[0]);
-        cont.innerHTML = `<h4>Resultado Exacto Encontrado</h4><p>Abriendo detalle de ${datosFiltrados[0].modelo} ${datosFiltrados[0].anoGeneracion || ''}.</p>`;
+        const yearRange = datosFiltrados[0].anoHasta ? `${datosFiltrados[0].anoDesde} - ${datosFiltrados[0].anoHasta}` : datosFiltrados[0].anoDesde;
+        cont.innerHTML = `<h4>Resultado Exacto Encontrado</h4><p>Abriendo detalle de ${datosFiltrados[0].modelo} ${yearRange || ''}.</p>`;
         return;
     }
     cont.innerHTML = `<h4>Resultados de búsqueda para: "${busquedaTexto}"</h4>`;
     const marcasUnicas = [...new Set(datosFiltrados.map(item => item.marca))].sort();
     const grid = document.createElement("div"); grid.className = "grid";
     marcasUnicas.forEach(marca => {
-        const ejemplo = datosFiltrados.find(item => item.marca === marca && item.imagenDelVehiculo) || datosFiltrados.find(item => item.marca === marca);
+        const ejemplo = datosFiltrados.find(item => item.marca === marca && item.imagenVehiculo) || datosFiltrados.find(item => item.marca === marca);
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarResultadosBusquedaModelo(busquedaTexto, marca);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo.imagenDelVehiculo); img.alt = `Marca ${marca}`; card.appendChild(img);
+        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo.imagenVehiculo); img.alt = `Marca ${marca}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay"; overlay.innerHTML = marca; card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -1542,10 +1543,11 @@ function mostrarResultadosBusquedaModelo(busquedaTexto, marcaFiltro) {
         const versiones = modelosFiltrados.filter(item => item.modelo === ejemplo.modelo);
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => (versiones.length === 1) ? mostrarDetalleModal(ejemplo) : mostrarResultadosBusquedaVersion(busquedaTexto, marcaFiltro, ejemplo.modelo);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo.imagenDelVehiculo); img.alt = `Modelo ${ejemplo.modelo}`; card.appendChild(img);
+        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo.imagenVehiculo); img.alt = `Modelo ${ejemplo.modelo}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay";
         if (versiones.length === 1) {
-            overlay.innerHTML = `<div>${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8; font-weight:normal;">${ejemplo.anoGeneracion || ''} ${ejemplo.tipoDeEncendido || ''}</div>`;
+            const yearRange = ejemplo.anoHasta ? `${ejemplo.anoDesde} - ${ejemplo.anoHasta}` : ejemplo.anoDesde;
+            overlay.innerHTML = `<div>${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8; font-weight:normal;">${yearRange || ''} ${ejemplo.tipoEncendido || ''}</div>`;
         } else {
             overlay.innerHTML = `<div>${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8; font-weight:normal;">(${versiones.length} cortes)</div>`;
         }
@@ -1564,9 +1566,10 @@ function mostrarResultadosBusquedaVersion(busquedaTexto, marcaFiltro, modeloFilt
     versiones.forEach(item => {
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarDetalleModal(item);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(item.imagenDelVehiculo); img.alt = `Corte ${item.anoGeneracion}`; card.appendChild(img);
+        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(item.imagenVehiculo); img.alt = `Corte ${item.anoDesde}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay";
-        overlay.innerHTML = `<div style="font-weight:bold;">${item.anoGeneracion || modeloFiltro}</div><div style="font-size:0.8em; opacity:0.8;">${item.tipoDeEncendido || ''}</div>`;
+        const yearRange = item.anoHasta ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
+        overlay.innerHTML = `<div style="font-weight:bold;">${yearRange || modeloFiltro}</div><div style="font-size:0.8em; opacity:0.8;">${item.tipoEncendido || ''}</div>`;
         card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -1585,10 +1588,11 @@ function mostrarCategorias() {
     const categorias = [...new Set(datosOriginales.map(item => item.categoria))].filter(c => c).sort();
     const grid = document.createElement("div"); grid.className = "grid";
     categorias.forEach(cat => {
-        const ejemplo = datosOriginales.find(item => item.categoria === cat && item.imagenDelVehiculo);
+        const itemsInCategory = datosOriginales.filter(item => item.categoria === cat);
+        const ejemplo = itemsInCategory.find(item => item.imagenVehiculo);
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarMarcas(cat);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo?.imagenDelVehiculo); img.alt = `Categoría ${cat}`; card.appendChild(img);
+        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo); img.alt = `Categoría ${cat}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay"; overlay.innerHTML = cat; card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -1612,9 +1616,10 @@ function mostrarUltimosAgregados() {
     ultimosCortes.forEach(item => {
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarDetalleModal(item);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(item.imagenDelVehiculo); img.alt = `${item.marca} ${item.modelo}`; card.appendChild(img);
+        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(item.imagenVehiculo); img.alt = `${item.marca} ${item.modelo}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay";
-        overlay.innerHTML = `<div>${item.marca}</div><div style="font-size:0.8em; opacity:0.8;">${item.modelo} ${item.anoGeneracion || ''}</div>`;
+        const yearRange = item.anoHasta ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
+        overlay.innerHTML = `<div>${item.marca}</div><div style="font-size:0.8em; opacity:0.8;">${item.modelo} ${yearRange || ''}</div>`;
         card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -1626,13 +1631,15 @@ function mostrarMarcas(categoria) {
     estado = { nivel: "marcas", categoria: categoria };
     const cont = document.getElementById("contenido");
     cont.innerHTML = `<span class="backBtn" onclick="irAPaginaPrincipal()">${backSvg} Volver</span><h4>Marcas de ${categoria}</h4>`;
-    const marcas = [...new Set(datosOriginales.filter(item => item.categoria === categoria).map(item => item.marca))].filter(m => m).sort();
+    const itemsInCategory = datosOriginales.filter(item => item.categoria === categoria);
+    const marcas = [...new Set(itemsInCategory.map(item => item.marca))].filter(m => m).sort();
     const grid = document.createElement("div"); grid.className = "grid";
     marcas.forEach(m => {
-        const ejemplo = datosOriginales.find(item => item.marca === m && item.imagenDelVehiculo);
+        const itemsInBrand = itemsInCategory.filter(item => item.marca === m);
+        const ejemplo = itemsInBrand.find(item => item.imagenVehiculo);
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarModelos(categoria, m);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo?.imagenDelVehiculo); img.alt = `Marca ${m}`; card.appendChild(img);
+        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo); img.alt = `Marca ${m}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay"; overlay.innerHTML = m; card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -1650,10 +1657,11 @@ function mostrarModelos(categoria, marca) {
         const versiones = modelosFiltrados.filter(item => item.modelo === ejemplo.modelo);
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => (versiones.length === 1) ? mostrarDetalleModal(ejemplo) : mostrarVersiones(versiones, categoria, marca, ejemplo.modelo);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo.imagenDelVehiculo); img.alt = `Modelo ${ejemplo.modelo}`; card.appendChild(img);
+        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo.imagenVehiculo); img.alt = `Modelo ${ejemplo.modelo}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay";
         if (versiones.length === 1) {
-             overlay.innerHTML = `<div>${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8;">${ejemplo.anoGeneracion || ''} ${ejemplo.tipoDeEncendido || ''}</div>`;
+            const yearRange = ejemplo.anoHasta ? `${ejemplo.anoDesde} - ${ejemplo.anoHasta}` : ejemplo.anoDesde;
+             overlay.innerHTML = `<div>${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8;">${yearRange || ''} ${ejemplo.tipoEncendido || ''}</div>`;
         } else {
              overlay.innerHTML = `<div>${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8;">(${versiones.length} cortes)</div>`;
         }
@@ -1671,9 +1679,10 @@ function mostrarVersiones(filas, categoria, marca, modelo) {
     filas.forEach(item => {
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarDetalleModal(item);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(item.imagenDelVehiculo); img.alt = `Corte ${item.anoGeneracion}`; card.appendChild(img);
+        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(item.imagenVehiculo); img.alt = `Corte ${item.anoDesde}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay";
-        overlay.innerHTML = `<div style="font-weight:bold;">${item.anoGeneracion || modelo}</div><div style="font-size:0.8em;">${item.tipoDeEncendido || ''}</div>`;
+        const yearRange = item.anoHasta ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
+        overlay.innerHTML = `<div style="font-weight:bold;">${yearRange || modelo}</div><div style="font-size:0.8em;">${item.tipoEncendido || ''}</div>`;
         card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -2036,7 +2045,12 @@ async function handleReportSubmit(vehicleId) {
 </script>
 
 <footer class="footer" style="display: none;">
-  Gpspedia 2025© todos los derechos reservados.
+  <div class="footer-links">
+      <a href="#">Sobre Nosotros</a>
+      <a href="#">Contáctanos</a>
+      <a href="#">Preguntas Frecuentes</a>
+  </div>
+  Gpspedia v3.4.1 © 2025 todos los derechos reservados.
 </footer>
 
 </body>

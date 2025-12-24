@@ -147,6 +147,7 @@
     </div>
 
     <!-- User Modal (for Create/Edit) -->
+    <script src="api-manager.js"></script>
     <div id="user-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
@@ -244,14 +245,8 @@ function displayProfile() {
 
 async function postToAction(action, payload = {}) {
     try {
-        const response = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify({ action, payload })
-        });
-        if (!response.ok) throw new Error(`Network error: ${response.statusText}`);
-        const result = await response.json();
-        if (result.status === 'error') throw new Error(result.details || result.message);
+        // Usamos el nuevo enrutador del api-manager.js
+        const result = await routeAction(action, payload);
         return result;
     } catch (error) {
         console.error(`Error in action '${action}':`, error);

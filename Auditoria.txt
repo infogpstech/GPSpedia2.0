@@ -1,0 +1,77 @@
+=================================================
+ INFORME DE AUDITORÍA DEL PROYECTO GPSpedia
+=================================================
+**Fecha de Auditoría:** 2024-08-18
+**Versión del Informe:** 4.0
+**Auditor:** Jules
+
+### 1. Resumen Ejecutivo
+
+Esta auditoría marca un hito crucial en el proyecto GPSpedia. El hallazgo principal es la **resolución completa del bug crítico "Pantalla Blanca de la Muerte"**, que impedía el funcionamiento de la aplicación después del login. La corrección ha requerido una refactorización a gran escala del frontend (`index.html`) para alinearlo con el esquema de datos `camelCase` de la API v2.0, solucionando la incompatibilidad que causaba el error fatal.
+
+Adicionalmente, se ha implementado con éxito el **sistema de notificación de errores globales**, una tarea de prioridad media que se adelantó para mejorar la depuración y la experiencia del usuario.
+
+Con estos cambios, la aplicación ha alcanzado un estado **estable y funcional**. El informe de auditoría anterior (v3.0) se considera **OBSOLETE**.
+
+### 2. Estado de Tareas y Hallazgos Detallados
+
+#### A. Tareas Críticas Completadas (Ciclo Actual)
+
+- [X] **Resolución del Bug Crítico "Pantalla Blanca de la Muerte" (Antigua "PRIORIDAD CERO"):** **COMPLETADO Y VERIFICADO.**
+    - **Causa Raíz:** Incompatibilidad de datos entre el backend (que enviaba datos en `camelCase`) y el frontend (`index.html`, que esperaba un formato antiguo).
+    - **Solución:** Se refactorizó todo el código JavaScript dentro de `index.html` para manejar correctamente la nueva estructura de datos `camelCase`.
+    - **Verificación:** Se ha confirmado mediante una prueba de Playwright (`refactor_fix_verification.png`) que la aplicación ahora renderiza el contenido correctamente después del login.
+
+- [X] **Implementación del Sistema de Notificación de Errores Globales (Prioridad Media):** **COMPLETADO Y VERIFICADO.**
+    - **Implementación:** Se añadió el contenedor de notificaciones (`notification-container`) al `index.html` con su respectivo CSS. Se implementó la lógica en `api-manager.js` para interceptar errores (`catch`) en las llamadas a la API y mostrarlos al usuario a través de una nueva función `showNotification`.
+
+#### B. Desviaciones y Tareas Pendientes (Heredadas de Auditoría v3.0)
+
+Las siguientes tareas, identificadas en el informe anterior, siguen pendientes:
+
+- **Inconsistencias de Versionamiento (Prioridad Alta):**
+  - **Desviación - Versión Global:** `ChangesLogs.txt` (`v3.4.0`) vs. pie de página de `index.html` (`v3.3.1`).
+  - **Desviación - Cabeceras de Frontend:** `index.html` y `api-manager.js` carecen del comentario de versión.
+  - **Desviación - Versiones de Backend:** Los mensajes `doGet` en los servicios no siguen el formato estándar `X.X.X`.
+
+- **Especificaciones de UI/UX (`index.html`) (Prioridad Media):**
+  - **Desviación:** "Últimos Agregados" muestra 5 en lugar de 6 elementos.
+  - **Desviación:** El `max-height` de la imagen en el modal de Relay es de `300px` en lugar de `250px`.
+  - **Tareas Pendientes:** Implementar la visualización de logos de marcas y ajustar la posición del saludo de bienvenida.
+
+### 3. Reevaluación de Factibilidad del "Plan Estratégico v4"
+
+La factibilidad del plan es ahora **MUY ALTA**. La resolución del bug más crítico y la estabilización de la aplicación eliminan el principal obstáculo para el desarrollo de nuevas funcionalidades. La base de código es ahora coherente entre frontend y backend.
+
+### 4. Recomendaciones Estratégicas (Actualizadas)
+
+1.  **NUEVA PRIORIDAD CERO: Sincronizar Versiones.**
+    - **Acción:** Ejecutar la tarea de sincronización de versiones identificada en la auditoría v3.0.
+    - **Justificación:** Con la aplicación funcional, es imperativo restaurar la integridad de la documentación y el control de versiones antes de introducir nuevo código.
+
+2.  **PRIORIDAD MEDIA: Corregir Desviaciones de UI/UX.**
+    - **Acción:** Abordar las inconsistencias de UI/UX restantes.
+    - **Justificación:** Pulir la experiencia de usuario y asegurar que el producto final se alinee con las especificaciones de diseño.
+
+---
+---
+**INFORME ANTERIOR - AHORA OBSOLETE**
+---
+---
+=================================================
+ INFORME DE AUDITORÍA DEL PROYECTO GPSpedia
+=================================================
+**Fecha de Auditoría:** 2024-08-17
+**Versión del Informe:** 3.0
+**Auditor:** Jules
+
+### 1. Resumen Ejecutivo
+
+Esta auditoría valida el estado actual del proyecto tras la finalización de tareas críticas. El hallazgo principal es la **confirmación de la finalización de la refactorización del backend**, lo que ha unificado la arquitectura de acceso a datos y ha estabilizado el sistema.
+
+Como resultado de este avance, el informe de auditoría anterior (v2.0) se considera **OBSOLETO**.
+
+La auditoría actual ha identificado un nuevo conjunto de inconsistencias que deben ser abordadas:
+- **Inconsistencias de Versionamiento:** Existe una discrepancia significativa entre la versión global documentada, las versiones mostradas al usuario y las versiones de los componentes internos.
+- **Desviaciones de UI/UX:** Se confirma que varias especificaciones de la interfaz de usuario documentadas en `README.md` no se han implementado en `index.html`.
+... (Contenido del informe v3.0) ...

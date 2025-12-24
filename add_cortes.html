@@ -197,6 +197,7 @@
         <footer class="footer">Gpspedia 2025© todos los derechos reservados.</footer>
     </div>
 
+<script src="api-manager.js"></script>
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwpIFH1nX2BZEjAKbpq9HJpEGNlo_0LqD1CwxWsWFo5J0AJDdbfMrKpcsAV4ZFJzFWd/exec";
 const SESSION_KEY = 'gpsepedia_session';
@@ -212,14 +213,8 @@ const state = {
 
 async function postToAction(action, payload = {}) {
     try {
-        const response = await fetch(SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify({ action, payload })
-        });
-        if (!response.ok) throw new Error(`Error de red: ${response.statusText}`);
-        const result = await response.json();
-        if (result.status === 'error') throw new Error(result.details ? `${result.message}: ${result.details.message}` : result.message);
+        // Usamos el nuevo enrutador del api-manager.js
+        const result = await routeAction(action, payload);
         return result;
     } catch (error) {
         console.error(`Error en la acción '${action}':`, error);
