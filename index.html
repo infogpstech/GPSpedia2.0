@@ -578,6 +578,9 @@ body.search-active .app-logo {
 .img-vehiculo {
     max-height: 200px !important; /* Límite de altura más pequeño */
 }
+.img-relay {
+    max-height: 250px !important;
+}
 #detalleCompleto h4 {
     color: #007bff;
     border-bottom: 2px solid #eee;
@@ -1289,7 +1292,7 @@ function mostrarDetalleRelay(item) {
         const p = crearElementoDetalle(c.label, c.value);
         if (p) cont.appendChild(p);
     });
-    crearImagenDetalle("Imagen", item.imagen, cont);
+    crearImagenDetalle("Imagen", item.imagen, cont, 'img-relay');
     document.getElementById("modalDetalle").classList.add("visible");
 }
 
@@ -1555,7 +1558,7 @@ function mostrarUltimosAgregados() {
     const cont = document.getElementById("contenido");
     if (!datosOriginales || datosOriginales.length === 0) return;
 
-    const ultimosCortes = [...datosOriginales].sort((a, b) => b.id - a.id).slice(0, 5);
+    const ultimosCortes = [...datosOriginales].sort((a, b) => b.id - a.id).slice(0, 6);
 
     const section = document.createElement('div');
     section.style.marginTop = '40px';
