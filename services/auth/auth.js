@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-AUTH SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 1.2.0
+// COMPONENT VERSION: 1.2.1
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -51,7 +51,7 @@ function logToSheet(level, message, details = {}) {
 // ROUTER PRINCIPAL
 // ============================================================================
 function doGet(e) {
-  return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'GPSpedia AUTH-SERVICE is active. v1.2' })).setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'GPSpedia Auth-SERVICE v1.2.1 is active.' })).setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {

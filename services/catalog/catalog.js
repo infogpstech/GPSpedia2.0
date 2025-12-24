@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-CATALOG SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 1.2.0
+// COMPONENT VERSION: 1.2.1
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -37,7 +37,9 @@ const COLS_RELAY = { /* ... igual que v1.5 ... */ };
 // ============================================================================
 // ROUTER PRINCIPAL (doGet y doPost)
 // ============================================================================
-function doGet(e) { /* ... sin cambios ... */ }
+function doGet(e) {
+  return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'GPSpedia Catalog-SERVICE v1.2.1 is active.' })).setMimeType(ContentService.MimeType.JSON);
+}
 function doPost(e) { /* ... sin cambios ... */ }
 
 // ============================================================================
