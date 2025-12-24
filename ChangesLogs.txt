@@ -15,6 +15,19 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.4.2 - 18/08/2024
+- **BUG CRÍTICO: LA APLICACIÓN NO PASA DE LA PANTALLA EN BLANCO.**
+  - **Contexto:** Inmediatamente después del último commit que corregía problemas menores de la interfaz de usuario, la aplicación dejó de funcionar. No se carga y permanece en una pantalla en blanco.
+  - **Estado:** PENDIENTE DE DIAGNÓSTICO. No se realizarán más cambios de código hasta que se identifique y resuelva este problema.
+
+- **CORRECCIONES DE UI POST-AUDITORÍA:**
+  - **Contexto:** Se implementaron correcciones a los errores de interfaz de usuario señalados en la auditoría v3.0, siguiendo las recomendaciones de la revisión de código.
+  - **Acciones Realizadas:**
+    1.  **Corrección de "Últimos Agregados" (`index.html`, Línea 1558):** Se modificó el parámetro del método `.slice()` de 5 a 6 para mostrar la cantidad correcta de elementos.
+    2.  **Corrección de Altura de Imagen en Modal Relay:**
+        - Se añadió una nueva clase CSS `.img-relay` con la propiedad `max-height: 250px !important;` (`index.html`, Línea 581).
+        - Se actualizó la función `mostrarDetalleRelay` para que aplique esta nueva clase a la imagen del modal (`index.html`, Línea 1292).
+
 ## v3.4.1 - 17/08/2024
 - **AUDITORÍA Y SINCRONIZACIÓN: ALINEACIÓN COMPLETA DE VERSIONES Y DOCUMENTACIÓN:**
   - **Contexto:** Se realizó una auditoría completa (v3.0) que confirmó la finalización de la refactorización del backend pero identificó graves inconsistencias en el sistema de versionamiento. Esta actualización resuelve dichas inconsistencias.
