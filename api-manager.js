@@ -54,15 +54,23 @@ const ACTION_TO_SERVICE_MAP = {
  * @returns {Promise<object>} - La respuesta JSON del servicio.
  */
 async function routeAction(action, payload = {}) {
+    // Loguear la solicitud en la consola de depuración si está activa
+    if (typeof logToDebugConsole === 'function') {
+        logToDebugConsole('REQUEST', `Action: ${action}`, { payload });
+    }
+
     const service = ACTION_TO_SERVICE_MAP[action];
     if (!service) {
+        const error = new Error(`Acción no definida: ${action}`);
+        if (typeof logToDebugConsole === 'function') {
+            logToDebugConsole('ERROR', `Acción desconocida: '${action}'`, { error: error.message });
+        }
         console.error(`Acción desconocida: '${action}'. No se puede enrutar a ningún servicio.`);
-        throw new Error(`Acción no definida: ${action}`);
+        throw error;
     }
 
     let targetUrl = API_ENDPOINTS[service];
 
-    // Estrategia de fallback: si la URL del microservicio no está definida, usar LEGACY.
     if (!targetUrl || targetUrl.startsWith("URL_DESPLEGADA_")) {
         console.warn(`URL para el servicio '${service}' no configurada. Usando endpoint LEGACY.`);
         targetUrl = API_ENDPOINTS.LEGACY;
@@ -73,7 +81,7 @@ async function routeAction(action, payload = {}) {
     try {
         const response = await fetch(targetUrl, {
             method: 'POST',
-            headers: { 'Content-Type': 'text/plain' }, // Requerido por Apps Script para evitar preflight CORS
+            headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify({ action, payload })
         });
 
@@ -85,19 +93,28 @@ async function routeAction(action, payload = {}) {
 
         if (result.status === 'error') {
             const errorMessage = result.details ? `${result.message}: ${result.details.errorMessage}` : result.message;
-            console.error(`Error en la respuesta del servidor para la acción '${action}':`, result);
             throw new Error(errorMessage);
+        }
+
+        // Loguear la respuesta exitosa
+        if (typeof logToDebugConsole === 'function') {
+            logToDebugConsole('RESPONSE', `Success: ${action}`, { result });
         }
 
         return result;
 
     } catch (error) {
+        // Loguear el error antes de mostrarlo
+        if (typeof logToDebugConsole === 'function') {
+            logToDebugConsole('ERROR', `Critical Error in ${action}`, { message: error.message, stack: error.stack });
+        }
+
         console.error(`Error crítico en routeAction para la acción '${action}':`, error);
-        // Mostrar el error en la UI a través de la nueva función global
+
         if (typeof showGlobalError === 'function') {
             showGlobalError(`Error en la acción '${action}': ${error.message}`);
         }
-        // Relanzar el error para que la lógica de la aplicación pueda manejarlo si es necesario.
+
         throw error;
     }
 }

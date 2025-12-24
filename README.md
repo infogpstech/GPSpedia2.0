@@ -410,6 +410,31 @@ Para mantener la consistencia, calidad y mantenibilidad del proyecto, es mandato
 1.  **Verificación Post-Commit:**
     *   No se debe 'marcar' una tarea como realizada antes de hacer un commit. La verificación final de una tarea la realiza el Project Manager después de que los cambios han sido entregados.
 
-## 8. Auditoría del Sistema
+## 9. Sistema de Depuración
+
+Para facilitar la identificación y resolución de problemas durante el desarrollo y la transición de la v1.5 a la v2.0, se ha implementado un sistema de depuración dual.
+
+### A. Consola de Depuración del Frontend
+- **Propósito:** Proporcionar una visión en tiempo real de la comunicación entre el frontend y el backend directamente en la interfaz de la aplicación.
+- **Activación:** Añadir el parámetro `?debug=true` a la URL de la aplicación (ej. `https://.../index.html?debug=true`).
+- **Funcionalidad:**
+    - Al activarse, aparecerá una consola en la parte inferior de la pantalla.
+    - **Registro de Peticiones:** Muestra la `action` y el `payload` de cada solicitud enviada al backend.
+    - **Registro de Respuestas:** Muestra la respuesta JSON completa recibida del backend para cada solicitud exitosa.
+    - **Registro de Errores:** Captura y muestra cualquier error de JavaScript o de red que ocurra, junto con su contexto.
+- **Uso:** Esta herramienta es invaluable para diagnosticar si el frontend está enviando los datos correctos y recibiendo la estructura de datos esperada del backend.
+
+### B. Modo de Depuración del Backend (Servicios)
+- **Propósito:** Permitir la inspección del estado y configuración de un microservicio específico directamente a través de su URL de despliegue.
+- **Activación:** Añadir el parámetro `?debug=true` a la URL del servicio de Google Apps Script (ej. `https://script.google.com/macros/s/.../exec?debug=true`).
+- **Funcionalidad (Ejemplo en `GPSpedia-Catalog`):**
+    - Al ser llamado en modo de depuración, el servicio no ejecuta su lógica principal, sino que devuelve un objeto JSON con información de su estado:
+        - `service`: Nombre del servicio.
+        - `version`: Versión del componente.
+        - `spreadsheetId`: El ID de la hoja de cálculo que está utilizando.
+        - `sheetsAvailable`: Los nombres de las hojas que espera encontrar.
+- **Uso:** Esta herramienta permite verificar rápidamente que un servicio está activo, que está apuntando a la base de datos correcta y que su configuración interna es la esperada, sin necesidad de ejecutar una acción completa a través del frontend.
+
+## 10. Auditoría del Sistema
 
 Para consultar los resultados detallados, el análisis de factibilidad y las recomendaciones estratégicas del proyecto, por favor, refiérase al archivo `Auditoria.txt` en la raíz del repositorio.

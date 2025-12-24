@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-CATALOG SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 1.2.1
+// COMPONENT VERSION: 1.3.0
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -38,8 +38,29 @@ const COLS_RELAY = { /* ... igual que v1.5 ... */ };
 // ROUTER PRINCIPAL (doGet y doPost)
 // ============================================================================
 function doGet(e) {
-  return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'GPSpedia Catalog-SERVICE v1.2.1 is active.' })).setMimeType(ContentService.MimeType.JSON);
+  // Modo de depuración mejorado
+  if (e && e.parameter && e.parameter.debug === 'true') {
+    const response = {
+      status: 'success',
+      service: 'GPSpedia-Catalog',
+      version: '1.3.0', // Se actualizará la versión del componente
+      message: 'Debug mode is active.',
+      spreadsheetId: SPREADSHEET_ID,
+      sheetsAvailable: {
+        cortes: SHEET_NAMES.CORTES,
+        tutoriales: SHEET_NAMES.TUTORIALES,
+        relay: SHEET_NAMES.RELAY
+      }
+    };
+    return ContentService.createTextOutput(JSON.stringify(response, null, 2))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // Respuesta estándar si no está en modo debug
+  return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'GPSpedia Catalog-SERVICE v1.3.0 is active.' }))
+    .setMimeType(ContentService.MimeType.JSON);
 }
+
 function doPost(e) { /* ... sin cambios ... */ }
 
 // ============================================================================
