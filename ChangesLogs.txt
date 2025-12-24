@@ -15,6 +15,66 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.4.0 - 14/08/2024
+- **DOCUMENTACIÓN: INTEGRACIÓN DE NUEVAS ESPECIFICACIONES DE LÓGICA Y UI:**
+  - **Contexto:** Se han añadido nuevas especificaciones detalladas proporcionadas por el usuario al plan estratégico y a la lista de tareas pendientes.
+  - **Acciones Realizadas:**
+    1.  **Actualización del Plan Estratégico (`README.md`, `Instrucciones.txt`):** Se ha enriquecido el "Plan Estratégico v4" con la lógica de negocio para la gestión automatizada de logos de marca y la gestión simplificada de años (guardando solo en `anoDesde` e implementando la expansión de rango a través de feedback).
+    2.  **Actualización de Tareas Pendientes (`README.md`, `Instrucciones.txt`):** Se han añadido nuevas tareas a la lista de "Revisiones de UI/UX" para reflejar los requisitos de visualización de logos en el modal y en los listados, y para ajustar el tamaño de la imagen en el modal de Relay.
+- **Estado del Proyecto:** La documentación estratégica se ha actualizado para servir como una guía de desarrollo aún más precisa, asegurando que las futuras implementaciones de frontend y backend se alineen con la visión detallada del usuario.
+
+## v3.3.9 - 14/08/2024
+- **DOCUMENTACIÓN: ENRIQUECIMIENTO DEL ESQUEMA DE BASE DE DATOS V2.0:**
+  - **Contexto:** Para mejorar la claridad y utilidad de la documentación como guía de desarrollo, se ha enriquecido la sección de la arquitectura de la base de datos v2.0 con descripciones detalladas para cada columna.
+  - **Acciones Realizadas:**
+    1.  **Detalle de Columnas y Validaciones (`README.md`, `Instrucciones.txt`):** Se ha reformatado la descripción de las hojas `Users`, `Cortes` y `LogosMarcas` a un formato de tabla. Se añadieron descripciones explícitas para cada columna, destacando su propósito y, crucialmente, las reglas de validación de datos (ej. para `categoria`, `tipoEncendido`, `tipoCorteX`) y las relaciones entre hojas (ej. para `configRelayX`).
+- **Estado del Proyecto:** La documentación de la base de datos ahora no solo define la estructura, sino que también sirve como un manual técnico detallado, facilitando el desarrollo y la comprensión del modelo de datos.
+
+## v3.3.8 - 14/08/2024
+- **DOCUMENTACIÓN: CORRECCIÓN FINAL DEL ORDEN DE COLUMNAS EN 'CORTES':**
+  - **Contexto:** Basado en la aclaración final del usuario, se ha corregido el orden de las columnas en la documentación de la hoja 'Cortes' para que coincida exactamente con la estructura definitiva de la hoja de cálculo.
+  - **Acciones Realizadas:**
+    1.  **Reordenamiento de Columnas (`README.md`, `Instrucciones.txt`):** Se ha ajustado el orden de las columnas `notaImportante` y `timestamp` para que la documentación refleje con precisión la secuencia final.
+- **Estado del Proyecto:** La documentación de la base de datos v2.0 ha alcanzado su estado final y definitivo, estando ahora 100% sincronizada con la hoja de cálculo real.
+
+## v3.3.6 - 14/08/2024
+- **DOCUMENTACIÓN: CORRECCIÓN FINAL Y DEFINITIVA DEL ESQUEMA DE 'CORTES':**
+  - **Contexto:** Basado en la lista de columnas definitiva proporcionada por el usuario para la hoja 'Cortes', se realiza la última corrección a la documentación.
+  - **Acciones Realizadas:**
+    1.  **Reestructuración de Columnas de 'Cortes' (`README.md`, `Instrucciones.txt`):** Se ha reemplazado la estructura de bloques por una lista plana y única de todas las columnas de la hoja 'Cortes', asegurando una correspondencia 1:1 con la hoja de cálculo final.
+- **Estado del Proyecto:** La documentación de la base de datos v2.0 ha alcanzado su estado final y definitivo, reflejando con total precisión la estructura que se implementará.
+
+## v3.3.5 - 14/08/2024
+- **DOCUMENTACIÓN: AJUSTE FINAL DEL ESQUEMA DE LA HOJA 'CORTES':**
+  - **Contexto:** Basado en la última actualización del usuario sobre la estructura de la hoja 'Cortes', se ha realizado un ajuste final en la documentación.
+  - **Acciones Realizadas:**
+    1.  **Inclusión de `configRelayX` (`README.md`, `Instrucciones.txt`):** Se ha añadido la columna `configRelayX` a cada uno de los tres bloques de corte en la definición de la hoja 'Cortes'. Esto asegura que la documentación refleje la capacidad de asignar una configuración de relay a cada corte individualmente.
+- **Estado del Proyecto:** La documentación de la base de datos v2.0 está ahora completamente finalizada y sincronizada con la estructura definitiva de la hoja de cálculo.
+
+## v3.3.4 - 14/08/2024
+- **DOCUMENTACIÓN: CORRECCIÓN FINAL DEL ESQUEMA DE LA HOJA 'RELAY':**
+  - **Contexto:** Basado en la última aclaración del usuario, se ha realizado una corrección final a la documentación de la estructura de la base de datos v2.0.
+  - **Acciones Realizadas:**
+    1.  **Ajuste de Columnas de Hoja 'Relay' (`README.md`, `Instrucciones.txt`):** Se han actualizado los nombres de las columnas `pin85Bobina` y `pin86Bobina` a `pin85BobinaPositivo` y `pin86bobinaNegativo` respectivamente, para que coincidan exactamente con la implementación final en la hoja de cálculo.
+- **Estado del Proyecto:** La documentación del esquema de la base de datos v2.0 está ahora completamente sincronizada con la estructura real de la hoja de cálculo, eliminando cualquier ambigüedad para el futuro desarrollo del backend.
+
+## v3.3.3 - 14/08/2024
+- **DOCUMENTACIÓN: ACTUALIZACIÓN DEL ESQUEMA DE BASE DE DATOS V2.0:**
+  - **Contexto:** Se ha actualizado la documentación para reflejar la estructura final y confirmada de la nueva base de datos (`GPSpedia_DB_v2.0`) que se utilizará para la migración.
+  - **Acciones Realizadas:**
+    1.  **Actualización de ID de Spreadsheet (`README.md`, `Instrucciones.txt`):** Se ha añadido el ID de la nueva hoja de cálculo de Google Sheets (`1M6zAVch_EGKGGRXIo74Nbn_ihH1APZ7cdr2kNdWfiDs`) a la sección "Arquitectura de Base de Datos v2.0".
+    2.  **Detalle de Estructura de Hojas (`README.md`, `Instrucciones.txt`):** Se ha reemplazado el diseño de base de datos anterior por la estructura final y detallada de las 10 hojas, incluyendo los nombres de columna corregidos y normalizados a formato `camelCase` según la confirmación del usuario.
+- **Estado del Proyecto:** La documentación del proyecto ahora contiene una descripción precisa y actualizada de la nueva arquitectura de base de datos, asegurando que los futuros desarrollos de migración y refactorización se basen en el esquema correcto.
+
+## v3.3.2 - 14/08/2024
+- **AUDITORÍA: ANÁLISIS INTEGRAL DEL PROYECTO Y CENTRALIZACIÓN DE LA DOCUMENTACIÓN:**
+  - **Contexto:** Se realizó una auditoría completa del proyecto para evaluar su estado actual, verificar la coherencia entre el código y la documentación, y analizar la factibilidad del plan estratégico.
+  - **Acciones Realizadas:**
+    1.  **Creación de Informe de Auditoría (`Auditoria.txt`):** Se ha creado un nuevo archivo `Auditoria.txt` que contiene un análisis exhaustivo del sistema, incluyendo la identificación de una inconsistencia arquitectónica crítica en el backend, la validación de bugs del frontend, un análisis de factibilidad del "Plan Estratégico v4" y recomendaciones estratégicas.
+    2.  **Centralización de la Documentación (`README.md`, `Instrucciones.txt`):** Se ha refactorizado la documentación principal para eliminar las secciones de auditoría duplicadas y redundantes. Ahora, ambos archivos contienen una referencia directa al nuevo `Auditoria.txt`, consolidando la información de auditoría en una única fuente de verdad.
+    3.  **Actualización del Título (`Instrucciones.txt`):** Se ha modificado el título del archivo para reflejar que su propósito principal es ser un instructivo, separándolo conceptualmente del informe de auditoría.
+- **Estado del Proyecto:** La auditoría ha sido completada y sus resultados están centralizados. La documentación principal ha sido limpiada, mejorando la claridad y la organización del proyecto para futuras fases de desarrollo.
+
 ## v3.3.1 - 13/08/2024
 - **DOCUMENTACIÓN: ANÁLISIS Y DETALLE DE LA ARQUITECTURA HEREDADA (V1.5):**
   - **Contexto:** Para justificar plenamente la migración a la v2.0 y documentar el punto de partida, se realizó un análisis del código fuente para reconstruir y detallar la arquitectura de la base de datos v1.5 y sus deficiencias.

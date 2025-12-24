@@ -1,10 +1,12 @@
 =================================================
- INSTRUCTIVO Y AUDITORÍA DEL PROYECTO GPSpedia 2.0
+ INSTRUCTIVO DEL PROYECTO GPSpedia 2.0
 =================================================
-Fecha de Auditoría: 2024-08-03
-Versión del Documento: 3.0
+**Versión del Documento:** 3.1
+**Fecha de Actualización:** 2024-08-14
 
-Este documento detalla el estado actual del proyecto GPSpedia 2.0, incluyendo regresiones, bugs confirmados, funcionalidades pendientes y el flujo de trabajo para el desarrollo.
+Este documento detalla las normas de desarrollo, el estado de las tareas pendientes y el flujo de trabajo para el proyecto GPSpedia 2.0.
+
+Para un análisis detallado del sistema, los hallazgos de la auditoría y las recomendaciones estratégicas, consulte el archivo `Auditoria.txt`.
 
 ---------------------------------
 NORMAS OBLIGATORIAS DE DESARROLLO
@@ -65,20 +67,23 @@ ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
 - [ ] **Búsqueda Flexible:** Mejorar `checkVehicle` para que devuelva coincidencias parciales y múltiples resultados.
 - [ ] **Debugging Integral:** Implementar un sistema de debugging en backend y frontend accesible por rol.
 - [ ] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes para mejorar el rendimiento.
-- [ ] **Soporte para Rango de Años:** Refactorizar la base de datos y la lógica para usar `anoDesde` y `anoHasta` en lugar de un año fijo.
+- [ ] **Soporte para Rango de Años (Feedback-driven):** Implementar la lógica de `suggestYear` en el backend y la UI correspondiente en el frontend.
 - [ ] **Sistema de Versionamiento Híbrido:** Aplicar el nuevo sistema de versionamiento a todos los componentes del código fuente.
 
 ### Revisiones de UI/UX
 - [ ] **Ajustes de Layout:** Realizar ajustes de espaciado, encabezado y visualización de "Últimos Agregados" según las especificaciones.
+- [ ] **Modal de Detalle - Logo de Marca:** Implementar la visualización del logo de la marca en una esquina (`altura: 50px`, `anchura: auto`).
+- [ ] **Modal de Detalle - Imagen de Relay:** Limitar la altura de la imagen de referencia del relay a `250px`.
+- [ ] **Listado de Marcas - Logos:** Mostrar el logo de cada marca en la vista de listado de marcas.
 
 ### Nuevas Funcionalidades
 - [ ] **Página de Información (`info.html`):** Crear una página estática con las secciones "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes", con su respectivo formulario de contacto.
 
 ### Plan Estratégico v4 (Final y Optimizado)
-- [ ] **Fase 1: Migración a Base de Datos Optimizada (DB v2.0).**
-- [ ] **Fase 2: Sistema de Feedback Avanzado y Calidad de Datos.**
-- [ ] **Fase 3: Funcionalidades de Gestión y Experiencia de Usuario.**
-- [ ] **Fase 4: Mejoras Adicionales (Offline, Notas Personales, Relay Anidado).**
+- [ ] **Fase 1: Migración y Lógica de Datos Fundamental** (Gestión de Años Simplificada, Logos Automatizados).
+- [ ] **Fase 2: Sistema de Feedback Avanzado y Calidad de Datos** (Feedback Granular, Expansión de Años por Feedback).
+- [ ] **Fase 3: Funcionalidades de Gestión y Experiencia de Usuario** (Dashboard, Edición In-Modal, Visualización de Logos).
+- [ ] **Fase 4: Mejoras Adicionales** (Offline, Notas Personales, Modal de Relay Anidado con ajuste de imagen).
 
 **Nota:** Para la ejecución de la Fase 1, se ha desarrollado un **Plan de Implementación Técnica Detallado** que describe los cambios específicos requeridos en los servicios de backend. Este plan se encuentra documentado en la sección correspondiente del archivo `README.md` y debe ser consultado antes de iniciar el desarrollo.
 
@@ -96,11 +101,57 @@ ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
     - **Inconsistencia Arquitectónica:** Coexisten dos métodos de acceso a la base de datos (dinámico y fijo), complicando el mantenimiento.
 
 #### Arquitectura v2.0 (Nueva)
-- **Principio:** Una base de datos nueva, independiente y diseñada con una estructura granular para máxima robustez.
-- **Hoja `Cortes` (Alta Granularidad):**
-    - **Columnas Clave:** `id`, `categoria`, `marca`, `modelo`, `versionesAplicables`, `anoDesde`, `anoHasta`, `tipoEncendido`, `configRelay` (Validación de datos), `imagenVehiculo`, `videoGuiaDesarmeURL`, `contadorBusquedas`.
-    - **Columnas por Corte (x3):** `tipoCorteX`, `ubicacionCorteX`, `colorCableCorteX`, `imgCorteX` (los 4 son obligatorios), `utilCorteX`, `colaboradorCorteX`.
-- **Hojas de Sistema (Nuevas):** `ActividadUsuario`, `TokensCompartir`, `LogosMarca`.
+- **ID de Google Sheet:** `1M6zAVch_EGKGGRXIo74Nbn_ihH1APZ7cdr2kNdWfiDs`
+- **Principio de Diseño:** Una estructura granular y robusta, diseñada para ser explícita, flexible y a prueba de errores de formato. Es totalmente independiente de la v1.5.
+
+A continuación se detalla la estructura de cada hoja en la nueva base de datos. Los nombres de las columnas están normalizados a formato `camelCase` para mantener la consistencia en el código.
+
+##### 1. Hoja: `Users`
+- **Propósito:** Gestión de usuarios, credenciales y perfiles.
+- **Columnas:** `id`, `nombreUsuario`, `password`, `privilegios`, `nombre`, `telefono`, `correoElectronico`, `sessionToken`.
+
+##### 2. Hoja: `Cortes`
+- **Propósito:** Catálogo principal con estructura granular para datos de alta calidad.
+- **Descripción de Columnas Clave:**
+    - `id`: Identificador único numérico para cada registro de vehículo.
+    - `categoria`: **(Validación de Datos)** Segmento del vehículo. La lista de opciones se carga dinámicamente desde una hoja de cálculo. Ej: 'Pickup', 'SUV', 'Sedán'.
+    - `versionesAplicables`: Nombres de modelos alternativos o relacionados a los que aplica este corte. Ej: 'Frontier, NP300'.
+    - `tipoEncendido`: **(Validación de Datos)** Tipo de sistema de encendido. La lista se carga dinámicamente. Ej: 'Botón', 'Llave', 'Switch'.
+    - `tipoCorteX`: **(Validación de Datos)** Tipo de corte a realizar. La lista se carga dinámicamente. Ej: 'Ignición', 'Bomba de Gasolina'.
+    - `configRelayX`: **(Relación)** ID numérico que corresponde a una entrada en la hoja `Relay`, especificando la configuración a usar.
+- **Lista Completa de Columnas:** `id`, `categoria`, `marca`, `modelo`, `versionesAplicables`, `anoDesde`, `anoHasta`, `tipoEncendido`, `imagenVehiculo`, `videoGuiaDesarmeUrl`, `contadorBusqueda`, `tipoCorte1`, `ubicacionCorte1`, `colorCableCorte1`, `configRelay1`, `imgCorte1`, `utilCorte1`, `colaboradorCorte1`, `tipoCorte2`, `ubicacionCorte2`, `colorCableCorte2`, `configRelay2`, `imgCorte2`, `utilCorte2`, `colaboradorCorte2`, `tipoCorte3`, `ubicacionCorte3`, `colorCableCorte3`, `configRelay3`, `imgCorte3`, `utilCorte3`, `colaboradorCorte3`, `timestamp`, `notaImportante`.
+
+##### 3. Hoja: `LogosMarcas`
+- **Propósito:** Centralizar la gestión de logos de marcas para el frontend.
+- **Columnas:** `id`, `nombreMarca`, `urlLogo`, `fabricanteNombre`.
+
+##### 4. Hoja: `Tutorial`
+- **Propósito:** Almacenar guías y tutoriales multimedia.
+- **Columnas:** `id`, `tema`, `imagen`, `comoIdentificarlo`, `dondeEncontrarlo`, `detalles`, `video`.
+
+##### 5. Hoja: `Relay`
+- **Propósito:** Almacenar información técnica sobre configuraciones de relays.
+- **Columnas:** `id`, `configuracion`, `funcion`, `vehiculoDondeSeUtiliza`, `pin30Entrada`, `pin85BobinaPositivo`, `pin86bobinaNegativo`, `pin87aComunCerrado`, `pin87ComunmenteAbierto`, `imagen`, `observacion`.
+
+##### 6. Hoja: `ActiveSessions`
+- **Propósito:** Rastrear las sesiones de usuario activas para la validación.
+- **Columnas:** `idUsuario`, `sessionToken`, `timestamp`.
+
+##### 7. Hoja: `Feedbacks`
+- **Propósito:** Gestionar los reportes de problemas enviados por los usuarios.
+- **Columnas:** `id`, `usuario`, `idVehiculo`, `problema`, `respuesta`, `seResolvio`, `responde`, `reporteDeUtil`.
+
+##### 8. Hoja: `Contactanos`
+- **Propósito:** Recibir y gestionar los mensajes enviados a través del formulario de contacto.
+- **Columnas:** `contactoId`, `userId`, `asunto`, `mensaje`, `respuestaMensaje`, `idUsuarioResponde`.
+
+##### 9. Hoja: `Logs`
+- **Propósito:** Registrar eventos importantes y errores del sistema para depuración.
+- **Columnas:** `timestamp`, `level`, `message`, `data`.
+
+##### 10. Hoja: `ActividadUsuario`
+- **Propósito:** Registrar acciones de los usuarios para futuras analíticas y dashboards de desempeño.
+- **Columnas:** `id`, `timestamp`, `idUsuario`, `nombreUsuario`, `tipoActividad`, `idElementoAsociado`, `detalle`.
 
 ---
 ### Revisiones y Ajustes de UI Pendientes
