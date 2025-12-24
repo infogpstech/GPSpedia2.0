@@ -15,6 +15,17 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.4.3 - 18/08/2024
+- **BUG CRÍTICO RESUELTO: LA APLICACIÓN YA NO SE QUEDA EN PANTALLA EN BLANCO.**
+  - **Contexto:** Se diagnosticó que la causa del bug era una incompatibilidad de datos entre el backend (que enviaba datos en formato `camelCase` de la API v2.0) y el frontend (`index.html`), que esperaba el formato antiguo, causando un error fatal de JavaScript.
+  - **Acciones Realizadas:**
+    1.  **Refactorización Masiva del Frontend (`index.html`):** Se ha modificado todo el código JavaScript dentro de `index.html` para que utilice la nueva nomenclatura `camelCase` al acceder a las propiedades de los objetos de datos. Esto ha restaurado la funcionalidad completa de la aplicación (Múltiples líneas afectadas en funciones como `mostrarCatalogo`, `mostrarDetalleModal`, etc.).
+    2.  **Implementación de Sistema de Notificación de Errores (`index.html`, `api-manager.js`):**
+        - Se añadió el contenedor de notificaciones y su CSS a `index.html` (Líneas 590-605).
+        - Se implementó la función `showNotification` en `index.html` (Líneas 1005-1014).
+        - Se modificó la función `routeAction` en `api-manager.js` para capturar errores y mostrarlos usando el nuevo sistema (Líneas 40-48).
+- **Estado del Proyecto:** La aplicación ha vuelto a un estado funcional y estable. El bug más crítico ha sido resuelto y se ha añadido una mejora de depuración que facilitará la identificación de futuros problemas.
+
 ## v3.4.2 - 18/08/2024
 - **BUG CRÍTICO: LA APLICACIÓN NO PASA DE LA PANTALLA EN BLANCO.**
   - **Contexto:** Inmediatamente después del último commit que corregía problemas menores de la interfaz de usuario, la aplicación dejó de funcionar. No se carga y permanece en una pantalla en blanco.
