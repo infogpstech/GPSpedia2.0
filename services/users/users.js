@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-USERS SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 1.2.0
+// COMPONENT VERSION: 1.2.1
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -37,24 +37,7 @@ const COLS_USERS = {
 // ============================================================================
 
 function doGet(e) {
-  try {
-    const response = {
-      status: 'success',
-      message: 'GPSpedia USERS-SERVICE v1.2 is active.' // Version updated
-    };
-    return ContentService
-      .createTextOutput(JSON.stringify(response))
-      .setMimeType(ContentService.MimeType.JSON);
-  } catch (error) {
-    const errorResponse = {
-        status: 'error',
-        message: 'Error en el servidor (doGet).',
-        details: { message: error.message }
-    };
-    return ContentService
-      .createTextOutput(JSON.stringify(errorResponse))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
+  return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'GPSpedia Users-SERVICE v1.2.1 is active.' })).setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {

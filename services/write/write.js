@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-WRITE SERVICE (REFACTORED WITH MIGRATION ENDPOINT)
 // ============================================================================
-// COMPONENT VERSION: 1.2.0
+// COMPONENT VERSION: 1.2.1
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -47,7 +47,9 @@ const COLS_CORTES_V2_0 = {
 // ============================================================================
 // ROUTER PRINCIPAL (doGet y doPost)
 // ============================================================================
-function doGet(e) { /* ... sin cambios ... */ }
+function doGet(e) {
+  return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'GPSpedia Write-SERVICE v1.2.1 is active.' })).setMimeType(ContentService.MimeType.JSON);
+}
 
 function doPost(e) {
     let response;

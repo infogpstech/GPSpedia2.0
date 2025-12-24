@@ -15,6 +15,24 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.4.1 - 17/08/2024
+- **AUDITORÍA Y SINCRONIZACIÓN: ALINEACIÓN COMPLETA DE VERSIONES Y DOCUMENTACIÓN:**
+  - **Contexto:** Se realizó una auditoría completa (v3.0) que confirmó la finalización de la refactorización del backend pero identificó graves inconsistencias en el sistema de versionamiento. Esta actualización resuelve dichas inconsistencias.
+  - **Acciones Realizadas:**
+    1.  **Creación de Informe de Auditoría (`Auditoria.txt`):** Se generó un nuevo informe detallado (v3.0) documentando el estado actual del proyecto, las tareas completadas y las nuevas desviaciones encontradas.
+    2.  **Actualización de Tareas (`README.md`, `Instrucciones.txt`):** Se añadió la tarea "Inconsistencias de Versionamiento" a la lista de bugs críticos.
+    3.  **Sincronización de Versión Global (`index.html`, Línea 2000):** Se actualizó la versión en el pie de página a `v3.4.1`.
+    4.  **Sincronización de Versiones de Componentes (Frontend):**
+        - Se añadió la cabecera de versión `2.0.1` a `index.html` (Línea 1).
+        - Se añadió la cabecera de versión `2.0.1` a `api-manager.js` (Línea 1).
+    5.  **Sincronización de Versiones de Componentes (Backend):**
+        - `services/auth/auth.js`: Actualizada cabecera a `1.2.1` (Línea 4) y mensaje `doGet` (Línea 54).
+        - `services/catalog/catalog.js`: Actualizada cabecera a `1.2.1` (Línea 4) y mensaje `doGet` (Línea 40).
+        - `services/feedback/feedback.js`: Actualizada cabecera a `1.2.1` (Línea 4) y mensaje `doGet` (Línea 42).
+        - `services/users/users.js`: Actualizada cabecera a `1.2.1` (Línea 4) y mensaje `doGet` (Línea 40).
+        - `services/write/write.js`: Actualizada cabecera a `1.2.1` (Línea 4) y mensaje `doGet` (Línea 50).
+- **Estado del Proyecto:** El proyecto se encuentra ahora en un estado consistente, con toda la documentación y el código fuente alineados a una única versión global y un sistema de versionamiento de componentes coherente.
+
 ## v3.4.0 - 14/08/2024
 - **DOCUMENTACIÓN: INTEGRACIÓN DE NUEVAS ESPECIFICACIONES DE LÓGICA Y UI:**
   - **Contexto:** Se han añadido nuevas especificaciones detalladas proporcionadas por el usuario al plan estratégico y a la lista de tareas pendientes.
