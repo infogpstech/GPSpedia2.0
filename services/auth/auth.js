@@ -1,27 +1,28 @@
 // ============================================================================
-// GPSPEDIA-AUTH SERVICE (WITH DEBUG LOGGING)
+// GPSPEDIA-AUTH SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
+// COMPONENT VERSION: 1.2.0
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
 // ============================================================================
-const SPREADSHEET_ID = "1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo";
+const SPREADSHEET_ID = "1M6zAVch_EGKGGRXIo74Nbn_ihH1APZ7cdr2kNdWfiDs"; // <-- ACTUALIZADO A DB V2.0
 const SHEET_NAMES = {
     USERS: "Users",
     ACTIVE_SESSIONS: "ActiveSessions",
-    LOGS: "Logs" // Hoja para depuración
+    LOGS: "Logs"
 };
 
-// This hardcoded map eliminates all errors from dynamic column parsing.
+// Mapa de columnas actualizado al esquema v2.0 (camelCase)
 const COLS = {
-    ID: 1,
-    NOMBRE_USUARIO: 2,
-    PASSWORD: 3,
-    PRIVILEGIOS: 4,
-    NOMBRE: 5,
-    TELEFONO: 6,
-    CORREO_ELECTRONICO: 7,
-    SESSION_TOKEN: 8
+    id: 1,
+    nombreUsuario: 2,
+    password: 3,
+    privilegios: 4,
+    nombre: 5,
+    telefono: 6,
+    correoElectronico: 7,
+    sessionToken: 8
 };
 
 const SESSION_LIMITS = {
@@ -35,12 +36,6 @@ const SESSION_LIMITS = {
 // ============================================================================
 // MÓDULO DE DEPURACIÓN
 // ============================================================================
-/**
- * Escribe un mensaje de registro en la hoja 'Logs' de la spreadsheet.
- * @param {string} level - El nivel del log (e.g., INFO, DEBUG, ERROR).
- * @param {string} message - El mensaje a registrar.
- * @param {object} [details={}] - Un objeto con detalles adicionales para registrar.
- */
 function logToSheet(level, message, details = {}) {
     try {
         const logSheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAMES.LOGS);
@@ -48,17 +43,15 @@ function logToSheet(level, message, details = {}) {
         const detailsString = Object.keys(details).length > 0 ? JSON.stringify(details) : '';
         logSheet.appendRow([timestamp, level, message, detailsString]);
     } catch (e) {
-        // Fallback en caso de que el logging falle.
         console.error("Fallo al escribir en la hoja de logs:", e.message);
     }
 }
-
 
 // ============================================================================
 // ROUTER PRINCIPAL
 // ============================================================================
 function doGet(e) {
-  return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'GPSpedia AUTH-SERVICE is active. v1.1-debug' })).setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'GPSpedia AUTH-SERVICE is active. v1.2' })).setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {
@@ -94,7 +87,6 @@ function handleLogin(payload) {
         logToSheet('INFO', 'handleLogin started.', { username: username });
 
         if (!username || !password) {
-            logToSheet('WARN', 'Login attempt with missing username or password.');
             throw new Error("Usuario y contraseña son requeridos.");
         }
 
@@ -106,40 +98,27 @@ function handleLogin(payload) {
         let foundUserIndex = -1;
 
         for (let i = 0; i < data.length; i++) {
-            const sheetUsername = (data[i][COLS.NOMBRE_USUARIO - 1] || '').toString();
+            const sheetUsername = (data[i][COLS.nombreUsuario - 1] || '').toString(); // <-- Clave actualizada
             if (sheetUsername.trim().toLowerCase() === username.trim().toLowerCase()) {
                 foundUserRow = data[i];
                 foundUserIndex = i;
-                logToSheet('DEBUG', `User found at row index ${i}.`, { username: sheetUsername });
                 break;
             }
         }
 
         if (!foundUserRow) {
-            logToSheet('WARN', 'User not found in sheet.', { attemptedUsername: username });
             throw new Error("Credenciales inválidas.");
         }
 
-        const sheetPassword = foundUserRow[COLS.PASSWORD - 1];
+        const sheetPassword = foundUserRow[COLS.password - 1]; // <-- Clave actualizada
         const isPasswordMatch = String(sheetPassword).trim() === String(password).trim();
 
-        logToSheet('DEBUG', 'Password comparison details.', {
-            sheetPassword: String(sheetPassword),
-            sheetPasswordTrimmed: String(sheetPassword).trim(),
-            frontendPassword: String(password),
-            frontendPasswordTrimmed: String(password).trim(),
-            comparisonResult: isPasswordMatch
-        });
-
         if (!isPasswordMatch) {
-            logToSheet('WARN', 'Password mismatch for user.', { username: username });
             throw new Error("Credenciales inválidas.");
         }
 
-        logToSheet('INFO', 'Password match successful. Proceeding with session management.', { username: username });
-
-        const userRole = (foundUserRow[COLS.PRIVILEGIOS - 1] || '').toString().toLowerCase();
-        const userId = foundUserRow[COLS.ID - 1];
+        const userRole = (foundUserRow[COLS.privilegios - 1] || '').toString().toLowerCase(); // <-- Clave actualizada
+        const userId = foundUserRow[COLS.id - 1]; // <-- Clave actualizada
         const sessionLimit = SESSION_LIMITS[userRole] || 1;
 
         // Manage sessions
@@ -152,28 +131,25 @@ function handleLogin(payload) {
             .filter(session => session.userId == userId);
 
         if (userSessions.length >= sessionLimit) {
-            logToSheet('INFO', `Session limit reached for user. Clearing oldest sessions.`, { userId: userId, limit: sessionLimit });
             userSessions.reverse().slice(sessionLimit - 1).forEach(session => {
                 activeSessionsSheet.deleteRow(session.rowIndex);
             });
         }
 
         const sessionToken = Utilities.getUuid();
-        userSheet.getRange(foundUserIndex + 2, COLS.SESSION_TOKEN).setValue(sessionToken);
+        userSheet.getRange(foundUserIndex + 2, COLS.sessionToken).setValue(sessionToken); // <-- Clave actualizada
         activeSessionsSheet.appendRow([userId, sessionToken, new Date().toISOString()]);
-        logToSheet('INFO', 'New session created and stored.', { userId: userId });
 
         const user = {
             id: userId,
-            nombreUsuario: foundUserRow[COLS.NOMBRE_USUARIO - 1],
-            privilegios: foundUserRow[COLS.PRIVILEGIOS - 1],
-            nombre: foundUserRow[COLS.NOMBRE - 1],
-            telefono: foundUserRow[COLS.TELEFONO - 1],
-            correoElectronico: foundUserRow[COLS.CORREO_ELECTRONICO - 1],
+            nombreUsuario: foundUserRow[COLS.nombreUsuario - 1],
+            privilegios: foundUserRow[COLS.privilegios - 1],
+            nombre: foundUserRow[COLS.nombre - 1],
+            telefono: foundUserRow[COLS.telefono - 1],
+            correoElectronico: foundUserRow[COLS.correoElectronico - 1],
             sessionToken: sessionToken
         };
 
-        logToSheet('INFO', 'Login successful. Returning user object.', { userId: userId });
         return { status: 'success', user: user };
 
     } catch (error) {
@@ -186,7 +162,6 @@ function handleValidateSession(payload) {
     try {
         const { userId, sessionToken } = payload;
         if (!userId || !sessionToken) {
-            logToSheet('WARN', 'validateSession called with missing userId or sessionToken.');
             return { valid: false };
         }
 
@@ -195,13 +170,11 @@ function handleValidateSession(payload) {
         data.shift();
 
         for (const row of data) {
-            if (row[COLS.ID - 1] == userId && row[COLS.SESSION_TOKEN - 1] === sessionToken) {
-                logToSheet('INFO', 'Session validation successful.', { userId: userId });
+            if (row[COLS.id - 1] == userId && row[COLS.sessionToken - 1] === sessionToken) { // <-- Claves actualizadas
                 return { valid: true };
             }
         }
 
-        logToSheet('WARN', 'Session validation failed.', { userId: userId });
         return { valid: false };
     } catch (error) {
         logToSheet('ERROR', `Error in handleValidateSession: ${error.message}`, { stack: error.stack });
