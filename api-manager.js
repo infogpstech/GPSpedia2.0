@@ -93,8 +93,11 @@ async function routeAction(action, payload = {}) {
 
     } catch (error) {
         console.error(`Error crítico en routeAction para la acción '${action}':`, error);
-        // Aquí se puede agregar lógica para mostrar errores al usuario de forma unificada.
-        // Por ahora, relanzamos el error para que sea manejado por quien llamó a la función.
+        // Mostrar el error en la UI a través de la nueva función global
+        if (typeof showGlobalError === 'function') {
+            showGlobalError(`Error en la acción '${action}': ${error.message}`);
+        }
+        // Relanzar el error para que la lógica de la aplicación pueda manejarlo si es necesario.
         throw error;
     }
 }

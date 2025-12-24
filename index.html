@@ -713,9 +713,30 @@ body.search-active .app-logo {
     50% { transform: scale(1.05); }
     100% { transform: scale(1); }
 }
+
+/* --- ESTILOS DEL TOAST DE ERROR GLOBAL --- */
+#error-toast {
+    display: none; /* Oculto por defecto */
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #dc3545; /* Rojo de error */
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 4000; /* Por encima de todo */
+    font-size: 1em;
+    max-width: 90%;
+    text-align: center;
+}
 </style>
 </head>
 <body>
+
+<!-- Notificación de Error Global -->
+<div id="error-toast"></div>
 
 <!-- Side Menu (Hamburger) -->
 <div id="menu-overlay"></div>
@@ -879,13 +900,36 @@ async function postToAction(action, payload = {}) {
         });
 
         const loginErrorElement = document.getElementById('login-error');
-        if (loginErrorElement) {
+        if (loginErrorElement && loginErrorElement.offsetParent !== null) {
+            // Solo muestra el error en el modal de login si está visible
             loginErrorElement.textContent = userMessage;
             loginErrorElement.style.display = 'block';
+        } else {
+            // Si no, usa el sistema de notificación global
+            showGlobalError(userMessage);
         }
 
         throw error; // Re-lanzar el error
     }
+}
+
+let errorToastTimeout;
+function showGlobalError(message) {
+    const toast = document.getElementById('error-toast');
+    if (!toast) return;
+
+    toast.textContent = message;
+    toast.style.display = 'block';
+
+    // Limpiar cualquier timeout anterior para resetear el timer
+    if (errorToastTimeout) {
+        clearTimeout(errorToastTimeout);
+    }
+
+    // Ocultar el toast después de 7 segundos
+    errorToastTimeout = setTimeout(() => {
+        toast.style.display = 'none';
+    }, 7000);
 }
 
 async function checkSession() {
@@ -1221,6 +1265,7 @@ function mostrarDetalleTutorial(item) {
     const cont = document.getElementById("detalleCompleto");
     cont.innerHTML = "";
 
+    // Header
     const headerDiv = document.createElement("div");
     headerDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;";
     const closeBtn = document.createElement("button");
@@ -1354,89 +1399,90 @@ function mostrarDetalleModal(item) {
     closeBtn.className = "backBtn";
     closeBtn.style.cssText = "color:white; background:#dc3545; border:none; margin:0;";
     headerDiv.appendChild(closeBtn);
-    const titulo = `${item.modelo} ${item.anoGeneracion || ''}`;
+    const yearRange = item.anoHasta ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
+    const titulo = `${item.marca} ${item.modelo} ${yearRange || ''}`;
     headerDiv.appendChild(crearBotonCompartir('cortes', item.id, titulo));
     cont.appendChild(headerDiv);
 
     const title = document.createElement("h2");
-    title.textContent = `Detalle de ${item.modelo} ${item.anoGeneracion ? `(${item.anoGeneracion})` : ''}`;
+    title.textContent = `Detalle de ${titulo}`;
     title.style.cssText = "color:#007bff; border-bottom:3px solid #007bff; padding-bottom:10px;";
     cont.appendChild(title);
 
-    // Contenido Principal
+    // Contenido Principal y Notas
     if (item.notaImportante) {
         const p = document.createElement("p");
         p.innerHTML = `<strong style="color:red;">Nota Importante:</strong> <span style="color:#cc0000; font-weight: bold;">${item.notaImportante}</span>`;
         cont.appendChild(p);
     }
-    crearImagenDetalle("Modelo", item.imagenDelVehiculo, cont, 'img-vehiculo');
-    const tipoCorteEl = crearElementoDetalle("Tipo de Corte", item.tipoDeCorte);
-    if (tipoCorteEl) cont.appendChild(tipoCorteEl);
-    const descCorteEl = crearElementoDetalle("Descripción", item.descripcionDelCorte);
-    if (descCorteEl) cont.appendChild(descCorteEl);
-    crearImagenDetalle("Imagen", item.imagenDelCorte, cont);
+    crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, 'img-vehiculo');
 
-    // Secciones Desplegables
-    const secciones = [
-        { titulo: "Segunda Opción de Corte", campos: [{ label: "Tipo", value: item.tipoDeCorte2 }, { label: "Descripción", value: item.descripcionDelSegundoCorte }, { label: "Imagen", value: item.imagenDeCorte2, esImagen: true }] },
-        { titulo: "Tercera Opción de Corte", campos: [{ label: "Tipo", value: item.tipoDeCorte3 }, { label: "Descripción", value: item.descripcionDelCorte3 }, { label: "Imagen", value: item.imagenDelCorte3, esImagen: true }] },
-        { titulo: "Apertura", campos: [{ label: "Detalles", value: item.apertura }, { label: "Imagen", value: item.imagenDeLaApertura, esImagen: true }] },
-        { titulo: "Cables de Alimentación", campos: [{ label: "Detalles", value: item.cablesDeAlimentacion }, { label: "Imagen", value: item.imagenDeLosCablesDeAlimentacion, esImagen: true }] },
-        { titulo: "Video Guía de Desarme", campos: [{ value: item.comoDesarmarLosPlasticos, esVideo: true }] }
-    ];
+    // Secciones de Cortes Dinámicas
+    for (let i = 1; i <= 3; i++) {
+        const tipoCorte = item[`tipoCorte${i}`];
+        if (!tipoCorte) continue;
 
-    secciones.forEach(seccion => {
-        if (seccion.campos.some(c => c.value)) {
-            const btn = document.createElement("button");
-            btn.className = "accordion-btn";
-            btn.innerHTML = `${seccion.titulo} <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
-            cont.appendChild(btn);
-            const panel = document.createElement("div");
-            panel.className = "panel-desplegable";
-            seccion.campos.forEach(c => {
-                if (c.value) {
-                    if (c.esImagen) crearImagenDetalle(c.label || seccion.titulo, c.value, panel);
-                    else if (c.esVideo) crearVideoDetalle(seccion.titulo, c.value, panel);
-                    else { const el = crearElementoDetalle(c.label, c.value); if (el) panel.appendChild(el); }
-                }
-            });
-            cont.appendChild(panel);
+        const ubicacion = item[`ubicacionCorte${i}`];
+        const colorCable = item[`colorCableCorte${i}`];
+        const imgCorte = item[`imgCorte${i}`];
+        const colaborador = item[`colaboradorCorte${i}`];
+        const utilCount = item[`utilCorte${i}`] || 0;
+
+        let descripcionHTML = '';
+        if (ubicacion) descripcionHTML += `<strong>Ubicación:</strong> ${ubicacion}<br>`;
+        if (colorCable) descripcionHTML += `<strong>Color(es) de Cable:</strong> ${colorCable}`;
+
+        const btn = document.createElement("button");
+        btn.className = "accordion-btn";
+        btn.innerHTML = `${tipoCorte} <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+        cont.appendChild(btn);
+
+        const panel = document.createElement("div");
+        panel.className = "panel-desplegable";
+
+        if (descripcionHTML) {
+            const p = document.createElement("p");
+            p.innerHTML = descripcionHTML;
+            panel.appendChild(p);
         }
-    });
 
-    // Footer del Modal
-    const footerModal = document.createElement("div");
-    footerModal.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;";
-    const colaboradorInfo = document.createElement("div");
-    colaboradorInfo.style.cssText = "font-size: 0.8em; color: #555; background: rgba(0, 123, 255, 0.1); padding: 5px 10px; border-radius: 8px;";
-    colaboradorInfo.innerHTML = `Agregado por: <strong style="color: #0056b3;">${item.colaborador || 'N/A'}</strong>`;
-    footerModal.appendChild(colaboradorInfo);
+        crearImagenDetalle("Imagen del Corte", imgCorte, panel);
 
-    const feedbackContainer = document.createElement("div");
-    feedbackContainer.style.cssText = "display: flex; gap: 10px;";
-    const utilBtn = document.createElement("button");
-    const utilCount = (item.util || '').split(',').filter(Boolean).length;
-    utilBtn.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> Útil <span class="util-count">${utilCount}</span>`;
-    utilBtn.className = "feedback-btn util-btn";
-    utilBtn.onclick = () => handleLike(item.id, utilBtn);
-    feedbackContainer.appendChild(utilBtn);
+        const footerModal = document.createElement("div");
+        footerModal.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;";
+        const colaboradorInfo = document.createElement("div");
+        colaboradorInfo.style.cssText = "font-size: 0.8em; color: #555; background: rgba(0, 123, 255, 0.1); padding: 5px 10px; border-radius: 8px;";
+        colaboradorInfo.innerHTML = `Agregado por: <strong style="color: #0056b3;">${colaborador || 'N/A'}</strong>`;
+        footerModal.appendChild(colaboradorInfo);
 
-    const reportBtn = document.createElement("button");
-    reportBtn.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Reportar`;
-    reportBtn.className = "feedback-btn report-btn";
-    reportBtn.onclick = () => toggleReportSection(item.id);
-    feedbackContainer.appendChild(reportBtn);
+        const feedbackContainer = document.createElement("div");
+        feedbackContainer.style.cssText = "display: flex; gap: 10px;";
+        const utilBtn = document.createElement("button");
+        utilBtn.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> Útil <span class="util-count">${utilCount}</span>`;
+        utilBtn.className = "feedback-btn util-btn";
+        utilBtn.onclick = () => handleLike(item.id, i, utilBtn);
+        feedbackContainer.appendChild(utilBtn);
 
-    footerModal.appendChild(feedbackContainer);
-    cont.appendChild(footerModal);
+        const reportBtn = document.createElement("button");
+        reportBtn.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Reportar`;
+        reportBtn.className = "feedback-btn report-btn";
+        reportBtn.onclick = () => toggleReportSection(item.id, i);
+        feedbackContainer.appendChild(reportBtn);
 
-    // Sección de Reporte (oculta)
-    const reportSection = document.createElement("div");
-    reportSection.id = `report-section-${item.id}`;
-    reportSection.style.display = 'none';
-    reportSection.style.marginTop = '15px';
-    reportSection.innerHTML = `<textarea id="report-input-${item.id}" class="report-textarea" placeholder="Describe el problema..."></textarea><button id="submit-report-${item.id}" class="submit-report-btn">Enviar</button>`;
-    cont.appendChild(reportSection);
+        footerModal.appendChild(feedbackContainer);
+        panel.appendChild(footerModal);
+
+        const reportSection = document.createElement("div");
+        reportSection.id = `report-section-${item.id}-${i}`;
+        reportSection.style.display = 'none';
+        reportSection.style.marginTop = '15px';
+        reportSection.innerHTML = `<textarea id="report-input-${item.id}-${i}" class="report-textarea" placeholder="Describe el problema..."></textarea><button id="submit-report-${item.id}-${i}" class="submit-report-btn">Enviar</button>`;
+        panel.appendChild(reportSection);
+
+        cont.appendChild(panel);
+    }
+
+    crearVideoDetalle("Video Guía de Desarme", item.videoGuiaDesarmeUrl, cont);
 
     document.getElementById("modalDetalle").classList.add("visible");
 }
@@ -1451,7 +1497,7 @@ function filtrarContenido(textoBusqueda) {
     }
     const palabrasBusqueda = busqueda.split(' ').filter(p => p);
     datosFiltrados = datosOriginales.filter(item => {
-        const itemTexto = `${item.categoria} ${item.marca} ${item.modelo} ${item.anoGeneracion} ${item.tipoDeEncendido}`.toLowerCase();
+        const itemTexto = `${item.categoria} ${item.marca} ${item.modelo} ${item.anoDesde} ${item.anoHasta} ${item.tipoEncendido} ${item.versionesAplicables}`.toLowerCase();
         return palabrasBusqueda.every(palabra => itemTexto.includes(palabra));
     });
 
@@ -1467,17 +1513,18 @@ function mostrarResultadosBusquedaMarca(busquedaTexto) {
     const cont = document.getElementById("contenido");
     if (datosFiltrados.length === 1) {
         mostrarDetalleModal(datosFiltrados[0]);
-        cont.innerHTML = `<h4>Resultado Exacto Encontrado</h4><p>Abriendo detalle de ${datosFiltrados[0].modelo} ${datosFiltrados[0].anoGeneracion || ''}.</p>`;
+        const yearRange = datosFiltrados[0].anoHasta ? `${datosFiltrados[0].anoDesde} - ${datosFiltrados[0].anoHasta}` : datosFiltrados[0].anoDesde;
+        cont.innerHTML = `<h4>Resultado Exacto Encontrado</h4><p>Abriendo detalle de ${datosFiltrados[0].modelo} ${yearRange || ''}.</p>`;
         return;
     }
     cont.innerHTML = `<h4>Resultados de búsqueda para: "${busquedaTexto}"</h4>`;
     const marcasUnicas = [...new Set(datosFiltrados.map(item => item.marca))].sort();
     const grid = document.createElement("div"); grid.className = "grid";
     marcasUnicas.forEach(marca => {
-        const ejemplo = datosFiltrados.find(item => item.marca === marca && item.imagenDelVehiculo) || datosFiltrados.find(item => item.marca === marca);
+        const ejemplo = datosFiltrados.find(item => item.marca === marca && item.imagenVehiculo) || datosFiltrados.find(item => item.marca === marca);
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarResultadosBusquedaModelo(busquedaTexto, marca);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo.imagenDelVehiculo); img.alt = `Marca ${marca}`; card.appendChild(img);
+        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo.imagenVehiculo); img.alt = `Marca ${marca}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay"; overlay.innerHTML = marca; card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -1496,10 +1543,11 @@ function mostrarResultadosBusquedaModelo(busquedaTexto, marcaFiltro) {
         const versiones = modelosFiltrados.filter(item => item.modelo === ejemplo.modelo);
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => (versiones.length === 1) ? mostrarDetalleModal(ejemplo) : mostrarResultadosBusquedaVersion(busquedaTexto, marcaFiltro, ejemplo.modelo);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo.imagenDelVehiculo); img.alt = `Modelo ${ejemplo.modelo}`; card.appendChild(img);
+        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo.imagenVehiculo); img.alt = `Modelo ${ejemplo.modelo}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay";
         if (versiones.length === 1) {
-            overlay.innerHTML = `<div>${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8; font-weight:normal;">${ejemplo.anoGeneracion || ''} ${ejemplo.tipoDeEncendido || ''}</div>`;
+            const yearRange = ejemplo.anoHasta ? `${ejemplo.anoDesde} - ${ejemplo.anoHasta}` : ejemplo.anoDesde;
+            overlay.innerHTML = `<div>${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8; font-weight:normal;">${yearRange || ''} ${ejemplo.tipoEncendido || ''}</div>`;
         } else {
             overlay.innerHTML = `<div>${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8; font-weight:normal;">(${versiones.length} cortes)</div>`;
         }
@@ -1518,9 +1566,10 @@ function mostrarResultadosBusquedaVersion(busquedaTexto, marcaFiltro, modeloFilt
     versiones.forEach(item => {
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarDetalleModal(item);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(item.imagenDelVehiculo); img.alt = `Corte ${item.anoGeneracion}`; card.appendChild(img);
+        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(item.imagenVehiculo); img.alt = `Corte ${item.anoDesde}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay";
-        overlay.innerHTML = `<div style="font-weight:bold;">${item.anoGeneracion || modeloFiltro}</div><div style="font-size:0.8em; opacity:0.8;">${item.tipoDeEncendido || ''}</div>`;
+        const yearRange = item.anoHasta ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
+        overlay.innerHTML = `<div style="font-weight:bold;">${yearRange || modeloFiltro}</div><div style="font-size:0.8em; opacity:0.8;">${item.tipoEncendido || ''}</div>`;
         card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -1540,10 +1589,10 @@ function mostrarCategorias() {
     const grid = document.createElement("div"); grid.className = "grid";
     categorias.forEach(cat => {
         const itemsInCategory = datosOriginales.filter(item => item.categoria === cat);
-        const ejemplo = itemsInCategory.find(item => item.imagenDelVehiculo) || itemsInCategory.find(item => item.imagenDeLaApertura);
+        const ejemplo = itemsInCategory.find(item => item.imagenVehiculo);
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarMarcas(cat);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo?.imagenDelVehiculo || ejemplo?.imagenDeLaApertura); img.alt = `Categoría ${cat}`; card.appendChild(img);
+        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo); img.alt = `Categoría ${cat}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay"; overlay.innerHTML = cat; card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -1567,9 +1616,10 @@ function mostrarUltimosAgregados() {
     ultimosCortes.forEach(item => {
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarDetalleModal(item);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(item.imagenDelVehiculo); img.alt = `${item.marca} ${item.modelo}`; card.appendChild(img);
+        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(item.imagenVehiculo); img.alt = `${item.marca} ${item.modelo}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay";
-        overlay.innerHTML = `<div>${item.marca}</div><div style="font-size:0.8em; opacity:0.8;">${item.modelo} ${item.anoGeneracion || ''}</div>`;
+        const yearRange = item.anoHasta ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
+        overlay.innerHTML = `<div>${item.marca}</div><div style="font-size:0.8em; opacity:0.8;">${item.modelo} ${yearRange || ''}</div>`;
         card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -1586,10 +1636,10 @@ function mostrarMarcas(categoria) {
     const grid = document.createElement("div"); grid.className = "grid";
     marcas.forEach(m => {
         const itemsInBrand = itemsInCategory.filter(item => item.marca === m);
-        const ejemplo = itemsInBrand.find(item => item.imagenDelVehiculo) || itemsInBrand.find(item => item.imagenDeLaApertura);
+        const ejemplo = itemsInBrand.find(item => item.imagenVehiculo);
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarModelos(categoria, m);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo?.imagenDelVehiculo || ejemplo?.imagenDeLaApertura); img.alt = `Marca ${m}`; card.appendChild(img);
+        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo); img.alt = `Marca ${m}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay"; overlay.innerHTML = m; card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -1607,10 +1657,11 @@ function mostrarModelos(categoria, marca) {
         const versiones = modelosFiltrados.filter(item => item.modelo === ejemplo.modelo);
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => (versiones.length === 1) ? mostrarDetalleModal(ejemplo) : mostrarVersiones(versiones, categoria, marca, ejemplo.modelo);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo.imagenDelVehiculo); img.alt = `Modelo ${ejemplo.modelo}`; card.appendChild(img);
+        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo.imagenVehiculo); img.alt = `Modelo ${ejemplo.modelo}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay";
         if (versiones.length === 1) {
-             overlay.innerHTML = `<div>${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8;">${ejemplo.anoGeneracion || ''} ${ejemplo.tipoDeEncendido || ''}</div>`;
+            const yearRange = ejemplo.anoHasta ? `${ejemplo.anoDesde} - ${ejemplo.anoHasta}` : ejemplo.anoDesde;
+             overlay.innerHTML = `<div>${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8;">${yearRange || ''} ${ejemplo.tipoEncendido || ''}</div>`;
         } else {
              overlay.innerHTML = `<div>${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8;">(${versiones.length} cortes)</div>`;
         }
@@ -1628,9 +1679,10 @@ function mostrarVersiones(filas, categoria, marca, modelo) {
     filas.forEach(item => {
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarDetalleModal(item);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(item.imagenDelVehiculo); img.alt = `Corte ${item.anoGeneracion}`; card.appendChild(img);
+        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(item.imagenVehiculo); img.alt = `Corte ${item.anoDesde}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay";
-        overlay.innerHTML = `<div style="font-weight:bold;">${item.anoGeneracion || modelo}</div><div style="font-size:0.8em;">${item.tipoDeEncendido || ''}</div>`;
+        const yearRange = item.anoHasta ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
+        overlay.innerHTML = `<div style="font-weight:bold;">${yearRange || modelo}</div><div style="font-size:0.8em;">${item.tipoEncendido || ''}</div>`;
         card.appendChild(overlay);
         grid.appendChild(card);
     });
