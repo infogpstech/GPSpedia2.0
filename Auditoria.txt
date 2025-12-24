@@ -12,7 +12,6 @@ Esta auditoría actualiza el estado del proyecto GPSpedia. El hallazgo más sign
 Como resultado, el informe de auditoría anterior (v1.0) se considera **OBSOLETO**. La estabilidad del proyecto es significativamente mayor y la factibilidad del "Plan Estratégico v4" ha aumentado considerablemente.
 
 Sin embargo, la auditoría ha identificado un conjunto de desviaciones restantes que requieren atención:
-- Una vulnerabilidad de seguridad crítica (contraseñas en texto plano).
 - Incumplimientos menores pero consistentes de las normas de versionamiento de componentes.
 - Varias desviaciones en la implementación de la interfaz de usuario (UI/UX) con respecto a las especificaciones documentadas.
 
@@ -24,10 +23,10 @@ Sin embargo, la auditoría ha identificado un conjunto de desviaciones restantes
 
 #### B. Desviaciones y Tareas Pendientes Identificadas
 
-- **Seguridad (Crítica):**
-  - **Vulnerabilidad:** Persiste el manejo de contraseñas en texto plano.
-  - **Archivos Afectados:** `services/auth/auth.js`, `services/users/js`.
-  - **Evidencia:** Las funciones `handleLogin`, `handleCreateUser` y `handleChangePassword` comparan y almacenan contraseñas sin aplicar ningún algoritmo de hash.
+- **Política de Contraseñas (Aclaración):**
+  - **Estado:** Se mantiene el uso de contraseñas en texto plano.
+  - **Justificación:** Por decisión explícita del responsable del proyecto, se ha determinado que el hashing de contraseñas no es un requisito. La naturaleza no sensible de los datos y la necesidad de simplicidad operativa prevalecen sobre la implementación de medidas de seguridad de contraseñas complejas que han causado problemas en otras áreas (ej. gestión de usuarios). Esto no se considera una desviación, sino una política definida.
+  - **Archivos Afectados:** `services/auth/auth.js`, `services/users.js`.
 
 - **Normas de Versionamiento (Baja):**
   - **Desviación:** El mensaje de estado en `doGet` no sigue el formato estándar `ARQUITECTURA.ARCHIVO.EDICION`.
@@ -54,15 +53,11 @@ Con la arquitectura del backend unificada y estabilizada, la factibilidad genera
 
 ### 4. Recomendaciones Estratégicas (Actualizadas)
 
-1.  **NUEVA PRIORIDAD CERO (Bloqueante): Implementar Hashing de Contaseñas.**
-    - **Acción:** Modificar `auth.js` y `users.js` para almacenar y validar contraseñas usando un estándar de hash + salt (ej. SHA-256). Crear un script de migración para las contraseñas existentes.
-    - **Justificación:** Elimina la vulnerabilidad de seguridad más crítica del sistema.
-
-2.  **PRIORIDAD MEDIA: Corregir Inconsistencias de Versionamiento.**
+1.  **NUEVA PRIORIDAD CERO: Corregir Inconsistencias de Versionamiento.**
     - **Acción:** Añadir los comentarios de cabecera faltantes en `index.html` y `api-manager.js` y corregir el mensaje `doGet` en `auth.js`.
     - **Justificación:** Asegura el cumplimiento total con las normas de desarrollo, facilitando el seguimiento de cambios.
 
-3.  **PRIORIDAD MEDIA: Implementar Correcciones de UI/UX.**
+2.  **PRIORIDAD MEDIA: Implementar Correcciones de UI/UX.**
     - **Acción:** Abordar las desviaciones específicas de UI/UX listadas anteriormente para alinear el frontend con la documentación.
     - **Justificación:** Mejora la experiencia de usuario y cumple con los requisitos definidos.
 
