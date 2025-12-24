@@ -1,6 +1,57 @@
 =================================================
  INFORME DE AUDITORÍA DEL PROYECTO GPSpedia
 =================================================
+**Fecha de Auditoría:** 2024-08-19
+**Versión del Informe:** 5.0
+**Auditor:** Jules
+
+### 1. Resumen Ejecutivo
+
+Esta auditoría revela una **discrepancia crítica entre la documentación del proyecto y el código fuente actual**, que es la causa directa del bug persistente de "Pantalla en Blanco". A pesar de que `ChangesLogs.txt` y el informe de auditoría anterior (v4.0) registran la resolución de este bug en la versión `v3.4.3` mediante una refactorización del frontend, dicha refactorización **no está presente en el código base actual**.
+
+Adicionalmente, se ha identificado un **segundo bug crítico** en la funcionalidad de enlaces compartidos que provocaría un fallo total de la aplicación en ese escenario.
+
+Debido a que la aplicación no se encuentra en un estado funcional, el estado del proyecto se considera **inestable**, y la factibilidad del plan estratégico queda **bloqueada** hasta la resolución de estos problemas fundamentales. Los informes de auditoría anteriores (v4.0 y v3.0) se consideran **OBSOLETOS**.
+
+### 2. Hallazgos Detallados
+
+#### A. Hallazgo Crítico A: El "Arreglo Fantasma" y la Causa Raíz del Bug de Pantalla en Blanco
+
+- **Descripción:** La documentación (`ChangesLogs.txt` v3.4.3, `Auditoria.txt` v4.0) afirma que el bug de la pantalla en blanco fue solucionado refactorizando `index.html` para manejar la estructura de datos `camelCase` de la API v2.0.
+- **Verificación de Código:** El análisis del archivo `index.html` confirma que el código **no ha sido refactorizado**. El pie de página aún muestra la `v3.4.1`, y el código JavaScript sigue utilizando la nomenclatura de la v1.5.
+- **Causa Raíz Confirmada:** El backend envía datos en `camelCase` (ej. `item.marca`), pero el frontend intenta acceder a ellos con el formato antiguo (ej. `item.Marca`), causando un error fatal de JavaScript que impide la renderización de cualquier contenido post-login.
+
+#### B. Hallazgo Crítico B: Funcionalidad de Enlaces Compartidos Rota
+
+- **Descripción:** Se ha identificado una llamada a una función inexistente, `syncAndFetchData`, dentro de la función `handleSharedLink` en `index.html`.
+- **Impacto:** Si un usuario intenta abrir la aplicación a través de un enlace directo a un detalle (ej. `.../index.html?seccion=cortes&id=123`), la aplicación se bloqueará y no cargará, ya que el código intentará ejecutar una función que no está definida.
+
+### 3. Reevaluación de Factibilidad del "Plan Estratégico v4"
+
+La factibilidad del plan, previamente evaluada como "MUY ALTA", se reduce a **BLOQUEADA**. La aplicación no es estable y no puede considerarse una base fiable para el desarrollo de nuevas funcionalidades. La resolución de los bugs identificados es un prerrequisito indispensable para continuar.
+
+### 4. Recomendaciones Estratégicas (Nuevas Prioridades)
+
+1.  **NUEVA PRIORIDAD CERO: Implementar la Refactorización del Frontend.**
+    - **Acción:** Ejecutar la refactorización `camelCase` en `index.html` que fue documentada pero nunca implementada. Esto resolverá el bug de la pantalla en blanco.
+    - **Justificación:** Es la única manera de restaurar la funcionalidad básica de la aplicación.
+
+2.  **NUEVA PRIORIDAD CRÍTICA: Corregir la Función de Enlaces Compartidos.**
+    - **Acción:** Eliminar o reemplazar la llamada a la función inexistente `syncAndFetchData` dentro de `handleSharedLink` para restaurar la funcionalidad.
+    - **Justificación:** Asegura que una de las funcionalidades clave de la aplicación no cause un fallo total.
+
+3.  **PRIORIDAD SECUNDARIA: Sincronizar Versiones y Documentación.**
+    - **Acción:** Una vez que la aplicación sea estable, proceder con la sincronización de los números de versión en todos los archivos para reflejar el estado real del código.
+    - **Justificación:** Restaura la fiabilidad de la documentación para futuros ciclos de desarrollo.
+
+---
+---
+**INFORMES ANTERIORES - AHORA OBSOLETOS**
+---
+---
+=================================================
+ INFORME DE AUDITORÍA DEL PROYECTO GPSpedia
+=================================================
 **Fecha de Auditoría:** 2024-08-18
 **Versión del Informe:** 4.0
 **Auditor:** Jules
