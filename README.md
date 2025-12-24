@@ -107,6 +107,47 @@ Esta sección describe los pasos técnicos específicos requeridos para ejecutar
         - **Lógica de Escritura:** Se conectará a la nueva `GPSpedia_DB_v2.0` y escribirá los datos transformados.
         - **Respuesta:** Devolverá un JSON confirmando el éxito y el número de filas procesadas.
 
+---
+### **Plan Técnico de Migración de DB v1.5 a v2.0**
+
+Esta sección detalla la lógica de transformación que se implementará en el endpoint `executeMigration` para migrar los datos de la hoja `Cortes` de la v1.5 a la v2.0.
+
+- **Endpoint:** `executeMigration` en `services/write/write.js` (activado vía `doPost`).
+- **ID de Hoja de Origen (v1.5):** `1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo`
+- **ID de Hoja de Destino (v2.0):** `1M6zAVch_EGKGGRXIo74Nbn_ihH1APZ7cdr2kNdWfiDs`
+- **Principio de Idempotencia:** Antes de escribir, el script limpiará todas las filas de la hoja `Cortes` de destino (excepto la cabecera) para permitir ejecuciones repetidas sin duplicar datos.
+
+#### Mapeo y Lógica de Transformación de Columnas:
+
+| Columna v2.0 (Destino) | Columna v1.5 (Origen) | Lógica de Transformación |
+| :--- | :--- | :--- |
+| `id` | `ID` | Mapeo directo. |
+| `categoria` | `Categoria` | Mapeo directo. Se asume que los valores son compatibles con la nueva lista de validación de datos. |
+| `marca` | `Marca` | Mapeo directo. |
+| `modelo` | `Modelo` | Mapeo directo. |
+| `versionesAplicables`| N/A | Dejar en blanco. Se llenará manualmente o con futuras funcionalidades. |
+| `anoDesde` | `Año (Generacion)` | **Lógica de Rango:** Si el valor contiene "-", se extrae el primer número (ej. "2019" de "2019-2022"). Si no, se usa el valor completo. |
+| `anoHasta` | `Año (Generacion)` | **Lógica de Rango:** Si el valor contiene "-", se extrae el segundo número (ej. "2022" de "2019-2022"). Si no, se deja en blanco. |
+| `tipoEncendido` | `Tipo de Encendido`| Mapeo directo. Se asume compatibilidad con la nueva lista de validación. |
+| `imagenVehiculo` | `Imagen de la Apertura` | Se utiliza la imagen de la apertura como la imagen principal del vehículo en el nuevo esquema. |
+| `videoGuiaDesarmeUrl`| N/A | Dejar en blanco. |
+| `contadorBusqueda`| N/A | Dejar en blanco o inicializar en `0`. |
+| `tipoCorte1` | `Tipo de Corte` | Mapeo directo. |
+| `ubicacionCorte1` | `Descripcion del Corte` | Se asume que la descripción antigua contiene la ubicación y el color. |
+| `colorCableCorte1` | N/A | Dejar en blanco. Se extraerá manualmente de `ubicacionCorte1` si es necesario. |
+| `configRelay1` | N/A | Dejar en blanco. |
+| `imgCorte1` | `Imagen del Corte` | Mapeo directo. |
+| `utilCorte1` | `Util` | **Lógica de Conteo:** El script contará el número de usuarios (separados por coma) en el campo `Util` y guardará el total numérico. |
+| `colaboradorCorte1`| `Colaborador` | El valor se copia a este campo. |
+| `tipoCorte2`, `ubicacionCorte2`, `imgCorte2` | `Tipo de Corte 2`, etc. | Se repite la misma lógica que para el Corte 1. |
+| `utilCorte2`, `colaboradorCorte2` | `Util`, `Colaborador` | Se copia el mismo valor/conteo que para el Corte 1, si el Corte 2 existe. |
+| `tipoCorte3`, `ubicacionCorte3`, `imgCorte3` | `Tipo de Corte 3`, etc. | Se repite la misma lógica que para el Corte 1. |
+| `utilCorte3`, `colaboradorCorte3` | `Util`, `Colaborador` | Se copia el mismo valor/conteo que para el Corte 1, si el Corte 3 existe. |
+| `timestamp` | `Timestamp` | Mapeo directo. |
+| `notaImportante` | `Nota Importante` | Mapeo directo. |
+
+---
+
 #### 2. Modificaciones al Servicio `GPSpedia-Catalog` (`catalog.js`)
 - **Objetivo:** Adaptar el servicio para leer desde la DB v2.0 y soportar las nuevas funcionalidades.
 - **Acciones Técnicas:**
