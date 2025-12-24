@@ -91,27 +91,46 @@ Esta sección define la hoja de ruta para la siguiente gran versión de GPSpedia
 Esta sección describe los pasos técnicos específicos requeridos para ejecutar la Fase 1 del Plan Estratégico.
 
 #### 1. Modificaciones al Servicio `GPSpedia-Write` (`write.js`)
-- **Objetivo:** Adaptar el servicio para la lógica de la DB v2.0, incluyendo la migración y la gestión de años/logos.
-- **Acciones Técnicas:**
-    - **Modificar `addCorte`:**
-        - La función ya no recibirá `anoDesde` ni `anoHasta`. Recibirá un único `anio`.
-        - Al crear una nueva fila, escribirá el `anio` en la columna `anoDesde` y dejará `anoHasta` en blanco.
-        - Antes de escribir, consultará la hoja `LogosMarcas` para encontrar la URL del logo. Si no la encuentra, usará una URL temporal del logo de GPSpedia.
-    - **Crear Nuevo Endpoint `executeMigration`:**
-        - **Activación:** La función `doGet(e)` se activará con el parámetro `action=executeMigration`.
-        - **Seguridad:** Se implementará una verificación para asegurar que solo los usuarios con rol "Desarrollador" puedan ejecutar la migración.
-        - **Lógica de Lectura:** Se conectará a la `GPSpedia_DB_v1.5` y leerá todas las filas de la hoja "Cortes".
-        - **Lógica de Transformación (por fila):**
-            - **`anoDesde`/`anoHasta`:** Se analizará `Año (Generacion)` para extraer rangos o duplicar el año en `anoDesde`.
-            - **Cortes y Logos:** Se mapearán los datos de los cortes y se buscará el logo correspondiente.
-        - **Lógica de Escritura:** Se conectará a la nueva `GPSpedia_DB_v2.0` y escribirá los datos transformados.
-        - **Respuesta:** Devolverá un JSON confirmando el éxito y el número de filas procesadas.
+- **Objetivo:** Reemplazar el proceso de adición de cortes por un nuevo sistema multifase basado en la lógica de `GPSpedia 1.5`, adaptado a la nueva estructura de la base de datos y con un flujo de trabajo anti-duplicado.
+
+- **Flujo de Trabajo Detallado:**
+
+    - **Etapa 1: Anti-duplicado y Verificación de Existencia.**
+        1.  El frontend (`add_cortes.html`) inicialmente solo pedirá 4 campos: `Marca` (texto), `Modelo` (texto), `Año` (texto) y `Tipo de Encendido` (lista desplegable).
+        2.  Al enviar, el backend (`write.js`) realizará una búsqueda en la hoja 'Cortes'.
+        3.  **Lógica de Búsqueda:** La búsqueda será **exacta** para `Marca`, `Año` y `Tipo de Encendido`. Para `Modelo`, la búsqueda será **flexible**, encontrando coincidencias de palabras completas.
+        4.  **Respuesta:** El servicio devolverá una lista de coincidencias (si las hay) al frontend. La UI mostrará los vehículos encontrados y presentará tres opciones al usuario:
+            *   **Opción 1: "Es un Duplicado".** El usuario confirma que el corte ya existe. El formulario se cierra.
+            *   **Opción 2: "Agregar otro corte".** El vehículo ya existe, pero el usuario quiere añadir un segundo o tercer corte. El flujo avanza a la **Etapa 2**.
+            *   **Opción 3: "Agregar apertura u otra información".** El usuario quiere añadir información suplementaria a un vehículo existente. El flujo avanza a la **Etapa 3**.
+        5.  **Si no hay coincidencias:** El flujo avanza directamente a la **Etapa 2**.
+
+    - **Etapa 2: Registro de un Nuevo Corte.**
+        1.  El frontend presentará los siguientes campos para el nuevo corte:
+            *   `Imagen del vehículo` (botón de subida con vista previa, **solo si es un vehículo completamente nuevo**).
+            *   `Tipo de corte` (lista desplegable desde Spreadsheet).
+            *   `Ubicación del Corte` (área de texto).
+            *   `Color del cable` (campo de texto).
+            *   `Configuración de relay` (lista desplegable desde Spreadsheet, con un valor por defecto).
+            *   `Agregar Imagen` del corte (botón de subida con vista previa).
+        2.  Un botón "Continuar" enviará estos datos al backend.
+        3.  El backend validará la información. Si es un vehículo nuevo, creará una nueva fila asegurándose de heredar las validaciones de la fila anterior. Si es un vehículo existente, encontrará la primera columna de corte disponible (`tipoCorte2`, `tipoCorte3`) y la rellenará.
+        4.  Las imágenes se subirán a Google Drive bajo la estructura `Categoria/Marca/Modelo/Año`.
+        5.  Se registrarán automáticamente el `colaborador` y el `timestamp`.
+        6.  Una respuesta exitosa permitirá al frontend avanzar a la **Etapa 3**.
+
+    - **Etapa 3: Adición de Información Suplementaria.**
+        1.  La UI mostrará la información del corte recién añadido y presentará tres opciones en formato de acordeón desplegable:
+            *   **"Agregar apertura":** Contendrá un campo de texto `Detalle de apertura` y un botón para subir la `imgApertura`.
+            *   **"Cable de alimentación:":** Contendrá un campo de texto `Cable de alimentación` y un botón para subir la `imgCableAlimen`.
+            *   **"Agregar nota sobre este corte":** Contendrá un área de texto para la `notaImportante`.
+        2.  Un botón "Terminar" enviará toda la información suplementaria al backend, que actualizará las celdas correspondientes en la fila del vehículo existente.
 
 #### 2. Modificaciones al Servicio `GPSpedia-Catalog` (`catalog.js`)
 - **Objetivo:** Adaptar el servicio para leer desde la DB v2.0 y soportar las nuevas funcionalidades.
 - **Acciones Técnicas:**
     - **Actualizar `SPREADSHEET_ID`:** La constante apuntará al ID de la nueva `GPSpedia_DB_v2.0`.
-    - **Reescribir `COLS_CORTES`:** El objeto de mapeo de columnas se actualizará para reflejar la nueva estructura granular.
+    - **Reescribir `COLS_CORTES`:** El objeto de mapeo de columnas se actualizará para reflejar la nueva estructura de 38 columnas.
     - **Refactorizar Lógica de Búsqueda:** `handleCheckVehicle` se modificará para buscar coincidencias en `modelo` y `versionesAplicables`.
     - **Implementar Ordenamiento por Utilidad:** En `handleGetCatalogData`, los bloques de corte se reordenarán en el objeto JSON de respuesta basándose en el conteo de "likes" en `utilCorteX` antes de ser enviados al frontend.
 
@@ -139,11 +158,15 @@ Esta sección documenta las tareas de desarrollo, corrección y regresiones pend
 - [ ] **UI General:** Solucionar bugs visuales (pie de página, botón de limpiar búsqueda, carga de nombre de usuario).
 
 ### Mejoras de Funcionalidad Prioritarias
+- [ ] **Refactorización del Flujo de Escritura:** Implementar el nuevo flujo de trabajo de 3 etapas para añadir/actualizar cortes.
 - [ ] **Búsqueda Flexible:** Mejorar `checkVehicle` para que devuelva coincidencias parciales y múltiples resultados.
 - [ ] **Debugging Integral:** Implementar un sistema de debugging en backend y frontend accesible por rol.
 - [ ] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes para mejorar el rendimiento.
 - [ ] **Soporte para Rango de Años (Feedback-driven):** Implementar la lógica de `suggestYear` en el backend y la UI correspondiente en el frontend.
 - [ ] **Sistema de Versionamiento Híbrido:** Aplicar el nuevo sistema de versionamiento a todos los componentes del código fuente.
+
+### Deuda Técnica y Mejoras
+- [ ] **Script de Migración de Timestamps:** Implementar un script de ejecución única para obtener la fecha de creación de las imágenes antiguas de Google Drive y rellenar el campo `timestamp` en los registros existentes.
 
 ### Revisiones de UI/UX
 - [ ] **Ajustes de Layout:** Realizar ajustes de espaciado, encabezado y visualización de "Últimos Agregados" según las especificaciones.
@@ -168,7 +191,7 @@ El backend consta de cinco servicios de Google Apps Script, cada uno con una res
 - **Hojas Accedidas:** `Cortes`, `Tutoriales`, `Relay` (Solo Lectura).
 
 ### `GPSpedia-Write` (`services/write/write.js`)
-- **Responsabilidad:** Escritura de datos y subida de archivos.
+- **Responsabilidad:** Escritura de datos y subida de archivos, siguiendo un flujo de trabajo de 3 etapas.
 - **Hojas Accedidas:** `Cortes` (Escritura).
 - **Recursos Adicionales:** Google Drive (`ID: 1-8QqhS-wtEFFwyBG8CmnEOp5i8rxSM-2`).
 
@@ -269,17 +292,33 @@ A continuación se detalla la estructura de cada hoja en la nueva base de datos.
 | `imagenVehiculo` | URL de la imagen principal del vehículo. |
 | `videoGuiaDesarmeUrl`| URL de un video tutorial para el desarme. |
 | `contadorBusqueda` | Contador numérico de cuántas veces se ha consultado este registro. |
-| `tipoCorteX` | **(Validación de Datos)** Tipo de corte a realizar. La lista se carga dinámicamente. Ej: 'Ignición', 'Bomba de Gasolina', 'Motor de Arranque'. |
-| `ubicacionCorteX`| Descripción textual de la ubicación del cable o componente a intervenir. |
-| `colorCableCorteX`| Color o combinación de colores del cable a cortar. |
-| `configRelayX` | **(Relación)** ID numérico que corresponde a una entrada en la hoja `Relay`, especificando la configuración a usar. |
-| `imgCorteX` | URL de la imagen que muestra el detalle del corte. |
-| `utilCorteX` | Contador de "likes" o "útil" para este corte específico. |
-| `colaboradorCorteX`| Nombre del usuario que aportó la información de este corte. |
+| `tipoCorte1` | **(Validación de Datos)** Tipo de corte a realizar. La lista se carga dinámicamente. Ej: 'Ignición', 'Bomba de Gasolina', 'Motor de Arranque'. |
+| `ubicacionCorte1`| Descripción textual de la ubicación del cable o componente a intervenir. |
+| `colorCableCorte1`| Color o combinación de colores del cable a cortar. |
+| `configRelay1` | **(Relación)** ID numérico que corresponde a una entrada en la hoja `Relay`, especificando la configuración a usar. |
+| `imgCorte1` | URL de la imagen que muestra el detalle del corte. |
+| `utilCorte1` | Contador de "likes" o "útil" para este corte específico. |
+| `colaboradorCorte1`| Nombre del usuario que aportó la información de este corte. |
+| `tipoCorte2` | (Ver `tipoCorte1`) |
+| `ubicacionCorte2`| (Ver `ubicacionCorte1`) |
+| `colorCableCorte2`| (Ver `colorCableCorte1`) |
+| `configRelay2` | (Ver `configRelay1`) |
+| `imgCorte2` | (Ver `imgCorte1`) |
+| `utilCorte2` | (Ver `utilCorte1`) |
+| `colaboradorCorte2`| (Ver `colaboradorCorte1`) |
+| `tipoCorte3` | (Ver `tipoCorte1`) |
+| `ubicacionCorte3`| (Ver `ubicacionCorte1`) |
+| `colorCableCorte3`| (Ver `colorCableCorte1`) |
+| `configRelay3` | (Ver `configRelay1`) |
+| `imgCorte3` | (Ver `imgCorte1`) |
+| `utilCorte3` | (Ver `utilCorte1`) |
+| `colaboradorCorte3`| (Ver `colaboradorCorte1`) |
+| `apertura` | Texto descriptivo sobre los detalles del cable de los seguros del vehículo y dónde encontrarlo. |
+| `imgApertura` | URL de la imagen que muestra el detalle de la apertura. |
+| `cableAlimen` | Texto descriptivo sobre el cable de alimentación. |
+| `imgCableAlimen` | URL de la imagen que muestra el detalle del cable de alimentación. |
 | `timestamp` | Fecha y hora de la última modificación del registro. |
 | `notaImportante` | Campo de texto para advertencias o detalles cruciales. |
-
-*Nota: La `X` en columnas como `tipoCorteX` se reemplaza por los números 1, 2 y 3 para representar los tres posibles cortes por vehículo.*
 
 ##### 3. Hoja: `LogosMarcas`
 - **Propósito:** Centralizar la gestión de logos de marcas para el frontend.
