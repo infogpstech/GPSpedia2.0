@@ -15,6 +15,13 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.6.1 - 17/08/2024
+- **CONFIG: ACTUALIZACIÓN DE ENDPOINTS DE MICROSERVICIOS:**
+  - **Contexto:** Después de un nuevo despliegue de los servicios de backend, se han actualizado las URLs en el frontend para apuntar a las nuevas versiones de producción.
+  - **Acciones Realizadas:**
+    1.  **Actualización de URLs (`api-manager.js`):** Se han actualizado las constantes en `API_ENDPOINTS` para los servicios `CATALOG`, `FEEDBACK`, `USERS` y `WRITE` con las nuevas URLs de despliegue proporcionadas.
+- **Estado del Proyecto:** El frontend ahora se comunica con las versiones más recientes de los microservicios, asegurando que los últimos cambios y correcciones de errores estén activos en producción.
+
 ## v3.5.0 - 15/08/2024
 - **ARQUITECTURA: REFACTORIZACIÓN DEL ACCESO A DATOS EN MICROSERVICIOS:**
   - **Contexto:** En respuesta a la auditoría del sistema, se ha ejecutado la tarea de "Prioridad Cero" para eliminar la inconsistencia arquitectónica crítica en el backend.
