@@ -220,6 +220,8 @@ Esta sección detalla la estructura y las deficiencias de la base de datos origi
 - **Inflexibilidad en los Años:** La columna `Año (Generacion)` almacena un solo año o un rango de texto, lo que dificulta las búsquedas y la gestión de modelos que abarcan varios años.
 - **Inconsistencia Arquitectónica:** El servicio `auth.js` utiliza un mapa de columnas fijo (hardcoded), mientras que el resto de los servicios utiliza un mapa dinámico, creando una inconsistencia en cómo la aplicación accede a su propia base de datos.
 
+> **Nota de Auditoría (2024-08-16):** Esta deficiencia crítica ha sido **resuelta**. Todos los servicios de backend (`auth`, `catalog`, `write`, `feedback`, `users`) han sido refactorizados para utilizar un mapa de columnas fijo, unificando la arquitectura y eliminando la principal fuente de inestabilidad del sistema.
+
 ---
 
 ### 6.2. Arquitectura de Base de Datos v2.0 (Nueva)

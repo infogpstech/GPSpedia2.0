@@ -100,6 +100,8 @@ ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
     - **Falta de Granularidad:** Los "likes" y colaboradores se aplican a todo el vehículo, no a cortes individuales.
     - **Inconsistencia Arquitectónica:** Coexisten dos métodos de acceso a la base de datos (dinámico y fijo), complicando el mantenimiento.
 
+> **Nota de Auditoría (2024-08-16):** Esta deficiencia crítica ha sido **resuelta**. El análisis confirma que todos los servicios de backend han sido refactorizados para utilizar un mapa de columnas fijo, unificando la arquitectura.
+
 #### Arquitectura v2.0 (Nueva)
 - **ID de Google Sheet:** `1M6zAVch_EGKGGRXIo74Nbn_ihH1APZ7cdr2kNdWfiDs`
 - **Principio de Diseño:** Una estructura granular y robusta, diseñada para ser explícita, flexible y a prueba de errores de formato. Es totalmente independiente de la v1.5.
