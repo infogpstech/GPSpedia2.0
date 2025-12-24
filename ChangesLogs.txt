@@ -15,6 +15,19 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.5.0 - 15/08/2024
+- **ARQUITECTURA: REFACTORIZACIÓN DEL ACCESO A DATOS EN MICROSERVICIOS:**
+  - **Contexto:** En respuesta a la auditoría del sistema, se ha ejecutado la tarea de "Prioridad Cero" para eliminar la inconsistencia arquitectónica crítica en el backend.
+  - **Acciones Realizadas:**
+    1.  **Eliminación de Mapeo Dinámico:** Se han refactorizado los siguientes cuatro microservicios para eliminar por completo el uso de la función `getColumnMap`, que leía las cabeceras de la hoja de cálculo en tiempo de ejecución.
+        - `services/catalog/catalog.js`
+        - `services/write/write.js`
+        - `services/users/users.js`
+        - `services/feedback/feedback.js`
+    2.  **Implementación de Mapeo Estático:** Cada uno de los servicios anteriores ahora utiliza un objeto `COLS` constante y fijo (hardcoded) para mapear las columnas de las hojas de cálculo, siguiendo el patrón de diseño ya establecido en `services/auth/auth.js`.
+    3.  **Actualización de Versión de Componentes:** Se ha actualizado la versión interna de cada servicio modificado a `v1.1.0` para reflejar este cambio estructural significativo.
+- **Estado del Proyecto:** La arquitectura del backend ha sido unificada y estabilizada. Se ha eliminado la principal fuente de fragilidad del sistema, creando una base robusta y segura para la futura migración a la base de datos v2.0 y la implementación de nuevas funcionalidades.
+
 ## v3.4.0 - 14/08/2024
 - **DOCUMENTACIÓN: INTEGRACIÓN DE NUEVAS ESPECIFICACIONES DE LÓGICA Y UI:**
   - **Contexto:** Se han añadido nuevas especificaciones detalladas proporcionadas por el usuario al plan estratégico y a la lista de tareas pendientes.

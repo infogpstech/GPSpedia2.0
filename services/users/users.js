@@ -1,5 +1,5 @@
 // ============================================================================
-// GPSPEDIA-USERS SERVICE
+// GPSPEDIA-USERS SERVICE | Version: 1.1.0
 // ============================================================================
 
 // ============================================================================
@@ -19,6 +19,20 @@ const SHEET_NAMES = {
     USERS: "Users"
 };
 
+// --- MAPEO DE COLUMNAS ESTÁTICO ---
+// Refactorización para eliminar el mapeo dinámico y aumentar la robustez.
+const COLS_USERS = {
+    id: 1,
+    nombreUsuario: 2,
+    password: 3,
+    privilegios: 4,
+    nombre: 5,
+    telefono: 6,
+    correoElectronico: 7,
+    sessionToken: 8
+};
+
+
 // ============================================================================
 // ROUTER PRINCIPAL (doGet y doPost)
 // ============================================================================
@@ -27,7 +41,7 @@ function doGet(e) {
   try {
     const response = {
       status: 'success',
-      message: 'GPSpedia USERS-SERVICE v1.0 is active.'
+      message: 'GPSpedia USERS-SERVICE v1.1.0 is active.'
     };
     return ContentService
       .createTextOutput(JSON.stringify(response))
@@ -95,7 +109,10 @@ function handleGetUsers(payload) {
 
     const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
     const data = userSheet.getDataRange().getValues();
-    const headers = data.shift().map(h => camelCase(h.trim()));
+    data.shift(); // remove headers
+
+    const headers = Object.keys(COLS_USERS);
+
     const allUsers = data.map(row => {
         const user = {};
         headers.forEach((h, i) => { if (h !== 'password' && h !== 'sessionToken') user[h] = row[i]; });
@@ -119,7 +136,6 @@ function handleCreateUser(payload) {
     if (!newUser || !creatorRole) throw new Error("Datos insuficientes para crear el usuario.");
 
     const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
-    const COLS = getColumnMap(SHEET_NAMES.USERS);
 
     const allowedRoles = {
         'Desarrollador': ['Desarrollador', 'Gefe', 'Supervisor', 'Tecnico', 'Tecnico_Exterior'],
@@ -131,23 +147,23 @@ function handleCreateUser(payload) {
     }
 
     if (!newUser.nombreUsuario) {
-        newUser.nombreUsuario = generateUniqueUsername(userSheet, COLS, newUser.nombre);
+        newUser.nombreUsuario = generateUniqueUsername(userSheet, newUser.nombre);
     }
 
-    const usernames = userSheet.getRange(2, COLS.nombreUsuario, userSheet.getLastRow() - 1, 1).getValues().flat();
+    const usernames = userSheet.getRange(2, COLS_USERS.nombreUsuario, userSheet.getLastRow() - 1, 1).getValues().flat();
     if (usernames.includes(newUser.nombreUsuario)) {
         throw new Error(`El nombre de usuario '${newUser.nombreUsuario}' ya existe.`);
     }
 
     const newRow = [
-        '',
+        '', // ID
         newUser.nombreUsuario,
         newUser.password || '12345678',
         newUser.privilegios,
         newUser.nombre,
         newUser.telefono || '',
         newUser.correoElectronico || '',
-        ''
+        '' // SessionToken
     ];
     userSheet.appendRow(newRow);
 
@@ -159,13 +175,12 @@ function handleUpdateUser(payload) {
     if (!userId || !updates || !updaterRole) throw new Error("Datos insuficientes para actualizar.");
 
     const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
-    const COLS = getColumnMap(SHEET_NAMES.USERS);
     const data = userSheet.getDataRange().getValues();
     data.shift();
 
     for (let i = 0; i < data.length; i++) {
-        if (data[i][COLS.id - 1] == userId) {
-            const userToUpdateRole = data[i][COLS.privilegios - 1];
+        if (data[i][COLS_USERS.id - 1] == userId) {
+            const userToUpdateRole = data[i][COLS_USERS.privilegios - 1];
 
             const canUpdate = {
                 'Desarrollador': () => true,
@@ -178,7 +193,7 @@ function handleUpdateUser(payload) {
             }
 
             Object.keys(updates).forEach(key => {
-                const colIndex = COLS[key];
+                const colIndex = COLS_USERS[key];
                 if (colIndex && key !== 'id') {
                     if (key === 'password' && !updates.password) return;
                     userSheet.getRange(i + 2, colIndex).setValue(updates[key]);
@@ -196,13 +211,12 @@ function handleDeleteUser(payload) {
     if (!userId || !deleterRole) throw new Error("Datos insuficientes para eliminar.");
 
     const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
-    const COLS = getColumnMap(SHEET_NAMES.USERS);
-    const data = userSheet.getRange(2, 1, userSheet.getLastRow() - 1, COLS.privilegios).getValues();
+    const data = userSheet.getRange(2, 1, userSheet.getLastRow() - 1, COLS_USERS.privilegios).getValues();
 
     for (let i = 0; i < data.length; i++) {
         const row = data[i];
-        if (row[COLS.id - 1] == userId) {
-            const userToDeleteRole = row[COLS.privilegios - 1];
+        if (row[COLS_USERS.id - 1] == userId) {
+            const userToDeleteRole = row[COLS_USERS.privilegios - 1];
 
             const canDelete = {
                  'Desarrollador': (targetRole) => true,
@@ -226,13 +240,12 @@ function handleChangePassword(payload) {
     if(!userId || !currentPassword || !newPassword) throw new Error("Faltan datos para el cambio de contraseña.");
 
     const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
-    const COLS = getColumnMap(SHEET_NAMES.USERS);
-    const data = userSheet.getRange(2, 1, userSheet.getLastRow() - 1, Math.max(COLS.id, COLS.password)).getValues();
+    const data = userSheet.getRange(2, 1, userSheet.getLastRow() - 1, Math.max(COLS_USERS.id, COLS_USERS.password)).getValues();
 
     for (let i = 0; i < data.length; i++) {
-        if (data[i][COLS.id - 1] == userId) {
-            if (data[i][COLS.password - 1] === currentPassword) {
-                userSheet.getRange(i + 2, COLS.password).setValue(newPassword);
+        if (data[i][COLS_USERS.id - 1] == userId) {
+            if (data[i][COLS_USERS.password - 1] === currentPassword) {
+                userSheet.getRange(i + 2, COLS_USERS.password).setValue(newPassword);
                 return { status: 'success', message: 'Contraseña actualizada.' };
             } else {
                 throw new Error("La contraseña actual es incorrecta.");
@@ -247,7 +260,7 @@ function handleChangePassword(payload) {
 // FUNCIONES AUXILIARES
 // ============================================================================
 
-function generateUniqueUsername(sheet, COLS, fullname) {
+function generateUniqueUsername(sheet, fullname) {
     if (!fullname || typeof fullname !== 'string') return '';
     const parts = fullname.trim().toLowerCase().split(' ');
     if (parts.length < 2) return '';
@@ -262,7 +275,7 @@ function generateUniqueUsername(sheet, COLS, fullname) {
         segundoApellido ? `${nombre.charAt(0)}_${segundoApellido}` : null
     ].filter(Boolean);
 
-    const data = sheet.getRange(2, COLS.nombreUsuario, sheet.getLastRow() -1, 1).getValues().flat();
+    const data = sheet.getRange(2, COLS_USERS.nombreUsuario, sheet.getLastRow() -1, 1).getValues().flat();
 
     for(const username of potentialUsernames) {
         if (!data.includes(username)) {
@@ -271,25 +284,4 @@ function generateUniqueUsername(sheet, COLS, fullname) {
     }
 
     return `${nombre.charAt(0)}_${primerApellido}${Math.floor(Math.random() * 100)}`;
-}
-
-function camelCase(str) {
-    if (!str) return '';
-    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-zA-Z0-9 ]/g, "").trim().split(' ')
-        .map((word, index) => {
-            if (!word) return '';
-            const lowerWord = word.toLowerCase();
-            return index === 0 ? lowerWord : lowerWord.charAt(0).toUpperCase() + lowerWord.slice(1);
-        }).join('');
-}
-
-function getColumnMap(sheetName) {
-    const sheet = getSpreadsheet().getSheetByName(sheetName);
-    if (!sheet) throw new Error(`Hoja no encontrada: ${sheetName}`);
-    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-    return headers.reduce((map, header, i) => {
-        map[camelCase(header)] = i + 1;
-        return map;
-    }, {});
 }
