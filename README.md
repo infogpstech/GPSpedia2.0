@@ -128,6 +128,8 @@ Esta sección describe los pasos técnicos específicos requeridos para ejecutar
 Esta sección documenta las tareas de desarrollo, corrección y regresiones pendientes de la versión actual.
 
 ### Tareas Completadas Recientemente
+- [X] **Resolución del Bug Crítico "Pantalla Blanca":** Se refactorizó el frontend (`index.html`) para alinearlo con la nueva estructura de datos `camelCase` del backend v2.0, solucionando la incompatibilidad que impedía la renderización de la aplicación.
+- [X] **Implementación del Sistema de Notificación de Errores:** Se añadió un sistema de notificaciones globales en `index.html` y `api-manager.js` para mostrar al usuario los errores de comunicación con la API, mejorando la depuración y la transparencia.
 - [X] **Refactorización del Acceso a Datos del Backend:** Se han actualizado todos los microservicios (`catalog`, `write`, `users`, `feedback`) para utilizar un mapa de columnas fijo, eliminando la inconsistencia arquitectónica y mejorando la estabilidad del sistema.
 
 ### Bugs y Regresiones Críticas
