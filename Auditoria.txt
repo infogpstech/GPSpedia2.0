@@ -1,3 +1,19 @@
+**AUDITORÍA v11.0 (Fecha: 27/12/2025)**
+**Auditor:** Jules v3.0
+**Enfoque:** Análisis de Causa Raíz del error `Cannot read properties of undefined (reading 'utilCorte1')`.
+
+**1. Resumen Ejecutivo:**
+Tras solucionar el error "Failed to fetch" (Auditoría v10.0), la aplicación comenzó a recibir respuestas del servidor, pero un nuevo error impedía la carga del catálogo: `Cannot read properties of undefined (reading 'utilCorte1')`. Este informe documenta la causa raíz y la solución implementada.
+
+**2. Hallazgos Críticos:**
+*   **Causa Raíz:** El error ocurría en la función `handleGetCatalogData` del servicio `services/catalog/catalog.js`. La función leía todas las filas del rango de datos de la hoja "Cortes" (`getDataRange().getValues()`). Si la hoja contenía filas completamente vacías al final, la función intentaba procesarlas. El `mapRowToObject` devolvía `undefined` para una fila vacía, y el código subsecuente fallaba al intentar acceder a la propiedad `utilCorte1` de un objeto `undefined`.
+*   **Impacto:** Alto. Aunque la comunicación con el backend estaba restaurada, este error de procesamiento de datos impedía que el catálogo se enviara al frontend, resultando en una aplicación no funcional para el usuario final.
+
+**3. Plan de Acción Inmediato (Ejecutado):**
+*   **[CORREGIDO] Añadir Filtro para Filas Vacías:** Se modificó la función `handleGetCatalogData`. Se añadió un método `.filter(row => row && row[0])` inmediatamente después de leer los datos de la hoja. Esta guarda de seguridad se asegura de que solo las filas que existen y tienen un valor en su primera columna (el ID) sean procesadas, haciendo el sistema resiliente a filas vacías en la base de datos.
+
+**4. Conclusión:**
+Esta corrección resuelve el último error conocido que bloqueaba la carga del catálogo. Se espera que la aplicación ahora pueda cargar y mostrar los datos del catálogo correctamente.
 **AUDITORÍA v10.0 (Fecha: 26/12/2025)**
 **Auditor:** Jules v3.0
 **Enfoque:** Análisis de Causa Raíz de Fallo Persistente de Carga de Catálogo ("Failed to fetch").

@@ -1,3 +1,6 @@
+**v3.9.2 (27/12/2025)**
+*   **FIX CRÍTICO (services/catalog/catalog.js):** Solucionado un error `Cannot read properties of undefined (reading 'utilCorte1')` que ocurría al procesar los datos del catálogo. Se añadió un filtro para ignorar filas vacías en la hoja de cálculo "Cortes", previniendo que el backend falle al encontrar datos incompletos.
+*   **DOCS (Auditoria.txt):** Se agregó la Auditoría v11.0 detallando el análisis y la solución para el error de procesamiento de filas vacías.
 **v3.9.1 (26/12/2025)**
 *   **FIX CRÍTICO (services/catalog/catalog.js):** Se implementó la función `doPost(e)` que estaba completamente vacía. Esta era la causa raíz de los errores "Failed to fetch" que impedían la carga de cualquier dato del catálogo. La nueva función ahora actúa como un router, procesando las acciones (`getCatalogData`, etc.) y devolviendo los datos correctamente.
 *   **DOCS (Auditoria.txt):** Se agregó la Auditoría v10.0 detallando el descubrimiento y la solución del bug crítico en la función `doPost`.

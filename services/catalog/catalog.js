@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-CATALOG SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 2.2.1
+// COMPONENT VERSION: 2.2.2
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -139,8 +139,13 @@ function handleGetCatalogData() {
     if (cortesSheet) {
         const data = cortesSheet.getDataRange().getValues();
         data.shift();
-        cortesData = data.map(row => {
+        cortesData = data
+          .filter(row => row && row[0]) // <-- FIX: Ignorar filas vacías (chequea si la fila existe y tiene un ID en la primera columna)
+          .map(row => {
             const vehicle = mapRowToObject(row, COLS_CORTES);
+
+            // Si por alguna razón el mapeo falla, devolvemos null para filtrarlo después
+            if (!vehicle) return null;
 
             // Re-implementar la lógica de ordenamiento por utilidad
             const cortes = [
