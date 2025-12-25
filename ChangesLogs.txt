@@ -15,6 +15,25 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.6.0 - 19/08/2024
+- **FEAT: IMPLEMENTACIÓN DEL FLUJO DE ESCRITURA MODERNO EN `write.js`.**
+  - **Contexto:** Se ha refactorizado por completo el microservicio `GPSpedia-Write` para implementar el nuevo flujo de trabajo de 3 etapas, migrando toda la lógica de escritura a la nueva base de datos v2.0 y añadiendo funcionalidades robustas de anti-duplicación y gestión de archivos.
+  - **Acciones Realizadas:**
+    1.  **Etapa 1: Verificación Anti-Duplicados (`services/write/write.js`):**
+        - Se ha creado la función `handleCheckVehicle` (Líneas 232-269), que recibe los datos básicos de un vehículo y devuelve una lista de posibles coincidencias.
+        - Implementa una lógica de búsqueda flexible para el campo `modelo`, comparando palabras clave en lugar de una coincidencia exacta, mejorando así la detección de duplicados.
+    2.  **Etapa 2: Registro de Nuevos Cortes (`services/write/write.js`):**
+        - Se ha desarrollado la función `handleAddOrUpdateCut` (Líneas 124-229) para manejar tanto la creación de nuevas filas de vehículos como la adición de cortes a vehículos existentes.
+        - La función localiza automáticamente el siguiente espacio de corte disponible (`corte1`, `corte2`, `corte3`).
+        - Incluye una lógica robusta para heredar el formato y las validaciones de datos de la fila anterior al crear un nuevo registro.
+    3.  **Etapa 3: Adición de Información Suplementaria (`services/write/write.js`):**
+        - Se ha implementado la función `handleAddSupplementaryInfo` (Líneas 308-359) para añadir o actualizar datos secundarios como detalles de apertura, cables de alimentación o notas importantes, sin afectar los datos de los cortes principales.
+    4.  **Integración con Google Drive (`services/write/write.js`):**
+        - Se han añadido funciones auxiliares (`getOrCreateFolder`, `uploadImageToDrive`) (Líneas 275-305) que gestionan automáticamente la subida de imágenes.
+        - Las imágenes se organizan en una estructura de carpetas jerárquica (`Categoria/Marca/Modelo/Año`) para facilitar la gestión de archivos.
+- **VERSIONAMIENTO:**
+  - Se ha actualizado la versión del componente `GPSpedia-Write` a `2.1.0` para reflejar la adición de la nueva funcionalidad crítica. (Línea 4 y 78).
+
 ## v3.5.0 - 19/08/2024
 - **FEAT: IMPLEMENTACIÓN DE SISTEMA DE DEPURACIÓN INTEGRAL Y CORRECCIÓN DE BUG CRÍTICO.**
   - **Contexto:** Tras fallos persistentes del bug de la "pantalla en blanco", se determinó que era necesario un sistema de depuración más robusto para diagnosticar la causa raíz. Se ha implementado un sistema de depuración completo en el frontend y backend.
