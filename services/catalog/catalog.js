@@ -38,7 +38,22 @@ const COLS_RELAY = { /* ... igual que v1.5 ... */ };
 // ROUTER PRINCIPAL (doGet y doPost)
 // ============================================================================
 function doGet(e) {
-  return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'GPSpedia Catalog-SERVICE v1.2.1 is active.' })).setMimeType(ContentService.MimeType.JSON);
+    if (e.parameter.debug === 'true') {
+        const serviceState = {
+            service: 'GPSpedia-Catalog',
+            version: '1.2.1',
+            spreadsheetId: SPREADSHEET_ID,
+            sheetsAccessed: [SHEET_NAMES.CORTES, SHEET_NAMES.TUTORIALES, SHEET_NAMES.RELAY]
+        };
+        return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
+            .setMimeType(ContentService.MimeType.JSON);
+    }
+    const defaultResponse = {
+        status: 'success',
+        message: 'GPSpedia Catalog-SERVICE v1.2.1 is active.'
+    };
+    return ContentService.createTextOutput(JSON.stringify(defaultResponse))
+        .setMimeType(ContentService.MimeType.JSON);
 }
 function doPost(e) { /* ... sin cambios ... */ }
 

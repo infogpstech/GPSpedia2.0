@@ -35,7 +35,23 @@ const COLS_CORTES = {
 // ROUTER PRINCIPAL (doGet y doPost)
 // ============================================================================
 function doGet(e) {
-  return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'GPSpedia Write-SERVICE v2.0.0 is active.' })).setMimeType(ContentService.MimeType.JSON);
+    if (e.parameter.debug === 'true') {
+        const serviceState = {
+            service: 'GPSpedia-Write',
+            version: '2.0.0',
+            spreadsheetId: SPREADSHEET_ID,
+            driveFolderId: DRIVE_FOLDER_ID,
+            sheetsAccessed: [SHEET_NAMES.CORTES]
+        };
+        return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
+            .setMimeType(ContentService.MimeType.JSON);
+    }
+    const defaultResponse = {
+        status: 'success',
+        message: 'GPSpedia Write-SERVICE v2.0.0 is active.'
+    };
+    return ContentService.createTextOutput(JSON.stringify(defaultResponse))
+        .setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {

@@ -37,7 +37,22 @@ const COLS_USERS = {
 // ============================================================================
 
 function doGet(e) {
-  return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'GPSpedia Users-SERVICE v1.2.1 is active.' })).setMimeType(ContentService.MimeType.JSON);
+    if (e.parameter.debug === 'true') {
+        const serviceState = {
+            service: 'GPSpedia-Users',
+            version: '1.2.1',
+            spreadsheetId: SPREADSHEET_ID,
+            sheetsAccessed: [SHEET_NAMES.USERS]
+        };
+        return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
+            .setMimeType(ContentService.MimeType.JSON);
+    }
+    const defaultResponse = {
+        status: 'success',
+        message: 'GPSpedia Users-SERVICE v1.2.1 is active.'
+    };
+    return ContentService.createTextOutput(JSON.stringify(defaultResponse))
+        .setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {
