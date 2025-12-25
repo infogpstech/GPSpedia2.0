@@ -8,12 +8,11 @@ const API_ENDPOINTS = {
     LEGACY: "https://script.google.com/macros/s/AKfycbwpIFH1nX2BZEjAKbpq9HJpEGNlo_0LqD1CwxWsWFo5J0AJDdbfMrKpcsAV4ZFJzFWd/exec",
 
     // URLs para los nuevos microservicios.
-    // REEMPLAZA 'URL_DESPLEGADA_...' con la URL real de cada script después de desplegarlo.
-    AUTH:     "https://script.google.com/macros/s/AKfycbyrrVxuX_N_QuiCxFgvTNVztdswGGThJ9SjWz_7vfCkooWZuvydeieMpsPWUEY1T9TH/exec",      // GPSpedia-Auth
-    CATALOG:  "https://script.google.com/macros/s/AKfycbzuIroWYo3FjY_4enCFtb1xiyoAki-IlxsbNGv9u9Y2nhJ3hl-0MwpycrA-qJWjWX7H_w/exec",   // GPSpedia-Catalog
-    WRITE:    "https://script.google.com/macros/s/AKfycbz0VB6F-nO3wbj6P56stpnocfpwMRwVhT21A2N5ugY2DF79Fe0BVIzvNWCef5wMxXAJ/exec",     // GPSpedia-Write
-    USERS:    "https://script.google.com/macros/s/AKfycbwDDnsmFuDO06Bepc3tHGTlE6nGDVEYusz-yCa8chCF03xqD-cgXUJCw5Qc7J-RDj7k/exec",     // GPSpedia-Users
-    FEEDBACK: "https://script.google.com/macros/s/AKfycbxwZHY912yhLHLS9qjiK4gNb-Jl5GQOSg_zAlHBUZx4ryb5Pc2UbRMtm7cLCn2ywgpL/exec"   // GPSpedia-Feedback
+    AUTH:     "https://script.google.com/macros/s/AKfycbx3KVfdqy6Sy_KMnZuO2Z3EcSzM_4stJJAq_a07RQs_q1uFgjuTtI4psyytSVKxBV20/exec",
+    CATALOG:  "https://script.google.com/macros/s/AKfycbw85fLYhcnCim1oeOhecGYRj1nv9VTDdAnvLNH0WPuOKZAJn2Yppm-6QmteWJPbme1ezA/exec",
+    WRITE:    "https://script.google.com/macros/s/AKfycbwZsAkjY4oeIYOINelnU2acE6NwmvIbxwnFPP5HfT0kMDAHrsBSTDNei3iTQFUqBIv6Mg/exec",
+    USERS:    "https://script.google.com/macros/s/AKfycbyYjHKvSH2Y_A86z58AvyHqU-xq8EkSutTEgiC2AfDVwYd26XFxpSQCUTMh0R3sLp4r/exec",
+    FEEDBACK: "https://script.google.com/macros/s/AKfycbz5VebWbNV7hiTZRg1iTCbGgF0WNhFOW2abDes-j5pQS4lYSvPHgrWLY-pSDmB5m2b-/exec"
 };
 
 // Mapeo de cada 'action' al servicio que le corresponde.
