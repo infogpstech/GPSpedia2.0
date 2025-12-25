@@ -13,16 +13,15 @@ const SHEET_NAMES = {
     LOGS: "Logs"
 };
 
-// Mapa de columnas actualizado al esquema v2.0 (camelCase)
+// Mapa de columnas corregido para coincidir con la hoja de cálculo real
 const COLS = {
-    id: 1,
-    nombreUsuario: 2,
-    password: 3,
-    privilegios: 4,
-    nombre: 5,
-    telefono: 6,
-    correoElectronico: 7,
-    sessionToken: 8
+    ID: 1,
+    Nombre_Usuario: 2,
+    Password: 3,
+    Privilegios: 4,
+    Telefono: 5,
+    Correo_Electronico: 6,
+    SessionToken: 7
 };
 
 const SESSION_LIMITS = {
@@ -114,7 +113,7 @@ function handleLogin(payload) {
         let foundUserIndex = -1;
 
         for (let i = 0; i < data.length; i++) {
-            const sheetUsername = (data[i][COLS.nombreUsuario - 1] || '').toString(); // <-- Clave actualizada
+            const sheetUsername = (data[i][COLS.Nombre_Usuario - 1] || '').toString();
             if (sheetUsername.trim().toLowerCase() === username.trim().toLowerCase()) {
                 foundUserRow = data[i];
                 foundUserIndex = i;
@@ -126,15 +125,15 @@ function handleLogin(payload) {
             throw new Error("Credenciales inválidas.");
         }
 
-        const sheetPassword = foundUserRow[COLS.password - 1]; // <-- Clave actualizada
+        const sheetPassword = foundUserRow[COLS.Password - 1];
         const isPasswordMatch = String(sheetPassword).trim() === String(password).trim();
 
         if (!isPasswordMatch) {
             throw new Error("Credenciales inválidas.");
         }
 
-        const userRole = (foundUserRow[COLS.privilegios - 1] || '').toString().toLowerCase(); // <-- Clave actualizada
-        const userId = foundUserRow[COLS.id - 1]; // <-- Clave actualizada
+        const userRole = (foundUserRow[COLS.Privilegios - 1] || '').toString().toLowerCase();
+        const userId = foundUserRow[COLS.ID - 1];
         const sessionLimit = SESSION_LIMITS[userRole] || 1;
 
         // Manage sessions
@@ -153,17 +152,17 @@ function handleLogin(payload) {
         }
 
         const sessionToken = Utilities.getUuid();
-        userSheet.getRange(foundUserIndex + 2, COLS.sessionToken).setValue(sessionToken); // <-- Clave actualizada
+        userSheet.getRange(foundUserIndex + 2, COLS.SessionToken).setValue(sessionToken);
         activeSessionsSheet.appendRow([userId, sessionToken, new Date().toISOString()]);
 
         const user = {
-            id: userId,
-            nombreUsuario: foundUserRow[COLS.nombreUsuario - 1],
-            privilegios: foundUserRow[COLS.privilegios - 1],
-            nombre: foundUserRow[COLS.nombre - 1],
-            telefono: foundUserRow[COLS.telefono - 1],
-            correoElectronico: foundUserRow[COLS.correoElectronico - 1],
-            sessionToken: sessionToken
+            ID: userId,
+            NombreUsuario: foundUserRow[COLS.Nombre_Usuario - 1],
+            Privilegios: foundUserRow[COLS.Privilegios - 1],
+            Nombre: foundUserRow[COLS.Nombre_Usuario - 1], // Usar Nombre_Usuario como Nombre para UI
+            Telefono: foundUserRow[COLS.Telefono - 1],
+            CorreoElectronico: foundUserRow[COLS.Correo_Electronico - 1],
+            SessionToken: sessionToken
         };
 
         return { status: 'success', user: user };
@@ -186,7 +185,7 @@ function handleValidateSession(payload) {
         data.shift();
 
         for (const row of data) {
-            if (row[COLS.id - 1] == userId && row[COLS.sessionToken - 1] === sessionToken) { // <-- Claves actualizadas
+            if (row[COLS.ID - 1] == userId && row[COLS.SessionToken - 1] === sessionToken) {
                 return { valid: true };
             }
         }

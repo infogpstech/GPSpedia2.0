@@ -1,4 +1,4 @@
-// GPSpedia Frontend Component | Version: 2.1.0
+// GPSpedia Frontend Component | Version: 2.2.0
 // ============================================================================
 // API MANAGER for GPSpedia Modular Architecture
 // ============================================================================
@@ -10,7 +10,7 @@ const API_ENDPOINTS = {
     // URLs para los nuevos microservicios.
     AUTH:     "https://script.google.com/macros/s/AKfycbx3KVfdqy6Sy_KMnZuO2Z3EcSzM_4stJJAq_a07RQs_q1uFgjuTtI4psyytSVKxBV20/exec",
     CATALOG:  "https://script.google.com/macros/s/AKfycbw85fLYhcnCim1oeOhecGYRj1nv9VTDdAnvLNH0WPuOKZAJn2Yppm-6QmteWJPbme1ezA/exec",
-    WRITE:    "https://script.google.com/macros/s/AKfycbwZsAkjY4oeIYOINelnU2acE6NwmvIbxwnFPP5HfT0kMDAHrsBSTDNei3iTQFUqBIv6Mg/exec",
+    WRITE:    "https://script.google.com/macros/s/AKfycbz8-YFeNvcqtI2XusN8dGGx4EThC-UvJ0ZTwWEBMuZXCYdVKt2BS_tmCdOLO99iNqXiww/exec",
     USERS:    "https://script.google.com/macros/s/AKfycbyYjHKvSH2Y_A86z58AvyHqU-xq8EkSutTEgiC2AfDVwYd26XFxpSQCUTMh0R3sLp4r/exec",
     FEEDBACK: "https://script.google.com/macros/s/AKfycbz5VebWbNV7hiTZRg1iTCbGgF0WNhFOW2abDes-j5pQS4lYSvPHgrWLY-pSDmB5m2b-/exec"
 };

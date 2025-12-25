@@ -15,6 +15,30 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.6.2 - 19/08/2024
+- **BUG CRÍTICO RESUELTO: CORRECCIÓN DE INCOMPATIBILIDAD DE DATOS FRONTEND-BACKEND.**
+  - **Contexto:** Se ha resuelto la serie de regresiones críticas que impedían el inicio de sesión y la carga de datos. La causa raíz era una discrepancia entre el formato de datos `PascalCase` enviado por el backend (`auth.js`) y el formato `camelCase` que el frontend (`index.html`) esperaba.
+  - **Acciones Realizadas:**
+    1.  **Alineación del Frontend (`index.html`):**
+        - Se han modificado todas las instancias en el JavaScript de `index.html` donde se accedía al objeto de usuario. Se reemplazó el uso de `user.id`, `user.sessionToken`, y `user.nombre` por `user.ID`, `user.SessionToken`, y `user.Nombre` para coincidir con la estructura de datos del backend.
+        - **Líneas Modificadas:** 1059, 1060 (en `checkSession`), 1093 (en `initializeAppData`), 1187, 1188 (en `hideLoginShowApp`), 2100, 2101 (en `openSideMenu`), 2133, 2146 (en `handleLike`), y 2170, 2185 (en `handleReportSubmit`).
+- **INFRAESTRUCTURA: ACTUALIZACIÓN DE ENDPOINT DE SERVICIO `WRITE`.**
+  - **Contexto:** Se ha actualizado la URL del microservicio `GPSpedia-Write` a su última versión desplegada.
+  - **Acción (`api-manager.js`):**
+    - Se ha reemplazado la URL en el objeto `API_ENDPOINTS` para `WRITE`. (Línea 10).
+
+## v3.6.1 - 19/08/2024
+- **DIAGNÓSTICO Y RESOLUCIÓN DE REGRESIONES CRÍTICAS:**
+  - **Contexto:** Se ha realizado una investigación sobre una serie de regresiones críticas reportadas por el usuario.
+  - **Hallazgos y Resolución:**
+    1.  **Fallo de Persistencia de Sesión y Mensaje de Bienvenida:**
+        - **Causa Raíz:** Inconsistencia en el acceso a las propiedades del objeto de usuario (`camelCase` en `index.html` vs. `PascalCase` en `auth.js`).
+        - **Resolución:** Se ha corregido el código en `index.html` para usar `PascalCase`, solucionando el fallo.
+    2.  **Fallo en la Carga del Catálogo:**
+        - **Causa Raíz:** Consecuencia directa del fallo de sesión.
+        - **Resolución:** Al corregirse el problema de la sesión, la carga del catálogo vuelve a funcionar correctamente.
+  - **ESTADO:** ~~PLAN DE ACCIÓN: Los errores identificados serán corregidos en el siguiente commit.~~ **¡CORREGIDO en v3.6.2!**
+
 ## v3.6.0 - 19/08/2024
 - **FEAT: IMPLEMENTACIÓN DEL FLUJO DE ESCRITURA MODERNO EN `write.js`.**
   - **Contexto:** Se ha refactorizado por completo el microservicio `GPSpedia-Write` para implementar el nuevo flujo de trabajo de 3 etapas, migrando toda la lógica de escritura a la nueva base de datos v2.0 y añadiendo funcionalidades robustas de anti-duplicación y gestión de archivos.
