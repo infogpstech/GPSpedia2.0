@@ -13,16 +13,23 @@ const SHEET_NAMES = {
     LOGS: "Logs"
 };
 
-// Mapa de columnas actualizado al esquema v2.0 (camelCase)
-const COLS = {
-    id: 1,
-    nombreUsuario: 2,
-    password: 3,
-    privilegios: 4,
-    nombre: 5,
-    telefono: 6,
-    correoElectronico: 7,
-    sessionToken: 8
+// Mapas de columnas corregidos para coincidir con la hoja de cálculo real
+const COLS_USERS = {
+    ID: 1,
+    Nombre_Usuario: 2,
+    Password: 3,
+    Privilegios: 4,
+    Telefono: 5,
+    Correo_Electronico: 6,
+    SessionToken: 7
+};
+
+const COLS_ACTIVE_SESSIONS = {
+    ID_Usuario: 1,
+    Usuario: 2,
+    ActiveSessions: 3,
+    date: 4,
+    Logs: 5
 };
 
 const SESSION_LIMITS = {
@@ -51,7 +58,23 @@ function logToSheet(level, message, details = {}) {
 // ROUTER PRINCIPAL
 // ============================================================================
 function doGet(e) {
-  return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'GPSpedia Auth-SERVICE v1.2.1 is active.' })).setMimeType(ContentService.MimeType.JSON);
+    if (e.parameter.debug === 'true') {
+        const serviceState = {
+            service: 'GPSpedia-Auth',
+            version: '1.2.1', // Mantener sincronizado con la versión del componente
+            spreadsheetId: SPREADSHEET_ID,
+            sheetsAccessed: [SHEET_NAMES.USERS, SHEET_NAMES.ACTIVE_SESSIONS, SHEET_NAMES.LOGS]
+        };
+        return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
+            .setMimeType(ContentService.MimeType.JSON);
+    }
+    // Comportamiento por defecto si no está en modo de depuración
+    const defaultResponse = {
+        status: 'success',
+        message: 'GPSpedia Auth-SERVICE v1.2.1 is active.'
+    };
+    return ContentService.createTextOutput(JSON.stringify(defaultResponse))
+        .setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {
@@ -98,7 +121,7 @@ function handleLogin(payload) {
         let foundUserIndex = -1;
 
         for (let i = 0; i < data.length; i++) {
-            const sheetUsername = (data[i][COLS.nombreUsuario - 1] || '').toString(); // <-- Clave actualizada
+            const sheetUsername = (data[i][COLS_USERS.Nombre_Usuario - 1] || '').toString();
             if (sheetUsername.trim().toLowerCase() === username.trim().toLowerCase()) {
                 foundUserRow = data[i];
                 foundUserIndex = i;
@@ -110,15 +133,15 @@ function handleLogin(payload) {
             throw new Error("Credenciales inválidas.");
         }
 
-        const sheetPassword = foundUserRow[COLS.password - 1]; // <-- Clave actualizada
+        const sheetPassword = foundUserRow[COLS_USERS.Password - 1];
         const isPasswordMatch = String(sheetPassword).trim() === String(password).trim();
 
         if (!isPasswordMatch) {
             throw new Error("Credenciales inválidas.");
         }
 
-        const userRole = (foundUserRow[COLS.privilegios - 1] || '').toString().toLowerCase(); // <-- Clave actualizada
-        const userId = foundUserRow[COLS.id - 1]; // <-- Clave actualizada
+        const userRole = (foundUserRow[COLS_USERS.Privilegios - 1] || '').toString().toLowerCase();
+        const userId = foundUserRow[COLS_USERS.ID - 1];
         const sessionLimit = SESSION_LIMITS[userRole] || 1;
 
         // Manage sessions
@@ -127,7 +150,7 @@ function handleLogin(payload) {
         sessionsData.shift();
 
         const userSessions = sessionsData
-            .map((row, index) => ({ userId: row[0], rowIndex: index + 2 }))
+            .map((row, index) => ({ userId: row[COLS_ACTIVE_SESSIONS.ID_Usuario - 1], rowIndex: index + 2 }))
             .filter(session => session.userId == userId);
 
         if (userSessions.length >= sessionLimit) {
@@ -137,17 +160,23 @@ function handleLogin(payload) {
         }
 
         const sessionToken = Utilities.getUuid();
-        userSheet.getRange(foundUserIndex + 2, COLS.sessionToken).setValue(sessionToken); // <-- Clave actualizada
-        activeSessionsSheet.appendRow([userId, sessionToken, new Date().toISOString()]);
+        userSheet.getRange(foundUserIndex + 2, COLS_USERS.SessionToken).setValue(sessionToken);
+
+        // Escribir en la hoja de sesiones activas usando el nuevo schema
+        const newSessionRow = [];
+        newSessionRow[COLS_ACTIVE_SESSIONS.ID_Usuario - 1] = userId;
+        newSessionRow[COLS_ACTIVE_SESSIONS.Usuario - 1] = username;
+        newSessionRow[COLS_ACTIVE_SESSIONS.ActiveSessions - 1] = sessionToken;
+        newSessionRow[COLS_ACTIVE_SESSIONS.date - 1] = new Date().toISOString();
+        activeSessionsSheet.appendRow(newSessionRow);
 
         const user = {
-            id: userId,
-            nombreUsuario: foundUserRow[COLS.nombreUsuario - 1],
-            privilegios: foundUserRow[COLS.privilegios - 1],
-            nombre: foundUserRow[COLS.nombre - 1],
-            telefono: foundUserRow[COLS.telefono - 1],
-            correoElectronico: foundUserRow[COLS.correoElectronico - 1],
-            sessionToken: sessionToken
+            ID: userId,
+            Nombre_Usuario: foundUserRow[COLS_USERS.Nombre_Usuario - 1],
+            Privilegios: foundUserRow[COLS_USERS.Privilegios - 1],
+            Telefono: foundUserRow[COLS_USERS.Telefono - 1],
+            Correo_Electronico: foundUserRow[COLS_USERS.Correo_Electronico - 1],
+            SessionToken: sessionToken
         };
 
         return { status: 'success', user: user };
@@ -170,7 +199,7 @@ function handleValidateSession(payload) {
         data.shift();
 
         for (const row of data) {
-            if (row[COLS.id - 1] == userId && row[COLS.sessionToken - 1] === sessionToken) { // <-- Claves actualizadas
+            if (row[COLS_USERS.ID - 1] == userId && row[COLS_USERS.SessionToken - 1] === sessionToken) {
                 return { valid: true };
             }
         }

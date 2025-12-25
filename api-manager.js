@@ -1,4 +1,4 @@
-// GPSpedia Frontend Component | Version: 2.0.1
+// GPSpedia Frontend Component | Version: 2.2.0
 // ============================================================================
 // API MANAGER for GPSpedia Modular Architecture
 // ============================================================================
@@ -8,12 +8,11 @@ const API_ENDPOINTS = {
     LEGACY: "https://script.google.com/macros/s/AKfycbwpIFH1nX2BZEjAKbpq9HJpEGNlo_0LqD1CwxWsWFo5J0AJDdbfMrKpcsAV4ZFJzFWd/exec",
 
     // URLs para los nuevos microservicios.
-    // REEMPLAZA 'URL_DESPLEGADA_...' con la URL real de cada script después de desplegarlo.
-    AUTH:     "https://script.google.com/macros/s/AKfycbyrrVxuX_N_QuiCxFgvTNVztdswGGThJ9SjWz_7vfCkooWZuvydeieMpsPWUEY1T9TH/exec",      // GPSpedia-Auth
-    CATALOG:  "https://script.google.com/macros/s/AKfycbzuIroWYo3FjY_4enCFtb1xiyoAki-IlxsbNGv9u9Y2nhJ3hl-0MwpycrA-qJWjWX7H_w/exec",   // GPSpedia-Catalog
-    WRITE:    "https://script.google.com/macros/s/AKfycbwKY0wwKdXOtkh4puywFjWPqIv6TM6WK7PErMyS8rKaU9UJqriIpKl4O7YR17LPcM3oNQ/exec",     // GPSpedia-Write
-    USERS:    "https://script.google.com/macros/s/AKfycbwDDnsmFuDO06Bepc3tHGTlE6nGDVEYusz-yCa8chCF03xqD-cgXUJCw5Qc7J-RDj7k/exec",     // GPSpedia-Users
-    FEEDBACK: "https://script.google.com/macros/s/AKfycbxwZHY912yhLHLS9qjiK4gNb-Jl5GQOSg_zAlHBUZx4ryb5Pc2UbRMtm7cLCn2ywgpL/exec"   // GPSpedia-Feedback
+    AUTH:     "https://script.google.com/macros/s/AKfycbxwCSaTLerkkqLDJuwPf4FM0wNLpZG-1XMOdjY7X_XOliafROstGzpCQ867iUpMbJFw/exec",
+    CATALOG:  "https://script.google.com/macros/s/AKfycbxdeYq_nZZvtCFT_soH7fu9mlqWe05xii4EMS7JRz9D6MfqPATb5I5TBFDhEpDWvmZHOw/exec",
+    WRITE:    "https://script.google.com/macros/s/AKfycbwFxz9uJpTfsaSSzgpCe8dc1UUW6cR-0gcDkyJt-INJHQ_7raEo5M8QoiqAYxQh69w7ZQ/exec",
+    USERS:    "https://script.google.com/macros/s/AKfycbxKxsJkYhbfq2g9fSBVYNPPGhFkeUp8nH4cZhJ34MzGA2RiqkiX0QYEc_uWbZvXNOI3/exec",
+    FEEDBACK: "https://script.google.com/macros/s/AKfycbyQmnL5gxXa84TovbR72YROPM93YVQwtVgA-ARFG4k0iSpMks_ypThKp5Z5H3PIDKNt/exec"
 };
 
 // Mapeo de cada 'action' al servicio que le corresponde.

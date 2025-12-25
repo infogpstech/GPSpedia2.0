@@ -18,7 +18,9 @@ function getSpreadsheet() {
 
 const SHEET_NAMES = {
     CORTES: "Cortes",
-    FEEDBACKS: "Feedbacks"
+    FEEDBACKS: "Feedbacks",
+    CONTACTANOS: "Contactanos",
+    ACTIVIDAD_USUARIO: "ActividadUsuario"
 };
 
 // Mapa de columnas para la hoja "Cortes" (v2.0)
@@ -33,14 +35,55 @@ const COLS_CORTES = {
 
 // Mapa de columnas para la hoja "Feedbacks" (v2.0)
 const COLS_FEEDBACKS = {
-    id: 1, usuario: 2, idVehiculo: 3, problema: 4, respuesta: 5, seResolvio: 6, responde: 7, reporteDeUtil: 8
+    ID: 1,
+    Usuario: 2,
+    ID_vehiculo: 3,
+    Problema: 4,
+    Respuesta: 5,
+    "Se resolvio": 6,
+    Responde: 7,
+    "Reporte de util": 8
+};
+
+const COLS_CONTACTANOS = {
+    Contacto_ID: 1,
+    User_ID: 2,
+    Asunto: 3,
+    Mensaje: 4,
+    Respuesta_mensaje: 5,
+    ID_usuario_responde: 6
+};
+
+const COLS_ACTIVIDAD_USUARIO = {
+    id: 1,
+    timestamp: 2,
+    idUsuario: 3,
+    nombreUsuario: 4,
+    tipoActividad: 5,
+    idElementoAsociado: 6,
+    detalle: 7
 };
 
 // ============================================================================
 // ROUTER PRINCIPAL (doGet y doPost)
 // ============================================================================
 function doGet(e) {
-  return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'GPSpedia Feedback-SERVICE v1.2.1 is active.' })).setMimeType(ContentService.MimeType.JSON);
+    if (e.parameter.debug === 'true') {
+        const serviceState = {
+            service: 'GPSpedia-Feedback',
+            version: '1.2.1',
+            spreadsheetId: SPREADSHEET_ID,
+            sheetsAccessed: [SHEET_NAMES.CORTES, SHEET_NAMES.FEEDBACKS]
+        };
+        return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
+            .setMimeType(ContentService.MimeType.JSON);
+    }
+    const defaultResponse = {
+        status: 'success',
+        message: 'GPSpedia Feedback-SERVICE v1.2.1 is active.'
+    };
+    return ContentService.createTextOutput(JSON.stringify(defaultResponse))
+        .setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {
@@ -158,4 +201,97 @@ function handleSuggestYear(payload) {
     throw new Error("Vehículo no encontrado.");
 }
 
-function handleReportProblem(payload) { /* ... sin cambios ... */ }
+function logUserActivity(userId, userName, activityType, associatedId, details) {
+    try {
+        const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.ACTIVIDAD_USUARIO);
+        const newRow = [];
+        newRow[COLS_ACTIVIDAD_USUARIO.id - 1] = ''; // Autogen ID
+        newRow[COLS_ACTIVIDAD_USUARIO.timestamp - 1] = new Date().toISOString();
+        newRow[COLS_ACTIVIDAD_USUARIO.idUsuario - 1] = userId;
+        newRow[COLS_ACTIVIDAD_USUARIO.nombreUsuario - 1] = userName;
+        newRow[COLS_ACTIVIDAD_USUARIO.tipoActividad - 1] = activityType;
+        newRow[COLS_ACTIVIDAD_USUARIO.idElementoAsociado - 1] = associatedId;
+        newRow[COLS_ACTIVIDAD_USUARIO.detalle - 1] = details;
+        sheet.appendRow(newRow);
+    } catch (e) {
+        // Log error to main log sheet if activity logging fails
+        Logger.log(`CRITICAL: Fallo al registrar actividad de usuario. Error: ${e.message}`);
+    }
+}
+
+function handleRecordLike(payload) {
+    const { vehicleId, corteIndex, userId, userName } = payload;
+    if (!vehicleId || !corteIndex || !userId || !userName) {
+        throw new Error("Faltan datos para registrar el 'like' (vehicleId, corteIndex, userId, userName).");
+    }
+
+    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
+    // Fetch all IDs from the 'id' column to find the row index
+    const ids = sheet.getRange(2, COLS_CORTES.id, sheet.getLastRow() - 1, 1).getValues().flat();
+    const rowIndex = ids.findIndex(id => id == vehicleId);
+
+    if (rowIndex === -1) {
+        throw new Error("No se encontró el vehículo con el ID proporcionado.");
+    }
+
+    // rowIndex is 0-based, but sheet rows are 1-based and we have a header, so add 2
+    const actualRow = rowIndex + 2;
+
+    // Determine the correct column for the like count
+    const utilColName = `utilCorte${corteIndex}`;
+    const utilCol = COLS_CORTES[utilColName];
+
+    if (!utilCol) {
+        throw new Error(`Índice de corte inválido: ${corteIndex}`);
+    }
+
+    // Get the cell, read the value, increment, and write back
+    const cell = sheet.getRange(actualRow, utilCol);
+    let currentValue = cell.getValue();
+
+    // Ensure the current value is a number, default to 0 if empty or not a number
+    if (typeof currentValue !== 'number' || isNaN(currentValue)) {
+        currentValue = 0;
+    }
+
+    cell.setValue(currentValue + 1);
+
+    // Log this action
+    logUserActivity(userId, userName, 'like', vehicleId, `Like en corte ${corteIndex}. Nuevo total: ${currentValue + 1}`);
+
+    return { status: 'success', message: 'Like registrado correctamente.' };
+}
+
+function handleReportProblem(payload) {
+    const { vehicleId, problemText, userId, userName } = payload;
+    if (!vehicleId || !problemText || !userId || !userName) {
+        throw new Error("Faltan datos para reportar el problema.");
+    }
+
+    // ... (logic for adding problem to Feedbacks sheet) ...
+    const feedbackSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
+    const newRow = [];
+    newRow[COLS_FEEDBACKS.ID - 1] = '';
+    newRow[COLS_FEEDBACKS.Usuario - 1] = userName;
+    newRow[COLS_FEEDBACKS.ID_vehiculo - 1] = vehicleId;
+    newRow[COLS_FEEDBACKS.Problema - 1] = problemText;
+    feedbackSheet.appendRow(newRow);
+
+
+    logUserActivity(userId, userName, 'report_problem', vehicleId, problemText);
+    return { status: 'success', message: 'Problema reportado.' };
+}
+
+function handleSuggestYear(payload) {
+    const { vehicleId, newYear, userId, userName } = payload;
+    // ... (validation) ...
+
+    // ... (logic for updating year range) ...
+
+    if (updated) {
+        logUserActivity(userId, userName, 'suggest_year', vehicleId, `Año sugerido: ${newYear}. Rango actualizado a ${anoDesde}-${anoHasta}.`);
+        return { status: 'success', message: `Rango de años actualizado a ${anoDesde}-${anoHasta}.` };
+    } else {
+        return { status: 'info', message: 'El año sugerido ya está dentro del rango existente.' };
+    }
+}
