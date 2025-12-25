@@ -15,6 +15,11 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.9.2 - 26/12/2025
+- **INFRA: ACTUALIZACIÓN FINAL DEL ENDPOINT DE AUTENTICACIÓN.**
+  - **Contexto:** Se ha actualizado el frontend para apuntar a la URL final y correcta del servicio `GPSpedia-Auth` desplegado, completando la resolución del error "Failed to fetch".
+  - **Acción (`api-manager.js`):** Se ha reemplazado la URL del endpoint `AUTH` por la nueva versión proporcionada. (Línea 11).
+
 ## v3.9.1 - 26/12/2025
 - **FIX: RESOLUCIÓN DEL ERROR "FAILED TO FETCH" POR DESPLIEGUE OBSOLETO.**
   - **Contexto:** El análisis demostró que el error de red era causado por una versión desactualizada del servicio `GPSpedia-Auth` que se encontraba desplegada. El código en el repositorio (v2.2.0) es correcto, pero no estaba activo.

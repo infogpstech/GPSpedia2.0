@@ -8,7 +8,7 @@ const API_ENDPOINTS = {
     LEGACY: "https://script.google.com/macros/s/AKfycbwpIFH1nX2BZEjAKbpq9HJpEGNlo_0LqD1CwxWsWFo5J0AJDdbfMrKpcsAV4ZFJzFWd/exec",
 
     // URLs para los nuevos microservicios.
-    AUTH:     "https://script.google.com/macros/s/AKfycbwKE2rxL41h-SyZfc4pKJUBJTGFkiwqOISeqFx4j9IbDGkMA7wsbUkyUPPJ1fxrnKI1/exec",
+    AUTH:     "https://script.google.com/macros/s/AKfycbxHdkQDczUiU5jLGQMuZC-DIVv8VKUPC-aoUHByCfv5jXmgC0AuLhOKBlLR5iQTfQVz/exec",
     CATALOG:  "https://script.google.com/macros/s/AKfycbyKn9Z6zHE395OaFFDrv1kKj6vOIxxduYSec0jk29oaQRpHZCSFwzu3rtTAKDZPrIOEXQ/exec",
     WRITE:    "https://script.google.com/macros/s/AKfycbwzAgwnmSxRfPRTWWpBDSq4Zja3EpRvrY0W0AT5r7ZFsVIIxIRsIIYVitCdmDaEfc-wfA/exec",
     USERS:    "https://script.google.com/macros/s/AKfycbwFDNNDPcnk4qnmyvbN5x_oGdS1kD7_kw7DHTKqdB87UeHCUO16EwmLPL8PITMzBc1p/exec",
