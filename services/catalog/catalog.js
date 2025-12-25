@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-CATALOG SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 2.2.0
+// COMPONENT VERSION: 2.2.1
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -87,7 +87,43 @@ function doGet(e) {
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
         .setMimeType(ContentService.MimeType.JSON);
 }
-function doPost(e) { /* ... sin cambios ... */ }
+function doPost(e) {
+  try {
+    const request = JSON.parse(e.postData.contents);
+    const action = request.action;
+    const payload = request.payload || {};
+    let result;
+
+    switch (action) {
+      case 'getCatalogData':
+        result = handleGetCatalogData();
+        break;
+      case 'getDropdownData':
+        result = handleGetDropdownData();
+        break;
+      case 'checkVehicle':
+        result = handleCheckVehicle(payload);
+        break;
+      default:
+        throw new Error(`Acción desconocida: ${action}`);
+    }
+
+    return ContentService.createTextOutput(JSON.stringify(result))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch (error) {
+    const errorResponse = {
+      status: 'error',
+      message: 'Se ha producido un error en el servidor.',
+      details: {
+        errorMessage: error.message,
+        stack: error.stack
+      }
+    };
+    return ContentService.createTextOutput(JSON.stringify(errorResponse))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
 
 // ============================================================================
 // MANEJADORES DE ACCIONES (HANDLERS)

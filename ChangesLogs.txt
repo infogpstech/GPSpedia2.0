@@ -1,3 +1,7 @@
+**v3.9.1 (26/12/2025)**
+*   **FIX CRÍTICO (services/catalog/catalog.js):** Se implementó la función `doPost(e)` que estaba completamente vacía. Esta era la causa raíz de los errores "Failed to fetch" que impedían la carga de cualquier dato del catálogo. La nueva función ahora actúa como un router, procesando las acciones (`getCatalogData`, etc.) y devolviendo los datos correctamente.
+*   **DOCS (Auditoria.txt):** Se agregó la Auditoría v10.0 detallando el descubrimiento y la solución del bug crítico en la función `doPost`.
+
 =================================================
  NORMAS OBLIGATORIAS PARA EL REGISTRO DE CAMBIOS
 =================================================
