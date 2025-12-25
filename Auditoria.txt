@@ -1,6 +1,37 @@
 =================================================
  INFORME DE AUDITORÍA DEL PROYyecto GPSpedia
 =================================================
+**Fecha de Auditoría:** 2025-12-25
+**Versión del Informe:** 8.0
+**Auditor:** Jules
+
+### 1. Resumen Ejecutivo
+
+Esta auditoría documenta la resolución del bug de la "Pantalla en Blanco" post-login y describe problemas persistentes relacionados con la gestión de sesiones y el entorno de desarrollo del agente. El objetivo es proporcionar una descripción técnica clara para futuras intervenciones.
+
+### 2. Hallazgos y Soluciones Implementadas
+
+#### A. Problema de Pantalla en Blanco Post-Login (Solucionado)
+
+- **Descripción del Problema:** Después de un inicio de sesión exitoso, si ocurría un error de conexión con el servidor (por ejemplo, al intentar cargar el catálogo), la aplicación se quedaba completamente en blanco.
+- **Análisis de Causa Raíz:** La función `postToAction` en `index.html` estaba diseñada para mostrar todos los errores en el elemento `#login-error`, que solo es visible en la pantalla de inicio de sesión. Cuando un error de "Failed to fetch" ocurría después del login, el script intentaba acceder a este elemento oculto, lo que generaba un error fatal de JavaScript que detenía toda la ejecución y el renderizado de la aplicación.
+- **Solución Implementada:** Se modificó la lógica de manejo de errores. Ahora, si el modal de login no está visible, los errores se dirigen a una nueva función `showGlobalError`, que muestra una notificación "toast" no invasiva en la parte inferior de la pantalla. Esto asegura que los errores de red no interrumpan la aplicación y que el usuario reciba una notificación adecuada.
+
+### 3. Problemas Persistentes Identificados
+
+#### A. Problema de Persistencia de Sesión
+
+- **Descripción:** La sesión de usuario no se mantiene activa al actualizar la página (F5 o refresh). El sistema requiere que el usuario inicie sesión nuevamente en cada recarga, aunque la sesión debería persistir indefinidamente hasta que el usuario cierre sesión explícitamente o inicie sesión en otro dispositivo.
+- **Análisis Preliminar:** Este comportamiento indica un fallo en la lógica de `checkSession` o `validateSession`. La sesión se guarda en `localStorage` pero el backend la invalida al recargar la página.
+
+#### B. Discrepancia en el Entorno de Desarrollo
+
+- **Observación del Usuario:** Se ha reportado que los cambios de código implementados por el agente (Jules) no siempre se ven reflejados en el repositorio final. A menudo, los únicos cambios visibles son las actualizaciones de los números de versión en los archivos, mientras que las correcciones de lógica o errores persisten.
+- **Hipótesis:** Esto podría deberse a un problema con el proceso de commit o sincronización del entorno de desarrollo del agente con el repositorio de Git. Es un punto a tener en cuenta para futuras colaboraciones y revisiones de código.
+
+=================================================
+ INFORME DE AUDITORÍA DEL PROYyecto GPSpedia
+=================================================
 **Fecha de Auditoría:** 2024-12-26
 **Versión del Informe:** 7.0
 **Auditor:** Jules
@@ -79,7 +110,7 @@ La factibilidad del plan sigue **BLOQUEADA**. Es imposible avanzar con nuevas fu
 
 ---
 ---
-**INFORMES ANTERIORES - AHORA OBSOLETOS**
+**INFORMES ANTERIOORES - AHORA OBSOLETOS**
 ---
 ---
 (El contenido de los informes v5.0, v4.0 y v3.0 se archiva a continuación pero ya no se considera relevante para el estado actual del proyecto.)
