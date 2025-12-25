@@ -9,7 +9,7 @@ const API_ENDPOINTS = {
 
     // URLs para los nuevos microservicios.
     AUTH:     "https://script.google.com/macros/s/AKfycbwKE2rxL41h-SyZfc4pKJUBJTGFkiwqOISeqFx4j9IbDGkMA7wsbUkyUPPJ1fxrnKI1/exec",
-    CATALOG:  "https://script.google.com/macros/s/AKfycbxvneXGeI4J_IDrFj5l4D1XUNu_mdlVaHFgbewuHiNeXPrh8PlDUombEI9IQMFn4Es2Xw/exec",
+    CATALOG:  "https://script.google.com/macros/s/AKfycbwNjNeJN5KHLlLOL81na4AU7RIrK0FX5a5RdmEI54F-MhVIjqBrW-WJG7Ew_lZeyXuRRQ/exec",
     WRITE:    "https://script.google.com/macros/s/AKfycbwzAgwnmSxRfPRTWWpBDSq4Zja3EpRvrY0W0AT5r7ZFsVIIxIRsIIYVitCdmDaEfc-wfA/exec",
     USERS:    "https://script.google.com/macros/s/AKfycbwFDNNDPcnk4qnmyvbN5x_oGdS1kD7_kw7DHTKqdB87UeHCUO16EwmLPL8PITMzBc1p/exec",
     FEEDBACK: "https://script.google.com/macros/s/AKfycbwtEWodjUl5eE4JDw3lN2XANqe3gLIvPvCMyrFDqvX0QNE-2sh9pWEXMamNHfC_GG7R/exec"
