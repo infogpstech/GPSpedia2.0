@@ -1,4 +1,4 @@
-<!-- GPSpedia Frontend Component | Version: 2.2.0 -->
+<!-- GPSpedia Frontend Component | Version: 3.8.2 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -184,7 +184,7 @@ body.search-active .search-container.has-text #clear-search-btn {
 
 .search-container input[type="text"] {
     width: 100%;
-    padding: 12px 15px;
+    padding: 12px 40px 12px 15px; /* Aumentado padding derecho para el botón X */
     border: 1px solid #ccc;
     border-radius: 8px;
     box-sizing: border-box;
@@ -809,9 +809,11 @@ body.search-active .app-logo {
   <!-- El botón de instalación se mueve fuera del header-controls para que no se oculte con la búsqueda -->
   <button id="install-button" style="display: none;">Instalar Aplicación</button>
 
-  <div class="search-container" style="display: flex; align-items: center; gap: 10px;">
-      <input type="text" id="searchInput" placeholder="Buscar Corte..." oninput="filtrarContenido(this.value)" style="flex-grow: 1;">
-      <button id="clear-search-btn" title="Limpiar búsqueda" style="opacity: 1; pointer-events: all;">&times;</button>
+  <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+      <div class="search-container" style="flex-grow: 1;">
+          <input type="text" id="searchInput" placeholder="Buscar Corte..." oninput="filtrarContenido(this.value)">
+          <button id="clear-search-btn" title="Limpiar búsqueda">&times;</button>
+      </div>
       <button id="hamburger-btn"><i class="fa-solid fa-bars"></i></button>
   </div>
 
@@ -2245,7 +2247,7 @@ async function handleReportSubmit(vehicleId, corteIndex) {
       <a href="#">Contáctanos</a>
       <a href="#">Preguntas Frecuentes</a>
   </div>
-  Gpspedia v3.7.0 © 2025 todos los derechos reservados.
+  Gpspedia v3.8.2 © 2025 todos los derechos reservados.
 </footer>
 
 </body>

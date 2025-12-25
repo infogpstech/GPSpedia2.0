@@ -7,14 +7,111 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="manifest" href="manifest.json">
     <style>
-        /* [Full CSS from previous attempt] */
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 700px; margin: 0 auto; background-color: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #007bff; margin-bottom: 25px; }
+        .form-phase { display: none; }
+        .form-phase.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .form-group { display: flex; flex-direction: column; }
+        label { margin-bottom: 8px; font-weight: bold; font-size: 0.9em; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 1em; }
+        input:focus, select:focus, textarea:focus { border-color: #007bff; box-shadow: 0 0 0 3px rgba(0,123,255,0.2); outline: none; }
+        .btn-container { text-align: right; margin-top: 25px; }
+        .btn { padding: 12px 25px; border: none; border-radius: 8px; background-color: #007bff; color: white; font-size: 1em; cursor: pointer; transition: background-color 0.3s; }
+        .btn:hover { background-color: #0056b3; }
+        .btn-secondary { background-color: #6c757d; }
+        .btn-secondary:hover { background-color: #5a6268; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; font-weight: bold; }
+        .back-link:hover { text-decoration: underline; }
+        #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 1000; display: none; align-items: center; justify-content: center; }
+        .spinner { border: 5px solid #f3f3f3; border-top: 5px solid #007bff; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .match-card { border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 10px; cursor: pointer; transition: box-shadow 0.2s; }
+        .match-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .match-card p { margin: 5px 0; }
     </style>
 </head>
 <body>
-    <!-- [Full HTML body from previous attempt] -->
+    <div id="loading-overlay"><div class="spinner"></div></div>
+    <div class="container">
+        <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Volver al Catálogo</a>
+        <h1>Agregar Nuevo Corte</h1>
+
+        <!-- Fase 1: Verificación de Duplicados -->
+        <div id="stage-1" class="form-phase active">
+            <h2>Paso 1: Verificar Vehículo</h2>
+            <p>Introduce los datos básicos para comprobar si ya existe un registro similar.</p>
+            <form id="form-phase-1">
+                <div class="form-grid">
+                    <div class="form-group"><label for="categoria">Categoría</label><select id="categoria" name="categoria" required></select></div>
+                    <div class="form-group"><label for="marca">Marca</label><input type="text" id="marca" name="marca" required></div>
+                    <div class="form-group"><label for="modelo">Modelo</label><input type="text" id="modelo" name="modelo" required></div>
+                    <div class="form-group"><label for="anoDesde">Año</label><input type="number" id="anoDesde" name="anoDesde" required></div>
+                    <div class="form-group"><label for="tipoEncendido">Tipo de Encendido</label><select id="tipoEncendido" name="tipoEncendido" required></select></div>
+                    <div class="form-group"><label for="versionesAplicables">Versión de Equipamiento (Opcional)</label><input type="text" id="versionesAplicables" name="versionesAplicables" placeholder="Ej: Frontier, NP300"></div>
+                </div>
+                <div class="btn-container">
+                    <button type="submit" class="btn">Verificar</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Fase 1.5: Mostrar Coincidencias -->
+        <div id="stage-1-5" class="form-phase">
+            <h2>Paso 1.5: Se Encontraron Coincidencias</h2>
+            <p>Hemos encontrado registros que podrían ser el mismo vehículo. ¿Deseas agregar tu información a uno de estos registros o crear uno nuevo?</p>
+            <div id="matches-container"></div>
+            <div class="btn-container" style="display: flex; justify-content: space-between; margin-top: 20px;">
+                <button onclick="showPhase(1)" class="btn btn-secondary">Volver a Verificar</button>
+                <button onclick="proceedToPhase2(null)" class="btn">No, deseo crear un registro nuevo</button>
+            </div>
+        </div>
+
+        <!-- Fase 2: Agregar Información del Corte -->
+        <div id="stage-2" class="form-phase">
+            <h2 id="stage-2-title">Paso 2: Agregar Información del Corte</h2>
+            <form id="form-phase-2">
+                <div class="form-grid">
+                    <div class="form-group"><label for="tipoCorte1">Tipo de Corte</label><select id="tipoCorte1" name="tipoCorte1" required></select></div>
+                    <div class="form-group"><label for="ubicacionCorte1">Ubicación del Corte</label><input type="text" id="ubicacionCorte1" name="ubicacionCorte1"></div>
+                    <div class="form-group"><label for="colorCableCorte1">Color(es) de Cable</label><input type="text" id="colorCableCorte1" name="colorCableCorte1"></div>
+                    <div class="form-group"><label for="imgCorte1">URL de Imagen del Corte</label><input type="text" id="imgCorte1" name="imgCorte1"></div>
+                </div>
+                <div class="btn-container">
+                    <button onclick="showPhase(1)" class="btn btn-secondary" type="button">Atrás</button>
+                    <button type="submit" class="btn">Guardar y Continuar</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Fase 3: Agregar Información Suplementaria -->
+        <div id="stage-3" class="form-phase">
+            <h2>Paso 3: Información Suplementaria (Opcional)</h2>
+            <p>Registro guardado con éxito. Ahora puedes añadir imágenes y notas adicionales.</p>
+            <form id="form-phase-3">
+                 <div class="form-grid">
+                    <div class="form-group"><label for="imagenVehiculo">URL de Imagen del Vehículo</label><input type="text" id="imagenVehiculo" name="imagenVehiculo"></div>
+                    <div class="form-group"><label for="configRelay1">Configuración de Relay</label><select id="configRelay1" name="configRelay1"></select></div>
+                    <div class="form-group"><label for="videoGuiaDesarmeUrl">URL de Video Guía de Desarme</label><input type="text" id="videoGuiaDesarmeUrl" name="videoGuiaDesarmeUrl"></div>
+                </div>
+                <div class="form-group" style="margin-top: 20px;">
+                    <label for="notaImportante">Nota Importante</label>
+                    <textarea id="notaImportante" name="notaImportante" rows="4"></textarea>
+                </div>
+                <div class="btn-container">
+                     <button type="submit" class="btn">Finalizar y Guardar</button>
+                </div>
+            </form>
+            <div class="btn-container" style="text-align: center; margin-top: 20px;">
+                <a href="add_cortes.html" class="btn btn-secondary">Agregar Otro Vehículo</a>
+            </div>
+        </div>
+
+    </div>
     <script src="api-manager.js"></script>
     <script>
-        // Full JavaScript logic for the 3-stage workflow
         const SESSION_KEY = 'gpsepedia_session';
         const state = {
             vehicleInfo: {},
@@ -23,14 +120,12 @@
             colaborador: ''
         };
 
-        document.addEventListener('DOMContentLoaded', () => {
-            init();
-            // [Event listeners for all forms and buttons]
-        });
+        document.addEventListener('DOMContentLoaded', init);
 
         async function init() {
             const sessionData = localStorage.getItem(SESSION_KEY);
             if (!sessionData) {
+                alert("Tu sesión ha expirado. Serás redirigido a la página de inicio de sesión.");
                 window.location.href = 'index.html';
                 return;
             }
@@ -45,9 +140,28 @@
                 populateSelect('tipoCorte1', data.dropdowns.tipoDeCorte);
                 populateSelect('configRelay1', data.dropdowns.configRelay);
             } catch (error) {
-                alert('No se pudieron cargar las opciones del formulario.');
+                alert(`No se pudieron cargar las opciones del formulario: ${error.message}`);
             } finally {
                 toggleLoading(false);
+            }
+
+            document.getElementById('form-phase-1').addEventListener('submit', handlePhase1Submit);
+            document.getElementById('form-phase-2').addEventListener('submit', handleAddOrUpdateCut);
+            document.getElementById('form-phase-3').addEventListener('submit', handlePhase3Submit);
+        }
+
+        function toggleLoading(isLoading) {
+            document.getElementById('loading-overlay').style.display = isLoading ? 'flex' : 'none';
+        }
+
+        function populateSelect(id, options) {
+            const select = document.getElementById(id);
+            if (!select) return;
+            select.innerHTML = '<option value="">Selecciona una opción</option>';
+            if (options) {
+                options.forEach(option => {
+                    if (option) select.innerHTML += `<option value="${option}">${option}</option>`;
+                });
             }
         }
 
@@ -57,7 +171,112 @@
             document.getElementById(stageId).classList.add('active');
         }
 
-        // [All other necessary JavaScript functions: handlePhase1Submit, displayMatches, handleAddOrUpdateCut, etc.]
+        async function handlePhase1Submit(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            state.vehicleInfo = Object.fromEntries(formData.entries());
+
+            toggleLoading(true);
+            try {
+                const result = await routeAction('checkVehicle', state.vehicleInfo);
+                state.matches = result.matches;
+                if (result.matches.length > 0) {
+                    displayMatches(result.matches);
+                    showPhase(1.5);
+                } else {
+                    proceedToPhase2(null);
+                }
+            } catch (error) {
+                alert(`Error al verificar el vehículo: ${error.message}`);
+            } finally {
+                toggleLoading(false);
+            }
+        }
+
+        function displayMatches(matches) {
+            const container = document.getElementById('matches-container');
+            container.innerHTML = '';
+            matches.forEach(match => {
+                const card = document.createElement('div');
+                card.className = 'match-card';
+                const yearRange = match.anoHasta ? `${match.anoDesde} - ${match.anoHasta}` : match.anoDesde;
+                card.innerHTML = `
+                    <p><strong>Modelo:</strong> ${match.marca} ${match.modelo}</p>
+                    <p><strong>Año:</strong> ${yearRange}</p>
+                    <p><strong>Encendido:</strong> ${match.tipoEncendido || 'N/A'}</p>
+                    <p><strong>Versiones:</strong> ${match.versionesAplicables || 'N/A'}</p>
+                `;
+                card.onclick = () => proceedToPhase2(match.id);
+                container.appendChild(card);
+            });
+        }
+
+        function proceedToPhase2(vehicleId) {
+            state.selectedVehicleId = vehicleId;
+            const title = document.getElementById('stage-2-title');
+            if (vehicleId) {
+                const match = state.matches.find(m => m.id === vehicleId);
+                title.textContent = `Paso 2: Agregar nuevo corte a ${match.marca} ${match.modelo}`;
+            } else {
+                title.textContent = "Paso 2: Agregar Información del Corte";
+            }
+            document.getElementById('form-phase-2').reset();
+            showPhase(2);
+        }
+
+        async function handleAddOrUpdateCut(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const cutInfo = Object.fromEntries(formData.entries());
+
+            const payload = {
+                vehicleInfo: state.vehicleInfo,
+                cutInfo: cutInfo,
+                colaborador: state.colaborador,
+                existingVehicleId: state.selectedVehicleId
+            };
+
+            toggleLoading(true);
+            try {
+                const result = await routeAction('addCorte', payload);
+                if (result.status === 'success') {
+                    state.selectedVehicleId = result.vehicleId; // Update with the definitive ID
+                    alert('Corte guardado con éxito. Ahora puedes agregar información suplementaria.');
+                    showPhase(3);
+                } else {
+                    throw new Error(result.message || 'Error desconocido al guardar.');
+                }
+            } catch (error) {
+                alert(`Error al guardar el corte: ${error.message}`);
+            } finally {
+                toggleLoading(false);
+            }
+        }
+
+        async function handlePhase3Submit(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const supplementaryInfo = Object.fromEntries(formData.entries());
+
+            const payload = {
+                vehicleId: state.selectedVehicleId,
+                supplementaryInfo: supplementaryInfo
+            };
+
+            toggleLoading(true);
+            try {
+                const result = await routeAction('addSupplementaryInfo', payload);
+                if (result.status === 'success') {
+                    alert('Información adicional guardada con éxito.');
+                } else {
+                    throw new Error(result.message || 'Error desconocido al guardar.');
+                }
+            } catch (error) {
+                alert(`Error al guardar la información suplementaria: ${error.message}`);
+            } finally {
+                toggleLoading(false);
+            }
+        }
     </script>
 </body>
 </html>

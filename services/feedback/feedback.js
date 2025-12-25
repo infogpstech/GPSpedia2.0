@@ -222,13 +222,44 @@ function logUserActivity(userId, userName, activityType, associatedId, details) 
 function handleRecordLike(payload) {
     const { vehicleId, corteIndex, userId, userName } = payload;
     if (!vehicleId || !corteIndex || !userId || !userName) {
-        throw new Error("Faltan datos para registrar el 'like'.");
+        throw new Error("Faltan datos para registrar el 'like' (vehicleId, corteIndex, userId, userName).");
     }
 
-    // ... (logic for updating like count) ...
+    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
+    // Fetch all IDs from the 'id' column to find the row index
+    const ids = sheet.getRange(2, COLS_CORTES.id, sheet.getLastRow() - 1, 1).getValues().flat();
+    const rowIndex = ids.findIndex(id => id == vehicleId);
 
-    logUserActivity(userId, userName, 'like', vehicleId, `Like en corte ${corteIndex}`);
-    return { status: 'success', message: 'Like registrado.' };
+    if (rowIndex === -1) {
+        throw new Error("No se encontró el vehículo con el ID proporcionado.");
+    }
+
+    // rowIndex is 0-based, but sheet rows are 1-based and we have a header, so add 2
+    const actualRow = rowIndex + 2;
+
+    // Determine the correct column for the like count
+    const utilColName = `utilCorte${corteIndex}`;
+    const utilCol = COLS_CORTES[utilColName];
+
+    if (!utilCol) {
+        throw new Error(`Índice de corte inválido: ${corteIndex}`);
+    }
+
+    // Get the cell, read the value, increment, and write back
+    const cell = sheet.getRange(actualRow, utilCol);
+    let currentValue = cell.getValue();
+
+    // Ensure the current value is a number, default to 0 if empty or not a number
+    if (typeof currentValue !== 'number' || isNaN(currentValue)) {
+        currentValue = 0;
+    }
+
+    cell.setValue(currentValue + 1);
+
+    // Log this action
+    logUserActivity(userId, userName, 'like', vehicleId, `Like en corte ${corteIndex}. Nuevo total: ${currentValue + 1}`);
+
+    return { status: 'success', message: 'Like registrado correctamente.' };
 }
 
 function handleReportProblem(payload) {

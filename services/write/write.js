@@ -323,14 +323,43 @@ function getOrCreateSubFolder(parentFolder, name) {
     return parentFolder.createFolder(name);
 }
 
-function uploadImageToDrive(base64Data, filename, folder) {
-    if (!base64Data || !base64Data.startsWith('data:image/')) {
-        throw new Error("Formato de imagen (base64) inválido.");
+function uploadImageToDrive(imageData, filename, folder) {
+    if (!imageData) {
+        // Return an empty string or null if no image data is provided,
+        // instead of throwing an error. This makes image fields optional.
+        return "";
     }
-    const parts = base64Data.split(',');
-    const mimeType = parts[0].match(/:(.*?);/)[1];
-    const decodedData = Utilities.base64Decode(parts[1]);
-    const blob = Utilities.newBlob(decodedData, mimeType, filename);
+
+    let blob;
+
+    // Check if the input is a URL
+    if (imageData.startsWith('http://') || imageData.startsWith('https://')) {
+        try {
+            const response = UrlFetchApp.fetch(imageData);
+            blob = response.getBlob().setName(filename);
+        } catch (e) {
+            // Log the error and return an empty string if fetching fails
+            console.error(`Failed to fetch image from URL: ${imageData}. Error: ${e.message}`);
+            return "";
+        }
+    }
+    // Check if the input is base64 data
+    else if (imageData.startsWith('data:image/')) {
+        try {
+            const parts = imageData.split(',');
+            const mimeType = parts[0].match(/:(.*?);/)[1];
+            const decodedData = Utilities.base64Decode(parts[1]);
+            blob = Utilities.newBlob(decodedData, mimeType, filename);
+        } catch (e) {
+            console.error(`Failed to decode base64 image data. Error: ${e.message}`);
+            return "";
+        }
+    }
+    // If the format is unrecognized, return an empty string.
+    else {
+        console.error("Unrecognized image data format. Expected URL or base64 string.");
+        return "";
+    }
 
     const file = folder.createFile(blob);
     return `https://drive.google.com/uc?export=view&id=${file.getId()}`;
