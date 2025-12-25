@@ -13,8 +13,8 @@ const SHEET_NAMES = {
     LOGS: "Logs"
 };
 
-// Mapa de columnas corregido para coincidir con la hoja de cálculo real
-const COLS = {
+// Mapas de columnas corregidos para coincidir con la hoja de cálculo real
+const COLS_USERS = {
     ID: 1,
     Nombre_Usuario: 2,
     Password: 3,
@@ -22,6 +22,14 @@ const COLS = {
     Telefono: 5,
     Correo_Electronico: 6,
     SessionToken: 7
+};
+
+const COLS_ACTIVE_SESSIONS = {
+    ID_Usuario: 1,
+    Usuario: 2,
+    ActiveSessions: 3,
+    date: 4,
+    Logs: 5
 };
 
 const SESSION_LIMITS = {
@@ -113,7 +121,7 @@ function handleLogin(payload) {
         let foundUserIndex = -1;
 
         for (let i = 0; i < data.length; i++) {
-            const sheetUsername = (data[i][COLS.Nombre_Usuario - 1] || '').toString();
+            const sheetUsername = (data[i][COLS_USERS.Nombre_Usuario - 1] || '').toString();
             if (sheetUsername.trim().toLowerCase() === username.trim().toLowerCase()) {
                 foundUserRow = data[i];
                 foundUserIndex = i;
@@ -125,15 +133,15 @@ function handleLogin(payload) {
             throw new Error("Credenciales inválidas.");
         }
 
-        const sheetPassword = foundUserRow[COLS.Password - 1];
+        const sheetPassword = foundUserRow[COLS_USERS.Password - 1];
         const isPasswordMatch = String(sheetPassword).trim() === String(password).trim();
 
         if (!isPasswordMatch) {
             throw new Error("Credenciales inválidas.");
         }
 
-        const userRole = (foundUserRow[COLS.Privilegios - 1] || '').toString().toLowerCase();
-        const userId = foundUserRow[COLS.ID - 1];
+        const userRole = (foundUserRow[COLS_USERS.Privilegios - 1] || '').toString().toLowerCase();
+        const userId = foundUserRow[COLS_USERS.ID - 1];
         const sessionLimit = SESSION_LIMITS[userRole] || 1;
 
         // Manage sessions
@@ -142,7 +150,7 @@ function handleLogin(payload) {
         sessionsData.shift();
 
         const userSessions = sessionsData
-            .map((row, index) => ({ userId: row[0], rowIndex: index + 2 }))
+            .map((row, index) => ({ userId: row[COLS_ACTIVE_SESSIONS.ID_Usuario - 1], rowIndex: index + 2 }))
             .filter(session => session.userId == userId);
 
         if (userSessions.length >= sessionLimit) {
@@ -152,16 +160,22 @@ function handleLogin(payload) {
         }
 
         const sessionToken = Utilities.getUuid();
-        userSheet.getRange(foundUserIndex + 2, COLS.SessionToken).setValue(sessionToken);
-        activeSessionsSheet.appendRow([userId, sessionToken, new Date().toISOString()]);
+        userSheet.getRange(foundUserIndex + 2, COLS_USERS.SessionToken).setValue(sessionToken);
+
+        // Escribir en la hoja de sesiones activas usando el nuevo schema
+        const newSessionRow = [];
+        newSessionRow[COLS_ACTIVE_SESSIONS.ID_Usuario - 1] = userId;
+        newSessionRow[COLS_ACTIVE_SESSIONS.Usuario - 1] = username;
+        newSessionRow[COLS_ACTIVE_SESSIONS.ActiveSessions - 1] = sessionToken;
+        newSessionRow[COLS_ACTIVE_SESSIONS.date - 1] = new Date().toISOString();
+        activeSessionsSheet.appendRow(newSessionRow);
 
         const user = {
             ID: userId,
-            NombreUsuario: foundUserRow[COLS.Nombre_Usuario - 1],
-            Privilegios: foundUserRow[COLS.Privilegios - 1],
-            Nombre: foundUserRow[COLS.Nombre_Usuario - 1], // Usar Nombre_Usuario como Nombre para UI
-            Telefono: foundUserRow[COLS.Telefono - 1],
-            CorreoElectronico: foundUserRow[COLS.Correo_Electronico - 1],
+            Nombre_Usuario: foundUserRow[COLS_USERS.Nombre_Usuario - 1],
+            Privilegios: foundUserRow[COLS_USERS.Privilegios - 1],
+            Telefono: foundUserRow[COLS_USERS.Telefono - 1],
+            Correo_Electronico: foundUserRow[COLS_USERS.Correo_Electronico - 1],
             SessionToken: sessionToken
         };
 

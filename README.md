@@ -263,100 +263,154 @@ Esta es la nueva arquitectura diseñada para resolver las deficiencias de la v1.
 
 #### Diseño Detallado de `GPSpedia_DB_v2.0`
 
-A continuación se detalla la estructura de cada hoja en la nueva base de datos. Los nombres de las columnas están normalizados a formato `camelCase` para mantener la consistencia en el código.
+A continuación se detalla la estructura de cada hoja en la nueva base de datos. Los nombres de las columnas deben coincidir **exactamente** con los especificados a continuación para garantizar la compatibilidad con los servicios de backend.
 
 ##### 1. Hoja: `Users`
 - **Propósito:** Gestión de usuarios, credenciales y perfiles.
-| Columna | Descripción |
-| :--- | :--- |
-| `id` | Identificador único numérico para cada usuario. |
-| `nombreUsuario`| Nombre de usuario para el login (debe ser único). |
-| `password` | Contraseña del usuario (se migrará a formato hash). |
-| `privilegios` | Rol del usuario (ej. 'Tecnico', 'Supervisor'). |
-| `nombre` | Nombre completo del usuario para visualización. |
-| `telefono` | Número de contacto del usuario. |
-| `correoElectronico`| Correo electrónico del usuario. |
-| `sessionToken`| Token de sesión activa para validación. |
+| Columna |
+| :--- |
+| `ID` |
+| `Nombre_Usuario`|
+| `Password` |
+| `Privilegios` |
+| `Telefono` |
+| `Correo_Electronico`|
+| `SessionToken`|
 
 ##### 2. Hoja: `Cortes`
 - **Propósito:** Catálogo principal con estructura granular para datos de alta calidad.
-| Columna | Descripción y Validación de Datos |
-| :--- | :--- |
-| `id` | Identificador único numérico para cada registro de vehículo. |
-| `categoria` | **(Validación de Datos)** Segmento del vehículo. La lista de opciones se carga dinámicamente desde una hoja de cálculo. Ej: 'Pickup', 'SUV', 'Sedán'. |
-| `marca` | Nombre del fabricante del vehículo. Ej: 'Toyota'. |
-| `modelo` | Nombre del modelo del vehículo. Ej: 'Hilux'. |
-| `versionesAplicables`| Nombres de modelos alternativos o relacionados a los que aplica este corte. Ej: 'Frontier, NP300'. |
-| `anoDesde` | Año de inicio de la generación o versión del modelo. |
-| `anoHasta` | Año de fin de la generación o versión del modelo. |
-| `tipoEncendido` | **(Validación de Datos)** Tipo de sistema de encendido. La lista se carga dinámicamente. Ej: 'Botón', 'Llave', 'Switch'. |
-| `imagenVehiculo` | URL de la imagen principal del vehículo. |
-| `videoGuiaDesarmeUrl`| URL de un video tutorial para el desarme. |
-| `contadorBusqueda` | Contador numérico de cuántas veces se ha consultado este registro. |
-| `tipoCorte1` | **(Validación de Datos)** Tipo de corte a realizar. La lista se carga dinámicamente. Ej: 'Ignición', 'Bomba de Gasolina', 'Motor de Arranque'. |
-| `ubicacionCorte1`| Descripción textual de la ubicación del cable o componente a intervenir. |
-| `colorCableCorte1`| Color o combinación de colores del cable a cortar. |
-| `configRelay1` | **(Relación)** ID numérico que corresponde a una entrada en la hoja `Relay`, especificando la configuración a usar. |
-| `imgCorte1` | URL de la imagen que muestra el detalle del corte. |
-| `utilCorte1` | Contador de "likes" o "útil" para este corte específico. |
-| `colaboradorCorte1`| Nombre del usuario que aportó la información de este corte. |
-| `tipoCorte2` | (Ver `tipoCorte1`) |
-| `ubicacionCorte2`| (Ver `ubicacionCorte1`) |
-| `colorCableCorte2`| (Ver `colorCableCorte1`) |
-| `configRelay2` | (Ver `configRelay1`) |
-| `imgCorte2` | (Ver `imgCorte1`) |
-| `utilCorte2` | (Ver `utilCorte1`) |
-| `colaboradorCorte2`| (Ver `colaboradorCorte1`) |
-| `tipoCorte3` | (Ver `tipoCorte1`) |
-| `ubicacionCorte3`| (Ver `ubicacionCorte1`) |
-| `colorCableCorte3`| (Ver `colorCableCorte1`) |
-| `configRelay3` | (Ver `configRelay1`) |
-| `imgCorte3` | (Ver `imgCorte1`) |
-| `utilCorte3` | (Ver `utilCorte1`) |
-| `colaboradorCorte3`| (Ver `colaboradorCorte1`) |
-| `apertura` | Texto descriptivo sobre los detalles del cable de los seguros del vehículo y dónde encontrarlo. |
-| `imgApertura` | URL de la imagen que muestra el detalle de la apertura. |
-| `cableAlimen` | Texto descriptivo sobre el cable de alimentación. |
-| `imgCableAlimen` | URL de la imagen que muestra el detalle del cable de alimentación. |
-| `timestamp` | Fecha y hora de la última modificación del registro. |
-| `notaImportante` | Campo de texto para advertencias o detalles cruciales. |
+| Columna |
+| :--- |
+| `id` |
+| `categoria` |
+| `marca` |
+| `modelo` |
+| `versionesAplicables`|
+| `anoDesde` |
+| `anoHasta` |
+| `tipoEncendido` |
+| `imagenVehiculo` |
+| `videoGuiaDesarmeUrl`|
+| `contadorBusqueda` |
+| `tipoCorte1` |
+| `ubicacionCorte1`|
+| `colorCableCorte1`|
+| `configRelay1` |
+| `imgCorte1` |
+| `utilCorte1` |
+| `colaboradorCorte1`|
+| `tipoCorte2` |
+| `ubicacionCorte2`|
+| `colorCableCorte2`|
+| `configRelay2` |
+| `imgCorte2` |
+| `utilCorte2` |
+| `colaboradorCorte2`|
+| `tipoCorte3` |
+| `ubicacionCorte3`|
+| `colorCableCorte3`|
+| `configRelay3` |
+| `imgCorte3` |
+| `utilCorte3` |
+| `colaboradorCorte3`|
+| `apertura` |
+| `imgApertura` |
+| `cableAlimen` |
+| `imgCableAlimen` |
+| `timestamp` |
+| `notaImportante` |
 
-##### 3. Hoja: `LogosMarcas`
+##### 3. Hoja: `LogosMarca`
 - **Propósito:** Centralizar la gestión de logos de marcas para el frontend.
-| Columna | Descripción |
-| :--- | :--- |
-| `id` | Identificador único numérico. |
-| `nombreMarca` | Nombre normalizado de la marca. |
-| `urlLogo` | URL del archivo de imagen del logo. |
-| `fabricanteNombre`| Nombre del grupo fabricante (ej. 'Volkswagen Group'). |
+| Columna |
+| :--- |
+| `id` |
+| `nombreMarca` |
+| `urlLogo` |
+| `fabricanteNombre`|
 
 ##### 4. Hoja: `Tutorial`
 - **Propósito:** Almacenar guías y tutoriales multimedia.
-- **Columnas:** `id`, `tema`, `imagen`, `comoIdentificarlo`, `dondeEncontrarlo`, `detalles`, `video`.
+| Columna |
+| :--- |
+| `ID` |
+| `Tema` |
+| `Imagen` |
+| `comoIdentificarlo`|
+| `dondeEncontrarlo` |
+| `Detalles` |
+| `Video` |
 
 ##### 5. Hoja: `Relay`
 - **Propósito:** Almacenar información técnica sobre configuraciones de relays.
-- **Columnas:** `id`, `configuracion`, `funcion`, `vehiculoDondeSeUtiliza`, `pin30Entrada`, `pin85BobinaPositivo`, `pin86bobinaNegativo`, `pin87aComunCerrado`, `pin87ComunmenteAbierto`, `imagen`, `observacion`.
+| Columna |
+| :--- |
+| `ID` |
+| `configuracion` |
+| `funcion` |
+| `vehiculoDondeSeUtiliza`|
+| `pin30Entrada` |
+| `pin85BobinaPositivo`|
+| `pin86bobinaNegativo`|
+| `pin87aComunCerrado`|
+| `pin87ComunmenteAbierto`|
+| `imagen`|
+| `observacion`|
 
 ##### 6. Hoja: `ActiveSessions`
 - **Propósito:** Rastrear las sesiones de usuario activas para la validación.
-- **Columnas:** `idUsuario`, `sessionToken`, `timestamp`.
+| Columna |
+| :--- |
+| `ID_Usuario` |
+| `Usuario` |
+| `ActiveSessions` |
+| `date` |
+| `Logs` |
 
 ##### 7. Hoja: `Feedbacks`
 - **Propósito:** Gestionar los reportes de problemas enviados por los usuarios.
-- **Columnas:** `id`, `usuario`, `idVehiculo`, `problema`, `respuesta`, `seResolvio`, `responde`, `reporteDeUtil`.
+| Columna |
+| :--- |
+| `ID` |
+| `Usuario` |
+| `ID_vehiculo` |
+| `Problema` |
+| `Respuesta` |
+| `Se resolvio`|
+| `Responde` |
+| `Reporte de util`|
 
 ##### 8. Hoja: `Contactanos`
 - **Propósito:** Recibir y gestionar los mensajes enviados a través del formulario de contacto.
-- **Columnas:** `contactoId`, `userId`, `asunto`, `mensaje`, `respuestaMensaje`, `idUsuarioResponde`.
+| Columna |
+| :--- |
+| `Contacto_ID` |
+| `User_ID` |
+| `Asunto` |
+| `Mensaje` |
+| `Respuesta_mensaje`|
+| `ID_usuario_responde`|
 
 ##### 9. Hoja: `Logs`
 - **Propósito:** Registrar eventos importantes y errores del sistema para depuración.
-- **Columnas:** `timestamp`, `level`, `message`, `data`.
+| Columna |
+| :--- |
+| `Timestamp` |
+| `Level` |
+| `Message` |
+| `Data`|
 
 ##### 10. Hoja: `ActividadUsuario`
 - **Propósito:** Registrar acciones de los usuarios para futuras analíticas y dashboards de desempeño.
-- **Columnas:** `id`, `timestamp`, `idUsuario`, `nombreUsuario`, `tipoActividad`, `idElementoAsociado`, `detalle`.
+| Columna |
+| :--- |
+| `id` |
+| `timestamp` |
+| `idUsuario` |
+| `nombreUsuario` |
+| `tipoActividad`|
+| `idElementoAsociado`|
+| `detalle`|
 
 ## 7. Sistema de Versionamiento Híbrido
 

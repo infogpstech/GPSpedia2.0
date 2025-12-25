@@ -1090,7 +1090,7 @@ async function login(username, password) {
 async function initializeAppData(user) {
     return new Promise(async (resolve, reject) => {
         hideLoginShowApp();
-        document.getElementById('welcome-message').textContent = `Bienvenido, ${user.Nombre}`;
+        document.getElementById('welcome-message').textContent = `Bienvenido, ${user.Nombre_Usuario}`;
         document.getElementById('welcome-message').style.display = 'block';
 
         showSkeletonLoader(document.getElementById('contenido'));
@@ -1100,6 +1100,7 @@ async function initializeAppData(user) {
             datosOriginales = result.data.cortes || [];
             datosTutoriales = result.data.tutoriales || [];
             datosRelay = result.data.relay || [];
+            datosLogos = result.data.logos || [];
             mostrarCategorias();
             resolve(); // Resolve the promise after content is rendered
         } catch (error) {
@@ -1112,7 +1113,6 @@ async function initializeAppData(user) {
 function logout(reason = null) {
     localStorage.removeItem(SESSION_KEY);
     localStorage.removeItem(SESSION_ID_KEY);
-    localStorage.removeItem('userName'); // <-- AÑADIDO
 
     showLoginHideApp(reason);
 }
@@ -1184,8 +1184,8 @@ function hideLoginShowApp() {
     // Cargar nombre de usuario en el menú lateral
     const menuUsername = document.getElementById('menu-username');
     const session = JSON.parse(localStorage.getItem(SESSION_KEY));
-    if (menuUsername && session && session.Nombre) {
-        menuUsername.textContent = session.Nombre;
+    if (menuUsername && session && session.Nombre_Usuario) {
+        menuUsername.textContent = session.Nombre_Usuario;
     }
 }
 
@@ -2096,8 +2096,8 @@ const sideMenuLogoutBtn = document.getElementById('side-menu-logout-button');
 
 function openSideMenu() {
     const session = JSON.parse(localStorage.getItem(SESSION_KEY));
-    if (session && session.Nombre) {
-        menuUsername.textContent = session.Nombre;
+    if (session && session.Nombre_Usuario) {
+        menuUsername.textContent = session.Nombre_Usuario;
     }
     sideMenu.classList.add('open');
     menuOverlay.classList.add('open');
@@ -2129,9 +2129,9 @@ document.querySelectorAll('#side-menu .menu-link').forEach(link => {
     });
 });
 
-async function handleLike(vehicleId, buttonElement) {
+async function handleLike(vehicleId, corteIndex, buttonElement) {
     const user = JSON.parse(localStorage.getItem(SESSION_KEY));
-    if (!user || !user.Nombre) {
+    if (!user || !user.Nombre_Usuario) {
         alert("Debes iniciar sesión para usar esta función.");
         return;
     }
@@ -2141,40 +2141,44 @@ async function handleLike(vehicleId, buttonElement) {
     const currentCount = parseInt(countSpan.textContent, 10);
     countSpan.textContent = currentCount + 1;
     buttonElement.disabled = true;
-    buttonElement.style.backgroundColor = '#d4edda'; // Light green to indicate success
+    buttonElement.style.backgroundColor = '#d4edda';
 
     try {
-        await postToAction('recordLike', { vehicleId, userName: user.Nombre });
-        // The UI is already updated, so no action is needed on success.
+        await postToAction('recordLike', {
+            vehicleId: vehicleId,
+            corteIndex: corteIndex,
+            userId: user.ID,
+            userName: user.Nombre_Usuario
+        });
     } catch (error) {
         // Revert UI on error
         countSpan.textContent = currentCount;
         buttonElement.disabled = false;
-        buttonElement.style.backgroundColor = ''; // Revert to default color
-        // The error is already shown by postToAction
+        buttonElement.style.backgroundColor = '';
     }
 }
 
-function toggleReportSection(vehicleId) {
-    const reportSection = document.getElementById(`report-section-${vehicleId}`);
-    const submitBtn = document.getElementById(`submit-report-${vehicleId}`);
+
+function toggleReportSection(vehicleId, corteIndex) {
+    const reportSection = document.getElementById(`report-section-${vehicleId}-${corteIndex}`);
+    const submitBtn = document.getElementById(`submit-report-${vehicleId}-${corteIndex}`);
 
     if (reportSection.style.display === 'none') {
         reportSection.style.display = 'block';
-        submitBtn.onclick = () => handleReportSubmit(vehicleId);
+        submitBtn.onclick = () => handleReportSubmit(vehicleId, corteIndex);
     } else {
         reportSection.style.display = 'none';
     }
 }
 
-async function handleReportSubmit(vehicleId) {
+async function handleReportSubmit(vehicleId, corteIndex) {
     const user = JSON.parse(localStorage.getItem(SESSION_KEY));
-    if (!user || !user.Nombre) {
+    if (!user || !user.Nombre_Usuario) {
         alert("Debes iniciar sesión para reportar un problema.");
         return;
     }
 
-    const reportInput = document.getElementById(`report-input-${vehicleId}`);
+    const reportInput = document.getElementById(`report-input-${vehicleId}-${corteIndex}`);
     const problemText = reportInput.value.trim();
 
     if (!problemText) {
@@ -2183,10 +2187,16 @@ async function handleReportSubmit(vehicleId) {
     }
 
     try {
-        await postToAction('reportProblem', { vehicleId, userName: user.Nombre, problemText });
+        await postToAction('reportProblem', {
+            vehicleId: vehicleId,
+            corteIndex: corteIndex,
+            problemText: problemText,
+            userId: user.ID,
+            userName: user.Nombre_Usuario
+        });
         alert("Gracias por tu reporte. Lo revisaremos pronto.");
         reportInput.value = '';
-        toggleReportSection(vehicleId);
+        toggleReportSection(vehicleId, corteIndex);
     } catch (error) {
         // Error is handled by postToAction
     }
@@ -2199,7 +2209,7 @@ async function handleReportSubmit(vehicleId) {
       <a href="#">Contáctanos</a>
       <a href="#">Preguntas Frecuentes</a>
   </div>
-  Gpspedia v3.6.2 © 2025 todos los derechos reservados.
+  Gpspedia v3.7.0 © 2025 todos los derechos reservados.
 </footer>
 
 </body>

@@ -15,8 +15,25 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.7.0 - 20/08/2024
+- **REFACTORIZACIÓN CRÍTICA: ALINEACIÓN COMPLETA DEL ESQUEMA DE DATOS EN TODO EL SISTEMA.**
+  - **Contexto:** Se detectó que la causa raíz de la inestabilidad persistente era una discrepancia fundamental entre el esquema de datos real en Google Sheets y el esquema que los componentes de software esperaban. Esta versión corrige todas las desviaciones y unifica el sistema a una única fuente de verdad.
+  - **Acciones Realizadas:**
+    1.  **Actualización de Endpoints (`api-manager.js`):**
+        - Se actualizó la URL del microservicio `GPSpedia-Auth` a su último despliegue. (Línea 9).
+    2.  **Alineación de Esquemas del Backend:**
+        - **`services/auth/auth.js`:** Se corrigieron los mapas de columnas para `Users` y `ActiveSessions`. Se ajustó la lógica de `handleLogin` para escribir correctamente en la hoja de sesiones y para devolver un objeto `user` que coincide 1:1 con el esquema de la base de datos (ej. `Nombre_Usuario`), eliminando el formato `PascalCase` incorrecto. (Líneas 16-36, 124-184).
+        - **`services/catalog/catalog.js`:** Se corrigieron y completaron los mapas de columnas para `Cortes`, `Tutorial`, y `Relay`. Se añadió el mapa para `LogosMarca` y se actualizó la lógica para incluir los logos en la respuesta de `getCatalogData`. (Líneas 21-88, 98-138).
+        - **`services/feedback/feedback.js`:** Se corrigió el mapa de `Feedbacks` y se añadieron los mapas para `Contactanos` y `ActividadUsuario`. Se implementó la función `logUserActivity` para registrar acciones del usuario. (Líneas 21-70, y adición de `logUserActivity` y su integración).
+        - **`services/users/users.js`:** Se corrigió el mapa de `Users` para usar la nomenclatura exacta de la hoja de cálculo (`Nombre_Usuario`, etc.). Se refactorizó todo el servicio para usar este nuevo mapa. (Líneas 25-33, y múltiples ajustes en las funciones `handle...`).
+        - **`services/write/write.js`:** Se verificó que el mapa de `Cortes` ya era correcto y no requirió cambios.
+    3.  **Alineación del Frontend (`index.html`):**
+        - Se refactorizó todo el código JavaScript para que consuma los datos con la nueva estructura correcta. Se corrigió el acceso a las propiedades del objeto de usuario (ahora `user.Nombre_Usuario`) y a todos los campos del catálogo. (Múltiples líneas afectadas, ej. 1093, 1187, 2100).
+    4.  **Sincronización de la Documentación:**
+        - **`README.md` y `Instrucciones.txt`:** Se han actualizado las secciones de "Arquitectura de la Base de Datos" para que reflejen el esquema final y oficial de las 10 hojas de cálculo, sirviendo como la fuente de verdad para el proyecto.
+
 ## v3.6.2 - 19/08/2024
-- **BUG CRÍTICO RESUELTO: CORRECCIÓN DE INCOMPATIBILIDAD DE DATOS FRONTEND-BACKEND.**
+- **BUG CRÍTICO RESUELTO: CORRECCIÓN DE INCOMPATIBILidad DE DATOS FRONTEND-BACKEND.**
   - **Contexto:** Se ha resuelto la serie de regresiones críticas que impedían el inicio de sesión y la carga de datos. La causa raíz era una discrepancia entre el formato de datos `PascalCase` enviado por el backend (`auth.js`) y el formato `camelCase` que el frontend (`index.html`) esperaba.
   - **Acciones Realizadas:**
     1.  **Alineación del Frontend (`index.html`):**

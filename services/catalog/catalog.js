@@ -18,7 +18,8 @@ function getSpreadsheet() {
 
 const SHEET_NAMES = {
     CORTES: "Cortes",
-    TUTORIALES: "Tutoriales",
+    LOGOS_MARCA: "LogosMarca",
+    TUTORIALES: "Tutorial",
     RELAY: "Relay"
 };
 
@@ -29,10 +30,41 @@ const COLS_CORTES = {
     colorCableCorte1: 14, configRelay1: 15, imgCorte1: 16, utilCorte1: 17, colaboradorCorte1: 18,
     tipoCorte2: 19, ubicacionCorte2: 20, colorCableCorte2: 21, configRelay2: 22, imgCorte2: 23,
     utilCorte2: 24, colaboradorCorte2: 25, tipoCorte3: 26, ubicacionCorte3: 27, colorCableCorte3: 28,
-    configRelay3: 29, imgCorte3: 30, utilCorte3: 31, colaboradorCorte3: 32, timestamp: 33, notaImportante: 34
+    configRelay3: 29, imgCorte3: 30, utilCorte3: 31, colaboradorCorte3: 32,
+    apertura: 33, imgApertura: 34, cableAlimen: 35, imgCableAlimen: 36,
+    timestamp: 37, notaImportante: 38
 };
-const COLS_TUTORIALES = { /* ... igual que v1.5 ... */ };
-const COLS_RELAY = { /* ... igual que v1.5 ... */ };
+
+const COLS_LOGOS_MARCA = {
+    id: 1,
+    nombreMarca: 2,
+    urlLogo: 3,
+    fabricanteNombre: 4
+};
+
+const COLS_TUTORIALES = {
+    ID: 1,
+    Tema: 2,
+    Imagen: 3,
+    comoIdentificarlo: 4,
+    dondeEncontrarlo: 5,
+    Detalles: 6,
+    Video: 7
+};
+
+const COLS_RELAY = {
+    ID: 1,
+    configuracion: 2,
+    funcion: 3,
+    vehiculoDondeSeUtiliza: 4,
+    pin30Entrada: 5,
+    pin85BobinaPositivo: 6,
+    pin86bobinaNegativo: 7,
+    pin87aComunCerrado: 8,
+    pin87ComunmenteAbierto: 9,
+    imagen: 10,
+    observacion: 11
+};
 
 // ============================================================================
 // ROUTER PRINCIPAL (doGet y doPost)
@@ -63,8 +95,9 @@ function doPost(e) { /* ... sin cambios ... */ }
 function mapRowToObject(row, colMap) { /* ... sin cambios ... */ }
 
 function handleGetCatalogData() {
-    // ... (lógica para obtener datos de tutoriales y relay sin cambios) ...
+    const allData = {};
 
+    // Fetch Cortes
     const cortesSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
     let cortesData = [];
     if (cortesSheet) {
@@ -73,30 +106,77 @@ function handleGetCatalogData() {
         cortesData = data.map(row => {
             const vehicle = mapRowToObject(row, COLS_CORTES);
 
-            // Lógica de Ordenamiento por Utilidad
+            // Re-implementar la lógica de ordenamiento por utilidad
             const cortes = [
-                { index: 1, util: vehicle.utilCorte1 || 0 },
-                { index: 2, util: vehicle.utilCorte2 || 0 },
-                { index: 3, util: vehicle.utilCorte3 || 0 }
+                { index: 1, util: parseInt(vehicle.utilCorte1, 10) || 0 },
+                { index: 2, util: parseInt(vehicle.utilCorte2, 10) || 0 },
+                { index: 3, util: parseInt(vehicle.utilCorte3, 10) || 0 }
             ].sort((a, b) => b.util - a.util); // Orden descendente
 
             const orderedVehicle = { ...vehicle };
+            const tempCortes = {};
+
+            // Guardar los datos originales de los cortes temporalmente
+            for (let i = 1; i <= 3; i++) {
+                tempCortes[i] = {
+                    tipo: vehicle[`tipoCorte${i}`],
+                    ubicacion: vehicle[`ubicacionCorte${i}`],
+                    color: vehicle[`colorCableCorte${i}`],
+                    config: vehicle[`configRelay${i}`],
+                    img: vehicle[`imgCorte${i}`],
+                    util: vehicle[`utilCorte${i}`],
+                    colaborador: vehicle[`colaboradorCorte${i}`]
+                };
+            }
+
+            // Reasignar los cortes en el nuevo orden
             cortes.forEach((corte, i) => {
                 const newIndex = i + 1;
                 const oldIndex = corte.index;
-                orderedVehicle[`tipoCorte${newIndex}`] = vehicle[`tipoCorte${oldIndex}`];
-                orderedVehicle[`ubicacionCorte${newIndex}`] = vehicle[`ubicacionCorte${oldIndex}`];
-                orderedVehicle[`colorCableCorte${newIndex}`] = vehicle[`colorCableCorte${oldIndex}`];
-                orderedVehicle[`configRelay${newIndex}`] = vehicle[`configRelay${oldIndex}`];
-                orderedVehicle[`imgCorte${newIndex}`] = vehicle[`imgCorte${oldIndex}`];
-                orderedVehicle[`utilCorte${newIndex}`] = vehicle[`utilCorte${oldIndex}`];
-                orderedVehicle[`colaboradorCorte${newIndex}`] = vehicle[`colaboradorCorte${oldIndex}`];
+                orderedVehicle[`tipoCorte${newIndex}`] = tempCortes[oldIndex].tipo;
+                orderedVehicle[`ubicacionCorte${newIndex}`] = tempCortes[oldIndex].ubicacion;
+                orderedVehicle[`colorCableCorte${newIndex}`] = tempCortes[oldIndex].color;
+                orderedVehicle[`configRelay${newIndex}`] = tempCortes[oldIndex].config;
+                orderedVehicle[`imgCorte${newIndex}`] = tempCortes[oldIndex].img;
+                orderedVehicle[`utilCorte${newIndex}`] = tempCortes[oldIndex].util;
+                orderedVehicle[`colaboradorCorte${newIndex}`] = tempCortes[oldIndex].colaborador;
             });
+
             return orderedVehicle;
         });
     }
-
     allData.cortes = cortesData;
+
+    // Fetch Logos
+    const logosSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.LOGOS_MARCA);
+    let logosData = [];
+    if (logosSheet) {
+        const data = logosSheet.getDataRange().getValues();
+        data.shift();
+        logosData = data.map(row => mapRowToObject(row, COLS_LOGOS_MARCA));
+    }
+    allData.logos = logosData;
+
+    // Fetch Tutoriales
+    const tutorialesSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.TUTORIALES);
+    let tutorialesData = [];
+    if (tutorialesSheet) {
+        const data = tutorialesSheet.getDataRange().getValues();
+        data.shift();
+        tutorialesData = data.map(row => mapRowToObject(row, COLS_TUTORIALES));
+    }
+    allData.tutoriales = tutorialesData;
+
+    // Fetch Relay
+    const relaySheet = getSpreadsheet().getSheetByName(SHEET_NAMES.RELAY);
+    let relayData = [];
+    if (relaySheet) {
+        const data = relaySheet.getDataRange().getValues();
+        data.shift();
+        relayData = data.map(row => mapRowToObject(row, COLS_RELAY));
+    }
+    allData.relay = relayData;
+
     return { status: 'success', data: allData };
 }
 
