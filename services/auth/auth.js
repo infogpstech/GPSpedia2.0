@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-AUTH SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 1.2.1
+// COMPONENT VERSION: 2.2.0
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -159,8 +159,11 @@ function handleLogin(payload) {
             });
         }
 
-        const sessionToken = Utilities.getUuid();
-        userSheet.getRange(foundUserIndex + 2, COLS_USERS.SessionToken).setValue(sessionToken);
+        let sessionToken = foundUserRow[COLS_USERS.SessionToken - 1];
+        if (!sessionToken) {
+            sessionToken = Utilities.getUuid();
+            userSheet.getRange(foundUserIndex + 2, COLS_USERS.SessionToken).setValue(sessionToken);
+        }
 
         // Escribir en la hoja de sesiones activas usando el nuevo schema
         const newSessionRow = [];

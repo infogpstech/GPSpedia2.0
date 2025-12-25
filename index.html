@@ -1,4 +1,4 @@
-<!-- GPSpedia Frontend Component | Version: 3.8.2 -->
+<!-- GPSpedia Frontend Component | Version: 3.9.0 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -796,12 +796,16 @@ body.search-active .app-logo {
 <div class="container" style="display: none;">
 
   <div class="header-container">
-      <div class="header-branding">
-          <img src="https://drive.google.com/thumbnail?id=1NxBx-W_gWmcq3fA9zog6Dpe-WXpH_2e8&sz=2048" alt="Logo de GPSpedia" class="app-logo">
-          <h1 class="app-title">GPSpedia</h1>
+      <div class="header-branding" style="flex-direction: column; align-items: flex-start;">
+          <div style="display: flex; align-items: center;">
+              <img src="https://drive.google.com/thumbnail?id=1NxBx-W_gWmcq3fA9zog6Dpe-WXpH_2e8&sz=2048" alt="Logo de GPSpedia" class="app-logo">
+              <h1 class="app-title">GPSpedia</h1>
+          </div>
+          <div id="welcome-message-container" style="padding-left: 10px;">
+             <span id="welcome-message" style="display: none; color: #333; font-weight: bold; font-size: 0.8em;"></span>
+          </div>
       </div>
       <div id="header-controls" style="display: flex; align-items: center; gap: 15px;">
-          <span id="welcome-message" style="display: none; color: #333; font-weight: bold;"></span>
           <button id="logout-button" style="display: none; background-color: #dc3545; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: background-color 0.3s;">Cerrar Sesión</button>
       </div>
   </div>
@@ -2243,11 +2247,11 @@ async function handleReportSubmit(vehicleId, corteIndex) {
 
 <footer class="footer" style="display: none;">
   <div class="footer-links">
-      <a href="#">Sobre Nosotros</a>
-      <a href="#">Contáctanos</a>
-      <a href="#">Preguntas Frecuentes</a>
+      <a href="info.html#about-us">Sobre Nosotros</a>
+      <a href="info.html#contact">Contáctanos</a>
+      <a href="info.html#faq">Preguntas Frecuentes</a>
   </div>
-  Gpspedia v3.8.2 © 2025 todos los derechos reservados.
+  Gpspedia v3.9.0 © 2025 todos los derechos reservados.
 </footer>
 
 </body>

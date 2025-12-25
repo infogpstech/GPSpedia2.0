@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Información - GPSpedia</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; background-color: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1, h2 { color: #007bff; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; font-weight: bold; }
+        .back-link:hover { text-decoration: underline; }
+        .accordion { margin-top: 20px; }
+        .accordion-item { border-bottom: 1px solid #eee; }
+        .accordion-header { padding: 15px; cursor: pointer; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+        .accordion-header:hover { background-color: #f7f7f7; }
+        .accordion-content { padding: 0 15px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .btn { padding: 12px 25px; border: none; border-radius: 8px; background-color: #007bff; color: white; font-size: 1em; cursor: pointer; transition: background-color 0.3s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Volver al Catálogo</a>
+        <h1>Información</h1>
+
+        <section id="about-us">
+            <h2>Sobre Nosotros</h2>
+            <p>GPSpedia es una herramienta interna diseñada para técnicos e instaladores de GPS, con el objetivo de centralizar el conocimiento sobre puntos de corte de corriente e ignición en vehículos. Nuestra misión es mejorar la eficiencia y estandarizar las instalaciones, reduciendo errores y tiempos de trabajo.</p>
+        </section>
+
+        <section id="contact">
+            <h2>Contáctanos</h2>
+            <form id="contact-form">
+                <div class="form-group">
+                    <label for="contact-name">Nombre</label>
+                    <input type="text" id="contact-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="contact-email">Correo Electrónico</label>
+                    <input type="email" id="contact-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="contact-message">Mensaje</label>
+                    <textarea id="contact-message" rows="5" required></textarea>
+                </div>
+                <button type="submit" class="btn">Enviar Mensaje</button>
+            </form>
+        </section>
+
+        <section id="faq">
+            <h2>Preguntas Frecuentes</h2>
+            <div class="accordion">
+                <div class="accordion-item">
+                    <div class="accordion-header">¿Cómo busco un vehículo?<i class="fas fa-chevron-down"></i></div>
+                    <div class="accordion-content"><p>Utiliza la barra de búsqueda en la página principal. Puedes buscar por marca, modelo, año o tipo de encendido.</p></div>
+                </div>
+                <div class="accordion-item">
+                    <div class="accordion-header">¿Qué hago si no encuentro un vehículo?<i class="fas fa-chevron-down"></i></div>
+                    <div class="accordion-content"><p>Si no encuentras un vehículo, puedes agregarlo tú mismo usando el botón "Agregar Nuevo" en el menú.</p></div>
+                </div>
+                 <div class="accordion-item">
+                    <div class="accordion-header">¿Cómo puedo reportar un error en la información?<i class="fas fa-chevron-down"></i></div>
+                    <div class="accordion-content"><p>Dentro de los detalles de cada corte, encontrarás un botón para reportar problemas. Agradecemos tus contribuciones para mantener la información precisa.</p></div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        document.querySelectorAll('.accordion-header').forEach(header => {
+            header.addEventListener('click', () => {
+                const content = header.nextElementSibling;
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                } else {
+                    document.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = null);
+                    content.style.maxHeight = content.scrollHeight + "px";
+                }
+            });
+        });
+
+        // Aquí se añadiría la lógica para enviar el formulario de contacto al backend
+        document.getElementById('contact-form').addEventListener('submit', e => {
+            e.preventDefault();
+            alert('Funcionalidad de contacto en desarrollo.');
+        });
+    </script>
+</body>
+</html>

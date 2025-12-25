@@ -1,6 +1,85 @@
 =================================================
  INFORME DE AUDITORÍA DEL PROYyecto GPSpedia
 =================================================
+**Fecha de Auditoría:** 2025-12-26
+**Versión del Informe:** 9.0
+**Auditor:** Jules
+
+### 1. Resumen Ejecutivo
+
+Esta auditoría integral evalúa el estado actual del proyecto GPSpedia 2.0 después de la resolución de bugs críticos anteriores. El sistema se encuentra en un estado **operativo y funcional**, pero persisten problemas significativos que afectan la experiencia del usuario y la mantenibilidad del código.
+
+Los hallazgos clave son:
+1.  **Bug Crítico de Sesión:** La sesión del usuario no persiste al recargar la página, lo que constituye el problema más urgente a resolver.
+2.  **Inconsistencia Sistémica de Versionamiento:** Existe una fuerte discrepancia entre las versiones documentadas y las implementadas en el código, incumpliendo las normas del proyecto.
+3.  **Desviaciones Menores de UI/UX:** La interfaz de usuario no refleja completamente las especificaciones de diseño documentadas.
+4.  **Funcionalidades Estratégicas Pendientes:** Las tareas clave del "Plan Estratégico v4" aún no se han iniciado.
+
+Este informe declara todos los informes anteriores como **obsoletos** y establece una nueva línea base para el trabajo futuro.
+
+### 2. Hallazgos Detallados
+
+#### A. Bug Crítico: Falla de Persistencia de Sesión (Prioridad CERO)
+
+- **Descripción:** Al recargar la página (`F5`), la sesión del usuario se pierde, forzando un nuevo inicio de sesión. El comportamiento esperado es que la sesión se mantenga activa indefinidamente.
+-   **Análisis de Causa Raíz:** La lógica de validación de sesión es defectuosa. El servicio `auth.js` genera un nuevo `sessionToken` en **cada inicio de sesión** y lo guarda en la hoja `Users`. Sin embargo, el frontend (`index.html`) solo almacena el token original en `localStorage` y no lo actualiza. Al recargar, el frontend envía el token antiguo, que ya no coincide con el nuevo token en la base de datos, causando que la validación falle.
+- **Impacto:** Alto. Degrada severamente la experiencia del usuario y la usabilidad de la PWA.
+
+#### B. Inconsistencia Sistémica: Versionamiento (Prioridad Alta)
+
+- **Descripción:** El sistema de versionamiento híbrido (global y por componente) no se está aplicando correctamente, lo que genera confusión y dificulta el seguimiento de cambios.
+- **Desviaciones Identificadas:**
+    - **Versión Global:** `ChangesLogs.txt` está en `v3.8.1`, mientras que el pie de página de `index.html` muestra `v3.8.2`.
+    - **Versiones de Componentes:** Hay una mezcla de versiones sin una lógica clara:
+        - `index.html`: `3.8.2`
+        - `api-manager.js`: `2.2.0`
+        - `services/auth/auth.js`: `1.2.1`
+        - `services/catalog/catalog.js`: `1.2.1`
+        - `services/write/write.js`: `2.1.0`
+        - `services/users/users.js`: `1.2.1`
+        - `services/feedback/feedback.js`: `1.2.1`
+- **Impacto:** Medio. Genera deuda técnica y dificulta la depuración y el mantenimiento.
+
+#### C. Desviaciones de UI/UX (Prioridad Media)
+
+- **Descripción:** Se observan varias discrepancias entre las especificaciones de diseño documentadas en `README.md` y la implementación actual en `index.html`.
+- **Desviaciones Identificadas:**
+    - **Encabezado Principal:** El título "GPSpedia" y el saludo de bienvenida no están posicionados como se especifica (título a la izquierda, saludo debajo).
+    - **Enlaces del Pie de Página:** Los enlaces "Sobre Nosotros", "Contáctanos", etc., están presentes pero no conducen a una página funcional (`info.html`), que aún no ha sido creada.
+- **Impacto:** Bajo. Afecta la estética y la experiencia de usuario, pero no impide la funcionalidad principal.
+
+#### D. Tareas Estratégicas Pendientes
+
+- **Descripción:** Las tareas definidas en el "Plan Estratégico v4" del `README.md` siguen pendientes.
+- **Tareas Clave No Iniciadas:**
+    - Implementación del sistema de "Sugerencia de Año" para ampliar el rango de aplicabilidad de los cortes.
+    - Creación de la página `info.html` con las secciones estáticas.
+    - Implementación de la carga diferida (`lazy loading`) de imágenes para mejorar el rendimiento.
+
+### 3. Reevaluación de Factibilidad del "Plan Estratégico v4"
+
+La factibilidad del plan es **ALTA**, pero está condicionada a la resolución del bug de persistencia de sesión. Una vez que la experiencia del usuario sea estable, el desarrollo de nuevas funcionalidades puede proceder sin impedimentos técnicos mayores.
+
+### 4. Plan de Acción Recomendado
+
+1.  **Fase 1: Estabilización (Commit 1)**
+    - **Acción 1.1 (Auditoría):** Registrar este informe en `Auditoria.txt` para establecer una nueva línea base.
+    - **Acción 1.2 (Bug de Sesión):** Modificar `auth.js` para que no invalide sesiones innecesariamente y/o ajustar `index.html` para que maneje la actualización de tokens de sesión correctamente.
+    - **Acción 1.3 (Versioning):** Sincronizar todas las versiones. Establecer la versión global a `v3.9.0` en `ChangesLogs.txt` y `index.html`. Actualizar todas las cabeceras de componentes a una versión consistente y documentada.
+
+2.  **Fase 2: Mejoras de UI y Funcionalidad (Commit 2)**
+    - **Acción 2.1 (UI):** Corregir el layout del encabezado en `index.html`.
+    - **Acción 2.2 (Nueva Funcionalidad):** Crear el archivo `info.html` y conectar los enlaces del pie de página.
+    - **Acción 2.3 (Documentación):** Actualizar `README.md` y `Instrucciones.txt` para marcar las tareas completadas.
+
+---
+---
+**INFORMES ANTERIOORES - AHORA OBSOLETOS**
+---
+---
+=================================================
+ INFORME DE AUDITORÍA DEL PROYyecto GPSpedia
+=================================================
 **Fecha de Auditoría:** 2025-12-25
 **Versión del Informe:** 8.0
 **Auditor:** Jules
