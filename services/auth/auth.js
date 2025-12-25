@@ -199,7 +199,7 @@ function handleValidateSession(payload) {
         data.shift();
 
         for (const row of data) {
-            if (row[COLS.ID - 1] == userId && row[COLS.SessionToken - 1] === sessionToken) {
+            if (row[COLS_USERS.ID - 1] == userId && row[COLS_USERS.SessionToken - 1] === sessionToken) {
                 return { valid: true };
             }
         }
