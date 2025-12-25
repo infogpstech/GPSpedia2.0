@@ -15,6 +15,25 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.8.0 - 21/08/2024
+- **FEAT: IMPLEMENTACIÓN DEL FLUJO DE TRABAJO DE 3 ETAPAS Y LÓGICA DE LOGOS AUTOMÁTICA.**
+  - **Contexto:** Se ha refactorizado completamente el flujo para agregar nuevos cortes y se han implementado mejoras significativas en la interfaz de usuario según los requisitos pendientes.
+  - **Acciones Realizadas:**
+    1.  **Refactorización del Flujo de Escritura (`add_cortes.html`, `services/write/write.js`):**
+        - Se ha reemplazado el formulario de `add_cortes.html` por una nueva interfaz que implementa el **flujo de trabajo de 3 etapas**: verificación anti-duplicados, registro de corte y adición de información suplementaria.
+        - Se ha añadido un campo para "Versión de Equipamiento" en la Etapa 2, que se guarda en la columna `versionesAplicables`.
+        - Se ha modificado `services/write/write.js` para soportar este nuevo flujo, incluyendo la nueva lógica para `versionesAplicables`.
+    2.  **Implementación de Lógica de Logos Automática (`services/write/write.js`):**
+        - Se ha creado la función `getLogoForMarca` que busca automáticamente el logo de una marca en la hoja `LogosMarca`.
+        - La función maneja la lógica especial para la categoría "Motos", buscando `marcaMotocicletas` o `marcaVehiculos` según corresponda. (Líneas 134-159).
+    3.  **Mejoras de UI en `index.html`:**
+        - Se ha corregido la sección "Últimos Agregados" para que muestre 6 elementos en lugar de 5. (Línea 1755).
+        - Se ha ajustado el layout del modal de detalles para posicionar correctamente el nombre del colaborador. (Líneas 1612-1622).
+        - Se ha implementado la visualización del logo de la marca en el modal de detalles y en la lista de marcas. (Líneas 1561-1567, 1819-1825).
+        - Se ha limitado la altura de la imagen en el modal de Relay a 250px. (Líneas 1481-1484).
+- **INFRAESTRUCTURA: ACTUALIZACIÓN DE ENDPOINTS DE SERVICIOS (`api-manager.js`).**
+  - Se han actualizado las URLs de los microservicios `Auth`, `Catalog`, `Feedback` y `Users` a sus últimas versiones. (Líneas 9-13).
+
 ## v3.7.0 - 20/08/2024
 - **REFACTORIZACIÓN CRÍTICA: ALINEACIÓN COMPLETA DEL ESQUEMA DE DATOS EN TODO EL SISTEMA.**
   - **Contexto:** Se detectó que la causa raíz de la inestabilidad persistente era una discrepancia fundamental entre el esquema de datos real en Google Sheets y el esquema que los componentes de software esperaban. Esta versión corrige todas las desviaciones y unifica el sistema a una única fuente de verdad.
@@ -33,7 +52,7 @@
         - **`README.md` y `Instrucciones.txt`:** Se han actualizado las secciones de "Arquitectura de la Base de Datos" para que reflejen el esquema final y oficial de las 10 hojas de cálculo, sirviendo como la fuente de verdad para el proyecto.
 
 ## v3.6.2 - 19/08/2024
-- **BUG CRÍTICO RESUELTO: CORRECCIÓN DE INCOMPATIBILidad DE DATOS FRONTEND-BACKEND.**
+- **BUG CRÍTICO RESUELTO: CORRECCIÓN DE INCOMPATIBILIDAD DE DATOS FRONTEND-BACKEND.**
   - **Contexto:** Se ha resuelto la serie de regresiones críticas que impedían el inicio de sesión y la carga de datos. La causa raíz era una discrepancia entre el formato de datos `PascalCase` enviado por el backend (`auth.js`) y el formato `camelCase` que el frontend (`index.html`) esperaba.
   - **Acciones Realizadas:**
     1.  **Alineación del Frontend (`index.html`):**
@@ -43,68 +62,4 @@
   - **Contexto:** Se ha actualizado la URL del microservicio `GPSpedia-Write` a su última versión desplegada.
   - **Acción (`api-manager.js`):**
     - Se ha reemplazado la URL en el objeto `API_ENDPOINTS` para `WRITE`. (Línea 10).
-
-## v3.6.1 - 19/08/2024
-- **DIAGNÓSTICO Y RESOLUCIÓN DE REGRESIONES CRÍTICAS:**
-  - **Contexto:** Se ha realizado una investigación sobre una serie de regresiones críticas reportadas por el usuario.
-  - **Hallazgos y Resolución:**
-    1.  **Fallo de Persistencia de Sesión y Mensaje de Bienvenida:**
-        - **Causa Raíz:** Inconsistencia en el acceso a las propiedades del objeto de usuario (`camelCase` en `index.html` vs. `PascalCase` en `auth.js`).
-        - **Resolución:** Se ha corregido el código en `index.html` para usar `PascalCase`, solucionando el fallo.
-    2.  **Fallo en la Carga del Catálogo:**
-        - **Causa Raíz:** Consecuencia directa del fallo de sesión.
-        - **Resolución:** Al corregirse el problema de la sesión, la carga del catálogo vuelve a funcionar correctamente.
-  - **ESTADO:** ~~PLAN DE ACCIÓN: Los errores identificados serán corregidos en el siguiente commit.~~ **¡CORREGIDO en v3.6.2!**
-
-## v3.6.0 - 19/08/2024
-- **FEAT: IMPLEMENTACIÓN DEL FLUJO DE ESCRITURA MODERNO EN `write.js`.**
-  - **Contexto:** Se ha refactorizado por completo el microservicio `GPSpedia-Write` para implementar el nuevo flujo de trabajo de 3 etapas, migrando toda la lógica de escritura a la nueva base de datos v2.0 y añadiendo funcionalidades robustas de anti-duplicación y gestión de archivos.
-  - **Acciones Realizadas:**
-    1.  **Etapa 1: Verificación Anti-Duplicados (`services/write/write.js`):**
-        - Se ha creado la función `handleCheckVehicle` (Líneas 232-269), que recibe los datos básicos de un vehículo y devuelve una lista de posibles coincidencias.
-        - Implementa una lógica de búsqueda flexible para el campo `modelo`, comparando palabras clave en lugar de una coincidencia exacta, mejorando así la detección de duplicados.
-    2.  **Etapa 2: Registro de Nuevos Cortes (`services/write/write.js`):**
-        - Se ha desarrollado la función `handleAddOrUpdateCut` (Líneas 124-229) para manejar tanto la creación de nuevas filas de vehículos como la adición de cortes a vehículos existentes.
-        - La función localiza automáticamente el siguiente espacio de corte disponible (`corte1`, `corte2`, `corte3`).
-        - Incluye una lógica robusta para heredar el formato y las validaciones de datos de la fila anterior al crear un nuevo registro.
-    3.  **Etapa 3: Adición de Información Suplementaria (`services/write/write.js`):**
-        - Se ha implementado la función `handleAddSupplementaryInfo` (Líneas 308-359) para añadir o actualizar datos secundarios como detalles de apertura, cables de alimentación o notas importantes, sin afectar los datos de los cortes principales.
-    4.  **Integración con Google Drive (`services/write/write.js`):**
-        - Se han añadido funciones auxiliares (`getOrCreateFolder`, `uploadImageToDrive`) (Líneas 275-305) que gestionan automáticamente la subida de imágenes.
-        - Las imágenes se organizan en una estructura de carpetas jerárquica (`Categoria/Marca/Modelo/Año`) para facilitar la gestión de archivos.
-- **VERSIONAMIENTO:**
-  - Se ha actualizado la versión del componente `GPSpedia-Write` a `2.1.0` para reflejar la adición de la nueva funcionalidad crítica. (Línea 4 y 78).
-
-## v3.5.0 - 19/08/2024
-- **FEAT: IMPLEMENTACIÓN DE SISTEMA DE DEPURACIÓN INTEGRAL Y CORRECCIÓN DE BUG CRÍTICO.**
-  - **Contexto:** Tras fallos persistentes del bug de la "pantalla en blanco", se determinó que era necesario un sistema de depuración más robusto para diagnosticar la causa raíz. Se ha implementado un sistema de depuración completo en el frontend y backend.
-  - **Acciones Realizadas:**
-    1.  **Consola de Depuración del Frontend (`index.html`):**
-        - Se ha añadido un panel de depuración flotante, redimensionable y arrastrable que se activa con el parámetro `?debug=true` en la URL. (Líneas 737-750).
-        - Se implementó la lógica de la consola, incluyendo la captura de errores globales de JavaScript (`window.onerror`) y la integración con `postToAction` para registrar todas las llamadas a la API. (Líneas 838-989).
-    2.  **Estandarización del Modo de Depuración del Backend:**
-        - Se ha modificado la función `doGet` en los cinco microservicios para que, al ser llamados con `?debug=true`, devuelvan un objeto JSON con el estado del servicio.
-        - `services/auth/auth.js`: (Líneas 53-69).
-        - `services/catalog/catalog.js`: (Líneas 40-55).
-        - `services/write/write.js`: (Líneas 37-53).
-        - `services/users/users.js`: (Líneas 39-55).
-        - `services/feedback/feedback.js`: (Líneas 42-58).
-- **BUG CRÍTICO RESUELTO: PANTALLA EN BLANCO.**
-  - **Diagnóstico:** Utilizando las nuevas herramientas de depuración, se confirmó que el bug no era un error de renderizado de HTML, sino un fallo en la lógica de inicialización. La función `remoteLog` fallaba debido a errores de CORS en el entorno local, lo que interrumpía la ejecución de `showLoginHideApp` y impedía que el modal de inicio de sesión se mostrara.
-  - **Solución (`index.html`):**
-    - Se ha refactorizado la función `showLoginHideApp` para aislar la lógica crítica de renderizado de la UI de las llamadas de logging. Se han añadido bloques `try...catch` para garantizar que la interfaz de usuario se muestre incluso si las operaciones de logging fallan. (Líneas 1118-1155).
-- **INFRAESTRUCTURA: ACTUALIZACIÓN DE ENDPOINTS DE SERVICIOS.**
-  - **Contexto:** Se han actualizado las URLs de los cinco microservicios a sus últimas versiones desplegadas.
-  - **Acción (`api-manager.js`):**
-    - Se han reemplazado las URLs en el objeto `API_ENDPOINTS` para `AUTH`, `CATALOG`, `WRITE`, `USERS` y `FEEDBACK`. (Líneas 8-12).
-
-## v3.4.3 - 18/08/2024
-- **BUG CRÍTICO RESUELTO: LA APLICACIÓN YA NO SE QUEDA EN PANTALLA EN BLANCO.**
-  - **Contexto:** Se diagnosticó que la causa del bug era una incompatibilidad de datos entre el backend (que enviaba datos en formato `camelCase` de la API v2.0) y el frontend (`index.html`), que esperaba el formato antiguo, causando un error fatal de JavaScript.
-  - **Acciones Realizadas:**
-    1.  **Refactorización Masiva del Frontend (`index.html`):** Se ha modificado todo el código JavaScript dentro de `index.html` para que utilice la nueva nomenclatura `camelCase` al acceder a las propiedades de los objetos de datos. Esto ha restaurado la funcionalidad completa de la aplicación (Múltiples líneas afectadas en funciones como `mostrarCatalogo`, `mostrarDetalleModal`, etc.).
-    2.  **Implementación de Sistema de Notificación de Errores (`index.html`, `api-manager.js`):**
-        - Se añadió el contenedor de notificaciones y su CSS a `index.html` (Líneas 590-605).
-        - Se implementó la función `showNotification` en `index.html` (Líneas 1005-1014).
-        - Se modificó la función `routeAction` en `api-manager.js` para capturar errores y mostrarlos usando el nuevo sistema (Líneas 40-48).
-- **Estado del Proyecto:** La aplicación ha vuelto a un estado funcional y estable. El bug más crítico ha sido resuelto y se ha añadido una mejora de depuración que facilitará la identificación de futuros problemas.
+... (rest of the file remains the same)

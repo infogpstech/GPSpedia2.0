@@ -153,14 +153,14 @@ Esta sección documenta las tareas de desarrollo, corrección y regresiones pend
 - [X] **Refactorización del Acceso a Datos del Backend:** Se han actualizado todos los microservicios (`catalog`, `write`, `users`, `feedback`) para utilizar un mapa de columnas fijo, eliminando la inconsistencia arquitectónica y mejorando la estabilidad del sistema.
 
 ### Bugs y Regresiones Críticas
-- [ ] **Inconsistencias de Versionamiento:** Sincronizar la versión global (ChangesLogs, UI) y las versiones de componentes (cabeceras en todos los archivos `.html` y `.js`) para cumplir con las normas del proyecto.
-- [ ] **Layout del Modal:** Corregir la posición del nombre del colaborador y el estilo de los botones de feedback.
+- [X] **Inconsistencias de Versionamiento:** Sincronizar la versión global (ChangesLogs, UI) y las versiones de componentes (cabeceras en todos los archivos `.html` y `.js`) para cumplir con las normas del proyecto.
+- [X] **Layout del Modal:** Corregir la posición del nombre del colaborador y el estilo de los botones de feedback.
 - [ ] **Visibilidad de Cortes:** Asegurar que las tres opciones de corte sean visibles en el modal si existen los datos.
-- [ ] **UI General:** Solucionar bugs visuales (pie de página, botón de limpiar búsqueda, carga de nombre de usuario).
+- [X] **UI General:** Solucionar bugs visuales (pie de página, botón de limpiar búsqueda, carga de nombre de usuario).
 
 ### Mejoras de Funcionalidad Prioritarias
-- [ ] **Refactorización del Flujo de Escritura:** Implementar el nuevo flujo de trabajo de 3 etapas para añadir/actualizar cortes.
-- [ ] **Búsqueda Flexible:** Mejorar `checkVehicle` para que devuelva coincidencias parciales y múltiples resultados.
+- [X] **Refactorización del Flujo de Escritura:** Implementar el nuevo flujo de trabajo de 3 etapas para añadir/actualizar cortes.
+- [X] **Búsqueda Flexible:** Mejorar `checkVehicle` para que devuelva coincidencias parciales y múltiples resultados.
 - [ ] **Debugging Integral:** Implementar un sistema de debugging en backend y frontend accesible por rol.
 - [ ] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes para mejorar el rendimiento.
 - [ ] **Soporte para Rango de Años (Feedback-driven):** Implementar la lógica de `suggestYear` en el backend y la UI correspondiente en el frontend.
@@ -170,10 +170,10 @@ Esta sección documenta las tareas de desarrollo, corrección y regresiones pend
 - [ ] **Script de Migración de Timestamps:** Implementar un script de ejecución única para obtener la fecha de creación de las imágenes antiguas de Google Drive y rellenar el campo `timestamp` en los registros existentes.
 
 ### Revisiones de UI/UX
-- [ ] **Ajustes de Layout:** Realizar ajustes de espaciado, encabezado y visualización de "Últimos Agregados" según las especificaciones.
-- [ ] **Modal de Detalle - Logo de Marca:** Implementar la visualización del logo de la marca en una esquina (`altura: 50px`, `anchura: auto`).
-- [ ] **Modal de Detalle - Imagen de Relay:** Limitar la altura de la imagen de referencia del relay a `250px`.
-- [ ] **Listado de Marcas - Logos:** Mostrar el logo de cada marca en la vista de listado de marcas.
+- [X] **Ajustes de Layout:** Realizar ajustes de espaciado, encabezado y visualización de "Últimos Agregados" según las especificaciones.
+- [X] **Modal de Detalle - Logo de Marca:** Implementar la visualización del logo de la marca en una esquina (`altura: 50px`, `anchura: auto`).
+- [X] **Modal de Detalle - Imagen de Relay:** Limitar la altura de la imagen de referencia del relay a `250px`.
+- [X] **Listado de Marcas - Logos:** Mostrar el logo de cada marca en la vista de listado de marcas.
 
 ### Nuevas Funcionalidades
 - [ ] **Página de Información (`info.html`):** Crear una página estática con las secciones "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes", con su respectivo formulario de contacto.

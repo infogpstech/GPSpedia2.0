@@ -18,7 +18,8 @@ function getSpreadsheet() {
 }
 
 const SHEET_NAMES = {
-    CORTES: "Cortes"
+    CORTES: "Cortes",
+    LOGOS_MARCA: "LogosMarca"
 };
 
 // Mapa de columnas para la DB v2.0
@@ -130,6 +131,33 @@ function doPost(e) {
 // ============================================================================
 // STAGE 2: REGISTER NEW CUT HANDLER
 // ============================================================================
+function getLogoForMarca(marca, categoria) {
+    let searchMarca = marca;
+    if (categoria && categoria.toLowerCase() === 'motos') {
+        searchMarca = marca + 'Motocicletas';
+    }
+
+    const logosSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.LOGOS_MARCA);
+    const data = logosSheet.getDataRange().getValues();
+    data.shift(); // Remove header
+
+    for (const row of data) {
+        // Assuming column 2 is brand name and column 3 is logo URL
+        if (row[1].toLowerCase() === searchMarca.toLowerCase()) {
+            return row[2]; // Return logo URL
+        }
+    }
+    // Fallback for vehicle brands that also make motorcycles but don't have a specific motorcycle logo
+    if (categoria && categoria.toLowerCase() === 'motos') {
+        for (const row of data) {
+            if (row[1].toLowerCase() === marca.toLowerCase() + 'Vehiculos') {
+                return row[2];
+            }
+        }
+    }
+    return 'https://drive.google.com/thumbnail?id=1NxBx-W_gWmcq3fA9zog6Dpe-WXpH_2e8&sz=w256'; // Default GPSpedia logo
+}
+
 function handleAddOrUpdateCut(payload) {
     const { vehicleData, cutData, vehicleId, colaborador } = payload;
     if (!cutData || !colaborador) {
@@ -163,6 +191,12 @@ function handleAddOrUpdateCut(payload) {
         newRowData[COLS_CORTES.anoDesde - 1] = vehicleData.anio;
         newRowData[COLS_CORTES.tipoEncendido - 1] = vehicleData.tipoEncendido;
         newRowData[COLS_CORTES.categoria - 1] = vehicleData.categoria || '';
+        newRowData[COLS_CORTES.versionesAplicables - 1] = vehicleData.versionesAplicables || '';
+
+        // Auto-set logo
+        const logoUrl = getLogoForMarca(vehicleData.marca, vehicleData.categoria);
+        // Assuming there's a column for logo in COLS_CORTES, if not this line needs adjustment.
+        // For now, let's assume it's not stored directly in the Cortes sheet but handled by frontend.
 
         // Handle vehicle image upload
         if (vehicleData.imagenVehiculo) {

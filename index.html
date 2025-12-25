@@ -1479,7 +1479,31 @@ function mostrarDetalleRelay(item) {
         if (p) cont.appendChild(p);
     });
     crearImagenDetalle("Imagen", item.imagen, cont);
+    const relayImg = cont.querySelector('img[alt="Imagen"]');
+    if (relayImg) {
+        relayImg.style.maxHeight = '250px';
+    }
     document.getElementById("modalDetalle").classList.add("visible");
+}
+
+function getLogoUrlForMarca(marca, categoria) {
+    if (!datosLogos || datosLogos.length === 0) return null;
+    let searchMarca = marca;
+    if (categoria && categoria.toLowerCase() === 'motos') {
+        searchMarca = marca + 'Motocicletas';
+    }
+
+    const logoEntry = datosLogos.find(logo => logo.nombreMarca.toLowerCase() === searchMarca.toLowerCase());
+
+    if (logoEntry) return logoEntry.urlLogo;
+
+    // Fallback for motorcycle brands
+    if (categoria && categoria.toLowerCase() === 'motos') {
+        const vehicleLogoEntry = datosLogos.find(logo => logo.nombreMarca.toLowerCase() === marca.toLowerCase() + 'Vehiculos');
+        if (vehicleLogoEntry) return vehicleLogoEntry.urlLogo;
+    }
+
+    return null; // Return null if no logo is found
 }
 
 function convertirAGoogleThumbnail(url) {
@@ -1559,6 +1583,14 @@ function mostrarDetalleModal(item) {
         p.innerHTML = `<strong style="color:red;">Nota Importante:</strong> <span style="color:#cc0000; font-weight: bold;">${item.notaImportante}</span>`;
         cont.appendChild(p);
     }
+    const logoUrl = getLogoUrlForMarca(item.marca, item.categoria);
+    if (logoUrl) {
+        const logoImg = document.createElement("img");
+        logoImg.src = logoUrl;
+        logoImg.style.cssText = "position: absolute; top: 15px; right: 15px; height: 50px; width: auto; max-width: 100px; object-fit: contain;";
+        cont.appendChild(logoImg);
+    }
+
     crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, 'img-vehiculo');
 
     // Secciones de Cortes Dinámicas
@@ -1612,12 +1644,12 @@ function mostrarDetalleModal(item) {
         reportBtn.onclick = () => toggleReportSection(item.id, i);
         feedbackContainer.appendChild(reportBtn);
 
-        footerModal.appendChild(feedbackContainer);
-
         const colaboradorInfo = document.createElement("div");
         colaboradorInfo.style.cssText = "font-size: 0.8em; color: #555; background: rgba(0, 123, 255, 0.1); padding: 5px 10px; border-radius: 8px;";
         colaboradorInfo.innerHTML = `Agregado por: <strong style="color: #0056b3;">${colaborador || 'N/A'}</strong>`;
+
         footerModal.appendChild(colaboradorInfo);
+        footerModal.appendChild(feedbackContainer);
 
         panel.appendChild(footerModal);
 
@@ -1753,7 +1785,7 @@ function mostrarUltimosAgregados() {
     const cont = document.getElementById("contenido");
     if (!datosOriginales || datosOriginales.length === 0) return;
 
-    const ultimosCortes = [...datosOriginales].sort((a, b) => b.id - a.id).slice(0, 5);
+    const ultimosCortes = [...datosOriginales].sort((a, b) => b.id - a.id).slice(0, 6);
 
     const section = document.createElement('div');
     section.style.marginTop = '40px';
@@ -1785,10 +1817,14 @@ function mostrarMarcas(categoria) {
     const grid = document.createElement("div"); grid.className = "grid";
     marcas.forEach(m => {
         const itemsInBrand = itemsInCategory.filter(item => item.marca === m);
+        const logoUrl = getLogoUrlForMarca(m, categoria);
         const ejemplo = itemsInBrand.find(item => item.imagenVehiculo);
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarModelos(categoria, m);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo); img.alt = `Marca ${m}`; card.appendChild(img);
+        const img = document.createElement("img");
+        img.src = logoUrl || convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
+        img.alt = `Marca ${m}`;
+        card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay"; overlay.innerHTML = m; card.appendChild(overlay);
         grid.appendChild(card);
     });
