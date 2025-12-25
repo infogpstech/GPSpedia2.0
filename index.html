@@ -735,9 +735,6 @@ body.search-active .app-logo {
 </head>
 <body>
 
-<!-- Pantalla de Failsafe para Errores Críticos de Arranque -->
-<div id="failsafe-error-display" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; color:red; z-index:99999; padding:20px; font-family:monospace; white-space:pre-wrap; box-sizing:border-box;"></div>
-
 <!-- Notificación de Error Global -->
 <div id="error-toast"></div>
 
@@ -828,50 +825,8 @@ body.search-active .app-logo {
 
 <script src="api-manager.js"></script>
 <script>
-try {
-// --- LÓGICA DE DEPURACIÓN VISUAL Y REMOTA ---
-
-// Variable global para saber si el modo debug está activo
-let isDebugMode = false;
-
-// Función para registrar en la consola visual
-function logToDebugConsole(type, title, data) {
-    if (!isDebugMode) return;
-    const consoleContent = document.getElementById('debug-console-content');
-    if (!consoleContent) return;
-
-    const entry = document.createElement('div');
-    entry.style.borderBottom = '1px solid #333';
-    entry.style.padding = '5px 0';
-    entry.style.marginBottom = '5px';
-
-    let color = '#0f0'; // Verde por defecto (éxito)
-    if (type === 'REQUEST') color = '#00ffff'; // Cyan
-    if (type === 'ERROR') color = '#ff4d4d'; // Rojo
-
-    const timestamp = new Date().toLocaleTimeString();
-    entry.innerHTML = `<strong style="color: ${color};">[${type} at ${timestamp}] ${title}</strong><pre style="margin: 0; white-space: pre-wrap; word-wrap: break-word;">${JSON.stringify(data, null, 2)}</pre>`;
-
-    consoleContent.appendChild(entry);
-    consoleContent.scrollTop = consoleContent.scrollHeight; // Auto-scroll
-}
-
-// Activa la consola si el parámetro ?debug=true está en la URL
-function setupDebugConsole() {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('debug') === 'true') {
-        isDebugMode = true;
-        const consoleDiv = document.getElementById('debug-console');
-        if (consoleDiv) {
-            consoleDiv.style.display = 'block';
-        }
-        logToDebugConsole('INFO', 'Debug mode activated.', { userAgent: navigator.userAgent });
-    }
-}
-
+// --- LÓGICA DE DEPURACIÓN REMOTA ---
 function remoteLog(level, message, data = {}) {
-    // Loguear también en la consola visual si está activa
-    logToDebugConsole(level, message, data);
     // Non-blocking call to the backend logger
     fetch(SCRIPT_URL, {
         method: 'POST',
@@ -1429,11 +1384,6 @@ function extractYouTubeId(url) {
     return match ? match[1] : null;
 }
 
-// Este bloque de código contiene todas las funciones de renderizado del catálogo,
-// refactorizadas para usar la nomenclatura camelCase (ej. item.tipoEncendido)
-// en lugar del formato antiguo (ej. item['Tipo de Encendido']).
-// Esta corrección es la solución definitiva para el bug de la pantalla en blanco.
-
 function mostrarDetalleModal(item) {
     pushState({ modal: true, type: 'corte', id: item.id });
     uiState.isModalOpen = true;
@@ -1459,6 +1409,7 @@ function mostrarDetalleModal(item) {
     title.style.cssText = "color:#007bff; border-bottom:3px solid #007bff; padding-bottom:10px;";
     cont.appendChild(title);
 
+    // Contenido Principal y Notas
     if (item.notaImportante) {
         const p = document.createElement("p");
         p.innerHTML = `<strong style="color:red;">Nota Importante:</strong> <span style="color:#cc0000; font-weight: bold;">${item.notaImportante}</span>`;
@@ -1466,6 +1417,7 @@ function mostrarDetalleModal(item) {
     }
     crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, 'img-vehiculo');
 
+    // Secciones de Cortes Dinámicas
     for (let i = 1; i <= 3; i++) {
         const tipoCorte = item[`tipoCorte${i}`];
         if (!tipoCorte) continue;
@@ -1493,6 +1445,7 @@ function mostrarDetalleModal(item) {
             p.innerHTML = descripcionHTML;
             panel.appendChild(p);
         }
+
         crearImagenDetalle("Imagen del Corte", imgCorte, panel);
 
         const footerModal = document.createElement("div");
@@ -1502,12 +1455,35 @@ function mostrarDetalleModal(item) {
         colaboradorInfo.innerHTML = `Agregado por: <strong style="color: #0056b3;">${colaborador || 'N/A'}</strong>`;
         footerModal.appendChild(colaboradorInfo);
 
-        // ... (resto de la lógica del footer del modal sin cambios)
+        const feedbackContainer = document.createElement("div");
+        feedbackContainer.style.cssText = "display: flex; gap: 10px;";
+        const utilBtn = document.createElement("button");
+        utilBtn.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> Útil <span class="util-count">${utilCount}</span>`;
+        utilBtn.className = "feedback-btn util-btn";
+        utilBtn.onclick = () => handleLike(item.id, i, utilBtn);
+        feedbackContainer.appendChild(utilBtn);
+
+        const reportBtn = document.createElement("button");
+        reportBtn.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Reportar`;
+        reportBtn.className = "feedback-btn report-btn";
+        reportBtn.onclick = () => toggleReportSection(item.id, i);
+        feedbackContainer.appendChild(reportBtn);
+
+        footerModal.appendChild(feedbackContainer);
         panel.appendChild(footerModal);
+
+        const reportSection = document.createElement("div");
+        reportSection.id = `report-section-${item.id}-${i}`;
+        reportSection.style.display = 'none';
+        reportSection.style.marginTop = '15px';
+        reportSection.innerHTML = `<textarea id="report-input-${item.id}-${i}" class="report-textarea" placeholder="Describe el problema..."></textarea><button id="submit-report-${item.id}-${i}" class="submit-report-btn">Enviar</button>`;
+        panel.appendChild(reportSection);
+
         cont.appendChild(panel);
     }
 
     crearVideoDetalle("Video Guía de Desarme", item.videoGuiaDesarmeUrl, cont);
+
     document.getElementById("modalDetalle").classList.add("visible");
 }
 
@@ -1548,7 +1524,7 @@ function mostrarResultadosBusquedaMarca(busquedaTexto) {
         const ejemplo = datosFiltrados.find(item => item.marca === marca && item.imagenVehiculo) || datosFiltrados.find(item => item.marca === marca);
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarResultadosBusquedaModelo(busquedaTexto, marca);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo ? ejemplo.imagenVehiculo : null); img.alt = `Marca ${marca}`; card.appendChild(img);
+        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo.imagenVehiculo); img.alt = `Marca ${marca}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay"; overlay.innerHTML = marca; card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -1557,9 +1533,11 @@ function mostrarResultadosBusquedaMarca(busquedaTexto) {
 
 function mostrarResultadosBusquedaModelo(busquedaTexto, marcaFiltro) {
     const cont = document.getElementById("contenido");
-    cont.innerHTML = `<span class="backBtn" onclick="mostrarResultadosBusquedaMarca('${busquedaTexto}')">${backSvg} Volver a Marcas</span><h4>Modelos de ${marcaFiltro} (Búsqueda: "${busquedaTexto}")</h4>`;
+    cont.innerHTML = `<span class="backBtn" onclick="mostrarResultadosBusquedaMarca('${busquedaTexto}')">${backSvg} Volver a Marcas</span>
+                      <h4>Modelos de ${marcaFiltro} (Búsqueda: "${busquedaTexto}")</h4>`;
     const modelosFiltrados = datosFiltrados.filter(item => item.marca === marcaFiltro);
     const modelosUnicos = [...new Map(modelosFiltrados.map(item => [item.modelo, item])).values()].sort((a,b) => a.modelo.localeCompare(b.modelo));
+
     const grid = document.createElement("div"); grid.className = "grid";
     modelosUnicos.forEach(ejemplo => {
         const versiones = modelosFiltrados.filter(item => item.modelo === ejemplo.modelo);
@@ -1581,7 +1559,8 @@ function mostrarResultadosBusquedaModelo(busquedaTexto, marcaFiltro) {
 
 function mostrarResultadosBusquedaVersion(busquedaTexto, marcaFiltro, modeloFiltro) {
     const cont = document.getElementById("contenido");
-    cont.innerHTML = `<span class="backBtn" onclick="mostrarResultadosBusquedaModelo('${busquedaTexto}', '${marcaFiltro}')">${backSvg} Volver a Modelos (${modeloFiltro})</span><h4>Cortes/Años de ${modeloFiltro}</h4>`;
+    cont.innerHTML = `<span class="backBtn" onclick="mostrarResultadosBusquedaModelo('${busquedaTexto}', '${marcaFiltro}')">${backSvg} Volver a Modelos (${modeloFiltro})</span>
+                      <h4>Cortes/Años de ${modeloFiltro}</h4>`;
     const versiones = datosFiltrados.filter(item => item.marca === marcaFiltro && item.modelo === modeloFiltro);
     const grid = document.createElement("div"); grid.className = "grid";
     versiones.forEach(item => {
@@ -1613,7 +1592,7 @@ function mostrarCategorias() {
         const ejemplo = itemsInCategory.find(item => item.imagenVehiculo);
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarMarcas(cat);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo ? ejemplo.imagenVehiculo : null); img.alt = `Categoría ${cat}`; card.appendChild(img);
+        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo); img.alt = `Categoría ${cat}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay"; overlay.innerHTML = cat; card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -1625,7 +1604,7 @@ function mostrarUltimosAgregados() {
     const cont = document.getElementById("contenido");
     if (!datosOriginales || datosOriginales.length === 0) return;
 
-    const ultimosCortes = [...datosOriginales].sort((a, b) => b.id - a.id).slice(0, 6); // CORREGIDO: de 5 a 6
+    const ultimosCortes = [...datosOriginales].sort((a, b) => b.id - a.id).slice(0, 5);
 
     const section = document.createElement('div');
     section.style.marginTop = '40px';
@@ -1660,7 +1639,7 @@ function mostrarMarcas(categoria) {
         const ejemplo = itemsInBrand.find(item => item.imagenVehiculo);
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarModelos(categoria, m);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo ? ejemplo.imagenVehiculo : null); img.alt = `Marca ${m}`; card.appendChild(img);
+        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo); img.alt = `Marca ${m}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay"; overlay.innerHTML = m; card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -1768,57 +1747,56 @@ if ('serviceWorker' in navigator) {
 // --- INICIALIZACIÓN DE LA APLICACIÓN ---
 async function handleSharedLink(seccion, id) {
     appOpenedFromLink = true;
-    try {
-        // 1. Cargar todos los datos del catálogo primero.
-        const result = await postToAction('getCatalogData');
-        datosOriginales = result.data.cortes || [];
-        datosTutoriales = result.data.tutoriales || [];
-        datosRelay = result.data.relay || [];
 
-        let item;
-        let mostrarDetalleFn;
+    let data, header, item, mostrarDetalleFn;
 
-        // 2. Buscar el item en la sección correcta.
-        if (seccion === 'cortes') {
-            item = datosOriginales.find(d => String(d.id) === String(id));
-            mostrarDetalleFn = mostrarDetalleModal;
-        } else if (seccion === 'tutoriales') {
-            item = datosTutoriales.find(d => String(d.id) === String(id));
-            mostrarDetalleFn = mostrarDetalleTutorial;
-        } else if (seccion === 'relay') {
-            item = datosRelay.find(d => String(d.id) === String(id));
-            mostrarDetalleFn = mostrarDetalleRelay;
-        }
+    // 1. Determinar qué datos buscar y qué función de modal usar
+    const seccionMap = {
+        'cortes': { range: RANGE_CORTES, dataSetter: (vals) => datosOriginales = vals, dataRef: () => datosOriginales, modalFn: mostrarDetalleModal },
+        'tutoriales': { range: RANGE_TUTORIALES, dataSetter: (vals) => datosTutoriales = vals, dataRef: () => datosTutoriales, modalFn: mostrarDetalleTutorial },
+        'relay': { range: RANGE_RELAY, dataSetter: (vals) => datosRelay = vals, dataRef: () => datosRelay, modalFn: mostrarDetalleRelay }
+    };
 
-        // 3. Si se encuentra el item, mostrar el modal.
-        if (item && mostrarDetalleFn) {
-            // Ocultar splash y login
-            const splash = document.getElementById('splash-screen');
-            splash.style.opacity = '0';
-            setTimeout(() => splash.style.display = 'none', 500);
-            document.getElementById('login-modal').style.display = 'none';
+    if (!seccionMap[seccion]) {
+        checkSession(); // Sección no válida, proceder con el inicio normal
+        return;
+    }
 
-            // Ocultar el contenedor principal para que solo se vea el modal
-            document.querySelector('.container').style.display = 'none';
+    const { range, dataSetter, dataRef, modalFn } = seccionMap[seccion];
 
-            mostrarDetalleFn(item);
+    // 2. Intentar cargar los datos de la sección y encontrar el ítem
+    await syncAndFetchData(seccion, range, dataSetter, () => {}, 'contenido');
+    data = dataRef();
 
-            // Limpiar la URL para que un refresh no vuelva a abrir el modal
-            history.replaceState({}, document.title, window.location.pathname);
-        } else {
-            // 4. Si no se encuentra el item, proceder al flujo de inicio de sesión normal.
-            checkSession();
-        }
-    } catch (error) {
-        // En caso de error al cargar datos, ir al flujo normal.
-        console.error("Error handling shared link, falling back to normal session check:", error);
+    if (data && data.length > 1) {
+        header = data[0];
+        item = data.slice(1).find(fila => fila[header.indexOf("ID")] === id);
+    }
+
+    // 3. Solo si el ítem es válido, se muestra el modal y se oculta el resto
+    if (item) {
+        // Ocultar splash y login AHORA que sabemos que tenemos contenido para mostrar
+        const splash = document.getElementById('splash-screen');
+        splash.style.opacity = '0';
+        setTimeout(() => splash.style.display = 'none', 500);
+        document.getElementById('login-modal').style.display = 'none';
+
+        // Ocultar el contenedor principal para que solo se vea el modal
+        document.querySelector('.container').style.display = 'none';
+
+        mostrarDetalleFn = modalFn;
+        mostrarDetalleFn(item, header);
+
+        // Limpiar la URL para que un refresh no vuelva a abrir el modal
+        history.replaceState({}, document.title, window.location.pathname);
+    } else {
+        // 4. Si el ítem no se encuentra, proceder al flujo de inicio de sesión normal
         checkSession();
     }
 }
 
 
 async function inicializarApp() {
-    setupDebugConsole(); // Activa la consola si es necesario
     const urlParams = new URLSearchParams(window.location.search);
     const seccion = urlParams.get('seccion');
     const id = urlParams.get('id');
@@ -2064,16 +2042,6 @@ async function handleReportSubmit(vehicleId) {
         // Error is handled by postToAction
     }
 }
-} catch (e) {
-    // Failsafe error handling
-    const errorDisplay = document.getElementById('failsafe-error-display');
-    if (errorDisplay) {
-        errorDisplay.style.display = 'block';
-        errorDisplay.innerText = 'FATAL ERROR DURING APP INITIALIZATION:\n\n' + e.message + '\n\nStack Trace:\n' + e.stack;
-    }
-    // Also log to console for good measure
-    console.error("Failsafe caught an error:", e);
-}
 </script>
 
 <footer class="footer" style="display: none;">
@@ -2082,17 +2050,8 @@ async function handleReportSubmit(vehicleId) {
       <a href="#">Contáctanos</a>
       <a href="#">Preguntas Frecuentes</a>
   </div>
-  Gpspedia v3.4.3 © 2025 todos los derechos reservados.
+  Gpspedia v3.4.1 © 2025 todos los derechos reservados.
 </footer>
-
-<!-- Contenedor para la Consola de Depuración -->
-<div id="debug-console" style="display: none; position: fixed; bottom: 0; left: 0; width: 100%; max-height: 40%; overflow-y: auto; background: rgba(0, 0, 0, 0.85); color: #0f0; font-family: monospace; font-size: 12px; z-index: 9999; padding: 10px; border-top: 2px solid #007bff;">
-    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 5px; margin-bottom: 5px; border-bottom: 1px solid #555;">
-        <h4 style="color: #007bff; margin: 0;">GPSpedia Debug Console</h4>
-        <button onclick="document.getElementById('debug-console-content').innerHTML = ''" style="background: #555; color: white; border: none; padding: 2px 8px; cursor: pointer;">Clear</button>
-    </div>
-    <div id="debug-console-content"></div>
-</div>
 
 </body>
 </html>

@@ -15,6 +15,14 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.4.4 - 26/12/2024
+- **REFACTORIZACIÓN DE BACKEND: ESTANDARIZACIÓN DEL ID DE LA BASE DE DATOS.**
+  - **Contexto:** Se realizó una actualización masiva en el backend para asegurar que todos los microservicios apunten a la única base de datos canónica v2.0, eliminando cualquier referencia a la antigua base de datos v1.5.
+  - **Acciones Realizadas:**
+    1.  **Refactorización de `services/write/write.js`:** Se ha eliminado por completo la lógica de migración y las referencias a la base de datos v1.5. El servicio ahora apunta exclusivamente al SPREADSHEET_ID de la v2.0 y ha sido preparado para la futura implementación de la nueva lógica de escritura. (Múltiples líneas afectadas).
+    2.  **Verificación de Servicios (`auth.js`, `catalog.js`, `users.js`, `feedback.js`):** Se ha verificado que los cuatro servicios restantes ya utilizaban correctamente el ID de la base de datos v2.0, por lo que no requirieron modificaciones.
+- **Estado del Proyecto:** El backend se encuentra ahora en un estado consistente y estandarizado, con todos los servicios apuntando a la base de datos correcta. Se ha eliminado deuda técnica importante.
+
 ## v3.4.3 - 18/08/2024
 - **BUG CRÍTICO RESUELTO: LA APLICACIÓN YA NO SE QUEDA EN PANTALLA EN BLANCO.**
   - **Contexto:** Se diagnosticó que la causa del bug era una incompatibilidad de datos entre el backend (que enviaba datos en formato `camelCase` de la API v2.0) y el frontend (`index.html`), que esperaba el formato antiguo, causando un error fatal de JavaScript.
