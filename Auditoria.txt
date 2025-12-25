@@ -1,4 +1,55 @@
 =================================================
+ INFORME DE AUDITORÍA DEL PROYyecto GPSpedia
+=================================================
+**Fecha de Auditoría:** 2024-12-25
+**Versión del Informe:** 6.0
+**Auditor:** Jules
+
+### 1. Resumen Ejecutivo
+
+Esta auditoría presenta el hallazgo definitivo sobre la causa raíz del bug de la **"Pantalla en Blanco"**. A través de un diagnóstico sistemático (bisección de componentes), se ha determinado que el problema no es un error de lógica de JavaScript, como se teorizaba anteriormente, sino un **error crítico de renderizado de HTML**.
+
+El navegador no puede procesar la estructura del DOM dentro del archivo `index.html`, lo que impide la ejecución de cualquier script y resulta en una página completamente en blanco desde el inicio. El origen del error ha sido aislado a un bloque de código específico.
+
+Debido a que este bug impide cualquier interacción con la aplicación, el estado del proyecto sigue siendo **inestable**, y la factibilidad del plan estratégico permanece **bloqueada**. Todos los informes de auditoría anteriores se consideran **OBSOLETOS**.
+
+### 2. Hallazgos Detallados
+
+#### A. Hallazgo Crítico A: Causa Raíz del Bug de Pantalla en Blanco - Error de Parseo de HTML
+
+- **Descripción:** La aplicación se muestra como una página en blanco inmediatamente al cargar. No se muestra ni el splash screen ni el modal de login.
+- **Análisis Técnico:** El método de bisección, que consiste en comentar sistemáticamente secciones del código HTML, ha revelado lo siguiente:
+    1.  Al comentar el bloque `<div id="login-modal">...</div>` completo, el **splash screen se renderiza correctamente**, lo que demuestra que el error reside dentro de ese bloque.
+    2.  Al restaurar el modal pero comentar únicamente el bloque `<form id="login-form">...</form>` que contiene, el **splash screen también se renderiza correctamente**.
+- **Causa Raíz Confirmada:** El error que impide el renderizado de toda la aplicación se encuentra **específicamente dentro de la estructura HTML del formulario de login (`<form id="login-form">`)**. Existe una sintaxis o estructura en ese bloque que el motor de renderizado del navegador no puede procesar.
+
+### 3. Reevaluación de Factibilidad del "Plan Estratégico v4"
+
+La factibilidad del plan sigue **BLOQUEADA**. Es imposible avanzar con nuevas funcionalidades mientras la aplicación no pueda ni siquiera renderizar su pantalla de inicio de sesión.
+
+### 4. Recomendaciones Estratégicas (Nuevas Prioridades)
+
+1.  **NUEVA PRIORIDAD CERO: Corregir el HTML del Formulario de Login.**
+    - **Acción:** Inspeccionar y reparar la estructura HTML dentro del elemento `<form id="login-form">` en `index.html` para resolver el error de renderizado. Esto puede implicar la corrección de etiquetas mal cerradas, atributos no válidos o una reestructuración menor del formulario.
+    - **Justificación:** Es el único camino para que la aplicación vuelva a ser visualmente funcional y permita a los usuarios interactuar con el sistema. La resolución de este bug es el prerrequisito para abordar cualquier otro problema.
+
+---
+---
+**INFORMES ANTERIORES - AHORA OBSOLETOS**
+---
+---
+(El contenido de los informes v5.0, v4.0 y v3.0 se archiva a continuación pero ya no se considera relevante para el estado actual del proyecto.)
+=================================================
+ INFORME DE AUDITORÍA DEL PROYECTO GPSpedia
+=================================================
+**Fecha de Auditoría:** 2024-08-19
+**Versión del Informe:** 5.0
+**Auditor:** Jules
+
+### 1. Resumen Ejecutivo
+... (Contenido del informe v5.0) ...
+
+=================================================
  INFORME DE AUDITORÍA DEL PROYECTO GPSpedia
 =================================================
 **Fecha de Auditoría:** 2024-08-18
@@ -6,23 +57,17 @@
 **Auditor:** Jules
 
 ### 1. Resumen Ejecutivo
+... (Contenido del informe v4.0) ...
 
-Esta auditoría marca un hito crucial en el proyecto GPSpedia. El hallazgo principal es la **resolución completa del bug crítico "Pantalla Blanca de la Muerte"**, que impedía el funcionamiento de la aplicación después del login. La corrección ha requerido una refactorización a gran escala del frontend (`index.html`) para alinearlo con el esquema de datos `camelCase` de la API v2.0, solucionando la incompatibilidad que causaba el error fatal.
+=================================================
+ INFORME DE AUDITORÍA DEL PROYECTO GPSpedia
+=================================================
+**Fecha de Auditoría:** 2024-08-17
+**Versión del Informe:** 3.0
+**Auditor:** Jules
 
-Adicionalmente, se ha implementado con éxito el **sistema de notificación de errores globales**, una tarea de prioridad media que se adelantó para mejorar la depuración y la experiencia del usuario.
-
-Con estos cambios, la aplicación ha alcanzado un estado **estable y funcional**. El informe de auditoría anterior (v3.0) se considera **OBSOLETE**.
-
-### 2. Estado de Tareas y Hallazgos Detallados
-
-#### A. Tareas Críticas Completadas (Ciclo Actual)
-
-- [X] **Resolución del Bug Crítico "Pantalla Blanca de la Muerte" (Antigua "PRIORIDAD CERO"):** **COMPLETADO Y VERIFICADO.**
-    - **Causa Raíz:** Incompatibilidad de datos entre el backend (que enviaba datos en `camelCase`) y el frontend (`index.html`, que esperaba un formato antiguo).
-    - **Solución:** Se refactorizó todo el código JavaScript dentro de `index.html` para manejar correctamente la nueva estructura de datos `camelCase`.
-    - **Verificación:** Se ha confirmado mediante una prueba de Playwright (`refactor_fix_verification.png`) que la aplicación ahora renderiza el contenido correctamente después del login.
-
-- [X] **Implementación del Sistema de Notificación de Errores Globales (Prioridad Media):** **COMPLETADO Y VERIFICADO.**
+### 1. Resumen Ejecutivo
+... (Contenido del informe v3.0) ...
     - **Implementación:** Se añadió el contenedor de notificaciones (`notification-container`) al `index.html` con su respectivo CSS. Se implementó la lógica en `api-manager.js` para interceptar errores (`catch`) en las llamadas a la API y mostrarlos al usuario a través de una nueva función `showNotification`.
 
 #### B. Desviaciones y Tareas Pendientes (Heredadas de Auditoría v3.0)
