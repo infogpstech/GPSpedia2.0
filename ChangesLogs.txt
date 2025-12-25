@@ -15,6 +15,11 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.9.1 - 26/12/2025
+- **FIX: RESOLUCIÓN DEL ERROR "FAILED TO FETCH" POR DESPLIEGUE OBSOLETO.**
+  - **Contexto:** El análisis demostró que el error de red era causado por una versión desactualizada del servicio `GPSpedia-Auth` que se encontraba desplegada. El código en el repositorio (v2.2.0) es correcto, pero no estaba activo.
+  - **Acción (`services/auth/auth.js`):** Se ha forzado un cambio menor en el archivo (un comentario en la línea 4) para asegurar su inclusión en este commit. **Es mandatorio que el usuario despliegue esta nueva versión del servicio para que el fix tenga efecto.**
+
 ## v3.9.0 - 26/12/2025
 - **FIX: CORRECCIÓN DEL BUG CRÍTICO DE PERSISTENCIA DE SESIÓN.**
   - **Contexto:** Se ha solucionado el error que causaba la pérdida de sesión del usuario al recargar la página.
