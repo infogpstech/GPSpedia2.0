@@ -1,4 +1,4 @@
-<!-- GPSpedia Frontend Component | Version: 2.0.1 -->
+<!-- GPSpedia Frontend Component | Version: 2.1.0 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -811,7 +811,7 @@ body.search-active .app-logo {
 
   <div class="search-container" style="display: flex; align-items: center; gap: 10px;">
       <input type="text" id="searchInput" placeholder="Buscar Corte..." oninput="filtrarContenido(this.value)" style="flex-grow: 1;">
-      <button id="clear-search-btn" title="Limpiar búsqueda">&times;</button>
+      <button id="clear-search-btn" title="Limpiar búsqueda" style="opacity: 1; pointer-events: all;">&times;</button>
       <button id="hamburger-btn"><i class="fa-solid fa-bars"></i></button>
   </div>
 
@@ -1178,8 +1178,15 @@ function hideLoginShowApp() {
 
     // Mostrar contenido principal y footer
     document.querySelector('.container').style.display = 'block';
-    document.querySelector('.footer').style.display = 'block';
-    remoteLog('INFO', 'Main container display style set to block.');
+    const footer = document.querySelector('.footer');
+    if (footer) footer.style.display = 'block';
+
+    // Cargar nombre de usuario en el menú lateral
+    const menuUsername = document.getElementById('menu-username');
+    const session = JSON.parse(localStorage.getItem(SESSION_KEY));
+    if (menuUsername && session && session.nombre) {
+        menuUsername.textContent = session.nombre;
+    }
 }
 
 
@@ -1587,26 +1594,31 @@ function mostrarDetalleModal(item) {
 
         const footerModal = document.createElement("div");
         footerModal.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;";
-        const colaboradorInfo = document.createElement("div");
-        colaboradorInfo.style.cssText = "font-size: 0.8em; color: #555; background: rgba(0, 123, 255, 0.1); padding: 5px 10px; border-radius: 8px;";
-        colaboradorInfo.innerHTML = `Agregado por: <strong style="color: #0056b3;">${colaborador || 'N/A'}</strong>`;
-        footerModal.appendChild(colaboradorInfo);
 
         const feedbackContainer = document.createElement("div");
         feedbackContainer.style.cssText = "display: flex; gap: 10px;";
+
         const utilBtn = document.createElement("button");
         utilBtn.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> Útil <span class="util-count">${utilCount}</span>`;
         utilBtn.className = "feedback-btn util-btn";
+        utilBtn.style.cssText = "background-color: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer;";
         utilBtn.onclick = () => handleLike(item.id, i, utilBtn);
         feedbackContainer.appendChild(utilBtn);
 
         const reportBtn = document.createElement("button");
         reportBtn.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Reportar`;
         reportBtn.className = "feedback-btn report-btn";
+        reportBtn.style.cssText = "background-color: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer;";
         reportBtn.onclick = () => toggleReportSection(item.id, i);
         feedbackContainer.appendChild(reportBtn);
 
         footerModal.appendChild(feedbackContainer);
+
+        const colaboradorInfo = document.createElement("div");
+        colaboradorInfo.style.cssText = "font-size: 0.8em; color: #555; background: rgba(0, 123, 255, 0.1); padding: 5px 10px; border-radius: 8px;";
+        colaboradorInfo.innerHTML = `Agregado por: <strong style="color: #0056b3;">${colaborador || 'N/A'}</strong>`;
+        footerModal.appendChild(colaboradorInfo);
+
         panel.appendChild(footerModal);
 
         const reportSection = document.createElement("div");
@@ -2187,7 +2199,7 @@ async function handleReportSubmit(vehicleId) {
       <a href="#">Contáctanos</a>
       <a href="#">Preguntas Frecuentes</a>
   </div>
-  Gpspedia v3.4.1 © 2025 todos los derechos reservados.
+  Gpspedia v3.5.0 © 2025 todos los derechos reservados.
 </footer>
 
 </body>
