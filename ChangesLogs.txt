@@ -15,6 +15,12 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
+## v3.8.1 - 21/08/2024
+- **INFRAESTRUCTURA: ACTUALIZACIÓN DE ENDPOINT DE SERVICIO `WRITE`.**
+  - **Contexto:** Se ha actualizado la URL del microservicio `GPSpedia-Write` a su última versión desplegada para asegurar la correcta funcionalidad del nuevo flujo de trabajo de 3 etapas.
+  - **Acción (`api-manager.js`):**
+    - Se ha reemplazado la URL en el objeto `API_ENDPOINTS` para `WRITE`. (Línea 11).
+
 ## v3.8.0 - 21/08/2024
 - **FEAT: IMPLEMENTACIÓN DEL FLUJO DE TRABAJO DE 3 ETAPAS Y LÓGICA DE LOGOS AUTOMÁTICA.**
   - **Contexto:** Se ha refactorizado completamente el flujo para agregar nuevos cortes y se han implementado mejoras significativas en la interfaz de usuario según los requisitos pendientes.
@@ -50,16 +56,4 @@
         - Se refactorizó todo el código JavaScript para que consuma los datos con la nueva estructura correcta. Se corrigió el acceso a las propiedades del objeto de usuario (ahora `user.Nombre_Usuario`) y a todos los campos del catálogo. (Múltiples líneas afectadas, ej. 1093, 1187, 2100).
     4.  **Sincronización de la Documentación:**
         - **`README.md` y `Instrucciones.txt`:** Se han actualizado las secciones de "Arquitectura de la Base de Datos" para que reflejen el esquema final y oficial de las 10 hojas de cálculo, sirviendo como la fuente de verdad para el proyecto.
-
-## v3.6.2 - 19/08/2024
-- **BUG CRÍTICO RESUELTO: CORRECCIÓN DE INCOMPATIBILIDAD DE DATOS FRONTEND-BACKEND.**
-  - **Contexto:** Se ha resuelto la serie de regresiones críticas que impedían el inicio de sesión y la carga de datos. La causa raíz era una discrepancia entre el formato de datos `PascalCase` enviado por el backend (`auth.js`) y el formato `camelCase` que el frontend (`index.html`) esperaba.
-  - **Acciones Realizadas:**
-    1.  **Alineación del Frontend (`index.html`):**
-        - Se han modificado todas las instancias en el JavaScript de `index.html` donde se accedía al objeto de usuario. Se reemplazó el uso de `user.id`, `user.sessionToken`, y `user.nombre` por `user.ID`, `user.SessionToken`, y `user.Nombre` para coincidir con la estructura de datos del backend.
-        - **Líneas Modificadas:** 1059, 1060 (en `checkSession`), 1093 (en `initializeAppData`), 1187, 1188 (en `hideLoginShowApp`), 2100, 2101 (en `openSideMenu`), 2133, 2146 (en `handleLike`), y 2170, 2185 (en `handleReportSubmit`).
-- **INFRAESTRUCTURA: ACTUALIZACIÓN DE ENDPOINT DE SERVICIO `WRITE`.**
-  - **Contexto:** Se ha actualizado la URL del microservicio `GPSpedia-Write` a su última versión desplegada.
-  - **Acción (`api-manager.js`):**
-    - Se ha reemplazado la URL en el objeto `API_ENDPOINTS` para `WRITE`. (Línea 10).
 ... (rest of the file remains the same)
