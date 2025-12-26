@@ -1,4 +1,4 @@
-<!-- GPSpedia Frontend Component | Version: 2.0.1 -->
+<!-- GPSpedia Frontend Component | Version: 4.0.0 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -184,7 +184,7 @@ body.search-active .search-container.has-text #clear-search-btn {
 
 .search-container input[type="text"] {
     width: 100%;
-    padding: 12px 15px;
+    padding: 12px 40px 12px 15px; /* Aumentado padding derecho para el botón X */
     border: 1px solid #ccc;
     border-radius: 8px;
     box-sizing: border-box;
@@ -674,6 +674,7 @@ body.search-active .app-logo {
     transition: all 0.35s ease-in-out;
 }
 .footer-links {
+    margin-top: 10px; /* Added margin to separate from copyright */
     margin-bottom: 15px;
     display: flex;
     justify-content: center;
@@ -685,6 +686,53 @@ body.search-active .app-logo {
     text-decoration: none;
     transition: color 0.2s;
     font-size: 0.8em; /* Adjusted to be smaller than the main footer text */
+    cursor: pointer; /* Make it look clickable */
+}
+/* --- ESTILOS PARA MODALES DE INFORMACIÓN --- */
+.info-modal {
+    display: none; position: fixed; z-index: 2100; left: 0; top: 0; width: 100%; height: 100%;
+    overflow: auto; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
+    align-items: center; justify-content: center;
+}
+.info-modal-content {
+    background-color: #fff; margin: auto; padding: 25px; border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.25); width: 90%; max-width: 700px;
+    max-height: 90vh; overflow-y: auto; position: relative;
+}
+.info-close-btn {
+    color: #aaa; position: absolute; top: 10px; right: 20px; font-size: 28px;
+    font-weight: bold; cursor: pointer;
+}
+/* Estilos para el formulario de contacto */
+#contact-form .form-group {
+    margin-bottom: 15px;
+}
+#contact-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+#contact-form input,
+#contact-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+#contact-form button {
+    background-color: #007bff;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s;
+}
+#contact-form button:hover {
+    background-color: #0056b3;
 }
 .footer-links a:hover {
     color: #fff;
@@ -734,7 +782,18 @@ body.search-active .app-logo {
 </style>
 </head>
 <body>
-
+<!-- Contenedor de la Consola de Depuración -->
+<div id="debug-console" style="display: none; position: fixed; bottom: 10px; right: 10px; width: 450px; height: 350px; background-color: rgba(20, 20, 30, 0.9); color: #00ff00; border: 1px solid #00ff00; border-radius: 8px; z-index: 9999; display: flex; flex-direction: column; font-family: 'Courier New', Courier, monospace; box-shadow: 0 0 15px rgba(0, 255, 0, 0.5); backdrop-filter: blur(5px);">
+    <div id="debug-header" style="padding: 8px; background-color: #00ff00; color: #14141e; font-weight: bold; cursor: move; border-top-left-radius: 7px; border-top-right-radius: 7px; display: flex; justify-content: space-between; align-items: center;">
+        <span>GPSpedia Debug Console</span>
+        <div>
+            <button id="debug-clear" style="background:none; border:none; color:#14141e; cursor:pointer; font-size: 14px; margin-right: 5px;">[Clear]</button>
+            <button id="debug-close" style="background:none; border:none; color:#14141e; cursor:pointer; font-size: 16px;">[X]</button>
+        </div>
+    </div>
+    <div id="debug-log" style="flex-grow: 1; overflow-y: auto; padding: 10px; font-size: 13px; line-height: 1.4;"></div>
+    <div id="debug-resize-handle" style="height: 10px; background-color: #00ff00; cursor: ns-resize;"></div>
+</div>
 <!-- Notificación de Error Global -->
 <div id="error-toast"></div>
 
@@ -769,11 +828,11 @@ body.search-active .app-logo {
         <form id="login-form">
             <div class="form-group">
                 <label for="username">Usuario</label>
-                <input type="text" id="username" required autocomplete="username">
+                <input type="text" id="username" name="username" required autocomplete="username">
             </div>
             <div class="form-group">
                 <label for="password">Contraseña</label>
-                <input type="password" id="password" required autocomplete="current-password">
+                <input type="password" id="password" name="password" required autocomplete="current-password">
             </div>
             <button type="submit">Acceder</button>
             <p id="login-error" style="color: red; display: none;"></p>
@@ -785,12 +844,16 @@ body.search-active .app-logo {
 <div class="container" style="display: none;">
 
   <div class="header-container">
-      <div class="header-branding">
-          <img src="https://drive.google.com/thumbnail?id=1NxBx-W_gWmcq3fA9zog6Dpe-WXpH_2e8&sz=2048" alt="Logo de GPSpedia" class="app-logo">
-          <h1 class="app-title">GPSpedia</h1>
+      <div class="header-branding" style="flex-direction: column; align-items: flex-start;">
+          <div style="display: flex; align-items: center;">
+              <img src="https://drive.google.com/thumbnail?id=1NxBx-W_gWmcq3fA9zog6Dpe-WXpH_2e8&sz=2048" alt="Logo de GPSpedia" class="app-logo">
+              <h1 class="app-title">GPSpedia</h1>
+          </div>
+          <div id="welcome-message-container" style="padding-left: 10px;">
+             <span id="welcome-message" style="display: none; color: #333; font-weight: bold; font-size: 0.8em;"></span>
+          </div>
       </div>
       <div id="header-controls" style="display: flex; align-items: center; gap: 15px;">
-          <span id="welcome-message" style="display: none; color: #333; font-weight: bold;"></span>
           <button id="logout-button" style="display: none; background-color: #dc3545; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: background-color 0.3s;">Cerrar Sesión</button>
       </div>
   </div>
@@ -798,9 +861,11 @@ body.search-active .app-logo {
   <!-- El botón de instalación se mueve fuera del header-controls para que no se oculte con la búsqueda -->
   <button id="install-button" style="display: none;">Instalar Aplicación</button>
 
-  <div class="search-container" style="display: flex; align-items: center; gap: 10px;">
-      <input type="text" id="searchInput" placeholder="Buscar Corte..." oninput="filtrarContenido(this.value)" style="flex-grow: 1;">
-      <button id="clear-search-btn" title="Limpiar búsqueda">&times;</button>
+  <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+      <div class="search-container" style="flex-grow: 1;">
+          <input type="text" id="searchInput" placeholder="Buscar Corte..." oninput="filtrarContenido(this.value)">
+          <button id="clear-search-btn" title="Limpiar búsqueda">&times;</button>
+      </div>
       <button id="hamburger-btn"><i class="fa-solid fa-bars"></i></button>
   </div>
 
@@ -823,28 +888,200 @@ body.search-active .app-logo {
   <img id="lightboxImg" src="">
 </div>
 
+<!-- ========= MODALES DE INFORMACIÓN ========= -->
+<div id="about-us-modal" class="info-modal">
+  <div class="info-modal-content">
+    <span class="info-close-btn">&times;</span>
+    <h2>Sobre Nosotros</h2>
+    <p>GPSpedia es una plataforma especializada en la consulta técnica y estandarizada de información vehicular, orientada a técnicos, instaladores y profesionales que trabajan con sistemas de rastreo, seguridad y control vehicular.</p>
+    <p>Nuestro objetivo es facilitar el acceso rápido y confiable a información práctica, reduciendo errores en campo y optimizando los tiempos de instalación mediante una base de conocimiento clara, visual y en constante evolución.</p>
+    <p>La información que se presenta en GPSpedia es el resultado de una recopilación estructurada de datos técnicos provenientes de múltiples fuentes de libre acceso, experiencias prácticas y aportes colaborativos. No reclamamos derechos de autor sobre dicha información técnica; su propósito es educativo, operativo y de apoyo profesional.</p>
+    <hr>
+    <h4>¿Qué ofrece GPSpedia?</h4>
+    <p><strong>🔧 Información de cortes vehiculares:</strong> Identificación de puntos de corte eléctrico e ignición. Detalles claros sobre ubicación, color del cable y tipo de corte recomendado.</p>
+    <p><strong>🚗 Tipos de cortes disponibles:</strong> Paro de motor (apagado remoto) y apertura de puertas.</p>
+    <hr>
+    <h4>Configuraciones de Relay</h4>
+    <p>GPSpedia incluye una sección dedicada a configuraciones de relay, donde se explican de forma visual y descriptiva la función de cada pin, su uso recomendado y diagramas claros para facilitar la correcta conexión.</p>
+    <hr>
+    <h4>Tutoriales y guías visuales</h4>
+    <p>Ofrecemos tutoriales paso a paso y guías visuales para la ubicación de módulos, desarme básico de interiores y reconocimiento de cableado.</p>
+    <hr>
+    <h4>Enfoque colaborativo y mejora continua</h4>
+    <p>GPSpedia evoluciona constantemente gracias a la retroalimentación de sus usuarios, lo que permite mejorar la precisión de la información y ampliar la cobertura de marcas y modelos.</p>
+  </div>
+</div>
+
+<div id="contact-modal" class="info-modal">
+  <div class="info-modal-content">
+    <span class="info-close-btn">&times;</span>
+    <h2>Contáctanos</h2>
+    <p>Si tienes sugerencias, problemas con la plataforma o necesitas soporte técnico, por favor utiliza este formulario. Tu feedback es importante para nosotros.</p>
+    <form id="contact-form">
+      <div class="form-group">
+        <label for="contact-name">Nombre</label>
+        <input type="text" id="contact-name" required>
+      </div>
+      <div class="form-group">
+        <label for="contact-email">Correo Electrónico</label>
+        <input type="email" id="contact-email" required>
+      </div>
+      <div class="form-group">
+        <label for="contact-message">Mensaje</label>
+        <textarea id="contact-message" rows="4" required></textarea>
+      </div>
+      <button type="submit" class="btn">Enviar Mensaje</button>
+    </form>
+  </div>
+</div>
+
+<div id="faq-modal" class="info-modal">
+  <div class="info-modal-content">
+    <span class="info-close-btn">&times;</span>
+    <h2>Preguntas Frecuentes (FAQ)</h2>
+    <div class="accordion">
+      <div class="accordion-item"><div class="accordion-header">¿GPSpedia es un sistema de rastreo GPS?<i class="fas fa-chevron-down"></i></div><div class="accordion-content"><p>No. GPSpedia no rastrea vehículos ni gestiona dispositivos. Es una plataforma informativa y de consulta técnica.</p></div></div>
+      <div class="accordion-item"><div class="accordion-header">¿La información tiene derechos de autor?<i class="fas fa-chevron-down"></i></div><div class="accordion-content"><p>La información técnica presentada es una compilación de datos de libre acceso y conocimiento práctico, organizada con fines educativos y profesionales. GPSpedia no reclama autoría exclusiva sobre dicha información.</p></div></div>
+      <div class="accordion-item"><div class="accordion-header">¿Puedo usar esta información en instalaciones reales?<i class="fas fa-chevron-down"></i></div><div class="accordion-content"><p>Sí. El contenido está pensado para apoyo técnico, pero siempre se recomienda que las instalaciones sean realizadas por personal capacitado y siguiendo buenas prácticas de seguridad eléctrica.</p></div></div>
+      <div class="accordion-item"><div class="accordion-header">¿Incluye información para diferentes tipos de vehículos?<i class="fas fa-chevron-down"></i></div><div class="accordion-content"><p>Sí. La plataforma contempla distintas categorías vehiculares, como automóviles, camiones, motocicletas y equipos especiales, según disponibilidad de información.</p></div></div>
+      <div class="accordion-item"><div class="accordion-header">¿La información se actualiza?<i class="fas fa-chevron-down"></i></div><div class="accordion-content"><p>Sí. GPSpedia está diseñada para crecer y mejorar continuamente, incorporando nuevos datos, correcciones y ampliaciones conforme se valida su uso en campo.</p></div></div>
+      <div class="accordion-item"><div class="accordion-header">¿GPSpedia enseña cómo instalar dispositivos?<i class="fas fa-chevron-down"></i></div><div class="accordion-content"><p>GPSpedia no sustituye la capacitación profesional, pero ofrece referencias técnicas, diagramas y guías que facilitan el trabajo de técnicos con experiencia.</p></div></div>
+      <div class="accordion-item"><div class="accordion-header">¿Cómo obtengo una cuenta?<i class="fas fa-chevron-down"></i></div><div class="accordion-content"><p>Para solicitar acceso, completa el formulario disponible en la sección “Contáctanos”. Nuestro equipo revisará la solicitud y te brindará seguimiento conforme al uso profesional de la plataforma.</p></div></div>
+      <div class="accordion-item"><div class="accordion-header">¿Qué hacer si no está la información de un vehículo?<i class="fas fa-chevron-down"></i></div><div class="accordion-content"><p>Si un vehículo no cuenta aún con información específica, GPSpedia ofrece tutoriales descriptivos y material audiovisual que facilitan la identificación de cables de corte, puntos de ignición y configuraciones comunes.</p></div></div>
+    </div>
+  </div>
+</div>
+
 <script src="api-manager.js"></script>
 <script>
-// --- LÓGICA DE DEPURACIÓN REMOTA ---
+// --- SISTEMA DE DEPURACIÓN AVANZADO DEL FRONTEND ---
+
+// Activa la consola de depuración si la URL contiene ?debug=true
+const isDebugMode = new URLSearchParams(window.location.search).has('debug');
+const debugConsole = document.getElementById('debug-console');
+
+if (isDebugMode) {
+    debugConsole.style.display = 'flex';
+}
+
+/**
+ * Registra un mensaje en la consola de depuración del frontend.
+ * @param {string} type - El tipo de log (p.ej., 'API_REQUEST', 'API_RESPONSE', 'ERROR', 'INFO').
+ * @param {string} message - El mensaje principal a registrar.
+ * @param {object} data - Un objeto con datos adicionales para mostrar.
+ */
+function debugLog(type, message, data) {
+    if (!isDebugMode) return;
+
+    const logEntry = document.createElement('div');
+    logEntry.style.marginBottom = '10px';
+    logEntry.style.borderBottom = '1px dashed #333';
+    logEntry.style.paddingBottom = '10px';
+
+    const timestamp = new Date().toLocaleTimeString();
+    let color = '#00ff00'; // Verde por defecto
+    if (type.includes('ERROR') || type.includes('FAIL')) {
+        color = '#ff4136'; // Rojo para errores
+    } else if (type.includes('REQUEST')) {
+        color = '#7FDBFF'; // Azul claro para peticiones
+    } else if (type.includes('RESPONSE')) {
+        color = '#39CCCC'; // Turquesa para respuestas
+    }
+
+    let html = `<strong style="color: ${color};">[${type}]</strong> <span style="color: #aaa;">${timestamp}</span><br/>${message}`;
+
+    if (data) {
+        // Formatear el objeto de datos como un JSON bonito
+        const jsonData = JSON.stringify(data, null, 2);
+        html += `<pre style="background-color: rgba(0,0,0,0.3); padding: 5px; border-radius: 4px; margin-top: 5px; color: #fff; white-space: pre-wrap; word-wrap: break-word;">${jsonData}</pre>`;
+    }
+
+    logEntry.innerHTML = html;
+    const debugLogDiv = document.getElementById('debug-log');
+    debugLogDiv.appendChild(logEntry);
+    debugLogDiv.scrollTop = debugLogDiv.scrollHeight; // Auto-scroll hacia abajo
+}
+
+// Lógica para hacer la consola arrastrable y redimensionable
+const header = document.getElementById('debug-header');
+const resizeHandle = document.getElementById('debug-resize-handle');
+const closeButton = document.getElementById('debug-close');
+const clearButton = document.getElementById('debug-clear');
+
+let isDragging = false;
+let isResizing = false;
+let initialX, initialY, initialWidth, initialHeight;
+let offsetX, offsetY;
+
+header.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    const rect = debugConsole.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    document.body.style.userSelect = 'none'; // Evitar seleccionar texto mientras se arrastra
+});
+
+resizeHandle.addEventListener('mousedown', (e) => {
+    isResizing = true;
+    initialHeight = debugConsole.offsetHeight;
+    initialY = e.clientY;
+    document.body.style.userSelect = 'none';
+});
+
+document.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+        debugConsole.style.left = `${e.clientX - offsetX}px`;
+        debugConsole.style.top = `${e.clientY - offsetY}px`;
+        // Eliminar bottom y right para que no interfieran con el posicionamiento
+        debugConsole.style.bottom = 'auto';
+        debugConsole.style.right = 'auto';
+    }
+    if (isResizing) {
+        const newHeight = initialHeight - (e.clientY - initialY);
+        debugConsole.style.height = `${newHeight}px`;
+    }
+});
+
+document.addEventListener('mouseup', () => {
+    isDragging = false;
+    isResizing = false;
+    document.body.style.userSelect = 'auto';
+});
+
+closeButton.addEventListener('click', () => {
+    debugConsole.style.display = 'none';
+});
+
+clearButton.addEventListener('click', () => {
+    document.getElementById('debug-log').innerHTML = '';
+});
+
+// Sobrescribir window.onerror para capturar todos los errores de JS
+window.onerror = function(message, source, lineno, colno, error) {
+    debugLog('JAVASCRIPT_ERROR', `Error no capturado: ${message}`, {
+        source: `${source}:${lineno}:${colno}`,
+        stack: error ? error.stack : 'No disponible'
+    });
+    // Devuelve false para que el error también se muestre en la consola del navegador
+    return false;
+};
+
+
+// --- LÓGICA DE DEPURACIÓN REMOTA (SE MANTIENE PERO AHORA TAMBIÉN LOGUEA LOCALMENTE) ---
 function remoteLog(level, message, data = {}) {
+    // Loguear en la nueva consola de depuración local
+    debugLog(`REMOTE_${level}`, message, data);
+
     // Non-blocking call to the backend logger
     fetch(SCRIPT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'logFrontend', payload: { level, message, data } }),
         keepalive: true // Ensure the request is sent even if the page is closing
-    }).catch(console.error);
-}
-window.onerror = function(message, source, lineno, colno, error) {
-    remoteLog('ERROR', 'Unhandled exception', {
-        message: message,
-        source: source,
-        lineno: lineno,
-        colno: colno,
-        stack: error ? error.stack : 'N/A'
+    }).catch(error => {
+        debugLog('REMOTE_FAIL', 'Fallo al enviar log remoto', { error: error.message });
     });
-    return false; // Let the default browser error handling also run
-};
+}
 
 // --- LÓGICA DE INDEXEDDB ---
 // Note: IndexedDB logic is being kept for potential future offline capabilities,
@@ -875,12 +1112,19 @@ function sanitizeInput(input) {
 const SESSION_ID_KEY = 'gpsepedia_session_id';
 // La función postToAction ahora es reemplazada por routeAction del api-manager.js
 async function postToAction(action, payload = {}) {
+    debugLog('API_REQUEST', `Ejecutando acción: ${action}`, payload);
+
     try {
         // Usamos el nuevo enrutador
         const result = await routeAction(action, payload);
+        debugLog('API_RESPONSE', `Respuesta recibida para: ${action}`, result);
         return result;
     } catch (error) {
-        console.error(`Error detallado en la acción '${action}':`, error);
+        debugLog('API_ERROR', `Error en la acción: ${action}`, {
+            name: error.name,
+            message: error.message,
+            stack: error.stack
+        });
 
         let userMessage = `Error inesperado: ${error.message}`;
         if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
@@ -890,14 +1134,6 @@ async function postToAction(action, payload = {}) {
         } else if (error.message.includes('Credenciales inválidas')) {
             userMessage = "El usuario o la contraseña son incorrectos.";
         }
-
-        // Loguear el error de forma remota
-        remoteLog('FATAL', `Error en postToAction ('${action}')`, {
-            name: error.name,
-            message: error.message,
-            stack: error.stack,
-            // No hay una única URL ahora, el api-manager se encarga de eso.
-        });
 
         const loginErrorElement = document.getElementById('login-error');
         if (loginErrorElement && loginErrorElement.offsetParent !== null) {
@@ -939,8 +1175,8 @@ async function checkSession() {
         remoteLog('INFO', 'Session data found in localStorage.');
         try {
             const user = JSON.parse(sessionData);
-            remoteLog('INFO', 'Attempting to validate session for user.', { userId: user.id });
-            const result = await postToAction('validateSession', { userId: user.id, sessionToken: user.sessionToken });
+            remoteLog('INFO', 'Attempting to validate session for user.', { userId: user.ID });
+            const result = await postToAction('validateSession', { userId: user.ID, sessionToken: user.SessionToken });
 
             if (result.valid) {
                 remoteLog('INFO', 'Session is valid. Initializing app.');
@@ -962,6 +1198,8 @@ async function checkSession() {
 async function login(username, password) {
     try {
         const result = await postToAction('login', { username, password });
+        // La respuesta de login ahora contiene el objeto 'user' completo, incluyendo el nuevo SessionToken.
+        // Al guardar este objeto, estamos actualizando el token en localStorage automáticamente.
         localStorage.setItem(SESSION_KEY, JSON.stringify(result.user));
         await initializeAppData(result.user);
     } catch (error) {
@@ -972,7 +1210,7 @@ async function login(username, password) {
 async function initializeAppData(user) {
     return new Promise(async (resolve, reject) => {
         hideLoginShowApp();
-        document.getElementById('welcome-message').textContent = `Bienvenido, ${user.nombre}`;
+        document.getElementById('welcome-message').textContent = `Bienvenido, ${user.Nombre_Usuario}`;
         document.getElementById('welcome-message').style.display = 'block';
 
         showSkeletonLoader(document.getElementById('contenido'));
@@ -982,6 +1220,7 @@ async function initializeAppData(user) {
             datosOriginales = result.data.cortes || [];
             datosTutoriales = result.data.tutoriales || [];
             datosRelay = result.data.relay || [];
+            datosLogos = result.data.logos || [];
             mostrarCategorias();
             resolve(); // Resolve the promise after content is rendered
         } catch (error) {
@@ -994,37 +1233,55 @@ async function initializeAppData(user) {
 function logout(reason = null) {
     localStorage.removeItem(SESSION_KEY);
     localStorage.removeItem(SESSION_ID_KEY);
-    localStorage.removeItem('userName'); // <-- AÑADIDO
 
     showLoginHideApp(reason);
 }
 
 function showLoginHideApp(reason = null) {
-    remoteLog('INFO', 'showLoginHideApp called', { reason });
-    // Ocultar splash screen inmediatamente para evitar condiciones de carrera en las pruebas
-    const splash = document.getElementById('splash-screen');
-    splash.style.display = 'none';
+    // La lógica de visibilidad es crítica y debe ejecutarse sin interrupciones.
+    try {
+        const splash = document.getElementById('splash-screen');
+        if (splash) splash.style.display = 'none';
 
-    // Ocultar contenido principal y footer
-    document.querySelector('.container').style.display = 'none';
-    document.querySelector('.footer').style.display = 'none';
-    document.getElementById('welcome-message').style.display = 'none';
+        const container = document.querySelector('.container');
+        if (container) container.style.display = 'none';
 
-    // Mostrar el modal de login
-    const loginModal = document.getElementById('login-modal');
-    loginModal.style.display = 'flex';
-    remoteLog('INFO', 'Login modal display style set to flex.');
+        const footer = document.querySelector('.footer');
+        if (footer) footer.style.display = 'none';
 
-    const loginError = document.getElementById('login-error');
-    if (reason) {
-        loginError.textContent = reason;
-        loginError.style.display = 'block';
-    } else {
-        loginError.style.display = 'none';
+        const welcomeMsg = document.getElementById('welcome-message');
+        if (welcomeMsg) welcomeMsg.style.display = 'none';
+
+        const loginModal = document.getElementById('login-modal');
+        if (loginModal) loginModal.style.display = 'flex';
+
+        const loginError = document.getElementById('login-error');
+        if (loginError) {
+            if (reason) {
+                loginError.textContent = reason;
+                loginError.style.display = 'block';
+            } else {
+                loginError.style.display = 'none';
+            }
+        }
+
+        const usernameInput = document.getElementById('username');
+        if (usernameInput) usernameInput.value = '';
+
+        const passwordInput = document.getElementById('password');
+        if (passwordInput) passwordInput.value = '';
+
+    } catch (e) {
+        // Si incluso la lógica de visibilidad falla, loguear localmente.
+        debugLog('CRITICAL_ERROR', 'Fallo al modificar la visibilidad de los elementos base.', { error: e.message, stack: e.stack });
     }
 
-    document.getElementById('username').value = '';
-    document.getElementById('password').value = '';
+    // El logging es secundario y se aísla para que no interrumpa el renderizado.
+    try {
+        remoteLog('INFO', 'showLoginHideApp finalizado.', { reason });
+    } catch (e) {
+        // El fallo de remoteLog ya se captura internamente, no es necesario hacer nada aquí.
+    }
 }
 
 function hideLoginShowApp() {
@@ -1041,8 +1298,15 @@ function hideLoginShowApp() {
 
     // Mostrar contenido principal y footer
     document.querySelector('.container').style.display = 'block';
-    document.querySelector('.footer').style.display = 'block';
-    remoteLog('INFO', 'Main container display style set to block.');
+    const footer = document.querySelector('.footer');
+    if (footer) footer.style.display = 'block';
+
+    // Cargar nombre de usuario en el menú lateral
+    const menuUsername = document.getElementById('menu-username');
+    const session = JSON.parse(localStorage.getItem(SESSION_KEY));
+    if (menuUsername && session && session.Nombre_Usuario) {
+        menuUsername.textContent = session.Nombre_Usuario;
+    }
 }
 
 
@@ -1130,13 +1394,13 @@ function mostrarContenidoTutoriales() {
         card.onclick = () => mostrarDetalleTutorial(item);
 
         const img = document.createElement("img");
-        img.src = convertirAGoogleThumbnail(item.imagen);
-        img.alt = item.tema;
+        img.src = convertirAGoogleThumbnail(item.Imagen);
+        img.alt = item.Tema;
         card.appendChild(img);
 
         const overlay = document.createElement("div");
         overlay.className = "overlay";
-        overlay.innerHTML = item.tema;
+        overlay.innerHTML = item.Tema;
         card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -1335,7 +1599,31 @@ function mostrarDetalleRelay(item) {
         if (p) cont.appendChild(p);
     });
     crearImagenDetalle("Imagen", item.imagen, cont);
+    const relayImg = cont.querySelector('img[alt="Imagen"]');
+    if (relayImg) {
+        relayImg.style.maxHeight = '250px';
+    }
     document.getElementById("modalDetalle").classList.add("visible");
+}
+
+function getLogoUrlForMarca(marca, categoria) {
+    if (!datosLogos || datosLogos.length === 0) return null;
+    let searchMarca = marca;
+    if (categoria && categoria.toLowerCase() === 'motos') {
+        searchMarca = marca + 'Motocicletas';
+    }
+
+    const logoEntry = datosLogos.find(logo => logo.nombreMarca.toLowerCase() === searchMarca.toLowerCase());
+
+    if (logoEntry) return logoEntry.urlLogo;
+
+    // Fallback for motorcycle brands
+    if (categoria && categoria.toLowerCase() === 'motos') {
+        const vehicleLogoEntry = datosLogos.find(logo => logo.nombreMarca.toLowerCase() === marca.toLowerCase() + 'Vehiculos');
+        if (vehicleLogoEntry) return vehicleLogoEntry.urlLogo;
+    }
+
+    return null; // Return null if no logo is found
 }
 
 function convertirAGoogleThumbnail(url) {
@@ -1415,6 +1703,14 @@ function mostrarDetalleModal(item) {
         p.innerHTML = `<strong style="color:red;">Nota Importante:</strong> <span style="color:#cc0000; font-weight: bold;">${item.notaImportante}</span>`;
         cont.appendChild(p);
     }
+    const logoUrl = getLogoUrlForMarca(item.marca, item.categoria);
+    if (logoUrl) {
+        const logoImg = document.createElement("img");
+        logoImg.src = logoUrl;
+        logoImg.style.cssText = "position: absolute; top: 15px; right: 15px; height: 50px; width: auto; max-width: 100px; object-fit: contain;";
+        cont.appendChild(logoImg);
+    }
+
     crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, 'img-vehiculo');
 
     // Secciones de Cortes Dinámicas
@@ -1450,26 +1746,31 @@ function mostrarDetalleModal(item) {
 
         const footerModal = document.createElement("div");
         footerModal.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;";
-        const colaboradorInfo = document.createElement("div");
-        colaboradorInfo.style.cssText = "font-size: 0.8em; color: #555; background: rgba(0, 123, 255, 0.1); padding: 5px 10px; border-radius: 8px;";
-        colaboradorInfo.innerHTML = `Agregado por: <strong style="color: #0056b3;">${colaborador || 'N/A'}</strong>`;
-        footerModal.appendChild(colaboradorInfo);
 
         const feedbackContainer = document.createElement("div");
         feedbackContainer.style.cssText = "display: flex; gap: 10px;";
+
         const utilBtn = document.createElement("button");
         utilBtn.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> Útil <span class="util-count">${utilCount}</span>`;
         utilBtn.className = "feedback-btn util-btn";
+        utilBtn.style.cssText = "background-color: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer;";
         utilBtn.onclick = () => handleLike(item.id, i, utilBtn);
         feedbackContainer.appendChild(utilBtn);
 
         const reportBtn = document.createElement("button");
         reportBtn.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Reportar`;
         reportBtn.className = "feedback-btn report-btn";
+        reportBtn.style.cssText = "background-color: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer;";
         reportBtn.onclick = () => toggleReportSection(item.id, i);
         feedbackContainer.appendChild(reportBtn);
 
+        const colaboradorInfo = document.createElement("div");
+        colaboradorInfo.style.cssText = "font-size: 0.8em; color: #555; background: rgba(0, 123, 255, 0.1); padding: 5px 10px; border-radius: 8px;";
+        colaboradorInfo.innerHTML = `Agregado por: <strong style="color: #0056b3;">${colaborador || 'N/A'}</strong>`;
+
+        footerModal.appendChild(colaboradorInfo);
         footerModal.appendChild(feedbackContainer);
+
         panel.appendChild(footerModal);
 
         const reportSection = document.createElement("div");
@@ -1604,7 +1905,7 @@ function mostrarUltimosAgregados() {
     const cont = document.getElementById("contenido");
     if (!datosOriginales || datosOriginales.length === 0) return;
 
-    const ultimosCortes = [...datosOriginales].sort((a, b) => b.id - a.id).slice(0, 5);
+    const ultimosCortes = [...datosOriginales].sort((a, b) => b.id - a.id).slice(0, 6);
 
     const section = document.createElement('div');
     section.style.marginTop = '40px';
@@ -1636,10 +1937,14 @@ function mostrarMarcas(categoria) {
     const grid = document.createElement("div"); grid.className = "grid";
     marcas.forEach(m => {
         const itemsInBrand = itemsInCategory.filter(item => item.marca === m);
+        const logoUrl = getLogoUrlForMarca(m, categoria);
         const ejemplo = itemsInBrand.find(item => item.imagenVehiculo);
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarModelos(categoria, m);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo); img.alt = `Marca ${m}`; card.appendChild(img);
+        const img = document.createElement("img");
+        img.src = logoUrl || convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
+        img.alt = `Marca ${m}`;
+        card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay"; overlay.innerHTML = m; card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -1947,8 +2252,8 @@ const sideMenuLogoutBtn = document.getElementById('side-menu-logout-button');
 
 function openSideMenu() {
     const session = JSON.parse(localStorage.getItem(SESSION_KEY));
-    if (session && session.user && session.user.Nombre) {
-        menuUsername.textContent = session.user.Nombre;
+    if (session && session.Nombre_Usuario) {
+        menuUsername.textContent = session.Nombre_Usuario;
     }
     sideMenu.classList.add('open');
     menuOverlay.classList.add('open');
@@ -1980,9 +2285,9 @@ document.querySelectorAll('#side-menu .menu-link').forEach(link => {
     });
 });
 
-async function handleLike(vehicleId, buttonElement) {
+async function handleLike(vehicleId, corteIndex, buttonElement) {
     const user = JSON.parse(localStorage.getItem(SESSION_KEY));
-    if (!user || !user.nombre) {
+    if (!user || !user.Nombre_Usuario) {
         alert("Debes iniciar sesión para usar esta función.");
         return;
     }
@@ -1992,40 +2297,44 @@ async function handleLike(vehicleId, buttonElement) {
     const currentCount = parseInt(countSpan.textContent, 10);
     countSpan.textContent = currentCount + 1;
     buttonElement.disabled = true;
-    buttonElement.style.backgroundColor = '#d4edda'; // Light green to indicate success
+    buttonElement.style.backgroundColor = '#d4edda';
 
     try {
-        await postToAction('recordLike', { vehicleId, userName: user.nombre });
-        // The UI is already updated, so no action is needed on success.
+        await postToAction('recordLike', {
+            vehicleId: vehicleId,
+            corteIndex: corteIndex,
+            userId: user.ID,
+            userName: user.Nombre_Usuario
+        });
     } catch (error) {
         // Revert UI on error
         countSpan.textContent = currentCount;
         buttonElement.disabled = false;
-        buttonElement.style.backgroundColor = ''; // Revert to default color
-        // The error is already shown by postToAction
+        buttonElement.style.backgroundColor = '';
     }
 }
 
-function toggleReportSection(vehicleId) {
-    const reportSection = document.getElementById(`report-section-${vehicleId}`);
-    const submitBtn = document.getElementById(`submit-report-${vehicleId}`);
+
+function toggleReportSection(vehicleId, corteIndex) {
+    const reportSection = document.getElementById(`report-section-${vehicleId}-${corteIndex}`);
+    const submitBtn = document.getElementById(`submit-report-${vehicleId}-${corteIndex}`);
 
     if (reportSection.style.display === 'none') {
         reportSection.style.display = 'block';
-        submitBtn.onclick = () => handleReportSubmit(vehicleId);
+        submitBtn.onclick = () => handleReportSubmit(vehicleId, corteIndex);
     } else {
         reportSection.style.display = 'none';
     }
 }
 
-async function handleReportSubmit(vehicleId) {
-    const user = JSON.parse(localStorage.getItem(SESSION_KEY))?.user;
-    if (!user || !user.nombre) {
+async function handleReportSubmit(vehicleId, corteIndex) {
+    const user = JSON.parse(localStorage.getItem(SESSION_KEY));
+    if (!user || !user.Nombre_Usuario) {
         alert("Debes iniciar sesión para reportar un problema.");
         return;
     }
 
-    const reportInput = document.getElementById(`report-input-${vehicleId}`);
+    const reportInput = document.getElementById(`report-input-${vehicleId}-${corteIndex}`);
     const problemText = reportInput.value.trim();
 
     if (!problemText) {
@@ -2034,23 +2343,108 @@ async function handleReportSubmit(vehicleId) {
     }
 
     try {
-        await postToAction('reportProblem', { vehicleId, userName: user.nombre, problemText });
+        await postToAction('reportProblem', {
+            vehicleId: vehicleId,
+            corteIndex: corteIndex,
+            problemText: problemText,
+            userId: user.ID,
+            userName: user.Nombre_Usuario
+        });
         alert("Gracias por tu reporte. Lo revisaremos pronto.");
         reportInput.value = '';
-        toggleReportSection(vehicleId);
+        toggleReportSection(vehicleId, corteIndex);
     } catch (error) {
         // Error is handled by postToAction
     }
 }
+
+// --- LÓGICA PARA MODALES DE INFORMACIÓN ---
+function setupInfoModals() {
+    const modals = document.querySelectorAll('.info-modal');
+    const closeButtons = document.querySelectorAll('.info-close-btn');
+
+    const openModal = (modalId) => {
+        const modal = document.getElementById(modalId);
+        if (modal) modal.style.display = 'flex';
+    };
+
+    const closeModal = () => {
+        modals.forEach(modal => modal.style.display = 'none');
+    };
+
+    // Footer link listeners
+    document.getElementById('footer-about-link').addEventListener('click', (e) => {
+        e.preventDefault();
+        openModal('about-us-modal');
+    });
+    document.getElementById('footer-contact-link').addEventListener('click', (e) => {
+        e.preventDefault();
+        openModal('contact-modal');
+    });
+    document.getElementById('footer-faq-link').addEventListener('click', (e) => {
+        e.preventDefault();
+        openModal('faq-modal');
+    });
+
+    // Close button listeners
+    closeButtons.forEach(btn => btn.addEventListener('click', closeModal));
+
+    // Close on outside click
+    window.addEventListener('click', (event) => {
+        modals.forEach(modal => {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+    });
+
+    // Accordion for FAQ
+    document.querySelectorAll('#faq-modal .accordion-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const content = header.nextElementSibling;
+            const isActive = content.style.maxHeight;
+            // Close all others first for a cleaner accordion experience
+            document.querySelectorAll('#faq-modal .accordion-content').forEach(c => c.style.maxHeight = null);
+            // Open the clicked one if it wasn't already open
+            if (!isActive) {
+                content.style.maxHeight = content.scrollHeight + "px";
+            }
+        });
+    });
+
+    // Contact form submission
+    document.getElementById('contact-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('contact-name').value;
+        const email = document.getElementById('contact-email').value;
+        const message = document.getElementById('contact-message').value;
+
+        try {
+            const response = await routeAction('sendContactForm', { name, email, message });
+            if (response.status === 'success') {
+                alert('¡Gracias por tu mensaje! Nos pondremos en contacto contigo pronto.');
+                closeModal();
+                document.getElementById('contact-form').reset();
+            } else {
+                throw new Error(response.message || 'Error desconocido');
+            }
+        } catch (error) {
+             alert(`Error al enviar el mensaje: ${error.message}`);
+        }
+    });
+}
+// Llamar a la configuración de los modales de info cuando se inicializa la app.
+document.addEventListener('DOMContentLoaded', setupInfoModals);
+
 </script>
 
 <footer class="footer" style="display: none;">
+  Gpspedia v4.0.0 © 2025 todos los derechos reservados.
   <div class="footer-links">
-      <a href="#">Sobre Nosotros</a>
-      <a href="#">Contáctanos</a>
-      <a href="#">Preguntas Frecuentes</a>
+      <a id="footer-about-link">Sobre Nosotros</a>
+      <a id="footer-contact-link">Contáctanos</a>
+      <a id="footer-faq-link">Preguntas Frecuentes</a>
   </div>
-  Gpspedia v3.4.1 © 2025 todos los derechos reservados.
 </footer>
 
 </body>

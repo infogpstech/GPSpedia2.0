@@ -91,27 +91,46 @@ Esta sección define la hoja de ruta para la siguiente gran versión de GPSpedia
 Esta sección describe los pasos técnicos específicos requeridos para ejecutar la Fase 1 del Plan Estratégico.
 
 #### 1. Modificaciones al Servicio `GPSpedia-Write` (`write.js`)
-- **Objetivo:** Adaptar el servicio para la lógica de la DB v2.0, incluyendo la migración y la gestión de años/logos.
-- **Acciones Técnicas:**
-    - **Modificar `addCorte`:**
-        - La función ya no recibirá `anoDesde` ni `anoHasta`. Recibirá un único `anio`.
-        - Al crear una nueva fila, escribirá el `anio` en la columna `anoDesde` y dejará `anoHasta` en blanco.
-        - Antes de escribir, consultará la hoja `LogosMarcas` para encontrar la URL del logo. Si no la encuentra, usará una URL temporal del logo de GPSpedia.
-    - **Crear Nuevo Endpoint `executeMigration`:**
-        - **Activación:** La función `doGet(e)` se activará con el parámetro `action=executeMigration`.
-        - **Seguridad:** Se implementará una verificación para asegurar que solo los usuarios con rol "Desarrollador" puedan ejecutar la migración.
-        - **Lógica de Lectura:** Se conectará a la `GPSpedia_DB_v1.5` y leerá todas las filas de la hoja "Cortes".
-        - **Lógica de Transformación (por fila):**
-            - **`anoDesde`/`anoHasta`:** Se analizará `Año (Generacion)` para extraer rangos o duplicar el año en `anoDesde`.
-            - **Cortes y Logos:** Se mapearán los datos de los cortes y se buscará el logo correspondiente.
-        - **Lógica de Escritura:** Se conectará a la nueva `GPSpedia_DB_v2.0` y escribirá los datos transformados.
-        - **Respuesta:** Devolverá un JSON confirmando el éxito y el número de filas procesadas.
+- **Objetivo:** Reemplazar el proceso de adición de cortes por un nuevo sistema multifase basado en la lógica de `GPSpedia 1.5`, adaptado a la nueva estructura de la base de datos y con un flujo de trabajo anti-duplicado.
+
+- **Flujo de Trabajo Detallado:**
+
+    - **Etapa 1: Anti-duplicado y Verificación de Existencia.**
+        1.  El frontend (`add_cortes.html`) inicialmente solo pedirá 4 campos: `Marca` (texto), `Modelo` (texto), `Año` (texto) y `Tipo de Encendido` (lista desplegable).
+        2.  Al enviar, el backend (`write.js`) realizará una búsqueda en la hoja 'Cortes'.
+        3.  **Lógica de Búsqueda:** La búsqueda será **exacta** para `Marca`, `Año` y `Tipo de Encendido`. Para `Modelo`, la búsqueda será **flexible**, encontrando coincidencias de palabras completas.
+        4.  **Respuesta:** El servicio devolverá una lista de coincidencias (si las hay) al frontend. La UI mostrará los vehículos encontrados y presentará tres opciones al usuario:
+            *   **Opción 1: "Es un Duplicado".** El usuario confirma que el corte ya existe. El formulario se cierra.
+            *   **Opción 2: "Agregar otro corte".** El vehículo ya existe, pero el usuario quiere añadir un segundo o tercer corte. El flujo avanza a la **Etapa 2**.
+            *   **Opción 3: "Agregar apertura u otra información".** El usuario quiere añadir información suplementaria a un vehículo existente. El flujo avanza a la **Etapa 3**.
+        5.  **Si no hay coincidencias:** El flujo avanza directamente a la **Etapa 2**.
+
+    - **Etapa 2: Registro de un Nuevo Corte.**
+        1.  El frontend presentará los siguientes campos para el nuevo corte:
+            *   `Imagen del vehículo` (botón de subida con vista previa, **solo si es un vehículo completamente nuevo**).
+            *   `Tipo de corte` (lista desplegable desde Spreadsheet).
+            *   `Ubicación del Corte` (área de texto).
+            *   `Color del cable` (campo de texto).
+            *   `Configuración de relay` (lista desplegable desde Spreadsheet, con un valor por defecto).
+            *   `Agregar Imagen` del corte (botón de subida con vista previa).
+        2.  Un botón "Continuar" enviará estos datos al backend.
+        3.  El backend validará la información. Si es un vehículo nuevo, creará una nueva fila asegurándose de heredar las validaciones de la fila anterior. Si es un vehículo existente, encontrará la primera columna de corte disponible (`tipoCorte2`, `tipoCorte3`) y la rellenará.
+        4.  Las imágenes se subirán a Google Drive bajo la estructura `Categoria/Marca/Modelo/Año`.
+        5.  Se registrarán automáticamente el `colaborador` y el `timestamp`.
+        6.  Una respuesta exitosa permitirá al frontend avanzar a la **Etapa 3**.
+
+    - **Etapa 3: Adición de Información Suplementaria.**
+        1.  La UI mostrará la información del corte recién añadido y presentará tres opciones en formato de acordeón desplegable:
+            *   **"Agregar apertura":** Contendrá un campo de texto `Detalle de apertura` y un botón para subir la `imgApertura`.
+            *   **"Cable de alimentación:":** Contendrá un campo de texto `Cable de alimentación` y un botón para subir la `imgCableAlimen`.
+            *   **"Agregar nota sobre este corte":** Contendrá un área de texto para la `notaImportante`.
+        2.  Un botón "Terminar" enviará toda la información suplementaria al backend, que actualizará las celdas correspondientes en la fila del vehículo existente.
 
 #### 2. Modificaciones al Servicio `GPSpedia-Catalog` (`catalog.js`)
 - **Objetivo:** Adaptar el servicio para leer desde la DB v2.0 y soportar las nuevas funcionalidades.
 - **Acciones Técnicas:**
     - **Actualizar `SPREADSHEET_ID`:** La constante apuntará al ID de la nueva `GPSpedia_DB_v2.0`.
-    - **Reescribir `COLS_CORTES`:** El objeto de mapeo de columnas se actualizará para reflejar la nueva estructura granular.
+    - **Reescribir `COLS_CORTES`:** El objeto de mapeo de columnas se actualizará para reflejar la nueva estructura de 38 columnas.
     - **Refactorizar Lógica de Búsqueda:** `handleCheckVehicle` se modificará para buscar coincidencias en `modelo` y `versionesAplicables`.
     - **Implementar Ordenamiento por Utilidad:** En `handleGetCatalogData`, los bloques de corte se reordenarán en el objeto JSON de respuesta basándose en el conteo de "likes" en `utilCorteX` antes de ser enviados al frontend.
 
@@ -123,36 +142,123 @@ Esta sección describe los pasos técnicos específicos requeridos para ejecutar
     - **Crear `assignCollaborator`:** Se desarrollará para asignar un colaborador a un corte específico.
     - **Crear `suggestYear`:** Nueva acción que recibirá un `vehicleId` y un `newYear`. La lógica leerá `anoDesde` y `anoHasta`, comparará el `newYear` y actualizará el campo correspondiente si el nuevo año expande el rango.
 
+---
+
+### **Plan de Implementación Técnica: Tareas Adicionales**
+
+Esta sección detalla los requerimientos para un nuevo conjunto de funcionalidades críticas centradas en la migración de datos y la mejora de la lógica de negocio para la gestión de rangos de años y timestamps.
+
+#### **1. Nuevo Microservicio: `GPSpedia-Utilities` (Ejecución Única)**
+
+Se creará un nuevo proyecto de Google Apps Script, independiente de los microservicios existentes, con el único propósito de realizar una migración y corrección de datos en la hoja `Cortes` de la base de datos. Este script se ejecutará una sola vez y contendrá dos funciones principales:
+
+**A. Función 1: Migración de Rango de Años**
+*   **Objetivo:** Procesar la columna `anoDesde`, que actualmente contiene rangos de texto (ej. "2016-2022") o años únicos (ej. "2006"), para poblar correctamente las columnas `anoDesde` y `anoHasta` con valores numéricos individuales.
+*   **Lógica de Ejecución:**
+    1.  El script iterará sobre cada fila de la hoja `Cortes`.
+    2.  Para cada fila, leerá el valor de la celda en la columna `anoDesde`.
+    3.  **Si el valor contiene un guion (`-`):**
+        *   Se dividirá la cadena de texto en dos partes.
+        *   Se identificarán los dos valores numéricos, determinando cuál es el menor y cuál es el mayor.
+        *   El valor numérico **menor** se escribirá de nuevo en la columna `anoDesde` de esa fila, sobrescribiendo el rango de texto.
+        *   El valor numérico **mayor** se escribirá en la columna `anoHasta` de la misma fila.
+    4.  **Si el valor es un único número de 4 dígitos (ej. "2006"):**
+        *   El valor de `anoDesde` no se modificará.
+        *   El mismo valor se copiará a la columna `anoHasta` de la misma fila.
+
+**B. Función 2: Migración de Timestamps desde Metadatos de Google Drive**
+*   **Objetivo:** Rellenar la columna `timestamp` en la hoja `Cortes` utilizando la fecha de creación del archivo de imagen del vehículo almacenado en Google Drive.
+*   **Lógica de Ejecución:**
+    1.  El script iterará sobre cada fila de la hoja `Cortes`.
+    2.  Para cada fila, leerá la URL en la columna `imagenVehiculo`.
+    3.  **Si existe una URL:**
+        *   Se extraerá el `ID` del archivo de Google Drive de la URL.
+        *   Utilizando el servicio `DriveApp` de Apps Script, se obtendrá el objeto de archivo (`File`) correspondiente a ese ID.
+        *   Se accederá a los metadatos del archivo para obtener su fecha de creación (`dateCreated`).
+        *   La fecha se formateará al estándar `DD/MM/AAAA`.
+        *   La fecha formateada se escribirá en la columna `timestamp` de la fila correspondiente.
+
+---
+
+#### **2. Modificaciones a Servicios Existentes (Lógica Continua)**
+
+**A. Servicio `GPSpedia-Feedback`: Lógica de Expansión de Rango de Años**
+*   **Objetivo:** Mejorar la funcionalidad del botón "Útil" para que los usuarios puedan sugerir que un corte aplica a un año fuera del rango establecido, expandiendo dinámicamente la aplicabilidad del registro.
+*   **Lógica de Backend:**
+    1.  El frontend enviará el `ID` del vehículo y el `año sugerido` por el usuario al backend.
+    2.  El backend verificará si el `año sugerido` ya se encuentra dentro del rango `[anoDesde, anoHasta]`. Si es así, no se realizará ninguna acción.
+    3.  **Lógica de Anti-colisión de Generaciones:**
+        *   Antes de realizar cualquier cambio, el sistema buscará en toda la hoja `Cortes` si existe **otro registro** con la misma `marca`, `modelo` y `tipoEncendido`.
+        *   Esta comprobación es crucial para evitar que los rangos de diferentes generaciones de un mismo modelo se solapen incorrectamente.
+    4.  **Actualización del Rango:**
+        *   Si el `año sugerido` es **menor** que `anoDesde` y no hay colisión, el valor de `anoDesde` se actualizará al `año sugerido`.
+        *   Si el `año sugerido` es **mayor** que `anoHasta` y no hay colisión, el valor de `anoHasta` se actualizará al `año sugerido`.
+*   **Manejo de Casos de Múltiples Generaciones (Ejemplo Técnico):**
+    *   **Escenario:** El usuario indica que el corte para una **Honda CR-V (2016-2022)** también fue útil para un modelo **2026**.
+    *   **Proceso:**
+        1.  El sistema detecta que `2026` está fuera del rango `2016-2022`.
+        2.  Realiza una búsqueda y encuentra otro registro para **Honda CR-V** con un rango de `2023-2025`.
+        3.  En lugar de modificar el registro original (`2016-2022`), el sistema identifica que `2026` es una extensión lógica del segundo registro (`2023-2025`).
+        4.  La columna `anoHasta` del **segundo registro** se actualiza a `2026`.
+
+**B. Servicio `GPSpedia-Write`: Gestión de Timestamps y Lógica Frontend**
+*   **Objetivo:** Asegurar que la columna `timestamp` se actualice siempre que se realice una modificación significativa en un registro y que el frontend utilice esta información para mostrar el contenido más reciente.
+*   **Lógica de Backend (`write.js`):**
+    1.  Al crear un **vehículo completamente nuevo**, se registrará la fecha actual en la columna `timestamp`.
+    2.  Al añadir un **nuevo corte** a un vehículo ya existente, la columna `timestamp` de esa fila se actualizará con la fecha actual.
+    3.  Al añadir **información suplementaria** (ej. detalles de apertura, videoguía), la columna `timestamp` también se actualizará con la fecha actual.
+*   **Lógica de Frontend (`index.html`):**
+    1.  La sección "Últimos Agregados" deberá obtener los datos del catálogo y ordenarlos en base a la columna `timestamp` en orden descendente antes de renderizarlos.
+    2.  Las tarjetas de vehículo en esta sección deberán indicar qué tipo de información se agregó o actualizó recientemente (ej. "Nuevo Vehículo", "Corte Adicional", "Info. de Apertura"). Esto podría requerir una lógica adicional o un nuevo campo en la respuesta de la API.
+
+---
+
 ## 4. Trabajos Pendientes (Checklist)
 
 Esta sección documenta las tareas de desarrollo, corrección y regresiones pendientes de la versión actual.
 
 ### Tareas Completadas Recientemente
+- [X] **Estandarización de la Base de Datos del Backend:** Se ha verificado y actualizado toda la capa de microservicios (`auth`, `catalog`, `users`, `write`, `feedback`) para asegurar que todos apunten exclusivamente a la base de datos canónica v2.0. Se eliminó el código heredado y las referencias a la antigua base de datos v1.5.
 - [X] **Resolución del Bug Crítico "Pantalla Blanca":** Se refactorizó el frontend (`index.html`) para alinearlo con la nueva estructura de datos `camelCase` del backend v2.0, solucionando la incompatibilidad que impedía la renderización de la aplicación.
 - [X] **Implementación del Sistema de Notificación de Errores:** Se añadió un sistema de notificaciones globales en `index.html` y `api-manager.js` para mostrar al usuario los errores de comunicación con la API, mejorando la depuración y la transparencia.
 - [X] **Refactorización del Acceso a Datos del Backend:** Se han actualizado todos los microservicios (`catalog`, `write`, `users`, `feedback`) para utilizar un mapa de columnas fijo, eliminando la inconsistencia arquitectónica y mejorando la estabilidad del sistema.
+- [X] **Corrección del Bug de Sesión de Usuario:** Se solucionó un problema en `users.html` que impedía la correcta visualización de la información del usuario en sesión, afectando funcionalidades como el cambio de contraseña.
+- [X] **Reparación del Formulario de Contacto:** Se corrigió el error "Acción no definida" en el formulario de "Contáctanos", restaurando la capacidad de los usuarios para enviar mensajes.
+- [X] **Corrección de Visualización en Tutoriales:** Se solucionó un bug en `index.html` que provocaba que el texto de los tutoriales se mostrara como "undefined" debido a una inconsistencia de mayúsculas y minúsculas.
 
 ### Bugs y Regresiones Críticas
+- [ ] **Lógica del Modal de Detalle:** El modal de detalle actualmente solo carga la información del primer corte (`tipoCorte1`, `ubicacionCorte1`, etc.), ignorando los datos de `corte2` y `corte3` aunque existan. Debe mostrar la información completa de todos los cortes disponibles.
+- [ ] **Carga de Imágenes en Modal:** Las imágenes asociadas a la apertura (`imgApertura`), cable de alimentación (`imgCableAlimen`) y la configuración del relay (`imagen` desde la hoja `Relay`) no se están mostrando en el modal de detalle.
+- [ ] **Carga de Logos en Modal:** El logo de la marca del vehículo no se está cargando y mostrando correctamente dentro del modal de detalle.
+- [ ] **Refactorización del Flujo de Escritura:** Implementar el nuevo flujo de trabajo de 3 etapas para añadir/actualizar cortes, que fue documentado como completo pero no se encuentra en el código.
 - [ ] **Inconsistencias de Versionamiento:** Sincronizar la versión global (ChangesLogs, UI) y las versiones de componentes (cabeceras en todos los archivos `.html` y `.js`) para cumplir con las normas del proyecto.
-- [ ] **Layout del Modal:** Corregir la posición del nombre del colaborador y el estilo de los botones de feedback.
+- [X] **Layout del Modal:** Corregir la posición del nombre del colaborador y el estilo de los botones de feedback.
 - [ ] **Visibilidad de Cortes:** Asegurar que las tres opciones de corte sean visibles en el modal si existen los datos.
-- [ ] **UI General:** Solucionar bugs visuales (pie de página, botón de limpiar búsqueda, carga de nombre de usuario).
+- [X] **UI General:** Solucionar bugs visuales (pie de página, botón de limpiar búsqueda, carga de nombre de usuario, saludo de bienvenida).
 
-### Mejoras de Funcionalidad Prioritarias
-- [ ] **Búsqueda Flexible:** Mejorar `checkVehicle` para que devuelva coincidencias parciales y múltiples resultados.
+### Revisiones de UI/UX
+- [ ] **Rediseño de Botones de Feedback:** Reemplazar los botones "Sí/No" del modal de detalle por un sistema de pulgares (👍/👎). Añadir dos nuevos botones: "Sugerir un año" y "Reportar un problema".
+- [ ] **Reorganización de Secciones Principales:** Alterar el orden de las secciones en `index.html` para que aparezcan en el siguiente orden: 1. "Últimos Agregados", 2. "Búsqueda por Marca", 3. "Búsqueda por Categoría".
+- [ ] **Layout de "Últimos Agregados":** Modificar el layout de la sección "Últimos Agregados" para que muestre los resultados en un formato de 3 columnas, mejorando la densidad de la información.
+- [ ] **Visualización de Marcas con Logos:** En la sección "Búsqueda por Marca", reemplazar los nombres de las marcas en texto plano por sus respectivos logos, obtenidos de la hoja `LogosMarca`.
+- [X] **Ajustes de Layout:** Realizar ajustes de espaciado, encabezado y visualización de "Últimos Agregados" según las especificaciones.
+- [X] **Modal de Detalle - Logo de Marca:** Implementar la visualización del logo de la marca en una esquina (`altura: 50px`, `anchura: auto`).
+- [X] **Modal de Detalle - Imagen de Relay:** Limitar la altura de la imagen de referencia del relay a `250px`.
+- [X] **Listado de Marcas - Logos:** Mostrar el logo de cada marca en la vista de listado de marcas.
+
+### Nuevas Funcionalidades
+- [ ] **Sistema de Navegación Jerárquico:** Implementar un flujo de navegación guiado o "paso a paso" para la búsqueda. El usuario primero seleccionará una Marca, luego se le presentarán los Modelos de esa marca, y finalmente los Años/versiones disponibles.
+- [ ] **Sistema de Gestión de Feedback (Inbox):** Desarrollar una nueva interfaz (accesible para roles de Supervisor/Jefe) que funcione como un "inbox" para gestionar los problemas reportados por los usuarios a través del nuevo botón "Reportar un problema". Debe permitir ver, responder y marcar como resueltos los reportes.
+- [ ] **Implementación de Modo Oscuro:** Añadir una paleta de colores alternativa para un modo oscuro y un interruptor en la UI para que el usuario pueda activarlo/desactivarlo.
+- [X] **Búsqueda Flexible:** Mejorar `checkVehicle` para que devuelva coincidencias parciales y múltiples resultados.
 - [ ] **Debugging Integral:** Implementar un sistema de debugging en backend y frontend accesible por rol.
 - [ ] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes para mejorar el rendimiento.
 - [ ] **Soporte para Rango de Años (Feedback-driven):** Implementar la lógica de `suggestYear` en el backend y la UI correspondiente en el frontend.
 - [ ] **Sistema de Versionamiento Híbrido:** Aplicar el nuevo sistema de versionamiento a todos los componentes del código fuente.
+- [X] **Integración de Páginas de Información:** Crear las secciones "Sobre Nosotros", "Contáctanos" y "Preguntas Frecuentes" como modales dentro de `index.html`.
 
-### Revisiones de UI/UX
-- [ ] **Ajustes de Layout:** Realizar ajustes de espaciado, encabezado y visualización de "Últimos Agregados" según las especificaciones.
-- [ ] **Modal de Detalle - Logo de Marca:** Implementar la visualización del logo de la marca en una esquina (`altura: 50px`, `anchura: auto`).
-- [ ] **Modal de Detalle - Imagen de Relay:** Limitar la altura de la imagen de referencia del relay a `250px`.
-- [ ] **Listado de Marcas - Logos:** Mostrar el logo de cada marca en la vista de listado de marcas.
-
-### Nuevas Funcionalidades
-- [ ] **Página de Información (`info.html`):** Crear una página estática con las secciones "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes", con su respectivo formulario de contacto.
+### Deuda Técnica y Mejoras
+- [ ] **Script de Migración de Timestamps:** Implementar un script de ejecución única para obtener la fecha de creación de las imágenes antiguas de Google Drive y rellenar el campo `timestamp` en los registros existentes.
 
 ## 4. Componentes del Backend (Microservicios)
 
@@ -168,7 +274,7 @@ El backend consta de cinco servicios de Google Apps Script, cada uno con una res
 - **Hojas Accedidas:** `Cortes`, `Tutoriales`, `Relay` (Solo Lectura).
 
 ### `GPSpedia-Write` (`services/write/write.js`)
-- **Responsabilidad:** Escritura de datos y subida de archivos.
+- **Responsabilidad:** Escritura de datos y subida de archivos, siguiendo un flujo de trabajo de 3 etapas.
 - **Hojas Accedidas:** `Cortes` (Escritura).
 - **Recursos Adicionales:** Google Drive (`ID: 1-8QqhS-wtEFFwyBG8CmnEOp5i8rxSM-2`).
 
@@ -230,93 +336,162 @@ Esta sección detalla la estructura y las deficiencias de la base de datos origi
 
 ---
 
-### 6.2. Arquitectura de Base de Datos v2.0 (Nueva)
-
-Esta es la nueva arquitectura diseñada para resolver las deficiencias de la v1.5 y soportar las futuras funcionalidades del proyecto.
+### 6.2. Arquitectura de la Base de Datos v2.0 (Nueva)
+**IMPORTANTE: NO MODIFICAR.** La siguiente estructura de hojas y columnas es la fuente de verdad canónica para la base de datos `GPSpedia_DB_v2.0` y debe coincidir exactamente con la implementación en Google Sheets.
 
 - **ID de Google Sheet:** `1M6zAVch_EGKGGRXIo74Nbn_ihH1APZ7cdr2kNdWfiDs`
 - **Principio de Diseño:** Una estructura granular y robusta, diseñada para ser explícita, flexible y a prueba de errores de formato. Es totalmente independiente de la v1.5.
 
 #### Diseño Detallado de `GPSpedia_DB_v2.0`
 
-A continuación se detalla la estructura de cada hoja en la nueva base de datos. Los nombres de las columnas están normalizados a formato `camelCase` para mantener la consistencia en el código.
+A continuación se detalla la estructura de cada hoja en la nueva base de datos. Los nombres de las columnas deben coincidir **exactamente** con los especificados a continuación para garantizar la compatibilidad con los servicios de backend.
 
 ##### 1. Hoja: `Users`
 - **Propósito:** Gestión de usuarios, credenciales y perfiles.
-| Columna | Descripción |
-| :--- | :--- |
-| `id` | Identificador único numérico para cada usuario. |
-| `nombreUsuario`| Nombre de usuario para el login (debe ser único). |
-| `password` | Contraseña del usuario (se migrará a formato hash). |
-| `privilegios` | Rol del usuario (ej. 'Tecnico', 'Supervisor'). |
-| `nombre` | Nombre completo del usuario para visualización. |
-| `telefono` | Número de contacto del usuario. |
-| `correoElectronico`| Correo electrónico del usuario. |
-| `sessionToken`| Token de sesión activa para validación. |
+| Columna |
+| :--- |
+| `ID` |
+| `Nombre_Usuario`|
+| `Password` |
+| `Privilegios` |
+| `Telefono` |
+| `Correo_Electronico`|
+| `SessionToken`|
 
 ##### 2. Hoja: `Cortes`
 - **Propósito:** Catálogo principal con estructura granular para datos de alta calidad.
-| Columna | Descripción y Validación de Datos |
-| :--- | :--- |
-| `id` | Identificador único numérico para cada registro de vehículo. |
-| `categoria` | **(Validación de Datos)** Segmento del vehículo. La lista de opciones se carga dinámicamente desde una hoja de cálculo. Ej: 'Pickup', 'SUV', 'Sedán'. |
-| `marca` | Nombre del fabricante del vehículo. Ej: 'Toyota'. |
-| `modelo` | Nombre del modelo del vehículo. Ej: 'Hilux'. |
-| `versionesAplicables`| Nombres de modelos alternativos o relacionados a los que aplica este corte. Ej: 'Frontier, NP300'. |
-| `anoDesde` | Año de inicio de la generación o versión del modelo. |
-| `anoHasta` | Año de fin de la generación o versión del modelo. |
-| `tipoEncendido` | **(Validación de Datos)** Tipo de sistema de encendido. La lista se carga dinámicamente. Ej: 'Botón', 'Llave', 'Switch'. |
-| `imagenVehiculo` | URL de la imagen principal del vehículo. |
-| `videoGuiaDesarmeUrl`| URL de un video tutorial para el desarme. |
-| `contadorBusqueda` | Contador numérico de cuántas veces se ha consultado este registro. |
-| `tipoCorteX` | **(Validación de Datos)** Tipo de corte a realizar. La lista se carga dinámicamente. Ej: 'Ignición', 'Bomba de Gasolina', 'Motor de Arranque'. |
-| `ubicacionCorteX`| Descripción textual de la ubicación del cable o componente a intervenir. |
-| `colorCableCorteX`| Color o combinación de colores del cable a cortar. |
-| `configRelayX` | **(Relación)** ID numérico que corresponde a una entrada en la hoja `Relay`, especificando la configuración a usar. |
-| `imgCorteX` | URL de la imagen que muestra el detalle del corte. |
-| `utilCorteX` | Contador de "likes" o "útil" para este corte específico. |
-| `colaboradorCorteX`| Nombre del usuario que aportó la información de este corte. |
-| `timestamp` | Fecha y hora de la última modificación del registro. |
-| `notaImportante` | Campo de texto para advertencias o detalles cruciales. |
+| Columna |
+| :--- |
+| `id` |
+| `categoria` |
+| `marca` |
+| `modelo` |
+| `versionesAplicables`|
+| `anoDesde` |
+| `anoHasta` |
+| `tipoEncendido` |
+| `imagenVehiculo` |
+| `videoGuiaDesarmeUrl`|
+| `contadorBusqueda` |
+| `tipoCorte1` |
+| `ubicacionCorte1`|
+| `colorCableCorte1`|
+| `configRelay1` |
+| `imgCorte1` |
+| `utilCorte1` |
+| `colaboradorCorte1`|
+| `tipoCorte2` |
+| `ubicacionCorte2`|
+| `colorCableCorte2`|
+| `configRelay2` |
+| `imgCorte2` |
+| `utilCorte2` |
+| `colaboradorCorte2`|
+| `tipoCorte3` |
+| `ubicacionCorte3`|
+| `colorCableCorte3`|
+| `configRelay3` |
+| `imgCorte3` |
+| `utilCorte3` |
+| `colaboradorCorte3`|
+| `apertura` |
+| `imgApertura` |
+| `cableAlimen` |
+| `imgCableAlimen` |
+| `timestamp` |
+| `notaImportante` |
 
-*Nota: La `X` en columnas como `tipoCorteX` se reemplaza por los números 1, 2 y 3 para representar los tres posibles cortes por vehículo.*
-
-##### 3. Hoja: `LogosMarcas`
+##### 3. Hoja: `LogosMarca`
 - **Propósito:** Centralizar la gestión de logos de marcas para el frontend.
-| Columna | Descripción |
-| :--- | :--- |
-| `id` | Identificador único numérico. |
-| `nombreMarca` | Nombre normalizado de la marca. |
-| `urlLogo` | URL del archivo de imagen del logo. |
-| `fabricanteNombre`| Nombre del grupo fabricante (ej. 'Volkswagen Group'). |
+| Columna |
+| :--- |
+| `id` |
+| `nombreMarca` |
+| `urlLogo` |
+| `fabricanteNombre`|
 
 ##### 4. Hoja: `Tutorial`
 - **Propósito:** Almacenar guías y tutoriales multimedia.
-- **Columnas:** `id`, `tema`, `imagen`, `comoIdentificarlo`, `dondeEncontrarlo`, `detalles`, `video`.
+| Columna |
+| :--- |
+| `ID` |
+| `Tema` |
+| `Imagen` |
+| `comoIdentificarlo`|
+| `dondeEncontrarlo` |
+| `Detalles` |
+| `Video` |
 
 ##### 5. Hoja: `Relay`
 - **Propósito:** Almacenar información técnica sobre configuraciones de relays.
-- **Columnas:** `id`, `configuracion`, `funcion`, `vehiculoDondeSeUtiliza`, `pin30Entrada`, `pin85BobinaPositivo`, `pin86bobinaNegativo`, `pin87aComunCerrado`, `pin87ComunmenteAbierto`, `imagen`, `observacion`.
+| Columna |
+| :--- |
+| `ID` |
+| `configuracion` |
+| `funcion` |
+| `vehiculoDondeSeUtiliza`|
+| `pin30Entrada` |
+| `pin85BobinaPositivo`|
+| `pin86bobinaNegativo`|
+| `pin87aComunCerrado`|
+| `pin87ComunmenteAbierto`|
+| `imagen`|
+| `observacion`|
 
 ##### 6. Hoja: `ActiveSessions`
 - **Propósito:** Rastrear las sesiones de usuario activas para la validación.
-- **Columnas:** `idUsuario`, `sessionToken`, `timestamp`.
+| Columna |
+| :--- |
+| `ID_Usuario` |
+| `Usuario` |
+| `ActiveSessions` |
+| `date` |
+| `Logs` |
 
 ##### 7. Hoja: `Feedbacks`
 - **Propósito:** Gestionar los reportes de problemas enviados por los usuarios.
-- **Columnas:** `id`, `usuario`, `idVehiculo`, `problema`, `respuesta`, `seResolvio`, `responde`, `reporteDeUtil`.
+| Columna |
+| :--- |
+| `ID` |
+| `Usuario` |
+| `ID_vehiculo` |
+| `Problema` |
+| `Respuesta` |
+| `Se resolvio`|
+| `Responde` |
+| `Reporte de util`|
 
 ##### 8. Hoja: `Contactanos`
 - **Propósito:** Recibir y gestionar los mensajes enviados a través del formulario de contacto.
-- **Columnas:** `contactoId`, `userId`, `asunto`, `mensaje`, `respuestaMensaje`, `idUsuarioResponde`.
+| Columna |
+| :--- |
+| `Contacto_ID` |
+| `User_ID` |
+| `Asunto` |
+| `Mensaje` |
+| `Respuesta_mensaje`|
+| `ID_usuario_responde`|
 
 ##### 9. Hoja: `Logs`
 - **Propósito:** Registrar eventos importantes y errores del sistema para depuración.
-- **Columnas:** `timestamp`, `level`, `message`, `data`.
+| Columna |
+| :--- |
+| `Timestamp` |
+| `Level` |
+| `Message` |
+| `Data`|
 
 ##### 10. Hoja: `ActividadUsuario`
 - **Propósito:** Registrar acciones de los usuarios para futuras analíticas y dashboards de desempeño.
-- **Columnas:** `id`, `timestamp`, `idUsuario`, `nombreUsuario`, `tipoActividad`, `idElementoAsociado`, `detalle`.
+| Columna |
+| :--- |
+| `id` |
+| `timestamp` |
+| `idUsuario` |
+| `nombreUsuario` |
+| `tipoActividad`|
+| `idElementoAsociado`|
+| `detalle`|
 
 ## 7. Sistema de Versionamiento Híbrido
 
@@ -371,6 +546,31 @@ Para mantener la consistencia, calidad y mantenibilidad del proyecto, es mandato
 1.  **Verificación Post-Commit:**
     *   No se debe 'marcar' una tarea como realizada antes de hacer un commit. La verificación final de una tarea la realiza el Project Manager después de que los cambios han sido entregados.
 
-## 8. Auditoría del Sistema
+## 9. Sistema de Depuración
+
+Para facilitar la identificación y resolución de problemas durante el desarrollo y la transición de la v1.5 a la v2.0, se ha implementado un sistema de depuración dual.
+
+### A. Consola de Depuración del Frontend
+- **Propósito:** Proporcionar una visión en tiempo real de la comunicación entre el frontend y el backend directamente en la interfaz de la aplicación.
+- **Activación:** Añadir el parámetro `?debug=true` a la URL de la aplicación (ej. `https://.../index.html?debug=true`).
+- **Funcionalidad:**
+    - Al activarse, aparecerá una consola en la parte inferior de la pantalla.
+    - **Registro de Peticiones:** Muestra la `action` y el `payload` de cada solicitud enviada al backend.
+    - **Registro de Respuestas:** Muestra la respuesta JSON completa recibida del backend para cada solicitud exitosa.
+    - **Registro de Errores:** Captura y muestra cualquier error de JavaScript o de red que ocurra, junto con su contexto.
+- **Uso:** Esta herramienta es invaluable para diagnosticar si el frontend está enviando los datos correctos y recibiendo la estructura de datos esperada del backend.
+
+### B. Modo de Depuración del Backend (Servicios)
+- **Propósito:** Permitir la inspección del estado y configuración de un microservicio específico directamente a través de su URL de despliegue.
+- **Activación:** Añadir el parámetro `?debug=true` a la URL del servicio de Google Apps Script (ej. `https://script.google.com/macros/s/.../exec?debug=true`).
+- **Funcionalidad (Ejemplo en `GPSpedia-Catalog`):**
+    - Al ser llamado en modo de depuración, el servicio no ejecuta su lógica principal, sino que devuelve un objeto JSON con información de su estado:
+        - `service`: Nombre del servicio.
+        - `version`: Versión del componente.
+        - `spreadsheetId`: El ID de la hoja de cálculo que está utilizando.
+        - `sheetsAvailable`: Los nombres de las hojas que espera encontrar.
+- **Uso:** Esta herramienta permite verificar rápidamente que un servicio está activo, que está apuntando a la base de datos correcta y que su configuración interna es la esperada, sin necesidad de ejecutar una acción completa a través del frontend.
+
+## 10. Auditoría del Sistema
 
 Para consultar los resultados detallados, el análisis de factibilidad y las recomendaciones estratégicas del proyecto, por favor, refiérase al archivo `Auditoria.txt` en la raíz del repositorio.

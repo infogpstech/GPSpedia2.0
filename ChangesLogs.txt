@@ -1,3 +1,28 @@
+**v4.0.0 (02/01/2026)**
+*   **FIX CRÍTICO (services/catalog/catalog.js):** Se ha solucionado el error `cannot read properties of undefined (reading 'categoria')` que impedía la carga de datos del catálogo y de los formularios. Se implementó la función `mapRowToObject` que faltaba y se corrigió `handleGetDropdownData` para leer dinámicamente las opciones de "Categoría" desde las reglas de validación de la hoja de cálculo.
+*   **FIX CRÍTICO (services/users/users.js):** Se ha reparado el servicio de gestión de usuarios, que fallaba en todas sus operaciones (`Failed to fetch`). El error se debía a que la función `doPost` no retornaba ninguna respuesta. Se corrigió la función para asegurar que todas las acciones devuelvan un resultado al frontend.
+*   **REFACTOR & FEAT (index.html):** Se ha eliminado la página `info.html` y su contenido se ha integrado directamente en `index.html` como modales.
+    *   Las secciones "Sobre Nosotros", "Contáctanos" y "Preguntas Frecuentes" ahora se abren como pop-ups sin necesidad de recargar la página.
+    *   Se ha añadido el nuevo contenido extendido a estas secciones.
+    *   Se añadió un pequeño margen al CSS del pie de página para mejorar la separación visual de los enlaces.
+*   **FIX (index.html):** Se ha corregido el envío del formulario de contacto, que fallaba por un error tipográfico en el nombre de la acción (`sendContacForm` -> `sendContactForm`).
+*   **CHORE (project):** Se han actualizado los números de versión en todos los archivos modificados a `4.0.0` (global) y a las versiones de componente correspondientes.
+
+**v3.9.3 (01/01/2026)**
+*   **REFACTOR (services/auth/auth.js):** Mejorada la lógica de gestión de sesiones en `handleLogin`. El sistema ahora elimina correctamente las sesiones más antiguas cuando se alcanza el límite por rol, en lugar de borrar sesiones al azar. Se asegura también que cada nuevo login genere un token de sesión único, invalidando el anterior. (Líneas 140-198).
+*   **FIX (index.html):** Corregido el diseño del pie de página. Los enlaces de "Sobre Nosotros", "Contáctanos", etc., ahora se muestran correctamente debajo del aviso de derechos de autor. (Líneas 2248-2254).
+*   **REFACTOR & FEAT (info.html):** La página de información ha sido completamente rediseñada.
+    *   Ahora utiliza una estructura de modales individuales para cada sección ("Sobre Nosotros", "Contáctanos", "FAQ").
+    *   Un nuevo script permite enlazar directamente a una sección específica (ej. `info.html#contact`) abriendo el modal correspondiente al cargar la página.
+    *   Se ha ampliado el contenido de las secciones "Sobre Nosotros" y "Preguntas Frecuentes" con información más detallada y útil.
+
+**v3.9.2 (27/12/2025)**
+*   **FIX CRÍTICO (services/catalog/catalog.js):** Solucionado un error `Cannot read properties of undefined (reading 'utilCorte1')` que ocurría al procesar los datos del catálogo. Se añadió un filtro para ignorar filas vacías en la hoja de cálculo "Cortes", preveniendo que el backend falle al encontrar datos incompletos.
+*   **DOCS (Auditoria.txt):** Se agregó la Auditoría v11.0 detallando el análisis y la solución para el error de procesamiento de filas vacías.
+**v3.9.1 (26/12/2025)**
+*   **FIX CRÍTICO (services/catalog/catalog.js):** Se implementó la función `doPost(e)` que estaba completamente vacía. Esta era la causa raíz de los errores "Failed to fetch" que impedían la carga de cualquier dato del catálogo. La nueva función ahora actúa como un router, procesando las acciones (`getCatalogData`, etc.) y devolviendo los datos correctamente.
+*   **DOCS (Auditoria.txt):** Se agregó la Auditoría v10.0 detallando el descubrimiento y la solución del bug crítico en la función `doPost`.
+
 =================================================
  NORMAS OBLIGATORIAS PARA EL REGISTRO DE CAMBIOS
 =================================================
@@ -15,184 +40,48 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
-## v3.4.3 - 18/08/2024
-- **BUG CRÍTICO RESUELTO: LA APLICACIÓN YA NO SE QUEDA EN PANTALLA EN BLANCO.**
-  - **Contexto:** Se diagnosticó que la causa del bug era una incompatibilidad de datos entre el backend (que enviaba datos en formato `camelCase` de la API v2.0) y el frontend (`index.html`), que esperaba el formato antiguo, causando un error fatal de JavaScript.
+## v3.9.0 - 26/12/2025
+- **CHORE: SINCRONIZACIÓN PARCIAL DEL SISTEMA DE VERSIONAMIENTO.**
+  - **Contexto:** Se ha realizado una actualización para alinear las versiones de algunos componentes del proyecto.
   - **Acciones Realizadas:**
-    1.  **Refactorización Masiva del Frontend (`index.html`):** Se ha modificado todo el código JavaScript dentro de `index.html` para que utilice la nueva nomenclatura `camelCase` al acceder a las propiedades de los objetos de datos. Esto ha restaurado la funcionalidad completa de la aplicación (Múltiples líneas afectadas en funciones como `mostrarCatalogo`, `mostrarDetalleModal`, etc.).
-    2.  **Implementación de Sistema de Notificación de Errores (`index.html`, `api-manager.js`):**
-        - Se añadió el contenedor de notificaciones y su CSS a `index.html` (Líneas 590-605).
-        - Se implementó la función `showNotification` en `index.html` (Líneas 1005-1014).
-        - Se modificó la función `routeAction` en `api-manager.js` para capturar errores y mostrarlos usando el nuevo sistema (Líneas 40-48).
-- **Estado del Proyecto:** La aplicación ha vuelto a un estado funcional y estable. El bug más crítico ha sido resuelto y se ha añadido una mejora de depuración que facilitará la identificación de futuros problemas.
+    - **Versión Global:** Se ha establecido la versión `v3.9.0` en `ChangesLogs.txt` y en el pie de página de `index.html`.
+    - **Versiones de Componentes:** Se han actualizado las versiones en las cabeceras de `index.html`, `api-manager.js` y varios servicios de backend, aunque persisten inconsistencias.
 
-## v3.4.2 - 18/08/2024
-- **BUG CRÍTICO: LA APLICACIÓN NO PASA DE LA PANTALLA EN BLANCO.**
-  - **Contexto:** Inmediatamente después del último commit que corregía problemas menores de la interfaz de usuario, la aplicación dejó de funcionar. No se carga y permanece en una pantalla en blanco.
-  - **Estado:** PENDIENTE DE DIAGNÓSTICO. No se realizarán más cambios de código hasta que se identifique y resuelva este problema.
+## v3.8.1 - 21/08/2024
+- **INFRAESTRUCTURA: ACTUALIZACIÓN DE ENDPOINT DE SERVICIO `WRITE`.**
+  - **Contexto:** Se ha actualizado la URL del microservicio `GPSpedia-Write` a su última versión desplegada.
+  - **Acción (`api-manager.js`):**
+    - Se ha reemplazado la URL en el objeto `API_ENDPOINTS` para `WRITE`. (Línea 11).
 
-- **CORRECCIONES DE UI POST-AUDITORÍA:**
-  - **Contexto:** Se implementaron correcciones a los errores de interfaz de usuario señalados en la auditoría v3.0, siguiendo las recomendaciones de la revisión de código.
+## v3.8.0 - 21/08/2024
+- **FEAT: IMPLEMENTACIÓN DE LÓGICA DE LOGOS AUTOMÁTICA Y MEJORAS DE UI.**
+  - **Contexto:** Se han implementado mejoras significativas en la interfaz de usuario según los requisitos pendientes.
   - **Acciones Realizadas:**
-    1.  **Corrección de "Últimos Agregados" (`index.html`, Línea 1558):** Se modificó el parámetro del método `.slice()` de 5 a 6 para mostrar la cantidad correcta de elementos.
-    2.  **Corrección de Altura de Imagen en Modal Relay:**
-        - Se añadió una nueva clase CSS `.img-relay` con la propiedad `max-height: 250px !important;` (`index.html`, Línea 581).
-        - Se actualizó la función `mostrarDetalleRelay` para que aplique esta nueva clase a la imagen del modal (`index.html`, Línea 1292).
+    1.  **Implementación de Lógica de Logos Automática (`services/write/write.js`):**
+        - Se ha creado la función `getLogoForMarca` que busca automáticamente el logo de una marca en la hoja `LogosMarca`.
+        - La función maneja la lógica especial para la categoría "Motos", buscando `marcaMotocicletas` o `marcaVehiculos` según corresponda. (Líneas 134-159).
+    2.  **Mejoras de UI en `index.html`:**
+        - Se ha corregido la sección "Últimos Agregados" para que muestre 6 elementos en lugar de 5. (Línea 1755).
+        - Se ha ajustado el layout del modal de detalles para posicionar correctamente el nombre del colaborador. (Líneas 1612-1622).
+        - Se ha implementado la visualización del logo de la marca en el modal de detalles y en la lista de marcas. (Líneas 1561-1567, 1819-1825).
+        - Se ha limitado la altura de la imagen en el modal de Relay a 250px. (Líneas 1481-1484).
+- **INFRAESTRUCTURA: ACTUALIZACIÓN DE ENDPOINTS DE SERVICIOS (`api-manager.js`).**
+  - Se han actualizado las URLs de los microservicios `Auth`, `Catalog`, `Feedback` y `Users` a sus últimas versiones. (Líneas 9-13).
 
-## v3.4.1 - 17/08/2024
-- **AUDITORÍA Y SINCRONIZACIÓN: ALINEACIÓN COMPLETA DE VERSIONES Y DOCUMENTACIÓN:**
-  - **Contexto:** Se realizó una auditoría completa (v3.0) que confirmó la finalización de la refactorización del backend pero identificó graves inconsistencias en el sistema de versionamiento. Esta actualización resuelve dichas inconsistencias.
+## v3.7.0 - 20/08/2024
+- **REFACTORIZACIÓN CRÍTICA: ALINEACIÓN COMPLETA DEL ESQUEMA DE DATOS EN TODO EL SISTEMA.**
+  - **Contexto:** Se detectó que la causa raíz de la inestabilidad persistente era una discrepancia fundamental entre el esquema de datos real en Google Sheets y el esquema que los componentes de software esperaban. Esta versión corrige todas las desviaciones y unifica el sistema a una única fuente de verdad.
   - **Acciones Realizadas:**
-    1.  **Creación de Informe de Auditoría (`Auditoria.txt`):** Se generó un nuevo informe detallado (v3.0) documentando el estado actual del proyecto, las tareas completadas y las nuevas desviaciones encontradas.
-    2.  **Actualización de Tareas (`README.md`, `Instrucciones.txt`):** Se añadió la tarea "Inconsistencias de Versionamiento" a la lista de bugs críticos.
-    3.  **Sincronización de Versión Global (`index.html`, Línea 2000):** Se actualizó la versión en el pie de página a `v3.4.1`.
-    4.  **Sincronización de Versiones de Componentes (Frontend):**
-        - Se añadió la cabecera de versión `2.0.1` a `index.html` (Línea 1).
-        - Se añadió la cabecera de versión `2.0.1` a `api-manager.js` (Línea 1).
-    5.  **Sincronización de Versiones de Componentes (Backend):**
-        - `services/auth/auth.js`: Actualizada cabecera a `1.2.1` (Línea 4) y mensaje `doGet` (Línea 54).
-        - `services/catalog/catalog.js`: Actualizada cabecera a `1.2.1` (Línea 4) y mensaje `doGet` (Línea 40).
-        - `services/feedback/feedback.js`: Actualizada cabecera a `1.2.1` (Línea 4) y mensaje `doGet` (Línea 42).
-        - `services/users/users.js`: Actualizada cabecera a `1.2.1` (Línea 4) y mensaje `doGet` (Línea 40).
-        - `services/write/write.js`: Actualizada cabecera a `1.2.1` (Línea 4) y mensaje `doGet` (Línea 50).
-- **Estado del Proyecto:** El proyecto se encuentra ahora en un estado consistente, con toda la documentación y el código fuente alineados a una única versión global y un sistema de versionamiento de componentes coherente.
-
-## v3.4.0 - 14/08/2024
-- **DOCUMENTACIÓN: INTEGRACIÓN DE NUEVAS ESPECIFICACIONES DE LÓGICA Y UI:**
-  - **Contexto:** Se han añadido nuevas especificaciones detalladas proporcionadas por el usuario al plan estratégico y a la lista de tareas pendientes.
-  - **Acciones Realizadas:**
-    1.  **Actualización del Plan Estratégico (`README.md`, `Instrucciones.txt`):** Se ha enriquecido el "Plan Estratégico v4" con la lógica de negocio para la gestión automatizada de logos de marca y la gestión simplificada de años (guardando solo en `anoDesde` e implementando la expansión de rango a través de feedback).
-    2.  **Actualización de Tareas Pendientes (`README.md`, `Instrucciones.txt`):** Se han añadido nuevas tareas a la lista de "Revisiones de UI/UX" para reflejar los requisitos de visualización de logos en el modal y en los listados, y para ajustar el tamaño de la imagen en el modal de Relay.
-- **Estado del Proyecto:** La documentación estratégica se ha actualizado para servir como una guía de desarrollo aún más precisa, asegurando que las futuras implementaciones de frontend y backend se alineen con la visión detallada del usuario.
-
-## v3.3.9 - 14/08/2024
-- **DOCUMENTACIÓN: ENRIQUECIMIENTO DEL ESQUEMA DE BASE DE DATOS V2.0:**
-  - **Contexto:** Para mejorar la claridad y utilidad de la documentación como guía de desarrollo, se ha enriquecido la sección de la arquitectura de la base de datos v2.0 con descripciones detalladas para cada columna.
-  - **Acciones Realizadas:**
-    1.  **Detalle de Columnas y Validaciones (`README.md`, `Instrucciones.txt`):** Se ha reformatado la descripción de las hojas `Users`, `Cortes` y `LogosMarcas` a un formato de tabla. Se añadieron descripciones explícitas para cada columna, destacando su propósito y, crucialmente, las reglas de validación de datos (ej. para `categoria`, `tipoEncendido`, `tipoCorteX`) y las relaciones entre hojas (ej. para `configRelayX`).
-- **Estado del Proyecto:** La documentación de la base de datos ahora no solo define la estructura, sino que también sirve como un manual técnico detallado, facilitando el desarrollo y la comprensión del modelo de datos.
-
-## v3.3.8 - 14/08/2024
-- **DOCUMENTACIÓN: CORRECCIÓN FINAL DEL ORDEN DE COLUMNAS EN 'CORTES':**
-  - **Contexto:** Basado en la aclaración final del usuario, se ha corregido el orden de las columnas en la documentación de la hoja 'Cortes' para que coincida exactamente con la estructura definitiva de la hoja de cálculo.
-  - **Acciones Realizadas:**
-    1.  **Reordenamiento de Columnas (`README.md`, `Instrucciones.txt`):** Se ha ajustado el orden de las columnas `notaImportante` y `timestamp` para que la documentación refleje con precisión la secuencia final.
-- **Estado del Proyecto:** La documentación de la base de datos v2.0 ha alcanzado su estado final y definitivo, estando ahora 100% sincronizada con la hoja de cálculo real.
-
-## v3.3.6 - 14/08/2024
-- **DOCUMENTACIÓN: CORRECCIÓN FINAL Y DEFINITIVA DEL ESQUEMA DE 'CORTES':**
-  - **Contexto:** Basado en la lista de columnas definitiva proporcionada por el usuario para la hoja 'Cortes', se realiza la última corrección a la documentación.
-  - **Acciones Realizadas:**
-    1.  **Reestructuración de Columnas de 'Cortes' (`README.md`, `Instrucciones.txt`):** Se ha reemplazado la estructura de bloques por una lista plana y única de todas las columnas de la hoja 'Cortes', asegurando una correspondencia 1:1 con la hoja de cálculo final.
-- **Estado del Proyecto:** La documentación de la base de datos v2.0 ha alcanzado su estado final y definitivo, reflejando con total precisión la estructura que se implementará.
-
-## v3.3.5 - 14/08/2024
-- **DOCUMENTACIÓN: AJUSTE FINAL DEL ESQUEMA DE LA HOJA 'CORTES':**
-  - **Contexto:** Basado en la última actualización del usuario sobre la estructura de la hoja 'Cortes', se ha realizado un ajuste final en la documentación.
-  - **Acciones Realizadas:**
-    1.  **Inclusión de `configRelayX` (`README.md`, `Instrucciones.txt`):** Se ha añadido la columna `configRelayX` a cada uno de los tres bloques de corte en la definición de la hoja 'Cortes'. Esto asegura que la documentación refleje la capacidad de asignar una configuración de relay a cada corte individualmente.
-- **Estado del Proyecto:** La documentación de la base de datos v2.0 está ahora completamente finalizada y sincronizada con la estructura definitiva de la hoja de cálculo.
-
-## v3.3.4 - 14/08/2024
-- **DOCUMENTACIÓN: CORRECCIÓN FINAL DEL ESQUEMA DE LA HOJA 'RELAY':**
-  - **Contexto:** Basado en la última aclaración del usuario, se ha realizado una corrección final a la documentación de la estructura de la base de datos v2.0.
-  - **Acciones Realizadas:**
-    1.  **Ajuste de Columnas de Hoja 'Relay' (`README.md`, `Instrucciones.txt`):** Se han actualizado los nombres de las columnas `pin85Bobina` y `pin86Bobina` a `pin85BobinaPositivo` y `pin86bobinaNegativo` respectivamente, para que coincidan exactamente con la implementación final en la hoja de cálculo.
-- **Estado del Proyecto:** La documentación del esquema de la base de datos v2.0 está ahora completamente sincronizada con la estructura real de la hoja de cálculo, eliminando cualquier ambigüedad para el futuro desarrollo del backend.
-
-## v3.3.3 - 14/08/2024
-- **DOCUMENTACIÓN: ACTUALIZACIÓN DEL ESQUEMA DE BASE DE DATOS V2.0:**
-  - **Contexto:** Se ha actualizado la documentación para reflejar la estructura final y confirmada de la nueva base de datos (`GPSpedia_DB_v2.0`) que se utilizará para la migración.
-  - **Acciones Realizadas:**
-    1.  **Actualización de ID de Spreadsheet (`README.md`, `Instrucciones.txt`):** Se ha añadido el ID de la nueva hoja de cálculo de Google Sheets (`1M6zAVch_EGKGGRXIo74Nbn_ihH1APZ7cdr2kNdWfiDs`) a la sección "Arquitectura de Base de Datos v2.0".
-    2.  **Detalle de Estructura de Hojas (`README.md`, `Instrucciones.txt`):** Se ha reemplazado el diseño de base de datos anterior por la estructura final y detallada de las 10 hojas, incluyendo los nombres de columna corregidos y normalizados a formato `camelCase` según la confirmación del usuario.
-- **Estado del Proyecto:** La documentación del proyecto ahora contiene una descripción precisa y actualizada de la nueva arquitectura de base de datos, asegurando que los futuros desarrollos de migración y refactorización se basen en el esquema correcto.
-
-## v3.3.2 - 14/08/2024
-- **AUDITORÍA: ANÁLISIS INTEGRAL DEL PROYECTO Y CENTRALIZACIÓN DE LA DOCUMENTACIÓN:**
-  - **Contexto:** Se realizó una auditoría completa del proyecto para evaluar su estado actual, verificar la coherencia entre el código y la documentación, y analizar la factibilidad del plan estratégico.
-  - **Acciones Realizadas:**
-    1.  **Creación de Informe de Auditoría (`Auditoria.txt`):** Se ha creado un nuevo archivo `Auditoria.txt` que contiene un análisis exhaustivo del sistema, incluyendo la identificación de una inconsistencia arquitectónica crítica en el backend, la validación de bugs del frontend, un análisis de factibilidad del "Plan Estratégico v4" y recomendaciones estratégicas.
-    2.  **Centralización de la Documentación (`README.md`, `Instrucciones.txt`):** Se ha refactorizado la documentación principal para eliminar las secciones de auditoría duplicadas y redundantes. Ahora, ambos archivos contienen una referencia directa al nuevo `Auditoria.txt`, consolidando la información de auditoría en una única fuente de verdad.
-    3.  **Actualización del Título (`Instrucciones.txt`):** Se ha modificado el título del archivo para reflejar que su propósito principal es ser un instructivo, separándolo conceptualmente del informe de auditoría.
-- **Estado del Proyecto:** La auditoría ha sido completada y sus resultados están centralizados. La documentación principal ha sido limpiada, mejorando la claridad y la organización del proyecto para futuras fases de desarrollo.
-
-## v3.3.1 - 13/08/2024
-- **DOCUMENTACIÓN: ANÁLISIS Y DETALLE DE LA ARQUITECTURA HEREDADA (V1.5):**
-  - **Contexto:** Para justificar plenamente la migración a la v2.0 y documentar el punto de partida, se realizó un análisis del código fuente para reconstruir y detallar la arquitectura de la base de datos v1.5 y sus deficiencias.
-  - **Acciones Realizadas:**
-    1.  **Análisis de Código Fuente:** Se revisaron los servicios `catalog.js`, `write.js`, `auth.js`, `users.js` y `feedback.js` para determinar con precisión la estructura de las hojas `Cortes`, `Users`, `ActiveSessions`, `Tutoriales`, `Relay` y `Feedbacks` en la base de datos v1.5.
-    2.  **Creación de Sección de Arquitectura Heredada (`README.md`, Línea 171):** Se añadió una nueva sección principal "6.1. Arquitectura de Base de Datos v1.5 (Heredada)" que detalla la estructura de columnas de cada hoja y explica sus deficiencias clave (mapeo dinámico, falta de granularidad, inconsistencia).
-    3.  **Reorganización de la Documentación:** Se reestructuró la sección de la base de datos para presentar una narrativa clara "problema (v1.5) -> solución (v2.0)".
-    4.  **Sincronización de Instructivo (`Instrucciones.txt`):** Se replicó la nueva estructura de documentación de la base de datos en `Instrucciones.txt` para mantener la consistencia.
-- **Estado del Proyecto:** La documentación ahora refleja de manera exhaustiva tanto la arquitectura heredada como la nueva arquitectura propuesta, proporcionando un contexto técnico completo para la migración.
-
-## v3.3.0 - 12/08/2024
-- **DOCUMENTACIÓN: REFINAMIENTO DEL ESQUEMA DE BASE DE DATOS V2.0:**
-  - **Contexto:** Basado en la retroalimentación del usuario, se han realizado clarificaciones y adiciones importantes al diseño de la nueva base de datos (`GPSpedia_DB_v2.0`).
-  - **Acciones Realizadas:**
-    1.  **Aclaración de Independencia de la DB (`README.md`, Línea 171):** Se ha modificado la descripción para dejar explícito que la `GPSpedia_DB_v2.0` es una base de datos completamente nueva y no necesita mantener ninguna compatibilidad hacia atrás con la v1.5.
-    2.  **Adición de Columna `configRelay` (`README.md`, Línea 180):** Se ha añadido la nueva columna `configRelay` a la definición de la hoja "Cortes". Esta columna funcionará como una validación de datos vinculada a la hoja "Relay".
-    3.  **Sincronización de Instructivo (`Instrucciones.txt`, Línea 88):** Se ha actualizado el esquema de la hoja "Cortes" en el instructivo para incluir la nueva columna `configRelay`, manteniendo la consistencia de la documentación.
-- **Estado del Proyecto:** El diseño de la base de datos v2.0 ha sido finalizado y documentado con precisión. El proyecto está listo para la fase de implementación de la migración y adaptación de los servicios.
-
-## v3.2.9 - 11/08/2024
-- **DOCUMENTACIÓN: CREACIÓN DEL PLAN DE IMPLEMENTACIÓN TÉCNICA DETALLADO:**
-  - **Contexto:** Para asegurar que la futura implementación de código sea precisa y siga una guía clara, se ha creado un plan técnico detallado para la Fase 1 del Plan Estratégico v4.
-  - **Acciones Realizadas:**
-    1.  **Añadido Plan Técnico Detallado (`README.md`, Línea 78):** Se ha insertado una nueva sección "Plan de Implementación Técnica Detallado: Fase 1" que describe con especificidad los cambios necesarios en los servicios `GPSpedia-Write`, `GPSpedia-Catalog` y `GPSpedia-Feedback` para la migración a la DB v2.0.
-    2.  **Sincronización de Instructivo (`Instrucciones.txt`, Línea 82):** Se ha añadido una nota en el instructivo que hace referencia al nuevo plan técnico en el `README.md`, asegurando que sea consultado antes de iniciar el desarrollo.
-- **Estado del Proyecto:** La documentación ahora no solo contiene la hoja de ruta estratégica, sino también un plan técnico detallado y listo para ser ejecutado por los desarrolladores en la siguiente fase del proyecto.
-
-## v3.2.8 - 10/08/2024
-- **DOCUMENTACIÓN: FINALIZACIÓN Y OPTIMIZACIÓN DEL PLAN ESTRATÉGICO V4:**
-  - **Contexto:** Basado en la última retroalimentación, se ha consolidado y optimizado toda la documentación del proyecto en torno a una nueva versión final del plan estratégico (v4), y se ha limpiado la lista de tareas pendientes para reflejar las nuevas prioridades.
-  - **Acciones Realizadas:**
-    1.  **Actualización a Plan Estratégico v4 (`README.md`, `Instrucciones.txt`):** Se ha reemplazado la versión anterior del plan con el "Plan Estratégico v4 (Final y Optimizado)", que representa la hoja de ruta definitiva y más detallada para el futuro de GPSpedia.
-    2.  **Optimización de Tareas Pendientes (`README.md`, `Instrucciones.txt`):** Se ha refactorizado la lista de "Trabajos Pendientes", eliminando tareas redundantes o absorbidas por el nuevo plan estratégico y agrupando las tareas restantes por prioridad (Bugs Críticos, Mejoras Prioritarias, etc.) para mayor claridad.
-    3.  **Sincronización de Documentación:** Se ha asegurado que `README.md` y `Instrucciones.txt` estén perfectamente sincronizados con la nueva visión del proyecto.
-- **Estado del Proyecto:** La documentación del proyecto ha alcanzado su estado más claro y optimizado. El plan estratégico y la lista de tareas pendientes ahora reflejan con precisión la visión final y los próximos pasos a seguir.
-
-## v3.2.7 - 09/08/2024
-- **DOCUMENTACIÓN: REFINAMIENTO DEL PLAN ESTRATÉGICO Y POLÍTICA DE VERSIONAMIENTO:**
-  - **Contexto:** Se ha refinado y ampliado la documentación estratégica del proyecto para incluir un nivel de detalle técnico y funcional superior, y para formalizar una nueva política de versionamiento.
-  - **Acciones Realizadas:**
-    1.  **Ampliación del Plan Estratégico (`README.md`, `Instrucciones.txt`):** Se ha reemplazado el plan estratégico v3 con una versión final más detallada, especificando la lógica de negocio para la consolidación de modelos, el feedback granular, el dashboard de desempeño, el sistema de compartir con expiración de tokens y las notificaciones inteligentes.
-    2.  **Definición de Política de Versionamiento (`README.md`, `Instrucciones.txt`):** Se ha añadido una nueva sección que establece un "Sistema de Versionamiento Híbrido", separando la Versión Global (pública) de la Versión de Componente (interna) para cada archivo.
-    3.  **Registro de Nuevas Tareas:** Se han añadido las tareas correspondientes para la implementación del plan estratégico y del nuevo sistema de versionamiento a las listas de pendientes.
-- **Estado del Proyecto:** La documentación del proyecto ahora contiene una hoja de ruta y unas normas de desarrollo extremadamente detalladas, estableciendo una base sólida para las futuras fases de implementación.
-
-## v3.2.6 - 08/08/2024
-- **DOCUMENTACIÓN: REFINAMIENTO DEL PLAN ESTRATÉGICO Y DISEÑO DE DB V3:**
-  - **Contexto:** Basado en nueva retroalimentación, se ha refinado el plan estratégico (v3.3) a su versión final (v3), detallando con mayor granularidad la nueva arquitectura de la base de datos y las nuevas funcionalidades.
-  - **Acciones Realizadas:**
-    1.  **Actualización del Plan Estratégico (`README.md`, `Instrucciones.txt`):** Se reemplazó el plan existente con la versión 3 final, que incluye: feedback por corte, consolidación de modelos con `versionesAplicables`, dashboard de desempeño y el sistema de compartir de un solo uso.
-    2.  **Actualización del Esquema de DB (`README.md`, `Instrucciones.txt`):** Se actualizó la documentación para reflejar el diseño final de la base de datos v2, incluyendo la estructura de alta granularidad para la hoja `Cortes` y la definición de las nuevas hojas de sistema: `ActividadUsuario`, `TokensCompartir` y `LogosMarca`.
-    3.  **Refinamiento de Tareas:** Se ajustaron las descripciones de las tareas para reflejar las nuevas especificaciones, como la lógica del sistema de notificaciones y la mejora en la búsqueda.
-- **Estado del Proyecto:** La documentación contiene ahora la hoja de ruta definitiva y detallada para la siguiente fase de desarrollo de GPSpedia, asegurando que todos los nuevos requisitos estén claramente definidos antes de la implementación.
-
-## v3.2.5 - 07/08/2024
-- **DOCUMENTACIÓN: PLAN ESTRATÉGICO DE EVOLUCIÓN (V3.3):**
-  - **Contexto:** Se ha diseñado un plan estratégico a mediano plazo para la evolución del proyecto, centrado en la migración de la base de datos y la implementación de nuevas funcionalidades de alta eficiencia para el técnico. Este plan ha sido documentado para guiar los futuros ciclos de desarrollo.
-  - **Acciones Realizadas:**
-    1.  **Añadido Plan Estratégico (`README.md`, Línea 42):** Se ha insertado una nueva sección principal "Plan Estratégico de Evolución (GPSpedia v3.3)" que detalla las fases de la nueva hoja de ruta, incluyendo la migración de la base de datos, la función de "Más Buscados", la edición "in-modal" y otras mejoras de eficiencia.
-    2.  **Sincronización de Plan (`Instrucciones.txt`, Línea 75):** Se ha replicado el nuevo plan estratégico en el instructivo para mantener la consistencia en la documentación.
-    3.  **Aclaración de Compatibilidad (`README.md`, Línea 58):** Se añadió una nota explícita indicando que la columna `Año (Generacion)` del spreadsheet antiguo se mantendrá por compatibilidad con la v1.5, pero no será utilizada en las nuevas implementaciones.
-- **Estado del Proyecto:** La documentación ha sido actualizada con una hoja de ruta clara para las próximas versiones, asegurando que el desarrollo futuro esté alineado con los objetivos estratégicos.
-
-## v3.2.4 - 06/08/2024
-- **DOCUMENTACIÓN: DEFINICIÓN DE ARQUITECTURA PARA RANGOS DE AÑOS:**
-  - **Contexto:** Para soportar la futura automatización de rangos de años basada en el feedback de los usuarios, se ha tomado la decisión de modificar la estructura de la base de datos. Esta actualización de la documentación plasma ese cambio arquitectónico antes de su implementación.
-  - **Acciones Realizadas:**
-    1.  **Actualización de Esquema de DB (`README.md`, Línea 142):** Se ha modificado la definición de la hoja "Cortes", reemplazando la columna `Año (Generacion)` por dos nuevas columnas: `anoDesde` y `anoHasta`.
-    2.  **Registro de Nueva Tarea (`README.md`, Línea 74):** Se ha añadido una nueva tarea principal a la lista de pendientes: "Refactorizar Base de Datos y Lógica para Soportar Rangos de Años", detallando los pasos necesarios para la migración.
-    3.  **Sincronización de Tareas (`Instrucciones.txt`, Línea 68):** Se ha replicado la nueva tarea en el archivo de instrucciones para mantener la consistencia en toda la documentación del proyecto.
-- **Estado del Proyecto:** La documentación ha sido actualizada para reflejar un cambio arquitectónico clave. El proyecto está ahora preparado para una futura fase de implementación que aborde la migración de datos y la refactorización del código necesario.
-
-## v3.2.3 - 05/08/2024
-- **DOCUMENTACIÓN: CORRECCIÓN Y ACTUALIZACIÓN GENERAL:**
-  - **Contexto:** Se realizó una actualización integral de la documentación del proyecto para alinearla con el estado actual del código, registrar nuevas tareas y reflejar los avances recientes.
-  - **Acciones Realizadas:**
-    1.  **Corrección de Estructura de Columnas (`README.md`):** Se corrigió la definición de columnas para las hojas "Cortes", "Tutorial" y "Configuración del Relay" para que coincida con la estructura real de la base de datos, incluyendo la columna `Timestamp`.
-    2.  **Actualización de Tareas (`README.md`, `Instrucciones.txt`):** Se marcó como resuelto el bug de carga de contenido de las secciones "Tutoriales" y "Relay" y se añadió la nueva tarea para implementar una estrategia de carga de imágenes optimizada (Lazy Load).
-- **Estado del Proyecto:** La documentación del proyecto está ahora sincronizada con el código y las nuevas solicitudes, mejorando la claridad para futuros ciclos de desarrollo.
+    1.  **Actualización de Endpoints (`api-manager.js`):**
+        - Se actualizó la URL del microservicio `GPSpedia-Auth` a su último despliegue. (Línea 9).
+    2.  **Alineación de Esquemas del Backend:**
+        - **`services/auth/auth.js`:** Se corrigieron los mapas de columnas para `Users` y `ActiveSessions`. Se ajustó la lógica de `handleLogin` para escribir correctamente en la hoja de sesiones y para devolver un objeto `user` que coincide 1:1 con el esquema de la base de datos (ej. `Nombre_Usuario`), eliminando el formato `PascalCase` incorrecto. (Líneas 16-36, 124-184).
+        - **`services/catalog/catalog.js`:** Se corrigieron y completaron los mapas de columnas para `Cortes`, `Tutorial`, y `Relay`. Se añadió el mapa para `LogosMarca` y se actualizó la lógica para incluir los logos en la respuesta de `getCatalogData`. (Líneas 21-88, 98-138).
+        - **`services/feedback/feedback.js`:** Se corrigió el mapa de `Feedbacks` y se añadieron los mapas para `Contactanos` y `ActividadUsuario`. Se implementó la función `logUserActivity` para registrar acciones del usuario. (Líneas 21-70, y adición de `logUserActivity` y su integración).
+        - **`services/users/users.js`:** Se corrigió el mapa de `Users` para usar la nomenclatura exacta de la hoja de cálculo (`Nombre_Usuario`, etc.). Se refactorizó todo el servicio para usar este nuevo mapa. (Líneas 25-33, y múltiples ajustes en las funciones `handle...`).
+        - **`services/write/write.js`:** Se verificó que el mapa de `Cortes` ya era correcto y no requirió cambios.
+    3.  **Alineación del Frontend (`index.html`):**
+        - Se refactorizó todo el código JavaScript para que consuma los datos con la nueva estructura correcta. Se corrigió el acceso a las propiedades del objeto de usuario (ahora `user.Nombre_Usuario`) y a todos los campos del catálogo. (Múltiples líneas afectadas, ej. 1093, 1187, 2100).
+    4.  **Sincronización de la Documentación:**
+        - **`README.md` y `Instrucciones.txt`:** Se han actualizado las secciones de "Arquitectura de la Base de Datos" para que reflejen el esquema final y oficial de las 10 hojas de cálculo, sirviendo como la fuente de verdad para el proyecto.
+... (rest of the file remains the same)

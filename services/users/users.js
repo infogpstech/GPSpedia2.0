@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-USERS SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 1.2.1
+// COMPONENT VERSION: 2.2.1
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -22,14 +22,13 @@ const SHEET_NAMES = {
 
 // El mapa de columnas ya es compatible con el esquema v2.0
 const COLS_USERS = {
-    id: 1,
-    nombreUsuario: 2,
-    password: 3,
-    privilegios: 4,
-    nombre: 5,
-    telefono: 6,
-    correoElectronico: 7,
-    sessionToken: 8
+    ID: 1,
+    Nombre_Usuario: 2,
+    Password: 3,
+    Privilegios: 4,
+    Telefono: 5,
+    Correo_Electronico: 6,
+    SessionToken: 7
 };
 
 // ============================================================================
@@ -37,7 +36,22 @@ const COLS_USERS = {
 // ============================================================================
 
 function doGet(e) {
-  return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'GPSpedia Users-SERVICE v1.2.1 is active.' })).setMimeType(ContentService.MimeType.JSON);
+    if (e.parameter.debug === 'true') {
+        const serviceState = {
+            service: 'GPSpedia-Users',
+            version: '1.2.1',
+            spreadsheetId: SPREADSHEET_ID,
+            sheetsAccessed: [SHEET_NAMES.USERS]
+        };
+        return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
+            .setMimeType(ContentService.MimeType.JSON);
+    }
+    const defaultResponse = {
+        status: 'success',
+        message: 'GPSpedia Users-SERVICE v1.2.1 is active.'
+    };
+    return ContentService.createTextOutput(JSON.stringify(defaultResponse))
+        .setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {
@@ -45,26 +59,28 @@ function doPost(e) {
     let request;
     try {
         request = JSON.parse(e.postData.contents);
+        let result;
 
         switch (request.action) {
             case 'getUsers':
-                response = handleGetUsers(request.payload);
+                result = handleGetUsers(request.payload);
                 break;
             case 'createUser':
-                response = handleCreateUser(request.payload);
+                result = handleCreateUser(request.payload);
                 break;
             case 'updateUser':
-                response = handleUpdateUser(request.payload);
+                result = handleUpdateUser(request.payload);
                 break;
             case 'deleteUser':
-                response = handleDeleteUser(request.payload);
+                result = handleDeleteUser(request.payload);
                 break;
             case 'changePassword':
-                response = handleChangePassword(request.payload);
+                result = handleChangePassword(request.payload);
                 break;
             default:
                 throw new Error(`Acción desconocida en Users Service: ${request.action}`);
         }
+        response = result;
     } catch (error) {
         Logger.log(`Error CRÍTICO en Users-Service doPost: ${error.stack}`);
         response = {
@@ -96,12 +112,11 @@ function handleGetUsers(payload) {
     const allUsers = data.map(row => {
         // Mapeo manual usando el COLS fijo
         return {
-            id: row[COLS_USERS.id - 1],
-            nombreUsuario: row[COLS_USERS.nombreUsuario - 1],
-            privilegios: row[COLS_USERS.privilegios - 1],
-            nombre: row[COLS_USERS.nombre - 1],
-            telefono: row[COLS_USERS.telefono - 1],
-            correoElectronico: row[COLS_USERS.correoElectronico - 1]
+            ID: row[COLS_USERS.ID - 1],
+            Nombre_Usuario: row[COLS_USERS.Nombre_Usuario - 1],
+            Privilegios: row[COLS_USERS.Privilegios - 1],
+            Telefono: row[COLS_USERS.Telefono - 1],
+            Correo_Electronico: row[COLS_USERS.Correo_Electronico - 1]
         };
     });
 
@@ -132,24 +147,23 @@ function handleCreateUser(payload) {
         throw new Error(`El rol '${creatorRole}' no tiene permisos para crear usuarios de tipo '${newUser.privilegios}'.`);
     }
 
-    if (!newUser.nombreUsuario) {
-        newUser.nombreUsuario = generateUniqueUsername(userSheet, newUser.nombre);
+    if (!newUser.Nombre_Usuario) {
+        newUser.Nombre_Usuario = generateUniqueUsername(userSheet, newUser.Nombre);
     }
 
-    const usernames = userSheet.getRange(2, COLS_USERS.nombreUsuario, userSheet.getLastRow() - 1, 1).getValues().flat();
-    if (usernames.map(u => u.toLowerCase()).includes(newUser.nombreUsuario.toLowerCase())) {
-        throw new Error(`El nombre de usuario '${newUser.nombreUsuario}' ya existe.`);
+    const usernames = userSheet.getRange(2, COLS_USERS.Nombre_Usuario, userSheet.getLastRow() - 1, 1).getValues().flat();
+    if (usernames.map(u => u.toLowerCase()).includes(newUser.Nombre_Usuario.toLowerCase())) {
+        throw new Error(`El nombre de usuario '${newUser.Nombre_Usuario}' ya existe.`);
     }
 
     const newRow = [];
-    newRow[COLS_USERS.id - 1] = ''; // ID se autogenera
-    newRow[COLS_USERS.nombreUsuario - 1] = newUser.nombreUsuario;
-    newRow[COLS_USERS.password - 1] = newUser.password || '12345678';
-    newRow[COLS_USERS.privilegios - 1] = newUser.privilegios;
-    newRow[COLS_USERS.nombre - 1] = newUser.nombre;
-    newRow[COLS_USERS.telefono - 1] = newUser.telefono || '';
-    newRow[COLS_USERS.correoElectronico - 1] = newUser.correoElectronico || '';
-    newRow[COLS_USERS.sessionToken - 1] = '';
+    newRow[COLS_USERS.ID - 1] = ''; // ID se autogenera
+    newRow[COLS_USERS.Nombre_Usuario - 1] = newUser.Nombre_Usuario;
+    newRow[COLS_USERS.Password - 1] = newUser.Password || '12345678';
+    newRow[COLS_USERS.Privilegios - 1] = newUser.Privilegios;
+    newRow[COLS_USERS.Telefono - 1] = newUser.Telefono || '';
+    newRow[COLS_USERS.Correo_Electronico - 1] = newUser.Correo_Electronico || '';
+    newRow[COLS_USERS.SessionToken - 1] = '';
 
     userSheet.appendRow(newRow);
 
@@ -165,8 +179,8 @@ function handleUpdateUser(payload) {
     data.shift();
 
     for (let i = 0; i < data.length; i++) {
-        if (data[i][COLS_USERS.id - 1] == userId) {
-            const userToUpdateRole = data[i][COLS_USERS.privilegios - 1];
+        if (data[i][COLS_USERS.ID - 1] == userId) {
+            const userToUpdateRole = data[i][COLS_USERS.Privilegios - 1];
 
             const canUpdate = {
                 'Desarrollador': () => true,
@@ -199,12 +213,12 @@ function handleDeleteUser(payload) {
     const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
     const lastRow = userSheet.getLastRow();
     if (lastRow < 2) return { status: 'success', message: 'No hay usuarios para eliminar.' }; // Hoja vacía
-    const data = userSheet.getRange(2, 1, lastRow - 1, COLS_USERS.privilegios).getValues();
+    const data = userSheet.getRange(2, 1, lastRow - 1, COLS_USERS.Privilegios).getValues();
 
     for (let i = 0; i < data.length; i++) {
         const row = data[i];
-        if (row[COLS_USERS.id - 1] == userId) {
-            const userToDeleteRole = row[COLS_USERS.privilegios - 1];
+        if (row[COLS_USERS.ID - 1] == userId) {
+            const userToDeleteRole = row[COLS_USERS.Privilegios - 1];
 
             const canDelete = {
                  'Desarrollador': (targetRole) => true,
@@ -232,9 +246,9 @@ function handleChangePassword(payload) {
     data.shift();
 
     for (let i = 0; i < data.length; i++) {
-        if (data[i][COLS_USERS.id - 1] == userId) {
-            if (String(data[i][COLS_USERS.password - 1]) === String(currentPassword)) {
-                userSheet.getRange(i + 2, COLS_USERS.password).setValue(newPassword);
+        if (data[i][COLS_USERS.ID - 1] == userId) {
+            if (String(data[i][COLS_USERS.Password - 1]) === String(currentPassword)) {
+                userSheet.getRange(i + 2, COLS_USERS.Password).setValue(newPassword);
                 return { status: 'success', message: 'Contraseña actualizada.' };
             } else {
                 throw new Error("La contraseña actual es incorrecta.");
@@ -267,7 +281,7 @@ function generateUniqueUsername(sheet, fullname) {
 
     const lastRow = sheet.getLastRow();
     if (lastRow < 2) return potentialUsernames[0] || `${nombre.charAt(0)}_${primerApellido}1`; // Hoja vacía, devolver primer username
-    const data = sheet.getRange(2, COLS_USERS.nombreUsuario, lastRow - 1, 1).getValues().flat();
+    const data = sheet.getRange(2, COLS_USERS.Nombre_Usuario, lastRow - 1, 1).getValues().flat();
 
     for(const username of potentialUsernames) {
         if (!data.includes(username)) {
