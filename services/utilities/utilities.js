@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-UTILITIES SERVICE (ONE-TIME EXECUTION SCRIPTS)
 // ============================================================================
-// COMPONENT VERSION: 1.0.0
+// COMPONENT VERSION: 1.1.0
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -25,19 +25,24 @@ const COLS_CORTES = {
 // ROUTER PRINCIPAL (doGet y doPost)
 // ============================================================================
 function doGet(e) {
+    const serviceState = {
+        service: 'GPSpedia-Utilities',
+        componentVersion: '1.1.0',
+        spreadsheetId: SPREADSHEET_ID,
+        sheets: {
+            cortes: SHEET_NAME
+        }
+    };
+
     if (e.parameter.debug === 'true') {
-        const serviceState = {
-            service: 'GPSpedia-Utilities',
-            version: '1.0.0',
-            description: 'This service provides one-time execution scripts for data migration.',
-            spreadsheetId: SPREADSHEET_ID,
-            availableMigrations: ['migrateYearRanges', 'migrateTimestamps']
-        };
         return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
             .setMimeType(ContentService.MimeType.JSON);
     }
-    return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'GPSpedia Utilities-SERVICE v1.0.0 is active. Use doPost to run a migration.' }))
-        .setMimeType(ContentService.MimeType.JSON);
+
+    return ContentService.createTextOutput(JSON.stringify({
+        status: 'success',
+        message: `${serviceState.service} v${serviceState.componentVersion} is active. Use doPost to run migrations.`
+    })).setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {

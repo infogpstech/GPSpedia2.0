@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-WRITE SERVICE (REFACTORED FOR 3-STAGE WORKFLOW)
 // ============================================================================
-// COMPONENT VERSION: 3.0.0
+// COMPONENT VERSION: 3.1.0
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -38,23 +38,26 @@ const COLS_CORTES = {
 // ROUTER PRINCIPAL (doGet y doPost)
 // ============================================================================
 function doGet(e) {
+    const serviceState = {
+        service: 'GPSpedia-Write',
+        componentVersion: '3.1.0',
+        spreadsheetId: SPREADSHEET_ID,
+        driveFolderId: DRIVE_FOLDER_ID,
+        sheets: {
+            cortes: SHEET_NAMES.CORTES,
+            logos: SHEET_NAMES.LOGOS_MARCA
+        }
+    };
+
     if (e.parameter.debug === 'true') {
-        const serviceState = {
-            service: 'GPSpedia-Write',
-            version: '3.0.0', // Versión actualizada
-            description: 'This service implements the 3-stage workflow for adding and updating vehicle cuts.',
-            spreadsheetId: SPREADSHEET_ID,
-            driveFolderId: DRIVE_FOLDER_ID
-        };
         return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
             .setMimeType(ContentService.MimeType.JSON);
     }
-    const defaultResponse = {
+
+    return ContentService.createTextOutput(JSON.stringify({
         status: 'success',
-        message: 'GPSpedia Write-SERVICE v3.0.0 is active.'
-    };
-    return ContentService.createTextOutput(JSON.stringify(defaultResponse))
-        .setMimeType(ContentService.MimeType.JSON);
+        message: `${serviceState.service} v${serviceState.componentVersion} is active.`
+    })).setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {

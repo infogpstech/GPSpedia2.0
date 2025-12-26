@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-FEEDBACK SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 2.2.0
+// COMPONENT VERSION: 2.3.0
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -70,22 +70,27 @@ const COLS_ACTIVIDAD_USUARIO = {
 // ROUTER PRINCIPAL (doGet y doPost)
 // ============================================================================
 function doGet(e) {
+    const serviceState = {
+        service: 'GPSpedia-Feedback',
+        componentVersion: '2.3.0',
+        spreadsheetId: SPREADSHEET_ID,
+        sheets: {
+            cortes: SHEET_NAMES.CORTES,
+            feedbacks: SHEET_NAMES.FEEDBACKS,
+            contactanos: SHEET_NAMES.CONTACTANOS,
+            actividadUsuario: SHEET_NAMES.ACTIVIDAD_USUARIO
+        }
+    };
+
     if (e.parameter.debug === 'true') {
-        const serviceState = {
-            service: 'GPSpedia-Feedback',
-            version: '1.2.1',
-            spreadsheetId: SPREADSHEET_ID,
-            sheetsAccessed: [SHEET_NAMES.CORTES, SHEET_NAMES.FEEDBACKS]
-        };
         return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
             .setMimeType(ContentService.MimeType.JSON);
     }
-    const defaultResponse = {
+
+    return ContentService.createTextOutput(JSON.stringify({
         status: 'success',
-        message: 'GPSpedia Feedback-SERVICE v1.2.1 is active.'
-    };
-    return ContentService.createTextOutput(JSON.stringify(defaultResponse))
-        .setMimeType(ContentService.MimeType.JSON);
+        message: `${serviceState.service} v${serviceState.componentVersion} is active.`
+    })).setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {
@@ -110,6 +115,16 @@ function doPost(e) {
                 break;
             case 'sendContactForm':
                 response = handleSendContactForm(payload);
+                break;
+            // --- INBOX ACTIONS ---
+            case 'getReportedProblems':
+                response = handleGetReportedProblems(payload);
+                break;
+            case 'replyToProblem':
+                response = handleReplyToProblem(payload);
+                break;
+            case 'markProblemAsResolved':
+                response = handleMarkProblemAsResolved(payload);
                 break;
             default:
                 throw new Error(`Acción desconocida en Feedback Service: ${action}`);
@@ -370,4 +385,69 @@ function handleSendContactForm(payload) {
     }
 
     return { status: 'success', message: 'Mensaje de contacto enviado correctamente.' };
+}
+
+// ============================================================================
+// HANDLERS PARA EL INBOX DE FEEDBACK
+// ============================================================================
+function handleGetReportedProblems(payload) {
+    const { userRole } = payload;
+    if (userRole !== 'Supervisor' && userRole !== 'Jefe' && userRole !== 'Desarrollador') {
+        throw new Error("Acceso no autorizado. Se requiere rol de Supervisor o superior.");
+    }
+
+    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
+    const data = sheet.getDataRange().getValues();
+    const headers = data.shift();
+
+    const problems = data.map(row => {
+        let obj = {};
+        headers.forEach((header, i) => {
+            obj[header] = row[i];
+        });
+        return obj;
+    }).filter(p => !p["Se resolvio"]); // Filtrar solo los no resueltos
+
+    return { status: 'success', data: problems };
+}
+
+function handleReplyToProblem(payload) {
+    const { problemId, replyText, supervisorName } = payload;
+     if (!problemId || !replyText || !supervisorName) {
+        throw new Error("Faltan datos para responder al problema.");
+    }
+
+    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
+    const ids = sheet.getRange(2, COLS_FEEDBACKS.ID, sheet.getLastRow() - 1, 1).getValues().flat();
+    const rowIndex = ids.findIndex(id => id == problemId);
+
+    if (rowIndex === -1) {
+        throw new Error("No se encontró el reporte con el ID proporcionado.");
+    }
+    const row = rowIndex + 2;
+
+    sheet.getRange(row, COLS_FEEDBACKS.Respuesta).setValue(replyText);
+    sheet.getRange(row, COLS_FEEDBACKS.Responde).setValue(supervisorName);
+
+    return { status: 'success', message: 'Respuesta enviada correctamente.' };
+}
+
+function handleMarkProblemAsResolved(payload) {
+    const { problemId } = payload;
+    if (!problemId) {
+        throw new Error("Se requiere el ID del problema.");
+    }
+
+    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
+    const ids = sheet.getRange(2, COLS_FEEDBACKS.ID, sheet.getLastRow() - 1, 1).getValues().flat();
+    const rowIndex = ids.findIndex(id => id == problemId);
+
+    if (rowIndex === -1) {
+        throw new Error("No se encontró el reporte con el ID proporcionado.");
+    }
+    const row = rowIndex + 2;
+
+    sheet.getRange(row, COLS_FEEDBACKS["Se resolvio"]).setValue(true);
+
+    return { status: 'success', message: 'El problema ha sido marcado como resuelto.' };
 }
