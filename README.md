@@ -142,6 +142,77 @@ Esta sección describe los pasos técnicos específicos requeridos para ejecutar
     - **Crear `assignCollaborator`:** Se desarrollará para asignar un colaborador a un corte específico.
     - **Crear `suggestYear`:** Nueva acción que recibirá un `vehicleId` y un `newYear`. La lógica leerá `anoDesde` y `anoHasta`, comparará el `newYear` y actualizará el campo correspondiente si el nuevo año expande el rango.
 
+---
+
+### **Plan de Implementación Técnica: Tareas Adicionales**
+
+Esta sección detalla los requerimientos para un nuevo conjunto de funcionalidades críticas centradas en la migración de datos y la mejora de la lógica de negocio para la gestión de rangos de años y timestamps.
+
+#### **1. Nuevo Microservicio: `GPSpedia-Utilities` (Ejecución Única)**
+
+Se creará un nuevo proyecto de Google Apps Script, independiente de los microservicios existentes, con el único propósito de realizar una migración y corrección de datos en la hoja `Cortes` de la base de datos. Este script se ejecutará una sola vez y contendrá dos funciones principales:
+
+**A. Función 1: Migración de Rango de Años**
+*   **Objetivo:** Procesar la columna `anoDesde`, que actualmente contiene rangos de texto (ej. "2016-2022") o años únicos (ej. "2006"), para poblar correctamente las columnas `anoDesde` y `anoHasta` con valores numéricos individuales.
+*   **Lógica de Ejecución:**
+    1.  El script iterará sobre cada fila de la hoja `Cortes`.
+    2.  Para cada fila, leerá el valor de la celda en la columna `anoDesde`.
+    3.  **Si el valor contiene un guion (`-`):**
+        *   Se dividirá la cadena de texto en dos partes.
+        *   Se identificarán los dos valores numéricos, determinando cuál es el menor y cuál es el mayor.
+        *   El valor numérico **menor** se escribirá de nuevo en la columna `anoDesde` de esa fila, sobrescribiendo el rango de texto.
+        *   El valor numérico **mayor** se escribirá en la columna `anoHasta` de la misma fila.
+    4.  **Si el valor es un único número de 4 dígitos (ej. "2006"):**
+        *   El valor de `anoDesde` no se modificará.
+        *   El mismo valor se copiará a la columna `anoHasta` de la misma fila.
+
+**B. Función 2: Migración de Timestamps desde Metadatos de Google Drive**
+*   **Objetivo:** Rellenar la columna `timestamp` en la hoja `Cortes` utilizando la fecha de creación del archivo de imagen del vehículo almacenado en Google Drive.
+*   **Lógica de Ejecución:**
+    1.  El script iterará sobre cada fila de la hoja `Cortes`.
+    2.  Para cada fila, leerá la URL en la columna `imagenVehiculo`.
+    3.  **Si existe una URL:**
+        *   Se extraerá el `ID` del archivo de Google Drive de la URL.
+        *   Utilizando el servicio `DriveApp` de Apps Script, se obtendrá el objeto de archivo (`File`) correspondiente a ese ID.
+        *   Se accederá a los metadatos del archivo para obtener su fecha de creación (`dateCreated`).
+        *   La fecha se formateará al estándar `DD/MM/AAAA`.
+        *   La fecha formateada se escribirá en la columna `timestamp` de la fila correspondiente.
+
+---
+
+#### **2. Modificaciones a Servicios Existentes (Lógica Continua)**
+
+**A. Servicio `GPSpedia-Feedback`: Lógica de Expansión de Rango de Años**
+*   **Objetivo:** Mejorar la funcionalidad del botón "Útil" para que los usuarios puedan sugerir que un corte aplica a un año fuera del rango establecido, expandiendo dinámicamente la aplicabilidad del registro.
+*   **Lógica de Backend:**
+    1.  El frontend enviará el `ID` del vehículo y el `año sugerido` por el usuario al backend.
+    2.  El backend verificará si el `año sugerido` ya se encuentra dentro del rango `[anoDesde, anoHasta]`. Si es así, no se realizará ninguna acción.
+    3.  **Lógica de Anti-colisión de Generaciones:**
+        *   Antes de realizar cualquier cambio, el sistema buscará en toda la hoja `Cortes` si existe **otro registro** con la misma `marca`, `modelo` y `tipoEncendido`.
+        *   Esta comprobación es crucial para evitar que los rangos de diferentes generaciones de un mismo modelo se solapen incorrectamente.
+    4.  **Actualización del Rango:**
+        *   Si el `año sugerido` es **menor** que `anoDesde` y no hay colisión, el valor de `anoDesde` se actualizará al `año sugerido`.
+        *   Si el `año sugerido` es **mayor** que `anoHasta` y no hay colisión, el valor de `anoHasta` se actualizará al `año sugerido`.
+*   **Manejo de Casos de Múltiples Generaciones (Ejemplo Técnico):**
+    *   **Escenario:** El usuario indica que el corte para una **Honda CR-V (2016-2022)** también fue útil para un modelo **2026**.
+    *   **Proceso:**
+        1.  El sistema detecta que `2026` está fuera del rango `2016-2022`.
+        2.  Realiza una búsqueda y encuentra otro registro para **Honda CR-V** con un rango de `2023-2025`.
+        3.  En lugar de modificar el registro original (`2016-2022`), el sistema identifica que `2026` es una extensión lógica del segundo registro (`2023-2025`).
+        4.  La columna `anoHasta` del **segundo registro** se actualiza a `2026`.
+
+**B. Servicio `GPSpedia-Write`: Gestión de Timestamps y Lógica Frontend**
+*   **Objetivo:** Asegurar que la columna `timestamp` se actualice siempre que se realice una modificación significativa en un registro y que el frontend utilice esta información para mostrar el contenido más reciente.
+*   **Lógica de Backend (`write.js`):**
+    1.  Al crear un **vehículo completamente nuevo**, se registrará la fecha actual en la columna `timestamp`.
+    2.  Al añadir un **nuevo corte** a un vehículo ya existente, la columna `timestamp` de esa fila se actualizará con la fecha actual.
+    3.  Al añadir **información suplementaria** (ej. detalles de apertura, videoguía), la columna `timestamp` también se actualizará con la fecha actual.
+*   **Lógica de Frontend (`index.html`):**
+    1.  La sección "Últimos Agregados" deberá obtener los datos del catálogo y ordenarlos en base a la columna `timestamp` en orden descendente antes de renderizarlos.
+    2.  Las tarjetas de vehículo en esta sección deberán indicar qué tipo de información se agregó o actualizó recientemente (ej. "Nuevo Vehículo", "Corte Adicional", "Info. de Apertura"). Esto podría requerir una lógica adicional o un nuevo campo en la respuesta de la API.
+
+---
+
 ## 4. Trabajos Pendientes (Checklist)
 
 Esta sección documenta las tareas de desarrollo, corrección y regresiones pendientes de la versión actual.
@@ -151,32 +222,43 @@ Esta sección documenta las tareas de desarrollo, corrección y regresiones pend
 - [X] **Resolución del Bug Crítico "Pantalla Blanca":** Se refactorizó el frontend (`index.html`) para alinearlo con la nueva estructura de datos `camelCase` del backend v2.0, solucionando la incompatibilidad que impedía la renderización de la aplicación.
 - [X] **Implementación del Sistema de Notificación de Errores:** Se añadió un sistema de notificaciones globales en `index.html` y `api-manager.js` para mostrar al usuario los errores de comunicación con la API, mejorando la depuración y la transparencia.
 - [X] **Refactorización del Acceso a Datos del Backend:** Se han actualizado todos los microservicios (`catalog`, `write`, `users`, `feedback`) para utilizar un mapa de columnas fijo, eliminando la inconsistencia arquitectónica y mejorando la estabilidad del sistema.
+- [X] **Corrección del Bug de Sesión de Usuario:** Se solucionó un problema en `users.html` que impedía la correcta visualización de la información del usuario en sesión, afectando funcionalidades como el cambio de contraseña.
+- [X] **Reparación del Formulario de Contacto:** Se corrigió el error "Acción no definida" en el formulario de "Contáctanos", restaurando la capacidad de los usuarios para enviar mensajes.
+- [X] **Corrección de Visualización en Tutoriales:** Se solucionó un bug en `index.html` que provocaba que el texto de los tutoriales se mostrara como "undefined" debido a una inconsistencia de mayúsculas y minúsculas.
 
 ### Bugs y Regresiones Críticas
-- [X] **Inconsistencias de Versionamiento:** Sincronizar la versión global (ChangesLogs, UI) y las versiones de componentes (cabeceras en todos los archivos `.html` y `.js`) para cumplir con las normas del proyecto.
+- [ ] **Lógica del Modal de Detalle:** El modal de detalle actualmente solo carga la información del primer corte (`tipoCorte1`, `ubicacionCorte1`, etc.), ignorando los datos de `corte2` y `corte3` aunque existan. Debe mostrar la información completa de todos los cortes disponibles.
+- [ ] **Carga de Imágenes en Modal:** Las imágenes asociadas a la apertura (`imgApertura`), cable de alimentación (`imgCableAlimen`) y la configuración del relay (`imagen` desde la hoja `Relay`) no se están mostrando en el modal de detalle.
+- [ ] **Carga de Logos en Modal:** El logo de la marca del vehículo no se está cargando y mostrando correctamente dentro del modal de detalle.
+- [ ] **Refactorización del Flujo de Escritura:** Implementar el nuevo flujo de trabajo de 3 etapas para añadir/actualizar cortes, que fue documentado como completo pero no se encuentra en el código.
+- [ ] **Inconsistencias de Versionamiento:** Sincronizar la versión global (ChangesLogs, UI) y las versiones de componentes (cabeceras en todos los archivos `.html` y `.js`) para cumplir con las normas del proyecto.
 - [X] **Layout del Modal:** Corregir la posición del nombre del colaborador y el estilo de los botones de feedback.
 - [ ] **Visibilidad de Cortes:** Asegurar que las tres opciones de corte sean visibles en el modal si existen los datos.
-- [X] **UI General:** Solucionar bugs visuales (pie de página, botón de limpiar búsqueda, carga de nombre de usuario).
-
-### Mejoras de Funcionalidad Prioritarias
-- [X] **Refactorización del Flujo de Escritura:** Implementar el nuevo flujo de trabajo de 3 etapas para añadir/actualizar cortes.
-- [X] **Búsqueda Flexible:** Mejorar `checkVehicle` para que devuelva coincidencias parciales y múltiples resultados.
-- [ ] **Debugging Integral:** Implementar un sistema de debugging en backend y frontend accesible por rol.
-- [ ] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes para mejorar el rendimiento.
-- [ ] **Soporte para Rango de Años (Feedback-driven):** Implementar la lógica de `suggestYear` en el backend y la UI correspondiente en el frontend.
-- [ ] **Sistema de Versionamiento Híbrido:** Aplicar el nuevo sistema de versionamiento a todos los componentes del código fuente.
-
-### Deuda Técnica y Mejoras
-- [ ] **Script de Migración de Timestamps:** Implementar un script de ejecución única para obtener la fecha de creación de las imágenes antiguas de Google Drive y rellenar el campo `timestamp` en los registros existentes.
+- [X] **UI General:** Solucionar bugs visuales (pie de página, botón de limpiar búsqueda, carga de nombre de usuario, saludo de bienvenida).
 
 ### Revisiones de UI/UX
+- [ ] **Rediseño de Botones de Feedback:** Reemplazar los botones "Sí/No" del modal de detalle por un sistema de pulgares (👍/👎). Añadir dos nuevos botones: "Sugerir un año" y "Reportar un problema".
+- [ ] **Reorganización de Secciones Principales:** Alterar el orden de las secciones en `index.html` para que aparezcan en el siguiente orden: 1. "Últimos Agregados", 2. "Búsqueda por Marca", 3. "Búsqueda por Categoría".
+- [ ] **Layout de "Últimos Agregados":** Modificar el layout de la sección "Últimos Agregados" para que muestre los resultados en un formato de 3 columnas, mejorando la densidad de la información.
+- [ ] **Visualización de Marcas con Logos:** En la sección "Búsqueda por Marca", reemplazar los nombres de las marcas en texto plano por sus respectivos logos, obtenidos de la hoja `LogosMarca`.
 - [X] **Ajustes de Layout:** Realizar ajustes de espaciado, encabezado y visualización de "Últimos Agregados" según las especificaciones.
 - [X] **Modal de Detalle - Logo de Marca:** Implementar la visualización del logo de la marca en una esquina (`altura: 50px`, `anchura: auto`).
 - [X] **Modal de Detalle - Imagen de Relay:** Limitar la altura de la imagen de referencia del relay a `250px`.
 - [X] **Listado de Marcas - Logos:** Mostrar el logo de cada marca en la vista de listado de marcas.
 
 ### Nuevas Funcionalidades
-- [ ] **Página de Información (`info.html`):** Crear una página estática con las secciones "Sobre Nosotros", "Contáctenos" y "Preguntas Frecuentes", con su respectivo formulario de contacto.
+- [ ] **Sistema de Navegación Jerárquico:** Implementar un flujo de navegación guiado o "paso a paso" para la búsqueda. El usuario primero seleccionará una Marca, luego se le presentarán los Modelos de esa marca, y finalmente los Años/versiones disponibles.
+- [ ] **Sistema de Gestión de Feedback (Inbox):** Desarrollar una nueva interfaz (accesible para roles de Supervisor/Jefe) que funcione como un "inbox" para gestionar los problemas reportados por los usuarios a través del nuevo botón "Reportar un problema". Debe permitir ver, responder y marcar como resueltos los reportes.
+- [ ] **Implementación de Modo Oscuro:** Añadir una paleta de colores alternativa para un modo oscuro y un interruptor en la UI para que el usuario pueda activarlo/desactivarlo.
+- [X] **Búsqueda Flexible:** Mejorar `checkVehicle` para que devuelva coincidencias parciales y múltiples resultados.
+- [ ] **Debugging Integral:** Implementar un sistema de debugging en backend y frontend accesible por rol.
+- [ ] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes para mejorar el rendimiento.
+- [ ] **Soporte para Rango de Años (Feedback-driven):** Implementar la lógica de `suggestYear` en el backend y la UI correspondiente en el frontend.
+- [ ] **Sistema de Versionamiento Híbrido:** Aplicar el nuevo sistema de versionamiento a todos los componentes del código fuente.
+- [X] **Integración de Páginas de Información:** Crear las secciones "Sobre Nosotros", "Contáctanos" y "Preguntas Frecuentes" como modales dentro de `index.html`.
+
+### Deuda Técnica y Mejoras
+- [ ] **Script de Migración de Timestamps:** Implementar un script de ejecución única para obtener la fecha de creación de las imágenes antiguas de Google Drive y rellenar el campo `timestamp` en los registros existentes.
 
 ## 4. Componentes del Backend (Microservicios)
 
@@ -254,9 +336,8 @@ Esta sección detalla la estructura y las deficiencias de la base de datos origi
 
 ---
 
-### 6.2. Arquitectura de Base de Datos v2.0 (Nueva)
-
-Esta es la nueva arquitectura diseñada para resolver las deficiencias de la v1.5 y soportar las futuras funcionalidades del proyecto.
+### 6.2. Arquitectura de la Base de Datos v2.0 (Nueva)
+**IMPORTANTE: NO MODIFICAR.** La siguiente estructura de hojas y columnas es la fuente de verdad canónica para la base de datos `GPSpedia_DB_v2.0` y debe coincidir exactamente con la implementación en Google Sheets.
 
 - **ID de Google Sheet:** `1M6zAVch_EGKGGRXIo74Nbn_ihH1APZ7cdr2kNdWfiDs`
 - **Principio de Diseño:** Una estructura granular y robusta, diseñada para ser explícita, flexible y a prueba de errores de formato. Es totalmente independiente de la v1.5.

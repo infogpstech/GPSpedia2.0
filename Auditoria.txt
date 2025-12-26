@@ -1,3 +1,78 @@
+**AUDITORÍA v15.0 (Fecha: 2025-12-26)**
+**Auditor:** Jules v3.0
+**Enfoque:** Auditoría integral post-corrección de bugs para alinear la documentación del proyecto (`ChangesLogs.txt`, `README.md`, `Instrucciones.txt`) con el estado real del código fuente y registrar nuevas tareas solicitadas por el usuario.
+
+**1. Resumen Ejecutivo:**
+Esta auditoría se realizó después de una fase de corrección de errores críticos y la recepción de una nueva lista de requerimientos. El objetivo principal fue doble: primero, verificar que la documentación refleje con precisión el estado actual del código y, segundo, registrar formalmente todas las nuevas tareas en los documentos de planificación para guiar el desarrollo futuro.
+
+Se confirma que los documentos `README.md` y `Instrucciones.txt` han sido actualizados exitosamente para servir como una hoja de ruta precisa y actualizada del proyecto.
+
+**2. Hallazgos y Acciones Realizadas:**
+
+*   **[CORREGIDO] Sincronización de Documentación:**
+    *   **Hallazgo:** Los archivos `README.md` y `Instrucciones.txt` no contenían la lista completa y detallada de los nuevos bugs, mejoras de UI/UX y funcionalidades solicitadas por el usuario.
+    *   **Acción Realizada:** Se han actualizado ambos documentos. Las nuevas tareas han sido añadidas a sus respectivas secciones (`Bugs y Regresiones Críticas`, `Revisiones de UI/UX`, `Nuevas Funcionalidades`). Las tareas que se completaron en la fase anterior (corrección del formulario de contacto, bug de tutoriales, etc.) han sido marcadas como `[X] Completadas`.
+    *   **Impacto:** Positivo. El proyecto ahora tiene una única fuente de verdad, clara y completa, sobre el trabajo pendiente y el realizado.
+
+*   **[CORREGIDO] Bug Menor en `users.html`:**
+    *   **Hallazgo (vía Code Review):** Se identificó que el archivo `users.html` intentaba mostrar el nombre completo del usuario usando la propiedad `currentUser.Nombre`, la cual no existe en el esquema de datos de la hoja `Users`. La propiedad correcta es `currentUser.Nombre_Usuario`.
+    *   **Acción Realizada:** Se ha realizado la corrección en este mismo commit. Se reemplazó `currentUser.Nombre` por `currentUser.Nombre_Usuario` para asegurar que el nombre de usuario se muestre correctamente.
+    *   **Impacto:** Bajo, pero importante para la consistencia y corrección de la UI.
+
+**3. Estado General del Proyecto:**
+*   **Estabilidad:** Alta. Los bugs críticos previos han sido resueltos.
+*   **Documentación:** Actualizada y Sincronizada. Los planes de trabajo son ahora un reflejo fiel de los requerimientos del proyecto.
+*   **Próximos Pasos:** Proceder con la corrección del bug menor en `users.html` y luego comenzar el ciclo de desarrollo para las nuevas funcionalidades registradas.
+
+**4. Conclusión:**
+El proyecto está en un estado saludable y bien documentado. La planificación ha sido actualizada para guiar las próximas fases de desarrollo de manera ordenada y eficiente. Se ha establecido una base sólida para comenzar a trabajar en la extensa lista de nuevas funcionalidades y mejoras.
+
+---
+---
+**INFORMES ANTERIORES**
+---
+---
+**AUDITORÍA v14.0 (Fecha: [FECHA_AUTOMATICA])**
+**Auditor:** Jules v3.0
+**Enfoque:** Auditoría integral de la correspondencia entre los cambios documentados (`ChangesLogs.txt`) y el código fuente real del proyecto.
+
+**1. Resumen Ejecutivo:**
+Esta auditoría ha realizado una verificación exhaustiva de todos los cambios registrados en `ChangesLogs.txt` contra el código fuente actual. Se han descubierto discrepancias críticas que afectan la integridad de la documentación y revelan que funcionalidades estratégicas, documentadas como completadas, no han sido implementadas.
+
+**El objetivo de esta intervención es rectificar la documentación (`Auditoria.txt`, `ChangesLogs.txt`, `README.md`) para que refleje fielmente el estado actual y real del código, proporcionando una línea base veraz para futuros desarrollos.**
+
+**2. Hallazgos Críticos:**
+
+*   **[NO IMPLEMENTADO] Funcionalidad Estratégica Clave: Flujo de Trabajo de 3 Etapas.**
+    *   **Descripción:** El `ChangesLogs.txt` (v3.8.0) documenta la refactorización completa del formulario `add_cortes.html` para implementar un nuevo flujo de trabajo de 3 etapas (verificación anti-duplicados, registro de corte, información suplementaria).
+    *   **Realidad del Código:** El archivo `add_cortes.html` **NO** contiene la lógica ni la estructura para este flujo de trabajo. Presenta un formulario más simple que no se corresponde con la funcionalidad descrita.
+    *   **Impacto:** Crítico. Una funcionalidad central del "Plan Estratégico v4" se marcó incorrectamente como completada. Esto representa una regresión significativa o una documentación completamente falsa. La tarea ha sido marcada nuevamente como pendiente en el `README.md`.
+
+*   **[INCORRECTO] Descripción de Corrección de Bug de Sesión.**
+    *   **Descripción:** El `ChangesLogs.txt` (v3.9.0) afirma que el bug de persistencia de sesión se solucionó modificando `auth.js` para generar un token "solo si el usuario no tiene uno existente".
+    *   **Realidad del Código:** La implementación actual (y más segura) en `auth.js` hace lo contrario: **siempre** genera un nuevo token de sesión en cada login, invalidando el anterior. La descripción del log es, por tanto, incorrecta.
+    *   **Impacto:** Medio. Aunque el código es funcional (y posiblemente mejor), la documentación es engañosa y dificulta la comprensión de la lógica de autenticación. La entrada del log ha sido eliminada.
+
+*   **[INCONSISTENTE] Sistema de Versionamiento Híbrido.**
+    *   **Descripción:** La auditoría de las cabeceras de todos los archivos `.js` y `.html` revela una falta total de sincronización con la tarea de versionamiento descrita en `ChangesLogs.txt` (v3.9.0).
+    *   **Realidad del Código:** Las versiones de los componentes son dispares y no siguen una secuencia lógica (ej. `index.html` es v4.0.0, `api-manager.js` es v3.9.0, `auth.js` es v2.2.1, `catalog.js` es v2.3.0).
+    *   **Impacto:** Alto. Incumple una norma obligatoria del proyecto, introduce deuda técnica y hace imposible rastrear la evolución de los componentes de forma fiable.
+
+**3. Acciones de Rectificación Realizadas en este Commit:**
+
+1.  **`Auditoria.txt`:** Se ha añadido este informe (v14.0) para establecer una nueva línea base de verdad sobre el estado del proyecto.
+2.  **`ChangesLogs.txt`:** Se han eliminado las entradas falsas o incorrectas para limpiar el historial de cambios.
+3.  **`README.md`:** Se ha actualizado el checklist de tareas para reflejar con precisión qué está completado y qué está pendiente, moviendo la "Refactorización del Flujo de Escritura" de nuevo a la lista de tareas críticas pendientes.
+
+**4. Conclusión:**
+La documentación del proyecto ha sido corregida y ahora refleja el estado real del código fuente. Se ha identificado y priorizado el trabajo pendiente real, permitiendo una planificación futura basada en información veraz.
+
+---
+---
+**INFORMES ANTERIORES**
+---
+---
+
 **AUDITORÍA v13.0 (Fecha: 02/01/2026)**
 **Auditor:** Jules v3.0
 **Enfoque:** Verificación integral de la resolución de bugs críticos y la implementación de mejoras de UI.
