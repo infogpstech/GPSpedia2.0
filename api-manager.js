@@ -39,6 +39,7 @@ const ACTION_TO_SERVICE_MAP = {
     // Feedback Service
     'recordLike': 'FEEDBACK',
     'reportProblem': 'FEEDBACK',
+    'sendContactForm': 'FEEDBACK',
 
     // Legacy (acciones que aún no se han migrado o son de propósito general)
     'logFrontend': 'LEGACY'
