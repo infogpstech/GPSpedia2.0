@@ -8,8 +8,8 @@ const API_ENDPOINTS = {
     LEGACY: "https://script.google.com/macros/s/AKfycbwpIFH1nX2BZEjAKbpq9HJpEGNlo_0LqD1CwxWsWFo5J0AJDdbfMrKpcsAV4ZFJzFWd/exec",
 
     // URLs para los nuevos microservicios.
-    AUTH:     "https://script.google.com/macros/s/AKfycbwKE2rxL41h-SyZfc4pKJUBJTGFkiwqOISeqFx4j9IbDGkMA7wsbUkyUPPJ1fxrnKI1/exec",
-    CATALOG:  "https://script.google.com/macros/s/AKfycbwNjNeJN5KHLlLOL81na4AU7RIrK0FX5a5RdmEI54F-MhVIjqBrW-WJG7Ew_lZeyXuRRQ/exec",
+    AUTH:     "https://script.google.com/macros/s/AKfycbwRmrXnXUZz3wAaWgox4kEco5BP_8mwBDU2lE-PQBWvotibDXrkUGISIbb-GxUU3pg/exec",
+    CATALOG:  "https://script.google.com/macros/s/AKfycbwg_Gw3Jk5TAEF9A4PPzlgCOSuQHEOZlJ_48hcIpkRVPT1Z1w87CCsoBefpekvOrTaPpQ/exec",
     WRITE:    "https://script.google.com/macros/s/AKfycbwzAgwnmSxRfPRTWWpBDSq4Zja3EpRvrY0W0AT5r7ZFsVIIxIRsIIYVitCdmDaEfc-wfA/exec",
     USERS:    "https://script.google.com/macros/s/AKfycbwFDNNDPcnk4qnmyvbN5x_oGdS1kD7_kw7DHTKqdB87UeHCUO16EwmLPL8PITMzBc1p/exec",
     FEEDBACK: "https://script.google.com/macros/s/AKfycbwtEWodjUl5eE4JDw3lN2XANqe3gLIvPvCMyrFDqvX0QNE-2sh9pWEXMamNHfC_GG7R/exec"

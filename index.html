@@ -1086,6 +1086,8 @@ async function checkSession() {
 async function login(username, password) {
     try {
         const result = await postToAction('login', { username, password });
+        // La respuesta de login ahora contiene el objeto 'user' completo, incluyendo el nuevo SessionToken.
+        // Al guardar este objeto, estamos actualizando el token en localStorage automáticamente.
         localStorage.setItem(SESSION_KEY, JSON.stringify(result.user));
         await initializeAppData(result.user);
     } catch (error) {
