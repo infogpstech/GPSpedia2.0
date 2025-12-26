@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-CATALOG SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 1.2.1
+// COMPONENT VERSION: 2.3.0
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -87,12 +87,65 @@ function doGet(e) {
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
         .setMimeType(ContentService.MimeType.JSON);
 }
-function doPost(e) { /* ... sin cambios ... */ }
+function doPost(e) {
+  try {
+    const request = JSON.parse(e.postData.contents);
+    const action = request.action;
+    const payload = request.payload || {};
+    let result;
+
+    switch (action) {
+      case 'getCatalogData':
+        result = handleGetCatalogData();
+        break;
+      case 'getDropdownData':
+        result = handleGetDropdownData();
+        break;
+      case 'checkVehicle':
+        result = handleCheckVehicle(payload);
+        break;
+      default:
+        throw new Error(`Acción desconocida: ${action}`);
+    }
+
+    return ContentService.createTextOutput(JSON.stringify(result))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch (error) {
+    const errorResponse = {
+      status: 'error',
+      message: 'Se ha producido un error en el servidor.',
+      details: {
+        errorMessage: error.message,
+        stack: error.stack
+      }
+    };
+    return ContentService.createTextOutput(JSON.stringify(errorResponse))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
 
 // ============================================================================
 // MANEJADORES DE ACCIONES (HANDLERS)
 // ============================================================================
-function mapRowToObject(row, colMap) { /* ... sin cambios ... */ }
+/**
+ * Convierte una fila de hoja de cálculo (array) en un objeto utilizando un mapa de columnas.
+ * @param {Array} row - La fila de datos.
+ * @param {object} colMap - El objeto que mapea nombres de clave a índices de columna (basado en 1).
+ * @returns {object|null} - El objeto mapeado o null si la fila está vacía.
+ */
+function mapRowToObject(row, colMap) {
+  if (!row || row.length === 0) {
+    return null;
+  }
+  const obj = {};
+  for (const key in colMap) {
+    const colIndex = colMap[key] - 1;
+    // Asegurarse de que el valor no es undefined; de lo contrario, asignar null.
+    obj[key] = row[colIndex] !== undefined && row[colIndex] !== '' ? row[colIndex] : null;
+  }
+  return obj;
+}
 
 function handleGetCatalogData() {
     const allData = {};
@@ -103,8 +156,13 @@ function handleGetCatalogData() {
     if (cortesSheet) {
         const data = cortesSheet.getDataRange().getValues();
         data.shift();
-        cortesData = data.map(row => {
+        cortesData = data
+          .filter(row => row && row[0]) // <-- FIX: Ignorar filas vacías (chequea si la fila existe y tiene un ID en la primera columna)
+          .map(row => {
             const vehicle = mapRowToObject(row, COLS_CORTES);
+
+            // Si por alguna razón el mapeo falla, devolvemos null para filtrarlo después
+            if (!vehicle) return null;
 
             // Re-implementar la lógica de ordenamiento por utilidad
             const cortes = [
@@ -143,7 +201,7 @@ function handleGetCatalogData() {
             });
 
             return orderedVehicle;
-        });
+        }).filter(Boolean); // <-- FIX: Eliminar cualquier objeto nulo resultante del mapeo
     }
     allData.cortes = cortesData;
 
@@ -180,7 +238,55 @@ function handleGetCatalogData() {
     return { status: 'success', data: allData };
 }
 
-function handleGetDropdownData() { /* ... sin cambios, ya que los nombres de columna son los mismos ... */ }
+function handleGetDropdownData() {
+    try {
+        const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
+        if (!sheet) {
+            throw new Error(`Sheet "${SHEET_NAMES.CORTES}" not found.`);
+        }
+
+        // Obtener la regla de validación de la columna "Categoría"
+        const categoriaRule = sheet.getRange(2, COLS_CORTES.categoria).getDataValidation();
+        const categorias = categoriaRule ? categoriaRule.getCriteriaValues()[0].getValues().flat().filter(String).sort() : [];
+
+        const data = sheet.getDataRange().getValues();
+        data.shift(); // Remove headers
+
+        // Helper function to get unique, sorted values from a column index
+        const getUniqueSortedValues = (colIndex) => {
+            const values = new Set();
+            data.forEach(row => {
+                if (row[colIndex] && row[colIndex].toString().trim()) {
+                    values.add(row[colIndex].toString().trim());
+                }
+            });
+            return Array.from(values).sort((a, b) => a.localeCompare(b));
+        };
+
+        const marcas = getUniqueSortedValues(COLS_CORTES.marca - 1);
+        const tiposCorte = getUniqueSortedValues(COLS_CORTES.tipoCorte1 -1);
+        const tiposEncendido = getUniqueSortedValues(COLS_CORTES.tipoEncendido - 1);
+        const configRelay = getUniqueSortedValues(COLS_CORTES.configRelay1 -1);
+
+
+        const dropdownData = {
+            categorias,
+            marcas,
+            tiposCorte,
+            tiposEncendido,
+            configRelay
+        };
+
+        return { status: 'success', data: dropdownData };
+
+    } catch (error) {
+        return {
+            status: 'error',
+            message: 'Failed to get dropdown data.',
+            details: { errorMessage: error.message }
+        };
+    }
+}
 
 function handleCheckVehicle(payload) {
     const { marca, modelo, anio, tipoEncendido } = payload;

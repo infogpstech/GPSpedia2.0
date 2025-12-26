@@ -1,3 +1,28 @@
+**v4.0.0 (02/01/2026)**
+*   **FIX CRÍTICO (services/catalog/catalog.js):** Se ha solucionado el error `cannot read properties of undefined (reading 'categoria')` que impedía la carga de datos del catálogo y de los formularios. Se implementó la función `mapRowToObject` que faltaba y se corrigió `handleGetDropdownData` para leer dinámicamente las opciones de "Categoría" desde las reglas de validación de la hoja de cálculo.
+*   **FIX CRÍTICO (services/users/users.js):** Se ha reparado el servicio de gestión de usuarios, que fallaba en todas sus operaciones (`Failed to fetch`). El error se debía a que la función `doPost` no retornaba ninguna respuesta. Se corrigió la función para asegurar que todas las acciones devuelvan un resultado al frontend.
+*   **REFACTOR & FEAT (index.html):** Se ha eliminado la página `info.html` y su contenido se ha integrado directamente en `index.html` como modales.
+    *   Las secciones "Sobre Nosotros", "Contáctanos" y "Preguntas Frecuentes" ahora se abren como pop-ups sin necesidad de recargar la página.
+    *   Se ha añadido el nuevo contenido extendido a estas secciones.
+    *   Se añadió un pequeño margen al CSS del pie de página para mejorar la separación visual de los enlaces.
+*   **FIX (index.html):** Se ha corregido el envío del formulario de contacto, que fallaba por un error tipográfico en el nombre de la acción (`sendContacForm` -> `sendContactForm`).
+*   **CHORE (project):** Se han actualizado los números de versión en todos los archivos modificados a `4.0.0` (global) y a las versiones de componente correspondientes.
+
+**v3.9.3 (01/01/2026)**
+*   **REFACTOR (services/auth/auth.js):** Mejorada la lógica de gestión de sesiones en `handleLogin`. El sistema ahora elimina correctamente las sesiones más antiguas cuando se alcanza el límite por rol, en lugar de borrar sesiones al azar. Se asegura también que cada nuevo login genere un token de sesión único, invalidando el anterior. (Líneas 140-198).
+*   **FIX (index.html):** Corregido el diseño del pie de página. Los enlaces de "Sobre Nosotros", "Contáctanos", etc., ahora se muestran correctamente debajo del aviso de derechos de autor. (Líneas 2248-2254).
+*   **REFACTOR & FEAT (info.html):** La página de información ha sido completamente rediseñada.
+    *   Ahora utiliza una estructura de modales individuales para cada sección ("Sobre Nosotros", "Contáctanos", "FAQ").
+    *   Un nuevo script permite enlazar directamente a una sección específica (ej. `info.html#contact`) abriendo el modal correspondiente al cargar la página.
+    *   Se ha ampliado el contenido de las secciones "Sobre Nosotros" y "Preguntas Frecuentes" con información más detallada y útil.
+
+**v3.9.2 (27/12/2025)**
+*   **FIX CRÍTICO (services/catalog/catalog.js):** Solucionado un error `Cannot read properties of undefined (reading 'utilCorte1')` que ocurría al procesar los datos del catálogo. Se añadió un filtro para ignorar filas vacías en la hoja de cálculo "Cortes", preveniendo que el backend falle al encontrar datos incompletos.
+*   **DOCS (Auditoria.txt):** Se agregó la Auditoría v11.0 detallando el análisis y la solución para el error de procesamiento de filas vacías.
+**v3.9.1 (26/12/2025)**
+*   **FIX CRÍTICO (services/catalog/catalog.js):** Se implementó la función `doPost(e)` que estaba completamente vacía. Esta era la causa raíz de los errores "Failed to fetch" que impedían la carga de cualquier dato del catálogo. La nueva función ahora actúa como un router, procesando las acciones (`getCatalogData`, etc.) y devolviendo los datos correctamente.
+*   **DOCS (Auditoria.txt):** Se agregó la Auditoría v10.0 detallando el descubrimiento y la solución del bug crítico en la función `doPost`.
+
 =================================================
  NORMAS OBLIGATORIAS PARA EL REGISTRO DE CAMBIOS
 =================================================
@@ -14,6 +39,18 @@
 -------------------------------------------------
 
 # Registro de Cambios del Proyecto GPSpedia
+
+## v3.9.0 - 26/12/2025
+- **FIX: CORRECCIÓN DEL BUG CRÍTICO DE PERSISTENCIA DE SESIÓN.**
+  - **Contexto:** Se ha solucionado el error que causaba la pérdida de sesión del usuario al recargar la página.
+  - **Acción (`services/auth/auth.js`):**
+    - Se modificó la función `handleLogin` para que solo genere un nuevo `sessionToken` si el usuario no tiene uno existente. Esto evita la invalidación de sesiones activas en cada inicio de sesión. (Líneas 162-166).
+- **CHORE: SINCRONIZACIÓN COMPLETA DEL SISTEMA DE VERSIONAMIENTO.**
+  - **Contexto:** Se ha realizado una actualización masiva para alinear las versiones de todos los componentes del proyecto, siguiendo las normas de versionamiento híbrido.
+  - **Acciones Realizadas:**
+    - **Versión Global:** Se ha establecido la versión `v3.9.0` en `ChangesLogs.txt` y en el pie de página de `index.html`.
+    - **Versiones de Componentes Frontend:** Se ha actualizado la versión en las cabeceras de `index.html` y `api-manager.js` a `3.9.0`.
+    - **Versiones de Componentes Backend:** Se ha actualizado la versión en las cabeceras de todos los microservicios (`auth.js`, `catalog.js`, `write.js`, `users.js`, `feedback.js`) a `2.2.0`.
 
 ## v3.8.1 - 21/08/2024
 - **INFRAESTRUCTURA: ACTUALIZACIÓN DE ENDPOINT DE SERVICIO `WRITE`.**

@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-USERS SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 1.2.1
+// COMPONENT VERSION: 2.2.1
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -59,26 +59,28 @@ function doPost(e) {
     let request;
     try {
         request = JSON.parse(e.postData.contents);
+        let result;
 
         switch (request.action) {
             case 'getUsers':
-                response = handleGetUsers(request.payload);
+                result = handleGetUsers(request.payload);
                 break;
             case 'createUser':
-                response = handleCreateUser(request.payload);
+                result = handleCreateUser(request.payload);
                 break;
             case 'updateUser':
-                response = handleUpdateUser(request.payload);
+                result = handleUpdateUser(request.payload);
                 break;
             case 'deleteUser':
-                response = handleDeleteUser(request.payload);
+                result = handleDeleteUser(request.payload);
                 break;
             case 'changePassword':
-                response = handleChangePassword(request.payload);
+                result = handleChangePassword(request.payload);
                 break;
             default:
                 throw new Error(`Acción desconocida en Users Service: ${request.action}`);
         }
+        response = result;
     } catch (error) {
         Logger.log(`Error CRÍTICO en Users-Service doPost: ${error.stack}`);
         response = {
