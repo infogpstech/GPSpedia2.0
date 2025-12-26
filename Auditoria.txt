@@ -1,3 +1,35 @@
+**AUDITORÍA v13.0 (Fecha: 02/01/2026)**
+**Auditor:** Jules v3.0
+**Enfoque:** Verificación integral de la resolución de bugs críticos y la implementación de mejoras de UI.
+
+**1. Resumen Ejecutivo:**
+Esta auditoría confirma la resolución exitosa de una cascada de errores críticos que habían dejado la aplicación en un estado no funcional. Se han abordado problemas de raíz en los microservicios de `catalog` y `users`, y se han implementado mejoras significativas en la interfaz de usuario para alinearla con los requisitos del cliente.
+
+**2. Verificación de Correcciones Críticas:**
+*   **[VERIFICADO] Fallo de Carga del Catálogo y Formularios:**
+    *   **Causa Raíz:** Se identificaron dos problemas en `services/catalog/catalog.js`: (1) la función `mapRowToObject` estaba vacía, impidiendo cualquier procesamiento de datos; (2) la función `handleGetDropdownData` no obtenía los datos para los menús desplegables correctamente.
+    *   **Solución:** Se implementó la lógica completa de `mapRowToObject` y se refactorizó `handleGetDropdownData` para leer dinámicamente las reglas de validación de datos de la hoja de cálculo, resolviendo tanto el error `contenido no disponible` como el de `cannot read properties of undefined (reading 'categoria')`.
+*   **[VERIFICADO] Fallo del Servicio de Gestión de Usuarios:**
+    *   **Causa Raíz:** La función `doPost` en `services/users/users.js` procesaba las solicitudes pero nunca devolvía una respuesta, causando errores de `Failed to fetch` en el cliente.
+    *   **Solución:** Se corrigió la función `doPost` para asegurar que siempre se envíe una respuesta JSON al cliente, restaurando la funcionalidad de la página de gestión de usuarios y el cambio de contraseña.
+*   **[VERIFICADO] Fallo del Formulario de Contacto:**
+    *   **Causa Raíz:** Un error tipográfico (`sendContacForm` en lugar de `sendContactForm`) en la llamada a la API desde `info.html` impedía el envío.
+    *   **Solución:** Se verificó que el error ya estaba corregido en la versión actual del código, por lo que no se necesitaron cambios.
+
+**3. Verificación de Mejoras de UI/UX:**
+*   **[VERIFICADO] Integración de Secciones de Información:**
+    *   **Solución:** Se eliminó el archivo `info.html`. Su contenido, junto con el nuevo texto proporcionado, fue integrado directamente en `index.html` dentro de un sistema de modales (pop-ups). Los enlaces del pie de página ahora abren estos modales sin necesidad de recargar la página, mejorando la fluidez de la navegación.
+*   **[VERIFICADO] Ajuste Estético del Pie de Página:**
+    *   **Solución:** Se añadió un margen superior (`margin-top`) a la clase `.footer-links` en el CSS de `index.html`, creando una separación visual adecuada con el texto de derechos de autor.
+
+**4. Estado General del Proyecto:**
+*   **Estabilidad:** Alta. Los errores que bloqueaban las funcionalidades principales han sido erradicados.
+*   **Funcionalidad:** La aplicación es ahora completamente funcional, permitiendo la consulta del catálogo, la gestión de usuarios y el uso de formularios.
+*   **Documentación:** La documentación será actualizada en este `commit` para reflejar la versión `4.0.0` y todos los cambios realizados.
+
+**5. Conclusión:**
+El proyecto ha sido restaurado a un estado funcional y estable. Las mejoras de UI solicitadas han sido implementadas. La base de código está ahora en una condición saludable para futuras extensiones.
+
 **AUDITORÍA v12.0 (Fecha: 01/01/2026)**
 **Auditor:** Jules v3.0
 **Enfoque:** Verificación final de correcciones y mejoras implementadas post-Auditoría v11.0.

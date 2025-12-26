@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-CATALOG SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 2.2.2
+// COMPONENT VERSION: 2.3.0
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -128,7 +128,24 @@ function doPost(e) {
 // ============================================================================
 // MANEJADORES DE ACCIONES (HANDLERS)
 // ============================================================================
-function mapRowToObject(row, colMap) { /* ... sin cambios ... */ }
+/**
+ * Convierte una fila de hoja de cálculo (array) en un objeto utilizando un mapa de columnas.
+ * @param {Array} row - La fila de datos.
+ * @param {object} colMap - El objeto que mapea nombres de clave a índices de columna (basado en 1).
+ * @returns {object|null} - El objeto mapeado o null si la fila está vacía.
+ */
+function mapRowToObject(row, colMap) {
+  if (!row || row.length === 0) {
+    return null;
+  }
+  const obj = {};
+  for (const key in colMap) {
+    const colIndex = colMap[key] - 1;
+    // Asegurarse de que el valor no es undefined; de lo contrario, asignar null.
+    obj[key] = row[colIndex] !== undefined && row[colIndex] !== '' ? row[colIndex] : null;
+  }
+  return obj;
+}
 
 function handleGetCatalogData() {
     const allData = {};
@@ -228,14 +245,18 @@ function handleGetDropdownData() {
             throw new Error(`Sheet "${SHEET_NAMES.CORTES}" not found.`);
         }
 
+        // Obtener la regla de validación de la columna "Categoría"
+        const categoriaRule = sheet.getRange(2, COLS_CORTES.categoria).getDataValidation();
+        const categorias = categoriaRule ? categoriaRule.getCriteriaValues()[0].getValues().flat().filter(String).sort() : [];
+
         const data = sheet.getDataRange().getValues();
-        const headers = data.shift(); // Remove headers
+        data.shift(); // Remove headers
 
         // Helper function to get unique, sorted values from a column index
         const getUniqueSortedValues = (colIndex) => {
             const values = new Set();
             data.forEach(row => {
-                if (row[colIndex]) {
+                if (row[colIndex] && row[colIndex].toString().trim()) {
                     values.add(row[colIndex].toString().trim());
                 }
             });
@@ -243,19 +264,22 @@ function handleGetDropdownData() {
         };
 
         const marcas = getUniqueSortedValues(COLS_CORTES.marca - 1);
-        const modelos = getUniqueSortedValues(COLS_CORTES.modelo - 1);
+        const tiposCorte = getUniqueSortedValues(COLS_CORTES.tipoCorte1 -1);
         const tiposEncendido = getUniqueSortedValues(COLS_CORTES.tipoEncendido - 1);
+        const configRelay = getUniqueSortedValues(COLS_CORTES.configRelay1 -1);
+
 
         const dropdownData = {
+            categorias,
             marcas,
-            modelos,
-            tiposEncendido
+            tiposCorte,
+            tiposEncendido,
+            configRelay
         };
 
         return { status: 'success', data: dropdownData };
 
     } catch (error) {
-        // Return a structured error, but doPost will also catch and wrap it.
         return {
             status: 'error',
             message: 'Failed to get dropdown data.',

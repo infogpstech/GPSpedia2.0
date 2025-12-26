@@ -1,4 +1,4 @@
-<!-- GPSpedia Frontend Component | Version: 3.9.3 -->
+<!-- GPSpedia Frontend Component | Version: 4.0.0 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -674,6 +674,7 @@ body.search-active .app-logo {
     transition: all 0.35s ease-in-out;
 }
 .footer-links {
+    margin-top: 10px; /* Added margin to separate from copyright */
     margin-bottom: 15px;
     display: flex;
     justify-content: center;
@@ -685,6 +686,22 @@ body.search-active .app-logo {
     text-decoration: none;
     transition: color 0.2s;
     font-size: 0.8em; /* Adjusted to be smaller than the main footer text */
+    cursor: pointer; /* Make it look clickable */
+}
+/* --- ESTILOS PARA MODALES DE INFORMACIÓN --- */
+.info-modal {
+    display: none; position: fixed; z-index: 2100; left: 0; top: 0; width: 100%; height: 100%;
+    overflow: auto; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
+    align-items: center; justify-content: center;
+}
+.info-modal-content {
+    background-color: #fff; margin: auto; padding: 25px; border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.25); width: 90%; max-width: 700px;
+    max-height: 90vh; overflow-y: auto; position: relative;
+}
+.info-close-btn {
+    color: #aaa; position: absolute; top: 10px; right: 20px; font-size: 28px;
+    font-weight: bold; cursor: pointer;
 }
 .footer-links a:hover {
     color: #fff;
@@ -838,6 +855,70 @@ body.search-active .app-logo {
 
 <div id="lightbox" class="lightbox" onclick="cerrarLightbox()">
   <img id="lightboxImg" src="">
+</div>
+
+<!-- ========= MODALES DE INFORMACIÓN ========= -->
+<div id="about-us-modal" class="info-modal">
+  <div class="info-modal-content">
+    <span class="info-close-btn">&times;</span>
+    <h2>Sobre Nosotros</h2>
+    <p>GPSpedia es una plataforma especializada en la consulta técnica y estandarizada de información vehicular, orientada a técnicos, instaladores y profesionales que trabajan con sistemas de rastreo, seguridad y control vehicular.</p>
+    <p>Nuestro objetivo es facilitar el acceso rápido y confiable a información práctica, reduciendo errores en campo y optimizando los tiempos de instalación mediante una base de conocimiento clara, visual y en constante evolución.</p>
+    <p>La información que se presenta en GPSpedia es el resultado de una recopilación estructurada de datos técnicos provenientes de múltiples fuentes de libre acceso, experiencias prácticas y aportes colaborativos. No reclamamos derechos de autor sobre dicha información técnica; su propósito es educativo, operativo y de apoyo profesional.</p>
+    <hr>
+    <h4>¿Qué ofrece GPSpedia?</h4>
+    <p><strong>🔧 Información de cortes vehiculares:</strong> Identificación de puntos de corte eléctrico e ignición. Detalles claros sobre ubicación, color del cable y tipo de corte recomendado.</p>
+    <p><strong>🚗 Tipos de cortes disponibles:</strong> Paro de motor (apagado remoto) y apertura de puertas.</p>
+    <hr>
+    <h4>Configuraciones de Relay</h4>
+    <p>GPSpedia incluye una sección dedicada a configuraciones de relay, donde se explican de forma visual y descriptiva la función de cada pin, su uso recomendado y diagramas claros para facilitar la correcta conexión.</p>
+    <hr>
+    <h4>Tutoriales y guías visuales</h4>
+    <p>Ofrecemos tutoriales paso a paso y guías visuales para la ubicación de módulos, desarme básico de interiores y reconocimiento de cableado.</p>
+    <hr>
+    <h4>Enfoque colaborativo y mejora continua</h4>
+    <p>GPSpedia evoluciona constantemente gracias a la retroalimentación de sus usuarios, lo que permite mejorar la precisión de la información y ampliar la cobertura de marcas y modelos.</p>
+  </div>
+</div>
+
+<div id="contact-modal" class="info-modal">
+  <div class="info-modal-content">
+    <span class="info-close-btn">&times;</span>
+    <h2>Contáctanos</h2>
+    <p>Si tienes sugerencias, problemas con la plataforma o necesitas soporte técnico, por favor utiliza este formulario. Tu feedback es importante para nosotros.</p>
+    <form id="contact-form">
+      <div class="form-group">
+        <label for="contact-name">Nombre</label>
+        <input type="text" id="contact-name" required>
+      </div>
+      <div class="form-group">
+        <label for="contact-email">Correo Electrónico</label>
+        <input type="email" id="contact-email" required>
+      </div>
+      <div class="form-group">
+        <label for="contact-message">Mensaje</label>
+        <textarea id="contact-message" rows="4" required></textarea>
+      </div>
+      <button type="submit" class="btn">Enviar Mensaje</button>
+    </form>
+  </div>
+</div>
+
+<div id="faq-modal" class="info-modal">
+  <div class="info-modal-content">
+    <span class="info-close-btn">&times;</span>
+    <h2>Preguntas Frecuentes (FAQ)</h2>
+    <div class="accordion">
+      <div class="accordion-item"><div class="accordion-header">¿GPSpedia es un sistema de rastreo GPS?<i class="fas fa-chevron-down"></i></div><div class="accordion-content"><p>No. GPSpedia no rastrea vehículos ni gestiona dispositivos. Es una plataforma informativa y de consulta técnica.</p></div></div>
+      <div class="accordion-item"><div class="accordion-header">¿La información tiene derechos de autor?<i class="fas fa-chevron-down"></i></div><div class="accordion-content"><p>La información técnica presentada es una compilación de datos de libre acceso y conocimiento práctico, organizada con fines educativos y profesionales. GPSpedia no reclama autoría exclusiva sobre dicha información.</p></div></div>
+      <div class="accordion-item"><div class="accordion-header">¿Puedo usar esta información en instalaciones reales?<i class="fas fa-chevron-down"></i></div><div class="accordion-content"><p>Sí. El contenido está pensado para apoyo técnico, pero siempre se recomienda que las instalaciones sean realizadas por personal capacitado y siguiendo buenas prácticas de seguridad eléctrica.</p></div></div>
+      <div class="accordion-item"><div class="accordion-header">¿Incluye información para diferentes tipos de vehículos?<i class="fas fa-chevron-down"></i></div><div class="accordion-content"><p>Sí. La plataforma contempla distintas categorías vehiculares, como automóviles, camiones, motocicletas y equipos especiales, según disponibilidad de información.</p></div></div>
+      <div class="accordion-item"><div class="accordion-header">¿La información se actualiza?<i class="fas fa-chevron-down"></i></div><div class="accordion-content"><p>Sí. GPSpedia está diseñada para crecer y mejorar continuamente, incorporando nuevos datos, correcciones y ampliaciones conforme se valida su uso en campo.</p></div></div>
+      <div class="accordion-item"><div class="accordion-header">¿GPSpedia enseña cómo instalar dispositivos?<i class="fas fa-chevron-down"></i></div><div class="accordion-content"><p>GPSpedia no sustituye la capacitación profesional, pero ofrece referencias técnicas, diagramas y guías que facilitan el trabajo de técnicos con experiencia.</p></div></div>
+      <div class="accordion-item"><div class="accordion-header">¿Cómo obtengo una cuenta?<i class="fas fa-chevron-down"></i></div><div class="accordion-content"><p>Para solicitar acceso, completa el formulario disponible en la sección “Contáctanos”. Nuestro equipo revisará la solicitud y te brindará seguimiento conforme al uso profesional de la plataforma.</p></div></div>
+      <div class="accordion-item"><div class="accordion-header">¿Qué hacer si no está la información de un vehículo?<i class="fas fa-chevron-down"></i></div><div class="accordion-content"><p>Si un vehículo no cuenta aún con información específica, GPSpedia ofrece tutoriales descriptivos y material audiovisual que facilitan la identificación de cables de corte, puntos de ignición y configuraciones comunes.</p></div></div>
+    </div>
+  </div>
 </div>
 
 <script src="api-manager.js"></script>
@@ -2245,14 +2326,93 @@ async function handleReportSubmit(vehicleId, corteIndex) {
         // Error is handled by postToAction
     }
 }
+
+// --- LÓGICA PARA MODALES DE INFORMACIÓN ---
+function setupInfoModals() {
+    const modals = document.querySelectorAll('.info-modal');
+    const closeButtons = document.querySelectorAll('.info-close-btn');
+
+    const openModal = (modalId) => {
+        const modal = document.getElementById(modalId);
+        if (modal) modal.style.display = 'flex';
+    };
+
+    const closeModal = () => {
+        modals.forEach(modal => modal.style.display = 'none');
+    };
+
+    // Footer link listeners
+    document.getElementById('footer-about-link').addEventListener('click', (e) => {
+        e.preventDefault();
+        openModal('about-us-modal');
+    });
+    document.getElementById('footer-contact-link').addEventListener('click', (e) => {
+        e.preventDefault();
+        openModal('contact-modal');
+    });
+    document.getElementById('footer-faq-link').addEventListener('click', (e) => {
+        e.preventDefault();
+        openModal('faq-modal');
+    });
+
+    // Close button listeners
+    closeButtons.forEach(btn => btn.addEventListener('click', closeModal));
+
+    // Close on outside click
+    window.addEventListener('click', (event) => {
+        modals.forEach(modal => {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+    });
+
+    // Accordion for FAQ
+    document.querySelectorAll('#faq-modal .accordion-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const content = header.nextElementSibling;
+            const isActive = content.style.maxHeight;
+            // Close all others first for a cleaner accordion experience
+            document.querySelectorAll('#faq-modal .accordion-content').forEach(c => c.style.maxHeight = null);
+            // Open the clicked one if it wasn't already open
+            if (!isActive) {
+                content.style.maxHeight = content.scrollHeight + "px";
+            }
+        });
+    });
+
+    // Contact form submission
+    document.getElementById('contact-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('contact-name').value;
+        const email = document.getElementById('contact-email').value;
+        const message = document.getElementById('contact-message').value;
+
+        try {
+            const response = await routeAction('sendContactForm', { name, email, message });
+            if (response.status === 'success') {
+                alert('¡Gracias por tu mensaje! Nos pondremos en contacto contigo pronto.');
+                closeModal();
+                document.getElementById('contact-form').reset();
+            } else {
+                throw new Error(response.message || 'Error desconocido');
+            }
+        } catch (error) {
+             alert(`Error al enviar el mensaje: ${error.message}`);
+        }
+    });
+}
+// Llamar a la configuración de los modales de info cuando se inicializa la app.
+document.addEventListener('DOMContentLoaded', setupInfoModals);
+
 </script>
 
 <footer class="footer" style="display: none;">
-  Gpspedia v3.9.3 © 2025 todos los derechos reservados.
+  Gpspedia v4.0.0 © 2025 todos los derechos reservados.
   <div class="footer-links">
-      <a href="info.html#about-us">Sobre Nosotros</a>
-      <a href="info.html#contact">Contáctanos</a>
-      <a href="info.html#faq">Preguntas Frecuentes</a>
+      <a id="footer-about-link">Sobre Nosotros</a>
+      <a id="footer-contact-link">Contáctanos</a>
+      <a id="footer-faq-link">Preguntas Frecuentes</a>
   </div>
 </footer>
 
