@@ -1,3 +1,18 @@
+**v4.1.0 (03/01/2026)**
+*   **CHORE & FIX (Project-wide):** Se revirtió una entrega anterior para restaurar múltiples funcionalidades y se aplicaron nuevas características.
+    *   **Restauraciones:**
+        *   **`users.html`:** Corregido el error `undefined` en la tabla de usuarios al alinear el acceso a propiedades con el esquema del backend (ej. `Nombre_Usuario`). Restaurado el CSS (`table-layout: fixed`) para prevenir el desbordamiento de la tabla.
+        *   **`services/users/users.js`:** Corregida la regresión en la función `handleChangePassword` para que la comparación de la contraseña actual sea insensible a mayúsculas y minúsculas, alineándose con la lógica de login.
+        *   **`api-manager.js`:** Restaurada la ruta para la acción `sendContactForm` en el `ACTION_TO_SERVICE_MAP`, reactivando el formulario de contacto.
+        *   **`index.html`:** Restaurado el diseño de la cuadrícula (`.grid`) a un formato de 3 columnas responsivo.
+*   **FEAT (index.html, api-manager.js):** Se implementó una nueva consola de desarrollador.
+    *   La consola de depuración ahora está oculta por defecto y se accede a través de un nuevo botón "Desarrollador" en el menú lateral.
+    *   Se creó un modal de desarrollador que contiene la consola y un panel de control.
+    *   El panel de control incluye botones para ejecutar los scripts de migración de datos (`migrateYearRanges`, `migrateTimestamps`) desde el frontend. Se añadieron las rutas correspondientes en `api-manager.js`.
+*   **STYLE (index.html, users.html):** Se aplicaron ajustes generales de la interfaz de usuario para un diseño más compacto.
+    *   **`index.html`:** Reducido el tamaño de los encabezados (h2, h3, h4) y el `padding` de los botones. Añadido el logo de GPSpedia al menú lateral.
+    *   **`users.html`:** Reducido el tamaño de los encabezados y botones para optimizar el espacio.
+
 **v4.0.0 (02/01/2026)**
 *   **FIX CRÍTICO (services/catalog/catalog.js):** Se ha solucionado el error `cannot read properties of undefined (reading 'categoria')` que impedía la carga de datos del catálogo y de los formularios. Se implementó la función `mapRowToObject` que faltaba y se corrigió `handleGetDropdownData` para leer dinámicamente las opciones de "Categoría" desde las reglas de validación de la hoja de cálculo.
 *   **FIX CRÍTICO (services/users/users.js):** Se ha reparado el servicio de gestión de usuarios, que fallaba en todas sus operaciones (`Failed to fetch`). El error se debía a que la función `doPost` no retornaba ninguna respuesta. Se corrigió la función para asegurar que todas las acciones devuelvan un resultado al frontend.
