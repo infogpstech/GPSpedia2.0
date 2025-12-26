@@ -340,7 +340,7 @@ body.search-active .app-logo {
 .grid {
     display: grid;
     gap: 20px;
-    grid-template-columns: repeat(auto-fit, 140px);
+    grid-template-columns: repeat(3, 1fr); /* Layout de 3 columnas */
     justify-content: center;
     max-width: 1200px;
     margin: 0 auto;
@@ -1221,7 +1221,7 @@ async function initializeAppData(user) {
             datosTutoriales = result.data.tutoriales || [];
             datosRelay = result.data.relay || [];
             datosLogos = result.data.logos || [];
-            mostrarCategorias();
+            mostrarPaginaPrincipal(); // Corregido: Llamar a la función principal que renderiza todo.
             resolve(); // Resolve the promise after content is rendered
         } catch (error) {
             document.getElementById('contenido').innerHTML = `<p style="color:red; text-align:center;">No se pudo cargar el catálogo. ${error.message}</p>`;
@@ -1677,56 +1677,51 @@ function mostrarDetalleModal(item) {
     uiState.isModalOpen = true;
 
     const cont = document.getElementById("detalleCompleto");
-    cont.innerHTML = "";
+    cont.innerHTML = ""; // Limpiar contenido anterior
 
+    // --- ENCABEZADO DEL MODAL ---
     const headerDiv = document.createElement("div");
-    headerDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;";
+    headerDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: relative;";
+
     const closeBtn = document.createElement("button");
     closeBtn.textContent = "Cerrar";
     closeBtn.onclick = () => cerrarModal();
     closeBtn.className = "backBtn";
     closeBtn.style.cssText = "color:white; background:#dc3545; border:none; margin:0;";
     headerDiv.appendChild(closeBtn);
-    const yearRange = item.anoHasta ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
+
+    const yearRange = item.anoHasta && item.anoHasta !== item.anoDesde ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
     const titulo = `${item.marca} ${item.modelo} ${yearRange || ''}`;
     headerDiv.appendChild(crearBotonCompartir('cortes', item.id, titulo));
     cont.appendChild(headerDiv);
 
     const title = document.createElement("h2");
     title.textContent = `Detalle de ${titulo}`;
-    title.style.cssText = "color:#007bff; border-bottom:3px solid #007bff; padding-bottom:10px;";
+    title.style.cssText = "color:#007bff; border-bottom:3px solid #007bff; padding-bottom:10px; margin-right: 120px;"; // Espacio para el logo
     cont.appendChild(title);
 
-    // Contenido Principal y Notas
+    // --- LOGO DE LA MARCA ---
+    const logoUrl = getLogoUrlForMarca(item.marca, item.categoria);
+    if (logoUrl) {
+        const logoImg = document.createElement("img");
+        logoImg.src = logoUrl;
+        logoImg.style.cssText = "position: absolute; top: 0; right: 0; height: 50px; width: auto; max-width: 100px; object-fit: contain;";
+        cont.appendChild(logoImg);
+    }
+
+    // --- NOTA IMPORTANTE Y DATOS PRINCIPALES ---
     if (item.notaImportante) {
         const p = document.createElement("p");
         p.innerHTML = `<strong style="color:red;">Nota Importante:</strong> <span style="color:#cc0000; font-weight: bold;">${item.notaImportante}</span>`;
         cont.appendChild(p);
     }
-    const logoUrl = getLogoUrlForMarca(item.marca, item.categoria);
-    if (logoUrl) {
-        const logoImg = document.createElement("img");
-        logoImg.src = logoUrl;
-        logoImg.style.cssText = "position: absolute; top: 15px; right: 15px; height: 50px; width: auto; max-width: 100px; object-fit: contain;";
-        cont.appendChild(logoImg);
-    }
 
     crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, 'img-vehiculo');
 
-    // Secciones de Cortes Dinámicas
+    // --- SECCIONES DE CORTES (ITERACIÓN FIJA) ---
     for (let i = 1; i <= 3; i++) {
         const tipoCorte = item[`tipoCorte${i}`];
-        if (!tipoCorte) continue;
-
-        const ubicacion = item[`ubicacionCorte${i}`];
-        const colorCable = item[`colorCableCorte${i}`];
-        const imgCorte = item[`imgCorte${i}`];
-        const colaborador = item[`colaboradorCorte${i}`];
-        const utilCount = item[`utilCorte${i}`] || 0;
-
-        let descripcionHTML = '';
-        if (ubicacion) descripcionHTML += `<strong>Ubicación:</strong> ${ubicacion}<br>`;
-        if (colorCable) descripcionHTML += `<strong>Color(es) de Cable:</strong> ${colorCable}`;
+        if (!tipoCorte) continue; // Si no hay tipo de corte, se salta este bloque
 
         const btn = document.createElement("button");
         btn.className = "accordion-btn";
@@ -1736,50 +1731,93 @@ function mostrarDetalleModal(item) {
         const panel = document.createElement("div");
         panel.className = "panel-desplegable";
 
-        if (descripcionHTML) {
+        // Información del corte
+        const ubicacion = item[`ubicacionCorte${i}`];
+        const colorCable = item[`colorCableCorte${i}`];
+        if (ubicacion || colorCable) {
             const p = document.createElement("p");
-            p.innerHTML = descripcionHTML;
+            p.innerHTML = `<strong>Ubicación:</strong> ${ubicacion || 'N/A'}<br><strong>Color(es) de Cable:</strong> ${colorCable || 'N/A'}`;
             panel.appendChild(p);
         }
 
-        crearImagenDetalle("Imagen del Corte", imgCorte, panel);
+        crearImagenDetalle("Imagen del Corte", item[`imgCorte${i}`], panel);
 
+        // Información del Relay (si existe)
+        const configRelay = item[`configRelay${i}`];
+        const relayInfo = datosRelay.find(r => r.configuracion === configRelay);
+        if (relayInfo) {
+            crearImagenDetalle("Configuración de Relay", relayInfo.imagen, panel);
+            const relayImg = panel.querySelector('img[alt="Configuración de Relay"]');
+            if (relayImg) relayImg.style.maxHeight = '250px';
+        }
+
+        // --- Footer con feedback y colaborador ---
         const footerModal = document.createElement("div");
-        footerModal.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;";
+        footerModal.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; flex-wrap: wrap; gap: 10px;";
+
+        const colaboradorInfo = document.createElement("div");
+        colaboradorInfo.style.cssText = "font-size: 0.8em; color: #555;";
+        colaboradorInfo.innerHTML = `Agregado por: <strong>${item[`colaboradorCorte${i}`] || 'N/A'}</strong>`;
 
         const feedbackContainer = document.createElement("div");
-        feedbackContainer.style.cssText = "display: flex; gap: 10px;";
+        feedbackContainer.style.cssText = "display: flex; gap: 10px; flex-wrap: wrap;";
 
-        const utilBtn = document.createElement("button");
-        utilBtn.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> Útil <span class="util-count">${utilCount}</span>`;
-        utilBtn.className = "feedback-btn util-btn";
-        utilBtn.style.cssText = "background-color: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer;";
-        utilBtn.onclick = () => handleLike(item.id, i, utilBtn);
-        feedbackContainer.appendChild(utilBtn);
+        const utilCount = item[`utilCorte${i}`] || 0;
 
+        // Botón de Like (Pulgar arriba)
+        const likeBtn = document.createElement("button");
+        likeBtn.innerHTML = `👍 <span class="util-count">${utilCount}</span>`;
+        likeBtn.title = "Marcar como útil";
+        likeBtn.onclick = () => handleLike(item.id, i, likeBtn);
+        feedbackContainer.appendChild(likeBtn);
+
+        // Botón de Dislike (Pulgar abajo) - sin funcionalidad de conteo por ahora
+        const dislikeBtn = document.createElement("button");
+        dislikeBtn.innerHTML = `👎`;
+        dislikeBtn.title = "No me fue útil";
+        feedbackContainer.appendChild(dislikeBtn);
+
+        // Botón de Sugerir Año
+        const suggestYearBtn = document.createElement("button");
+        suggestYearBtn.innerHTML = `<i class="fa-solid fa-calendar-plus"></i> Sugerir Año`;
+        suggestYearBtn.title = "Sugerir que este corte aplica a otro año";
+        suggestYearBtn.onclick = () => handleSuggestYear(item.id);
+        feedbackContainer.appendChild(suggestYearBtn);
+
+        // Botón de Reportar Problema
         const reportBtn = document.createElement("button");
         reportBtn.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Reportar`;
-        reportBtn.className = "feedback-btn report-btn";
-        reportBtn.style.cssText = "background-color: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer;";
+        reportBtn.title = "Reportar un problema con este corte";
         reportBtn.onclick = () => toggleReportSection(item.id, i);
         feedbackContainer.appendChild(reportBtn);
 
-        const colaboradorInfo = document.createElement("div");
-        colaboradorInfo.style.cssText = "font-size: 0.8em; color: #555; background: rgba(0, 123, 255, 0.1); padding: 5px 10px; border-radius: 8px;";
-        colaboradorInfo.innerHTML = `Agregado por: <strong style="color: #0056b3;">${colaborador || 'N/A'}</strong>`;
-
         footerModal.appendChild(colaboradorInfo);
         footerModal.appendChild(feedbackContainer);
-
         panel.appendChild(footerModal);
 
+        // Sección oculta para reportar problemas
         const reportSection = document.createElement("div");
         reportSection.id = `report-section-${item.id}-${i}`;
         reportSection.style.display = 'none';
-        reportSection.style.marginTop = '15px';
-        reportSection.innerHTML = `<textarea id="report-input-${item.id}-${i}" class="report-textarea" placeholder="Describe el problema..."></textarea><button id="submit-report-${item.id}-${i}" class="submit-report-btn">Enviar</button>`;
+        reportSection.innerHTML = `<textarea style="width: 100%; margin-top: 10px;" placeholder="Describe el problema..."></textarea><button>Enviar Reporte</button>`;
         panel.appendChild(reportSection);
 
+        cont.appendChild(panel);
+    }
+
+    // --- INFORMACIÓN ADICIONAL ---
+    if (item.apertura || item.imgApertura || item.cableAlimen || item.imgCableAlimen) {
+        const btn = document.createElement("button");
+        btn.className = "accordion-btn";
+        btn.innerHTML = `Información Adicional <svg class="accordion-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+        cont.appendChild(btn);
+
+        const panel = document.createElement("div");
+        panel.className = "panel-desplegable";
+        if (item.apertura) panel.appendChild(crearElementoDetalle("Detalle de Apertura", item.apertura));
+        crearImagenDetalle("Imagen de Apertura", item.imgApertura, panel);
+        if (item.cableAlimen) panel.appendChild(crearElementoDetalle("Cable de Alimentación", item.cableAlimen));
+        crearImagenDetalle("Imagen de Alimentación", item.imgCableAlimen, panel);
         cont.appendChild(panel);
     }
 
@@ -1877,55 +1915,88 @@ function mostrarResultadosBusquedaVersion(busquedaTexto, marcaFiltro, modeloFilt
     cont.appendChild(grid);
 }
 
-function mostrarCategorias() {
+function mostrarPaginaPrincipal() {
     if (document.getElementById("searchInput").value.trim()) return;
-    estado = { nivel: "categorias", categoria: null };
+    estado = { nivel: "principal" };
     const cont = document.getElementById("contenido");
-    cont.innerHTML = "<h4>Categorías</h4>";
-    if (!datosOriginales || datosOriginales.length === 0) {
-        cont.innerHTML += '<p style="text-align:center;">No hay datos de cortes disponibles.</p>';
-        return;
-    }
+    cont.innerHTML = ""; // Limpiar contenido
+
+    mostrarUltimosAgregados(cont);
+    mostrarMarcasConLogo(cont);
+    mostrarCategorias(cont);
+}
+
+function mostrarUltimosAgregados(container) {
+    if (!datosOriginales || datosOriginales.length === 0) return;
+
+    const section = document.createElement('div');
+    section.id = "ultimos-agregados";
+    const title = document.createElement('h4');
+    title.textContent = 'Últimos Agregados';
+    section.appendChild(title);
+
+    const ultimosCortes = [...datosOriginales].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 6);
+
+    const grid = document.createElement('div');
+    grid.className = 'grid'; // Grid de 3 columnas
+    ultimosCortes.forEach(item => {
+        const card = document.createElement("div"); card.className = "card";
+        card.onclick = () => mostrarDetalleModal(item);
+        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(item.imagenVehiculo); img.alt = `${item.marca} ${item.modelo}`; card.appendChild(img);
+        const overlay = document.createElement("div"); overlay.className = "overlay";
+        const yearRange = item.anoHasta && item.anoHasta !== item.anoDesde ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
+        overlay.innerHTML = `<div>${item.marca}</div><div style="font-size:0.8em; opacity:0.8;">${item.modelo} ${yearRange || ''}</div>`;
+        card.appendChild(overlay);
+        grid.appendChild(card);
+    });
+    section.appendChild(grid);
+    container.appendChild(section);
+}
+
+function mostrarMarcasConLogo(container) {
+    const section = document.createElement('div');
+    section.id = "busqueda-por-marca";
+    section.style.marginTop = '40px';
+    const title = document.createElement('h4');
+    title.textContent = 'Búsqueda por Marca';
+    section.appendChild(title);
+
+    const marcas = [...new Set(datosOriginales.map(item => item.marca))].filter(m => m).sort();
+    const grid = document.createElement("div"); grid.className = "grid";
+    marcas.forEach(m => {
+        const logoUrl = getLogoUrlForMarca(m, null); // Categoria null para búsqueda general
+        if (logoUrl) {
+            const card = document.createElement("div"); card.className = "card";
+            card.onclick = () => mostrarModelos(null, m);
+            const img = document.createElement("img"); img.src = logoUrl; img.alt = `Marca ${m}`; card.appendChild(img);
+            const overlay = document.createElement("div"); overlay.className = "overlay"; overlay.innerHTML = m; card.appendChild(overlay);
+            grid.appendChild(card);
+        }
+    });
+    section.appendChild(grid);
+    container.appendChild(section);
+}
+
+function mostrarCategorias(container) {
+    const section = document.createElement('div');
+    section.id = "busqueda-por-categoria";
+    section.style.marginTop = '40px';
+    const title = document.createElement('h4');
+    title.textContent = 'Búsqueda por Categoría';
+    section.appendChild(title);
+
     const categorias = [...new Set(datosOriginales.map(item => item.categoria))].filter(c => c).sort();
     const grid = document.createElement("div"); grid.className = "grid";
     categorias.forEach(cat => {
-        const itemsInCategory = datosOriginales.filter(item => item.categoria === cat);
-        const ejemplo = itemsInCategory.find(item => item.imagenVehiculo);
+        const ejemplo = datosOriginales.find(item => item.categoria === cat && item.imagenVehiculo);
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarMarcas(cat);
         const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo); img.alt = `Categoría ${cat}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay"; overlay.innerHTML = cat; card.appendChild(overlay);
         grid.appendChild(card);
     });
-    cont.appendChild(grid);
-    mostrarUltimosAgregados();
-}
-
-function mostrarUltimosAgregados() {
-    const cont = document.getElementById("contenido");
-    if (!datosOriginales || datosOriginales.length === 0) return;
-
-    const ultimosCortes = [...datosOriginales].sort((a, b) => b.id - a.id).slice(0, 6);
-
-    const section = document.createElement('div');
-    section.style.marginTop = '40px';
-    const title = document.createElement('h4');
-    title.textContent = 'Últimos agregados:';
-    section.appendChild(title);
-
-    const grid = document.createElement('div'); grid.className = 'grid';
-    ultimosCortes.forEach(item => {
-        const card = document.createElement("div"); card.className = "card";
-        card.onclick = () => mostrarDetalleModal(item);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(item.imagenVehiculo); img.alt = `${item.marca} ${item.modelo}`; card.appendChild(img);
-        const overlay = document.createElement("div"); overlay.className = "overlay";
-        const yearRange = item.anoHasta ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
-        overlay.innerHTML = `<div>${item.marca}</div><div style="font-size:0.8em; opacity:0.8;">${item.modelo} ${yearRange || ''}</div>`;
-        card.appendChild(overlay);
-        grid.appendChild(card);
-    });
     section.appendChild(grid);
-    cont.appendChild(section);
+    container.appendChild(section);
 }
 
 function mostrarMarcas(categoria) {
