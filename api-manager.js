@@ -12,7 +12,9 @@ const API_ENDPOINTS = {
     CATALOG:  "https://script.google.com/macros/s/AKfycbzRX2Ghwv8svlgBZg_mEUP6f9Co1osY5iGl8-pytUwayOeyCPfy58-_8ryxayH1HWA1/exec",
     WRITE:    "https://script.google.com/macros/s/AKfycbwzAgwnmSxRfPRTWWpBDSq4Zja3EpRvrY0W0AT5r7ZFsVIIxIRsIIYVitCdmDaEfc-wfA/exec",
     USERS:    "https://script.google.com/macros/s/AKfycbw3kFPGA3N0eoTQ7wIW9TO8UkneOKvN0QzoEHQaQXhbqi7WaQbLcYm0pvhLsKAd16YA/exec",
-    FEEDBACK: "https://script.google.com/macros/s/AKfycbw_MnefNK265XiQKX6O9SAtXxDY0aqtGZdtjCNznZLvPAVAGPflSVon5gJgliTbPkkN/exec"
+    FEEDBACK: "https://script.google.com/macros/s/AKfycbw_MnefNK265XiQKX6O9SAtXxDY0aqtGZdtjCNznZLvPAVAGPflSVon5gJgliTbPkkN/exec",
+    // IMPORTANTE: El usuario debe desplegar el script 'utilities.js' y pegar la URL aquí.
+    UTILITIES: "URL_DESPLEGADA_PARA_UTILITIES"
 };
 
 // Mapeo de cada 'action' al servicio que le corresponde.
@@ -39,6 +41,11 @@ const ACTION_TO_SERVICE_MAP = {
     // Feedback Service
     'recordLike': 'FEEDBACK',
     'reportProblem': 'FEEDBACK',
+    'sendContactForm': 'FEEDBACK',
+
+    // Utilities Service
+    'migrateYearRanges': 'UTILITIES',
+    'migrateTimestamps': 'UTILITIES',
 
     // Legacy (acciones que aún no se han migrado o son de propósito general)
     'logFrontend': 'LEGACY'
