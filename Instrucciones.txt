@@ -1,7 +1,7 @@
 =================================================
  INSTRUCTIVO DEL PROYECTO GPSpedia 2.0
 =================================================
-**Versión del Documento:** 3.2
+**Versión del Documento:** 3.3
 **Fecha de Actualización:** 2024-08-19
 
 Este documento detalla las normas de desarrollo, el estado de las tareas pendientes y el flujo de trabajo para el proyecto GPSpedia 2.0.
@@ -92,7 +92,75 @@ ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
 
 ### Deuda Técnica y Mejoras
 - [ ] **Script de Migración de Timestamps:** Implementar un script de ejecución única para rellenar el campo `timestamp` en los registros existentes.
+- [ ] **Script de Migración de Rango de Años:** Implementar el script de ejecución única para poblar `anoDesde` y `anoHasta`.
 
+---
+### **Plan de Implementación Técnica: Tareas Adicionales**
+
+Esta sección detalla los requerimientos para un nuevo conjunto de funcionalidades críticas centradas en la migración de datos y la mejora de la lógica de negocio para la gestión de rangos de años y timestamps.
+
+#### **1. Nuevo Microservicio: `GPSpedia-Utilities` (Ejecución Única)**
+
+Se creará un nuevo proyecto de Google Apps Script, independiente de los microservicios existentes, con el único propósito de realizar una migración y corrección de datos en la hoja `Cortes` de la base de datos. Este script se ejecutará una sola vez y contendrá dos funciones principales:
+
+**A. Función 1: Migración de Rango de Años**
+*   **Objetivo:** Procesar la columna `anoDesde`, que actualmente contiene rangos de texto (ej. "2016-2022") o años únicos (ej. "2006"), para poblar correctamente las columnas `anoDesde` y `anoHasta` con valores numéricos individuales.
+*   **Lógica de Ejecución:**
+    1.  El script iterará sobre cada fila de la hoja `Cortes`.
+    2.  Para cada fila, leerá el valor de la celda en la columna `anoDesde`.
+    3.  **Si el valor contiene un guion (`-`):**
+        *   Se dividirá la cadena de texto en dos partes.
+        *   Se identificarán los dos valores numéricos, determinando cuál es el menor y cuál es el mayor.
+        *   El valor numérico **menor** se escribirá de nuevo en la columna `anoDesde` de esa fila, sobrescribiendo el rango de texto.
+        *   El valor numérico **mayor** se escribirá en la columna `anoHasta` de la misma fila.
+    4.  **Si el valor es un único número de 4 dígitos (ej. "2006"):**
+        *   El valor de `anoDesde` no se modificará.
+        *   El mismo valor se copiará a la columna `anoHasta` de la misma fila.
+
+**B. Función 2: Migración de Timestamps desde Metadatos de Google Drive**
+*   **Objetivo:** Rellenar la columna `timestamp` en la hoja `Cortes` utilizando la fecha de creación del archivo de imagen del vehículo almacenado en Google Drive.
+*   **Lógica de Ejecución:**
+    1.  El script iterará sobre cada fila de la hoja `Cortes`.
+    2.  Para cada fila, leerá la URL en la columna `imagenVehiculo`.
+    3.  **Si existe una URL:**
+        *   Se extraerá el `ID` del archivo de Google Drive de la URL.
+        *   Utilizando el servicio `DriveApp` de Apps Script, se obtendrá el objeto de archivo (`File`) correspondiente a ese ID.
+        *   Se accederá a los metadatos del archivo para obtener su fecha de creación (`dateCreated`).
+        *   La fecha se formateará al estándar `DD/MM/AAAA`.
+        *   La fecha formateada se escribirá en la columna `timestamp` de la fila correspondiente.
+
+---
+
+#### **2. Modificaciones a Servicios Existentes (Lógica Continua)**
+
+**A. Servicio `GPSpedia-Feedback`: Lógica de Expansión de Rango de Años**
+*   **Objetivo:** Mejorar la funcionalidad del botón "Útil" para que los usuarios puedan sugerir que un corte aplica a un año fuera del rango establecido, expandiendo dinámicamente la aplicabilidad del registro.
+*   **Lógica de Backend:**
+    1.  El frontend enviará el `ID` del vehículo y el `año sugerido` por el usuario al backend.
+    2.  El backend verificará si el `año sugerido` ya se encuentra dentro del rango `[anoDesde, anoHasta]`. Si es así, no se realizará ninguna acción.
+    3.  **Lógica de Anti-colisión de Generaciones:**
+        *   Antes de realizar cualquier cambio, el sistema buscará en toda la hoja `Cortes` si existe **otro registro** con la misma `marca`, `modelo` y `tipoEncendido`.
+        *   Esta comprobación es crucial para evitar que los rangos de diferentes generaciones de un mismo modelo se solapen incorrectamente.
+    4.  **Actualización del Rango:**
+        *   Si el `año sugerido` es **menor** que `anoDesde` y no hay colisión, el valor de `anoDesde` se actualizará al `año sugerido`.
+        *   Si el `año sugerido` es **mayor** que `anoHasta` y no hay colisión, el valor de `anoHasta` se actualizará al `año sugerido`.
+*   **Manejo de Casos de Múltiples Generaciones (Ejemplo Técnico):**
+    *   **Escenario:** El usuario indica que el corte para una **Honda CR-V (2016-2022)** también fue útil para un modelo **2026**.
+    *   **Proceso:**
+        1.  El sistema detecta que `2026` está fuera del rango `2016-2022`.
+        2.  Realiza una búsqueda y encuentra otro registro para **Honda CR-V** con un rango de `2023-2025`.
+        3.  En lugar de modificar el registro original (`2016-2022`), el sistema identifica que `2026` es una extensión lógica del segundo registro (`2023-2025`).
+        4.  La columna `anoHasta` del **segundo registro** se actualiza a `2026`.
+
+**B. Servicio `GPSpedia-Write`: Gestión de Timestamps y Lógica Frontend**
+*   **Objetivo:** Asegurar que la columna `timestamp` se actualice siempre que se realice una modificación significativa en un registro y que el frontend utilice esta información para mostrar el contenido más reciente.
+*   **Lógica de Backend (`write.js`):**
+    1.  Al crear un **vehículo completamente nuevo**, se registrará la fecha actual en la columna `timestamp`.
+    2.  Al añadir un **nuevo corte** a un vehículo ya existente, la columna `timestamp` de esa fila se actualizará con la fecha actual.
+    3.  Al añadir **información suplementaria** (ej. detalles de apertura, videoguía), la columna `timestamp` también se actualizará con la fecha actual.
+*   **Lógica de Frontend (`index.html`):**
+    1.  La sección "Últimos Agregados" deberá obtener los datos del catálogo y ordenarlos en base a la columna `timestamp` en orden descendente antes de renderizarlos.
+    2.  Las tarjetas de vehículo en esta sección deberán indicar qué tipo de información se agregó o actualizó recientemente (ej. "Nuevo Vehículo", "Corte Adicional", "Info. de Apertura"). Esto podría requerir una lógica adicional o un nuevo campo en la respuesta de la API.
 ---
 ### Arquitectura de la Base de Datos
 
