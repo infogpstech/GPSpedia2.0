@@ -43,13 +43,11 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
-            table-layout: fixed; /* Previene el desbordamiento de la tabla */
         }
         .user-table th, .user-table td {
             padding: 12px;
             border-bottom: 1px solid #ddd;
             text-align: left;
-            word-break: break-word; /* Asegura que el texto largo se ajuste */
         }
         .user-table th {
             background-color: #f8f9fa;
@@ -240,9 +238,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function displayProfile() {
-    // Corregido para usar las propiedades correctas del objeto currentUser
     document.getElementById('profile-username').textContent = currentUser.Nombre_Usuario;
-    document.getElementById('profile-fullname').textContent = currentUser.Nombre_Completo || currentUser.Nombre_Usuario; // Fallback por si Nombre_Completo no existe
+    document.getElementById('profile-fullname').textContent = currentUser.Nombre_Usuario;
     document.getElementById('profile-role').textContent = currentUser.Privilegios;
 }
 
@@ -273,14 +270,13 @@ function renderUserTable() {
     tbody.innerHTML = '';
     allUsers.forEach(user => {
         const row = document.createElement('tr');
-        // Corregido: Usar las propiedades PascalCase devueltas por la API
         row.innerHTML = `
-            <td>${user.Nombre_Usuario}</td>
-            <td>${user.Nombre_Completo || ''}</td>
-            <td>${user.Privilegios}</td>
+            <td>${user.nombreUsuario}</td>
+            <td>${user.nombre}</td>
+            <td>${user.privilegios}</td>
             <td class="actions-cell">
                 <button class="btn btn-warning btn-sm" onclick='openUserModal(${JSON.stringify(user)})'>Editar</button>
-                <button class="btn btn-danger btn-sm" onclick="deleteUser('${user.ID}')">Eliminar</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteUser('${user.id}')">Eliminar</button>
             </td>
         `;
         tbody.appendChild(row);
@@ -318,10 +314,9 @@ function openUserModal(user = null) {
 
     if (user) {
         title.textContent = 'Editar Usuario';
-        // Corregido: Usar las propiedades PascalCase del objeto user
-        document.getElementById('user-id').value = user.ID;
-        document.getElementById('fullname').value = user.Nombre_Completo || '';
-        document.getElementById('username-modal').value = user.Nombre_Usuario;
+        document.getElementById('user-id').value = user.id;
+        document.getElementById('fullname').value = user.nombre;
+        document.getElementById('username-modal').value = user.nombreUsuario;
     } else {
         title.textContent = 'Crear Nuevo Usuario';
         document.getElementById('user-id').value = '';
@@ -340,10 +335,7 @@ function openUserModal(user = null) {
         option.textContent = role;
         roleSelect.appendChild(option);
     });
-    if (user) {
-        // Corregido: Usar la propiedad Privilegios
-        roleSelect.value = user.Privilegios;
-    }
+    if(user) roleSelect.value = user.privilegios;
 
     modal.style.display = 'block';
 }
