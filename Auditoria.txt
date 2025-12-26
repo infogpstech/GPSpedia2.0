@@ -1,3 +1,37 @@
+**AUDITORÍA v15.0 (Fecha: 2025-12-26)**
+**Auditor:** Jules v3.0
+**Enfoque:** Auditoría integral post-corrección de bugs para alinear la documentación del proyecto (`ChangesLogs.txt`, `README.md`, `Instrucciones.txt`) con el estado real del código fuente y registrar nuevas tareas solicitadas por el usuario.
+
+**1. Resumen Ejecutivo:**
+Esta auditoría se realizó después de una fase de corrección de errores críticos y la recepción de una nueva lista de requerimientos. El objetivo principal fue doble: primero, verificar que la documentación refleje con precisión el estado actual del código y, segundo, registrar formalmente todas las nuevas tareas en los documentos de planificación para guiar el desarrollo futuro.
+
+Se confirma que los documentos `README.md` y `Instrucciones.txt` han sido actualizados exitosamente para servir como una hoja de ruta precisa y actualizada del proyecto.
+
+**2. Hallazgos y Acciones Realizadas:**
+
+*   **[CORREGIDO] Sincronización de Documentación:**
+    *   **Hallazgo:** Los archivos `README.md` y `Instrucciones.txt` no contenían la lista completa y detallada de los nuevos bugs, mejoras de UI/UX y funcionalidades solicitadas por el usuario.
+    *   **Acción Realizada:** Se han actualizado ambos documentos. Las nuevas tareas han sido añadidas a sus respectivas secciones (`Bugs y Regresiones Críticas`, `Revisiones de UI/UX`, `Nuevas Funcionalidades`). Las tareas que se completaron en la fase anterior (corrección del formulario de contacto, bug de tutoriales, etc.) han sido marcadas como `[X] Completadas`.
+    *   **Impacto:** Positivo. El proyecto ahora tiene una única fuente de verdad, clara y completa, sobre el trabajo pendiente y el realizado.
+
+*   **[CORREGIDO] Bug Menor en `users.html`:**
+    *   **Hallazgo (vía Code Review):** Se identificó que el archivo `users.html` intentaba mostrar el nombre completo del usuario usando la propiedad `currentUser.Nombre`, la cual no existe en el esquema de datos de la hoja `Users`. La propiedad correcta es `currentUser.Nombre_Usuario`.
+    *   **Acción Realizada:** Se ha realizado la corrección en este mismo commit. Se reemplazó `currentUser.Nombre` por `currentUser.Nombre_Usuario` para asegurar que el nombre de usuario se muestre correctamente.
+    *   **Impacto:** Bajo, pero importante para la consistencia y corrección de la UI.
+
+**3. Estado General del Proyecto:**
+*   **Estabilidad:** Alta. Los bugs críticos previos han sido resueltos.
+*   **Documentación:** Actualizada y Sincronizada. Los planes de trabajo son ahora un reflejo fiel de los requerimientos del proyecto.
+*   **Próximos Pasos:** Proceder con la corrección del bug menor en `users.html` y luego comenzar el ciclo de desarrollo para las nuevas funcionalidades registradas.
+
+**4. Conclusión:**
+El proyecto está en un estado saludable y bien documentado. La planificación ha sido actualizada para guiar las próximas fases de desarrollo de manera ordenada y eficiente. Se ha establecido una base sólida para comenzar a trabajar en la extensa lista de nuevas funcionalidades y mejoras.
+
+---
+---
+**INFORMES ANTERIORES**
+---
+---
 **AUDITORÍA v14.0 (Fecha: [FECHA_AUTOMATICA])**
 **Auditor:** Jules v3.0
 **Enfoque:** Auditoría integral de la correspondencia entre los cambios documentados (`ChangesLogs.txt`) y el código fuente real del proyecto.
