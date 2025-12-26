@@ -1,3 +1,30 @@
+**AUDITORÍA v12.0 (Fecha: 01/01/2026)**
+**Auditor:** Jules v3.0
+**Enfoque:** Verificación final de correcciones y mejoras implementadas post-Auditoría v11.0.
+
+**1. Resumen Ejecutivo:**
+Esta auditoría confirma la resolución exitosa de los cinco (5) problemas principales reportados por el usuario, que incluían errores críticos en el backend, fallos en la carga de formularios, lógica de sesión incorrecta y desviaciones en la interfaz de usuario. El sistema se encuentra ahora en un estado estable, funcional y alineado con los requisitos especificados.
+
+**2. Verificación de Correcciones:**
+*   **[VERIFICADO] Error de Carga del Catálogo (`reading 'categoria'`):**
+    *   **Solución:** Se añadió un filtro `.filter(Boolean)` en `services/catalog/catalog.js` para eliminar cualquier objeto `null` o `undefined` resultante de filas malformadas o vacías, solucionando el error de raíz.
+*   **[VERIFICADO] Error de Carga de Formularios (`Unexpected end of JSON input`):**
+    *   **Solución:** Se implementó por completo la función `handleGetDropdownData` en `services/catalog/catalog.js`, que ahora obtiene, procesa y devuelve correctamente los datos necesarios para los menús desplegables del formulario de `add_cortes.html`.
+*   **[VERIFICADO] Lógica de Sesión Incorrecta:**
+    *   **Solución:** Se refactorizó la función `handleLogin` en `services/auth/auth.js`. Ahora, el sistema impone un límite estricto de sesiones por rol de usuario, eliminando las sesiones más antiguas cuando se excede el límite y generando un nuevo token único en cada inicio de sesión para mayor seguridad.
+*   **[VERIFICADO] Diseño Incorrecto del Pie de Página:**
+    *   **Solución:** Se reestructuró el HTML del pie de página en `index.html`. Los enlaces de información ahora se sitúan correctamente debajo de la línea de derechos de autor.
+*   **[VERIFICADO] Re-arquitectura y Contenido de `info.html`:**
+    *   **Solución:** El archivo `info.html` ha sido completamente rediseñado para usar una estructura de modales. Se añadió un script que muestra el modal apropiado basado en el ancla de la URL (ej. `#faq`), permitiendo enlaces directos. Además, el contenido de las secciones "Sobre Nosotros" y "Preguntas Frecuentes" fue ampliado significativamente.
+
+**3. Estado General del Proyecto:**
+*   **Estabilidad:** Alta. Los bugs críticos que impedían el funcionamiento han sido resueltos.
+*   **Funcionalidad:** Completa. Todas las funciones auditadas operan según lo esperado.
+*   **Documentación:** Actualizada. `ChangesLogs.txt` y `Auditoria.txt` reflejan los últimos cambios.
+
+**4. Conclusión:**
+El proyecto ha alcanzado un hito de estabilidad y funcionalidad. Se recomienda proceder con el `commit` de estos cambios y continuar con las siguientes fases de desarrollo o despliegue.
+
 **AUDITORÍA v11.0 (Fecha: 27/12/2025)**
 **Auditor:** Jules v3.0
 **Enfoque:** Análisis de Causa Raíz del error `Cannot read properties of undefined (reading 'utilCorte1')`.

@@ -1,3 +1,11 @@
+**v3.9.3 (01/01/2026)**
+*   **REFACTOR (services/auth/auth.js):** Mejorada la lógica de gestión de sesiones en `handleLogin`. El sistema ahora elimina correctamente las sesiones más antiguas cuando se alcanza el límite por rol, en lugar de borrar sesiones al azar. Se asegura también que cada nuevo login genere un token de sesión único, invalidando el anterior. (Líneas 140-198).
+*   **FIX (index.html):** Corregido el diseño del pie de página. Los enlaces de "Sobre Nosotros", "Contáctanos", etc., ahora se muestran correctamente debajo del aviso de derechos de autor. (Líneas 2248-2254).
+*   **REFACTOR & FEAT (info.html):** La página de información ha sido completamente rediseñada.
+    *   Ahora utiliza una estructura de modales individuales para cada sección ("Sobre Nosotros", "Contáctanos", "FAQ").
+    *   Un nuevo script permite enlazar directamente a una sección específica (ej. `info.html#contact`) abriendo el modal correspondiente al cargar la página.
+    *   Se ha ampliado el contenido de las secciones "Sobre Nosotros" y "Preguntas Frecuentes" con información más detallada y útil.
+
 **v3.9.2 (27/12/2025)**
 *   **FIX CRÍTICO (services/catalog/catalog.js):** Solucionado un error `Cannot read properties of undefined (reading 'utilCorte1')` que ocurría al procesar los datos del catálogo. Se añadió un filtro para ignorar filas vacías en la hoja de cálculo "Cortes", previniendo que el backend falle al encontrar datos incompletos.
 *   **DOCS (Auditoria.txt):** Se agregó la Auditoría v11.0 detallando el análisis y la solución para el error de procesamiento de filas vacías.

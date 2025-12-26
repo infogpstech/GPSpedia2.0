@@ -184,7 +184,7 @@ function handleGetCatalogData() {
             });
 
             return orderedVehicle;
-        });
+        }).filter(Boolean); // <-- FIX: Eliminar cualquier objeto nulo resultante del mapeo
     }
     allData.cortes = cortesData;
 
@@ -221,7 +221,48 @@ function handleGetCatalogData() {
     return { status: 'success', data: allData };
 }
 
-function handleGetDropdownData() { /* ... sin cambios, ya que los nombres de columna son los mismos ... */ }
+function handleGetDropdownData() {
+    try {
+        const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
+        if (!sheet) {
+            throw new Error(`Sheet "${SHEET_NAMES.CORTES}" not found.`);
+        }
+
+        const data = sheet.getDataRange().getValues();
+        const headers = data.shift(); // Remove headers
+
+        // Helper function to get unique, sorted values from a column index
+        const getUniqueSortedValues = (colIndex) => {
+            const values = new Set();
+            data.forEach(row => {
+                if (row[colIndex]) {
+                    values.add(row[colIndex].toString().trim());
+                }
+            });
+            return Array.from(values).sort((a, b) => a.localeCompare(b));
+        };
+
+        const marcas = getUniqueSortedValues(COLS_CORTES.marca - 1);
+        const modelos = getUniqueSortedValues(COLS_CORTES.modelo - 1);
+        const tiposEncendido = getUniqueSortedValues(COLS_CORTES.tipoEncendido - 1);
+
+        const dropdownData = {
+            marcas,
+            modelos,
+            tiposEncendido
+        };
+
+        return { status: 'success', data: dropdownData };
+
+    } catch (error) {
+        // Return a structured error, but doPost will also catch and wrap it.
+        return {
+            status: 'error',
+            message: 'Failed to get dropdown data.',
+            details: { errorMessage: error.message }
+        };
+    }
+}
 
 function handleCheckVehicle(payload) {
     const { marca, modelo, anio, tipoEncendido } = payload;
