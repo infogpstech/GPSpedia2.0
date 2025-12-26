@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-USERS SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 2.2.1
+// COMPONENT VERSION: 2.3.0
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -36,22 +36,24 @@ const COLS_USERS = {
 // ============================================================================
 
 function doGet(e) {
+    const serviceState = {
+        service: 'GPSpedia-Users',
+        componentVersion: '2.3.0',
+        spreadsheetId: SPREADSHEET_ID,
+        sheets: {
+            users: SHEET_NAMES.USERS
+        }
+    };
+
     if (e.parameter.debug === 'true') {
-        const serviceState = {
-            service: 'GPSpedia-Users',
-            version: '1.2.1',
-            spreadsheetId: SPREADSHEET_ID,
-            sheetsAccessed: [SHEET_NAMES.USERS]
-        };
         return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
             .setMimeType(ContentService.MimeType.JSON);
     }
-    const defaultResponse = {
+
+    return ContentService.createTextOutput(JSON.stringify({
         status: 'success',
-        message: 'GPSpedia Users-SERVICE v1.2.1 is active.'
-    };
-    return ContentService.createTextOutput(JSON.stringify(defaultResponse))
-        .setMimeType(ContentService.MimeType.JSON);
+        message: `${serviceState.service} v${serviceState.componentVersion} is active.`
+    })).setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {
@@ -247,7 +249,8 @@ function handleChangePassword(payload) {
 
     for (let i = 0; i < data.length; i++) {
         if (data[i][COLS_USERS.ID - 1] == userId) {
-            if (String(data[i][COLS_USERS.Password - 1]) === String(currentPassword)) {
+            // Corrección: Alinear con la lógica de login, haciendo la comparación case-insensitive.
+            if (String(data[i][COLS_USERS.Password - 1]).toLowerCase() === String(currentPassword).toLowerCase()) {
                 userSheet.getRange(i + 2, COLS_USERS.Password).setValue(newPassword);
                 return { status: 'success', message: 'Contraseña actualizada.' };
             } else {

@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-CATALOG SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 2.3.0
+// COMPONENT VERSION: 2.4.0
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -70,22 +70,27 @@ const COLS_RELAY = {
 // ROUTER PRINCIPAL (doGet y doPost)
 // ============================================================================
 function doGet(e) {
+    const serviceState = {
+        service: 'GPSpedia-Catalog',
+        componentVersion: '2.4.0',
+        spreadsheetId: SPREADSHEET_ID,
+        sheets: {
+            cortes: SHEET_NAMES.CORTES,
+            logos: SHEET_NAMES.LOGOS_MARCA,
+            tutoriales: SHEET_NAMES.TUTORIALES,
+            relay: SHEET_NAMES.RELAY
+        }
+    };
+
     if (e.parameter.debug === 'true') {
-        const serviceState = {
-            service: 'GPSpedia-Catalog',
-            version: '1.2.1',
-            spreadsheetId: SPREADSHEET_ID,
-            sheetsAccessed: [SHEET_NAMES.CORTES, SHEET_NAMES.TUTORIALES, SHEET_NAMES.RELAY]
-        };
         return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
             .setMimeType(ContentService.MimeType.JSON);
     }
-    const defaultResponse = {
+
+    return ContentService.createTextOutput(JSON.stringify({
         status: 'success',
-        message: 'GPSpedia Catalog-SERVICE v1.2.1 is active.'
-    };
-    return ContentService.createTextOutput(JSON.stringify(defaultResponse))
-        .setMimeType(ContentService.MimeType.JSON);
+        message: `${serviceState.service} v${serviceState.componentVersion} is active.`
+    })).setMimeType(ContentService.MimeType.JSON);
 }
 function doPost(e) {
   try {
@@ -103,6 +108,9 @@ function doPost(e) {
         break;
       case 'checkVehicle':
         result = handleCheckVehicle(payload);
+        break;
+      case 'getNavigationData':
+        result = handleGetNavigationData(payload);
         break;
       default:
         throw new Error(`Acción desconocida: ${action}`);
@@ -247,7 +255,9 @@ function handleGetDropdownData() {
 
         // Obtener la regla de validación de la columna "Categoría"
         const categoriaRule = sheet.getRange(2, COLS_CORTES.categoria).getDataValidation();
-        const categorias = categoriaRule ? categoriaRule.getCriteriaValues()[0].getValues().flat().filter(String).sort() : [];
+        // Corrección: La validación de datos de "Categoría" es una lista de valores, no un rango.
+        // El método .getValues() no es válido en un array de valores. Se accede directamente.
+        const categorias = categoriaRule ? categoriaRule.getCriteriaValues().filter(String).sort() : [];
 
         const data = sheet.getDataRange().getValues();
         data.shift(); // Remove headers
@@ -332,4 +342,40 @@ function isYearInRangeV2(inputYear, anoDesde, anoHasta) {
     const desde = anoDesde ? parseInt(anoDesde, 10) : inputYear;
     const hasta = anoHasta ? parseInt(anoHasta, 10) : desde; // Si no hay 'hasta', el rango es solo un año.
     return inputYear >= desde && inputYear <= hasta;
+}
+
+function handleGetNavigationData(payload) {
+    const { nivel, marca, modelo } = payload;
+    if (!nivel) throw new Error("El parámetro 'nivel' es requerido.");
+
+    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
+    const data = sheet.getDataRange().getValues();
+    data.shift(); // Remove headers
+
+    let results = [];
+    if (nivel === 'marcas') {
+        const marcas = new Set(data.map(row => row[COLS_CORTES.marca - 1]).filter(Boolean));
+        results = Array.from(marcas).sort();
+    } else if (nivel === 'modelos') {
+        if (!marca) throw new Error("El parámetro 'marca' es requerido para el nivel 'modelos'.");
+        const modelos = new Set(
+            data.filter(row => row[COLS_CORTES.marca - 1] === marca)
+                .map(row => row[COLS_CORTES.modelo - 1])
+                .filter(Boolean)
+        );
+        results = Array.from(modelos).sort();
+    } else if (nivel === 'anios') {
+        if (!marca || !modelo) throw new Error("Los parámetros 'marca' y 'modelo' son requeridos para el nivel 'anios'.");
+        const anios = data.filter(row => row[COLS_CORTES.marca - 1] === marca && row[COLS_CORTES.modelo - 1] === modelo)
+                           .map(row => ({
+                               id: row[COLS_CORTES.id - 1],
+                               anoDesde: row[COLS_CORTES.anoDesde - 1],
+                               anoHasta: row[COLS_CORTES.anoHasta - 1]
+                           }));
+        results = anios;
+    } else {
+        throw new Error(`Nivel '${nivel}' no reconocido. Los niveles válidos son: marcas, modelos, anios.`);
+    }
+
+    return { status: 'success', data: results };
 }
