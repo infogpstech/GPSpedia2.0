@@ -30,7 +30,9 @@ const COLS_CORTES = {
     colorCableCorte1: 14, configRelay1: 15, imgCorte1: 16, utilCorte1: 17, colaboradorCorte1: 18,
     tipoCorte2: 19, ubicacionCorte2: 20, colorCableCorte2: 21, configRelay2: 22, imgCorte2: 23,
     utilCorte2: 24, colaboradorCorte2: 25, tipoCorte3: 26, ubicacionCorte3: 27, colorCableCorte3: 28,
-    configRelay3: 29, imgCorte3: 30, utilCorte3: 31, colaboradorCorte3: 32, timestamp: 33, notaImportante: 34
+    configRelay3: 29, imgCorte3: 30, utilCorte3: 31, colaboradorCorte3: 32,
+    apertura: 33, imgApertura: 34, cableAlimen: 35, imgCableAlimen: 36,
+    timestamp: 37, notaImportante: 38
 };
 
 // Mapa de columnas para la hoja "Feedbacks" (v2.0)
