@@ -89,24 +89,38 @@ function doGet(e) {
 }
 
 function doPost(e) {
-    // ... (código del router sin cambios, se añaden nuevos casos)
-    switch (request.action) {
-        case 'recordLike':
-            response = handleRecordLike(request.payload);
-            break;
-        case 'reportProblem':
-            response = handleReportProblem(request.payload);
-            break;
-        case 'assignCollaborator':
-            response = handleAssignCollaborator(request.payload);
-            break;
-        case 'suggestYear':
-            response = handleSuggestYear(request.payload);
-            break;
-        default:
-            throw new Error(`Acción desconocida en Feedback Service: ${request.action}`);
+    let response;
+    try {
+        const request = JSON.parse(e.postData.contents);
+        const action = request.action;
+        const payload = request.payload || {};
+
+        switch (action) {
+            case 'recordLike':
+                response = handleRecordLike(payload);
+                break;
+            case 'reportProblem':
+                response = handleReportProblem(payload);
+                break;
+            case 'assignCollaborator':
+                response = handleAssignCollaborator(payload);
+                break;
+            case 'suggestYear':
+                response = handleSuggestYear(payload);
+                break;
+            case 'sendContactForm':
+                response = handleSendContactForm(payload);
+                break;
+            default:
+                throw new Error(`Acción desconocida en Feedback Service: ${action}`);
+        }
+        return ContentService.createTextOutput(JSON.stringify(response))
+            .setMimeType(ContentService.MimeType.JSON);
+    } catch (error) {
+        response = { status: 'error', message: error.message };
+        return ContentService.createTextOutput(JSON.stringify(response))
+            .setMimeType(ContentService.MimeType.JSON);
     }
-    // ...
 }
 
 // ============================================================================
@@ -296,4 +310,21 @@ function handleSuggestYear(payload) {
     } else {
         return { status: 'info', message: 'El año sugerido ya está dentro del rango existente.' };
     }
+}
+
+function handleSendContactForm(payload) {
+    const { name, email, message } = payload;
+    if (!name || !email || !message) {
+        throw new Error("Faltan datos para enviar el formulario de contacto.");
+    }
+
+    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CONTACTANOS);
+    const newRow = [];
+    newRow[COLS_CONTACTANOS.Contacto_ID - 1] = ''; // Autogen ID
+    newRow[COLS_CONTACTANOS.User_ID - 1] = ''; // Asumiendo que no hay un usuario logueado.
+    newRow[COLS_CONTACTANOS.Asunto - 1] = `Contacto de ${name}`;
+    newRow[COLS_CONTACTANOS.Mensaje - 1] = `De: ${email}\n\n${message}`;
+    sheet.appendRow(newRow);
+
+    return { status: 'success', message: 'Formulario de contacto enviado.' };
 }

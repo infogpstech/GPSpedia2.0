@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
     displayProfile();
     setupEventListeners();
 
-    const userRole = (currentUser.privilegios || '').trim();
+    const userRole = (currentUser.Privilegios || '').trim();
     if (['Desarrollador', 'Gefe', 'Supervisor'].includes(userRole)) {
         document.getElementById('user-management-section').style.display = 'block';
         fetchUsers();
@@ -238,9 +238,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function displayProfile() {
-    document.getElementById('profile-username').textContent = currentUser.nombreUsuario;
-    document.getElementById('profile-fullname').textContent = currentUser.nombre;
-    document.getElementById('profile-role').textContent = currentUser.privilegios;
+    document.getElementById('profile-username').textContent = currentUser.Nombre_Usuario;
+    document.getElementById('profile-fullname').textContent = currentUser.Nombre;
+    document.getElementById('profile-role').textContent = currentUser.Privilegios;
 }
 
 async function postToAction(action, payload = {}) {
@@ -257,7 +257,7 @@ async function postToAction(action, payload = {}) {
 
 async function fetchUsers() {
     try {
-        const result = await postToAction('getUsers', { privilegios: currentUser.privilegios });
+        const result = await postToAction('getUsers', { privilegios: currentUser.Privilegios });
         allUsers = result.users;
         renderUserTable();
     } catch (error) {
@@ -325,9 +325,9 @@ function openUserModal(user = null) {
     const roleSelect = document.getElementById('role');
     roleSelect.innerHTML = '';
     let availableRoles = [];
-    if (currentUser.privilegios === 'Desarrollador') availableRoles = ['Desarrollador', 'Gefe', 'Supervisor', 'Tecnico', 'Tecnico_Exterior'];
-    else if (currentUser.privilegios === 'Gefe') availableRoles = ['Gefe', 'Supervisor', 'Tecnico'];
-    else if (currentUser.privilegios === 'Supervisor') availableRoles = ['Tecnico'];
+    if (currentUser.Privilegios === 'Desarrollador') availableRoles = ['Desarrollador', 'Gefe', 'Supervisor', 'Tecnico', 'Tecnico_Exterior'];
+    else if (currentUser.Privilegios === 'Gefe') availableRoles = ['Gefe', 'Supervisor', 'Tecnico'];
+    else if (currentUser.Privilegios === 'Supervisor') availableRoles = ['Tecnico'];
 
     availableRoles.forEach(role => {
         const option = document.createElement('option');
@@ -352,10 +352,10 @@ async function handleUserFormSubmit(e) {
 
     try {
         if (userId) {
-            await postToAction('updateUser', { userId, updates: userData, updaterRole: currentUser.privilegios });
+            await postToAction('updateUser', { userId, updates: userData, updaterRole: currentUser.Privilegios });
             alert('Usuario actualizado');
         } else {
-            await postToAction('createUser', { newUser: userData, creatorRole: currentUser.privilegios });
+            await postToAction('createUser', { newUser: userData, creatorRole: currentUser.Privilegios });
             alert('Usuario creado');
         }
         document.getElementById('user-modal').style.display = 'none';
@@ -368,7 +368,7 @@ async function handleUserFormSubmit(e) {
 async function deleteUser(userId) {
     if (confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
         try {
-            await postToAction('deleteUser', { userId, deleterRole: currentUser.privilegios });
+            await postToAction('deleteUser', { userId, deleterRole: currentUser.Privilegios });
             alert('Usuario eliminado');
             fetchUsers();
         } catch (error) {
@@ -395,7 +395,7 @@ async function handleChangePasswordSubmit(e) {
 
     try {
         await postToAction('changePassword', {
-            userId: currentUser.id, // Assuming currentUser has an ID
+            userId: currentUser.ID, // Assuming currentUser has an ID
             currentPassword,
             newPassword
         });
