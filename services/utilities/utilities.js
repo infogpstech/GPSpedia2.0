@@ -106,36 +106,94 @@ function migrateYearRanges() {
 }
 
 /**
+ * Registra un mensaje en la hoja de 'Logs' de la base de datos.
+ * @param {string} level - Nivel del log (e.g., 'INFO', 'ERROR').
+ * @param {string} message - El mensaje a registrar.
+ * @param {object} [data={}] - Datos adicionales para incluir.
+ */
+function logToSheet(level, message, data = {}) {
+    try {
+        const logSheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName("Logs");
+        if (logSheet) {
+            logSheet.appendRow([
+                new Date(),
+                level,
+                message,
+                JSON.stringify(data)
+            ]);
+        }
+    } catch (e) {
+        // Fallback a Logger si la escritura en la hoja falla
+        Logger.log(`Error al escribir en la hoja de Logs: ${e.message}. Log original: ${level} - ${message}`);
+    }
+}
+
+/**
+ * Extrae el ID de un archivo de Google Drive desde varios formatos de URL.
+ * @param {string} url - La URL de Google Drive.
+ * @returns {string|null} El ID del archivo o null si no se encuentra.
+ */
+function extractDriveFileId(url) {
+    if (!url || typeof url !== 'string') return null;
+    const regexPatterns = [
+        /(?:\/file\/d\/|\/d\/)([a-zA-Z0-9_-]{28,})/,
+        /[?&]id=([a-zA-Z0-9_-]{28,})/,
+        /googleusercontent\.com\/d\/([a-zA-Z0-9_-]{28,})/
+    ];
+    for (const pattern of regexPatterns) {
+        const match = url.match(pattern);
+        if (match && match[1]) {
+            return match[1];
+        }
+    }
+    return null;
+}
+
+/**
  * Rellena la columna 'timestamp' usando la fecha de creación del archivo de imagen en Drive.
+ * Versión mejorada con logging, extracción robusta de ID y escritura por lotes.
  */
 function migrateTimestamps() {
+    logToSheet('INFO', 'Inicio de la migración de timestamps.');
     const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAME);
     const range = sheet.getRange(2, 1, sheet.getLastRow() - 1, COLS_CORTES.timestamp);
     const data = range.getValues();
     let updatedCount = 0;
 
-    const newTimestamps = data.map(row => {
+    const newTimestamps = data.map((row, index) => {
+        const currentRowNum = index + 2;
         const timestampCell = row[COLS_CORTES.timestamp - 1];
-        // Solo actualizar si el timestamp está vacío
+
+        // Solo procesar si la celda de timestamp está vacía
         if (!timestampCell) {
             const imageUrl = row[COLS_CORTES.imagenVehiculo - 1];
-            if (imageUrl && imageUrl.includes('id=')) {
+            const fileId = extractDriveFileId(imageUrl);
+
+            if (fileId) {
                 try {
-                    const fileId = imageUrl.split('id=')[1];
                     const file = DriveApp.getFileById(fileId);
                     const creationDate = file.getDateCreated();
+                    const formattedDate = Utilities.formatDate(creationDate, "GMT-6", "dd/MM/yyyy");
                     updatedCount++;
-                    return [creationDate.toLocaleDateString('es-ES')];
+                    logToSheet('INFO', `Fila ${currentRowNum}: Éxito`, { fileId: fileId, date: formattedDate });
+                    return [formattedDate];
                 } catch (e) {
-                    Logger.log(`No se pudo obtener el archivo de Drive con URL: ${imageUrl}. Error: ${e.message}`);
-                    return [timestampCell]; // Mantener el valor original si hay error
+                    logToSheet('ERROR', `Fila ${currentRowNum}: Error al acceder a Drive`, { fileId: fileId, error: e.message, url: imageUrl });
+                    return [timestampCell]; // Mantener valor original en caso de error
                 }
+            } else {
+                logToSheet('WARN', `Fila ${currentRowNum}: No se pudo extraer ID de la URL.`, { url: imageUrl });
+                return [timestampCell]; // Mantener valor original si no hay ID
             }
         }
-        return [timestampCell]; // Mantener el valor original
+        return [timestampCell]; // Mantener valor original si ya tiene un timestamp
     });
 
-    // Escribir solo la columna de timestamp
-    sheet.getRange(2, COLS_CORTES.timestamp, newTimestamps.length, 1).setValues(newTimestamps);
+    // Escribir todos los nuevos timestamps en una sola operación
+    if (newTimestamps.length > 0) {
+        sheet.getRange(2, COLS_CORTES.timestamp, newTimestamps.length, 1).setValues(newTimestamps);
+    }
+
+    logToSheet('INFO', `Migración de timestamps completada. Filas actualizadas: ${updatedCount}.`);
     return { status: 'success', message: `Migración de timestamps completada. ${updatedCount} filas fueron actualizadas.` };
 }

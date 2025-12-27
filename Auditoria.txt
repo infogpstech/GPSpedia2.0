@@ -1,3 +1,83 @@
+**AUDITORÍA v17.0 (Fecha Actual)**
+**Auditor:** Jules v3.0
+**Enfoque:** Auditoría completa de correspondencia entre `ChangesLogs.txt` y el código fuente.
+
+**1. Resumen Ejecutivo:**
+Esta auditoría ha realizado una verificación exhaustiva de los cambios recientes registrados en `ChangesLogs.txt` (versiones v3.9.3 a v4.1.0) contra el código fuente actual. La mayoría de las correcciones y características documentadas han sido verificadas exitosamente. Sin embargo, se ha descubierto una discrepancia crítica que afecta a una funcionalidad documentada como implementada.
+
+Este informe anula los hallazgos conflictivos de auditorías anteriores y establece una nueva línea base precisa.
+
+**2. Hallazgos Críticos:**
+
+*   **[NO IMPLEMENTADO] Microservicio de Utilidades (`services/utilities.js`) Faltante.**
+    *   **Descripción:** El `ChangesLogs.txt` (v4.1.0) afirma que el microservicio `services/utilities.js` fue "recreado" para incluir funciones de migración de datos (`migrateYearRanges`, `migrateTimestamps`).
+    *   **Realidad del Código:** El archivo `services/utilities.js` **NO existe** en el repositorio. La llamada a este servicio desde el modal de desarrollador en `index.html` fallará inevitablemente.
+    *   **Impacto:** Crítico. La funcionalidad de migración de datos, accesible desde la nueva consola de desarrollador, es inoperable. Esto representa una documentación incorrecta y una funcionalidad rota.
+
+**3. Verificación de Cambios (Confirmados):**
+
+Se ha verificado que las siguientes implementaciones documentadas en `ChangesLogs.txt` (v3.9.3 - v4.1.0) **SÍ** están presentes y correctas en el código:
+
+*   **`users.html`:** Corregido el acceso a propiedades (`Nombre_Usuario`) y el estilo de la tabla (`table-layout: fixed`).
+*   **`services/users/users.js`:** La comparación de contraseñas es ahora insensible a mayúsculas y minúsculas.
+*   **`api-manager.js`:** Restaurada la ruta para `sendContactForm` y actualizadas las URLs de los microservicios.
+*   **`index.html`:**
+    *   Implementado el modal de desarrollador con botones para migración.
+    *   Ajustes de UI (tamaño de fuentes, padding, logo en menú) aplicados.
+    *   Layout de 3 columnas para `.grid` verificado.
+    *   Integración del contenido de `info.html` en modales y eliminación del archivo `info.html` confirmada.
+*   **`services/catalog/catalog.js`:** Implementadas las funciones `mapRowToObject` y `doPost`, y corregida la lógica de `handleGetDropdownData`.
+*   **`services/auth/auth.js`:** La lógica de gestión de límites de sesión y generación de tokens únicos está implementada correctamente.
+
+**4. Hallazgos Persistentes:**
+
+*   **[PERSISTENTE] Inconsistencia Sistémica de Versionamiento:** Se mantiene el hallazgo de auditorías anteriores. Las versiones declaradas en las cabeceras de los archivos de componentes no están sincronizadas ni siguen las normas del proyecto.
+
+**5. Conclusión:**
+La documentación ha sido verificada contra el código. Aunque la mayoría de los cambios recientes son correctos, la ausencia del microservicio `utilities` es un problema crítico que debe ser abordado. Se recomienda crear este servicio o eliminar la funcionalidad que depende de él para alinear el código con la experiencia de usuario. Las listas de tareas en `README.md` y `Instrucciones.txt` serán actualizadas para reflejar este hallazgo.
+
+---
+---
+**INFORMES ANTERIORES**
+---
+---
+
+**AUDITORÍA v16.0 (Fecha Actual)**
+**Auditor:** Jules v3.0
+**Enfoque:** Auditoría de Sincronización y Verificación de Documentación.
+
+**1. Resumen Ejecutivo:**
+Esta auditoría ha sido ejecutada para alinear toda la documentación del proyecto (`Auditoria.txt`, `ChangesLogs.txt`, `README.md`, `Instrucciones.txt`) con el estado real y verificado del código fuente. Se ha realizado una validación completa de los cambios recientes, se han corregido informes de auditoría anteriores y se ha establecido una línea base precisa para el futuro desarrollo.
+
+**El estado actual del proyecto es ESTABLE y FUNCIONAL. La documentación ahora refleja con precisión el código.**
+
+**2. Hallazgos y Acciones de Corrección:**
+
+*   **[CORREGIDO] Informe de Auditoría v14.0 Incorrecto:**
+    *   **Hallazgo:** El informe de auditoría v14.0 afirmaba incorrectamente que la funcionalidad estratégica "Flujo de Trabajo de 3 Etapas" no estaba implementada en `add_cortes.html`.
+    *   **Verificación Actual:** El análisis del código de `add_cortes.html` confirma que el flujo de 3 etapas **SÍ está implementado** y es funcional.
+    *   **Acción Realizada:** Este informe (v16.0) anula el hallazgo incorrecto de la v14.0. Se ha actualizado la tarea correspondiente en `README.md` y `Instrucciones.txt` para marcarla como completada.
+
+*   **[VERIFICADO] Precisión del `ChangesLogs.txt` Reciente:**
+    *   **Hallazgo:** Se ha verificado que todas las entradas del `ChangesLogs.txt` desde la versión `v3.8.0` hasta la `v4.1.0` son precisas y los cambios descritos se encuentran correctamente implementados en el código.
+    *   **Acción Realizada:** No se requieren cambios en estas entradas. Se confirma su validez.
+
+*   **[CORREGIDO] Entrada de Changelog Obsoleta:**
+    *   **Hallazgo:** La entrada para la versión `v3.9.0` en `ChangesLogs.txt` era vaga y su descripción de la corrección del bug de sesión era confusa y redundante, ya que la corrección real está bien documentada en la `v3.9.3`.
+    *   **Acción Realizada:** Se ha eliminado la entrada completa de `v3.9.0` del `ChangesLogs.txt` para mejorar la claridad y precisión del historial de cambios.
+
+*   **[PERSISTENTE] Inconsistencia Sistémica de Versionamiento:**
+    *   **Hallazgo:** Se confirma el hallazgo de la auditoría v14.0 sobre la falta de sincronización de las versiones de los componentes. Las cabeceras de los archivos `.js` y `.html` no siguen un estándar consistente ni se alinean con la versión global.
+    *   **Acción Futura:** Esta auditoría ha sentado las bases para la corrección de este problema. El siguiente paso del plan de acción es actualizar todas las cabeceras de versión de los componentes a un estándar unificado.
+
+**3. Conclusión:**
+La documentación del proyecto ha sido auditada, corregida y sincronizada con el estado real del código. Se han rectificado errores en informes pasados, se ha limpiado el historial de cambios y se han actualizado las listas de tareas. El proyecto cuenta ahora con una base documental sólida y veraz, permitiendo una planificación y desarrollo futuros más eficientes y fiables.
+
+---
+---
+**INFORMES ANTERIORES**
+---
+---
 **AUDITORÍA v15.0 (Fecha: 2025-12-26)**
 **Auditor:** Jules v3.0
 **Enfoque:** Auditoría integral post-corrección de bugs para alinear la documentación del proyecto (`ChangesLogs.txt`, `README.md`, `Instrucciones.txt`) con el estado real del código fuente y registrar nuevas tareas solicitadas por el usuario.

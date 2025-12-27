@@ -59,39 +59,39 @@ ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
 ---------------------------------
 
 ### Tareas Completadas Recientemente
-- [X] **Estandarización de la Base de Datos del Backend:** Se ha verificado y actualizado toda la capa de microservicios (`auth`, `catalog`, `users`, `write`, `feedback`) para asegurar que todos apunten exclusivamente a la base de datos canónica v2.0.
-- [X] **Resolución del Bug Crítico "Pantalla Blanca":** Se refactorizó el frontend (`index.html`) para alinearlo con la nueva estructura de datos `camelCase` del backend v2.0.
+- [X] **Estandarización de la Base de Datos del Backend:** Se ha verificado y actualizado toda la capa de microservicios.
+- [X] **Resolución del Bug Crítico "Pantalla Blanca":** Se refactorizó el frontend (`index.html`) para alinearlo con la nueva estructura de datos.
 - [X] **Implementación del Sistema de Notificación de Errores:** Se añadió un sistema de notificaciones globales en `index.html` y `api-manager.js`.
 - [X] **Refactorización del Acceso a Datos del Backend:** Se han actualizado todos los microservicios para utilizar un mapa de columnas fijo.
-- [X] **Corrección del Bug de Sesión de Usuario:** Se solucionó un problema en `users.html` que impedía la correcta visualización de la información del usuario en sesión.
-- [X] **Reparación del Formulario de Contacto:** Se corrigió el error "Acción no definida" en el formulario de "Contáctanos".
-- [X] **Corrección de Visualización en Tutoriales:** Se solucionó un bug en `index.html` que provocaba que el texto de los tutoriales se mostrara como "undefined".
+- [X] **Corrección del Bug de Sesión de Usuario:** Se solucionó un problema en `users.html` que impedía la correcta visualización de la información del usuario.
+- [X] **Reparación del Formulario de Contacto:** Se corrigió el error "Acción no definida".
+- [X] **Corrección de Visualización en Tutoriales:** Se solucionó un bug que provocaba que el texto de los tutoriales se mostrara como "undefined".
+- [X] **Refactorización del Flujo de Escritura:** Se ha verificado que el flujo de trabajo de 3 etapas está implementado en `add_cortes.html`.
+- [X] **Lógica de Ordenamiento de Cortes:** Se ha verificado que el backend (`catalog.js`) ordena los cortes por utilidad.
+- [X] **Sistema de Navegación Jerárquico:** Se ha verificado que la lógica de navegación paso a paso está implementada en `catalog.js`.
+- [X] **Orden Personalizado de Categorías:** Se ha verificado que el backend (`catalog.js`) implementa el orden personalizado para las categorías.
+- [X] **Modo Oscuro Automático:** Se ha verificado que `index.html` contiene la media query para el modo oscuro.
+- [X] **Layout de 3 Columnas:** Se ha verificado que el CSS en `index.html` define un layout de 3 columnas.
 
 ### Bugs y Regresiones Críticas
-- [ ] **Lógica del Modal de Detalle:** El modal de detalle actualmente solo carga la información del primer corte, ignorando los datos de `corte2` y `corte3`.
-- [ ] **Carga de Imágenes en Modal:** Las imágenes asociadas a la apertura, cable de alimentación y configuración del relay no se están mostrando en el modal.
-- [ ] **Carga de Logos en Modal:** El logo de la marca del vehículo no se está cargando y mostrando correctamente dentro del modal.
-- [ ] **Refactorización del Flujo de Escritura:** Implementar el nuevo flujo de trabajo de 3 etapas para añadir/actualizar cortes.
+- [ ] **Carga de Información en Modal:** No se muestran los datos de los cortes secundarios (`corte2`, `corte3`), ni la información de apertura, cables de alimentación o logos de marca en el modal de detalle.
 - [ ] **Inconsistencias de Versionamiento:** Sincronizar la versión global y las versiones de componentes en todos los archivos.
-- [ ] **Visibilidad de Cortes:** Asegurar que las tres opciones de corte sean visibles en el modal si existen los datos.
+- [ ] **Funcionalidad de Comentarios de Feedback:** La UI para mostrar los últimos comentarios y sus respuestas no está implementada.
 
 ### Revisiones de UI/UX
-- [ ] **Rediseño de Botones de Feedback:** Reemplazar los botones "Sí/No" por un sistema de pulgares (👍/👎) y añadir botones para "Sugerir un año" y "Reportar un problema".
+- [ ] **Rediseño de Botones de Feedback:** Ajustar el CSS de los botones para que coincidan con el diseño especificado (sin fondo por defecto).
+- [ ] **Estilo de Logos de Marca:** Los logos de las marcas se muestran como tarjetas en lugar de iconos sin fondo.
 - [ ] **Reorganización de Secciones Principales:** Alterar el orden a: 1. "Últimos Agregados", 2. "Búsqueda por Marca", 3. "Búsqueda por Categoría".
-- [ ] **Layout de "Últimos Agregados":** Modificar el layout para que muestre los resultados en un formato de 3 columnas.
-- [ ] **Visualización de Marcas con Logos:** En "Búsqueda por Marca", reemplazar los nombres de las marcas por sus respectivos logos.
 
 ### Nuevas Funcionalidades
-- [ ] **Sistema de Navegación Jerárquico:** Implementar un flujo de navegación guiado (Marca -> Modelo -> Año).
-- [ ] **Sistema de Gestión de Feedback (Inbox):** Desarrollar una interfaz para que Supervisores/Jefes gestionen los problemas reportados por los usuarios.
-- [ ] **Implementación de Modo Oscuro:** Añadir una paleta de colores alternativa y un interruptor para activarlo/desactivarlo.
+- [ ] **Sistema de Gestión de Feedback (Inbox):** Desarrollar una interfaz para que Supervisores/Jefes gestionen los problemas reportados.
+- [ ] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes.
+- [ ] **Soporte para Rango de Años (Feedback-driven):** Implementar la lógica de `suggestYear`.
 - [ ] **Debugging Integral:** Implementar un sistema de debugging en backend y frontend accesible por rol.
-- [ ] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes para mejorar el rendimiento.
-- [ ] **Soporte para Rango de Años (Feedback-driven):** Implementar la lógica de `suggestYear` en el backend y la UI correspondiente.
-- [ ] **Sistema de Versionamiento Híbrido:** Aplicar el nuevo sistema de versionamiento a todos los componentes del código fuente.
 
 ### Deuda Técnica y Mejoras
-- [ ] **Script de Migración de Timestamps:** Implementar un script de ejecución única para rellenar el campo `timestamp` en los registros existentes.
+- [ ] **Crear Microservicio Faltante (`services/utilities.js`):** El servicio documentado en el changelog v4.1.0 no existe. Debe ser creado con las funciones `migrateYearRanges` y `migrateTimestamps` para que la funcionalidad del panel de desarrollador sea operativa.
+- [ ] **Script de Migración de Timestamps:** Implementar un script de ejecución única para rellenar el campo `timestamp`.
 - [ ] **Script de Migración de Rango de Años:** Implementar el script de ejecución única para poblar `anoDesde` y `anoHasta`.
 
 ---

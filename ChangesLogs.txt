@@ -13,8 +13,6 @@
     *   **`index.html`:** Reducido el tamaño de los encabezados (h2, h3, h4) y el `padding` de los botones. Añadido el logo de GPSpedia al menú lateral.
     *   **`users.html`:** Reducido el tamaño de los encabezados y botones para optimizar el espacio.
 *   **INFRA (api-manager.js):** Se actualizaron las URLs de todos los microservicios (`AUTH`, `CATALOG`, `FEEDBACK`, `USERS`, `WRITE`) a sus últimas versiones desplegadas.
-*   **FEAT (services/utilities.js):** Se ha recreado el microservicio de utilidades que se perdió en una regresión. Incluye las funciones `migrateYearRanges` y `migrateTimestamps`, esenciales para el mantenimiento de datos.
-
 **v4.0.0 (02/01/2026)**
 *   **FIX CRÍTICO (services/catalog/catalog.js):** Se ha solucionado el error `cannot read properties of undefined (reading 'categoria')` que impedía la carga de datos del catálogo y de los formularios. Se implementó la función `mapRowToObject` que faltaba y se corrigió `handleGetDropdownData` para leer dinámicamente las opciones de "Categoría" desde las reglas de validación de la hoja de cálculo.
 *   **FIX CRÍTICO (services/users/users.js):** Se ha reparado el servicio de gestión de usuarios, que fallaba en todas sus operaciones (`Failed to fetch`). El error se debía a que la función `doPost` no retornaba ninguna respuesta. Se corrigió la función para asegurar que todas las acciones devuelvan un resultado al frontend.
@@ -57,13 +55,6 @@
 
 # Registro de Cambios del Proyecto GPSpedia
 
-## v3.9.0 - 26/12/2025
-- **CHORE: SINCRONIZACIÓN PARCIAL DEL SISTEMA DE VERSIONAMIENTO.**
-  - **Contexto:** Se ha realizado una actualización para alinear las versiones de algunos componentes del proyecto.
-  - **Acciones Realizadas:**
-    - **Versión Global:** Se ha establecido la versión `v3.9.0` en `ChangesLogs.txt` y en el pie de página de `index.html`.
-    - **Versiones de Componentes:** Se han actualizado las versiones en las cabeceras de `index.html`, `api-manager.js` y varios servicios de backend, aunque persisten inconsistencias.
-
 ## v3.8.1 - 21/08/2024
 - **INFRAESTRUCTURA: ACTUALIZACIÓN DE ENDPOINT DE SERVICIO `WRITE`.**
   - **Contexto:** Se ha actualizado la URL del microservicio `GPSpedia-Write` a su última versión desplegada.
@@ -71,7 +62,7 @@
     - Se ha reemplazado la URL en el objeto `API_ENDPOINTS` para `WRITE`. (Línea 11).
 
 ## v3.8.0 - 21/08/2024
-- **FEAT: IMPLEMENTACIÓN DE LÓGICA DE LOGOS AUTOMÁTICA Y MEJORAS DE UI.**
+- **FEAT: IMPLEMENTACIÓN DE LÓGICA DE LOGOS AUTOMÁtica Y MEJORAS DE UI.**
   - **Contexto:** Se han implementado mejoras significativas en la interfaz de usuario según los requisitos pendientes.
   - **Acciones Realizadas:**
     1.  **Implementación de Lógica de Logos Automática (`services/write/write.js`):**

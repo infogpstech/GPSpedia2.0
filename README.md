@@ -225,39 +225,33 @@ Esta sección documenta las tareas de desarrollo, corrección y regresiones pend
 - [X] **Corrección del Bug de Sesión de Usuario:** Se solucionó un problema en `users.html` que impedía la correcta visualización de la información del usuario en sesión, afectando funcionalidades como el cambio de contraseña.
 - [X] **Reparación del Formulario de Contacto:** Se corrigió el error "Acción no definida" en el formulario de "Contáctanos", restaurando la capacidad de los usuarios para enviar mensajes.
 - [X] **Corrección de Visualización en Tutoriales:** Se solucionó un bug en `index.html` que provocaba que el texto de los tutoriales se mostrara como "undefined" debido a una inconsistencia de mayúsculas y minúsculas.
+- [X] **Refactorización del Flujo de Escritura:** Se ha verificado que el flujo de trabajo de 3 etapas para añadir/actualizar cortes está implementado en `add_cortes.html`.
+- [X] **Lógica de Ordenamiento de Cortes:** Se ha verificado que el backend (`catalog.js`) ordena los cortes por utilidad antes de enviarlos al frontend.
+- [X] **Sistema de Navegación Jerárquico:** Se ha verificado que la lógica de navegación paso a paso (`Categoría` -> `Marca` -> `Modelo`...) está implementada en `catalog.js`.
+- [X] **Orden Personalizado de Categorías:** Se ha verificado que el backend (`catalog.js`) implementa el orden personalizado para la visualización de categorías.
+- [X] **Modo Oscuro Automático:** Se ha verificado que `index.html` contiene la media query `(prefers-color-scheme: dark)` para el modo oscuro automático.
+- [X] **Layout de 3 Columnas:** Se ha verificado que el CSS en `index.html` define un layout de 3 columnas para las cuadrículas de contenido.
 
 ### Bugs y Regresiones Críticas
 - [ ] **Lógica del Modal de Detalle:** El modal de detalle actualmente solo carga la información del primer corte (`tipoCorte1`, `ubicacionCorte1`, etc.), ignorando los datos de `corte2` y `corte3` aunque existan. Debe mostrar la información completa de todos los cortes disponibles.
 - [ ] **Carga de Imágenes en Modal:** Las imágenes asociadas a la apertura (`imgApertura`), cable de alimentación (`imgCableAlimen`) y la configuración del relay (`imagen` desde la hoja `Relay`) no se están mostrando en el modal de detalle.
 - [ ] **Carga de Logos en Modal:** El logo de la marca del vehículo no se está cargando y mostrando correctamente dentro del modal de detalle.
-- [ ] **Refactorización del Flujo de Escritura:** Implementar el nuevo flujo de trabajo de 3 etapas para añadir/actualizar cortes, que fue documentado como completo pero no se encuentra en el código.
 - [ ] **Inconsistencias de Versionamiento:** Sincronizar la versión global (ChangesLogs, UI) y las versiones de componentes (cabeceras en todos los archivos `.html` y `.js`) para cumplir con las normas del proyecto.
-- [X] **Layout del Modal:** Corregir la posición del nombre del colaborador y el estilo de los botones de feedback.
-- [ ] **Visibilidad de Cortes:** Asegurar que las tres opciones de corte sean visibles en el modal si existen los datos.
-- [X] **UI General:** Solucionar bugs visuales (pie de página, botón de limpiar búsqueda, carga de nombre de usuario, saludo de bienvenida).
+- [ ] **Visibilidad de Cortes:** Aunque la lógica de ordenamiento en el backend es correcta, el frontend no muestra los cortes secundarios en acordeones.
+- [ ] **Estilo de Logos de Marca:** Los logos de las marcas se muestran como tarjetas en lugar de iconos sin fondo.
+- [ ] **Funcionalidad de Comentarios de Feedback:** Aunque la UI para reportar problemas existe, la funcionalidad para mostrar los últimos dos comentarios con sus respuestas no está implementada.
 
 ### Revisiones de UI/UX
-- [ ] **Rediseño de Botones de Feedback:** Reemplazar los botones "Sí/No" del modal de detalle por un sistema de pulgares (👍/👎). Añadir dos nuevos botones: "Sugerir un año" y "Reportar un problema".
+- [ ] **Rediseño de Botones de Feedback:** Ajustar el CSS de los botones "Útil" y "Reportar" para que sean solo el icono y el texto, sin fondo por defecto, y que el botón "Útil" se rellene al ser presionado.
 - [ ] **Reorganización de Secciones Principales:** Alterar el orden de las secciones en `index.html` para que aparezcan en el siguiente orden: 1. "Últimos Agregados", 2. "Búsqueda por Marca", 3. "Búsqueda por Categoría".
-- [ ] **Layout de "Últimos Agregados":** Modificar el layout de la sección "Últimos Agregados" para que muestre los resultados en un formato de 3 columnas, mejorando la densidad de la información.
-- [ ] **Visualización de Marcas con Logos:** En la sección "Búsqueda por Marca", reemplazar los nombres de las marcas en texto plano por sus respectivos logos, obtenidos de la hoja `LogosMarca`.
-- [X] **Ajustes de Layout:** Realizar ajustes de espaciado, encabezado y visualización de "Últimos Agregados" según las especificaciones.
-- [X] **Modal de Detalle - Logo de Marca:** Implementar la visualización del logo de la marca en una esquina (`altura: 50px`, `anchura: auto`).
-- [X] **Modal de Detalle - Imagen de Relay:** Limitar la altura de la imagen de referencia del relay a `250px`.
-- [X] **Listado de Marcas - Logos:** Mostrar el logo de cada marca en la vista de listado de marcas.
 
 ### Nuevas Funcionalidades
-- [ ] **Sistema de Navegación Jerárquico:** Implementar un flujo de navegación guiado o "paso a paso" para la búsqueda. El usuario primero seleccionará una Marca, luego se le presentarán los Modelos de esa marca, y finalmente los Años/versiones disponibles.
-- [ ] **Sistema de Gestión de Feedback (Inbox):** Desarrollar una nueva interfaz (accesible para roles de Supervisor/Jefe) que funcione como un "inbox" para gestionar los problemas reportados por los usuarios a través del nuevo botón "Reportar un problema". Debe permitir ver, responder y marcar como resueltos los reportes.
-- [ ] **Implementación de Modo Oscuro:** Añadir una paleta de colores alternativa para un modo oscuro y un interruptor en la UI para que el usuario pueda activarlo/desactivarlo.
-- [X] **Búsqueda Flexible:** Mejorar `checkVehicle` para que devuelva coincidencias parciales y múltiples resultados.
-- [ ] **Debugging Integral:** Implementar un sistema de debugging en backend y frontend accesible por rol.
+- [ ] **Sistema de Gestión de Feedback (Inbox):** Desarrollar una nueva interfaz (accesible para roles de Supervisor/Jefe) que funcione como un "inbox" para gestionar los problemas reportados por los usuarios. Debe permitir ver, responder y marcar como resueltos los reportes.
 - [ ] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes para mejorar el rendimiento.
 - [ ] **Soporte para Rango de Años (Feedback-driven):** Implementar la lógica de `suggestYear` en el backend y la UI correspondiente en el frontend.
-- [ ] **Sistema de Versionamiento Híbrido:** Aplicar el nuevo sistema de versionamiento a todos los componentes del código fuente.
-- [X] **Integración de Páginas de Información:** Crear las secciones "Sobre Nosotros", "Contáctanos" y "Preguntas Frecuentes" como modales dentro de `index.html`.
 
 ### Deuda Técnica y Mejoras
+- [ ] **Crear Microservicio Faltante (`services/utilities.js`):** El servicio documentado en el changelog v4.1.0 no existe. Debe ser creado con las funciones `migrateYearRanges` y `migrateTimestamps` para que la funcionalidad del panel de desarrollador sea operativa.
 - [ ] **Script de Migración de Timestamps:** Implementar un script de ejecución única para obtener la fecha de creación de las imágenes antiguas de Google Drive y rellenar el campo `timestamp` en los registros existentes.
 
 ## 4. Componentes del Backend (Microservicios)

@@ -9,11 +9,11 @@ const API_ENDPOINTS = {
 
     // URLs para los nuevos microservicios.
     AUTH:     "https://script.google.com/macros/s/AKfycbxXsd5i2M3FN8O9A-w0MLVftLTe9d1OcYZJhy6KFB3lWHgxm6P3WloFRWOUZSnHZg9e/exec",
-    CATALOG:  "https://script.google.com/macros/s/AKfycbyNX-GCg2jNTIj__PKJ65uNCpv-M8RayxwO-gAAlrapB5dQ_ufri3Xo8pHbSeLd2wLWng/exec",
+    CATALOG:  "https://script.google.com/macros/s/AKfycby2l0_ZPekAudHSmmUEZ6JpbA0YYOpMcAhdl6PMxidgJhdpwjdSOFJAhxu5l3d_BU0A/exec",
     WRITE:    "https://script.google.com/macros/s/AKfycbyPu7p1erNGcxDCk4xWNPThvYdHeq3A80gdxvEgQpjnQ-LR6fQUAkS7913w7E5I8LOHNw/exec",
     USERS:    "https://script.google.com/macros/s/AKfycbywTo3Asul37tLML29tmtNwVpFbHabXOfC7sw4c5KagURIXzaZoiKrbr2XAIkv-7n-T/exec",
     FEEDBACK: "https://script.google.com/macros/s/AKfycbx12Hzc3g4AU-EIM26XhkH_52ZCGsFswdwLR7FHMMSz2ZzJJnvkJpPHB2dJ_N999Wg/exec",
-    UTILITIES: "https://script.google.com/macros/s/AKfycbxL7BuuBhZOEn5ITSXp7Zrm0PAT9CEvHiWOlR7xUyUSxK-iTN7LerYJSfHVSrJwOeKm/exec"
+    UTILITIES: "https://script.google.com/macros/s/AKfycbwr1dbyZgRtihOtgX6T7RORhfw8f5QXLI4IYDyh-NLEfmRqURJg-Lg06eMAgnJkc5GI/exec"
 };
 
 // Mapeo de cada 'action' al servicio que le corresponde.
