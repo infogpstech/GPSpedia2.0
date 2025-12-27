@@ -1,3 +1,47 @@
+**AUDITORÍA v17.0 (Fecha Actual)**
+**Auditor:** Jules v3.0
+**Enfoque:** Auditoría completa de correspondencia entre `ChangesLogs.txt` y el código fuente.
+
+**1. Resumen Ejecutivo:**
+Esta auditoría ha realizado una verificación exhaustiva de los cambios recientes registrados en `ChangesLogs.txt` (versiones v3.9.3 a v4.1.0) contra el código fuente actual. La mayoría de las correcciones y características documentadas han sido verificadas exitosamente. Sin embargo, se ha descubierto una discrepancia crítica que afecta a una funcionalidad documentada como implementada.
+
+Este informe anula los hallazgos conflictivos de auditorías anteriores y establece una nueva línea base precisa.
+
+**2. Hallazgos Críticos:**
+
+*   **[NO IMPLEMENTADO] Microservicio de Utilidades (`services/utilities.js`) Faltante.**
+    *   **Descripción:** El `ChangesLogs.txt` (v4.1.0) afirma que el microservicio `services/utilities.js` fue "recreado" para incluir funciones de migración de datos (`migrateYearRanges`, `migrateTimestamps`).
+    *   **Realidad del Código:** El archivo `services/utilities.js` **NO existe** en el repositorio. La llamada a este servicio desde el modal de desarrollador en `index.html` fallará inevitablemente.
+    *   **Impacto:** Crítico. La funcionalidad de migración de datos, accesible desde la nueva consola de desarrollador, es inoperable. Esto representa una documentación incorrecta y una funcionalidad rota.
+
+**3. Verificación de Cambios (Confirmados):**
+
+Se ha verificado que las siguientes implementaciones documentadas en `ChangesLogs.txt` (v3.9.3 - v4.1.0) **SÍ** están presentes y correctas en el código:
+
+*   **`users.html`:** Corregido el acceso a propiedades (`Nombre_Usuario`) y el estilo de la tabla (`table-layout: fixed`).
+*   **`services/users/users.js`:** La comparación de contraseñas es ahora insensible a mayúsculas y minúsculas.
+*   **`api-manager.js`:** Restaurada la ruta para `sendContactForm` y actualizadas las URLs de los microservicios.
+*   **`index.html`:**
+    *   Implementado el modal de desarrollador con botones para migración.
+    *   Ajustes de UI (tamaño de fuentes, padding, logo en menú) aplicados.
+    *   Layout de 3 columnas para `.grid` verificado.
+    *   Integración del contenido de `info.html` en modales y eliminación del archivo `info.html` confirmada.
+*   **`services/catalog/catalog.js`:** Implementadas las funciones `mapRowToObject` y `doPost`, y corregida la lógica de `handleGetDropdownData`.
+*   **`services/auth/auth.js`:** La lógica de gestión de límites de sesión y generación de tokens únicos está implementada correctamente.
+
+**4. Hallazgos Persistentes:**
+
+*   **[PERSISTENTE] Inconsistencia Sistémica de Versionamiento:** Se mantiene el hallazgo de auditorías anteriores. Las versiones declaradas en las cabeceras de los archivos de componentes no están sincronizadas ni siguen las normas del proyecto.
+
+**5. Conclusión:**
+La documentación ha sido verificada contra el código. Aunque la mayoría de los cambios recientes son correctos, la ausencia del microservicio `utilities` es un problema crítico que debe ser abordado. Se recomienda crear este servicio o eliminar la funcionalidad que depende de él para alinear el código con la experiencia de usuario. Las listas de tareas en `README.md` y `Instrucciones.txt` serán actualizadas para reflejar este hallazgo.
+
+---
+---
+**INFORMES ANTERIORES**
+---
+---
+
 **AUDITORÍA v16.0 (Fecha Actual)**
 **Auditor:** Jules v3.0
 **Enfoque:** Auditoría de Sincronización y Verificación de Documentación.

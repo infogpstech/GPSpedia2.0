@@ -90,6 +90,7 @@ ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
 - [ ] **Debugging Integral:** Implementar un sistema de debugging en backend y frontend accesible por rol.
 
 ### Deuda Técnica y Mejoras
+- [ ] **Crear Microservicio Faltante (`services/utilities.js`):** El servicio documentado en el changelog v4.1.0 no existe. Debe ser creado con las funciones `migrateYearRanges` y `migrateTimestamps` para que la funcionalidad del panel de desarrollador sea operativa.
 - [ ] **Script de Migración de Timestamps:** Implementar un script de ejecución única para rellenar el campo `timestamp`.
 - [ ] **Script de Migración de Rango de Años:** Implementar el script de ejecución única para poblar `anoDesde` y `anoHasta`.
 
