@@ -342,21 +342,20 @@ body.search-active .app-logo {
 .grid {
     display: grid;
     gap: 20px;
-    grid-template-columns: repeat(3, 1fr); /* Layout de 3 columnas */
+    /* Usar auto-fit para un diseño más robusto y responsivo que se ajusta
+       automáticamente al número de columnas según el espacio disponible. */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     justify-content: center;
     max-width: 1200px;
     margin: 0 auto;
 }
 
-@media (max-width: 992px) {
-    .grid {
-        grid-template-columns: repeat(2, 1fr); /* 2 columnas en tablets */
-    }
-}
+/* La media query para 2 columnas ya no es necesaria con auto-fit. */
 
 @media (max-width: 600px) {
     .grid {
-        grid-template-columns: repeat(1, 1fr); /* 1 columna en móviles */
+        /* En pantallas muy pequeñas, podemos ajustar el gap si es necesario.
+           El layout de una columna se manejará automáticamente por minmax. */
         gap: 15px;
     }
 }
@@ -626,6 +625,10 @@ body.search-active .app-logo {
 }
 .img-vehiculo {
     max-height: 200px !important; /* Límite de altura más pequeño */
+}
+/* Regla específica para la imagen dentro del modal de Relay para evitar que sea demasiado grande. */
+#relayDetalleCompleto img {
+    max-height: 250px;
 }
 #detalleCompleto h4 {
     color: #007bff;
