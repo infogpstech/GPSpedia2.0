@@ -337,17 +337,28 @@ function isYearInRangeV2(inputYear, anoDesde, anoHasta) {
     return inputYear >= desde && inputYear <= hasta;
 }
 
+/**
+ * Normaliza un nombre de marca o categoría para una comparación consistente.
+ * Convierte a minúsculas y elimina espacios, paréntesis y guiones.
+ * @param {string} str - La cadena a normalizar.
+ * @returns {string} La cadena normalizada.
+ */
+function normalizeName(str) {
+    if (typeof str !== 'string') return '';
+    return str.toLowerCase().replace(/[\s\(\)-]/g, '');
+}
+
 function handleGetNavigationData(payload) {
     const { nivel, filtros } = payload;
     if (!nivel) throw new Error("El parámetro 'nivel' es requerido.");
 
     const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
     const allData = sheet.getDataRange().getValues();
-    const headers = allData.shift();
+    allData.shift(); // Quitar encabezados
 
     let data = allData;
 
-    // Filtrar datos basado en la jerarquía proporcionada
+    // Aplicar filtros jerárquicos
     if (filtros) {
         if (filtros.categoria) data = data.filter(row => row[COLS_CORTES.categoria - 1] === filtros.categoria);
         if (filtros.marca) data = data.filter(row => row[COLS_CORTES.marca - 1] === filtros.marca);
@@ -364,7 +375,7 @@ function handleGetNavigationData(payload) {
     switch (nivel) {
         case 'categoria':
             const order = ["Sedán", "SUV", "Pickup", "Motocicleta", "Microbús", "Autobús", "Camión Ligero", "Camión Pesado", "Maquinaria de construcción", "Equipo Utilitario"];
-            results = [...new Set(data.map(row => row[COLS_CORTES.categoria - 1]).filter(Boolean))]
+            results = [...new Set(allData.map(row => row[COLS_CORTES.categoria - 1]).filter(Boolean))]
                 .sort((a, b) => {
                     const indexA = order.indexOf(a);
                     const indexB = order.indexOf(b);
@@ -375,27 +386,61 @@ function handleGetNavigationData(payload) {
                 });
             nextNivel = 'marca';
             break;
+
         case 'marca':
-            results = getUniqueValues(COLS_CORTES.marca - 1);
+            const brandNames = getUniqueValues(COLS_CORTES.marca - 1);
+            const logosSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.LOGOS_MARCA);
+            const logosData = logosSheet.getDataRange().getValues();
+            logosData.shift();
+            const allLogos = logosData.map(row => mapRowToObject(row, COLS_LOGOS_MARCA));
+
+            results = brandNames.map(brand => {
+                const normalizedBrand = normalizeName(brand);
+                const categoria = filtros.categoria;
+                let foundLogo = null;
+                // 1. Buscar coincidencia específica de categoría (ej. "hondaMotocicletas")
+                if (categoria) {
+                    const categorySpecificName = normalizeName(`${brand}${categoria}`);
+                    foundLogo = allLogos.find(logo => normalizeName(logo.nombreMarca) === categorySpecificName);
+                }
+                // 2. Si no se encuentra, buscar por nombre de marca general (ej. "honda")
+                if (!foundLogo) {
+                    foundLogo = allLogos.find(logo => normalizeName(logo.nombreMarca) === normalizedBrand);
+                }
+                return {
+                    nombreMarca: brand,
+                    urlLogo: foundLogo ? foundLogo.urlLogo : null
+                };
+            });
             nextNivel = 'modelo';
             break;
+
         case 'modelo':
             results = getUniqueValues(COLS_CORTES.modelo - 1);
             nextNivel = 'version';
             break;
+
         case 'version':
             results = getUniqueValues(COLS_CORTES.versionesAplicables - 1);
-            if (results.length === 0) { // Si no hay versiones, saltar a tipoEncendido
-                results = getUniqueValues(COLS_CORTES.tipoEncendido - 1);
-                nextNivel = 'generacion';
-            } else {
-                nextNivel = 'tipoEncendido';
+            if (results.length === 0 || (results.length === 1 && results[0] === '')) {
+                // Si no hay versiones, saltar directamente a tipoEncendido
+                const nextPayload = { nivel: 'tipoEncendido', filtros: filtros };
+                return handleGetNavigationData(nextPayload);
             }
+            nextNivel = 'tipoEncendido';
             break;
+
         case 'tipoEncendido':
             results = getUniqueValues(COLS_CORTES.tipoEncendido - 1);
+             if (results.length === 1) {
+                // Si solo hay un tipo de encendido, saltar a generación
+                const newFilters = {...filtros, tipoEncendido: results[0]};
+                const nextPayload = { nivel: 'generacion', filtros: newFilters };
+                return handleGetNavigationData(nextPayload);
+            }
             nextNivel = 'generacion';
             break;
+
         case 'generacion':
             results = data.map(row => {
                 const anoDesde = row[COLS_CORTES.anoDesde - 1];
@@ -403,23 +448,31 @@ function handleGetNavigationData(payload) {
                 const id = row[COLS_CORTES.id - 1];
                 return {
                     id: id,
-                    label: anoHasta && anoHasta !== anoDesde ? `${anoDesde} - ${anoHasta}` : `${anoDesde}`
+                    label: anoHasta && anoHasta != anoDesde ? `${anoDesde} - ${anoHasta}` : `${anoDesde}`
                 };
             });
-            nextNivel = 'final'; // Es el último nivel
+            nextNivel = 'final';
             break;
+
         default:
             throw new Error(`Nivel '${nivel}' no reconocido.`);
     }
 
-    // Lógica para saltar niveles si solo hay una opción
-    while (results.length === 1 && nextNivel !== 'final' && nextNivel !== 'generacion') {
-        const nuevoFiltro = { ...filtros };
-        nuevoFiltro[nivel] = results[0];
+    // Si después de todo el procesamiento, solo hay un resultado, y no es el final,
+    // se hace una llamada recursiva para avanzar al siguiente nivel automáticamente.
+    if (results.length === 1 && nextNivel !== 'final') {
+         const newFilters = {...filtros};
+         // El resultado puede ser un string (modelo) o un objeto (marca)
+         newFilters[nivel] = (typeof results[0] === 'object' && results[0] !== null) ? results[0].nombreMarca : results[0];
 
-        const nextPayload = { nivel: nextNivel, filtros: nuevoFiltro };
-        return handleGetNavigationData(nextPayload); // Llamada recursiva
+         // Evitar recursión infinita en el caso de 'version' saltando a 'tipoEncendido'
+         if (nivel === 'version' && results[0] === '') {
+              const nextPayload = { nivel: 'tipoEncendido', filtros: filtros };
+              return handleGetNavigationData(nextPayload);
+         }
+
+         const nextPayload = { nivel: nextNivel, filtros: newFilters };
+         return handleGetNavigationData(nextPayload);
     }
-
     return { status: 'success', data: results, nextNivel: nextNivel };
 }

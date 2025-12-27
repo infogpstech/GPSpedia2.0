@@ -348,15 +348,15 @@ body.search-active .app-logo {
     margin: 0 auto;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
     .grid {
         grid-template-columns: repeat(2, 1fr); /* 2 columnas en tablets */
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 576px) {
     .grid {
-        grid-template-columns: repeat(2, 1fr); /* Mantenemos 2 columnas en móviles para mejor visualización */
+        grid-template-columns: repeat(1, 1fr); /* 1 columna en móviles para una mejor legibilidad */
         gap: 15px;
     }
 }
@@ -396,6 +396,40 @@ body.search-active .app-logo {
 .card:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* --- ESTILOS PARA TARJETAS DE LOGO (ICONOS) --- */
+.logo-card {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    cursor: pointer;
+    padding: 10px;
+    text-align: center;
+    transition: transform 0.2s ease;
+    width: 120px;
+    justify-self: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+.logo-card:hover {
+    transform: scale(1.1);
+}
+.logo-card img {
+    width: 100%;
+    height: 80px;
+    object-fit: contain;
+    display: block;
+}
+.logo-card .logo-name {
+    font-size: 0.9em;
+    font-weight: bold;
+    color: #333;
+}
+.dark-mode .logo-card .logo-name {
+    color: #e0e0e0;
 }
 
 /* --- ESTILOS DE SKELETON LOADER --- */
@@ -1019,6 +1053,13 @@ body.search-active .app-logo {
 
 <div id="lightbox" class="lightbox" onclick="cerrarLightbox()">
   <img id="lightboxImg" src="">
+</div>
+
+<!-- ========= MODAL DE SEGUNDO NIVEL (PARA RELAY) ========= -->
+<div id="modalRelay" class="info-modal">
+    <div class="info-modal-content" id="relayDetalleCompleto">
+        <!-- El contenido del detalle del Relay se inyectará aquí con JavaScript -->
+    </div>
 </div>
 
 <!-- ========= MODAL DE DESARROLLADOR ========= -->
@@ -1782,30 +1823,58 @@ function getLogoUrlForMarca(marca, categoria) {
     return null;
 }
 
+/**
+ * Convierte una variedad de URLs de Google Drive a un formato de thumbnail directo.
+ * Es compatible con enlaces de vista, previsualización, uc, open, y googleusercontent.
+ * @param {string} url - La URL de Google Drive a convertir.
+ * @param {string} [type='image'] - El tipo de imagen ('image', 'logo', o un tamaño específico como 'w2000').
+ * @returns {string} La URL del thumbnail, la URL original, o un placeholder.
+ */
 function convertirAGoogleThumbnail(url, type = 'image') {
-    if (!url || typeof url !== 'string') {
+    if (!url || typeof url !== 'string' || url.trim() === '') {
+        // Para logos, no mostrar placeholder, solo una cadena vacía.
         return type === 'logo' ? '' : "https://placehold.co/280x200/cccccc/333333?text=Sin+Imagen";
     }
 
-    // Expresión regular mejorada para capturar IDs de varias URL de Google Drive
-    const idMatch = url.match(/(?:id=|\/d\/|\/file\/d\/)([a-zA-Z0-9_-]{28,})/);
+    let fileId = null;
+    const regexPatterns = [
+        /(?:\/file\/d\/|\/d\/)([a-zA-Z0-9_-]{28,})/,             // Formatos: /file/d/ID, /d/ID
+        /[?&]id=([a-zA-Z0-9_-]{28,})/,                         // Formatos: ?id=ID, &id=ID
+        /googleusercontent\.com\/d\/([a-zA-Z0-9_-]{28,})/     // Formato: googleusercontent.com/d/ID
+    ];
 
-    if (idMatch && idMatch[1]) {
-        // Para logos, usamos un tamaño más pequeño y adecuado para iconos.
-        const size = type === 'logo' ? 'w256' : 'w1000';
-        return `https://drive.google.com/thumbnail?sz=${size}&id=${idMatch[1]}`;
+    for (const pattern of regexPatterns) {
+        const match = url.match(pattern);
+        if (match && match[1]) {
+            fileId = match[1];
+            break;
+        }
     }
 
-    // Si no es una URL de Google Drive reconocible, devolver la URL original.
-    // Si es un logo y no se pudo convertir, devolver una cadena vacía para no mostrar una imagen rota.
-    return type === 'logo' ? (idMatch ? url : '') : url;
+    if (fileId) {
+        let size = 'w1000'; // Tamaño por defecto para 'image'
+        if (type === 'logo') {
+            size = 'w256';
+        } else if (type.startsWith('w')) {
+            size = type; // Permite pasar un tamaño específico como 'w2000'
+        }
+        return `https://drive.google.com/thumbnail?sz=${size}&id=${fileId}`;
+    }
+
+    // Si no se pudo extraer un ID pero la URL parece válida, devolverla tal cual.
+    if (url.startsWith('http')) {
+        return url;
+    }
+
+    // Si no es convertible ni una URL válida, devolver placeholder (o vacío para logos).
+    return type === 'logo' ? '' : "https://placehold.co/280x200/cccccc/333333?text=Sin+Imagen";
 }
 
 function mostrarLightbox(src) {
     const lightboxImg = document.getElementById("lightboxImg");
-    lightboxImg.src = ""; // Clear previous image
-    const idMatch = String(src).match(/id=([a-zA-Z0-9_-]+)|\/d\/([a-zA-Z0-9_-]+)/);
-    const finalUrl = idMatch ? `https://drive.google.com/thumbnail?id=${idMatch[1] || idMatch[2]}&sz=w2000` : src;
+    lightboxImg.src = ""; // Limpiar imagen anterior para evitar flashes
+    // Usar la nueva función robusta para obtener la URL de alta resolución
+    const finalUrl = convertirAGoogleThumbnail(src, 'w2000');
     lightboxImg.src = finalUrl;
     document.getElementById("lightbox").classList.add("visible");
 }
@@ -1846,19 +1915,16 @@ function mostrarDetalleModal(item) {
     uiState.isModalOpen = true;
 
     const cont = document.getElementById("detalleCompleto");
-    cont.innerHTML = ""; // Limpiar contenido anterior
+    cont.innerHTML = "";
 
-    // --- ENCABEZADO Y TÍTULO ---
     const headerDiv = document.createElement("div");
     headerDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: relative;";
-
     const closeBtn = document.createElement("button");
     closeBtn.textContent = "Cerrar";
     closeBtn.onclick = () => cerrarModal();
     closeBtn.className = "backBtn";
     closeBtn.style.cssText = "color:white; background:#dc3545; border:none; margin:0;";
     headerDiv.appendChild(closeBtn);
-
     const yearRange = item.anoHasta && item.anoHasta !== item.anoDesde ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
     const titulo = `${item.marca} ${item.modelo} ${yearRange || ''}`;
     headerDiv.appendChild(crearBotonCompartir('cortes', item.id, titulo));
@@ -1869,7 +1935,6 @@ function mostrarDetalleModal(item) {
     title.style.cssText = "color:#007bff; border-bottom:3px solid #007bff; padding-bottom:10px; margin-right: 120px;";
     cont.appendChild(title);
 
-    // --- LOGO DE MARCA ---
     const logoUrl = getLogoUrlForMarca(item.marca, item.categoria);
     if (logoUrl) {
         const logoImg = document.createElement("img");
@@ -1878,7 +1943,6 @@ function mostrarDetalleModal(item) {
         cont.appendChild(logoImg);
     }
 
-    // --- NOTA Y VEHÍCULO ---
     if (item.notaImportante) {
         const p = document.createElement("p");
         p.innerHTML = `<strong style="color:red;">Nota Importante:</strong> <span style="color:#cc0000; font-weight: bold;">${item.notaImportante}</span>`;
@@ -1886,7 +1950,7 @@ function mostrarDetalleModal(item) {
     }
     crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, 'img-vehiculo');
 
-    // --- LÓGICA DE ORDENAMIENTO DE CORTES ---
+    // Lógica de Ordenamiento y Recopilación de Cortes
     const cortes = [];
     for (let i = 1; i <= 3; i++) {
         if (item[`tipoCorte${i}`]) {
@@ -1894,7 +1958,6 @@ function mostrarDetalleModal(item) {
                 index: i,
                 tipo: item[`tipoCorte${i}`],
                 util: parseInt(item[`utilCorte${i}`], 10) || 0,
-                // ... agregar todos los demás datos del corte
                 ubicacion: item[`ubicacionCorte${i}`],
                 colorCable: item[`colorCableCorte${i}`],
                 imgCorte: item[`imgCorte${i}`],
@@ -1903,100 +1966,157 @@ function mostrarDetalleModal(item) {
             });
         }
     }
-    cortes.sort((a, b) => b.util - a.util); // Ordenar por más útil
+    cortes.sort((a, b) => b.util - a.util);
 
-    // --- RENDERIZAR CORTES ---
-    cortes.forEach((corte, i) => {
+    const cortesSecundarios = [];
+    if (cortes.length > 0) {
+        const recomendado = cortes.shift(); // El primero es el recomendado
         const panel = document.createElement("div");
-        if (i === 0) { // El primer corte (más útil) es visible por defecto
-            panel.className = "panel-visible";
-            const h4 = document.createElement('h4');
-            h4.textContent = corte.tipo;
-            h4.style.marginTop = '20px';
-            cont.appendChild(h4);
-        } else { // Los demás cortes van en acordeones
-            const btn = document.createElement("button");
-            btn.className = "accordion-btn";
-            btn.innerHTML = `${corte.tipo} <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
-            cont.appendChild(btn);
-            panel.className = "panel-desplegable";
-        }
-
-        // Contenido del panel (común para todos los cortes)
-        if (corte.ubicacion || corte.colorCable) {
-            const p = document.createElement("p");
-            p.innerHTML = `<strong>Ubicación:</strong> ${corte.ubicacion || 'N/A'}<br><strong>Color(es) de Cable:</strong> ${corte.colorCable || 'N/A'}`;
-            panel.appendChild(p);
-        }
-        crearImagenDetalle("Imagen del Corte", corte.imgCorte, panel);
-
-        const relayInfo = datosRelay.find(r => r.configuracion === corte.configRelay);
-        if (relayInfo) {
-            crearImagenDetalle("Configuración de Relay", relayInfo.imagen, panel);
-            const relayImg = panel.querySelector('img[alt="Configuración de Relay"]');
-            if (relayImg) relayImg.style.maxHeight = '250px';
-        }
-
-        const footerModal = document.createElement("div");
-        footerModal.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; flex-wrap: wrap; gap: 10px;";
-
-        const colaboradorInfo = document.createElement("div");
-        colaboradorInfo.style.cssText = "font-size: 0.8em; color: #555;";
-        colaboradorInfo.innerHTML = `Agregado por: <strong>${corte.colaborador || 'N/A'}</strong>`;
-
-        const feedbackContainer = document.createElement("div");
-        feedbackContainer.style.cssText = "display: flex; gap: 10px; flex-wrap: wrap;";
-
-        const utilBtn = document.createElement("button");
-        utilBtn.className = "feedback-btn util-btn";
-        utilBtn.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> Útil <span class="util-count">(${corte.util})</span>`;
-        utilBtn.onclick = () => handleLike(item.id, corte.index, utilBtn);
-        feedbackContainer.appendChild(utilBtn);
-
-        const reportBtn = document.createElement("button");
-        reportBtn.className = "feedback-btn report-btn";
-        reportBtn.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Reportar`;
-        reportBtn.onclick = () => toggleReportSection(item.id, corte.index);
-        feedbackContainer.appendChild(reportBtn);
-
-        footerModal.appendChild(colaboradorInfo);
-        footerModal.appendChild(feedbackContainer);
-        panel.appendChild(footerModal);
-
-        // Sección de reporte y comentarios (oculta por defecto)
-        const reportSection = document.createElement("div");
-        reportSection.id = `report-section-${item.id}-${corte.index}`;
-        reportSection.className = 'report-section';
-        reportSection.style.display = 'none';
-        reportSection.innerHTML = `
-            <textarea id="report-input-${item.id}-${corte.index}" placeholder="Describe el problema o deja un comentario..."></textarea>
-            <button onclick="handleReportSubmit('${item.id}', ${corte.index})">Enviar</button>
-            <div class="comments-section" id="comments-section-${item.id}-${corte.index}"></div>
-        `;
-        panel.appendChild(reportSection);
-
+        panel.className = "panel-visible";
+        const h4 = document.createElement('h4');
+        h4.innerHTML = `<i class="fa-solid fa-star" style="color: #FFD700;"></i> Corte Recomendado: ${recomendado.tipo}`;
+        h4.style.marginTop = '20px';
+        cont.appendChild(h4);
+        renderizarContenidoCorte(panel, recomendado, item.id);
         cont.appendChild(panel);
+    }
+    cortesSecundarios.push(...cortes);
+
+    // Renderizar Acordeones para información adicional
+    const acordeones = [];
+    cortesSecundarios.forEach(corte => {
+        acordeones.push({
+            titulo: `Corte Alternativo: ${corte.tipo}`,
+            renderFn: (panel) => renderizarContenidoCorte(panel, corte, item.id)
+        });
     });
 
-    // --- INFORMACIÓN ADICIONAL (APERTURA Y ALIMENTACIÓN) ---
-    if (item.apertura || item.imgApertura || item.cableAlimen || item.imgCableAlimen) {
-        const btn = document.createElement("button");
-        btn.className = "accordion-btn";
-        btn.innerHTML = `Información Adicional <svg class="accordion-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
-        cont.appendChild(btn);
+    if (item.apertura || item.imgApertura) {
+        acordeones.push({
+            titulo: "Información de Apertura",
+            renderFn: (panel) => {
+                if (item.apertura) panel.appendChild(crearElementoDetalle("Detalle", item.apertura));
+                crearImagenDetalle("Imagen", item.imgApertura, panel);
+            }
+        });
+    }
 
-        const panel = document.createElement("div");
-        panel.className = "panel-desplegable";
-        if (item.apertura) panel.appendChild(crearElementoDetalle("Detalle de Apertura", item.apertura));
-        crearImagenDetalle("Imagen de Apertura", item.imgApertura, panel);
-        if (item.cableAlimen) panel.appendChild(crearElementoDetalle("Cable de Alimentación", item.cableAlimen));
-        crearImagenDetalle("Imagen de Alimentación", item.imgCableAlimen, panel);
-        cont.appendChild(panel);
+    if (item.cableAlimen || item.imgCableAlimen) {
+        acordeones.push({
+            titulo: "Información de Alimentación",
+            renderFn: (panel) => {
+                if (item.cableAlimen) panel.appendChild(crearElementoDetalle("Detalle", item.cableAlimen));
+                crearImagenDetalle("Imagen", item.imgCableAlimen, panel);
+            }
+        });
+    }
+
+    if (acordeones.length > 0) {
+        const acordeonContainer = document.createElement('div');
+        acordeonContainer.style.marginTop = '20px';
+        acordeones.forEach(ac => {
+            const btn = document.createElement("button");
+            btn.className = "accordion-btn";
+            btn.innerHTML = `${ac.titulo} <svg class="accordion-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+            const panel = document.createElement("div");
+            panel.className = "panel-desplegable";
+            ac.renderFn(panel);
+            acordeonContainer.appendChild(btn);
+            acordeonContainer.appendChild(panel);
+        });
+        cont.appendChild(acordeonContainer);
     }
 
     crearVideoDetalle("Video Guía de Desarme", item.videoGuiaDesarmeUrl, cont);
-
     document.getElementById("modalDetalle").classList.add("visible");
+}
+
+function renderizarContenidoCorte(panel, corte, vehicleId) {
+    if (corte.ubicacion || corte.colorCable) {
+        const p = document.createElement("p");
+        p.innerHTML = `<strong>Ubicación:</strong> ${corte.ubicacion || 'N/A'}<br><strong>Color(es) de Cable:</strong> ${corte.colorCable || 'N/A'}`;
+        panel.appendChild(p);
+    }
+
+    if (corte.configRelay) {
+        const relayInfo = datosRelay.find(r => r.configuracion === corte.configRelay);
+        if (relayInfo) {
+            const p = document.createElement("p");
+            p.innerHTML = `<strong>Configuración Relay:</strong> <a href="#" onclick="event.preventDefault(); mostrarDetalleRelayEnModal('${relayInfo.ID}')">${corte.configRelay}</a>`;
+            panel.appendChild(p);
+        } else {
+             panel.appendChild(crearElementoDetalle("Configuración Relay", corte.configRelay));
+        }
+    }
+
+    crearImagenDetalle("Imagen del Corte", corte.imgCorte, panel);
+
+    const footerModal = document.createElement("div");
+    footerModal.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; flex-wrap: wrap; gap: 10px;";
+    const colaboradorInfo = document.createElement("div");
+    colaboradorInfo.style.cssText = "font-size: 0.8em; color: #555;";
+    colaboradorInfo.innerHTML = `Agregado por: <strong>${corte.colaborador || 'N/A'}</strong>`;
+    const feedbackContainer = document.createElement("div");
+    feedbackContainer.style.cssText = "display: flex; gap: 10px; flex-wrap: wrap;";
+    const utilBtn = document.createElement("button");
+    utilBtn.className = "feedback-btn util-btn";
+    utilBtn.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> Útil <span class="util-count">(${corte.util})</span>`;
+    utilBtn.onclick = () => handleLike(vehicleId, corte.index, utilBtn);
+    feedbackContainer.appendChild(utilBtn);
+    const reportBtn = document.createElement("button");
+    reportBtn.className = "feedback-btn report-btn";
+    reportBtn.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Reportar`;
+    reportBtn.onclick = () => toggleReportSection(vehicleId, corte.index);
+    feedbackContainer.appendChild(reportBtn);
+    footerModal.appendChild(colaboradorInfo);
+    footerModal.appendChild(feedbackContainer);
+    panel.appendChild(footerModal);
+    const reportSection = document.createElement("div");
+    reportSection.id = `report-section-${vehicleId}-${corte.index}`;
+    reportSection.className = 'report-section';
+    reportSection.style.display = 'none';
+    reportSection.innerHTML = `
+        <textarea id="report-input-${vehicleId}-${corte.index}" placeholder="Describe el problema o deja un comentario..."></textarea>
+        <button onclick="handleReportSubmit('${vehicleId}', ${corte.index})">Enviar</button>
+        <div class="comments-section" id="comments-section-${vehicleId}-${corte.index}"></div>
+    `;
+    panel.appendChild(reportSection);
+}
+
+function mostrarDetalleRelayEnModal(relayId) {
+    const relayItem = datosRelay.find(r => r.ID == relayId);
+    if (!relayItem) return;
+
+    const cont = document.getElementById("relayDetalleCompleto");
+    cont.innerHTML = ""; // Limpiar
+
+    const headerDiv = document.createElement("div");
+    headerDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;";
+    const title = document.createElement("h3");
+    title.textContent = `Detalle de Relay: ${relayItem.configuracion}`;
+    const closeBtn = document.createElement("span");
+    closeBtn.innerHTML = "&times;";
+    closeBtn.className = "info-close-btn";
+    closeBtn.onclick = () => document.getElementById("modalRelay").style.display = 'none';
+    headerDiv.appendChild(title);
+    headerDiv.appendChild(closeBtn);
+    cont.appendChild(headerDiv);
+
+    const campos = [
+        { label: "Función", value: relayItem.funcion },
+        { label: "PIN 30 (Entrada)", value: relayItem.pin30Entrada },
+        { label: "PIN 85 (Bobina +)", value: relayItem.pin85BobinaPositivo },
+        { label: "PIN 86 (Bobina -)", value: relayItem.pin86bobinaNegativo },
+        { label: "PIN 87a (Común Cerrado)", value: relayItem.pin87aComunCerrado },
+        { label: "PIN 87 (Comúnmente Abierto)", value: relayItem.pin87ComunmenteAbierto },
+        { label: "Observación", value: relayItem.observacion }
+    ];
+    campos.forEach(c => {
+        if (c.value) cont.appendChild(crearElementoDetalle(c.label, c.value));
+    });
+    crearImagenDetalle("Diagrama", relayItem.imagen, cont);
+
+    document.getElementById("modalRelay").style.display = 'flex';
 }
 
 function filtrarContenido(textoBusqueda) {
@@ -2123,70 +2243,103 @@ function renderNavigationGrid(currentNivel, data, nextNivel, filtros) {
     let titulo = `Seleccione ${currentNivel.charAt(0).toUpperCase() + currentNivel.slice(1)}`;
     let backFunction = '';
 
-    // Lógica para el botón "Volver"
-    const filtroCategoria = filtros.categoria ? `{ categoria: '${filtros.categoria}' }` : '{}';
-    const filtroMarca = filtros.marca ? `{ categoria: '${filtros.categoria}', marca: '${filtros.marca}' }` : '{}';
-    const filtroModelo = filtros.modelo ? `{ categoria: '${filtros.categoria}', marca: '${filtros.marca}', modelo: '${filtros.modelo}' }` : '{}';
-    const filtroVersion = filtros.version ? `{ categoria: '${filtros.categoria}', marca: '${filtros.marca}', modelo: '${filtros.modelo}', version: '${filtros.version}' }` : '{}';
+    // Lógica mejorada para el botón "Volver"
+    const buildFilterString = (filterObj) => JSON.stringify(filterObj).replace(/"/g, "'");
 
-    if (currentNivel === 'marca') {
-        backFunction = `handleNavigationClick('categoria', {})`;
-        titulo = `Marcas de ${filtros.categoria}`;
-    } else if (currentNivel === 'modelo') {
-        backFunction = `handleNavigationClick('marca', ${filtroCategoria})`;
-        titulo = `Modelos de ${filtros.marca}`;
-    } else if (currentNivel === 'version') {
-        backFunction = `handleNavigationClick('modelo', ${filtroMarca})`;
-        titulo = `Versiones de ${filtros.modelo}`;
-    } else if (currentNivel === 'tipoEncendido') {
-        backFunction = `handleNavigationClick('version', ${filtroModelo})`;
-        titulo = `Tipos de Encendido para ${filtros.version || filtros.modelo}`;
-    } else if (currentNivel === 'generacion') {
-        backFunction = `handleNavigationClick('tipoEncendido', ${filtroVersion})`;
-        titulo = `Generaciones para ${filtros.tipoEncendido}`;
+    const backLinks = {
+        marca: () => `handleNavigationClick('categoria', {})`,
+        modelo: () => `handleNavigationClick('marca', ${buildFilterString({ categoria: filtros.categoria })})`,
+        version: () => `handleNavigationClick('modelo', ${buildFilterString({ categoria: filtros.categoria, marca: filtros.marca })})`,
+        tipoEncendido: () => `handleNavigationClick('version', ${buildFilterString({ categoria: filtros.categoria, marca: filtros.marca, modelo: filtros.modelo })})`,
+        generacion: () => `handleNavigationClick('tipoEncendido', ${buildFilterString({ categoria: filtros.categoria, marca: filtros.marca, modelo: filtros.modelo, version: filtros.version })})`,
+    };
+    if (backLinks[currentNivel]) {
+        backFunction = backLinks[currentNivel]();
     }
+
+    // Títulos dinámicos
+    if (currentNivel === 'marca') titulo = `Marcas de ${filtros.categoria}`;
+    else if (currentNivel === 'modelo') titulo = `Modelos de ${filtros.marca}`;
+    else if (currentNivel === 'version') titulo = `Versiones de ${filtros.modelo}`;
+    else if (currentNivel === 'tipoEncendido') titulo = `Encendido para ${filtros.version || filtros.modelo}`;
+    else if (currentNivel === 'generacion') titulo = `Generaciones para ${filtros.tipoEncendido}`;
+
 
     cont.innerHTML = backFunction ? `<span class="backBtn" onclick="${backFunction}">${backSvg} Volver</span><h4>${titulo}</h4>` : `<h4>${titulo}</h4>`;
 
     const grid = document.createElement("div");
     grid.className = "grid";
 
+    // Si no hay datos, mostrar un mensaje.
+    if (!data || data.length === 0) {
+        cont.innerHTML += '<p style="text-align:center;">No hay elementos para mostrar en esta sección.</p>';
+        return;
+    }
+
     data.forEach(item => {
-        const card = document.createElement("div");
-        card.className = "card";
+        if (currentNivel === 'marca') {
+            // Nivel de Marcas: Renderizar como iconos/logos
+            const logoCard = document.createElement("div");
+            logoCard.className = "logo-card";
 
-        const newFiltros = { ...filtros };
-        newFiltros[currentNivel] = (typeof item === 'object' && item.id) ? item.id : item;
+            const newFiltros = { ...filtros, marca: item.nombreMarca };
+            logoCard.onclick = () => handleNavigationClick(nextNivel, newFiltros);
 
-        card.onclick = () => {
-            if (nextNivel === 'final') {
+            const img = document.createElement("img");
+            // Usar la URL del logo proporcionada por el backend.
+            img.src = convertirAGoogleThumbnail(item.urlLogo, 'logo');
+            // Si no hay logo, se mostrará un espacio vacío, pero el nombre será visible.
+            img.alt = `Logo de ${item.nombreMarca}`;
+
+            const name = document.createElement("div");
+            name.className = "logo-name";
+            name.textContent = item.nombreMarca;
+
+            logoCard.appendChild(img);
+            logoCard.appendChild(name);
+            grid.appendChild(logoCard);
+
+        } else {
+            // Otros niveles: Renderizar como tarjetas estándar
+            const card = document.createElement("div");
+            card.className = "card";
+
+            const newFiltros = { ...filtros };
+            // El 'item' puede ser un string (modelo, etc.) o un objeto ({id, label} para generación)
+            const filterValue = (typeof item === 'object' && item.id) ? item.id : item;
+            const currentFilterKey = (currentNivel === 'version') ? 'versionesAplicables' : currentNivel;
+             newFiltros[currentNivel] = filterValue;
+
+
+            card.onclick = () => {
+                if (nextNivel === 'final') {
+                    // El ID del vehículo final está en item.id
+                    const vehicle = datosOriginales.find(v => v.id == item.id);
+                    if (vehicle) mostrarDetalleModal(vehicle);
+                } else {
+                    handleNavigationClick(nextNivel, newFiltros);
+                }
+            };
+
+            const img = document.createElement("img");
+            const overlay = document.createElement("div");
+            overlay.className = "overlay";
+
+            if (typeof item === 'object' && item.label) { // Nivel de generación
+                overlay.innerHTML = item.label;
                 const vehicle = datosOriginales.find(v => v.id == item.id);
-                if (vehicle) mostrarDetalleModal(vehicle);
-            } else {
-                handleNavigationClick(nextNivel, newFiltros);
+                img.src = convertirAGoogleThumbnail(vehicle?.imagenVehiculo);
+            } else { // Otros niveles (modelo, version, tipoEncendido)
+                overlay.innerHTML = item;
+                // Encontrar un vehículo de ejemplo para la imagen
+                const ejemplo = datosOriginales.find(d => d[currentFilterKey] === item && filtros.marca === d.marca && filtros.categoria === d.categoria);
+                img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
             }
-        };
 
-        const img = document.createElement("img");
-        const overlay = document.createElement("div");
-        overlay.className = "overlay";
-
-        if (typeof item === 'object' && item.label) { // Nivel de generación
-            overlay.innerHTML = item.label;
-            const vehicle = datosOriginales.find(v => v.id == item.id);
-            img.src = convertirAGoogleThumbnail(vehicle?.imagenVehiculo);
-        } else { // Otros niveles
-            overlay.innerHTML = item;
-            const ejemplo = datosOriginales.find(d => d[currentNivel] === item);
-            img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
-            if (currentNivel === 'marca') {
-                 img.src = getLogoUrlForMarca(item, filtros.categoria) || convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
-            }
+            card.appendChild(img);
+            card.appendChild(overlay);
+            grid.appendChild(card);
         }
-
-        card.appendChild(img);
-        card.appendChild(overlay);
-        grid.appendChild(card);
     });
 
     cont.appendChild(grid);
