@@ -1348,12 +1348,57 @@ function remoteLog(level, message, data = {}) {
 }
 
 // --- LÓGICA DE INDEXEDDB ---
-// Note: IndexedDB logic is being kept for potential future offline capabilities,
-// but the current implementation will prioritize fetching from the Apps Script backend.
 const DB_NAME = 'gpsepedia-db';
-const DB_VERSION = 1;
-const STORES = ['cortes', 'tutoriales', 'relay'];
-let db;
+const DB_VERSION = 2; // Incremented version to update schema
+const CATALOG_STORE = 'catalog';
+
+function openDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains(CATALOG_STORE)) {
+                db.createObjectStore(CATALOG_STORE, { keyPath: 'id' });
+            }
+        };
+        request.onsuccess = (event) => {
+            resolve(event.target.result);
+        };
+        request.onerror = (event) => {
+            console.error("IndexedDB error:", event.target.errorCode);
+            reject(event.target.errorCode);
+        };
+    });
+}
+
+async function saveDataToDB(data) {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction([CATALOG_STORE], 'readwrite');
+        const store = transaction.objectStore(CATALOG_STORE);
+        // Clear old data
+        store.clear();
+        const request = store.put({ id: 'full-catalog', ...data });
+
+        request.onsuccess = () => resolve();
+        request.onerror = (event) => reject(event.target.error);
+    });
+}
+
+async function getDataFromDB() {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction([CATALOG_STORE], 'readonly');
+        const store = transaction.objectStore(CATALOG_STORE);
+        const request = store.get('full-catalog');
+
+        request.onsuccess = (event) => {
+            resolve(event.target.result);
+        };
+        request.onerror = (event) => reject(event.target.error);
+    });
+}
+
 
 // --- LÓGICA DE DATOS Y API ---
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwpIFH1nX2BZEjAKbpq9HJpEGNlo_0LqD1CwxWsWFo5J0AJDdbfMrKpcsAV4ZFJzFWd/exec";
@@ -1471,28 +1516,66 @@ async function login(username, password) {
     }
 }
 
-async function initializeAppData(user) {
-    return new Promise(async (resolve, reject) => {
-        hideLoginShowApp();
-        document.getElementById('welcome-message').textContent = `Bienvenido, ${user.Nombre_Usuario}`;
-        document.getElementById('welcome-message').style.display = 'block';
+function renderContentFromData(data) {
+    if (!data) {
+        debugLog('RENDER_ERROR', 'renderContentFromData fue llamado sin datos.');
+        document.getElementById('contenido').innerHTML = `<p style="color:red; text-align:center;">Ocurrió un error al procesar los datos.</p>`;
+        return;
+    }
+    datosOriginales = data.cortes || [];
+    datosTutoriales = data.tutoriales || [];
+    datosRelay = data.relay || [];
+    datosLogos = data.logos || [];
+    // Limpiar el contenido antes de renderizar para evitar duplicados
+    document.getElementById('contenido').innerHTML = '';
+    mostrarUltimosAgregados();
+    mostrarCategorias();
+    lazyLoadImages(); // Re-run lazy loader after new content is added
+}
 
-        showSkeletonLoader(document.getElementById('contenido'));
+async function initializeAppData(user) {
+    hideLoginShowApp();
+    document.getElementById('welcome-message').textContent = `Bienvenido, ${user.Nombre_Usuario}`;
+    document.getElementById('welcome-message').style.display = 'block';
+
+    showSkeletonLoader(document.getElementById('contenido'));
+
+    try {
+        // 1. Network-first attempt
+        debugLog('CACHE_STRATEGY', 'Intentando obtener datos de la red...');
+        const result = await postToAction('getCatalogData');
+        const freshData = result.data;
+
+        debugLog('CACHE_STRATEGY', 'Datos obtenidos de la red exitosamente.');
+        renderContentFromData(freshData);
+
+        // 2. Update cache in the background
+        saveDataToDB(freshData)
+            .then(() => debugLog('CACHE_STRATEGY', 'Cache de IndexedDB actualizado.'))
+            .catch(err => debugLog('CACHE_ERROR', 'No se pudo actualizar el cache.', { error: err.message }));
+
+    } catch (networkError) {
+        // 3. Fallback to cache
+        debugLog('CACHE_STRATEGY', 'Fallo en la red, intentando obtener datos del cache...', { error: networkError.message });
+        showGlobalError("Fallo de conexión. Mostrando datos locales.");
 
         try {
-            const result = await postToAction('getCatalogData');
-            datosOriginales = result.data.cortes || [];
-            datosTutoriales = result.data.tutoriales || [];
-            datosRelay = result.data.relay || [];
-            datosLogos = result.data.logos || [];
-            mostrarUltimosAgregados();
-            mostrarCategorias();
-            resolve(); // Resolve the promise after content is rendered
-        } catch (error) {
-            document.getElementById('contenido').innerHTML = `<p style="color:red; text-align:center;">No se pudo cargar el catálogo. ${error.message}</p>`;
-            reject(error); // Reject the promise on error
+            const cachedDataContainer = await getDataFromDB();
+            if (cachedDataContainer && cachedDataContainer.cortes) {
+                // The data is nested inside the container object, without the 'id' property.
+                const { id, ...cachedData } = cachedDataContainer;
+                debugLog('CACHE_STRATEGY', 'Datos cargados desde el cache exitosamente.');
+                renderContentFromData(cachedData);
+            } else {
+                throw new Error('No hay datos en el cache.');
+            }
+        } catch (cacheError) {
+            debugLog('CACHE_ERROR', 'Fallo al cargar desde el cache.', { error: cacheError.message });
+            document.getElementById('contenido').innerHTML = `<p style="color:red; text-align:center;">No se pudo cargar el catálogo. Por favor, revisa tu conexión a internet e inténtalo de nuevo.</p>`;
+            // Rethrow the error to be caught by the caller (checkSession)
+            throw cacheError;
         }
-    });
+    }
 }
 
 function logout(reason = null) {
