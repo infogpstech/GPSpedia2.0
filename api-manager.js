@@ -1,4 +1,4 @@
-// GPSpedia Frontend Component | Version: 3.9.0
+// GPSpedia Frontend Component | Version: 4.2.0
 // ============================================================================
 // API MANAGER for GPSpedia Modular Architecture
 // ============================================================================
@@ -42,6 +42,10 @@ const ACTION_TO_SERVICE_MAP = {
     'recordLike': 'FEEDBACK',
     'reportProblem': 'FEEDBACK',
     'sendContactForm': 'FEEDBACK',
+    'suggestYear': 'FEEDBACK',
+    'getReportedProblems': 'FEEDBACK',
+    'replyToProblem': 'FEEDBACK',
+    'resolveProblem': 'FEEDBACK',
 
     // Utilities Service
     'migrateYearRanges': 'UTILITIES',

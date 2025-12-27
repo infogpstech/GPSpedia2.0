@@ -1,4 +1,4 @@
-<!-- GPSpedia Frontend Component | Version: 4.0.0 -->
+<!-- GPSpedia Frontend Component | Version: 4.2.0 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -400,9 +400,9 @@ body.search-active .app-logo {
 
 /* --- ESTILOS PARA TARJETAS DE LOGO (ICONOS) --- */
 .logo-card {
-    background: transparent;
-    border: none;
-    box-shadow: none;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
     cursor: pointer;
     padding: 10px;
     text-align: center;
@@ -829,28 +829,89 @@ body.search-active .app-logo {
     text-align: center;
 }
 .feedback-btn {
-    background: none;
-    border: none;
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    font-size: 0.8em;
+    font-size: 0.9em;
     color: #555;
     padding: 5px;
     border-radius: 5px;
+    transition: background-color 0.2s, color 0.2s;
 }
 .feedback-btn:hover {
-    background-color: #f0f0f0;
+    background-color: #f0f0f0 !important;
 }
 .feedback-btn.util-btn.pressed {
-    background-color: #e0efff;
-    color: #0056b3;
+    background-color: #007bff !important;
+    color: #fff !important;
     font-weight: bold;
+}
+.dark-mode .feedback-btn {
+    color: #bbb;
+}
+.dark-mode .feedback-btn:hover {
+    background-color: #333 !important;
+}
+.dark-mode .feedback-btn.util-btn.pressed {
+    background-color: #0056b3 !important;
+    color: #fff !important;
 }
 .feedback-btn.report-btn {
     color: #dc3545;
 }
+/* --- ESTILOS DEL INBOX DE REPORTES --- */
+#inbox-content {
+    margin-top: 20px;
+}
+.inbox-item {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+.dark-mode .inbox-item {
+    border-color: #444;
+}
+.inbox-item-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8em;
+    color: #555;
+    margin-bottom: 10px;
+}
+.dark-mode .inbox-item-header {
+    color: #aaa;
+}
+.inbox-item p {
+    margin: 0 0 15px 0;
+}
+.inbox-item-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.inbox-item-actions textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+.inbox-item-actions button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    align-self: flex-start;
+}
+
+
 .report-section textarea {
     width: 100%;
     box-sizing: border-box;
@@ -975,6 +1036,7 @@ body.search-active .app-logo {
         <a href="#" id="menu-tutoriales" class="menu-link"><i class="fa-solid fa-book-open"></i> Tutoriales</a>
         <a href="#" id="menu-relay" class="menu-link"><i class="fa-solid fa-microchip"></i> Configuración Relay</a>
         <a href="users.html" class="menu-link"><i class="fa-solid fa-users-cog"></i> Mi Perfil / Usuarios</a>
+        <a href="#" id="menu-inbox" class="menu-link" style="display: none;"><i class="fa-solid fa-inbox"></i> Inbox de Reportes</a>
         <a href="#" id="dev-tools-btn" class="menu-link"><i class="fa-solid fa-code"></i> Desarrollador</a>
     </nav>
     <div style="margin-top: auto; padding: 20px;">
@@ -1079,6 +1141,16 @@ body.search-active .app-logo {
         </div>
     </div>
 </div>
+
+<!-- ========= MODAL DE INBOX DE REPORTES ========= -->
+<div id="inbox-modal" class="info-modal">
+    <div class="info-modal-content" style="max-width: 800px;">
+        <span class="info-close-btn">&times;</span>
+        <h2>Inbox de Reportes</h2>
+        <div id="inbox-content"></div>
+    </div>
+</div>
+
 
 <!-- ========= MODALES DE INFORMACIÓN ========= -->
 <div id="about-us-modal" class="info-modal">
@@ -1413,6 +1485,7 @@ async function initializeAppData(user) {
             datosTutoriales = result.data.tutoriales || [];
             datosRelay = result.data.relay || [];
             datosLogos = result.data.logos || [];
+            mostrarUltimosAgregados();
             mostrarCategorias();
             resolve(); // Resolve the promise after content is rendered
         } catch (error) {
@@ -1498,6 +1571,12 @@ function hideLoginShowApp() {
     const session = JSON.parse(localStorage.getItem(SESSION_KEY));
     if (menuUsername && session && session.Nombre_Usuario) {
         menuUsername.textContent = session.Nombre_Usuario;
+    }
+
+    // Show inbox for supervisors and jefes
+    const inboxLink = document.getElementById('menu-inbox');
+    if (inboxLink && session && (session.Privilegios === 'Supervisor' || session.Privilegios === 'Jefe' || session.Privilegios === 'Desarrollador')) {
+        inboxLink.style.display = 'flex';
     }
 }
 
@@ -1587,7 +1666,7 @@ function mostrarContenidoTutoriales() {
         card.onclick = () => mostrarDetalleTutorial(item);
 
         const img = document.createElement("img");
-        img.src = convertirAGoogleThumbnail(item.Imagen);
+        img.dataset.src = convertirAGoogleThumbnail(item.Imagen); // Lazy load
         img.alt = item.Tema;
         card.appendChild(img);
 
@@ -1598,13 +1677,14 @@ function mostrarContenidoTutoriales() {
         grid.appendChild(card);
     });
     cont.appendChild(grid);
+    lazyLoadImages();
 }
 
 function mostrarContenidoRelay() {
     const cont = document.getElementById("contenido-relay");
     cont.innerHTML = "<h4>Configuración del Relay</h4>";
     const grid = document.createElement("div");
-    grid.className = "grid"; // Asegurarse de que el contenedor tiene la clase 'grid'
+    grid.className = "grid";
     if (!datosRelay || datosRelay.length === 0) {
         cont.innerHTML += "<p>No hay configuraciones de relay disponibles.</p>";
         return;
@@ -1616,7 +1696,7 @@ function mostrarContenidoRelay() {
         card.onclick = () => mostrarDetalleRelay(item);
 
         const img = document.createElement("img");
-        img.src = convertirAGoogleThumbnail(item.imagen);
+        img.dataset.src = convertirAGoogleThumbnail(item.imagen); // Lazy load
         img.alt = item.configuracion;
         card.appendChild(img);
 
@@ -1627,6 +1707,7 @@ function mostrarContenidoRelay() {
         grid.appendChild(card);
     });
     cont.appendChild(grid);
+    lazyLoadImages();
 }
 
 function crearElementoDetalle(label, value) {
@@ -1915,34 +1996,45 @@ function mostrarDetalleModal(item) {
     uiState.isModalOpen = true;
 
     const cont = document.getElementById("detalleCompleto");
-    cont.innerHTML = "";
+    cont.innerHTML = ""; // Limpiar contenido anterior
 
+    // --- Header del Modal ---
     const headerDiv = document.createElement("div");
-    headerDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: relative;";
+    headerDiv.style.cssText = "display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; position: relative;";
+
     const closeBtn = document.createElement("button");
     closeBtn.textContent = "Cerrar";
     closeBtn.onclick = () => cerrarModal();
     closeBtn.className = "backBtn";
     closeBtn.style.cssText = "color:white; background:#dc3545; border:none; margin:0;";
-    headerDiv.appendChild(closeBtn);
+
     const yearRange = item.anoHasta && item.anoHasta !== item.anoDesde ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
     const titulo = `${item.marca} ${item.modelo} ${yearRange || ''}`;
-    headerDiv.appendChild(crearBotonCompartir('cortes', item.id, titulo));
-    cont.appendChild(headerDiv);
 
+    const shareBtn = crearBotonCompartir('cortes', item.id, titulo);
+
+    const titleContainer = document.createElement('div');
     const title = document.createElement("h2");
     title.textContent = `Detalle de ${titulo}`;
     title.style.cssText = "color:#007bff; border-bottom:3px solid #007bff; padding-bottom:10px; margin-right: 120px;";
-    cont.appendChild(title);
+    titleContainer.appendChild(title);
 
+    headerDiv.appendChild(closeBtn);
+    headerDiv.appendChild(shareBtn);
+    cont.appendChild(headerDiv);
+    cont.appendChild(titleContainer);
+
+    // --- Logo de la Marca ---
     const logoUrl = getLogoUrlForMarca(item.marca, item.categoria);
     if (logoUrl) {
         const logoImg = document.createElement("img");
         logoImg.src = logoUrl;
         logoImg.style.cssText = "position: absolute; top: 0; right: 0; height: 50px; width: auto; max-width: 100px; object-fit: contain;";
-        cont.appendChild(logoImg);
+        // Insertar el logo dentro del contenedor del título para un mejor posicionamiento relativo
+        titleContainer.appendChild(logoImg);
     }
 
+    // --- Nota Importante y Imagen del Vehículo ---
     if (item.notaImportante) {
         const p = document.createElement("p");
         p.innerHTML = `<strong style="color:red;">Nota Importante:</strong> <span style="color:#cc0000; font-weight: bold;">${item.notaImportante}</span>`;
@@ -1950,7 +2042,7 @@ function mostrarDetalleModal(item) {
     }
     crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, 'img-vehiculo');
 
-    // Lógica de Ordenamiento y Recopilación de Cortes
+    // --- Lógica de Recopilación y Ordenamiento de Cortes ---
     const cortes = [];
     for (let i = 1; i <= 3; i++) {
         if (item[`tipoCorte${i}`]) {
@@ -1966,13 +2058,13 @@ function mostrarDetalleModal(item) {
             });
         }
     }
-    cortes.sort((a, b) => b.util - a.util);
+    cortes.sort((a, b) => b.util - a.util); // Ordenar por popularidad
 
-    const cortesSecundarios = [];
+    // --- Renderizar Corte Recomendado (si existe) ---
     if (cortes.length > 0) {
-        const recomendado = cortes.shift(); // El primero es el recomendado
+        const recomendado = cortes.shift(); // El más popular se saca del array
         const panel = document.createElement("div");
-        panel.className = "panel-visible";
+        panel.className = "panel-visible"; // No es un acordeón, siempre visible
         const h4 = document.createElement('h4');
         h4.innerHTML = `<i class="fa-solid fa-star" style="color: #FFD700;"></i> Corte Recomendado: ${recomendado.tipo}`;
         h4.style.marginTop = '20px';
@@ -1980,53 +2072,61 @@ function mostrarDetalleModal(item) {
         renderizarContenidoCorte(panel, recomendado, item.id);
         cont.appendChild(panel);
     }
-    cortesSecundarios.push(...cortes);
 
-    // Renderizar Acordeones para información adicional
-    const acordeones = [];
-    cortesSecundarios.forEach(corte => {
-        acordeones.push({
-            titulo: `Corte Alternativo: ${corte.tipo}`,
+    // --- Preparar Acordeones para el resto de la información ---
+    const acordeonItems = [];
+
+    // Cortes Alternativos
+    cortes.forEach(corte => {
+        acordeonItems.push({
+            titulo: `Corte Alternativo: ${corte.tipo} (Útil: ${corte.util})`,
             renderFn: (panel) => renderizarContenidoCorte(panel, corte, item.id)
         });
     });
 
+    // Información de Apertura
     if (item.apertura || item.imgApertura) {
-        acordeones.push({
+        acordeonItems.push({
             titulo: "Información de Apertura",
             renderFn: (panel) => {
                 if (item.apertura) panel.appendChild(crearElementoDetalle("Detalle", item.apertura));
-                crearImagenDetalle("Imagen", item.imgApertura, panel);
+                crearImagenDetalle("Imagen de Apertura", item.imgApertura, panel);
             }
         });
     }
 
+    // Información de Alimentación
     if (item.cableAlimen || item.imgCableAlimen) {
-        acordeones.push({
+        acordeonItems.push({
             titulo: "Información de Alimentación",
             renderFn: (panel) => {
-                if (item.cableAlimen) panel.appendChild(crearElementoDetalle("Detalle", item.cableAlimen));
-                crearImagenDetalle("Imagen", item.imgCableAlimen, panel);
+                if (item.cableAlimen) panel.appendChild(crearElementoDetalle("Cable de Alimentación", item.cableAlimen));
+                crearImagenDetalle("Imagen de Alimentación", item.imgCableAlimen, panel);
             }
         });
     }
 
-    if (acordeones.length > 0) {
+    // --- Renderizar Acordeones ---
+    if (acordeonItems.length > 0) {
         const acordeonContainer = document.createElement('div');
         acordeonContainer.style.marginTop = '20px';
-        acordeones.forEach(ac => {
+        acordeonItems.forEach(ac => {
             const btn = document.createElement("button");
             btn.className = "accordion-btn";
-            btn.innerHTML = `${ac.titulo} <svg class="accordion-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+            btn.innerHTML = `${ac.titulo} <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+
             const panel = document.createElement("div");
             panel.className = "panel-desplegable";
-            ac.renderFn(panel);
+
+            ac.renderFn(panel); // Llenar el panel con contenido
+
             acordeonContainer.appendChild(btn);
             acordeonContainer.appendChild(panel);
         });
         cont.appendChild(acordeonContainer);
     }
 
+    // --- Video Guía y Mostrar Modal ---
     crearVideoDetalle("Video Guía de Desarme", item.videoGuiaDesarmeUrl, cont);
     document.getElementById("modalDetalle").classList.add("visible");
 }
@@ -2287,7 +2387,7 @@ function renderNavigationGrid(currentNivel, data, nextNivel, filtros) {
 
             const img = document.createElement("img");
             // Usar la URL del logo proporcionada por el backend.
-            img.src = convertirAGoogleThumbnail(item.urlLogo, 'logo');
+            img.dataset.src = convertirAGoogleThumbnail(item.urlLogo, 'logo');
             // Si no hay logo, se mostrará un espacio vacío, pero el nombre será visible.
             img.alt = `Logo de ${item.nombreMarca}`;
 
@@ -2328,12 +2428,12 @@ function renderNavigationGrid(currentNivel, data, nextNivel, filtros) {
             if (typeof item === 'object' && item.label) { // Nivel de generación
                 overlay.innerHTML = item.label;
                 const vehicle = datosOriginales.find(v => v.id == item.id);
-                img.src = convertirAGoogleThumbnail(vehicle?.imagenVehiculo);
+                img.dataset.src = convertirAGoogleThumbnail(vehicle?.imagenVehiculo);
             } else { // Otros niveles (modelo, version, tipoEncendido)
                 overlay.innerHTML = item;
                 // Encontrar un vehículo de ejemplo para la imagen
                 const ejemplo = datosOriginales.find(d => d[currentFilterKey] === item && filtros.marca === d.marca && filtros.categoria === d.categoria);
-                img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
+                img.dataset.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
             }
 
             card.appendChild(img);
@@ -2361,7 +2461,7 @@ function mostrarUltimosAgregados() {
     ultimosCortes.forEach(item => {
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarDetalleModal(item);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(item.imagenVehiculo); img.alt = `${item.marca} ${item.modelo}`; card.appendChild(img);
+        const img = document.createElement("img"); img.dataset.src = convertirAGoogleThumbnail(item.imagenVehiculo); img.alt = `${item.marca} ${item.modelo}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay";
         const yearRange = item.anoHasta ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
         overlay.innerHTML = `<div>${item.marca}</div><div style="font-size:0.8em; opacity:0.8;">${item.modelo} ${yearRange || ''}</div>`;
@@ -2494,6 +2594,30 @@ async function inicializarApp() {
     // Lógica para el botón de instalación de iOS
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+    // --- LAZY LOADING DE IMÁGENES ---
+    let observer;
+    function lazyLoadImages() {
+        if (observer) {
+            observer.disconnect();
+        }
+
+        observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    img.src = img.dataset.src;
+                    observer.unobserve(img);
+                }
+            });
+        }, { rootMargin: "0px 0px 200px 0px" }); // Carga imágenes 200px antes de que entren en pantalla
+
+        const images = document.querySelectorAll('img[data-src]');
+        images.forEach(img => {
+            observer.observe(img);
+        });
+    }
+
 
     if (!isStandalone && isIOS) {
         // Crear y mostrar un botón/mensaje específico para iOS
@@ -2863,6 +2987,90 @@ function setupDevTools() {
     const openBtn = document.getElementById('dev-tools-btn');
     const closeBtn = devModal.querySelector('.info-close-btn');
 
+    // --- LÓGICA DEL INBOX DE FEEDBACK ---
+    const inboxModal = document.getElementById('inbox-modal');
+    const inboxOpenBtn = document.getElementById('menu-inbox');
+    const inboxCloseBtn = inboxModal.querySelector('.info-close-btn');
+
+    if (inboxOpenBtn) {
+        inboxOpenBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            loadInbox();
+            inboxModal.style.display = 'flex';
+            closeSideMenu();
+        });
+    }
+
+    inboxCloseBtn.addEventListener('click', () => {
+        inboxModal.style.display = 'none';
+    });
+
+    async function loadInbox() {
+        const inboxContent = document.getElementById('inbox-content');
+        inboxContent.innerHTML = '<p>Cargando reportes...</p>';
+        try {
+            const result = await routeAction('getReportedProblems');
+            if (result.status === 'success' && result.data) {
+                renderInbox(result.data);
+            } else {
+                inboxContent.innerHTML = `<p style="color:red;">${result.message || 'Error al cargar reportes.'}</p>`;
+            }
+        } catch (error) {
+            inboxContent.innerHTML = `<p style="color:red;">${error.message}</p>`;
+        }
+    }
+
+    function renderInbox(problems) {
+        const inboxContent = document.getElementById('inbox-content');
+        inboxContent.innerHTML = '';
+        if (problems.length === 0) {
+            inboxContent.innerHTML = '<p>No hay reportes pendientes.</p>';
+            return;
+        }
+
+        problems.forEach(problem => {
+            const problemDiv = document.createElement('div');
+            problemDiv.className = 'inbox-item';
+            problemDiv.innerHTML = `
+                <div class="inbox-item-header">
+                    <span><strong>Usuario:</strong> ${problem.user}</span>
+                    <span><strong>Vehículo ID:</strong> ${problem.vehicleId}</span>
+                </div>
+                <p>${problem.problem}</p>
+                <div class="inbox-item-actions">
+                    <textarea id="reply-${problem.id}" placeholder="Escribe una respuesta..."></textarea>
+                    <button onclick="replyToProblem('${problem.id}')">Responder</button>
+                    <button onclick="resolveProblem('${problem.id}')">Resolver</button>
+                </div>
+            `;
+            inboxContent.appendChild(problemDiv);
+        });
+    }
+
+    window.replyToProblem = async function(problemId) {
+        const replyText = document.getElementById(`reply-${problemId}`).value;
+        const user = JSON.parse(localStorage.getItem(SESSION_KEY));
+        if (!replyText || !user) return;
+
+        try {
+            await routeAction('replyToProblem', { problemId, replyText, responderName: user.Nombre_Usuario });
+            loadInbox(); // Recargar
+        } catch (error) {
+            alert(`Error: ${error.message}`);
+        }
+    }
+
+    window.resolveProblem = async function(problemId) {
+        if (!confirm('¿Marcar este problema como resuelto?')) return;
+        try {
+            await routeAction('resolveProblem', { problemId });
+            loadInbox(); // Recargar
+        } catch (error) {
+            alert(`Error: ${error.message}`);
+        }
+    }
+
+
     // Mover la consola al modal
     if (devConsole && devConsoleContainer) {
         devConsoleContainer.appendChild(devConsole);
@@ -2922,7 +3130,7 @@ function setupDevTools() {
 </script>
 
 <footer class="footer" style="display: none;">
-  Gpspedia v4.0.0 © 2025 todos los derechos reservados.
+  Gpspedia v4.2.0 © 2026 todos los derechos reservados.
   <div class="footer-links">
       <a id="footer-about-link">Sobre Nosotros</a>
       <a id="footer-contact-link">Contáctanos</a>
