@@ -13,7 +13,7 @@ const API_ENDPOINTS = {
     WRITE:    "https://script.google.com/macros/s/AKfycbyPu7p1erNGcxDCk4xWNPThvYdHeq3A80gdxvEgQpjnQ-LR6fQUAkS7913w7E5I8LOHNw/exec",
     USERS:    "https://script.google.com/macros/s/AKfycbywTo3Asul37tLML29tmtNwVpFbHabXOfC7sw4c5KagURIXzaZoiKrbr2XAIkv-7n-T/exec",
     FEEDBACK: "https://script.google.com/macros/s/AKfycbx12Hzc3g4AU-EIM26XhkH_52ZCGsFswdwLR7FHMMSz2ZzJJnvkJpPHB2dJ_N999Wg/exec",
-    UTILITIES: "https://script.google.com/macros/s/AKfycbwr1dbyZgRtihOtgX6T7RORhfw8f5QXLI4IYDyh-NLEfmRqURJg-Lg06eMAgnJkc5GI/exec"
+    UTILITIES: "https://script.google.com/macros/s/AKfycbykblCJThbECeIJudGXy82rmGdOpbH1q4DYokLGxcRHVJEGPV7QubmvZ8027y0Y8lgT/exec"
 };
 
 // Mapeo de cada 'action' al servicio que le corresponde.
