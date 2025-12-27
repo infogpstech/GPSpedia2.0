@@ -149,47 +149,44 @@ function migrateYearRanges() {
     const values = range.getValues();
     let updatedCount = 0;
 
-    values.forEach((row, index) => {
+    const newValues = values.map(row => {
         let anoDesdeRaw = row[COLS_CORTES.anoDesde - 1];
+        let anoHastaRaw = row[COLS_CORTES.anoHasta - 1];
+        let hasChanged = false;
+
         if (typeof anoDesdeRaw === 'string' && anoDesdeRaw.includes('-')) {
             const parts = anoDesdeRaw.split('-').map(p => parseInt(p.trim(), 10));
             if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
-                const year1 = parts[0];
-                const year2 = parts[1];
-
-                const minYear = Math.min(year1, year2);
-                const maxYear = Math.max(year1, year2);
-
-                sheet.getRange(index + 2, COLS_CORTES.anoDesde).setValue(minYear);
-                sheet.getRange(index + 2, COLS_CORTES.anoHasta).setValue(maxYear);
-                updatedCount++;
+                row[COLS_CORTES.anoDesde - 1] = Math.min(parts[0], parts[1]);
+                row[COLS_CORTES.anoHasta - 1] = Math.max(parts[0], parts[1]);
+                hasChanged = true;
             }
-        } else if (!isNaN(parseInt(anoDesdeRaw)) && !row[COLS_CORTES.anoHasta - 1]) {
-             // If anoDesde is a number and anoHasta is empty, copy anoDesde to anoHasta.
-             sheet.getRange(index + 2, COLS_CORTES.anoHasta).setValue(parseInt(anoDesdeRaw));
-             updatedCount++;
+        } else if (!isNaN(parseInt(anoDesdeRaw)) && !anoHastaRaw) {
+            row[COLS_CORTES.anoHasta - 1] = parseInt(anoDesdeRaw);
+            hasChanged = true;
         }
+        if(hasChanged) updatedCount++;
+        return row;
     });
+
+    if (updatedCount > 0) {
+        range.setValues(newValues);
+    }
 
     logToSheet('INFO', 'Migration "migrateYearRanges" completed.', { updatedRows: updatedCount });
     return { status: 'success', message: `Migración de años completada. ${updatedCount} registros actualizados.` };
 }
 
-
-/**
- * Migrates timestamps from Google Drive image creation dates.
- */
 function migrateTimestamps() {
     const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAMES.CORTES);
     const range = sheet.getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn());
     const values = range.getValues();
     let updatedCount = 0;
 
-    values.forEach((row, index) => {
+    const newValues = values.map((row, index) => {
         const imageUrl = row[COLS_CORTES.imagenVehiculo - 1];
         const currentTimestamp = row[COLS_CORTES.timestamp - 1];
 
-        // Process only if there's an image URL and no existing timestamp
         if (imageUrl && !currentTimestamp) {
             try {
                 const fileIdMatch = imageUrl.match(/id=([a-zA-Z0-9_-]+)/);
@@ -197,18 +194,20 @@ function migrateTimestamps() {
                     const fileId = fileIdMatch[1];
                     const file = DriveApp.getFileById(fileId);
                     const creationDate = file.getDateCreated();
-
-                    // Format date to DD/MM/YYYY
                     const formattedDate = Utilities.formatDate(creationDate, Session.getScriptTimeZone(), "dd/MM/yyyy");
-
-                    sheet.getRange(index + 2, COLS_CORTES.timestamp).setValue(formattedDate);
+                    row[COLS_CORTES.timestamp - 1] = formattedDate;
                     updatedCount++;
                 }
             } catch (e) {
-                logToSheet('WARN', `Could not process timestamp for row ${index + 2}`, { imageUrl: imageUrl, error: e.message });
+                 logToSheet('WARN', `Could not process timestamp for row ${index + 2}`, { imageUrl: imageUrl, error: e.message });
             }
         }
+        return row;
     });
+
+    if (updatedCount > 0) {
+        range.setValues(newValues);
+    }
 
     logToSheet('INFO', 'Migration "migrateTimestamps" completed.', { updatedRows: updatedCount });
     return { status: 'success', message: `Migración de timestamps completada. ${updatedCount} registros actualizados.` };

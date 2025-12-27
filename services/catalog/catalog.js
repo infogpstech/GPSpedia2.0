@@ -460,7 +460,8 @@ function handleGetNavigationData(payload) {
 
     // Si después de todo el procesamiento, solo hay un resultado, y no es el final,
     // se hace una llamada recursiva para avanzar al siguiente nivel automáticamente.
-    if (results.length === 1 && nextNivel !== 'final') {
+    // EXCEPCIÓN: No se salta el nivel 'modelo', para asegurar que el usuario siempre vea el modelo del vehículo.
+    if (results.length === 1 && nextNivel !== 'final' && nivel !== 'modelo') {
          const newFilters = {...filtros};
          // El resultado puede ser un string (modelo) o un objeto (marca)
          newFilters[nivel] = (typeof results[0] === 'object' && results[0] !== null) ? results[0].nombreMarca : results[0];

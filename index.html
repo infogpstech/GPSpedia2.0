@@ -382,8 +382,8 @@ body.search-active .app-logo {
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     width: 100%;
-    max-width: 140px;
-    justify-self: center;
+    max-width: 100%;
+    /* justify-self: center; */ /* Eliminado para permitir que la tarjeta ocupe el espacio */
     /* Animación de entrada */
     opacity: 0; /* Estado inicial para la animación */
     animation: card-enter 0.5s ease-out forwards;
@@ -399,10 +399,10 @@ body.search-active .app-logo {
 }
 
 /* --- ESTILOS PARA TARJETAS DE LOGO (ICONOS) --- */
-.logo-card {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
+.grid .logo-card {
+    background: transparent;
+    border: none;
+    box-shadow: none;
     cursor: pointer;
     padding: 10px;
     text-align: center;
@@ -414,7 +414,7 @@ body.search-active .app-logo {
     align-items: center;
     gap: 8px;
 }
-.logo-card:hover {
+.grid .logo-card:hover {
     transform: scale(1.1);
 }
 .logo-card img {
@@ -829,9 +829,9 @@ body.search-active .app-logo {
     text-align: center;
 }
 .feedback-btn {
-    background: none !important;
-    border: none !important;
-    box-shadow: none !important;
+    background: none;
+    border: none;
+    box-shadow: none;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -842,23 +842,23 @@ body.search-active .app-logo {
     border-radius: 5px;
     transition: background-color 0.2s, color 0.2s;
 }
-.feedback-btn:hover {
-    background-color: #f0f0f0 !important;
+#detalleCompleto .feedback-btn:hover {
+    background-color: #f0f0f0;
 }
-.feedback-btn.util-btn.pressed {
-    background-color: #007bff !important;
-    color: #fff !important;
+#detalleCompleto .feedback-btn.util-btn.pressed {
+    background-color: #007bff;
+    color: #fff;
     font-weight: bold;
 }
-.dark-mode .feedback-btn {
+.dark-mode #detalleCompleto .feedback-btn {
     color: #bbb;
 }
-.dark-mode .feedback-btn:hover {
-    background-color: #333 !important;
+.dark-mode #detalleCompleto .feedback-btn:hover {
+    background-color: #333;
 }
-.dark-mode .feedback-btn.util-btn.pressed {
-    background-color: #0056b3 !important;
-    color: #fff !important;
+.dark-mode #detalleCompleto .feedback-btn.util-btn.pressed {
+    background-color: #0056b3;
+    color: #fff;
 }
 .feedback-btn.report-btn {
     color: #dc3545;
@@ -1919,9 +1919,17 @@ function convertirAGoogleThumbnail(url, type = 'image') {
 
     let fileId = null;
     const regexPatterns = [
-        /(?:\/file\/d\/|\/d\/)([a-zA-Z0-9_-]{28,})/,             // Formatos: /file/d/ID, /d/ID
-        /[?&]id=([a-zA-Z0-9_-]{28,})/,                         // Formatos: ?id=ID, &id=ID
-        /googleusercontent\.com\/d\/([a-zA-Z0-9_-]{28,})/     // Formato: googleusercontent.com/d/ID
+        // Patrones más específicos primero para mayor precisión
+        // Formatos: /file/d/ID, /d/ID
+        /(?:\/file\/d\/|\/d\/)([a-zA-Z0-9_-]{25,})/,
+        // Formato: open?id=ID
+        /open\?id=([a-zA-Z0-9_-]{25,})/,
+        // Formato: uc?id=ID
+        /uc\?id=([a-zA-Z0-9_-]{25,})/,
+        // Formato: googleusercontent.com/d/ID
+        /googleusercontent\.com\/d\/([a-zA-Z0-9_-]{25,})/,
+        // Fallback para cualquier otro parámetro ?id=ID o &id=ID
+        /[?&]id=([a-zA-Z0-9_-]{25,})/
     ];
 
     for (const pattern of regexPatterns) {
@@ -1933,11 +1941,13 @@ function convertirAGoogleThumbnail(url, type = 'image') {
     }
 
     if (fileId) {
-        let size = 'w1000'; // Tamaño por defecto para 'image'
+        let size = 'w1000'; // Default size
         if (type === 'logo') {
             size = 'w256';
-        } else if (type.startsWith('w')) {
-            size = type; // Permite pasar un tamaño específico como 'w2000'
+        } else if (type && !type.startsWith('w')) { // A specific size is requested, e.g., '200'
+            size = `w${type}`;
+        } else if (type) { // A full size parameter is passed, e.g., 'w2000'
+            size = type;
         }
         return `https://drive.google.com/thumbnail?sz=${size}&id=${fileId}`;
     }
@@ -2095,6 +2105,29 @@ function mostrarDetalleModal(item) {
         });
     }
 
+    // Video Guía de Desarme
+    if (item.videoGuiaDesarmeUrl) {
+        acordeonItems.push({
+            titulo: "Video Guía de Desarme",
+            renderFn: (panel) => {
+                const videoId = extractYouTubeId(String(item.videoGuiaDesarmeUrl).trim());
+                if (!videoId) return;
+                const iframeContainer = document.createElement("div");
+                // Se agrega margen para separar el video del botón del acordeón
+                iframeContainer.style.cssText = "position:relative; padding-bottom:56.25%; height:0; margin-top: 15px; margin-bottom:15px;";
+                const iframe = document.createElement("iframe");
+                iframe.src = `https://www.youtube.com/embed/${videoId}`;
+                iframe.title = "Video Guía de Desarme";
+                iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+                iframe.allowFullscreen = true;
+                iframe.style.cssText = "border:none; position:absolute; top:0; left:0; width:100%; height:100%;";
+                iframe.dataset.originalSrc = iframe.src;
+                iframeContainer.appendChild(iframe);
+                panel.appendChild(iframeContainer);
+            }
+        });
+    }
+
     // Información de Alimentación
     if (item.cableAlimen || item.imgCableAlimen) {
         acordeonItems.push({
@@ -2126,8 +2159,7 @@ function mostrarDetalleModal(item) {
         cont.appendChild(acordeonContainer);
     }
 
-    // --- Video Guía y Mostrar Modal ---
-    crearVideoDetalle("Video Guía de Desarme", item.videoGuiaDesarmeUrl, cont);
+    // --- Mostrar Modal ---
     document.getElementById("modalDetalle").classList.add("visible");
 }
 
