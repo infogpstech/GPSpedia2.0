@@ -71,7 +71,7 @@ ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
 - [ ] **Lógica del Modal de Detalle:** El modal de detalle actualmente solo carga la información del primer corte, ignorando los datos de `corte2` y `corte3`.
 - [ ] **Carga de Imágenes en Modal:** Las imágenes asociadas a la apertura, cable de alimentación y configuración del relay no se están mostrando en el modal.
 - [ ] **Carga de Logos en Modal:** El logo de la marca del vehículo no se está cargando y mostrando correctamente dentro del modal.
-- [ ] **Refactorización del Flujo de Escritura:** Implementar el nuevo flujo de trabajo de 3 etapas para añadir/actualizar cortes.
+- [X] **Refactorización del Flujo de Escritura:** Implementar el nuevo flujo de trabajo de 3 etapas para añadir/actualizar cortes.
 - [ ] **Inconsistencias de Versionamiento:** Sincronizar la versión global y las versiones de componentes en todos los archivos.
 - [ ] **Visibilidad de Cortes:** Asegurar que las tres opciones de corte sean visibles en el modal si existen los datos.
 

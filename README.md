@@ -230,7 +230,7 @@ Esta sección documenta las tareas de desarrollo, corrección y regresiones pend
 - [ ] **Lógica del Modal de Detalle:** El modal de detalle actualmente solo carga la información del primer corte (`tipoCorte1`, `ubicacionCorte1`, etc.), ignorando los datos de `corte2` y `corte3` aunque existan. Debe mostrar la información completa de todos los cortes disponibles.
 - [ ] **Carga de Imágenes en Modal:** Las imágenes asociadas a la apertura (`imgApertura`), cable de alimentación (`imgCableAlimen`) y la configuración del relay (`imagen` desde la hoja `Relay`) no se están mostrando en el modal de detalle.
 - [ ] **Carga de Logos en Modal:** El logo de la marca del vehículo no se está cargando y mostrando correctamente dentro del modal de detalle.
-- [ ] **Refactorización del Flujo de Escritura:** Implementar el nuevo flujo de trabajo de 3 etapas para añadir/actualizar cortes, que fue documentado como completo pero no se encuentra en el código.
+- [X] **Refactorización del Flujo de Escritura:** Implementar el nuevo flujo de trabajo de 3 etapas para añadir/actualizar cortes, que fue documentado como completo pero no se encuentra en el código.
 - [ ] **Inconsistencias de Versionamiento:** Sincronizar la versión global (ChangesLogs, UI) y las versiones de componentes (cabeceras en todos los archivos `.html` y `.js`) para cumplir con las normas del proyecto.
 - [X] **Layout del Modal:** Corregir la posición del nombre del colaborador y el estilo de los botones de feedback.
 - [ ] **Visibilidad de Cortes:** Asegurar que las tres opciones de corte sean visibles en el modal si existen los datos.
