@@ -8,12 +8,12 @@ const API_ENDPOINTS = {
     LEGACY: "https://script.google.com/macros/s/AKfycbwpIFH1nX2BZEjAKbpq9HJpEGNlo_0LqD1CwxWsWFo5J0AJDdbfMrKpcsAV4ZFJzFWd/exec",
 
     // URLs para los nuevos microservicios.
-    AUTH:     "https://script.google.com/macros/s/AKfycbxXsd5i2M3FN8O9A-w0MLVftLTe9d1OcYZJhy6KFB3lWHgxm6P3WloFRWOUZSnHZg9e/exec",
+    AUTH:     "https://script.google.com/macros/s/AKfycbwKDOxRLLoJ1N_4MsRzgPdwYWb9ncJK8R9lkhzdNb-2b22owI5RpdO4_Kj30aEwn0KF/exec",
     CATALOG:  "https://script.google.com/macros/s/AKfycby2l0_ZPekAudHSmmUEZ6JpbA0YYOpMcAhdl6PMxidgJhdpwjdSOFJAhxu5l3d_BU0A/exec",
     WRITE:    "https://script.google.com/macros/s/AKfycbyPu7p1erNGcxDCk4xWNPThvYdHeq3A80gdxvEgQpjnQ-LR6fQUAkS7913w7E5I8LOHNw/exec",
     USERS:    "https://script.google.com/macros/s/AKfycbywTo3Asul37tLML29tmtNwVpFbHabXOfC7sw4c5KagURIXzaZoiKrbr2XAIkv-7n-T/exec",
-    FEEDBACK: "https://script.google.com/macros/s/AKfycbx12Hzc3g4AU-EIM26XhkH_52ZCGsFswdwLR7FHMMSz2ZzJJnvkJpPHB2dJ_N999Wg/exec",
-    UTILITIES: "https://script.google.com/macros/s/AKfycbwr1dbyZgRtihOtgX6T7RORhfw8f5QXLI4IYDyh-NLEfmRqURJg-Lg06eMAgnJkc5GI/exec"
+    FEEDBACK: "https://script.google.com/macros/s/AKfycbwRE0PB9e-6bVbSv2hcU4hXLUotRosPfv7pnTzAsa6-GOfY_ScY1keB1uSXN6JtaQp_/exec",
+    UTILITIES: "https://script.google.com/macros/s/AKfycbznUo3DTj9PyPH9b2VJ7CBEKBuWcjVYXW9xZe7hphYTUj41Rr1dZDfGEv1JK_UuCwPr/exec"
 };
 
 // Mapeo de cada 'action' al servicio que le corresponde.
