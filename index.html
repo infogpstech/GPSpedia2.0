@@ -1533,7 +1533,8 @@ function irAPaginaPrincipal() {
 function mostrarContenidoTutoriales() {
     const cont = document.getElementById("contenido-tutoriales");
     cont.innerHTML = "<h4>Tutoriales</h4>";
-    const grid = document.createElement("div"); grid.className = "grid";
+    const grid = document.createElement("div");
+    grid.className = "grid"; // Asegurarse de que el contenedor tiene la clase 'grid'
     if (!datosTutoriales || datosTutoriales.length === 0) {
         cont.innerHTML += "<p>No hay tutoriales disponibles.</p>";
         return;
@@ -1561,7 +1562,8 @@ function mostrarContenidoTutoriales() {
 function mostrarContenidoRelay() {
     const cont = document.getElementById("contenido-relay");
     cont.innerHTML = "<h4>Configuración del Relay</h4>";
-    const grid = document.createElement("div"); grid.className = "grid";
+    const grid = document.createElement("div");
+    grid.className = "grid"; // Asegurarse de que el contenedor tiene la clase 'grid'
     if (!datosRelay || datosRelay.length === 0) {
         cont.innerHTML += "<p>No hay configuraciones de relay disponibles.</p>";
         return;
