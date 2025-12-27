@@ -113,7 +113,11 @@ function handleLogin(payload) {
             throw new Error("Usuario y contraseña son requeridos.");
         }
 
-        const userSheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAMES.USERS);
+        const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+        const userSheet = ss.getSheetByName(SHEET_NAMES.USERS);
+        if (!userSheet) {
+            throw new Error(`Sheet "${SHEET_NAMES.USERS}" not found in spreadsheet.`);
+        }
         const data = userSheet.getDataRange().getValues();
         data.shift(); // Remove headers
 
@@ -215,7 +219,11 @@ function handleValidateSession(payload) {
             return { valid: false };
         }
 
-        const userSheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAMES.USERS);
+        const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+        const userSheet = ss.getSheetByName(SHEET_NAMES.USERS);
+        if (!userSheet) {
+            throw new Error(`Sheet "${SHEET_NAMES.USERS}" not found for session validation.`);
+        }
         const data = userSheet.getDataRange().getValues();
         data.shift();
 

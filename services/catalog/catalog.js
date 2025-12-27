@@ -152,9 +152,10 @@ function mapRowToObject(row, colMap) {
 
 function handleGetCatalogData() {
     const allData = {};
+    const ss = getSpreadsheet();
 
     // Fetch Cortes
-    const cortesSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
+    const cortesSheet = ss.getSheetByName(SHEET_NAMES.CORTES);
     let cortesData = [];
     if (cortesSheet) {
         const data = cortesSheet.getDataRange().getValues();

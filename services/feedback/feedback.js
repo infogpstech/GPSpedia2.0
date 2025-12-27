@@ -20,7 +20,8 @@ const SHEET_NAMES = {
     CORTES: "Cortes",
     FEEDBACKS: "Feedbacks",
     CONTACTANOS: "Contactanos",
-    ACTIVIDAD_USUARIO: "ActividadUsuario"
+    ACTIVIDAD_USUARIO: "ActividadUsuario",
+    NOTIFICACIONES: "Notificaciones"
 };
 
 // Mapa de columnas para la hoja "Cortes" (v2.0)
@@ -35,16 +36,17 @@ const COLS_CORTES = {
     timestamp: 37, notaImportante: 38
 };
 
-// Mapa de columnas para la hoja "Feedbacks" (v2.0)
+// Mapa de columnas para la hoja "Feedbacks" (v2.0) - ACTUALIZADO
 const COLS_FEEDBACKS = {
     ID: 1,
-    Usuario: 2,
-    ID_vehiculo: 3,
-    Problema: 4,
-    Respuesta: 5,
-    "Se resolvio": 6,
-    Responde: 7,
-    "Reporte de util": 8
+    ID_Usuario: 2, // <-- NUEVO
+    Usuario: 3,
+    ID_vehiculo: 4,
+    Problema: 5,
+    Respuesta: 6,
+    "Se resolvio": 7,
+    Responde: 8,
+    "Reporte de util": 9
 };
 
 const COLS_CONTACTANOS = {
@@ -66,6 +68,15 @@ const COLS_ACTIVIDAD_USUARIO = {
     detalle: 7
 };
 
+const COLS_NOTIFICACIONES = {
+    ID: 1,
+    ID_Usuario: 2,
+    Mensaje: 3,
+    Leido: 4,
+    Timestamp: 5
+};
+
+
 // ============================================================================
 // ROUTER PRINCIPAL (doGet y doPost)
 // ============================================================================
@@ -73,16 +84,22 @@ function doGet(e) {
     if (e.parameter.debug === 'true') {
         const serviceState = {
             service: 'GPSpedia-Feedback',
-            version: '1.2.1',
+            version: '2.3.0', // <-- ACTUALIZADO
             spreadsheetId: SPREADSHEET_ID,
-            sheetsAccessed: [SHEET_NAMES.CORTES, SHEET_NAMES.FEEDBACKS]
+            sheetsAccessed: [
+                SHEET_NAMES.CORTES,
+                SHEET_NAMES.FEEDBACKS,
+                SHEET_NAMES.CONTACTANOS,
+                SHEET_NAMES.ACTIVIDAD_USUARIO,
+                SHEET_NAMES.NOTIFICACIONES
+            ]
         };
         return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
             .setMimeType(ContentService.MimeType.JSON);
     }
     const defaultResponse = {
         status: 'success',
-        message: 'GPSpedia Feedback-SERVICE v1.2.1 is active.'
+        message: 'GPSpedia Feedback-SERVICE v2.3.0 is active.'
     };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
         .setMimeType(ContentService.MimeType.JSON);
@@ -96,6 +113,7 @@ function doPost(e) {
         const payload = request.payload || {};
 
         switch (action) {
+            // --- Acciones de Feedback General ---
             case 'recordLike':
                 response = handleRecordLike(payload);
                 break;
@@ -114,6 +132,29 @@ function doPost(e) {
             case 'getComments':
                 response = handleGetComments(payload);
                 break;
+
+            // --- Acciones de Bandeja de Entrada (Supervisor/Jefe) ---
+            case 'getReportedProblems':
+                 response = handleGetReportedProblems(payload);
+                 break;
+            case 'replyToProblem':
+                 response = handleReplyToProblem(payload);
+                 break;
+            case 'resolveProblem':
+                 response = handleResolveProblem(payload);
+                 break;
+            case 'deleteProblem':
+                 response = handleDeleteProblem(payload);
+                 break;
+
+            // --- Acciones de Notificaciones (Usuario) ---
+            case 'getUnreadNotifications':
+                response = handleGetUnreadNotifications(payload);
+                break;
+            case 'markNotificationsAsRead':
+                response = handleMarkNotificationsAsRead(payload);
+                break;
+
             default:
                 throw new Error(`Acción desconocida en Feedback Service: ${action}`);
         }
@@ -298,20 +339,29 @@ function handleSuggestYear(payload) {
 function handleReportProblem(payload) {
     const { vehicleId, problemText, userId, userName } = payload;
     if (!vehicleId || !problemText || !userId || !userName) {
-        throw new Error("Faltan datos para reportar el problema.");
+        throw new Error("Faltan datos para reportar el problema (vehicleId, problemText, userId, userName).");
     }
 
     const feedbackSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
     const newRow = [];
-    newRow[COLS_FEEDBACKS.ID - 1] = new Date().getTime().toString(); // Simple unique ID
+    newRow[COLS_FEEDBACKS.ID - 1] = new Date().getTime().toString();
+    newRow[COLS_FEEDBACKS.ID_Usuario - 1] = userId; // <-- GUARDAR ID DEL USUARIO
     newRow[COLS_FEEDBACKS.Usuario - 1] = userName;
     newRow[COLS_FEEDBACKS.ID_vehiculo - 1] = vehicleId;
     newRow[COLS_FEEDBACKS.Problema - 1] = problemText;
+
+    // Inicializar las otras columnas para mantener la estructura
+    newRow[COLS_FEEDBACKS.Respuesta - 1] = "";
+    newRow[COLS_FEEDBACKS["Se resolvio"] - 1] = false;
+    newRow[COLS_FEEDBACKS.Responde - 1] = "";
+    newRow[COLS_FEEDBACKS["Reporte de util"] - 1] = "";
+
     feedbackSheet.appendRow(newRow);
 
     logUserActivity(userId, userName, 'report_problem', vehicleId, problemText);
-    return { status: 'success', message: 'Problema reportado.' };
+    return { status: 'success', message: 'Problema reportado correctamente.' };
 }
+
 
 function handleSendContactForm(payload) {
     const { name, email, message } = payload;
@@ -358,58 +408,153 @@ function handleGetComments(payload) {
 // ============================================================================
 
 function handleGetReportedProblems(payload) {
-    // Security check can be added here if needed, based on user role from payload
     const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
     const data = sheet.getDataRange().getValues();
-    data.shift(); // remove headers
+    const headers = data.shift();
 
     const problems = data
-        .filter(row => !row[COLS_FEEDBACKS["Se resolvio"] - 1]) // Filter for unresolved problems
-        .map(row => ({
-            id: row[COLS_FEEDBACKS.ID - 1],
-            user: row[COLS_FEEDBACKS.Usuario - 1],
-            vehicleId: row[COLS_FEEDBACKS.ID_vehiculo - 1],
-            problem: row[COLS_FEEDBACKS.Problema - 1]
+        .map(row => {
+            let problem = {};
+            headers.forEach((header, i) => {
+                const key = Object.keys(COLS_FEEDBACKS).find(k => COLS_FEEDBACKS[k] === i + 1);
+                if (key) problem[key] = row[i];
+            });
+            return problem;
+        })
+        .filter(p => !p["Se resolvio"])
+        .map(p => ({ // Mapear a un formato más simple para el frontend
+             id: p.ID,
+             userId: p.ID_Usuario,
+             user: p.Usuario,
+             vehicleId: p.ID_vehiculo,
+             problem: p.Problema
         }));
 
-    return { status: 'success', data: problems };
+    return { status: 'success', data: problems.reverse() }; // Mostrar los más recientes primero
 }
+
 
 function handleReplyToProblem(payload) {
     const { problemId, replyText, responderName } = payload;
     if (!problemId || !replyText || !responderName) {
-        throw new Error("Faltan datos para responder al problema.");
+        throw new Error("Faltan datos para responder (problemId, replyText, responderName).");
     }
 
     const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
-    const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues();
+    const idColumn = sheet.getRange(2, COLS_FEEDBACKS.ID, sheet.getLastRow(), 1).getValues().flat();
+    const rowIndex = idColumn.findIndex(id => id == problemId);
 
-    for (let i = 0; i < data.length; i++) {
-        if (data[i][0] == problemId) {
-            const rowIndex = i + 2;
-            sheet.getRange(rowIndex, COLS_FEEDBACKS.Respuesta - 1).setValue(replyText);
-            sheet.getRange(rowIndex, COLS_FEEDBACKS.Responde - 1).setValue(responderName);
-            return { status: 'success', message: 'Respuesta enviada.' };
-        }
+    if (rowIndex === -1) {
+        throw new Error("No se encontró el reporte con el ID proporcionado.");
     }
-    throw new Error("No se encontró el reporte con el ID proporcionado.");
+
+    const actualRow = rowIndex + 2;
+    const rowData = sheet.getRange(actualRow, 1, 1, sheet.getLastColumn()).getValues()[0];
+    const userIdToNotify = rowData[COLS_FEEDBACKS.ID_Usuario - 1];
+
+    sheet.getRange(actualRow, COLS_FEEDBACKS.Respuesta).setValue(replyText);
+    sheet.getRange(actualRow, COLS_FEEDBACKS.Responde).setValue(responderName);
+
+    // Crear notificación para el usuario que reportó el problema
+    if (userIdToNotify) {
+        const notificationMessage = `El administrador ${responderName} ha respondido a tu reporte de problema.`;
+        createNotification(userIdToNotify, notificationMessage);
+    }
+
+    return { status: 'success', message: 'Respuesta enviada y notificación creada.' };
 }
+
 
 function handleResolveProblem(payload) {
     const { problemId } = payload;
-    if (!problemId) {
-        throw new Error("Se requiere el ID del problema para resolverlo.");
-    }
+    if (!problemId) throw new Error("Se requiere el ID del problema para resolverlo.");
 
     const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
-    const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues();
+    const ids = sheet.getRange(2, COLS_FEEDBACKS.ID, sheet.getLastRow(), 1).getValues().flat();
+    const rowIndex = ids.findIndex(id => id == problemId);
 
-    for (let i = 0; i < data.length; i++) {
-        if (data[i][0] == problemId) {
-            const rowIndex = i + 2;
-            sheet.getRange(rowIndex, COLS_FEEDBACKS["Se resolvio"] - 1).setValue(true);
-            return { status: 'success', message: 'Problema marcado como resuelto.' };
+    if (rowIndex === -1) throw new Error("No se encontró el reporte con el ID proporcionado.");
+
+    sheet.getRange(rowIndex + 2, COLS_FEEDBACKS["Se resolvio"]).setValue(true);
+    return { status: 'success', message: 'Problema marcado como resuelto.' };
+}
+
+
+function handleDeleteProblem(payload) {
+    const { problemId } = payload;
+    if (!problemId) throw new Error("Se requiere el ID del problema para eliminarlo.");
+
+    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
+    const ids = sheet.getRange(2, COLS_FEEDBACKS.ID, sheet.getLastRow(), 1).getValues().flat();
+    const rowIndex = ids.findIndex(id => id == problemId);
+
+    if (rowIndex === -1) throw new Error("No se encontró el reporte con el ID proporcionado.");
+
+    sheet.deleteRow(rowIndex + 2);
+    return { status: 'success', message: 'Problema eliminado permanentemente.' };
+}
+
+// ============================================================================
+// NOTIFICATION HANDLERS (FOR ALL USERS)
+// ============================================================================
+
+function createNotification(userId, message) {
+    try {
+        const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.NOTIFICACIONES);
+        const timestamp = new Date();
+        const uniqueId = timestamp.getTime().toString(36) + Math.random().toString(36).slice(2);
+
+        sheet.appendRow([uniqueId, userId, message, false, timestamp]);
+    } catch (e) {
+        Logger.log(`CRITICAL: Fallo al crear notificación para el usuario ${userId}. Error: ${e.message}`);
+    }
+}
+
+function handleGetUnreadNotifications(payload) {
+    const { userId } = payload;
+    if (!userId) throw new Error("Se requiere el ID de usuario para obtener notificaciones.");
+
+    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.NOTIFICACIONES);
+    const data = sheet.getDataRange().getValues();
+    data.shift();
+
+    const notifications = data
+        .filter(row => row[COLS_NOTIFICACIONES.ID_Usuario - 1] == userId && !row[COLS_NOTIFICACIONES.Leido - 1])
+        .map(row => ({
+            id: row[COLS_NOTIFICACIONES.ID - 1],
+            message: row[COLS_NOTIFICACIONES.Mensaje - 1],
+            timestamp: row[COLS_NOTIFICACIONES.Timestamp - 1]
+        }));
+
+    return { status: 'success', data: notifications };
+}
+
+
+function handleMarkNotificationsAsRead(payload) {
+    const { userId, notificationIds } = payload;
+    if (!userId || !Array.isArray(notificationIds) || notificationIds.length === 0) {
+        throw new Error("Se requiere ID de usuario y un array de IDs de notificación.");
+    }
+
+    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.NOTIFICACIONES);
+    const dataRange = sheet.getDataRange();
+    const values = dataRange.getValues();
+
+    let updated = false;
+    for (let i = 1; i < values.length; i++) { // Start from 1 to skip header
+        const rowUserId = values[i][COLS_NOTIFICACIONES.ID_Usuario - 1];
+        const rowNotifId = values[i][COLS_NOTIFICACIONES.ID - 1];
+
+        if (rowUserId == userId && notificationIds.includes(rowNotifId)) {
+            values[i][COLS_NOTIFICACIONES.Leido - 1] = true;
+            updated = true;
         }
     }
-    throw new Error("No se encontró el reporte con el ID proporcionado.");
+
+    if (updated) {
+        dataRange.setValues(values);
+        return { status: 'success', message: `${notificationIds.length} notificaciones marcadas como leídas.` };
+    }
+
+    return { status: 'info', message: 'No se encontraron notificaciones para marcar.' };
 }

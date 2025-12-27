@@ -46,6 +46,8 @@ const ACTION_TO_SERVICE_MAP = {
     'getReportedProblems': 'FEEDBACK',
     'replyToProblem': 'FEEDBACK',
     'resolveProblem': 'FEEDBACK',
+    'getUnreadNotifications': 'FEEDBACK',
+    'markNotificationsAsRead': 'FEEDBACK',
 
     // Utilities Service
     'migrateYearRanges': 'UTILITIES',

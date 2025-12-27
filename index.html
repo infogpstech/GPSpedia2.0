@@ -24,8 +24,66 @@ body {
 }
 h1 { margin: 10px 0; }
 h2, h3, h4 {
-    margin: 8px 0; /* 20% de reducción de 10px */
-    font-size: 80%; /* Reducción general del tamaño de la fuente */
+    margin: 6px 0;
+    font-weight: 600;
+}
+h2 { font-size: 1.2rem; }
+h3 { font-size: 1.1rem; }
+h4 { font-size: 1.0rem; }
+
+.sticky-header {
+    position: sticky;
+    top: 0;
+    background: #f4f4f4;
+    z-index: 1100;
+    padding: 10px 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.dark-mode .sticky-header {
+    background: #121212;
+}
+
+.search-and-menu-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+.search-and-menu-container .search-container {
+    flex-grow: 1;
+    margin-bottom: 0;
+}
+.side-menu-header {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+.side-menu-logo {
+    height: 32px;
+    width: 32px;
+    border-radius: 5px;
+}
+.side-menu-username {
+    margin: 0;
+    color: #007bff;
+}
+.btn {
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+.btn-padded {
+    padding: 8px 12px;
 }
 .container {
     padding: 20px;
@@ -866,44 +924,6 @@ body.search-active .app-logo {
 .feedback-btn.report-btn {
     color: #dc3545;
 }
-/* --- ESTILOS DEL INBOX DE REPORTES --- */
-#inbox-content {
-    margin-top: 20px;
-}
-.inbox-item {
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 15px;
-}
-.dark-mode .inbox-item {
-    border-color: #444;
-}
-.inbox-item-header {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.8em;
-    color: #555;
-    margin-bottom: 10px;
-}
-.dark-mode .inbox-item-header {
-    color: #aaa;
-}
-.inbox-item p {
-    margin: 0 0 15px 0;
-}
-.inbox-item-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-.inbox-item-actions textarea {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
 .inbox-item-actions button {
     background-color: #007bff;
     color: white;
@@ -911,7 +931,85 @@ body.search-active .app-logo {
     padding: 8px 12px;
     border-radius: 5px;
     cursor: pointer;
-    align-self: flex-start;
+    align-self: flex-start; /* Alinea los botones a la izquierda */
+    transition: background-color 0.2s;
+}
+.inbox-item-actions button:hover {
+    background-color: #0056b3;
+}
+.inbox-item-actions .delete-btn {
+    background-color: #dc3545; /* Rojo para eliminar */
+    margin-left: auto; /* Empuja el botón de eliminar a la derecha */
+}
+.inbox-item-actions .delete-btn:hover {
+    background-color: #c82333;
+}
+
+/* --- ESTILOS DEL SISTEMA DE NOTIFICACIONES --- */
+#notification-bell {
+    position: relative;
+    cursor: pointer;
+    font-size: 20px;
+    color: #333;
+}
+.dark-mode #notification-bell {
+    color: #e0e0e0;
+}
+#notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -10px;
+    background: red;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: bold;
+    display: none; /* Oculto por defecto */
+}
+#notification-dropdown {
+    display: none;
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    width: 350px;
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 2600; /* Por encima del menú lateral */
+}
+.dark-mode #notification-dropdown {
+    background: #2c2c2c;
+    border-color: #444;
+}
+.notification-item {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9em;
+}
+.dark-mode .notification-item {
+    border-bottom-color: #444;
+}
+.notification-item:last-child {
+    border-bottom: none;
+}
+#notification-footer {
+    padding: 10px;
+    text-align: center;
+    background: #f7f7f7;
+}
+.dark-mode #notification-footer {
+    background: #333;
+}
+#mark-all-read-btn {
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    font-weight: bold;
 }
 
 
@@ -1085,7 +1183,17 @@ body.search-active .app-logo {
              <span id="welcome-message" style="display: none; color: #333; font-weight: bold; font-size: 0.8em;"></span>
           </div>
       </div>
-      <div id="header-controls" style="display: flex; align-items: center; gap: 15px;">
+      <div id="header-controls" style="display: flex; align-items: center; gap: 15px; position: relative;">
+          <div id="notification-bell" style="display: none;">
+              <i class="fa-solid fa-bell"></i>
+              <span id="notification-badge"></span>
+          </div>
+          <div id="notification-dropdown">
+              <div id="notification-list"></div>
+              <div id="notification-footer">
+                  <button id="mark-all-read-btn">Marcar todo como leído</button>
+              </div>
+          </div>
           <button id="logout-button" style="display: none; background-color: #dc3545; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: background-color 0.3s;">Cerrar Sesión</button>
       </div>
   </div>
@@ -1664,6 +1772,71 @@ function hideLoginShowApp() {
     if (inboxLink && session && (session.Privilegios === 'Supervisor' || session.Privilegios === 'Jefe' || session.Privilegios === 'Desarrollador')) {
         inboxLink.style.display = 'flex';
     }
+
+    // Initialize notifications for all users
+    initializeNotifications();
+}
+
+// --- LÓGICA DEL SISTEMA DE NOTIFICACIONES ---
+
+async function initializeNotifications() {
+    const bell = document.getElementById('notification-bell');
+    const badge = document.getElementById('notification-badge');
+    const dropdown = document.getElementById('notification-dropdown');
+    const list = document.getElementById('notification-list');
+    const markAllReadBtn = document.getElementById('mark-all-read-btn');
+
+    // Solo mostrar la campana si el elemento existe (evita errores si el HTML cambia)
+    if (!bell) return;
+
+    try {
+        const result = await routeAction('getUnreadNotifications');
+        if (result.status === 'success' && result.data) {
+            const notifications = result.data;
+            bell.style.display = 'block'; // Mostrar la campana
+
+            if (notifications.length > 0) {
+                badge.textContent = notifications.length;
+                badge.style.display = 'block';
+                list.innerHTML = ''; // Limpiar lista anterior
+                notifications.forEach(n => {
+                    const item = document.createElement('div');
+                    item.className = 'notification-item';
+                    item.textContent = n.message;
+                    list.appendChild(item);
+                });
+            } else {
+                badge.style.display = 'none';
+                list.innerHTML = '<div class="notification-item">No tienes notificaciones nuevas.</div>';
+            }
+        }
+    } catch (error) {
+        console.error("Error fetching notifications:", error);
+        bell.style.display = 'none'; // Ocultar si hay un error
+    }
+
+    bell.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    });
+
+    markAllReadBtn.addEventListener('click', async () => {
+        try {
+            await routeAction('markNotificationsAsRead');
+            badge.style.display = 'none';
+            list.innerHTML = '<div class="notification-item">No tienes notificaciones nuevas.</div>';
+            setTimeout(() => { dropdown.style.display = 'none'; }, 500); // Ocultar dropdown después de un momento
+        } catch (error) {
+            alert('Error al marcar las notificaciones como leídas.');
+        }
+    });
+
+    // Cerrar dropdown si se hace clic fuera
+    document.addEventListener('click', (e) => {
+        if (!bell.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.style.display = 'none';
+        }
+    });
 }
 
 
@@ -2096,7 +2269,7 @@ function mostrarDetalleModal(item) {
 
     // --- Header del Modal ---
     const headerDiv = document.createElement("div");
-    headerDiv.style.cssText = "display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; position: relative;";
+    headerDiv.style.cssText = "display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;";
 
     const closeBtn = document.createElement("button");
     closeBtn.textContent = "Cerrar";
@@ -2106,29 +2279,28 @@ function mostrarDetalleModal(item) {
 
     const yearRange = item.anoHasta && item.anoHasta !== item.anoDesde ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
     const titulo = `${item.marca} ${item.modelo} ${yearRange || ''}`;
-
     const shareBtn = crearBotonCompartir('cortes', item.id, titulo);
-
-    const titleContainer = document.createElement('div');
-    const title = document.createElement("h2");
-    title.textContent = `Detalle de ${titulo}`;
-    title.style.cssText = "color:#007bff; border-bottom:3px solid #007bff; padding-bottom:10px; margin-right: 120px;";
-    titleContainer.appendChild(title);
 
     headerDiv.appendChild(closeBtn);
     headerDiv.appendChild(shareBtn);
     cont.appendChild(headerDiv);
-    cont.appendChild(titleContainer);
 
-    // --- Logo de la Marca ---
+    // --- Título y Logo ---
+    const titleContainer = document.createElement('div');
+    titleContainer.style.position = 'relative'; // Contenedor relativo para el logo absoluto
+    const titleH2 = document.createElement("h2");
+    titleH2.textContent = `Detalle de ${titulo}`;
+    titleH2.style.cssText = "color:#007bff; border-bottom:3px solid #007bff; padding-bottom:10px; margin-right: 110px;"; // Espacio para el logo
+    titleContainer.appendChild(titleH2);
+
     const logoUrl = getLogoUrlForMarca(item.marca, item.categoria);
     if (logoUrl) {
         const logoImg = document.createElement("img");
         logoImg.src = logoUrl;
-        logoImg.style.cssText = "position: absolute; top: 0; right: 0; height: 50px; width: auto; max-width: 100px; object-fit: contain;";
-        // Insertar el logo dentro del contenedor del título para un mejor posicionamiento relativo
+        logoImg.style.cssText = "position: absolute; top: -5px; right: 0; height: 50px; width: auto; max-width: 100px; object-fit: contain;";
         titleContainer.appendChild(logoImg);
     }
+    cont.appendChild(titleContainer);
 
     // --- Nota Importante y Imagen del Vehículo ---
     if (item.notaImportante) {
@@ -2143,24 +2315,20 @@ function mostrarDetalleModal(item) {
     for (let i = 1; i <= 3; i++) {
         if (item[`tipoCorte${i}`]) {
             cortes.push({
-                index: i,
-                tipo: item[`tipoCorte${i}`],
-                util: parseInt(item[`utilCorte${i}`], 10) || 0,
-                ubicacion: item[`ubicacionCorte${i}`],
-                colorCable: item[`colorCableCorte${i}`],
-                imgCorte: item[`imgCorte${i}`],
-                configRelay: item[`configRelay${i}`],
+                index: i, tipo: item[`tipoCorte${i}`], util: parseInt(item[`utilCorte${i}`], 10) || 0,
+                ubicacion: item[`ubicacionCorte${i}`], colorCable: item[`colorCableCorte${i}`],
+                imgCorte: item[`imgCorte${i}`], configRelay: item[`configRelay${i}`],
                 colaborador: item[`colaboradorCorte${i}`]
             });
         }
     }
-    cortes.sort((a, b) => b.util - a.util); // Ordenar por popularidad
+    cortes.sort((a, b) => b.util - a.util);
 
     // --- Renderizar Corte Recomendado (si existe) ---
     if (cortes.length > 0) {
         const recomendado = cortes.shift(); // El más popular se saca del array
         const panel = document.createElement("div");
-        panel.className = "panel-visible"; // No es un acordeón, siempre visible
+        panel.className = "panel-visible";
         const h4 = document.createElement('h4');
         h4.innerHTML = `<i class="fa-solid fa-star" style="color: #FFD700;"></i> Corte Recomendado: ${recomendado.tipo}`;
         h4.style.marginTop = '20px';
@@ -2171,16 +2339,12 @@ function mostrarDetalleModal(item) {
 
     // --- Preparar Acordeones para el resto de la información ---
     const acordeonItems = [];
-
-    // Cortes Alternativos
     cortes.forEach(corte => {
         acordeonItems.push({
             titulo: `Corte Alternativo: ${corte.tipo} (Útil: ${corte.util})`,
             renderFn: (panel) => renderizarContenidoCorte(panel, corte, item.id)
         });
     });
-
-    // Información de Apertura
     if (item.apertura || item.imgApertura) {
         acordeonItems.push({
             titulo: "Información de Apertura",
@@ -2190,31 +2354,14 @@ function mostrarDetalleModal(item) {
             }
         });
     }
-
-    // Video Guía de Desarme
     if (item.videoGuiaDesarmeUrl) {
         acordeonItems.push({
             titulo: "Video Guía de Desarme",
             renderFn: (panel) => {
-                const videoId = extractYouTubeId(String(item.videoGuiaDesarmeUrl).trim());
-                if (!videoId) return;
-                const iframeContainer = document.createElement("div");
-                // Se agrega margen para separar el video del botón del acordeón
-                iframeContainer.style.cssText = "position:relative; padding-bottom:56.25%; height:0; margin-top: 15px; margin-bottom:15px;";
-                const iframe = document.createElement("iframe");
-                iframe.src = `https://www.youtube.com/embed/${videoId}`;
-                iframe.title = "Video Guía de Desarme";
-                iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
-                iframe.allowFullscreen = true;
-                iframe.style.cssText = "border:none; position:absolute; top:0; left:0; width:100%; height:100%;";
-                iframe.dataset.originalSrc = iframe.src;
-                iframeContainer.appendChild(iframe);
-                panel.appendChild(iframeContainer);
+                crearVideoDetalle("Video Guía", item.videoGuiaDesarmeUrl, panel);
             }
         });
     }
-
-    // Información de Alimentación
     if (item.cableAlimen || item.imgCableAlimen) {
         acordeonItems.push({
             titulo: "Información de Alimentación",
@@ -2233,12 +2380,9 @@ function mostrarDetalleModal(item) {
             const btn = document.createElement("button");
             btn.className = "accordion-btn";
             btn.innerHTML = `${ac.titulo} <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
-
             const panel = document.createElement("div");
             panel.className = "panel-desplegable";
-
-            ac.renderFn(panel); // Llenar el panel con contenido
-
+            ac.renderFn(panel);
             acordeonContainer.appendChild(btn);
             acordeonContainer.appendChild(panel);
         });
@@ -3159,10 +3303,21 @@ function setupDevTools() {
                     <textarea id="reply-${problem.id}" placeholder="Escribe una respuesta..."></textarea>
                     <button onclick="replyToProblem('${problem.id}')">Responder</button>
                     <button onclick="resolveProblem('${problem.id}')">Resolver</button>
+                    <button class="delete-btn" onclick="deleteProblem('${problem.id}')">Eliminar</button>
                 </div>
             `;
             inboxContent.appendChild(problemDiv);
         });
+    }
+
+    window.deleteProblem = async function(problemId) {
+        if (!confirm('¿Estás seguro de que quieres eliminar este reporte permanentemente?')) return;
+        try {
+            await routeAction('deleteProblem', { problemId });
+            loadInbox(); // Recargar
+        } catch (error) {
+            alert(`Error al eliminar: ${error.message}`);
+        }
     }
 
     window.replyToProblem = async function(problemId) {
@@ -3248,7 +3403,7 @@ function setupDevTools() {
 </script>
 
 <footer class="footer" style="display: none;">
-  Gpspedia v4.2.0 © 2026 todos los derechos reservados.
+  Gpspedia v4.2.0 © 2024 todos los derechos reservados.
   <div class="footer-links">
       <a id="footer-about-link">Sobre Nosotros</a>
       <a id="footer-contact-link">Contáctanos</a>
