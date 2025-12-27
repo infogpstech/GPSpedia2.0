@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-UTILITIES SERVICE (ONE-TIME EXECUTION SCRIPTS)
 // ============================================================================
-// COMPONENT VERSION: 1.1.0
+// COMPONENT VERSION: 1.0.0
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -25,32 +25,26 @@ const COLS_CORTES = {
 // ROUTER PRINCIPAL (doGet y doPost)
 // ============================================================================
 function doGet(e) {
-    const serviceState = {
-        service: 'GPSpedia-Utilities',
-        componentVersion: '1.1.0',
-        spreadsheetId: SPREADSHEET_ID,
-        sheets: {
-            cortes: SHEET_NAME
-        }
-    };
-
     if (e.parameter.debug === 'true') {
+        const serviceState = {
+            service: 'GPSpedia-Utilities',
+            version: '1.0.0',
+            description: 'This service provides one-time execution scripts for data migration.',
+            spreadsheetId: SPREADSHEET_ID,
+            availableMigrations: ['migrateYearRanges', 'migrateTimestamps']
+        };
         return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
             .setMimeType(ContentService.MimeType.JSON);
     }
-
-    return ContentService.createTextOutput(JSON.stringify({
-        status: 'success',
-        message: `${serviceState.service} v${serviceState.componentVersion} is active. Use doPost to run migrations.`
-    })).setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'GPSpedia Utilities-SERVICE v1.0.0 is active. Use doPost to run a migration.' }))
+        .setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {
     let response;
     try {
         const request = JSON.parse(e.postData.contents);
-        // Por seguridad, estas funciones críticas solo se pueden ejecutar con un token o rol específico.
-        // Aquí simulamos una simple comprobación de un parámetro. En producción, sería más robusto.
+        // Por seguridad, estas funciones críticas solo se pueden ejecutar con un rol específico.
         if (request.payload.role !== 'Desarrollador') {
             throw new Error("Acceso no autorizado.");
         }

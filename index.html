@@ -22,8 +22,10 @@ body {
     flex-direction: column;
     min-height: 100%;
 }
-h1,h2,h3,h4 {
-    margin: 10px 0;
+h1 { margin: 10px 0; }
+h2, h3, h4 {
+    margin: 8px 0; /* 20% de reducción de 10px */
+    font-size: 80%; /* Reducción general del tamaño de la fuente */
 }
 .container {
     padding: 20px;
@@ -318,10 +320,10 @@ body.search-active .app-logo {
     background-color: #f0f0f0;
     border: 1px solid #ccc;
     border-radius: 8px;
-    padding: 10px 20px;
+    padding: 8px 16px; /* Padding reducido */
     margin: 0;
     cursor: pointer;
-    font-size: 1em;
+    font-size: 0.9em; /* Fuente ligeramente reducida */
     transition: background-color 0.3s, color 0.3s;
 }
 .section-btn.active {
@@ -344,6 +346,19 @@ body.search-active .app-logo {
     justify-content: center;
     max-width: 1200px;
     margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 columnas en tablets */
+    }
+}
+
+@media (max-width: 480px) {
+    .grid {
+        grid-template-columns: repeat(2, 1fr); /* Mantenemos 2 columnas en móviles para mejor visualización */
+        gap: 15px;
+    }
 }
 
 /* Estilos de la Tarjeta (Card) */
@@ -779,6 +794,122 @@ body.search-active .app-logo {
     max-width: 90%;
     text-align: center;
 }
+.feedback-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.8em;
+    color: #555;
+    padding: 5px;
+    border-radius: 5px;
+}
+.feedback-btn:hover {
+    background-color: #f0f0f0;
+}
+.feedback-btn.util-btn.pressed {
+    background-color: #e0efff;
+    color: #0056b3;
+    font-weight: bold;
+}
+.feedback-btn.report-btn {
+    color: #dc3545;
+}
+.report-section textarea {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 10px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+.report-section button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 5px;
+}
+.comments-section {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+.comment {
+    font-size: 0.8em;
+    margin-bottom: 10px;
+}
+.comment .user {
+    font-weight: bold;
+    color: #333;
+}
+.comment .text {
+    color: #555;
+}
+.comment .response {
+    margin-left: 15px;
+    padding-left: 10px;
+    border-left: 2px solid #007bff;
+    margin-top: 5px;
+}
+.comment .responder {
+    font-weight: bold;
+    color: #0056b3;
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background: #121212;
+        color: #e0e0e0;
+    }
+    .card, #side-menu, #detalleCompleto, .info-modal-content {
+        background: #1e1e1e;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+    h1.app-title, h2, h3, h4, #side-menu nav a {
+        color: #e0e0e0;
+    }
+    .search-container input[type="text"], #contact-form input, #contact-form textarea {
+        background: #2c2c2c;
+        border-color: #444;
+        color: #e0e0e0;
+    }
+    .section-btn {
+        background-color: #333;
+        border-color: #555;
+        color: #e0e0e0;
+    }
+    .section-btn.active {
+        background-color: #007bff;
+        color: #fff;
+        border-color: #007bff;
+    }
+    #hamburger-btn {
+        color: #e0e0e0;
+    }
+    .accordion-btn {
+        background-color: #2a2a2a;
+        color: #00aaff;
+    }
+    .accordion-btn:hover, .accordion-btn.active {
+        background-color: #383838;
+    }
+    .panel-desplegable {
+        background-color: #1e1e1e;
+        border-bottom-color: #333;
+    }
+    #detalleCompleto h4 {
+        border-bottom-color: #333;
+    }
+    .footer {
+        background-color: #1e1e1e;
+        color: #aaa;
+    }
+}
 </style>
 </head>
 <body>
@@ -800,7 +931,8 @@ body.search-active .app-logo {
 <!-- Side Menu (Hamburger) -->
 <div id="menu-overlay"></div>
 <div id="side-menu">
-    <div style="padding: 20px; border-bottom: 1px solid #eee; text-align: center;">
+    <div style="padding: 20px; border-bottom: 1px solid #eee; text-align: center; display: flex; align-items: center; justify-content: center; gap: 10px;">
+        <img src="https://drive.google.com/thumbnail?id=1NxBx-W_gWmcq3fA9zog6Dpe-WXpH_2e8&sz=w64" alt="Logo" style="height: 32px; width: 32px; border-radius: 5px;">
         <h3 id="menu-username" style="margin: 0; color: #007bff;"></h3>
     </div>
     <nav>
@@ -809,6 +941,7 @@ body.search-active .app-logo {
         <a href="#" id="menu-tutoriales" class="menu-link"><i class="fa-solid fa-book-open"></i> Tutoriales</a>
         <a href="#" id="menu-relay" class="menu-link"><i class="fa-solid fa-microchip"></i> Configuración Relay</a>
         <a href="users.html" class="menu-link"><i class="fa-solid fa-users-cog"></i> Mi Perfil / Usuarios</a>
+        <a href="#" id="dev-tools-btn" class="menu-link"><i class="fa-solid fa-code"></i> Desarrollador</a>
     </nav>
     <div style="margin-top: auto; padding: 20px;">
         <button id="side-menu-logout-button" style="width: 100%; background: #dc3545; color: #fff; border: none; padding: 12px; border-radius: 8px; cursor: pointer;">Cerrar Sesión</button>
@@ -888,6 +1021,24 @@ body.search-active .app-logo {
   <img id="lightboxImg" src="">
 </div>
 
+<!-- ========= MODAL DE DESARROLLADOR ========= -->
+<div id="dev-modal" class="info-modal">
+    <div class="info-modal-content" style="max-width: 900px; display: flex; gap: 20px;">
+        <span class="info-close-btn">&times;</span>
+        <!-- Panel de Control -->
+        <div id="dev-controls" style="width: 250px; border-right: 1px solid #ccc; padding-right: 20px;">
+            <h4>Herramientas de Migración</h4>
+            <button id="migrate-years-btn" class="btn btn-primary" style="width: 100%; margin-bottom: 10px;">Migrar Años</button>
+            <button id="migrate-timestamps-btn" class="btn btn-primary" style="width: 100%;">Migrar Timestamps</button>
+            <div id="migration-status" style="margin-top: 15px; font-size: 0.9em;"></div>
+        </div>
+        <!-- Contenedor para la Consola -->
+        <div id="dev-console-container" style="flex-grow: 1; min-height: 400px;">
+             <!-- La consola de depuración se moverá aquí con JS -->
+        </div>
+    </div>
+</div>
+
 <!-- ========= MODALES DE INFORMACIÓN ========= -->
 <div id="about-us-modal" class="info-modal">
   <div class="info-modal-content">
@@ -956,13 +1107,13 @@ body.search-active .app-logo {
 <script>
 // --- SISTEMA DE DEPURACIÓN AVANZADO DEL FRONTEND ---
 
-// Activa la consola de depuración si la URL contiene ?debug=true
+// La consola de depuración ahora se controla mediante un modal, por lo que no la mostramos al inicio.
 const isDebugMode = new URLSearchParams(window.location.search).has('debug');
 const debugConsole = document.getElementById('debug-console');
 
-if (isDebugMode) {
-    debugConsole.style.display = 'flex';
-}
+// if (isDebugMode) {
+//     debugConsole.style.display = 'flex';
+// }
 
 /**
  * Registra un mensaje en la consola de depuración del frontend.
@@ -1221,7 +1372,7 @@ async function initializeAppData(user) {
             datosTutoriales = result.data.tutoriales || [];
             datosRelay = result.data.relay || [];
             datosLogos = result.data.logos || [];
-            mostrarPaginaPrincipal(); // Corregido: Llamar a la función principal que renderiza todo.
+            mostrarCategorias();
             resolve(); // Resolve the promise after content is rendered
         } catch (error) {
             document.getElementById('contenido').innerHTML = `<p style="color:red; text-align:center;">No se pudo cargar el catálogo. ${error.message}</p>`;
@@ -1382,7 +1533,8 @@ function irAPaginaPrincipal() {
 function mostrarContenidoTutoriales() {
     const cont = document.getElementById("contenido-tutoriales");
     cont.innerHTML = "<h4>Tutoriales</h4>";
-    const grid = document.createElement("div"); grid.className = "grid";
+    const grid = document.createElement("div");
+    grid.className = "grid"; // Asegurarse de que el contenedor tiene la clase 'grid'
     if (!datosTutoriales || datosTutoriales.length === 0) {
         cont.innerHTML += "<p>No hay tutoriales disponibles.</p>";
         return;
@@ -1410,7 +1562,8 @@ function mostrarContenidoTutoriales() {
 function mostrarContenidoRelay() {
     const cont = document.getElementById("contenido-relay");
     cont.innerHTML = "<h4>Configuración del Relay</h4>";
-    const grid = document.createElement("div"); grid.className = "grid";
+    const grid = document.createElement("div");
+    grid.className = "grid"; // Asegurarse de que el contenedor tiene la clase 'grid'
     if (!datosRelay || datosRelay.length === 0) {
         cont.innerHTML += "<p>No hay configuraciones de relay disponibles.</p>";
         return;
@@ -1607,29 +1760,45 @@ function mostrarDetalleRelay(item) {
 }
 
 function getLogoUrlForMarca(marca, categoria) {
-    if (!datosLogos || datosLogos.length === 0) return null;
-    let searchMarca = marca;
-    if (categoria && categoria.toLowerCase() === 'motos') {
-        searchMarca = marca + 'Motocicletas';
+    if (!datosLogos || !marca) return null;
+
+    // Normalizar el nombre de la marca eliminando paréntesis y guiones
+    const normalize = (str) => str.toLowerCase().replace(/[\(\)-]/g, '');
+    const normalizedMarca = normalize(marca);
+
+    let searchNames = [normalizedMarca];
+    if (categoria) {
+        // Ejemplo: si categoria es "Motocicleta", buscará "hondamotocicleta" y luego "honda"
+        searchNames.unshift(normalize(`${marca}${categoria}`));
     }
 
-    const logoEntry = datosLogos.find(logo => logo.nombreMarca.toLowerCase() === searchMarca.toLowerCase());
-
-    if (logoEntry) return logoEntry.urlLogo;
-
-    // Fallback for motorcycle brands
-    if (categoria && categoria.toLowerCase() === 'motos') {
-        const vehicleLogoEntry = datosLogos.find(logo => logo.nombreMarca.toLowerCase() === marca.toLowerCase() + 'Vehiculos');
-        if (vehicleLogoEntry) return vehicleLogoEntry.urlLogo;
+    for (const name of searchNames) {
+        const logoEntry = datosLogos.find(logo => normalize(logo.nombreMarca) === name);
+        if (logoEntry && logoEntry.urlLogo) {
+            return convertirAGoogleThumbnail(logoEntry.urlLogo, 'logo');
+        }
     }
 
-    return null; // Return null if no logo is found
+    return null;
 }
 
-function convertirAGoogleThumbnail(url) {
-    if (!url) return "https://placehold.co/280x200/cccccc/333333?text=Sin+Imagen";
-    const idMatch = String(url).match(/id=([a-zA-Z0-9_-]+)|\/d\/([a-zA-Z0-9_-]+)/);
-    return idMatch ? `https://drive.google.com/thumbnail?sz=w1000&id=${idMatch[1] || idMatch[2]}` : url;
+function convertirAGoogleThumbnail(url, type = 'image') {
+    if (!url || typeof url !== 'string') {
+        return type === 'logo' ? '' : "https://placehold.co/280x200/cccccc/333333?text=Sin+Imagen";
+    }
+
+    // Expresión regular mejorada para capturar IDs de varias URL de Google Drive
+    const idMatch = url.match(/(?:id=|\/d\/|\/file\/d\/)([a-zA-Z0-9_-]{28,})/);
+
+    if (idMatch && idMatch[1]) {
+        // Para logos, usamos un tamaño más pequeño y adecuado para iconos.
+        const size = type === 'logo' ? 'w256' : 'w1000';
+        return `https://drive.google.com/thumbnail?sz=${size}&id=${idMatch[1]}`;
+    }
+
+    // Si no es una URL de Google Drive reconocible, devolver la URL original.
+    // Si es un logo y no se pudo convertir, devolver una cadena vacía para no mostrar una imagen rota.
+    return type === 'logo' ? (idMatch ? url : '') : url;
 }
 
 function mostrarLightbox(src) {
@@ -1679,7 +1848,7 @@ function mostrarDetalleModal(item) {
     const cont = document.getElementById("detalleCompleto");
     cont.innerHTML = ""; // Limpiar contenido anterior
 
-    // --- ENCABEZADO DEL MODAL ---
+    // --- ENCABEZADO Y TÍTULO ---
     const headerDiv = document.createElement("div");
     headerDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: relative;";
 
@@ -1697,10 +1866,10 @@ function mostrarDetalleModal(item) {
 
     const title = document.createElement("h2");
     title.textContent = `Detalle de ${titulo}`;
-    title.style.cssText = "color:#007bff; border-bottom:3px solid #007bff; padding-bottom:10px; margin-right: 120px;"; // Espacio para el logo
+    title.style.cssText = "color:#007bff; border-bottom:3px solid #007bff; padding-bottom:10px; margin-right: 120px;";
     cont.appendChild(title);
 
-    // --- LOGO DE LA MARCA ---
+    // --- LOGO DE MARCA ---
     const logoUrl = getLogoUrlForMarca(item.marca, item.categoria);
     if (logoUrl) {
         const logoImg = document.createElement("img");
@@ -1709,103 +1878,107 @@ function mostrarDetalleModal(item) {
         cont.appendChild(logoImg);
     }
 
-    // --- NOTA IMPORTANTE Y DATOS PRINCIPALES ---
+    // --- NOTA Y VEHÍCULO ---
     if (item.notaImportante) {
         const p = document.createElement("p");
         p.innerHTML = `<strong style="color:red;">Nota Importante:</strong> <span style="color:#cc0000; font-weight: bold;">${item.notaImportante}</span>`;
         cont.appendChild(p);
     }
-
     crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, 'img-vehiculo');
 
-    // --- SECCIONES DE CORTES (ITERACIÓN FIJA) ---
+    // --- LÓGICA DE ORDENAMIENTO DE CORTES ---
+    const cortes = [];
     for (let i = 1; i <= 3; i++) {
-        const tipoCorte = item[`tipoCorte${i}`];
-        if (!tipoCorte) continue; // Si no hay tipo de corte, se salta este bloque
+        if (item[`tipoCorte${i}`]) {
+            cortes.push({
+                index: i,
+                tipo: item[`tipoCorte${i}`],
+                util: parseInt(item[`utilCorte${i}`], 10) || 0,
+                // ... agregar todos los demás datos del corte
+                ubicacion: item[`ubicacionCorte${i}`],
+                colorCable: item[`colorCableCorte${i}`],
+                imgCorte: item[`imgCorte${i}`],
+                configRelay: item[`configRelay${i}`],
+                colaborador: item[`colaboradorCorte${i}`]
+            });
+        }
+    }
+    cortes.sort((a, b) => b.util - a.util); // Ordenar por más útil
 
-        const btn = document.createElement("button");
-        btn.className = "accordion-btn";
-        btn.innerHTML = `${tipoCorte} <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
-        cont.appendChild(btn);
-
+    // --- RENDERIZAR CORTES ---
+    cortes.forEach((corte, i) => {
         const panel = document.createElement("div");
-        panel.className = "panel-desplegable";
-
-        // Información del corte
-        const ubicacion = item[`ubicacionCorte${i}`];
-        const colorCable = item[`colorCableCorte${i}`];
-        if (ubicacion || colorCable) {
-            const p = document.createElement("p");
-            p.innerHTML = `<strong>Ubicación:</strong> ${ubicacion || 'N/A'}<br><strong>Color(es) de Cable:</strong> ${colorCable || 'N/A'}`;
-            panel.appendChild(p);
+        if (i === 0) { // El primer corte (más útil) es visible por defecto
+            panel.className = "panel-visible";
+            const h4 = document.createElement('h4');
+            h4.textContent = corte.tipo;
+            h4.style.marginTop = '20px';
+            cont.appendChild(h4);
+        } else { // Los demás cortes van en acordeones
+            const btn = document.createElement("button");
+            btn.className = "accordion-btn";
+            btn.innerHTML = `${corte.tipo} <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+            cont.appendChild(btn);
+            panel.className = "panel-desplegable";
         }
 
-        crearImagenDetalle("Imagen del Corte", item[`imgCorte${i}`], panel);
+        // Contenido del panel (común para todos los cortes)
+        if (corte.ubicacion || corte.colorCable) {
+            const p = document.createElement("p");
+            p.innerHTML = `<strong>Ubicación:</strong> ${corte.ubicacion || 'N/A'}<br><strong>Color(es) de Cable:</strong> ${corte.colorCable || 'N/A'}`;
+            panel.appendChild(p);
+        }
+        crearImagenDetalle("Imagen del Corte", corte.imgCorte, panel);
 
-        // Información del Relay (si existe)
-        const configRelay = item[`configRelay${i}`];
-        const relayInfo = datosRelay.find(r => r.configuracion === configRelay);
+        const relayInfo = datosRelay.find(r => r.configuracion === corte.configRelay);
         if (relayInfo) {
             crearImagenDetalle("Configuración de Relay", relayInfo.imagen, panel);
             const relayImg = panel.querySelector('img[alt="Configuración de Relay"]');
             if (relayImg) relayImg.style.maxHeight = '250px';
         }
 
-        // --- Footer con feedback y colaborador ---
         const footerModal = document.createElement("div");
         footerModal.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; flex-wrap: wrap; gap: 10px;";
 
         const colaboradorInfo = document.createElement("div");
         colaboradorInfo.style.cssText = "font-size: 0.8em; color: #555;";
-        colaboradorInfo.innerHTML = `Agregado por: <strong>${item[`colaboradorCorte${i}`] || 'N/A'}</strong>`;
+        colaboradorInfo.innerHTML = `Agregado por: <strong>${corte.colaborador || 'N/A'}</strong>`;
 
         const feedbackContainer = document.createElement("div");
         feedbackContainer.style.cssText = "display: flex; gap: 10px; flex-wrap: wrap;";
 
-        const utilCount = item[`utilCorte${i}`] || 0;
+        const utilBtn = document.createElement("button");
+        utilBtn.className = "feedback-btn util-btn";
+        utilBtn.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> Útil <span class="util-count">(${corte.util})</span>`;
+        utilBtn.onclick = () => handleLike(item.id, corte.index, utilBtn);
+        feedbackContainer.appendChild(utilBtn);
 
-        // Botón de Like (Pulgar arriba)
-        const likeBtn = document.createElement("button");
-        likeBtn.innerHTML = `👍 <span class="util-count">${utilCount}</span>`;
-        likeBtn.title = "Marcar como útil";
-        likeBtn.onclick = () => handleLike(item.id, i, likeBtn);
-        feedbackContainer.appendChild(likeBtn);
-
-        // Botón de Dislike (Pulgar abajo) - sin funcionalidad de conteo por ahora
-        const dislikeBtn = document.createElement("button");
-        dislikeBtn.innerHTML = `👎`;
-        dislikeBtn.title = "No me fue útil";
-        feedbackContainer.appendChild(dislikeBtn);
-
-        // Botón de Sugerir Año
-        const suggestYearBtn = document.createElement("button");
-        suggestYearBtn.innerHTML = `<i class="fa-solid fa-calendar-plus"></i> Sugerir Año`;
-        suggestYearBtn.title = "Sugerir que este corte aplica a otro año";
-        suggestYearBtn.onclick = () => handleSuggestYear(item.id);
-        feedbackContainer.appendChild(suggestYearBtn);
-
-        // Botón de Reportar Problema
         const reportBtn = document.createElement("button");
+        reportBtn.className = "feedback-btn report-btn";
         reportBtn.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Reportar`;
-        reportBtn.title = "Reportar un problema con este corte";
-        reportBtn.onclick = () => toggleReportSection(item.id, i);
+        reportBtn.onclick = () => toggleReportSection(item.id, corte.index);
         feedbackContainer.appendChild(reportBtn);
 
         footerModal.appendChild(colaboradorInfo);
         footerModal.appendChild(feedbackContainer);
         panel.appendChild(footerModal);
 
-        // Sección oculta para reportar problemas
+        // Sección de reporte y comentarios (oculta por defecto)
         const reportSection = document.createElement("div");
-        reportSection.id = `report-section-${item.id}-${i}`;
+        reportSection.id = `report-section-${item.id}-${corte.index}`;
+        reportSection.className = 'report-section';
         reportSection.style.display = 'none';
-        reportSection.innerHTML = `<textarea style="width: 100%; margin-top: 10px;" placeholder="Describe el problema..."></textarea><button>Enviar Reporte</button>`;
+        reportSection.innerHTML = `
+            <textarea id="report-input-${item.id}-${corte.index}" placeholder="Describe el problema o deja un comentario..."></textarea>
+            <button onclick="handleReportSubmit('${item.id}', ${corte.index})">Enviar</button>
+            <div class="comments-section" id="comments-section-${item.id}-${corte.index}"></div>
+        `;
         panel.appendChild(reportSection);
 
         cont.appendChild(panel);
-    }
+    });
 
-    // --- INFORMACIÓN ADICIONAL ---
+    // --- INFORMACIÓN ADICIONAL (APERTURA Y ALIMENTACIÓN) ---
     if (item.apertura || item.imgApertura || item.cableAlimen || item.imgCableAlimen) {
         const btn = document.createElement("button");
         btn.className = "accordion-btn";
@@ -1915,155 +2088,137 @@ function mostrarResultadosBusquedaVersion(busquedaTexto, marcaFiltro, modeloFilt
     cont.appendChild(grid);
 }
 
-function mostrarPaginaPrincipal() {
-    if (document.getElementById("searchInput").value.trim()) return;
-    estado = { nivel: "principal" };
-    const cont = document.getElementById("contenido");
-    cont.innerHTML = ""; // Limpiar contenido
-
-    mostrarUltimosAgregados(cont);
-    mostrarMarcasConLogo(cont);
-    mostrarCategorias(cont);
+function mostrarCategorias() {
+    handleNavigationClick('categoria', {});
 }
 
-function mostrarUltimosAgregados(container) {
+async function handleNavigationClick(nivel, filtros) {
+    const cont = document.getElementById("contenido");
+    showSkeletonLoader(cont);
+
+    try {
+        const result = await postToAction('getNavigationData', { nivel: nivel, filtros: filtros });
+
+        if (result.status === 'success') {
+            const { data, nextNivel } = result;
+
+            // Si el backend nos salta al nivel final, mostramos el detalle directamente
+            if (nextNivel === 'final' && data.length === 1) {
+                const vehicle = datosOriginales.find(item => item.id == data[0].id);
+                mostrarDetalleModal(vehicle);
+                return;
+            }
+
+            renderNavigationGrid(nivel, data, nextNivel, filtros);
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        cont.innerHTML = `<p style="color:red; text-align:center;">Error al cargar la navegación: ${error.message}</p>`;
+    }
+}
+
+function renderNavigationGrid(currentNivel, data, nextNivel, filtros) {
+    const cont = document.getElementById("contenido");
+    let titulo = `Seleccione ${currentNivel.charAt(0).toUpperCase() + currentNivel.slice(1)}`;
+    let backFunction = '';
+
+    // Lógica para el botón "Volver"
+    const filtroCategoria = filtros.categoria ? `{ categoria: '${filtros.categoria}' }` : '{}';
+    const filtroMarca = filtros.marca ? `{ categoria: '${filtros.categoria}', marca: '${filtros.marca}' }` : '{}';
+    const filtroModelo = filtros.modelo ? `{ categoria: '${filtros.categoria}', marca: '${filtros.marca}', modelo: '${filtros.modelo}' }` : '{}';
+    const filtroVersion = filtros.version ? `{ categoria: '${filtros.categoria}', marca: '${filtros.marca}', modelo: '${filtros.modelo}', version: '${filtros.version}' }` : '{}';
+
+    if (currentNivel === 'marca') {
+        backFunction = `handleNavigationClick('categoria', {})`;
+        titulo = `Marcas de ${filtros.categoria}`;
+    } else if (currentNivel === 'modelo') {
+        backFunction = `handleNavigationClick('marca', ${filtroCategoria})`;
+        titulo = `Modelos de ${filtros.marca}`;
+    } else if (currentNivel === 'version') {
+        backFunction = `handleNavigationClick('modelo', ${filtroMarca})`;
+        titulo = `Versiones de ${filtros.modelo}`;
+    } else if (currentNivel === 'tipoEncendido') {
+        backFunction = `handleNavigationClick('version', ${filtroModelo})`;
+        titulo = `Tipos de Encendido para ${filtros.version || filtros.modelo}`;
+    } else if (currentNivel === 'generacion') {
+        backFunction = `handleNavigationClick('tipoEncendido', ${filtroVersion})`;
+        titulo = `Generaciones para ${filtros.tipoEncendido}`;
+    }
+
+    cont.innerHTML = backFunction ? `<span class="backBtn" onclick="${backFunction}">${backSvg} Volver</span><h4>${titulo}</h4>` : `<h4>${titulo}</h4>`;
+
+    const grid = document.createElement("div");
+    grid.className = "grid";
+
+    data.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const newFiltros = { ...filtros };
+        newFiltros[currentNivel] = (typeof item === 'object' && item.id) ? item.id : item;
+
+        card.onclick = () => {
+            if (nextNivel === 'final') {
+                const vehicle = datosOriginales.find(v => v.id == item.id);
+                if (vehicle) mostrarDetalleModal(vehicle);
+            } else {
+                handleNavigationClick(nextNivel, newFiltros);
+            }
+        };
+
+        const img = document.createElement("img");
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+
+        if (typeof item === 'object' && item.label) { // Nivel de generación
+            overlay.innerHTML = item.label;
+            const vehicle = datosOriginales.find(v => v.id == item.id);
+            img.src = convertirAGoogleThumbnail(vehicle?.imagenVehiculo);
+        } else { // Otros niveles
+            overlay.innerHTML = item;
+            const ejemplo = datosOriginales.find(d => d[currentNivel] === item);
+            img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
+            if (currentNivel === 'marca') {
+                 img.src = getLogoUrlForMarca(item, filtros.categoria) || convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
+            }
+        }
+
+        card.appendChild(img);
+        card.appendChild(overlay);
+        grid.appendChild(card);
+    });
+
+    cont.appendChild(grid);
+}
+
+function mostrarUltimosAgregados() {
+    const cont = document.getElementById("contenido");
     if (!datosOriginales || datosOriginales.length === 0) return;
 
+    const ultimosCortes = [...datosOriginales].sort((a, b) => b.id - a.id).slice(0, 6);
+
     const section = document.createElement('div');
-    section.id = "ultimos-agregados";
+    section.style.marginTop = '40px';
     const title = document.createElement('h4');
-    title.textContent = 'Últimos Agregados';
+    title.textContent = 'Últimos agregados:';
     section.appendChild(title);
 
-    const ultimosCortes = [...datosOriginales].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 6);
-
-    const grid = document.createElement('div');
-    grid.className = 'grid'; // Grid de 3 columnas
+    const grid = document.createElement('div'); grid.className = 'grid';
     ultimosCortes.forEach(item => {
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarDetalleModal(item);
         const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(item.imagenVehiculo); img.alt = `${item.marca} ${item.modelo}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay";
-        const yearRange = item.anoHasta && item.anoHasta !== item.anoDesde ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
+        const yearRange = item.anoHasta ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
         overlay.innerHTML = `<div>${item.marca}</div><div style="font-size:0.8em; opacity:0.8;">${item.modelo} ${yearRange || ''}</div>`;
         card.appendChild(overlay);
         grid.appendChild(card);
     });
     section.appendChild(grid);
-    container.appendChild(section);
+    cont.appendChild(section);
 }
 
-function mostrarMarcasConLogo(container) {
-    const section = document.createElement('div');
-    section.id = "busqueda-por-marca";
-    section.style.marginTop = '40px';
-    const title = document.createElement('h4');
-    title.textContent = 'Búsqueda por Marca';
-    section.appendChild(title);
-
-    const marcas = [...new Set(datosOriginales.map(item => item.marca))].filter(m => m).sort();
-    const grid = document.createElement("div"); grid.className = "grid";
-    marcas.forEach(m => {
-        const logoUrl = getLogoUrlForMarca(m, null); // Categoria null para búsqueda general
-        if (logoUrl) {
-            const card = document.createElement("div"); card.className = "card";
-            card.onclick = () => mostrarModelos(null, m);
-            const img = document.createElement("img"); img.src = logoUrl; img.alt = `Marca ${m}`; card.appendChild(img);
-            const overlay = document.createElement("div"); overlay.className = "overlay"; overlay.innerHTML = m; card.appendChild(overlay);
-            grid.appendChild(card);
-        }
-    });
-    section.appendChild(grid);
-    container.appendChild(section);
-}
-
-function mostrarCategorias(container) {
-    const section = document.createElement('div');
-    section.id = "busqueda-por-categoria";
-    section.style.marginTop = '40px';
-    const title = document.createElement('h4');
-    title.textContent = 'Búsqueda por Categoría';
-    section.appendChild(title);
-
-    const categorias = [...new Set(datosOriginales.map(item => item.categoria))].filter(c => c).sort();
-    const grid = document.createElement("div"); grid.className = "grid";
-    categorias.forEach(cat => {
-        const ejemplo = datosOriginales.find(item => item.categoria === cat && item.imagenVehiculo);
-        const card = document.createElement("div"); card.className = "card";
-        card.onclick = () => mostrarMarcas(cat);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo); img.alt = `Categoría ${cat}`; card.appendChild(img);
-        const overlay = document.createElement("div"); overlay.className = "overlay"; overlay.innerHTML = cat; card.appendChild(overlay);
-        grid.appendChild(card);
-    });
-    section.appendChild(grid);
-    container.appendChild(section);
-}
-
-function mostrarMarcas(categoria) {
-    estado = { nivel: "marcas", categoria: categoria };
-    const cont = document.getElementById("contenido");
-    cont.innerHTML = `<span class="backBtn" onclick="irAPaginaPrincipal()">${backSvg} Volver</span><h4>Marcas de ${categoria}</h4>`;
-    const itemsInCategory = datosOriginales.filter(item => item.categoria === categoria);
-    const marcas = [...new Set(itemsInCategory.map(item => item.marca))].filter(m => m).sort();
-    const grid = document.createElement("div"); grid.className = "grid";
-    marcas.forEach(m => {
-        const itemsInBrand = itemsInCategory.filter(item => item.marca === m);
-        const logoUrl = getLogoUrlForMarca(m, categoria);
-        const ejemplo = itemsInBrand.find(item => item.imagenVehiculo);
-        const card = document.createElement("div"); card.className = "card";
-        card.onclick = () => mostrarModelos(categoria, m);
-        const img = document.createElement("img");
-        img.src = logoUrl || convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
-        img.alt = `Marca ${m}`;
-        card.appendChild(img);
-        const overlay = document.createElement("div"); overlay.className = "overlay"; overlay.innerHTML = m; card.appendChild(overlay);
-        grid.appendChild(card);
-    });
-    cont.appendChild(grid);
-}
-
-function mostrarModelos(categoria, marca) {
-    estado = { nivel: "modelos", categoria: categoria, marca: marca };
-    const cont = document.getElementById("contenido");
-    cont.innerHTML = `<span class="backBtn" onclick="mostrarMarcas('${categoria}')">${backSvg} Volver</span><h4>Modelos de ${marca}</h4>`;
-    const modelosFiltrados = datosOriginales.filter(item => item.categoria === categoria && item.marca === marca);
-    const modelosUnicos = [...new Map(modelosFiltrados.map(item => [item.modelo, item])).values()].sort((a,b) => a.modelo.localeCompare(b.modelo));
-    const grid = document.createElement("div"); grid.className = "grid";
-    modelosUnicos.forEach(ejemplo => {
-        const versiones = modelosFiltrados.filter(item => item.modelo === ejemplo.modelo);
-        const card = document.createElement("div"); card.className = "card";
-        card.onclick = () => (versiones.length === 1) ? mostrarDetalleModal(ejemplo) : mostrarVersiones(versiones, categoria, marca, ejemplo.modelo);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo.imagenVehiculo); img.alt = `Modelo ${ejemplo.modelo}`; card.appendChild(img);
-        const overlay = document.createElement("div"); overlay.className = "overlay";
-        if (versiones.length === 1) {
-            const yearRange = ejemplo.anoHasta ? `${ejemplo.anoDesde} - ${ejemplo.anoHasta}` : ejemplo.anoDesde;
-             overlay.innerHTML = `<div>${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8;">${yearRange || ''} ${ejemplo.tipoEncendido || ''}</div>`;
-        } else {
-             overlay.innerHTML = `<div>${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8;">(${versiones.length} cortes)</div>`;
-        }
-        card.appendChild(overlay);
-        grid.appendChild(card);
-    });
-    cont.appendChild(grid);
-}
-
-function mostrarVersiones(filas, categoria, marca, modelo) {
-    estado = { nivel: "versiones", categoria, marca, modelo };
-    const cont = document.getElementById("contenido");
-    cont.innerHTML = `<span class="backBtn" onclick="mostrarModelos('${categoria}','${marca}')">${backSvg} Volver</span><h4>Cortes/Años de ${modelo}</h4>`;
-    const grid = document.createElement("div"); grid.className = "grid";
-    filas.forEach(item => {
-        const card = document.createElement("div"); card.className = "card";
-        card.onclick = () => mostrarDetalleModal(item);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(item.imagenVehiculo); img.alt = `Corte ${item.anoDesde}`; card.appendChild(img);
-        const overlay = document.createElement("div"); overlay.className = "overlay";
-        const yearRange = item.anoHasta ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
-        overlay.innerHTML = `<div style="font-weight:bold;">${yearRange || modelo}</div><div style="font-size:0.8em;">${item.tipoEncendido || ''}</div>`;
-        card.appendChild(overlay);
-        grid.appendChild(card);
-    });
-    cont.appendChild(grid);
-}
 
 // --- INICIALIZACIÓN Y LÓGICA DE PWA ---
 let deferredPrompt;
@@ -2358,41 +2513,45 @@ document.querySelectorAll('#side-menu .menu-link').forEach(link => {
 
 async function handleLike(vehicleId, corteIndex, buttonElement) {
     const user = JSON.parse(localStorage.getItem(SESSION_KEY));
-    if (!user || !user.Nombre_Usuario) {
+    if (!user) {
         alert("Debes iniciar sesión para usar esta función.");
         return;
     }
-
     // Optimistic UI update
-    const countSpan = buttonElement.querySelector('.util-count');
-    const currentCount = parseInt(countSpan.textContent, 10);
-    countSpan.textContent = currentCount + 1;
+    buttonElement.classList.add('pressed');
     buttonElement.disabled = true;
-    buttonElement.style.backgroundColor = '#d4edda';
+    const countSpan = buttonElement.querySelector('.util-count');
+    const currentCount = parseInt(countSpan.textContent.replace(/[\(\)]/g, ''), 10);
+    countSpan.textContent = `(${currentCount + 1})`;
 
     try {
         await postToAction('recordLike', {
-            vehicleId: vehicleId,
-            corteIndex: corteIndex,
+            vehicleId,
+            corteIndex,
             userId: user.ID,
             userName: user.Nombre_Usuario
         });
     } catch (error) {
         // Revert UI on error
-        countSpan.textContent = currentCount;
+        buttonElement.classList.remove('pressed');
         buttonElement.disabled = false;
-        buttonElement.style.backgroundColor = '';
+        countSpan.textContent = `(${currentCount})`;
     }
 }
 
-
-function toggleReportSection(vehicleId, corteIndex) {
+async function toggleReportSection(vehicleId, corteIndex) {
     const reportSection = document.getElementById(`report-section-${vehicleId}-${corteIndex}`);
-    const submitBtn = document.getElementById(`submit-report-${vehicleId}-${corteIndex}`);
+    const commentsSection = document.getElementById(`comments-section-${vehicleId}-${corteIndex}`);
 
-    if (reportSection.style.display === 'none') {
+    const isVisible = reportSection.style.display === 'block';
+
+    if (!isVisible) {
         reportSection.style.display = 'block';
-        submitBtn.onclick = () => handleReportSubmit(vehicleId, corteIndex);
+        // Cargar comentarios solo la primera vez que se abre
+        if (!commentsSection.dataset.loaded) {
+            await loadComments(vehicleId, corteIndex);
+            commentsSection.dataset.loaded = 'true';
+        }
     } else {
         reportSection.style.display = 'none';
     }
@@ -2400,7 +2559,7 @@ function toggleReportSection(vehicleId, corteIndex) {
 
 async function handleReportSubmit(vehicleId, corteIndex) {
     const user = JSON.parse(localStorage.getItem(SESSION_KEY));
-    if (!user || !user.Nombre_Usuario) {
+    if (!user) {
         alert("Debes iniciar sesión para reportar un problema.");
         return;
     }
@@ -2421,11 +2580,45 @@ async function handleReportSubmit(vehicleId, corteIndex) {
             userId: user.ID,
             userName: user.Nombre_Usuario
         });
-        alert("Gracias por tu reporte. Lo revisaremos pronto.");
         reportInput.value = '';
-        toggleReportSection(vehicleId, corteIndex);
+        // Recargar los comentarios para mostrar el nuevo
+        await loadComments(vehicleId, corteIndex);
     } catch (error) {
-        // Error is handled by postToAction
+        // El error ya se maneja en postToAction
+    }
+}
+
+async function loadComments(vehicleId, corteIndex) {
+    const commentsSection = document.getElementById(`comments-section-${vehicleId}-${corteIndex}`);
+    commentsSection.innerHTML = '<p>Cargando comentarios...</p>';
+
+    try {
+        const result = await postToAction('getComments', { vehicleId });
+        if (result.status === 'success' && result.data) {
+            commentsSection.innerHTML = '';
+            if (result.data.length === 0) {
+                commentsSection.innerHTML = '<p>No hay comentarios aún. ¡Sé el primero!</p>';
+                return;
+            }
+
+            result.data.forEach(comment => {
+                const commentDiv = document.createElement('div');
+                commentDiv.className = 'comment';
+                let html = `<p><span class="user">${comment.user}</span> dice: <span class="text">"${comment.problem}"</span></p>`;
+
+                if (comment.response && comment.responder) {
+                    html += `<div class="response">
+                               <p><span class="responder">${comment.responder}</span> responde: <span class="text">"${comment.response}"</span></p>
+                             </div>`;
+                }
+                commentDiv.innerHTML = html;
+                commentsSection.appendChild(commentDiv);
+            });
+        } else {
+            throw new Error(result.message || 'No se pudieron cargar los comentarios.');
+        }
+    } catch (error) {
+        commentsSection.innerHTML = `<p style="color:red;">Error al cargar comentarios.</p>`;
     }
 }
 
@@ -2505,7 +2698,73 @@ function setupInfoModals() {
     });
 }
 // Llamar a la configuración de los modales de info cuando se inicializa la app.
-document.addEventListener('DOMContentLoaded', setupInfoModals);
+document.addEventListener('DOMContentLoaded', () => {
+    setupInfoModals();
+    setupDevTools();
+});
+
+function setupDevTools() {
+    const devModal = document.getElementById('dev-modal');
+    const devConsole = document.getElementById('debug-console');
+    const devConsoleContainer = document.getElementById('dev-console-container');
+    const openBtn = document.getElementById('dev-tools-btn');
+    const closeBtn = devModal.querySelector('.info-close-btn');
+
+    // Mover la consola al modal
+    if (devConsole && devConsoleContainer) {
+        devConsoleContainer.appendChild(devConsole);
+        devConsole.style.position = 'relative';
+        devConsole.style.width = '100%';
+        devConsole.style.height = '100%';
+        devConsole.style.bottom = 'auto';
+        devConsole.style.right = 'auto';
+    }
+
+    // Abrir modal
+    openBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        devModal.style.display = 'flex';
+        // Mostrar la consola de depuración si está en modo debug
+        if (isDebugMode) {
+            devConsole.style.display = 'flex';
+        }
+        closeSideMenu(); // Cerrar el menú lateral
+    });
+
+    // Cerrar modal
+    closeBtn.addEventListener('click', () => {
+        devModal.style.display = 'none';
+    });
+
+    // Lógica de los botones de migración
+    const migrateYearsBtn = document.getElementById('migrate-years-btn');
+    const migrateTimestampsBtn = document.getElementById('migrate-timestamps-btn');
+    const statusDiv = document.getElementById('migration-status');
+
+    migrateYearsBtn.addEventListener('click', async () => {
+        if (!confirm('¿Estás seguro de que quieres ejecutar la migración de años? Esta acción puede modificar datos permanentemente.')) return;
+
+        statusDiv.textContent = 'Migrando años...';
+        try {
+            const result = await routeAction('migrateYearRanges', { role: 'Desarrollador' }); // Rol requerido por el backend
+            statusDiv.textContent = `Años: ${result.message}`;
+        } catch (error) {
+            statusDiv.textContent = `Error: ${error.message}`;
+        }
+    });
+
+    migrateTimestampsBtn.addEventListener('click', async () => {
+        if (!confirm('¿Estás seguro de que quieres ejecutar la migración de timestamps? Esta acción puede modificar datos permanentemente.')) return;
+
+        statusDiv.textContent = 'Migrando timestamps...';
+        try {
+            const result = await routeAction('migrateTimestamps', { role: 'Desarrollador' }); // Rol requerido por el backend
+            statusDiv.textContent = `Timestamps: ${result.message}`;
+        } catch (error) {
+            statusDiv.textContent = `Error: ${error.message}`;
+        }
+    });
+}
 
 </script>
 

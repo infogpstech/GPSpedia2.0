@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-CATALOG SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 2.4.0
+// COMPONENT VERSION: 2.3.0
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -70,27 +70,22 @@ const COLS_RELAY = {
 // ROUTER PRINCIPAL (doGet y doPost)
 // ============================================================================
 function doGet(e) {
-    const serviceState = {
-        service: 'GPSpedia-Catalog',
-        componentVersion: '2.4.0',
-        spreadsheetId: SPREADSHEET_ID,
-        sheets: {
-            cortes: SHEET_NAMES.CORTES,
-            logos: SHEET_NAMES.LOGOS_MARCA,
-            tutoriales: SHEET_NAMES.TUTORIALES,
-            relay: SHEET_NAMES.RELAY
-        }
-    };
-
     if (e.parameter.debug === 'true') {
+        const serviceState = {
+            service: 'GPSpedia-Catalog',
+            version: '1.2.1',
+            spreadsheetId: SPREADSHEET_ID,
+            sheetsAccessed: [SHEET_NAMES.CORTES, SHEET_NAMES.TUTORIALES, SHEET_NAMES.RELAY]
+        };
         return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
             .setMimeType(ContentService.MimeType.JSON);
     }
-
-    return ContentService.createTextOutput(JSON.stringify({
+    const defaultResponse = {
         status: 'success',
-        message: `${serviceState.service} v${serviceState.componentVersion} is active.`
-    })).setMimeType(ContentService.MimeType.JSON);
+        message: 'GPSpedia Catalog-SERVICE v1.2.1 is active.'
+    };
+    return ContentService.createTextOutput(JSON.stringify(defaultResponse))
+        .setMimeType(ContentService.MimeType.JSON);
 }
 function doPost(e) {
   try {
@@ -255,9 +250,7 @@ function handleGetDropdownData() {
 
         // Obtener la regla de validación de la columna "Categoría"
         const categoriaRule = sheet.getRange(2, COLS_CORTES.categoria).getDataValidation();
-        // Corrección: La validación de datos de "Categoría" es una lista de valores, no un rango.
-        // El método .getValues() no es válido en un array de valores. Se accede directamente.
-        const categorias = categoriaRule ? categoriaRule.getCriteriaValues().filter(String).sort() : [];
+        const categorias = categoriaRule ? categoriaRule.getCriteriaValues()[0].getValues().flat().filter(String).sort() : [];
 
         const data = sheet.getDataRange().getValues();
         data.shift(); // Remove headers
@@ -345,37 +338,88 @@ function isYearInRangeV2(inputYear, anoDesde, anoHasta) {
 }
 
 function handleGetNavigationData(payload) {
-    const { nivel, marca, modelo } = payload;
+    const { nivel, filtros } = payload;
     if (!nivel) throw new Error("El parámetro 'nivel' es requerido.");
 
     const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
-    const data = sheet.getDataRange().getValues();
-    data.shift(); // Remove headers
+    const allData = sheet.getDataRange().getValues();
+    const headers = allData.shift();
 
-    let results = [];
-    if (nivel === 'marcas') {
-        const marcas = new Set(data.map(row => row[COLS_CORTES.marca - 1]).filter(Boolean));
-        results = Array.from(marcas).sort();
-    } else if (nivel === 'modelos') {
-        if (!marca) throw new Error("El parámetro 'marca' es requerido para el nivel 'modelos'.");
-        const modelos = new Set(
-            data.filter(row => row[COLS_CORTES.marca - 1] === marca)
-                .map(row => row[COLS_CORTES.modelo - 1])
-                .filter(Boolean)
-        );
-        results = Array.from(modelos).sort();
-    } else if (nivel === 'anios') {
-        if (!marca || !modelo) throw new Error("Los parámetros 'marca' y 'modelo' son requeridos para el nivel 'anios'.");
-        const anios = data.filter(row => row[COLS_CORTES.marca - 1] === marca && row[COLS_CORTES.modelo - 1] === modelo)
-                           .map(row => ({
-                               id: row[COLS_CORTES.id - 1],
-                               anoDesde: row[COLS_CORTES.anoDesde - 1],
-                               anoHasta: row[COLS_CORTES.anoHasta - 1]
-                           }));
-        results = anios;
-    } else {
-        throw new Error(`Nivel '${nivel}' no reconocido. Los niveles válidos son: marcas, modelos, anios.`);
+    let data = allData;
+
+    // Filtrar datos basado en la jerarquía proporcionada
+    if (filtros) {
+        if (filtros.categoria) data = data.filter(row => row[COLS_CORTES.categoria - 1] === filtros.categoria);
+        if (filtros.marca) data = data.filter(row => row[COLS_CORTES.marca - 1] === filtros.marca);
+        if (filtros.modelo) data = data.filter(row => row[COLS_CORTES.modelo - 1] === filtros.modelo);
+        if (filtros.version) data = data.filter(row => row[COLS_CORTES.versionesAplicables - 1] === filtros.version);
+        if (filtros.tipoEncendido) data = data.filter(row => row[COLS_CORTES.tipoEncendido - 1] === filtros.tipoEncendido);
     }
 
-    return { status: 'success', data: results };
+    let results = [];
+    let nextNivel = null;
+
+    const getUniqueValues = (colIndex) => [...new Set(data.map(row => row[colIndex]).filter(Boolean))].sort();
+
+    switch (nivel) {
+        case 'categoria':
+            const order = ["Sedán", "SUV", "Pickup", "Motocicleta", "Microbús", "Autobús", "Camión Ligero", "Camión Pesado", "Maquinaria de construcción", "Equipo Utilitario"];
+            results = [...new Set(data.map(row => row[COLS_CORTES.categoria - 1]).filter(Boolean))]
+                .sort((a, b) => {
+                    const indexA = order.indexOf(a);
+                    const indexB = order.indexOf(b);
+                    if (indexA === -1 && indexB === -1) return a.localeCompare(b);
+                    if (indexA === -1) return 1;
+                    if (indexB === -1) return -1;
+                    return indexA - indexB;
+                });
+            nextNivel = 'marca';
+            break;
+        case 'marca':
+            results = getUniqueValues(COLS_CORTES.marca - 1);
+            nextNivel = 'modelo';
+            break;
+        case 'modelo':
+            results = getUniqueValues(COLS_CORTES.modelo - 1);
+            nextNivel = 'version';
+            break;
+        case 'version':
+            results = getUniqueValues(COLS_CORTES.versionesAplicables - 1);
+            if (results.length === 0) { // Si no hay versiones, saltar a tipoEncendido
+                results = getUniqueValues(COLS_CORTES.tipoEncendido - 1);
+                nextNivel = 'generacion';
+            } else {
+                nextNivel = 'tipoEncendido';
+            }
+            break;
+        case 'tipoEncendido':
+            results = getUniqueValues(COLS_CORTES.tipoEncendido - 1);
+            nextNivel = 'generacion';
+            break;
+        case 'generacion':
+            results = data.map(row => {
+                const anoDesde = row[COLS_CORTES.anoDesde - 1];
+                const anoHasta = row[COLS_CORTES.anoHasta - 1];
+                const id = row[COLS_CORTES.id - 1];
+                return {
+                    id: id,
+                    label: anoHasta && anoHasta !== anoDesde ? `${anoDesde} - ${anoHasta}` : `${anoDesde}`
+                };
+            });
+            nextNivel = 'final'; // Es el último nivel
+            break;
+        default:
+            throw new Error(`Nivel '${nivel}' no reconocido.`);
+    }
+
+    // Lógica para saltar niveles si solo hay una opción
+    while (results.length === 1 && nextNivel !== 'final' && nextNivel !== 'generacion') {
+        const nuevoFiltro = { ...filtros };
+        nuevoFiltro[nivel] = results[0];
+
+        const nextPayload = { nivel: nextNivel, filtros: nuevoFiltro };
+        return handleGetNavigationData(nextPayload); // Llamada recursiva
+    }
+
+    return { status: 'success', data: results, nextNivel: nextNivel };
 }
