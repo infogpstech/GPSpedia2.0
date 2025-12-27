@@ -12,6 +12,8 @@
 *   **STYLE (index.html, users.html):** Se aplicaron ajustes generales de la interfaz de usuario para un diseño más compacto.
     *   **`index.html`:** Reducido el tamaño de los encabezados (h2, h3, h4) y el `padding` de los botones. Añadido el logo de GPSpedia al menú lateral.
     *   **`users.html`:** Reducido el tamaño de los encabezados y botones para optimizar el espacio.
+*   **INFRA (api-manager.js):** Se actualizaron las URLs de todos los microservicios (`AUTH`, `CATALOG`, `FEEDBACK`, `USERS`, `WRITE`) a sus últimas versiones desplegadas.
+*   **FEAT (services/utilities.js):** Se ha recreado el microservicio de utilidades que se perdió en una regresión. Incluye las funciones `migrateYearRanges` y `migrateTimestamps`, esenciales para el mantenimiento de datos.
 
 **v4.0.0 (02/01/2026)**
 *   **FIX CRÍTICO (services/catalog/catalog.js):** Se ha solucionado el error `cannot read properties of undefined (reading 'categoria')` que impedía la carga de datos del catálogo y de los formularios. Se implementó la función `mapRowToObject` que faltaba y se corrigió `handleGetDropdownData` para leer dinámicamente las opciones de "Categoría" desde las reglas de validación de la hoja de cálculo.

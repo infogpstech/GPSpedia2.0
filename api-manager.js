@@ -8,11 +8,11 @@ const API_ENDPOINTS = {
     LEGACY: "https://script.google.com/macros/s/AKfycbwpIFH1nX2BZEjAKbpq9HJpEGNlo_0LqD1CwxWsWFo5J0AJDdbfMrKpcsAV4ZFJzFWd/exec",
 
     // URLs para los nuevos microservicios.
-    AUTH:     "https://script.google.com/macros/s/AKfycby86oaNWKj9Z3sXWs-tXJn2eIgU9QcpjaC6cyYReswtc_WSypt3fFtQ-3aAs58ZMa72/exec",
-    CATALOG:  "https://script.google.com/macros/s/AKfycbzRX2Ghwv8svlgBZg_mEUP6f9Co1osY5iGl8-pytUwayOeyCPfy58-_8ryxayH1HWA1/exec",
-    WRITE:    "https://script.google.com/macros/s/AKfycbwzAgwnmSxRfPRTWWpBDSq4Zja3EpRvrY0W0AT5r7ZFsVIIxIRsIIYVitCdmDaEfc-wfA/exec",
-    USERS:    "https://script.google.com/macros/s/AKfycbw3kFPGA3N0eoTQ7wIW9TO8UkneOKvN0QzoEHQaQXhbqi7WaQbLcYm0pvhLsKAd16YA/exec",
-    FEEDBACK: "https://script.google.com/macros/s/AKfycbw_MnefNK265XiQKX6O9SAtXxDY0aqtGZdtjCNznZLvPAVAGPflSVon5gJgliTbPkkN/exec",
+    AUTH:     "https://script.google.com/macros/s/AKfycbxXsd5i2M3FN8O9A-w0MLVftLTe9d1OcYZJhy6KFB3lWHgxm6P3WloFRWOUZSnHZg9e/exec",
+    CATALOG:  "https://script.google.com/macros/s/AKfycbyNX-GCg2jNTIj__PKJ65uNCpv-M8RayxwO-gAAlrapB5dQ_ufri3Xo8pHbSeLd2wLWng/exec",
+    WRITE:    "https://script.google.com/macros/s/AKfycbyPu7p1erNGcxDCk4xWNPThvYdHeq3A80gdxvEgQpjnQ-LR6fQUAkS7913w7E5I8LOHNw/exec",
+    USERS:    "https://script.google.com/macros/s/AKfycbywTo3Asul37tLML29tmtNwVpFbHabXOfC7sw4c5KagURIXzaZoiKrbr2XAIkv-7n-T/exec",
+    FEEDBACK: "https://script.google.com/macros/s/AKfycbx12Hzc3g4AU-EIM26XhkH_52ZCGsFswdwLR7FHMMSz2ZzJJnvkJpPHB2dJ_N999Wg/exec",
     // IMPORTANTE: El usuario debe desplegar el script 'utilities.js' y pegar la URL aquí.
     UTILITIES: "URL_DESPLEGADA_PARA_UTILITIES"
 };
