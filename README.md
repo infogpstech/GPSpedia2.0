@@ -233,26 +233,26 @@ Esta sección documenta las tareas de desarrollo, corrección y regresiones pend
 - [X] **Layout de 3 Columnas:** Se ha verificado que el CSS en `index.html` define un layout de 3 columnas para las cuadrículas de contenido.
 
 ### Bugs y Regresiones Críticas
-- [ ] **Lógica del Modal de Detalle:** El modal de detalle actualmente solo carga la información del primer corte (`tipoCorte1`, `ubicacionCorte1`, etc.), ignorando los datos de `corte2` y `corte3` aunque existan. Debe mostrar la información completa de todos los cortes disponibles.
-- [ ] **Carga de Imágenes en Modal:** Las imágenes asociadas a la apertura (`imgApertura`), cable de alimentación (`imgCableAlimen`) y la configuración del relay (`imagen` desde la hoja `Relay`) no se están mostrando en el modal de detalle.
-- [ ] **Carga de Logos en Modal:** El logo de la marca del vehículo no se está cargando y mostrando correctamente dentro del modal de detalle.
-- [ ] **Inconsistencias de Versionamiento:** Sincronizar la versión global (ChangesLogs, UI) y las versiones de componentes (cabeceras en todos los archivos `.html` y `.js`) para cumplir con las normas del proyecto.
-- [ ] **Visibilidad de Cortes:** Aunque la lógica de ordenamiento en el backend es correcta, el frontend no muestra los cortes secundarios en acordeones.
-- [ ] **Estilo de Logos de Marca:** Los logos de las marcas se muestran como tarjetas en lugar de iconos sin fondo.
-- [ ] **Funcionalidad de Comentarios de Feedback:** Aunque la UI para reportar problemas existe, la funcionalidad para mostrar los últimos dos comentarios con sus respuestas no está implementada.
+- [X] **Lógica del Modal de Detalle:** El modal de detalle actualmente solo carga la información del primer corte (`tipoCorte1`, `ubicacionCorte1`, etc.), ignorando los datos de `corte2` y `corte3` aunque existan. Debe mostrar la información completa de todos los cortes disponibles.
+- [X] **Carga de Imágenes en Modal:** Las imágenes asociadas a la apertura (`imgApertura`), cable de alimentación (`imgCableAlimen`) y la configuración del relay (`imagen` desde la hoja `Relay`) no se están mostrando en el modal de detalle.
+- [X] **Carga de Logos en Modal:** El logo de la marca del vehículo no se está cargando y mostrando correctamente dentro del modal de detalle.
+- [X] **Inconsistencias de Versionamiento:** Sincronizar la versión global (ChangesLogs, UI) y las versiones de componentes (cabeceras en todos los archivos `.html` y `.js`) para cumplir con las normas del proyecto.
+- [X] **Visibilidad de Cortes:** Aunque la lógica de ordenamiento en el backend es correcta, el frontend no muestra los cortes secundarios en acordeones.
+- [X] **Estilo de Logos de Marca:** Los logos de las marcas se muestran como tarjetas en lugar de iconos sin fondo.
+- [X] **Funcionalidad de Comentarios de Feedback:** Aunque la UI para reportar problemas existe, la funcionalidad para mostrar los últimos dos comentarios con sus respuestas no está implementada.
 
 ### Revisiones de UI/UX
-- [ ] **Rediseño de Botones de Feedback:** Ajustar el CSS de los botones "Útil" y "Reportar" para que sean solo el icono y el texto, sin fondo por defecto, y que el botón "Útil" se rellene al ser presionado.
-- [ ] **Reorganización de Secciones Principales:** Alterar el orden de las secciones en `index.html` para que aparezcan en el siguiente orden: 1. "Últimos Agregados", 2. "Búsqueda por Marca", 3. "Búsqueda por Categoría".
+- [X] **Rediseño de Botones de Feedback:** Ajustar el CSS de los botones "Útil" y "Reportar" para que sean solo el icono y el texto, sin fondo por defecto, y que el botón "Útil" se rellene al ser presionado.
+- [X] **Reorganización de Secciones Principales:** Alterar el orden de las secciones en `index.html` para que aparezcan en el siguiente orden: 1. "Últimos Agregados", 2. "Búsqueda por Marca", 3. "Búsqueda por Categoría".
 
 ### Nuevas Funcionalidades
-- [ ] **Sistema de Gestión de Feedback (Inbox):** Desarrollar una nueva interfaz (accesible para roles de Supervisor/Jefe) que funcione como un "inbox" para gestionar los problemas reportados por los usuarios. Debe permitir ver, responder y marcar como resueltos los reportes.
-- [ ] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes para mejorar el rendimiento.
-- [ ] **Soporte para Rango de Años (Feedback-driven):** Implementar la lógica de `suggestYear` en el backend y la UI correspondiente en el frontend.
+- [X] **Sistema de Gestión de Feedback (Inbox):** Desarrollar una nueva interfaz (accesible para roles de Supervisor/Jefe) que funcione como un "inbox" para gestionar los problemas reportados por los usuarios. Debe permitir ver, responder y marcar como resueltos los reportes.
+- [X] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes para mejorar el rendimiento.
+- [X] **Soporte para Rango de Años (Feedback-driven):** Implementar la lógica de `suggestYear` en el backend y la UI correspondiente en el frontend.
 
 ### Deuda Técnica y Mejoras
-- [ ] **Crear Microservicio Faltante (`services/utilities.js`):** El servicio documentado en el changelog v4.1.0 no existe. Debe ser creado con las funciones `migrateYearRanges` y `migrateTimestamps` para que la funcionalidad del panel de desarrollador sea operativa.
-- [ ] **Script de Migración de Timestamps:** Implementar un script de ejecución única para obtener la fecha de creación de las imágenes antiguas de Google Drive y rellenar el campo `timestamp` en los registros existentes.
+- [X] **Crear Microservicio Faltante (`services/utilities.js`):** El servicio documentado en el changelog v4.1.0 no existe. Debe ser creado con las funciones `migrateYearRanges` y `migrateTimestamps` para que la funcionalidad del panel de desarrollador sea operativa.
+- [X] **Script de Migración de Timestamps:** Implementar un script de ejecución única para obtener la fecha de creación de las imágenes antiguas de Google Drive y rellenar el campo `timestamp` en los registros existentes.
 
 ## 4. Componentes del Backend (Microservicios)
 
