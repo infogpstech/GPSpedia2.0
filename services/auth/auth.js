@@ -34,8 +34,8 @@ const COLS_ACTIVE_SESSIONS = {
 
 const SESSION_LIMITS = {
     'desarrollador': 999, // Unlimited
-    'jefe': 3,
-    'supervisor': 2,
+    'jefe': 5,
+    'supervisor': 3,
     'tecnico': 1,
     'tecnico_exterior': 1
 };
@@ -220,15 +220,16 @@ function handleValidateSession(payload) {
         }
 
         const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-        const userSheet = ss.getSheetByName(SHEET_NAMES.USERS);
-        if (!userSheet) {
-            throw new Error(`Sheet "${SHEET_NAMES.USERS}" not found for session validation.`);
+        const activeSessionsSheet = ss.getSheetByName(SHEET_NAMES.ACTIVE_SESSIONS);
+        if (!activeSessionsSheet) {
+            throw new Error(`Sheet "${SHEET_NAMES.ACTIVE_SESSIONS}" not found for session validation.`);
         }
-        const data = userSheet.getDataRange().getValues();
-        data.shift();
+        const data = activeSessionsSheet.getDataRange().getValues();
+        data.shift(); // Remove headers
 
         for (const row of data) {
-            if (row[COLS_USERS.ID - 1] == userId && row[COLS_USERS.SessionToken - 1] === sessionToken) {
+            // Check if the user ID and session token from the sheet match the payload
+            if (row[COLS_ACTIVE_SESSIONS.ID_Usuario - 1] == userId && row[COLS_ACTIVE_SESSIONS.ActiveSessions - 1] === sessionToken) {
                 return { valid: true };
             }
         }
