@@ -1,3 +1,7 @@
+**v4.2.2 (04/01/2024)**
+*   **INFRA (api-manager.js):** Actualizada la URL del microservicio `GPSpedia-Auth` a su última versión desplegada para incorporar la corrección de persistencia de sesión.
+    *   Se ha reemplazado la URL en el objeto `API_ENDPOINTS` para `AUTH`. (Línea 10).
+
 **v4.2.1 (04/01/2024)**
 *   **FIX (services/auth/auth.js):** Corregido un error crítico de lógica que causaba el cierre inesperado de sesiones.
     *   **Causa Raíz:** La función `handleValidateSession` estaba validando los tokens de sesión contra la hoja `Users`, que solo almacena el token más reciente, en lugar de la hoja `ActiveSessions`, que contiene todos los tokens válidos.
@@ -29,7 +33,7 @@
 *   **PERF (index.html):** Implementada la carga progresiva (lazy loading) de imágenes en todo el catálogo para mejorar el rendimiento inicial.
 *   **CHORE (Project-wide):** Actualizadas las versiones de los componentes en todos los archivos modificados.
 
-**v4.1.0 (03/01/2026)**
+**v4.1.0 (03/01/2024)**
 *   **CHORE & FIX (Project-wide):** Se revirtió una entrega anterior para restaurar múltiples funcionalidades y se aplicaron nuevas características.
     *   **Restauraciones:**
         *   **`users.html`:** Corregido el error `undefined` en la tabla de usuarios al alinear el acceso a propiedades con el esquema del backend (ej. `Nombre_Usuario`). Restaurado el CSS (`table-layout: fixed`) para prevenir el desbordamiento de la tabla.
