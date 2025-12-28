@@ -1645,7 +1645,7 @@ function renderContentFromData(data) {
 }
 
 async function initializeAppData(user) {
-    hideLoginShowApp();
+    hideLoginShowApp(user); // Pasar el objeto de usuario
     document.getElementById('welcome-message').textContent = `Bienvenido, ${user.Nombre_Usuario}`;
     document.getElementById('welcome-message').style.display = 'block';
 
@@ -1743,7 +1743,7 @@ function showLoginHideApp(reason = null) {
     }
 }
 
-function hideLoginShowApp() {
+function hideLoginShowApp(user) { // Aceptar el objeto de usuario
     remoteLog('INFO', 'hideLoginShowApp called');
     // Ocultar splash y login
     const splash = document.getElementById('splash-screen');
@@ -1774,25 +1774,27 @@ function hideLoginShowApp() {
     }
 
     // Initialize notifications for all users
-    initializeNotifications();
+    initializeNotifications(user); // Pasar el objeto de usuario
 }
 
 // --- LÓGICA DEL SISTEMA DE NOTIFICACIONES ---
 
-async function initializeNotifications() {
+async function initializeNotifications(user) { // Aceptar el objeto de usuario
     const bell = document.getElementById('notification-bell');
     const badge = document.getElementById('notification-badge');
     const dropdown = document.getElementById('notification-dropdown');
     const list = document.getElementById('notification-list');
     const markAllReadBtn = document.getElementById('mark-all-read-btn');
+    let currentNotifications = []; // Variable para almacenar las notificaciones actuales
 
     // Solo mostrar la campana si el elemento existe (evita errores si el HTML cambia)
-    if (!bell) return;
+    if (!bell || !user || !user.ID) return; // Asegurarse de que el usuario y su ID existan
 
     try {
-        const result = await routeAction('getUnreadNotifications');
+        const result = await routeAction('getUnreadNotifications', { userId: user.ID }); // Enviar el ID del usuario
         if (result.status === 'success' && result.data) {
             const notifications = result.data;
+            currentNotifications = notifications; // Guardar las notificaciones
             bell.style.display = 'block'; // Mostrar la campana
 
             if (notifications.length > 0) {
@@ -1821,10 +1823,14 @@ async function initializeNotifications() {
     });
 
     markAllReadBtn.addEventListener('click', async () => {
+        if (currentNotifications.length === 0) return; // No hacer nada si no hay notificaciones
+
         try {
-            await routeAction('markNotificationsAsRead');
+            const notificationIds = currentNotifications.map(n => n.id);
+            await routeAction('markNotificationsAsRead', { notificationIds: notificationIds });
             badge.style.display = 'none';
             list.innerHTML = '<div class="notification-item">No tienes notificaciones nuevas.</div>';
+            currentNotifications = []; // Limpiar las notificaciones locales
             setTimeout(() => { dropdown.style.display = 'none'; }, 500); // Ocultar dropdown después de un momento
         } catch (error) {
             alert('Error al marcar las notificaciones como leídas.');

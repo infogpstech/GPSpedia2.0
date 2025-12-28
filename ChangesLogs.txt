@@ -1,4 +1,4 @@
-**v4.2.0 (04/01/2026)**
+**v4.2.0 (04/01/2024)**
 *   **FEAT (services/utilities/utilities.js):** Creado el nuevo microservicio `GPSpedia-Utilities` que faltaba.
     *   Implementadas las funciones `migrateYearRanges` y `migrateTimestamps` para la migración de datos.
     *   Añadida una capa de seguridad para que estas funciones solo puedan ser ejecutadas por usuarios con el rol 'Desarrollador'.
