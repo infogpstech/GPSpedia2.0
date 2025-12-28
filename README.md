@@ -47,22 +47,22 @@ Esta sección define la hoja de ruta para la siguiente gran versión de GPSpedia
 ### Fase 1: Migración y Lógica de Datos Fundamental
 - **Objetivo:** Migrar a la nueva base de datos (DB v2.0) y establecer la lógica de negocio principal para la gestión de datos.
 - **Tareas Clave:**
-    - [ ] **Diseñar Nuevo Esquema:** Implementar la estructura granular detallada en la sección "Diseño Detallado de `GPSpedia_DB_v2.0`".
-    - [ ] **Script de Migración:** Desarrollar un endpoint para migrar y transformar los datos de la base de datos antigua a la nueva.
-    - [ ] **Lógica de Gestión de Años Simplificada:**
+    - [X] **Diseñar Nuevo Esquema:** Implementar la estructura granular detallada en la sección "Diseño Detallado de `GPSpedia_DB_v2.0`".
+    - [X] **Script de Migración:** Desarrollar un endpoint para migrar y transformar los datos de la base de datos antigua a la nueva.
+    - [X] **Lógica de Gestión de Años Simplificada:**
         - El formulario de entrada solo solicitará un único año.
         - Este año se guardará en la columna `anoDesde` al crear un nuevo registro. `anoHasta` quedará vacío.
-    - [ ] **Lógica de Gestión de Logos Automatizada:**
+    - [X] **Lógica de Gestión de Logos Automatizada:**
         - Al agregar un nuevo vehículo, el sistema buscará una coincidencia en la hoja `LogosMarcas` por el campo `marca`.
         - Si se encuentra, se asociará automáticamente. Si no, se usará un logo temporal de GPSpedia. El usuario no seleccionará el logo.
 
 ### Fase 2: Sistema de Feedback Avanzado y Calidad de Datos
 - **Objetivo:** Mejorar la calidad de los datos a través de la interacción del usuario.
 - **Tareas Clave:**
-    - [ ] **Feedback Granular:** Implementar "likes" y colaborador por cada corte individual.
-    - [ ] **Ordenamiento por Utilidad:** El backend ordenará los cortes de un vehículo según su popularidad antes de enviarlos al frontend.
-    - [ ] **Campos Obligatorios:** Forzar el llenado de `tipo`, `ubicación`, `color` e `imagen` para cada nuevo corte.
-    - [ ] **Expansión de Rango de Años por Feedback:**
+    - [X] **Feedback Granular:** Implementar "likes" y colaborador por cada corte individual.
+    - [X] **Ordenamiento por Utilidad:** El backend ordenará los cortes de un vehículo según su popularidad antes de enviarlos al frontend.
+    - [X] **Campos Obligatorios:** Forzar el llenado de `tipo`, `ubicación`, `color` e `imagen` para cada nuevo corte.
+    - [X] **Expansión de Rango de Años por Feedback:**
         - Implementar una nueva función de feedback que permita a los usuarios sugerir que un corte aplica a un año diferente.
         - El backend recibirá el nuevo año y actualizará `anoDesde` (si el nuevo año es menor) o `anoHasta` (si el nuevo año es mayor), expandiendo dinámicamente el rango de aplicabilidad.
 
@@ -73,16 +73,16 @@ Esta sección define la hoja de ruta para la siguiente gran versión de GPSpedia
     - [ ] **Edición "In-Modal":** Permitir la edición de datos directamente desde el modal de detalles, con permisos por rol.
     - [ ] **Enlaces de un solo uso:** Generar enlaces temporales (24h) y de un solo uso para compartir información.
     - [ ] **Notificaciones Inteligentes:** Reemplazar el banner de instalación con notificaciones "toast" sobre nuevos cortes.
-    - [ ] **Visualización de Logos:**
+    - [X] **Visualización de Logos:**
         - Mostrar el logo de la marca (formato PNG/WEBP sin fondo) en una esquina del modal de detalle (`altura: 50px`, `anchura: auto`).
         - En la vista de listado de marcas, mostrar el logo correspondiente si existe al menos un vehículo de esa marca.
 
 ### Fase 4: Mejoras Adicionales
 - **Objetivo:** Añadir funcionalidades de alto valor para el trabajo en campo.
 - **Tareas Clave:**
-    - [ ] **Modo Offline Robusto:** Implementar caching avanzado.
+    - [X] **Modo Offline Robusto:** Implementar caching avanzado.
     - [ ] **Notas Personales:** Permitir a los usuarios guardar notas privadas por vehículo.
-    - [ ] **Modal de Relay Anidado:** Mostrar detalles de configuraciones de Relay en un modal secundario, con la imagen de referencia limitada a `250px` de altura.
+    - [X] **Modal de Relay Anidado:** Mostrar detalles de configuraciones de Relay en un modal secundario, con la imagen de referencia limitada a `250px` de altura.
 
 ---
 
@@ -342,150 +342,150 @@ A continuación se detalla la estructura de cada hoja en la nueva base de datos.
 
 ##### 1. Hoja: `Users`
 - **Propósito:** Gestión de usuarios, credenciales y perfiles.
-| Columna |
-| :--- |
-| `ID` |
-| `Nombre_Usuario`|
-| `Password` |
-| `Privilegios` |
-| `Telefono` |
-| `Correo_Electronico`|
-| `SessionToken`|
+| Columna | Propósito y Tipo de Dato |
+| :--- | :--- |
+| `ID` | **Identificador Único (Texto):** Clave primaria para cada usuario. Formato: `USR-XXX`. |
+| `Nombre_Usuario`| **Nombre de Usuario (Texto):** Utilizado para el inicio de sesión. Debe ser único. |
+| `Password` | **Contraseña (Texto Plano):** Contraseña del usuario. Se almacena sin encriptar. |
+| `Privilegios` | **Rol del Usuario (Lista Desplegable):** Define el nivel de acceso. Valores: `Técnico`, `Supervisor`, `Jefe`, `Desarrollador`. |
+| `Telefono` | **Número de Teléfono (Texto):** Teléfono de contacto del usuario. |
+| `Correo_Electronico`| **Correo Electrónico (Texto):** Email de contacto. |
+| `SessionToken`| **Token de Sesión (Texto):** Token único generado en cada login para validar la sesión. |
 
 ##### 2. Hoja: `Cortes`
 - **Propósito:** Catálogo principal con estructura granular para datos de alta calidad.
-| Columna |
-| :--- |
-| `id` |
-| `categoria` |
-| `marca` |
-| `modelo` |
-| `versionesAplicables`|
-| `anoDesde` |
-| `anoHasta` |
-| `tipoEncendido` |
-| `imagenVehiculo` |
-| `videoGuiaDesarmeUrl`|
-| `contadorBusqueda` |
-| `tipoCorte1` |
-| `ubicacionCorte1`|
-| `colorCableCorte1`|
-| `configRelay1` |
-| `imgCorte1` |
-| `utilCorte1` |
-| `colaboradorCorte1`|
-| `tipoCorte2` |
-| `ubicacionCorte2`|
-| `colorCableCorte2`|
-| `configRelay2` |
-| `imgCorte2` |
-| `utilCorte2` |
-| `colaboradorCorte2`|
-| `tipoCorte3` |
-| `ubicacionCorte3`|
-| `colorCableCorte3`|
-| `configRelay3` |
-| `imgCorte3` |
-| `utilCorte3` |
-| `colaboradorCorte3`|
-| `apertura` |
-| `imgApertura` |
-| `cableAlimen` |
-| `imgCableAlimen` |
-| `timestamp` |
-| `notaImportante` |
+| Columna | Propósito y Tipo de Dato |
+| :--- | :--- |
+| `id` | **Identificador Único (Numérico):** Clave primaria autoincremental para cada registro de vehículo. |
+| `categoria` | **Categoría del Vehículo (Lista Desplegable):** Tipo de vehículo. Ej: `Automóvil`, `Motocicleta`. |
+| `marca` | **Marca del Vehículo (Texto):** Fabricante del vehículo. Ej: `Honda`. |
+| `modelo` | **Modelo del Vehículo (Texto):** Modelo específico. Ej: `CR-V`. |
+| `versionesAplicables`| **Versiones Compatibles (Texto):** Nombres alternativos o de generaciones. Ej: `NP300, Frontier`. |
+| `anoDesde` | **Año de Inicio (Numérico):** Primer año de aplicabilidad del registro. |
+| `anoHasta` | **Año de Fin (Numérico):** Último año de aplicabilidad del registro. |
+| `tipoEncendido` | **Tipo de Encendido (Lista Desplegable):** Sistema de arranque del vehículo. Ej: `Botón`, `Llave`. |
+| `imagenVehiculo` | **URL de Imagen (Texto):** Enlace a la imagen principal del vehículo. |
+| `videoGuiaDesarmeUrl`| **URL de Video (Texto):** Enlace a un video tutorial de YouTube. |
+| `contadorBusqueda` | **Contador de Búsquedas (Numérico):** (Reservado para uso futuro). |
+| `tipoCorte1` | **Tipo de Corte 1 (Lista Desplegable):** Finalidad del corte. Ej: `Paro de Motor`. |
+| `ubicacionCorte1`| **Ubicación del Corte 1 (Texto):** Descripción de dónde encontrar el cable. |
+| `colorCableCorte1`| **Color del Cable 1 (Texto):** Color o combinación de colores del cable. |
+| `configRelay1` | **Configuración de Relay 1 (Lista Desplegable):** Tipo de relay a utilizar. |
+| `imgCorte1` | **URL de Imagen del Corte 1 (Texto):** Enlace a la foto del cableado. |
+| `utilCorte1` | **Contador de "Útil" 1 (Numérico):** Número de "likes" para este corte. |
+| `colaboradorCorte1`| **Nombre del Colaborador 1 (Texto):** Usuario que aportó la información. |
+| `tipoCorte2` | **(Columnas para el Corte 2):** Repite la estructura del Corte 1. |
+| `ubicacionCorte2`| ... |
+| `colorCableCorte2`| ... |
+| `configRelay2` | ... |
+| `imgCorte2` | ... |
+| `utilCorte2` | ... |
+| `colaboradorCorte2`| ... |
+| `tipoCorte3` | **(Columnas para el Corte 3):** Repite la estructura del Corte 1. |
+| `ubicacionCorte3`| ... |
+| `colorCableCorte3`| ... |
+| `configRelay3` | ... |
+| `imgCorte3` | ... |
+| `utilCorte3` | ... |
+| `colaboradorCorte3`| ... |
+| `apertura` | **Detalles de Apertura (Texto):** Información para la apertura de puertas. |
+| `imgApertura` | **URL de Imagen de Apertura (Texto):** Foto del cableado de apertura. |
+| `cableAlimen` | **Detalles de Alimentación (Texto):** Información sobre el cable de alimentación. |
+| `imgCableAlimen` | **URL de Imagen de Alimentación (Texto):** Foto del cable de alimentación. |
+| `timestamp` | **Fecha de Modificación (Texto):** Última fecha de actualización del registro. Formato: `DD/MM/AAAA`. |
+| `notaImportante` | **Nota Importante (Texto):** Advertencias o detalles críticos. |
 
 ##### 3. Hoja: `LogosMarca`
 - **Propósito:** Centralizar la gestión de logos de marcas para el frontend.
-| Columna |
-| :--- |
-| `id` |
-| `nombreMarca` |
-| `urlLogo` |
-| `fabricanteNombre`|
+| Columna | Propósito y Tipo de Dato |
+| :--- | :--- |
+| `id` | **Identificador Único (Numérico):** Clave primaria. |
+| `nombreMarca` | **Nombre de la Marca (Texto):** Nombre normalizado para la búsqueda. Ej: `hondaAutomovil`. |
+| `urlLogo` | **URL del Logo (Texto):** Enlace a la imagen del logo. |
+| `fabricanteNombre`| **Nombre del Fabricante (Texto):** Nombre oficial para mostrar. Ej: `Honda`. |
 
 ##### 4. Hoja: `Tutorial`
 - **Propósito:** Almacenar guías y tutoriales multimedia.
-| Columna |
-| :--- |
-| `ID` |
-| `Tema` |
-| `Imagen` |
-| `comoIdentificarlo`|
-| `dondeEncontrarlo` |
-| `Detalles` |
-| `Video` |
+| Columna | Propósito y Tipo de Dato |
+| :--- | :--- |
+| `ID` | **Identificador Único (Numérico):** Clave primaria. |
+| `Tema` | **Título del Tutorial (Texto):** Tema principal de la guía. |
+| `Imagen` | **URL de Imagen (Texto):** Imagen principal del tutorial. |
+| `comoIdentificarlo`| **Cómo Identificarlo (Texto):** Descripción para la identificación. |
+| `dondeEncontrarlo` | **Dónde Encontrarlo (Texto):** Ubicación del componente. |
+| `Detalles` | **Detalles Adicionales (Texto):** Explicación extendida. |
+| `Video` | **URL de Video (Texto):** Enlace a un video de YouTube. |
 
 ##### 5. Hoja: `Relay`
 - **Propósito:** Almacenar información técnica sobre configuraciones de relays.
-| Columna |
-| :--- |
-| `ID` |
-| `configuracion` |
-| `funcion` |
-| `vehiculoDondeSeUtiliza`|
-| `pin30Entrada` |
-| `pin85BobinaPositivo`|
-| `pin86bobinaNegativo`|
-| `pin87aComunCerrado`|
-| `pin87ComunmenteAbierto`|
-| `imagen`|
-| `observacion`|
+| Columna | Propósito y Tipo de Dato |
+| :--- | :--- |
+| `ID` | **Identificador Único (Numérico):** Clave primaria. |
+| `configuracion` | **Nombre de la Configuración (Texto):** Nombre único para la configuración. |
+| `funcion` | **Función Principal (Texto):** Descripción del propósito del relay. |
+| `vehiculoDondeSeUtiliza`| **Vehículos de Uso Común (Texto):** Ejemplos de aplicación. |
+| `pin30Entrada` | **Pin 30 (Texto):** Descripción de la conexión para el pin 30. |
+| `pin85BobinaPositivo`| **Pin 85 (Texto):** Descripción de la conexión para el pin 85. |
+| `pin86bobinaNegativo`| **Pin 86 (Texto):** Descripción de la conexión para el pin 86. |
+| `pin87aComunCerrado`| **Pin 87a (Texto):** Descripción de la conexión para el pin 87a. |
+| `pin87ComunmenteAbierto`| **Pin 87 (Texto):** Descripción de la conexión para el pin 87. |
+| `imagen`| **URL de Imagen (Texto):** Diagrama del relay. |
+| `observacion`| **Observaciones (Texto):** Notas adicionales. |
 
 ##### 6. Hoja: `ActiveSessions`
 - **Propósito:** Rastrear las sesiones de usuario activas para la validación.
-| Columna |
-| :--- |
-| `ID_Usuario` |
-| `Usuario` |
-| `ActiveSessions` |
-| `date` |
-| `Logs` |
+| Columna | Propósito y Tipo de Dato |
+| :--- | :--- |
+| `ID_Usuario` | **ID del Usuario (Texto):** Clave foránea que enlaza con `Users`. |
+| `Usuario` | **Nombre del Usuario (Texto):** Nombre de usuario para referencia. |
+| `ActiveSessions` | **Tokens de Sesión Activos (JSON en Texto):** Cadena de texto que contiene un JSON con los tokens de sesión. |
+| `date` | **Fecha de Creación (Texto):** Fecha de la primera sesión activa. |
+| `Logs` | **Registro de Actividad (Texto):** Log de inicios y cierres de sesión. |
 
 ##### 7. Hoja: `Feedbacks`
 - **Propósito:** Gestionar los reportes de problemas enviados por los usuarios.
-| Columna |
-| :--- |
-| `ID` |
-| `Usuario` |
-| `ID_vehiculo` |
-| `Problema` |
-| `Respuesta` |
-| `Se resolvio`|
-| `Responde` |
-| `Reporte de util`|
+| Columna | Propósito y Tipo de Dato |
+| :--- | :--- |
+| `ID` | **Identificador Único (Numérico):** Clave primaria del reporte. |
+| `Usuario` | **Nombre del Usuario (Texto):** Quién reportó el problema. |
+| `ID_vehiculo` | **ID del Vehículo (Numérico):** Clave foránea que enlaza con `Cortes`. |
+| `Problema` | **Descripción del Problema (Texto):** El mensaje del usuario. |
+| `Respuesta` | **Respuesta del Supervisor (Texto):** La respuesta al reporte. |
+| `Se resolvio`| **Estado (Booleano):** `TRUE` si el problema fue resuelto. |
+| `Responde` | **Nombre del Supervisor (Texto):** Quién respondió al reporte. |
+| `Reporte de util`| **Reporte de "Útil" (Texto):** (Uso específico para feedback de "likes"). |
 
 ##### 8. Hoja: `Contactanos`
 - **Propósito:** Recibir y gestionar los mensajes enviados a través del formulario de contacto.
-| Columna |
-| :--- |
-| `Contacto_ID` |
-| `User_ID` |
-| `Asunto` |
-| `Mensaje` |
-| `Respuesta_mensaje`|
-| `ID_usuario_responde`|
+| Columna | Propósito y Tipo de Dato |
+| :--- | :--- |
+| `Contacto_ID` | **Identificador Único (Numérico):** Clave primaria del mensaje. |
+| `User_ID` | **ID del Usuario (Texto):** Clave foránea si el usuario está logueado. |
+| `Asunto` | **Asunto del Mensaje (Texto):** Título del contacto. |
+| `Mensaje` | **Contenido del Mensaje (Texto):** El cuerpo del mensaje. |
+| `Respuesta_mensaje`| **Respuesta al Mensaje (Texto):** La respuesta del administrador. |
+| `ID_usuario_responde`| **ID de Quién Responde (Texto):** ID del administrador que gestionó el mensaje. |
 
 ##### 9. Hoja: `Logs`
 - **Propósito:** Registrar eventos importantes y errores del sistema para depuración.
-| Columna |
-| :--- |
-| `Timestamp` |
-| `Level` |
-| `Message` |
-| `Data`|
+| Columna | Propósito y Tipo de Dato |
+| :--- | :--- |
+| `Timestamp` | **Fecha y Hora (Texto):** Cuándo ocurrió el evento. |
+| `Level` | **Nivel de Log (Texto):** Ej: `INFO`, `ERROR`, `WARN`. |
+| `Message` | **Mensaje del Log (Texto):** Descripción del evento. |
+| `Data`| **Datos Adicionales (JSON en Texto):** Objeto con contexto adicional. |
 
 ##### 10. Hoja: `ActividadUsuario`
 - **Propósito:** Registrar acciones de los usuarios para futuras analíticas y dashboards de desempeño.
-| Columna |
-| :--- |
-| `id` |
-| `timestamp` |
-| `idUsuario` |
-| `nombreUsuario` |
-| `tipoActividad`|
-| `idElementoAsociado`|
-| `detalle`|
+| Columna | Propósito y Tipo de Dato |
+| :--- | :--- |
+| `id` | **Identificador Único (Numérico):** Clave primaria de la actividad. |
+| `timestamp` | **Fecha y Hora (Texto):** Cuándo ocurrió la acción. |
+| `idUsuario` | **ID del Usuario (Texto):** Clave foránea a `Users`. |
+| `nombreUsuario` | **Nombre del Usuario (Texto):** Quién realizó la acción. |
+| `tipoActividad`| **Tipo de Actividad (Texto):** Ej: `LIKE`, `REPORT_PROBLEM`, `SUGGEST_YEAR`. |
+| `idElementoAsociado`| **ID del Elemento (Numérico/Texto):** ID del vehículo, reporte, etc. |
+| `detalle`| **Detalles (Texto):** Información adicional sobre la acción. |
 
 ## 7. Sistema de Versionamiento Híbrido
 

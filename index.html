@@ -3246,16 +3246,10 @@ function setupInfoModals() {
 document.addEventListener('DOMContentLoaded', () => {
     setupInfoModals();
     setupDevTools();
+    setupInbox();
 });
 
-function setupDevTools() {
-    const devModal = document.getElementById('dev-modal');
-    const devConsole = document.getElementById('debug-console');
-    const devConsoleContainer = document.getElementById('dev-console-container');
-    const openBtn = document.getElementById('dev-tools-btn');
-    const closeBtn = devModal.querySelector('.info-close-btn');
-
-    // --- LÓGICA DEL INBOX DE FEEDBACK ---
+function setupInbox() {
     const inboxModal = document.getElementById('inbox-modal');
     const inboxOpenBtn = document.getElementById('menu-inbox');
     const inboxCloseBtn = inboxModal.querySelector('.info-close-btn');
@@ -3348,7 +3342,14 @@ function setupDevTools() {
             alert(`Error: ${error.message}`);
         }
     }
+}
 
+function setupDevTools() {
+    const devModal = document.getElementById('dev-modal');
+    const devConsole = document.getElementById('debug-console');
+    const devConsoleContainer = document.getElementById('dev-console-container');
+    const openBtn = document.getElementById('dev-tools-btn');
+    const closeBtn = devModal.querySelector('.info-close-btn');
 
     // Mover la consola al modal
     if (devConsole && devConsoleContainer) {
