@@ -1,7 +1,7 @@
-**v4.2.5 (06/01/2024)**
-*   **FIX (index.html):** Solucionado un error crítico de persistencia de sesión y carga de datos que impedía el funcionamiento de la aplicación después de iniciar sesión o recargar la página.
-    *   **Causa Raíz:** La función `hideLoginShowApp` estaba re-leyendo los datos de sesión desde `localStorage` en lugar de utilizar el objeto `user` fresco que se le pasaba como parámetro. Esto, combinado con una discrepancia de mayúsculas y minúsculas (`Privilegios` vs. `privilegios`), causaba que las comprobaciones de permisos fallaran silenciosamente, interrumpiendo la secuencia de inicialización.
-    *   **Solución:** Se ha refactorizado la función `hideLoginShowApp` para que utilice directamente el objeto `user` y se ha hecho la comprobación de privilegios insensible a mayúsculas/minúsculas, garantizando que la aplicación se inicialice correctamente. (Líneas 1765-1773).
+**v4.2.6 (07/01/2024)**
+*   **FIX CRÍTICO (services/auth/auth.js):** Solucionado el error de red "Failed to fetch" que impedía por completo el login y la validación de sesiones.
+    *   **Causa Raíz:** El servicio de autenticación (`auth.js`) devolvía una respuesta con `Content-Type: application/json`. Sin embargo, el frontend (`api-manager.js`) realiza las peticiones con `Content-Type: text/plain` para evitar requerimientos de preflight (CORS) en Google Apps Script. Esta discrepancia causaba que el navegador bloqueara todas las respuestas del servicio de autenticación.
+    *   **Solución:** Se ha modificado la función `doPost` en `services/auth/auth.js` para que el `MimeType` de la respuesta sea `ContentService.MimeType.TEXT`, alineándolo con la expectativa del frontend y resolviendo el conflicto de CORS. (Línea 101).
 
 **v4.2.4 (05/01/2024)**
 *   **INFRA (api-manager.js):** Actualizada la URL del microservicio `GPSpedia-Catalog` a su última versión desplegada.

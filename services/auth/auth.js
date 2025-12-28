@@ -98,7 +98,7 @@ function doPost(e) {
         logToSheet('ERROR', `Error in doPost: ${error.message}`, { stack: error.stack });
         response = { status: 'error', message: error.message };
     }
-    return ContentService.createTextOutput(JSON.stringify(response)).setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify(response)).setMimeType(ContentService.MimeType.TEXT);
 }
 
 // ============================================================================
