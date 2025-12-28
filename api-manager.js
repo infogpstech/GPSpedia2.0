@@ -25,11 +25,12 @@ const ACTION_TO_SERVICE_MAP = {
     // Catalog Service
     'getCatalogData': 'CATALOG',
     'getDropdownData': 'CATALOG',
-    'checkVehicle': 'CATALOG',
     'getNavigationData': 'CATALOG',
 
     // Write Service
-    'addCorte': 'WRITE',
+    'checkVehicle': 'WRITE',
+    'addOrUpdateCut': 'WRITE',
+    'addSupplementaryInfo': 'WRITE',
 
     // Users Service
     'getUsers': 'USERS',

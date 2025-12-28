@@ -1,3 +1,17 @@
+**v4.2.3 (05/01/2024)**
+*   **FIX (services/catalog/catalog.js):** Corregido un bug crítico que impedía la carga de opciones en los formularios.
+    *   **Causa Raíz:** La función `handleGetDropdownData` devolvía un objeto JSON con una estructura (`{data: ...}`) y claves (`categorias`) que no coincidían con las que esperaba el frontend (`{dropdowns: ...}` y `categoria`).
+    *   **Solución:** Se ha modificado la estructura del objeto de respuesta y los nombres de las claves para alinearlos con los requisitos del frontend (`add_cortes.html`). (Líneas 275-285).
+*   **FIX (api-manager.js, add_cortes.html):** Reparado el flujo completo de envío de datos, que estaba totalmente inoperativo.
+    *   **Causa Raíz:** El frontend (`add_cortes.html`) llamaba a una acción genérica `addCorte` que no existía en el backend. El backend (`write.js`) esperaba una secuencia de llamadas a acciones específicas (`checkVehicle`, `addOrUpdateCut`, `addSupplementaryInfo`).
+    *   **Solución:**
+        1.  **`api-manager.js`:** Se actualizó el `ACTION_TO_SERVICE_MAP`. Se eliminó la acción `addCorte` y se añadieron `addOrUpdateCut` y `addSupplementaryInfo`, ambas mapeadas al servicio `WRITE`. Se corrigió `checkVehicle` para que apunte a `WRITE` en lugar de `CATALOG`. (Líneas 27-34).
+        2.  **`add_cortes.html`:** Se refactorizó la lógica de envío de formularios para que llame a las acciones correctas (`addOrUpdateCut` y `addSupplementaryInfo`) con la estructura de `payload` que el backend espera. (Líneas 227-285).
+*   **REFACTOR (services/catalog/catalog.js):** Eliminado código redundante para mejorar la mantenibilidad.
+    *   Se ha eliminado la función `handleCheckVehicle` y su llamada en el `doPost`, ya que esta funcionalidad es manejada exclusivamente por el servicio `WRITE`. (Líneas 104-107, 290-329).
+*   **FEAT (services/write/write.js):** Añadida validación de datos en el lado del servidor.
+    *   La función `handleAddOrUpdateCut` ahora comprueba que los campos obligatorios (`tipoCorte1`, `marca`, `modelo`, etc.) no estén vacíos antes de procesar la solicitud, mejorando la integridad de los datos. (Líneas 167-170, 182-185).
+
 **v4.2.2 (04/01/2024)**
 *   **INFRA (api-manager.js):** Actualizada la URL del microservicio `GPSpedia-Auth` a su última versión desplegada para incorporar la corrección de persistencia de sesión.
     *   Se ha reemplazado la URL en el objeto `API_ENDPOINTS` para `AUTH`. (Línea 10).

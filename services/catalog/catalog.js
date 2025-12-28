@@ -101,9 +101,6 @@ function doPost(e) {
       case 'getDropdownData':
         result = handleGetDropdownData();
         break;
-      case 'checkVehicle':
-        result = handleCheckVehicle(payload);
-        break;
       case 'getNavigationData':
         result = handleGetNavigationData(payload);
         break;
@@ -274,14 +271,14 @@ function handleGetDropdownData() {
 
 
         const dropdownData = {
-            categorias,
-            marcas,
-            tiposCorte,
-            tiposEncendido,
-            configRelay
+            categoria: categorias,
+            marca: marcas,
+            tipoDeCorte: tiposCorte,
+            tipoDeEncendido: tiposEncendido,
+            configRelay: configRelay
         };
 
-        return { status: 'success', data: dropdownData };
+        return { status: 'success', dropdowns: dropdownData };
 
     } catch (error) {
         return {
@@ -290,41 +287,6 @@ function handleGetDropdownData() {
             details: { errorMessage: error.message }
         };
     }
-}
-
-function handleCheckVehicle(payload) {
-    const { marca, modelo, anio, tipoEncendido } = payload;
-    if (!marca || !modelo || !anio || !tipoEncendido) {
-        throw new Error("Parámetros de búsqueda incompletos.");
-    }
-
-    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
-    const data = sheet.getDataRange().getValues();
-    data.shift();
-
-    const paramMarca = marca.trim().toLowerCase();
-    const paramModelo = modelo.trim().toLowerCase();
-    const paramAnio = parseInt(anio.trim(), 10);
-    const paramTipoEncendido = tipoEncendido.trim().toLowerCase();
-
-    for (let i = 0; i < data.length; i++) {
-        const row = data[i];
-        const sheetMarca = (row[COLS_CORTES.marca - 1] || "").toString().trim().toLowerCase();
-        const sheetModelo = (row[COLS_CORTES.modelo - 1] || "").toString().trim().toLowerCase();
-        const sheetVersiones = (row[COLS_CORTES.versionesAplicables - 1] || "").toString().toLowerCase();
-        const sheetTipoEncendido = (row[COLS_CORTES.tipoEncendido - 1] || "").toString().trim().toLowerCase();
-        const anoDesde = row[COLS_CORTES.anoDesde - 1];
-        const anoHasta = row[COLS_CORTES.anoHasta - 1];
-
-        const modeloMatch = sheetModelo === paramModelo || sheetVersiones.includes(paramModelo);
-        const anioMatch = isYearInRangeV2(paramAnio, anoDesde, anoHasta);
-
-        if (sheetMarca === paramMarca && modeloMatch && anioMatch && sheetTipoEncendido === paramTipoEncendido) {
-            const existingRowData = mapRowToObject(row, COLS_CORTES);
-            return { status: 'success', exists: true, data: existingRowData, rowIndex: i + 2 };
-        }
-    }
-    return { status: 'success', exists: false };
 }
 
 // ============================================================================

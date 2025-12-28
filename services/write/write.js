@@ -163,6 +163,9 @@ function handleAddOrUpdateCut(payload) {
     if (!cutData || !colaborador) {
         throw new Error("Datos del corte y del colaborador son requeridos.");
     }
+    if (!cutData.tipoCorte1) {
+        throw new Error("El campo 'Tipo de Corte' es obligatorio.");
+    }
 
     const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
     let rowIndex;
@@ -177,6 +180,9 @@ function handleAddOrUpdateCut(payload) {
     } else {
         // Create new row
         if (!vehicleData) throw new Error("Los datos del vehículo son requeridos para un nuevo registro.");
+        if (!vehicleData.marca || !vehicleData.modelo || !vehicleData.anoDesde || !vehicleData.tipoEncendido) {
+            throw new Error("Marca, Modelo, Año y Tipo de Encendido son obligatorios para un nuevo vehículo.");
+        }
 
         const lastRow = sheet.getLastRow();
         const previousRowRange = sheet.getRange(lastRow, 1, 1, sheet.getLastColumn());

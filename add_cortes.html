@@ -227,18 +227,18 @@
         async function handleAddOrUpdateCut(e) {
             e.preventDefault();
             const formData = new FormData(e.target);
-            const cutInfo = Object.fromEntries(formData.entries());
+            const cutData = Object.fromEntries(formData.entries());
 
             const payload = {
-                vehicleInfo: state.vehicleInfo,
-                cutInfo: cutInfo,
+                vehicleData: state.selectedVehicleId ? null : state.vehicleInfo,
+                cutData: cutData,
                 colaborador: state.colaborador,
-                existingVehicleId: state.selectedVehicleId
+                vehicleId: state.selectedVehicleId
             };
 
             toggleLoading(true);
             try {
-                const result = await routeAction('addCorte', payload);
+                const result = await routeAction('addOrUpdateCut', payload);
                 if (result.status === 'success') {
                     state.selectedVehicleId = result.vehicleId; // Update with the definitive ID
                     alert('Corte guardado con éxito. Ahora puedes agregar información suplementaria.');
@@ -256,11 +256,11 @@
         async function handlePhase3Submit(e) {
             e.preventDefault();
             const formData = new FormData(e.target);
-            const supplementaryInfo = Object.fromEntries(formData.entries());
+            const infoData = Object.fromEntries(formData.entries());
 
             const payload = {
                 vehicleId: state.selectedVehicleId,
-                supplementaryInfo: supplementaryInfo
+                infoData: infoData
             };
 
             toggleLoading(true);
