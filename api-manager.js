@@ -1,4 +1,4 @@
-// GPSpedia Frontend Component | Version: 3.9.0
+// GPSpedia Frontend Component | Version: 4.2.0
 // ============================================================================
 // API MANAGER for GPSpedia Modular Architecture
 // ============================================================================
@@ -8,12 +8,12 @@ const API_ENDPOINTS = {
     LEGACY: "https://script.google.com/macros/s/AKfycbwpIFH1nX2BZEjAKbpq9HJpEGNlo_0LqD1CwxWsWFo5J0AJDdbfMrKpcsAV4ZFJzFWd/exec",
 
     // URLs para los nuevos microservicios.
-    AUTH:     "https://script.google.com/macros/s/AKfycbxXsd5i2M3FN8O9A-w0MLVftLTe9d1OcYZJhy6KFB3lWHgxm6P3WloFRWOUZSnHZg9e/exec",
-    CATALOG:  "https://script.google.com/macros/s/AKfycby2l0_ZPekAudHSmmUEZ6JpbA0YYOpMcAhdl6PMxidgJhdpwjdSOFJAhxu5l3d_BU0A/exec",
+    AUTH:     "https://script.google.com/macros/s/AKfycbxgUWpVpKaYgR0hpPJPuPS0zao3lCH12tG0iAPufmlu3alkHj1FHckS5G6EzGC26mRQ/exec",
+    CATALOG:  "https://script.google.com/macros/s/AKfycbyLma84mdUG_wMbm4LSwHzSEPy2CtAvMcMqbrSUyb3LICWLQZR4QhsKbIm_HMI9eJ5qlg/exec",
     WRITE:    "https://script.google.com/macros/s/AKfycbyPu7p1erNGcxDCk4xWNPThvYdHeq3A80gdxvEgQpjnQ-LR6fQUAkS7913w7E5I8LOHNw/exec",
     USERS:    "https://script.google.com/macros/s/AKfycbywTo3Asul37tLML29tmtNwVpFbHabXOfC7sw4c5KagURIXzaZoiKrbr2XAIkv-7n-T/exec",
-    FEEDBACK: "https://script.google.com/macros/s/AKfycbx12Hzc3g4AU-EIM26XhkH_52ZCGsFswdwLR7FHMMSz2ZzJJnvkJpPHB2dJ_N999Wg/exec",
-    UTILITIES: "https://script.google.com/macros/s/AKfycbykblCJThbECeIJudGXy82rmGdOpbH1q4DYokLGxcRHVJEGPV7QubmvZ8027y0Y8lgT/exec"
+    FEEDBACK: "https://script.google.com/macros/s/AKfycbyC1UC0OVcFeaXYP7gJEAuPoqHT-q7CeQRX2b6Wb3IUHijsepWaTr8WilUYORcnEdu4/exec",
+    UTILITIES: "https://script.google.com/macros/s/AKfycbz8IJitti8N8hDn_x3dQ9n-UXYiTahz7rGNKClXN19hgIMmbkFAw06gEzTZKx7QcUWt/exec"
 };
 
 // Mapeo de cada 'action' al servicio que le corresponde.
@@ -42,6 +42,12 @@ const ACTION_TO_SERVICE_MAP = {
     'recordLike': 'FEEDBACK',
     'reportProblem': 'FEEDBACK',
     'sendContactForm': 'FEEDBACK',
+    'suggestYear': 'FEEDBACK',
+    'getReportedProblems': 'FEEDBACK',
+    'replyToProblem': 'FEEDBACK',
+    'resolveProblem': 'FEEDBACK',
+    'getUnreadNotifications': 'FEEDBACK',
+    'markNotificationsAsRead': 'FEEDBACK',
 
     // Utilities Service
     'migrateYearRanges': 'UTILITIES',

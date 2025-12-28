@@ -1,4 +1,39 @@
-**v4.1.0 (03/01/2026)**
+**v4.2.2 (04/01/2024)**
+*   **INFRA (api-manager.js):** Actualizada la URL del microservicio `GPSpedia-Auth` a su última versión desplegada para incorporar la corrección de persistencia de sesión.
+    *   Se ha reemplazado la URL en el objeto `API_ENDPOINTS` para `AUTH`. (Línea 10).
+
+**v4.2.1 (04/01/2024)**
+*   **FIX (services/auth/auth.js):** Corregido un error crítico de lógica que causaba el cierre inesperado de sesiones.
+    *   **Causa Raíz:** La función `handleValidateSession` estaba validando los tokens de sesión contra la hoja `Users`, que solo almacena el token más reciente, en lugar de la hoja `ActiveSessions`, que contiene todos los tokens válidos.
+    *   **Solución:** Se ha refactorizado `handleValidateSession` para que ahora consulte la hoja `ActiveSessions`, asegurando que todas las sesiones activas y válidas (dentro de los límites de rol) sean reconocidas correctamente. (Líneas 221-243).
+*   **CHORE (services/auth/auth.js):** Actualizados los límites de sesión por rol para alinearlos con los nuevos requisitos.
+    *   'jefe': 3 -> 5
+    *   'supervisor': 2 -> 3
+    (Líneas 36-37).
+
+**v4.2.0 (04/01/2024)**
+*   **FEAT (services/utilities/utilities.js):** Creado el nuevo microservicio `GPSpedia-Utilities` que faltaba.
+    *   Implementadas las funciones `migrateYearRanges` y `migrateTimestamps` para la migración de datos.
+    *   Añadida una capa de seguridad para que estas funciones solo puedan ser ejecutadas por usuarios con el rol 'Desarrollador'.
+*   **FEAT (services/feedback/feedback.js):** Implementada la lógica de expansión de rango de años.
+    *   La nueva función `suggestYear` permite a los usuarios sugerir un año nuevo para un vehículo.
+    *   Incluye una lógica "anti-colisión" para evitar que los rangos de años de diferentes generaciones de vehículos se solapen.
+*   **FEAT (services/feedback/feedback.js, api-manager.js, index.html):** Implementado el sistema de "Inbox de Reportes".
+    *   **Backend:** Añadidas nuevas funciones (`getReportedProblems`, `replyToProblem`, `resolveProblem`) a `feedback.js`.
+    *   **API:** Actualizado `api-manager.js` para enrutar las nuevas acciones del inbox.
+    *   **Frontend:** Añadido un nuevo modal en `index.html` para el inbox, con su CSS y JavaScript correspondiente. El enlace al inbox solo es visible para roles de 'Supervisor', 'Jefe' y 'Desarrollador'.
+*   **FIX (index.html):** Solucionado el bug crítico en el modal de detalle del vehículo.
+    *   La función `mostrarDetalleModal` ha sido refactorizada para mostrar correctamente los datos de los tres cortes posibles.
+    *   Las imágenes suplementarias (`imgApertura`, `imgCableAlimen`) y el logo de la marca ahora se cargan y muestran correctamente.
+    *   El corte recomendado se muestra de forma destacada, y los cortes alternativos en acordeones desplegables.
+*   **STYLE (index.html):** Aplicadas múltiples mejoras de UI/UX.
+    *   Reorganizadas las secciones de la página principal para que "Últimos Agregados" aparezca primero.
+    *   Rediseñados los logos de las marcas en la lista para que se muestren como iconos sin fondo.
+    *   Ajustado el estilo de los botones de feedback ("Útil" y "Reportar") para que coincidan con el diseño especificado.
+*   **PERF (index.html):** Implementada la carga progresiva (lazy loading) de imágenes en todo el catálogo para mejorar el rendimiento inicial.
+*   **CHORE (Project-wide):** Actualizadas las versiones de los componentes en todos los archivos modificados.
+
+**v4.1.0 (03/01/2024)**
 *   **CHORE & FIX (Project-wide):** Se revirtió una entrega anterior para restaurar múltiples funcionalidades y se aplicaron nuevas características.
     *   **Restauraciones:**
         *   **`users.html`:** Corregido el error `undefined` en la tabla de usuarios al alinear el acceso a propiedades con el esquema del backend (ej. `Nombre_Usuario`). Restaurado el CSS (`table-layout: fixed`) para prevenir el desbordamiento de la tabla.

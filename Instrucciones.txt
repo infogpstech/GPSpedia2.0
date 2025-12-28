@@ -74,25 +74,25 @@ ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
 - [X] **Layout de 3 Columnas:** Se ha verificado que el CSS en `index.html` define un layout de 3 columnas.
 
 ### Bugs y Regresiones Críticas
-- [ ] **Carga de Información en Modal:** No se muestran los datos de los cortes secundarios (`corte2`, `corte3`), ni la información de apertura, cables de alimentación o logos de marca en el modal de detalle.
-- [ ] **Inconsistencias de Versionamiento:** Sincronizar la versión global y las versiones de componentes en todos los archivos.
-- [ ] **Funcionalidad de Comentarios de Feedback:** La UI para mostrar los últimos comentarios y sus respuestas no está implementada.
+- [X] **Carga de Información en Modal:** No se muestran los datos de los cortes secundarios (`corte2`, `corte3`), ni la información de apertura, cables de alimentación o logos de marca en el modal de detalle.
+- [X] **Inconsistencias de Versionamiento:** Sincronizar la versión global y las versiones de componentes en todos los archivos.
+- [X] **Funcionalidad de Comentarios de Feedback:** La UI para mostrar los últimos comentarios y sus respuestas no está implementada.
 
 ### Revisiones de UI/UX
-- [ ] **Rediseño de Botones de Feedback:** Ajustar el CSS de los botones para que coincidan con el diseño especificado (sin fondo por defecto).
-- [ ] **Estilo de Logos de Marca:** Los logos de las marcas se muestran como tarjetas en lugar de iconos sin fondo.
-- [ ] **Reorganización de Secciones Principales:** Alterar el orden a: 1. "Últimos Agregados", 2. "Búsqueda por Marca", 3. "Búsqueda por Categoría".
+- [X] **Rediseño de Botones de Feedback:** Ajustar el CSS de los botones para que coincidan con el diseño especificado (sin fondo por defecto).
+- [X] **Estilo de Logos de Marca:** Los logos de las marcas se muestran como tarjetas en lugar de iconos sin fondo.
+- [X] **Reorganización de Secciones Principales:** Alterar el orden a: 1. "Últimos Agregados", 2. "Búsqueda por Marca", 3. "Búsqueda por Categoría".
 
 ### Nuevas Funcionalidades
-- [ ] **Sistema de Gestión de Feedback (Inbox):** Desarrollar una interfaz para que Supervisores/Jefes gestionen los problemas reportados.
-- [ ] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes.
-- [ ] **Soporte para Rango de Años (Feedback-driven):** Implementar la lógica de `suggestYear`.
-- [ ] **Debugging Integral:** Implementar un sistema de debugging en backend y frontend accesible por rol.
+- [X] **Sistema de Gestión de Feedback (Inbox):** Desarrollar una interfaz para que Supervisores/Jefes gestionen los problemas reportados.
+- [X] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes.
+- [X] **Soporte para Rango de Años (Feedback-driven):** Implementar la lógica de `suggestYear`.
+- [X] **Debugging Integral:** Implementar un sistema de debugging en backend y frontend accesible por rol.
 
 ### Deuda Técnica y Mejoras
-- [ ] **Crear Microservicio Faltante (`services/utilities.js`):** El servicio documentado en el changelog v4.1.0 no existe. Debe ser creado con las funciones `migrateYearRanges` y `migrateTimestamps` para que la funcionalidad del panel de desarrollador sea operativa.
-- [ ] **Script de Migración de Timestamps:** Implementar un script de ejecución única para rellenar el campo `timestamp`.
-- [ ] **Script de Migración de Rango de Años:** Implementar el script de ejecución única para poblar `anoDesde` y `anoHasta`.
+- [X] **Crear Microservicio Faltante (`services/utilities.js`):** El servicio documentado en el changelog v4.1.0 no existe. Debe ser creado con las funciones `migrateYearRanges` y `migrateTimestamps` para que la funcionalidad del panel de desarrollador sea operativa.
+- [X] **Script de Migración de Timestamps:** Implementar un script de ejecución única para rellenar el campo `timestamp`.
+- [X] **Script de Migración de Rango de Años:** Implementar el script de ejecución única para poblar `anoDesde` y `anoHasta`.
 
 ---
 ### **Plan de Implementación Técnica: Tareas Adicionales**

@@ -1,4 +1,4 @@
-<!-- GPSpedia Frontend Component | Version: 4.0.0 -->
+<!-- GPSpedia Frontend Component | Version: 4.2.0 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -24,8 +24,66 @@ body {
 }
 h1 { margin: 10px 0; }
 h2, h3, h4 {
-    margin: 8px 0; /* 20% de reducción de 10px */
-    font-size: 80%; /* Reducción general del tamaño de la fuente */
+    margin: 6px 0;
+    font-weight: 600;
+}
+h2 { font-size: 1.2rem; }
+h3 { font-size: 1.1rem; }
+h4 { font-size: 1.0rem; }
+
+.sticky-header {
+    position: sticky;
+    top: 0;
+    background: #f4f4f4;
+    z-index: 1100;
+    padding: 10px 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.dark-mode .sticky-header {
+    background: #121212;
+}
+
+.search-and-menu-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+.search-and-menu-container .search-container {
+    flex-grow: 1;
+    margin-bottom: 0;
+}
+.side-menu-header {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+.side-menu-logo {
+    height: 32px;
+    width: 32px;
+    border-radius: 5px;
+}
+.side-menu-username {
+    margin: 0;
+    color: #007bff;
+}
+.btn {
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+.btn-padded {
+    padding: 8px 12px;
 }
 .container {
     padding: 20px;
@@ -342,21 +400,20 @@ body.search-active .app-logo {
 .grid {
     display: grid;
     gap: 20px;
-    grid-template-columns: repeat(3, 1fr); /* Layout de 3 columnas */
+    /* Usar auto-fit para un diseño más robusto y responsivo que se ajusta
+       automáticamente al número de columnas según el espacio disponible. */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     justify-content: center;
     max-width: 1200px;
     margin: 0 auto;
 }
 
-@media (max-width: 992px) {
-    .grid {
-        grid-template-columns: repeat(2, 1fr); /* 2 columnas en tablets */
-    }
-}
+/* La media query para 2 columnas ya no es necesaria con auto-fit. */
 
 @media (max-width: 600px) {
     .grid {
-        grid-template-columns: repeat(1, 1fr); /* 1 columna en móviles */
+        /* En pantallas muy pequeñas, podemos ajustar el gap si es necesario.
+           El layout de una columna se manejará automáticamente por minmax. */
         gap: 15px;
     }
 }
@@ -382,8 +439,8 @@ body.search-active .app-logo {
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     width: 100%;
-    max-width: 140px;
-    justify-self: center;
+    max-width: 100%;
+    /* justify-self: center; */ /* Eliminado para permitir que la tarjeta ocupe el espacio */
     /* Animación de entrada */
     opacity: 0; /* Estado inicial para la animación */
     animation: card-enter 0.5s ease-out forwards;
@@ -399,7 +456,7 @@ body.search-active .app-logo {
 }
 
 /* --- ESTILOS PARA TARJETAS DE LOGO (ICONOS) --- */
-.logo-card {
+.grid .logo-card {
     background: transparent;
     border: none;
     box-shadow: none;
@@ -414,7 +471,7 @@ body.search-active .app-logo {
     align-items: center;
     gap: 8px;
 }
-.logo-card:hover {
+.grid .logo-card:hover {
     transform: scale(1.1);
 }
 .logo-card img {
@@ -627,6 +684,10 @@ body.search-active .app-logo {
 .img-vehiculo {
     max-height: 200px !important; /* Límite de altura más pequeño */
 }
+/* Regla específica para la imagen dentro del modal de Relay para evitar que sea demasiado grande. */
+#relayDetalleCompleto img {
+    max-height: 250px;
+}
 #detalleCompleto h4 {
     color: #007bff;
     border-bottom: 2px solid #eee;
@@ -831,26 +892,127 @@ body.search-active .app-logo {
 .feedback-btn {
     background: none;
     border: none;
+    box-shadow: none;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    font-size: 0.8em;
+    font-size: 0.9em;
     color: #555;
     padding: 5px;
     border-radius: 5px;
+    transition: background-color 0.2s, color 0.2s;
 }
-.feedback-btn:hover {
+#detalleCompleto .feedback-btn:hover {
     background-color: #f0f0f0;
 }
-.feedback-btn.util-btn.pressed {
-    background-color: #e0efff;
-    color: #0056b3;
+#detalleCompleto .feedback-btn.util-btn.pressed {
+    background-color: #007bff;
+    color: #fff;
     font-weight: bold;
+}
+.dark-mode #detalleCompleto .feedback-btn {
+    color: #bbb;
+}
+.dark-mode #detalleCompleto .feedback-btn:hover {
+    background-color: #333;
+}
+.dark-mode #detalleCompleto .feedback-btn.util-btn.pressed {
+    background-color: #0056b3;
+    color: #fff;
 }
 .feedback-btn.report-btn {
     color: #dc3545;
 }
+.inbox-item-actions button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    align-self: flex-start; /* Alinea los botones a la izquierda */
+    transition: background-color 0.2s;
+}
+.inbox-item-actions button:hover {
+    background-color: #0056b3;
+}
+.inbox-item-actions .delete-btn {
+    background-color: #dc3545; /* Rojo para eliminar */
+    margin-left: auto; /* Empuja el botón de eliminar a la derecha */
+}
+.inbox-item-actions .delete-btn:hover {
+    background-color: #c82333;
+}
+
+/* --- ESTILOS DEL SISTEMA DE NOTIFICACIONES --- */
+#notification-bell {
+    position: relative;
+    cursor: pointer;
+    font-size: 20px;
+    color: #333;
+}
+.dark-mode #notification-bell {
+    color: #e0e0e0;
+}
+#notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -10px;
+    background: red;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: bold;
+    display: none; /* Oculto por defecto */
+}
+#notification-dropdown {
+    display: none;
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    width: 350px;
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 2600; /* Por encima del menú lateral */
+}
+.dark-mode #notification-dropdown {
+    background: #2c2c2c;
+    border-color: #444;
+}
+.notification-item {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9em;
+}
+.dark-mode .notification-item {
+    border-bottom-color: #444;
+}
+.notification-item:last-child {
+    border-bottom: none;
+}
+#notification-footer {
+    padding: 10px;
+    text-align: center;
+    background: #f7f7f7;
+}
+.dark-mode #notification-footer {
+    background: #333;
+}
+#mark-all-read-btn {
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+
 .report-section textarea {
     width: 100%;
     box-sizing: border-box;
@@ -975,6 +1137,7 @@ body.search-active .app-logo {
         <a href="#" id="menu-tutoriales" class="menu-link"><i class="fa-solid fa-book-open"></i> Tutoriales</a>
         <a href="#" id="menu-relay" class="menu-link"><i class="fa-solid fa-microchip"></i> Configuración Relay</a>
         <a href="users.html" class="menu-link"><i class="fa-solid fa-users-cog"></i> Mi Perfil / Usuarios</a>
+        <a href="#" id="menu-inbox" class="menu-link" style="display: none;"><i class="fa-solid fa-inbox"></i> Inbox de Reportes</a>
         <a href="#" id="dev-tools-btn" class="menu-link"><i class="fa-solid fa-code"></i> Desarrollador</a>
     </nav>
     <div style="margin-top: auto; padding: 20px;">
@@ -1020,7 +1183,17 @@ body.search-active .app-logo {
              <span id="welcome-message" style="display: none; color: #333; font-weight: bold; font-size: 0.8em;"></span>
           </div>
       </div>
-      <div id="header-controls" style="display: flex; align-items: center; gap: 15px;">
+      <div id="header-controls" style="display: flex; align-items: center; gap: 15px; position: relative;">
+          <div id="notification-bell" style="display: none;">
+              <i class="fa-solid fa-bell"></i>
+              <span id="notification-badge"></span>
+          </div>
+          <div id="notification-dropdown">
+              <div id="notification-list"></div>
+              <div id="notification-footer">
+                  <button id="mark-all-read-btn">Marcar todo como leído</button>
+              </div>
+          </div>
           <button id="logout-button" style="display: none; background-color: #dc3545; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: background-color 0.3s;">Cerrar Sesión</button>
       </div>
   </div>
@@ -1079,6 +1252,16 @@ body.search-active .app-logo {
         </div>
     </div>
 </div>
+
+<!-- ========= MODAL DE INBOX DE REPORTES ========= -->
+<div id="inbox-modal" class="info-modal">
+    <div class="info-modal-content" style="max-width: 800px;">
+        <span class="info-close-btn">&times;</span>
+        <h2>Inbox de Reportes</h2>
+        <div id="inbox-content"></div>
+    </div>
+</div>
+
 
 <!-- ========= MODALES DE INFORMACIÓN ========= -->
 <div id="about-us-modal" class="info-modal">
@@ -1276,12 +1459,57 @@ function remoteLog(level, message, data = {}) {
 }
 
 // --- LÓGICA DE INDEXEDDB ---
-// Note: IndexedDB logic is being kept for potential future offline capabilities,
-// but the current implementation will prioritize fetching from the Apps Script backend.
 const DB_NAME = 'gpsepedia-db';
-const DB_VERSION = 1;
-const STORES = ['cortes', 'tutoriales', 'relay'];
-let db;
+const DB_VERSION = 2; // Incremented version to update schema
+const CATALOG_STORE = 'catalog';
+
+function openDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains(CATALOG_STORE)) {
+                db.createObjectStore(CATALOG_STORE, { keyPath: 'id' });
+            }
+        };
+        request.onsuccess = (event) => {
+            resolve(event.target.result);
+        };
+        request.onerror = (event) => {
+            console.error("IndexedDB error:", event.target.errorCode);
+            reject(event.target.errorCode);
+        };
+    });
+}
+
+async function saveDataToDB(data) {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction([CATALOG_STORE], 'readwrite');
+        const store = transaction.objectStore(CATALOG_STORE);
+        // Clear old data
+        store.clear();
+        const request = store.put({ id: 'full-catalog', ...data });
+
+        request.onsuccess = () => resolve();
+        request.onerror = (event) => reject(event.target.error);
+    });
+}
+
+async function getDataFromDB() {
+    const db = await openDB();
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction([CATALOG_STORE], 'readonly');
+        const store = transaction.objectStore(CATALOG_STORE);
+        const request = store.get('full-catalog');
+
+        request.onsuccess = (event) => {
+            resolve(event.target.result);
+        };
+        request.onerror = (event) => reject(event.target.error);
+    });
+}
+
 
 // --- LÓGICA DE DATOS Y API ---
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwpIFH1nX2BZEjAKbpq9HJpEGNlo_0LqD1CwxWsWFo5J0AJDdbfMrKpcsAV4ZFJzFWd/exec";
@@ -1399,27 +1627,66 @@ async function login(username, password) {
     }
 }
 
-async function initializeAppData(user) {
-    return new Promise(async (resolve, reject) => {
-        hideLoginShowApp();
-        document.getElementById('welcome-message').textContent = `Bienvenido, ${user.Nombre_Usuario}`;
-        document.getElementById('welcome-message').style.display = 'block';
+function renderContentFromData(data) {
+    if (!data) {
+        debugLog('RENDER_ERROR', 'renderContentFromData fue llamado sin datos.');
+        document.getElementById('contenido').innerHTML = `<p style="color:red; text-align:center;">Ocurrió un error al procesar los datos.</p>`;
+        return;
+    }
+    datosOriginales = data.cortes || [];
+    datosTutoriales = data.tutoriales || [];
+    datosRelay = data.relay || [];
+    datosLogos = data.logos || [];
+    // Limpiar el contenido antes de renderizar para evitar duplicados
+    document.getElementById('contenido').innerHTML = '';
+    mostrarUltimosAgregados();
+    mostrarCategorias();
+    lazyLoadImages(); // Re-run lazy loader after new content is added
+}
 
-        showSkeletonLoader(document.getElementById('contenido'));
+async function initializeAppData(user) {
+    hideLoginShowApp(user); // Pasar el objeto de usuario
+    document.getElementById('welcome-message').textContent = `Bienvenido, ${user.Nombre_Usuario}`;
+    document.getElementById('welcome-message').style.display = 'block';
+
+    showSkeletonLoader(document.getElementById('contenido'));
+
+    try {
+        // 1. Network-first attempt
+        debugLog('CACHE_STRATEGY', 'Intentando obtener datos de la red...');
+        const result = await postToAction('getCatalogData');
+        const freshData = result.data;
+
+        debugLog('CACHE_STRATEGY', 'Datos obtenidos de la red exitosamente.');
+        renderContentFromData(freshData);
+
+        // 2. Update cache in the background
+        saveDataToDB(freshData)
+            .then(() => debugLog('CACHE_STRATEGY', 'Cache de IndexedDB actualizado.'))
+            .catch(err => debugLog('CACHE_ERROR', 'No se pudo actualizar el cache.', { error: err.message }));
+
+    } catch (networkError) {
+        // 3. Fallback to cache
+        debugLog('CACHE_STRATEGY', 'Fallo en la red, intentando obtener datos del cache...', { error: networkError.message });
+        showGlobalError("Fallo de conexión. Mostrando datos locales.");
 
         try {
-            const result = await postToAction('getCatalogData');
-            datosOriginales = result.data.cortes || [];
-            datosTutoriales = result.data.tutoriales || [];
-            datosRelay = result.data.relay || [];
-            datosLogos = result.data.logos || [];
-            mostrarCategorias();
-            resolve(); // Resolve the promise after content is rendered
-        } catch (error) {
-            document.getElementById('contenido').innerHTML = `<p style="color:red; text-align:center;">No se pudo cargar el catálogo. ${error.message}</p>`;
-            reject(error); // Reject the promise on error
+            const cachedDataContainer = await getDataFromDB();
+            if (cachedDataContainer && cachedDataContainer.cortes) {
+                // The data is nested inside the container object, without the 'id' property.
+                const { id, ...cachedData } = cachedDataContainer;
+                debugLog('CACHE_STRATEGY', 'Datos cargados desde el cache exitosamente.');
+                renderContentFromData(cachedData);
+            } else {
+                throw new Error('No hay datos en el cache.');
+            }
+        } catch (cacheError) {
+            debugLog('CACHE_ERROR', 'Fallo al cargar desde el cache.', { error: cacheError.message });
+            document.getElementById('contenido').innerHTML = `<p style="color:red; text-align:center;">No se pudo cargar el catálogo. Por favor, revisa tu conexión a internet e inténtalo de nuevo.</p>`;
+            // Rethrow the error to be caught by the caller (checkSession)
+            throw cacheError;
         }
-    });
+    }
 }
 
 function logout(reason = null) {
@@ -1476,7 +1743,7 @@ function showLoginHideApp(reason = null) {
     }
 }
 
-function hideLoginShowApp() {
+function hideLoginShowApp(user) { // Aceptar el objeto de usuario
     remoteLog('INFO', 'hideLoginShowApp called');
     // Ocultar splash y login
     const splash = document.getElementById('splash-screen');
@@ -1499,6 +1766,83 @@ function hideLoginShowApp() {
     if (menuUsername && session && session.Nombre_Usuario) {
         menuUsername.textContent = session.Nombre_Usuario;
     }
+
+    // Show inbox for supervisors and jefes
+    const inboxLink = document.getElementById('menu-inbox');
+    if (inboxLink && session && (session.Privilegios === 'Supervisor' || session.Privilegios === 'Jefe' || session.Privilegios === 'Desarrollador')) {
+        inboxLink.style.display = 'flex';
+    }
+
+    // Initialize notifications for all users
+    initializeNotifications(user); // Pasar el objeto de usuario
+}
+
+// --- LÓGICA DEL SISTEMA DE NOTIFICACIONES ---
+
+async function initializeNotifications(user) { // Aceptar el objeto de usuario
+    const bell = document.getElementById('notification-bell');
+    const badge = document.getElementById('notification-badge');
+    const dropdown = document.getElementById('notification-dropdown');
+    const list = document.getElementById('notification-list');
+    const markAllReadBtn = document.getElementById('mark-all-read-btn');
+    let currentNotifications = []; // Variable para almacenar las notificaciones actuales
+
+    // Solo mostrar la campana si el elemento existe (evita errores si el HTML cambia)
+    if (!bell || !user || !user.ID) return; // Asegurarse de que el usuario y su ID existan
+
+    try {
+        const result = await routeAction('getUnreadNotifications', { userId: user.ID }); // Enviar el ID del usuario
+        if (result.status === 'success' && result.data) {
+            const notifications = result.data;
+            currentNotifications = notifications; // Guardar las notificaciones
+            bell.style.display = 'block'; // Mostrar la campana
+
+            if (notifications.length > 0) {
+                badge.textContent = notifications.length;
+                badge.style.display = 'block';
+                list.innerHTML = ''; // Limpiar lista anterior
+                notifications.forEach(n => {
+                    const item = document.createElement('div');
+                    item.className = 'notification-item';
+                    item.textContent = n.message;
+                    list.appendChild(item);
+                });
+            } else {
+                badge.style.display = 'none';
+                list.innerHTML = '<div class="notification-item">No tienes notificaciones nuevas.</div>';
+            }
+        }
+    } catch (error) {
+        console.error("Error fetching notifications:", error);
+        bell.style.display = 'none'; // Ocultar si hay un error
+    }
+
+    bell.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    });
+
+    markAllReadBtn.addEventListener('click', async () => {
+        if (currentNotifications.length === 0) return; // No hacer nada si no hay notificaciones
+
+        try {
+            const notificationIds = currentNotifications.map(n => n.id);
+            await routeAction('markNotificationsAsRead', { notificationIds: notificationIds });
+            badge.style.display = 'none';
+            list.innerHTML = '<div class="notification-item">No tienes notificaciones nuevas.</div>';
+            currentNotifications = []; // Limpiar las notificaciones locales
+            setTimeout(() => { dropdown.style.display = 'none'; }, 500); // Ocultar dropdown después de un momento
+        } catch (error) {
+            alert('Error al marcar las notificaciones como leídas.');
+        }
+    });
+
+    // Cerrar dropdown si se hace clic fuera
+    document.addEventListener('click', (e) => {
+        if (!bell.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.style.display = 'none';
+        }
+    });
 }
 
 
@@ -1587,7 +1931,7 @@ function mostrarContenidoTutoriales() {
         card.onclick = () => mostrarDetalleTutorial(item);
 
         const img = document.createElement("img");
-        img.src = convertirAGoogleThumbnail(item.Imagen);
+        img.dataset.src = convertirAGoogleThumbnail(item.Imagen); // Lazy load
         img.alt = item.Tema;
         card.appendChild(img);
 
@@ -1598,13 +1942,14 @@ function mostrarContenidoTutoriales() {
         grid.appendChild(card);
     });
     cont.appendChild(grid);
+    lazyLoadImages();
 }
 
 function mostrarContenidoRelay() {
     const cont = document.getElementById("contenido-relay");
     cont.innerHTML = "<h4>Configuración del Relay</h4>";
     const grid = document.createElement("div");
-    grid.className = "grid"; // Asegurarse de que el contenedor tiene la clase 'grid'
+    grid.className = "grid";
     if (!datosRelay || datosRelay.length === 0) {
         cont.innerHTML += "<p>No hay configuraciones de relay disponibles.</p>";
         return;
@@ -1616,7 +1961,7 @@ function mostrarContenidoRelay() {
         card.onclick = () => mostrarDetalleRelay(item);
 
         const img = document.createElement("img");
-        img.src = convertirAGoogleThumbnail(item.imagen);
+        img.dataset.src = convertirAGoogleThumbnail(item.imagen); // Lazy load
         img.alt = item.configuracion;
         card.appendChild(img);
 
@@ -1627,6 +1972,7 @@ function mostrarContenidoRelay() {
         grid.appendChild(card);
     });
     cont.appendChild(grid);
+    lazyLoadImages();
 }
 
 function crearElementoDetalle(label, value) {
@@ -1838,9 +2184,17 @@ function convertirAGoogleThumbnail(url, type = 'image') {
 
     let fileId = null;
     const regexPatterns = [
-        /(?:\/file\/d\/|\/d\/)([a-zA-Z0-9_-]{28,})/,             // Formatos: /file/d/ID, /d/ID
-        /[?&]id=([a-zA-Z0-9_-]{28,})/,                         // Formatos: ?id=ID, &id=ID
-        /googleusercontent\.com\/d\/([a-zA-Z0-9_-]{28,})/     // Formato: googleusercontent.com/d/ID
+        // Patrones más específicos primero para mayor precisión
+        // Formatos: /file/d/ID, /d/ID
+        /(?:\/file\/d\/|\/d\/)([a-zA-Z0-9_-]{25,})/,
+        // Formato: open?id=ID
+        /open\?id=([a-zA-Z0-9_-]{25,})/,
+        // Formato: uc?id=ID
+        /uc\?id=([a-zA-Z0-9_-]{25,})/,
+        // Formato: googleusercontent.com/d/ID
+        /googleusercontent\.com\/d\/([a-zA-Z0-9_-]{25,})/,
+        // Fallback para cualquier otro parámetro ?id=ID o &id=ID
+        /[?&]id=([a-zA-Z0-9_-]{25,})/
     ];
 
     for (const pattern of regexPatterns) {
@@ -1852,11 +2206,13 @@ function convertirAGoogleThumbnail(url, type = 'image') {
     }
 
     if (fileId) {
-        let size = 'w1000'; // Tamaño por defecto para 'image'
+        let size = 'w1000'; // Default size
         if (type === 'logo') {
             size = 'w256';
-        } else if (type.startsWith('w')) {
-            size = type; // Permite pasar un tamaño específico como 'w2000'
+        } else if (type && !type.startsWith('w')) { // A specific size is requested, e.g., '200'
+            size = `w${type}`;
+        } else if (type) { // A full size parameter is passed, e.g., 'w2000'
+            size = type;
         }
         return `https://drive.google.com/thumbnail?sz=${size}&id=${fileId}`;
     }
@@ -1915,34 +2271,44 @@ function mostrarDetalleModal(item) {
     uiState.isModalOpen = true;
 
     const cont = document.getElementById("detalleCompleto");
-    cont.innerHTML = "";
+    cont.innerHTML = ""; // Limpiar contenido anterior
 
+    // --- Header del Modal ---
     const headerDiv = document.createElement("div");
-    headerDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; position: relative;";
+    headerDiv.style.cssText = "display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;";
+
     const closeBtn = document.createElement("button");
     closeBtn.textContent = "Cerrar";
     closeBtn.onclick = () => cerrarModal();
     closeBtn.className = "backBtn";
     closeBtn.style.cssText = "color:white; background:#dc3545; border:none; margin:0;";
-    headerDiv.appendChild(closeBtn);
+
     const yearRange = item.anoHasta && item.anoHasta !== item.anoDesde ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
     const titulo = `${item.marca} ${item.modelo} ${yearRange || ''}`;
-    headerDiv.appendChild(crearBotonCompartir('cortes', item.id, titulo));
+    const shareBtn = crearBotonCompartir('cortes', item.id, titulo);
+
+    headerDiv.appendChild(closeBtn);
+    headerDiv.appendChild(shareBtn);
     cont.appendChild(headerDiv);
 
-    const title = document.createElement("h2");
-    title.textContent = `Detalle de ${titulo}`;
-    title.style.cssText = "color:#007bff; border-bottom:3px solid #007bff; padding-bottom:10px; margin-right: 120px;";
-    cont.appendChild(title);
+    // --- Título y Logo ---
+    const titleContainer = document.createElement('div');
+    titleContainer.style.position = 'relative'; // Contenedor relativo para el logo absoluto
+    const titleH2 = document.createElement("h2");
+    titleH2.textContent = `Detalle de ${titulo}`;
+    titleH2.style.cssText = "color:#007bff; border-bottom:3px solid #007bff; padding-bottom:10px; margin-right: 110px;"; // Espacio para el logo
+    titleContainer.appendChild(titleH2);
 
     const logoUrl = getLogoUrlForMarca(item.marca, item.categoria);
     if (logoUrl) {
         const logoImg = document.createElement("img");
         logoImg.src = logoUrl;
-        logoImg.style.cssText = "position: absolute; top: 0; right: 0; height: 50px; width: auto; max-width: 100px; object-fit: contain;";
-        cont.appendChild(logoImg);
+        logoImg.style.cssText = "position: absolute; top: -5px; right: 0; height: 50px; width: auto; max-width: 100px; object-fit: contain;";
+        titleContainer.appendChild(logoImg);
     }
+    cont.appendChild(titleContainer);
 
+    // --- Nota Importante y Imagen del Vehículo ---
     if (item.notaImportante) {
         const p = document.createElement("p");
         p.innerHTML = `<strong style="color:red;">Nota Importante:</strong> <span style="color:#cc0000; font-weight: bold;">${item.notaImportante}</span>`;
@@ -1950,27 +2316,23 @@ function mostrarDetalleModal(item) {
     }
     crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, 'img-vehiculo');
 
-    // Lógica de Ordenamiento y Recopilación de Cortes
+    // --- Lógica de Recopilación y Ordenamiento de Cortes ---
     const cortes = [];
     for (let i = 1; i <= 3; i++) {
         if (item[`tipoCorte${i}`]) {
             cortes.push({
-                index: i,
-                tipo: item[`tipoCorte${i}`],
-                util: parseInt(item[`utilCorte${i}`], 10) || 0,
-                ubicacion: item[`ubicacionCorte${i}`],
-                colorCable: item[`colorCableCorte${i}`],
-                imgCorte: item[`imgCorte${i}`],
-                configRelay: item[`configRelay${i}`],
+                index: i, tipo: item[`tipoCorte${i}`], util: parseInt(item[`utilCorte${i}`], 10) || 0,
+                ubicacion: item[`ubicacionCorte${i}`], colorCable: item[`colorCableCorte${i}`],
+                imgCorte: item[`imgCorte${i}`], configRelay: item[`configRelay${i}`],
                 colaborador: item[`colaboradorCorte${i}`]
             });
         }
     }
     cortes.sort((a, b) => b.util - a.util);
 
-    const cortesSecundarios = [];
+    // --- Renderizar Corte Recomendado (si existe) ---
     if (cortes.length > 0) {
-        const recomendado = cortes.shift(); // El primero es el recomendado
+        const recomendado = cortes.shift(); // El más popular se saca del array
         const panel = document.createElement("div");
         panel.className = "panel-visible";
         const h4 = document.createElement('h4');
@@ -1980,44 +2342,50 @@ function mostrarDetalleModal(item) {
         renderizarContenidoCorte(panel, recomendado, item.id);
         cont.appendChild(panel);
     }
-    cortesSecundarios.push(...cortes);
 
-    // Renderizar Acordeones para información adicional
-    const acordeones = [];
-    cortesSecundarios.forEach(corte => {
-        acordeones.push({
-            titulo: `Corte Alternativo: ${corte.tipo}`,
+    // --- Preparar Acordeones para el resto de la información ---
+    const acordeonItems = [];
+    cortes.forEach(corte => {
+        acordeonItems.push({
+            titulo: `Corte Alternativo: ${corte.tipo} (Útil: ${corte.util})`,
             renderFn: (panel) => renderizarContenidoCorte(panel, corte, item.id)
         });
     });
-
     if (item.apertura || item.imgApertura) {
-        acordeones.push({
+        acordeonItems.push({
             titulo: "Información de Apertura",
             renderFn: (panel) => {
                 if (item.apertura) panel.appendChild(crearElementoDetalle("Detalle", item.apertura));
-                crearImagenDetalle("Imagen", item.imgApertura, panel);
+                crearImagenDetalle("Imagen de Apertura", item.imgApertura, panel);
             }
         });
     }
-
+    if (item.videoGuiaDesarmeUrl) {
+        acordeonItems.push({
+            titulo: "Video Guía de Desarme",
+            renderFn: (panel) => {
+                crearVideoDetalle("Video Guía", item.videoGuiaDesarmeUrl, panel);
+            }
+        });
+    }
     if (item.cableAlimen || item.imgCableAlimen) {
-        acordeones.push({
+        acordeonItems.push({
             titulo: "Información de Alimentación",
             renderFn: (panel) => {
-                if (item.cableAlimen) panel.appendChild(crearElementoDetalle("Detalle", item.cableAlimen));
-                crearImagenDetalle("Imagen", item.imgCableAlimen, panel);
+                if (item.cableAlimen) panel.appendChild(crearElementoDetalle("Cable de Alimentación", item.cableAlimen));
+                crearImagenDetalle("Imagen de Alimentación", item.imgCableAlimen, panel);
             }
         });
     }
 
-    if (acordeones.length > 0) {
+    // --- Renderizar Acordeones ---
+    if (acordeonItems.length > 0) {
         const acordeonContainer = document.createElement('div');
         acordeonContainer.style.marginTop = '20px';
-        acordeones.forEach(ac => {
+        acordeonItems.forEach(ac => {
             const btn = document.createElement("button");
             btn.className = "accordion-btn";
-            btn.innerHTML = `${ac.titulo} <svg class="accordion-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+            btn.innerHTML = `${ac.titulo} <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
             const panel = document.createElement("div");
             panel.className = "panel-desplegable";
             ac.renderFn(panel);
@@ -2027,7 +2395,7 @@ function mostrarDetalleModal(item) {
         cont.appendChild(acordeonContainer);
     }
 
-    crearVideoDetalle("Video Guía de Desarme", item.videoGuiaDesarmeUrl, cont);
+    // --- Mostrar Modal ---
     document.getElementById("modalDetalle").classList.add("visible");
 }
 
@@ -2287,7 +2655,7 @@ function renderNavigationGrid(currentNivel, data, nextNivel, filtros) {
 
             const img = document.createElement("img");
             // Usar la URL del logo proporcionada por el backend.
-            img.src = convertirAGoogleThumbnail(item.urlLogo, 'logo');
+            img.dataset.src = convertirAGoogleThumbnail(item.urlLogo, 'logo');
             // Si no hay logo, se mostrará un espacio vacío, pero el nombre será visible.
             img.alt = `Logo de ${item.nombreMarca}`;
 
@@ -2328,12 +2696,12 @@ function renderNavigationGrid(currentNivel, data, nextNivel, filtros) {
             if (typeof item === 'object' && item.label) { // Nivel de generación
                 overlay.innerHTML = item.label;
                 const vehicle = datosOriginales.find(v => v.id == item.id);
-                img.src = convertirAGoogleThumbnail(vehicle?.imagenVehiculo);
+                img.dataset.src = convertirAGoogleThumbnail(vehicle?.imagenVehiculo);
             } else { // Otros niveles (modelo, version, tipoEncendido)
                 overlay.innerHTML = item;
                 // Encontrar un vehículo de ejemplo para la imagen
                 const ejemplo = datosOriginales.find(d => d[currentFilterKey] === item && filtros.marca === d.marca && filtros.categoria === d.categoria);
-                img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
+                img.dataset.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
             }
 
             card.appendChild(img);
@@ -2361,7 +2729,7 @@ function mostrarUltimosAgregados() {
     ultimosCortes.forEach(item => {
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarDetalleModal(item);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(item.imagenVehiculo); img.alt = `${item.marca} ${item.modelo}`; card.appendChild(img);
+        const img = document.createElement("img"); img.dataset.src = convertirAGoogleThumbnail(item.imagenVehiculo); img.alt = `${item.marca} ${item.modelo}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay";
         const yearRange = item.anoHasta ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
         overlay.innerHTML = `<div>${item.marca}</div><div style="font-size:0.8em; opacity:0.8;">${item.modelo} ${yearRange || ''}</div>`;
@@ -2494,6 +2862,30 @@ async function inicializarApp() {
     // Lógica para el botón de instalación de iOS
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+    // --- LAZY LOADING DE IMÁGENES ---
+    let observer;
+    function lazyLoadImages() {
+        if (observer) {
+            observer.disconnect();
+        }
+
+        observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    img.src = img.dataset.src;
+                    observer.unobserve(img);
+                }
+            });
+        }, { rootMargin: "0px 0px 200px 0px" }); // Carga imágenes 200px antes de que entren en pantalla
+
+        const images = document.querySelectorAll('img[data-src]');
+        images.forEach(img => {
+            observer.observe(img);
+        });
+    }
+
 
     if (!isStandalone && isIOS) {
         // Crear y mostrar un botón/mensaje específico para iOS
@@ -2854,7 +3246,103 @@ function setupInfoModals() {
 document.addEventListener('DOMContentLoaded', () => {
     setupInfoModals();
     setupDevTools();
+    setupInbox();
 });
+
+function setupInbox() {
+    const inboxModal = document.getElementById('inbox-modal');
+    const inboxOpenBtn = document.getElementById('menu-inbox');
+    const inboxCloseBtn = inboxModal.querySelector('.info-close-btn');
+
+    if (inboxOpenBtn) {
+        inboxOpenBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            loadInbox();
+            inboxModal.style.display = 'flex';
+            closeSideMenu();
+        });
+    }
+
+    inboxCloseBtn.addEventListener('click', () => {
+        inboxModal.style.display = 'none';
+    });
+
+    async function loadInbox() {
+        const inboxContent = document.getElementById('inbox-content');
+        inboxContent.innerHTML = '<p>Cargando reportes...</p>';
+        try {
+            const result = await routeAction('getReportedProblems');
+            if (result.status === 'success' && result.data) {
+                renderInbox(result.data);
+            } else {
+                inboxContent.innerHTML = `<p style="color:red;">${result.message || 'Error al cargar reportes.'}</p>`;
+            }
+        } catch (error) {
+            inboxContent.innerHTML = `<p style="color:red;">${error.message}</p>`;
+        }
+    }
+
+    function renderInbox(problems) {
+        const inboxContent = document.getElementById('inbox-content');
+        inboxContent.innerHTML = '';
+        if (problems.length === 0) {
+            inboxContent.innerHTML = '<p>No hay reportes pendientes.</p>';
+            return;
+        }
+
+        problems.forEach(problem => {
+            const problemDiv = document.createElement('div');
+            problemDiv.className = 'inbox-item';
+            problemDiv.innerHTML = `
+                <div class="inbox-item-header">
+                    <span><strong>Usuario:</strong> ${problem.user}</span>
+                    <span><strong>Vehículo ID:</strong> ${problem.vehicleId}</span>
+                </div>
+                <p>${problem.problem}</p>
+                <div class="inbox-item-actions">
+                    <textarea id="reply-${problem.id}" placeholder="Escribe una respuesta..."></textarea>
+                    <button onclick="replyToProblem('${problem.id}')">Responder</button>
+                    <button onclick="resolveProblem('${problem.id}')">Resolver</button>
+                    <button class="delete-btn" onclick="deleteProblem('${problem.id}')">Eliminar</button>
+                </div>
+            `;
+            inboxContent.appendChild(problemDiv);
+        });
+    }
+
+    window.deleteProblem = async function(problemId) {
+        if (!confirm('¿Estás seguro de que quieres eliminar este reporte permanentemente?')) return;
+        try {
+            await routeAction('deleteProblem', { problemId });
+            loadInbox(); // Recargar
+        } catch (error) {
+            alert(`Error al eliminar: ${error.message}`);
+        }
+    }
+
+    window.replyToProblem = async function(problemId) {
+        const replyText = document.getElementById(`reply-${problemId}`).value;
+        const user = JSON.parse(localStorage.getItem(SESSION_KEY));
+        if (!replyText || !user) return;
+
+        try {
+            await routeAction('replyToProblem', { problemId, replyText, responderName: user.Nombre_Usuario });
+            loadInbox(); // Recargar
+        } catch (error) {
+            alert(`Error: ${error.message}`);
+        }
+    }
+
+    window.resolveProblem = async function(problemId) {
+        if (!confirm('¿Marcar este problema como resuelto?')) return;
+        try {
+            await routeAction('resolveProblem', { problemId });
+            loadInbox(); // Recargar
+        } catch (error) {
+            alert(`Error: ${error.message}`);
+        }
+    }
+}
 
 function setupDevTools() {
     const devModal = document.getElementById('dev-modal');
@@ -2922,7 +3410,7 @@ function setupDevTools() {
 </script>
 
 <footer class="footer" style="display: none;">
-  Gpspedia v4.0.0 © 2025 todos los derechos reservados.
+  Gpspedia v4.2.0 © 2024 todos los derechos reservados.
   <div class="footer-links">
       <a id="footer-about-link">Sobre Nosotros</a>
       <a id="footer-contact-link">Contáctanos</a>
