@@ -1,8 +1,18 @@
-**v5.0.6 (DD/MM/YYYY)**
+**v5.0.7 (29/12/2025)**
+*   **REFACTOR (services/feedback/feedback.js):** Corregido un bug crítico de desalineación de esquema en el manejo de feedbacks.
+    *   **Causa Raíz:** El mapa de columnas `COLS_FEEDBACKS` en el servicio no coincidía con el esquema oficial de la base de datos, ya que incluía una columna `ID_Usuario` inexistente. Esto provocaba que se escribieran datos en columnas incorrectas y que fallara la lógica que dependía de este mapa.
+    *   **Solución:** Se ha corregido el objeto `COLS_FEEDBACKS` para que coincida 1 a 1 con el esquema canónico. Adicionalmente, se han refactorizado las funciones `handleReportProblem`, `handleGetReportedProblems` y `handleReplyToProblem` para que funcionen correctamente con la estructura de datos corregida, eliminando la lógica que dependía de la columna fantasma. (Líneas 40-51, 344-361, 422-429, 440-455).
+*   **REFACTOR (services/catalog/catalog.js):** Mejorado el manejo de datos para prevenir el envío de valores vacíos al frontend.
+    *   **Causa Raíz:** El servicio mapeaba las celdas vacías de la hoja de cálculo como `null` en los objetos JSON, lo que obligaba al frontend a tener lógica adicional para manejar estos casos.
+    *   **Solución:** Se ha modificado la función `mapRowToObject` para que omita por completo cualquier par clave-valor si el valor de la celda es nulo o está vacío. Esto resulta en objetos JSON más limpios y eficientes. (Líneas 144-154).
+*   **CHORE (Backend):** Auditoría de esquema completada en todos los microservicios.
+    *   Se ha verificado que los mapas de columnas en `auth.js`, `users.js` y `write.js` son 100% compatibles con el esquema oficial de la base de datos. No se requirieron cambios en estos archivos.
+
+**v5.0.6 (29/12/2025)**
 *   **INFRA (api-manager.js):** Actualizada la URL del microservicio `CATALOG` a su nueva versión desplegada.
     *   Se ha reemplazado la URL en el objeto `API_ENDPOINTS` para `CATALOG` para apuntar al nuevo despliegue que contiene las correcciones de estabilidad. (Línea 11).
 
-**v5.0.5 (DD/MM/YYYY)**
+**v5.0.5 (29/12/2025)**
 *   **FIX (services/catalog/catalog.js):** Corregido un bug crítico que causaba un crash silencioso en el backend si alguna de las hojas de datos (`Cortes`, `LogosMarca`, etc.) no existía.
     *   **Causa Raíz:** El servicio intentaba leer datos de las hojas sin verificar primero su existencia, provocando un error `TypeError: Cannot read properties of null` que detenía la ejecución y enviaba una respuesta de error genérica al frontend.
     *   **Solución:** Se ha añadido una comprobación de existencia para cada hoja. Si una hoja no se encuentra, el servicio ahora registra un error en la consola y devuelve un array vacío para esa sección de datos, en lugar de fallar. Esto asegura que el frontend siempre reciba una respuesta válida y previene el error "Fallo de conexión". (Líneas 194-266).
@@ -10,7 +20,7 @@
     *   **Causa Raíz:** La función `checkSession` trataba cualquier error durante la inicialización de la aplicación (incluyendo el fallo de carga del catálogo) como un error de sesión no válida, cerrando la sesión del usuario de forma incorrecta.
     *   **Solución:** Se ha refactorizado la lógica. Ahora, si la validación de la sesión es exitosa pero la carga de datos del catálogo falla, la aplicación permanecerá autenticada y mostrará un mensaje de error claro al usuario, en lugar de redirigirlo a la pantalla de login. El cierre de sesión solo ocurrirá si la validación de la sesión falla explícitamente. (Líneas 1603-1623).
 
-**v5.0.4 (DD/MM/YYYY)**
+**v5.0.4 (29/12/2025)**
 *   **REWRITE (service-worker.js):** Reescritura completa del Service Worker con una arquitectura de caché multi-estrategia para resolver definitivamente el problema de pérdida de sesión.
     *   **Causa Raíz:** El Service Worker anterior trataba todas las peticiones de red por igual, cacheando indebidamente las respuestas de la API de autenticación. Esto provocaba que se sirvieran datos de sesión obsoletos desde el caché, resultando en la pérdida de sesión al recargar la página.
     *   **Solución:** Se ha implementado un `fetch handler` inteligente que aplica una estrategia de caché diferente según el tipo de recurso:
@@ -19,7 +29,7 @@
         3.  **Assets Estáticos (App Shell):** Para los archivos de la aplicación (HTML, CSS, etc.), se usa "Cache First" para una carga instantánea.
     *   **Se ha incrementado la versión del caché a `v8`** para asegurar que todos los usuarios reciban y activen el nuevo Service Worker de inmediato.
 
-**v5.0.3 (DD/MM/YYYY)**
+**v5.0.3 (29/12/2025)**
 *   **REWRITE (service-worker.js):** Reescritura completa del Service Worker para corregir un fallo crítico de caché que causaba la pérdida de sesión.
     *   **Causa Raíz:** La estrategia de caché "network-first" anterior interceptaba y almacenaba en caché **todas** las respuestas de red, incluidas las llamadas a la API (ej. `validateSession`). Si la red fallaba en un re-load, el Service Worker servía una respuesta de `validateSession` obsoleta desde el caché, lo que provocaba que la aplicación cerrara la sesión del usuario incorrectamente.
     *   **Solución:** Se ha reescrito el `fetch handler` con una nueva lógica:
@@ -27,16 +37,16 @@
         2.  **Mantiene el caché para assets:** Para todas las demás peticiones (HTML, CSS, imágenes), se mantiene la estrategia "network falling back to cache", conservando la capacidad offline de la aplicación.
     *   **Se ha incrementado la versión del caché a `v7`** para forzar a todos los clientes a actualizar y adoptar el nuevo Service Worker inmediatamente.
 
-**v5.0.2 (DD/MM/YYYY)**
+**v5.0.2 (29/12/2025)**
 *   **FIX (index.html):** Corregido un bug crítico de persistencia de sesión que causaba que la sesión se perdiera al recargar la página.
     *   **Causa Raíz:** Se identificó una condición de carrera en la función `hideLoginShowApp`. Esta función ignoraba el objeto de usuario ya validado que recibía como parámetro y, en su lugar, volvía a leer los datos de sesión desde `localStorage`. Esta segunda lectura era innecesaria y propensa a fallos.
     *   **Solución:** Se ha refactorizado la función `hideLoginShowApp` para que utilice exclusivamente el objeto `user` que se le pasa como parámetro. Esto elimina la lectura redundante de `localStorage`, cierra la condición de carrera y asegura que la sesión se mantenga de forma robusta y predecible después de recargar la página. (Líneas 1764-1775).
 
-**v5.0.1 (DD/MM/YYYY)**
+**v5.0.1 (29/12/2025)**
 *   **INFRA (api-manager.js):** Actualizada la URL del microservicio `AUTH` a su nueva versión desplegada.
     *   Se ha reemplazado la URL en el objeto `API_ENDPOINTS` para `AUTH` para apuntar al nuevo despliegue que contiene la lógica de sesión reescrita y estabilizada. (Línea 10).
 
-**v5.0.0 (DD/MM/YYYY)**
+**v5.0.0 (29/12/2025)**
 *   **REWRITE (services/auth/auth.js):** Reescritura completa del servicio de autenticación desde cero para máxima estabilidad.
     *   **Causa Raíz:** La lógica anterior de gestión de múltiples sesiones era compleja y propensa a errores, causando condiciones de carrera y fallos de sesión impredecibles.
     *   **Solución:** Se ha implementado un nuevo modelo de **sesión única**. Al iniciar sesión, el sistema ahora invalida y elimina todas las sesiones antiguas de ese usuario antes de crear una única sesión nueva y válida. Esta estrategia elimina toda la complejidad anterior y asegura que solo exista un estado de sesión válido por usuario en un momento dado.

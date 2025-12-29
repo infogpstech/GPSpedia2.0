@@ -36,17 +36,16 @@ const COLS_CORTES = {
     timestamp: 37, notaImportante: 38
 };
 
-// Mapa de columnas para la hoja "Feedbacks" (v2.0) - ACTUALIZADO
+// Mapa de columnas para la hoja "Feedbacks" (v2.0) - CORREGIDO SEGÚN ESQUEMA CANÓNICO
 const COLS_FEEDBACKS = {
     ID: 1,
-    ID_Usuario: 2, // <-- NUEVO
-    Usuario: 3,
-    ID_vehiculo: 4,
-    Problema: 5,
-    Respuesta: 6,
-    "Se resolvio": 7,
-    Responde: 8,
-    "Reporte de util": 9
+    Usuario: 2,
+    ID_vehiculo: 3,
+    Problema: 4,
+    Respuesta: 5,
+    "Se resolvio": 6,
+    Responde: 7,
+    "Reporte de util": 8
 };
 
 const COLS_CONTACTANOS = {
@@ -345,7 +344,6 @@ function handleReportProblem(payload) {
     const feedbackSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
     const newRow = [];
     newRow[COLS_FEEDBACKS.ID - 1] = new Date().getTime().toString();
-    newRow[COLS_FEEDBACKS.ID_Usuario - 1] = userId; // <-- GUARDAR ID DEL USUARIO
     newRow[COLS_FEEDBACKS.Usuario - 1] = userName;
     newRow[COLS_FEEDBACKS.ID_vehiculo - 1] = vehicleId;
     newRow[COLS_FEEDBACKS.Problema - 1] = problemText;
@@ -424,7 +422,6 @@ function handleGetReportedProblems(payload) {
         .filter(p => !p["Se resolvio"])
         .map(p => ({ // Mapear a un formato más simple para el frontend
              id: p.ID,
-             userId: p.ID_Usuario,
              user: p.Usuario,
              vehicleId: p.ID_vehiculo,
              problem: p.Problema
@@ -449,19 +446,13 @@ function handleReplyToProblem(payload) {
     }
 
     const actualRow = rowIndex + 2;
-    const rowData = sheet.getRange(actualRow, 1, 1, sheet.getLastColumn()).getValues()[0];
-    const userIdToNotify = rowData[COLS_FEEDBACKS.ID_Usuario - 1];
-
     sheet.getRange(actualRow, COLS_FEEDBACKS.Respuesta).setValue(replyText);
     sheet.getRange(actualRow, COLS_FEEDBACKS.Responde).setValue(responderName);
 
-    // Crear notificación para el usuario que reportó el problema
-    if (userIdToNotify) {
-        const notificationMessage = `El administrador ${responderName} ha respondido a tu reporte de problema.`;
-        createNotification(userIdToNotify, notificationMessage);
-    }
+    // La notificación no se puede crear porque ID_Usuario no está en la hoja de Feedbacks.
+    // Esta funcionalidad necesitará ser reimplementada si es necesaria.
 
-    return { status: 'success', message: 'Respuesta enviada y notificación creada.' };
+    return { status: 'success', message: 'Respuesta enviada.' };
 }
 
 

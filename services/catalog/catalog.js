@@ -141,8 +141,11 @@ function mapRowToObject(row, colMap) {
   const obj = {};
   for (const key in colMap) {
     const colIndex = colMap[key] - 1;
-    // Asegurarse de que el valor no es undefined; de lo contrario, asignar null.
-    obj[key] = row[colIndex] !== undefined && row[colIndex] !== '' ? row[colIndex] : null;
+    const value = row[colIndex];
+    // Solo incluir la clave en el objeto si el valor existe (no es undefined, null, o un string vacío)
+    if (value !== undefined && value !== null && value !== '') {
+      obj[key] = value;
+    }
   }
   return obj;
 }
