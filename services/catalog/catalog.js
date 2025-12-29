@@ -148,93 +148,87 @@ function mapRowToObject(row, colMap) {
 }
 
 function handleGetCatalogData() {
-    const allData = {};
+    const allData = {
+        cortes: [],
+        logos: [],
+        tutoriales: [],
+        relay: []
+    };
     const ss = getSpreadsheet();
 
     // Fetch Cortes
     const cortesSheet = ss.getSheetByName(SHEET_NAMES.CORTES);
-    let cortesData = [];
     if (cortesSheet) {
         const data = cortesSheet.getDataRange().getValues();
         data.shift();
-        cortesData = data
-          .filter(row => row && row[0]) // <-- FIX: Ignorar filas vacías (chequea si la fila existe y tiene un ID en la primera columna)
-          .map(row => {
-            const vehicle = mapRowToObject(row, COLS_CORTES);
+        allData.cortes = data
+            .filter(row => row && row[0]) // Ignore empty rows
+            .map(row => {
+                const vehicle = mapRowToObject(row, COLS_CORTES);
+                if (!vehicle) return null;
 
-            // Si por alguna razón el mapeo falla, devolvemos null para filtrarlo después
-            if (!vehicle) return null;
+                const cortes = [
+                    { index: 1, util: parseInt(vehicle.utilCorte1, 10) || 0 },
+                    { index: 2, util: parseInt(vehicle.utilCorte2, 10) || 0 },
+                    { index: 3, util: parseInt(vehicle.utilCorte3, 10) || 0 }
+                ].sort((a, b) => b.util - a.util);
 
-            // Re-implementar la lógica de ordenamiento por utilidad
-            const cortes = [
-                { index: 1, util: parseInt(vehicle.utilCorte1, 10) || 0 },
-                { index: 2, util: parseInt(vehicle.utilCorte2, 10) || 0 },
-                { index: 3, util: parseInt(vehicle.utilCorte3, 10) || 0 }
-            ].sort((a, b) => b.util - a.util); // Orden descendente
-
-            const orderedVehicle = { ...vehicle };
-            const tempCortes = {};
-
-            // Guardar los datos originales de los cortes temporalmente
-            for (let i = 1; i <= 3; i++) {
-                tempCortes[i] = {
-                    tipo: vehicle[`tipoCorte${i}`],
-                    ubicacion: vehicle[`ubicacionCorte${i}`],
-                    color: vehicle[`colorCableCorte${i}`],
-                    config: vehicle[`configRelay${i}`],
-                    img: vehicle[`imgCorte${i}`],
-                    util: vehicle[`utilCorte${i}`],
-                    colaborador: vehicle[`colaboradorCorte${i}`]
-                };
-            }
-
-            // Reasignar los cortes en el nuevo orden
-            cortes.forEach((corte, i) => {
-                const newIndex = i + 1;
-                const oldIndex = corte.index;
-                orderedVehicle[`tipoCorte${newIndex}`] = tempCortes[oldIndex].tipo;
-                orderedVehicle[`ubicacionCorte${newIndex}`] = tempCortes[oldIndex].ubicacion;
-                orderedVehicle[`colorCableCorte${newIndex}`] = tempCortes[oldIndex].color;
-                orderedVehicle[`configRelay${newIndex}`] = tempCortes[oldIndex].config;
-                orderedVehicle[`imgCorte${newIndex}`] = tempCortes[oldIndex].img;
-                orderedVehicle[`utilCorte${newIndex}`] = tempCortes[oldIndex].util;
-                orderedVehicle[`colaboradorCorte${newIndex}`] = tempCortes[oldIndex].colaborador;
-            });
-
-            return orderedVehicle;
-        }).filter(Boolean); // <-- FIX: Eliminar cualquier objeto nulo resultante del mapeo
+                const orderedVehicle = { ...vehicle };
+                const tempCortes = {};
+                for (let i = 1; i <= 3; i++) {
+                    tempCortes[i] = {
+                        tipo: vehicle[`tipoCorte${i}`], ubicacion: vehicle[`ubicacionCorte${i}`],
+                        color: vehicle[`colorCableCorte${i}`], config: vehicle[`configRelay${i}`],
+                        img: vehicle[`imgCorte${i}`], util: vehicle[`utilCorte${i}`],
+                        colaborador: vehicle[`colaboradorCorte${i}`]
+                    };
+                }
+                cortes.forEach((corte, i) => {
+                    const newIndex = i + 1;
+                    const oldIndex = corte.index;
+                    orderedVehicle[`tipoCorte${newIndex}`] = tempCortes[oldIndex].tipo;
+                    orderedVehicle[`ubicacionCorte${newIndex}`] = tempCortes[oldIndex].ubicacion;
+                    orderedVehicle[`colorCableCorte${newIndex}`] = tempCortes[oldIndex].color;
+                    orderedVehicle[`configRelay${newIndex}`] = tempCortes[oldIndex].config;
+                    orderedVehicle[`imgCorte${newIndex}`] = tempCortes[oldIndex].img;
+                    orderedVehicle[`utilCorte${newIndex}`] = tempCortes[oldIndex].util;
+                    orderedVehicle[`colaboradorCorte${newIndex}`] = tempCortes[oldIndex].colaborador;
+                });
+                return orderedVehicle;
+            }).filter(Boolean);
+    } else {
+        console.error(`Sheet "${SHEET_NAMES.CORTES}" not found.`);
     }
-    allData.cortes = cortesData;
 
     // Fetch Logos
-    const logosSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.LOGOS_MARCA);
-    let logosData = [];
+    const logosSheet = ss.getSheetByName(SHEET_NAMES.LOGOS_MARCA);
     if (logosSheet) {
         const data = logosSheet.getDataRange().getValues();
         data.shift();
-        logosData = data.map(row => mapRowToObject(row, COLS_LOGOS_MARCA));
+        allData.logos = data.map(row => mapRowToObject(row, COLS_LOGOS_MARCA));
+    } else {
+        console.error(`Sheet "${SHEET_NAMES.LOGOS_MARCA}" not found.`);
     }
-    allData.logos = logosData;
 
     // Fetch Tutoriales
-    const tutorialesSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.TUTORIALES);
-    let tutorialesData = [];
+    const tutorialesSheet = ss.getSheetByName(SHEET_NAMES.TUTORIALES);
     if (tutorialesSheet) {
         const data = tutorialesSheet.getDataRange().getValues();
         data.shift();
-        tutorialesData = data.map(row => mapRowToObject(row, COLS_TUTORIALES));
+        allData.tutoriales = data.map(row => mapRowToObject(row, COLS_TUTORIALES));
+    } else {
+        console.error(`Sheet "${SHEET_NAMES.TUTORIALES}" not found.`);
     }
-    allData.tutoriales = tutorialesData;
 
     // Fetch Relay
-    const relaySheet = getSpreadsheet().getSheetByName(SHEET_NAMES.RELAY);
-    let relayData = [];
+    const relaySheet = ss.getSheetByName(SHEET_NAMES.RELAY);
     if (relaySheet) {
         const data = relaySheet.getDataRange().getValues();
         data.shift();
-        relayData = data.map(row => mapRowToObject(row, COLS_RELAY));
+        allData.relay = data.map(row => mapRowToObject(row, COLS_RELAY));
+    } else {
+        console.error(`Sheet "${SHEET_NAMES.RELAY}" not found.`);
     }
-    allData.relay = relayData;
 
     return { status: 'success', data: allData };
 }
