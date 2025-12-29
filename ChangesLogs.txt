@@ -1,3 +1,8 @@
+**v4.0.2 (03/01/2026)**
+*   **DOCS (Auditoria.txt & README.md):** Se realizó una auditoría completa del sistema y se sincronizó la documentación para reflejar el estado real del código.
+    1.  **Auditoría (`Auditoria.txt`):** Se sobrescribió el archivo con un nuevo reporte confirmando que el código fuente es funcional y no presenta los bugs críticos listados en la documentación. Se identificó el `README.md` como la fuente de la inconsistencia.
+    2.  **Sincronización (`README.md`):** Se actualizaron los checklists en la sección "Bugs y Regresiones Críticas" para marcar como completados `[X]` los siguientes puntos, que ya estaban resueltos en el código: "Lógica del Modal de Detalle", "Carga de Imágenes en Modal" y "Carga de Logos en Modal". (Líneas 231-233).
+
 **v4.0.1 (02/01/2026)**
 *   **FIX CRÍTICO (api-manager.js & services/catalog/catalog.js):** Solucionado un error de "Fallo de conexión" (Failed to fetch) con el servicio de catálogo. El fix integral incluyó:
     1.  **Backend (`services/catalog/catalog.js`):** Se cambió el `MimeType` de la respuesta de `JSON` a `TEXT` para cumplir con la política de CORS del entorno de Google Apps Script. (Líneas 112, 124).
