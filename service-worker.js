@@ -1,13 +1,13 @@
 // ============================================================================
-// GPSPEDIA SERVICE WORKER V2 (STABLE CACHING)
+// GPSPEDIA SERVICE WORKER V3 (MULTI-STRATEGY CACHING)
 // ============================================================================
-// COMPONENT VERSION: 2.0.0
+// COMPONENT VERSION: 3.0.0
 
-const CACHE_NAME = 'gpsepedia-cache-v7'; // <-- Incremented to force update
-const API_ENDPOINT = 'https://script.google.com/macros/s/';
+const CACHE_NAME = 'gpsepedia-cache-v8'; // <-- Incremented to force update
+const AUTH_ENDPOINT = 'https://script.google.com/macros/s/AKfycbyp96RV2NtENye_bnT-LT-7h4R5rq7rjs8qOTlv4lrOg_2ozeNzpXfcthvUlvVktpQn/exec';
+const API_PREFIX = 'https://script.google.com/macros/s/';
 
-// Pre-cache the main application shell files for offline capabilities.
-const urlsToCache = [
+const STATIC_ASSETS = [
   '/',
   './index.html',
   './add_cortes.html',
@@ -20,22 +20,17 @@ const urlsToCache = [
   './icon-pwa-512x512.png'
 ];
 
-// On install, pre-cache the application shell.
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('[Service Worker] Caching application shell');
-        return cache.addAll(urlsToCache);
+        console.log('[SW] Caching static assets');
+        return cache.addAll(STATIC_ASSETS);
       })
-      .then(() => {
-        console.log('[Service Worker] Install complete, activating immediately.');
-        return self.skipWaiting(); // Force the new service worker to become active.
-      })
+      .then(() => self.skipWaiting())
   );
 });
 
-// On activation, clean up old caches.
 self.addEventListener('activate', event => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
@@ -43,49 +38,67 @@ self.addEventListener('activate', event => {
       return Promise.all(
         cacheNames.map(cacheName => {
           if (cacheWhitelist.indexOf(cacheName) === -1) {
-            console.log('[Service Worker] Deleting old cache:', cacheName);
+            console.log('[SW] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
-    }).then(() => {
-      console.log('[Service Worker] Activated and claimed clients.');
-      return self.clients.claim(); // Take control of all open pages.
-    })
+    }).then(() => self.clients.claim())
   );
 });
 
-// On fetch, apply the correct caching strategy.
 self.addEventListener('fetch', event => {
-  const requestUrl = event.request.url;
+  const { request } = event;
+  const url = new URL(request.url);
 
-  // *** CRITICAL FIX ***
-  // If the request is for our API, ALWAYS fetch from the network.
-  // NEVER cache API responses. This is essential for authentication to work.
-  if (requestUrl.startsWith(API_ENDPOINT)) {
-    event.respondWith(fetch(event.request));
-    return; // Do not proceed further.
+  // --- STRATEGY 1: AUTHENTICATION REQUESTS ---
+  // Always go to the network. Never cache. This is critical for session handling.
+  if (request.url === AUTH_ENDPOINT) {
+    console.log('[SW] Handling auth request: Network only.');
+    event.respondWith(fetch(request));
+    return;
   }
 
-  // For all other requests (static assets), use a "network falling back to cache" strategy.
-  // This ensures the app is fast and works offline, but always tries for the freshest assets first.
-  event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        // If we get a valid response from the network, update the cache for future offline use.
-        if (response && response.status === 200 && event.request.method === 'GET') {
+  // --- STRATEGY 2: OTHER API REQUESTS (DATA) ---
+  // Network falling back to Cache. Get fresh data if online, show stale if offline.
+  if (request.url.startsWith(API_PREFIX)) {
+    console.log('[SW] Handling data API request: Network falling back to Cache.');
+    event.respondWith(
+      fetch(request)
+        .then(response => {
+          // If the network request is successful, clone it, cache it, and return it.
           const responseToCache = response.clone();
-          caches.open(CACHE_NAME)
-            .then(cache => {
-              cache.put(event.request, responseToCache);
-            });
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(request, responseToCache);
+          });
+          return response;
+        })
+        .catch(() => {
+          // If the network fails, try to get the response from the cache.
+          console.log(`[SW] Network failed for ${request.url}, serving from cache.`);
+          return caches.match(request);
+        })
+    );
+    return;
+  }
+
+  // --- STRATEGY 3: STATIC ASSETS & NAVIGATION ---
+  // Cache First, falling back to Network. Makes the app shell load instantly.
+  console.log(`[SW] Handling static asset request: Cache first.`);
+  event.respondWith(
+    caches.match(request)
+      .then(cachedResponse => {
+        if (cachedResponse) {
+          return cachedResponse;
         }
-        return response;
-      })
-      .catch(() => {
-        // If the network request fails (e.g., offline), serve the matched asset from the cache.
-        console.log(`[Service Worker] Network failed for ${requestUrl}, serving from cache.`);
-        return caches.match(event.request);
+        // If not in cache, fetch from network and cache it for next time.
+        return fetch(request).then(response => {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(request, responseToCache);
+          });
+          return response;
+        });
       })
   );
 });

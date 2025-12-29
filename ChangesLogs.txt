@@ -1,3 +1,12 @@
+**v5.0.4 (DD/MM/YYYY)**
+*   **REWRITE (service-worker.js):** Reescritura completa del Service Worker con una arquitectura de caché multi-estrategia para resolver definitivamente el problema de pérdida de sesión.
+    *   **Causa Raíz:** El Service Worker anterior trataba todas las peticiones de red por igual, cacheando indebidamente las respuestas de la API de autenticación. Esto provocaba que se sirvieran datos de sesión obsoletos desde el caché, resultando en la pérdida de sesión al recargar la página.
+    *   **Solución:** Se ha implementado un `fetch handler` inteligente que aplica una estrategia de caché diferente según el tipo de recurso:
+        1.  **Peticiones de Autenticación:** Si la petición es al microservicio `AUTH`, se ignora el caché y la petición va **siempre a la red**. Esto garantiza que la validación de la sesión sea siempre en tiempo real.
+        2.  **Otras Peticiones API (Datos):** Para los demás microservicios, se usa una estrategia "Network falling back to Cache". La app intenta obtener datos frescos, pero si no hay red, muestra los últimos datos guardados.
+        3.  **Assets Estáticos (App Shell):** Para los archivos de la aplicación (HTML, CSS, etc.), se usa "Cache First" para una carga instantánea.
+    *   **Se ha incrementado la versión del caché a `v8`** para asegurar que todos los usuarios reciban y activen el nuevo Service Worker de inmediato.
+
 **v5.0.3 (DD/MM/YYYY)**
 *   **REWRITE (service-worker.js):** Reescritura completa del Service Worker para corregir un fallo crítico de caché que causaba la pérdida de sesión.
     *   **Causa Raíz:** La estrategia de caché "network-first" anterior interceptaba y almacenaba en caché **todas** las respuestas de red, incluidas las llamadas a la API (ej. `validateSession`). Si la red fallaba en un re-load, el Service Worker servía una respuesta de `validateSession` obsoleta desde el caché, lo que provocaba que la aplicación cerrara la sesión del usuario incorrectamente.
@@ -49,7 +58,7 @@
 **v4.2.5 (05/01/2024)**
 *   **FIX (services/auth/auth.js):** Corregido un bug crítico que causaba la pérdida de sesión al recargar la página.
     *   **Causa Raíz:** La función `handleValidateSession` lanzaba un error no controlado si la hoja "ActiveSessions" no existía, provocando que el backend fallara en lugar de devolver una respuesta JSON válida (`{valid: false}`). El frontend no manejaba este error inesperado y reiniciaba el estado de la sesión.
-    *   **Solución:** Se ha modificado la función para que, en caso de no encontrar la hoja, se registre el error internamente y se devuelva `{valid: false}`. Esto asegura que el frontend siempre reciba una respuesta con la que puede trabajar, preveniendo el reinicio de la sesión. (Líneas 224-227).
+    *   **Solución:** Se ha modificado la función para que, en caso de no encontrar la hoja, se registre el error internamente y se devuelva `{valid: false}`. Esto asegura que el frontend siempre reciba una respuesta con la que puede trabajar, previniendo el reinicio de la sesión. (Líneas 224-227).
 *   **FIX (services/catalog/catalog.js):** Corregido un bug crítico que mostraba el error "No se pudo cargar el catálogo" si la hoja de datos "Cortes" no estaba presente.
     *   **Causa Raíz:** Al igual que en el servicio de autenticación, la función `handleGetNavigationData` intentaba leer la hoja "Cortes" sin verificar primero su existencia, causando un crash en el backend.
     *   **Solución:** Se ha añadido una comprobación al inicio de la función. Si la hoja "Cortes" no se encuentra, la función ahora devuelve una respuesta válida con un array de datos vacío (`{data: []}`), evitando el error en el frontend. (Líneas 319-323).
