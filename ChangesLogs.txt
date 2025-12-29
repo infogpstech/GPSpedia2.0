@@ -1,3 +1,8 @@
+**v5.0.2 (DD/MM/YYYY)**
+*   **FIX (index.html):** Corregido un bug crítico de persistencia de sesión que causaba que la sesión se perdiera al recargar la página.
+    *   **Causa Raíz:** Se identificó una condición de carrera en la función `hideLoginShowApp`. Esta función ignoraba el objeto de usuario ya validado que recibía como parámetro y, en su lugar, volvía a leer los datos de sesión desde `localStorage`. Esta segunda lectura era innecesaria y propensa a fallos.
+    *   **Solución:** Se ha refactorizado la función `hideLoginShowApp` para que utilice exclusivamente el objeto `user` que se le pasa como parámetro. Esto elimina la lectura redundante de `localStorage`, cierra la condición de carrera y asegura que la sesión se mantenga de forma robusta y predecible después de recargar la página. (Líneas 1764-1775).
+
 **v5.0.1 (DD/MM/YYYY)**
 *   **INFRA (api-manager.js):** Actualizada la URL del microservicio `AUTH` a su nueva versión desplegada.
     *   Se ha reemplazado la URL en el objeto `API_ENDPOINTS` para `AUTH` para apuntar al nuevo despliegue que contiene la lógica de sesión reescrita y estabilizada. (Línea 10).

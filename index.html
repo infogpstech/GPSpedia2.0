@@ -1762,14 +1762,13 @@ function hideLoginShowApp(user) { // Aceptar el objeto de usuario
 
     // Cargar nombre de usuario en el menú lateral
     const menuUsername = document.getElementById('menu-username');
-    const session = JSON.parse(localStorage.getItem(SESSION_KEY));
-    if (menuUsername && session && session.Nombre_Usuario) {
-        menuUsername.textContent = session.Nombre_Usuario;
+    if (menuUsername && user && user.Nombre_Usuario) {
+        menuUsername.textContent = user.Nombre_Usuario;
     }
 
     // Show inbox for supervisors and jefes
     const inboxLink = document.getElementById('menu-inbox');
-    if (inboxLink && session && (session.Privilegios === 'Supervisor' || session.Privilegios === 'Jefe' || session.Privilegios === 'Desarrollador')) {
+    if (inboxLink && user && (user.Privilegios === 'Supervisor' || user.Privilegios === 'Jefe' || user.Privilegios === 'Desarrollador')) {
         inboxLink.style.display = 'flex';
     }
 
