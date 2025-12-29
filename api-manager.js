@@ -9,8 +9,8 @@ const API_ENDPOINTS = {
 
     // URLs para los nuevos microservicios.
     AUTH:     "https://script.google.com/macros/s/AKfycbxgUWpVpKaYgR0hpPJPuPS0zao3lCH12tG0iAPufmlu3alkHj1FHckS5G6EzGC26mRQ/exec",
-    CATALOG:  "https://script.google.com/macros/s/AKfycbyLma84mdUG_wMbm4LSwHzSEPy2CtAvMcMqbrSUyb3LICWLQZR4QhsKbIm_HMI9eJ5qlg/exec",
-    WRITE:    "https://script.google.com/macros/s/AKfycbyPu7p1erNGcxDCk4xWNPThvYdHeq3A80gdxvEgQpjnQ-LR6fQUAkS7913w7E5I8LOHNw/exec",
+    CATALOG:  "https://script.google.com/macros/s/AKfycbxkthe-kAh7o2X0xgbb_0dqXAHUkM4zknp1mSoS7uo0dkGXomROhwFPAOO13gx-6CfbZQ/exec",
+    WRITE:    "https://script.google.com/macros/s/AKfycbyia_FYojN2sSxNpVG46vF2eFP-fFkr-EHO18cS3ydXJvH69qucv5s_OJFkfvlopplvgQ/exec",
     USERS:    "https://script.google.com/macros/s/AKfycbywTo3Asul37tLML29tmtNwVpFbHabXOfC7sw4c5KagURIXzaZoiKrbr2XAIkv-7n-T/exec",
     FEEDBACK: "https://script.google.com/macros/s/AKfycbyC1UC0OVcFeaXYP7gJEAuPoqHT-q7CeQRX2b6Wb3IUHijsepWaTr8WilUYORcnEdu4/exec",
     UTILITIES: "https://script.google.com/macros/s/AKfycbz8IJitti8N8hDn_x3dQ9n-UXYiTahz7rGNKClXN19hgIMmbkFAw06gEzTZKx7QcUWt/exec"

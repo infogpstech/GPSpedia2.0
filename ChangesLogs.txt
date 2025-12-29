@@ -1,3 +1,7 @@
+**v4.2.4 (05/01/2024)**
+*   **INFRA (api-manager.js):** Actualizadas las URLs de los microservicios `CATALOG` y `WRITE` a sus últimas versiones desplegadas para reflejar las correcciones de bugs y nuevas funcionalidades.
+    *   Se han reemplazado las URLs en el objeto `API_ENDPOINTS` para `CATALOG` y `WRITE`. (Líneas 11-12).
+
 **v4.2.3 (05/01/2024)**
 *   **FIX (services/catalog/catalog.js):** Corregido un bug crítico que impedía la carga de opciones en los formularios.
     *   **Causa Raíz:** La función `handleGetDropdownData` devolvía un objeto JSON con una estructura (`{data: ...}`) y claves (`categorias`) que no coincidían con las que esperaba el frontend (`{dropdowns: ...}` y `categoria`).
