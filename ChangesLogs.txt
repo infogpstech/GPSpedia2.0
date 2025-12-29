@@ -1,3 +1,7 @@
+**v5.0.8 (DD/MM/YYYY)**
+*   **INFRA (api-manager.js):** Actualizadas las URLs de los microservicios `CATALOG` y `FEEDBACK` a sus nuevas versiones desplegadas.
+    *   Se han reemplazado las URLs en el objeto `API_ENDPOINTS` para apuntar a los nuevos despliegues que contienen las correcciones de esquema y datos. (Líneas 12, 15).
+
 **v5.0.7 (29/12/2025)**
 *   **REFACTOR (services/feedback/feedback.js):** Corregido un bug crítico de desalineación de esquema en el manejo de feedbacks.
     *   **Causa Raíz:** El mapa de columnas `COLS_FEEDBACKS` en el servicio no coincidía con el esquema oficial de la base de datos, ya que incluía una columna `ID_Usuario` inexistente. Esto provocaba que se escribieran datos en columnas incorrectas y que fallara la lógica que dependía de este mapa.
