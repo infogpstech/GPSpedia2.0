@@ -160,12 +160,27 @@ function getLogoForMarca(marca, categoria) {
 
 function handleAddOrUpdateCut(payload) {
     const { vehicleData, cutData, vehicleId, colaborador } = payload;
+
+    // --- VALIDACIÓN DE ENTRADA ---
     if (!cutData || !colaborador) {
-        throw new Error("Datos del corte y del colaborador son requeridos.");
+        throw new Error("Los datos del corte y del colaborador son requeridos.");
     }
     if (!cutData.tipoCorte1) {
         throw new Error("El campo 'Tipo de Corte' es obligatorio.");
     }
+    // Si es un vehículo nuevo (no se proporciona vehicleId), validar los campos del vehículo.
+    if (!vehicleId) {
+        if (!vehicleData) {
+            throw new Error("Los datos del vehículo son requeridos para un nuevo registro.");
+        }
+        const requiredFields = ['marca', 'modelo', 'anoDesde', 'tipoEncendido'];
+        for (const field of requiredFields) {
+            if (!vehicleData[field] || vehicleData[field].trim() === '') {
+                throw new Error(`El campo '${field}' del vehículo es obligatorio.`);
+            }
+        }
+    }
+    // --- FIN DE LA VALIDACIÓN ---
 
     const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
     let rowIndex;

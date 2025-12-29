@@ -1,3 +1,15 @@
+**v4.2.3 (DD/MM/YYYY)**
+*   **FIX (services/catalog/catalog.js):** Corregido un bug crítico que impedía la carga de opciones en los formularios.
+    *   **Causa Raíz:** La función `handleGetDropdownData` devolvía una respuesta con `Content-Type: application/json`, lo cual causaba errores de CORS en el frontend.
+    *   **Solución:** Se ha modificado el servicio para que todas las respuestas se envíen con `Content-Type: text/plain`, alineándose con los requerimientos del `api-manager.js` y permitiendo que el frontend procese la respuesta correctamente. (Líneas 78-92, 109-125).
+*   **FIX (add_cortes.html):** Reparado el flujo completo de envío de datos, que estaba totalmente inoperativo.
+    *   **Causa Raíz:** El JavaScript del formulario no implementaba correctamente el flujo de 3 etapas (`checkVehicle`, `addOrUpdateCut`, `addSupplementaryInfo`) que el backend (`write.js`) requiere.
+    *   **Solución:** Se ha refactorizado completamente el script dentro de `add_cortes.html`. La nueva lógica maneja correctamente el estado entre las etapas, llama a las acciones correctas en la secuencia adecuada y gestiona los payloads que el backend espera, haciendo que el formulario sea completamente funcional. (Líneas 114-315).
+*   **FEAT (services/write/write.js):** Añadida validación de datos en el lado del servidor para mayor robustez.
+    *   La función `handleAddOrUpdateCut` ahora comprueba que los campos obligatorios para un vehículo nuevo (`marca`, `modelo`, `anoDesde`, `tipoEncendido`) y para un corte nuevo (`tipoCorte1`) no estén vacíos antes de procesar la solicitud. Esto previene la escritura de datos incompletos. (Líneas 163-178).
+*   **REFACTOR (services/catalog/catalog.js):** Eliminado código redundante para mejorar la mantenibilidad y la claridad de la arquitectura.
+    *   Se ha eliminado la función `handleCheckVehicle` que estaba duplicada, ya que esta funcionalidad es manejada exclusivamente por el servicio `WRITE`.
+
 **v4.2.6 (05/01/2024)**
 *   **INFRA (api-manager.js):** Actualizadas las URLs de los microservicios `AUTH`, `CATALOG` y `FEEDBACK` a sus últimas versiones desplegadas.
     *   Se han reemplazado las URLs en el objeto `API_ENDPOINTS` para `AUTH`, `CATALOG` y `FEEDBACK` para apuntar a los nuevos despliegues que contienen las correcciones de estabilidad críticas. (Líneas 10, 11, 14).

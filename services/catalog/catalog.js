@@ -78,14 +78,14 @@ function doGet(e) {
             sheetsAccessed: [SHEET_NAMES.CORTES, SHEET_NAMES.TUTORIALES, SHEET_NAMES.RELAY]
         };
         return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
-            .setMimeType(ContentService.MimeType.JSON);
+            .setMimeType(ContentService.MimeType.TEXT);
     }
     const defaultResponse = {
         status: 'success',
         message: 'GPSpedia Catalog-SERVICE v1.2.1 is active.'
     };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
-        .setMimeType(ContentService.MimeType.JSON);
+        .setMimeType(ContentService.MimeType.TEXT);
 }
 function doPost(e) {
   try {
@@ -109,7 +109,7 @@ function doPost(e) {
     }
 
     return ContentService.createTextOutput(JSON.stringify(result))
-      .setMimeType(ContentService.MimeType.JSON);
+      .setMimeType(ContentService.MimeType.TEXT);
 
   } catch (error) {
     const errorResponse = {
@@ -121,7 +121,7 @@ function doPost(e) {
       }
     };
     return ContentService.createTextOutput(JSON.stringify(errorResponse))
-      .setMimeType(ContentService.MimeType.JSON);
+      .setMimeType(ContentService.MimeType.TEXT);
   }
 }
 
@@ -243,12 +243,25 @@ function handleGetDropdownData() {
     try {
         const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
         if (!sheet) {
-            throw new Error(`Sheet "${SHEET_NAMES.CORTES}" not found.`);
+            // Devuelve una estructura válida pero vacía si la hoja no existe.
+            return {
+                status: 'success',
+                dropdowns: {
+                    categoria: [],
+                    marca: [],
+                    tipoDeCorte: [],
+                    tipoDeEncendido: [],
+                    configRelay: []
+                }
+            };
         }
 
         // Obtener la regla de validación de la columna "Categoría"
         const categoriaRule = sheet.getRange(2, COLS_CORTES.categoria).getDataValidation();
-        const categorias = categoriaRule ? categoriaRule.getCriteriaValues()[0].getValues().flat().filter(String).sort() : [];
+        // Si no hay regla de validación, getCriteriaValues() puede devolver null.
+        const categorias = (categoriaRule && categoriaRule.getCriteriaValues()[0]) ?
+        categoriaRule.getCriteriaValues()[0].getValues().flat().filter(String).sort() : [];
+
 
         const data = sheet.getDataRange().getValues();
         data.shift(); // Remove headers
@@ -265,9 +278,9 @@ function handleGetDropdownData() {
         };
 
         const marcas = getUniqueSortedValues(COLS_CORTES.marca - 1);
-        const tiposCorte = getUniqueSortedValues(COLS_CORTES.tipoCorte1 -1);
+        const tiposCorte = getUniqueSortedValues(COLS_CORTES.tipoCorte1 - 1);
         const tiposEncendido = getUniqueSortedValues(COLS_CORTES.tipoEncendido - 1);
-        const configRelay = getUniqueSortedValues(COLS_CORTES.configRelay1 -1);
+        const configRelay = getUniqueSortedValues(COLS_CORTES.configRelay1 - 1);
 
 
         const dropdownData = {
@@ -281,6 +294,8 @@ function handleGetDropdownData() {
         return { status: 'success', dropdowns: dropdownData };
 
     } catch (error) {
+        // Log a more detailed error on the server-side for debugging
+        console.error("Error in handleGetDropdownData: " + error.toString());
         return {
             status: 'error',
             message: 'Failed to get dropdown data.',
