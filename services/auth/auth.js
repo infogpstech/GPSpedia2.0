@@ -222,7 +222,8 @@ function handleValidateSession(payload) {
         const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
         const activeSessionsSheet = ss.getSheetByName(SHEET_NAMES.ACTIVE_SESSIONS);
         if (!activeSessionsSheet) {
-            throw new Error(`Sheet "${SHEET_NAMES.ACTIVE_SESSIONS}" not found for session validation.`);
+            logToSheet('ERROR', `Sheet "${SHEET_NAMES.ACTIVE_SESSIONS}" not found for session validation.`);
+            return { valid: false };
         }
         const data = activeSessionsSheet.getDataRange().getValues();
         data.shift(); // Remove headers

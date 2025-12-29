@@ -515,6 +515,10 @@ function handleGetUnreadNotifications(payload) {
     if (!userId) throw new Error("Se requiere el ID de usuario para obtener notificaciones.");
 
     const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.NOTIFICACIONES);
+    if (!sheet) {
+        // Si la hoja de Notificaciones no existe, no hay notificaciones que mostrar.
+        return { status: 'success', data: [] };
+    }
     const data = sheet.getDataRange().getValues();
     data.shift();
 

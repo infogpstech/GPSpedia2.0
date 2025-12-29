@@ -316,6 +316,10 @@ function handleGetNavigationData(payload) {
     if (!nivel) throw new Error("El parámetro 'nivel' es requerido.");
 
     const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
+    if (!sheet) {
+        // Si la hoja de Cortes no existe, no se puede navegar. Devolver una respuesta vacía y válida.
+        return { status: 'success', data: [], nextNivel: 'final' };
+    }
     const allData = sheet.getDataRange().getValues();
     allData.shift(); // Quitar encabezados
 
