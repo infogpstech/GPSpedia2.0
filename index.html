@@ -1744,6 +1744,22 @@ function mostrarDetalleModal(item) {
 
         crearImagenDetalle("Imagen del Corte", imgCorte, panel);
 
+        const configRelay = item[`configRelay${corteIndex}`];
+        const relayMatch = datosRelay.find(r => r.configuracion === configRelay);
+
+        if (configRelay && relayMatch && relayMatch.imagen) {
+            const relayLink = document.createElement("a");
+            relayLink.href = "#";
+            relayLink.textContent = "Ver Configuración de Relay";
+            relayLink.style.display = "block";
+            relayLink.style.marginTop = "10px";
+            relayLink.onclick = (e) => {
+                e.preventDefault();
+                mostrarDetalleRelayAnidado(configRelay);
+            };
+            panel.appendChild(relayLink);
+        }
+
         const footerModal = document.createElement("div");
         footerModal.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;";
 
@@ -1827,7 +1843,72 @@ function mostrarDetalleModal(item) {
 
     crearVideoDetalle("Video Guía de Desarme", item.videoGuiaDesarmeUrl, cont);
 
+    // --- Secciones de Información Suplementaria ---
+    if (item.apertura || item.imgApertura) {
+        const btn = document.createElement("button");
+        btn.className = "accordion-btn";
+        btn.innerHTML = `Detalles de Apertura <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+        cont.appendChild(btn);
+        const panel = document.createElement("div");
+        panel.className = "panel-desplegable";
+        const p = crearElementoDetalle("Procedimiento", item.apertura);
+        if (p) panel.appendChild(p);
+        crearImagenDetalle("Imagen de Apertura", item.imgApertura, panel);
+        cont.appendChild(panel);
+    }
+
+    if (item.cableAlimen || item.imgCableAlimen) {
+        const btn = document.createElement("button");
+        btn.className = "accordion-btn";
+        btn.innerHTML = `Cable de Alimentación <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+        cont.appendChild(btn);
+        const panel = document.createElement("div");
+        panel.className = "panel-desplegable";
+        const p = crearElementoDetalle("Ubicación y color", item.cableAlimen);
+        if (p) panel.appendChild(p);
+        crearImagenDetalle("Imagen de Alimentación", item.imgCableAlimen, panel);
+        cont.appendChild(panel);
+    }
+
+
     document.getElementById("modalDetalle").classList.add("visible");
+}
+
+function mostrarDetalleRelayAnidado(configRelay) {
+    const relayData = datosRelay.find(r => r.configuracion === configRelay);
+    if (!relayData) {
+        alert("No se encontraron detalles para esta configuración de relay.");
+        return;
+    }
+
+    // Crear un nuevo modal en lugar de reusar el existente
+    const nestedModal = document.createElement('div');
+    nestedModal.className = 'info-modal';
+    nestedModal.style.display = 'flex';
+    nestedModal.style.zIndex = '2200'; // Asegurar que esté por encima del modal de detalles
+
+    const modalContent = document.createElement('div');
+    modalContent.className = 'info-modal-content';
+
+    const closeBtn = document.createElement('span');
+    closeBtn.className = 'info-close-btn';
+    closeBtn.innerHTML = '&times;';
+    closeBtn.onclick = () => document.body.removeChild(nestedModal);
+
+    modalContent.appendChild(closeBtn);
+
+    const title = document.createElement("h3");
+    title.textContent = `Configuración de Relay: ${relayData.configuracion}`;
+    modalContent.appendChild(title);
+
+    crearImagenDetalle("Diagrama", relayData.imagen, modalContent);
+    const relayImg = modalContent.querySelector('img');
+    if (relayImg) {
+        relayImg.style.maxHeight = '250px';
+    }
+
+    nestedModal.appendChild(modalContent);
+    document.body.appendChild(nestedModal);
 }
 
 function filtrarContenido(textoBusqueda) {
