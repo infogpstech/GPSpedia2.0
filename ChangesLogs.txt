@@ -1,3 +1,11 @@
+**v4.0.1 (02/01/2026)**
+*   **FIX CRÍTICO (api-manager.js & services/catalog/catalog.js):** Solucionado un error de "Fallo de conexión" (Failed to fetch) con el servicio de catálogo. El fix integral incluyó:
+    1.  **Backend (`services/catalog/catalog.js`):** Se cambió el `MimeType` de la respuesta de `JSON` a `TEXT` para cumplir con la política de CORS del entorno de Google Apps Script. (Líneas 112, 124).
+    2.  **Frontend (`api-manager.js`):** Se actualizó la lógica de `routeAction` para procesar la respuesta como texto (`.text()`) y luego parsearla (`JSON.parse()`), en lugar de usar directamente `.json()`. (Líneas 83-84).
+*   **INFRA (api-manager.js):** Se ha actualizado la URL del microservicio `GPSpedia-Catalog` a la nueva versión desplegada proporcionada por el usuario. (Línea 12).
+*   **FIX (index.html):** Se corrigió la lógica del modal de detalles (`mostrarDetalleModal`). Ahora, el corte recomendado se muestra de forma visible por defecto, mientras que los cortes adicionales se presentan en secciones desplegables (acordeón), cumpliendo con los requisitos de la auditoría. (Líneas 1709-1811).
+*   **FIX (index.html):** Solucionado un bug que impedía la visualización de imágenes suplementarias en el modal de detalles. Se añadió la lógica para renderizar las imágenes de apertura, cable de alimentación y diagramas de relay en sus correspondientes secciones. (Líneas 1750-1768, 1829-1875).
+
 **v4.0.0 (02/01/2026)**
 *   **FIX CRÍTICO (services/catalog/catalog.js):** Se ha solucionado el error `cannot read properties of undefined (reading 'categoria')` que impedía la carga de datos del catálogo y de los formularios. Se implementó la función `mapRowToObject` que faltaba y se corrigió `handleGetDropdownData` para leer dinámicamente las opciones de "Categoría" desde las reglas de validación de la hoja de cálculo.
 *   **FIX CRÍTICO (services/users/users.js):** Se ha reparado el servicio de gestión de usuarios, que fallaba en todas sus operaciones (`Failed to fetch`). El error se debía a que la función `doPost` no retornaba ninguna respuesta. Se corrigió la función para asegurar que todas las acciones devuelvan un resultado al frontend.
@@ -17,7 +25,7 @@
     *   Se ha ampliado el contenido de las secciones "Sobre Nosotros" y "Preguntas Frecuentes" con información más detallada y útil.
 
 **v3.9.2 (27/12/2025)**
-*   **FIX CRÍTICO (services/catalog/catalog.js):** Solucionado un error `Cannot read properties of undefined (reading 'utilCorte1')` que ocurría al procesar los datos del catálogo. Se añadió un filtro para ignorar filas vacías en la hoja de cálculo "Cortes", preveniendo que el backend falle al encontrar datos incompletos.
+*   **FIX CRÍTICO (services/catalog/catalog.js):** Solucionado un error `Cannot read properties of undefined (reading 'utilCote1')` que ocurría al procesar los datos del catálogo. Se añadió un filtro para ignorar filas vacías en la hoja de cálculo "Cortes", preveniendo que el backend falle al encontrar datos incompletos.
 *   **DOCS (Auditoria.txt):** Se agregó la Auditoría v11.0 detallando el análisis y la solución para el error de procesamiento de filas vacías.
 **v3.9.1 (26/12/2025)**
 *   **FIX CRÍTICO (services/catalog/catalog.js):** Se implementó la función `doPost(e)` que estaba completamente vacía. Esta era la causa raíz de los errores "Failed to fetch" que impedían la carga de cualquier dato del catálogo. La nueva función ahora actúa como un router, procesando las acciones (`getCatalogData`, etc.) y devolviendo los datos correctamente.
