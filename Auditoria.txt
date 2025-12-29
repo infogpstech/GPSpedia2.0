@@ -82,3 +82,38 @@ The end-to-end flow is **robust and secure** within the project's constraints (p
     *   **Impact:** Redundant code (`checkVehicle` in `catalog.js`) can lead to developer confusion and bugs if the wrong one is modified.
     *   **Reason:** Code duplication across microservices.
     *   **Risk Level:** **MEDIUM**
+
+---
+
+### **PLAN DE ACCIÓN — PRÓXIMA SESIÓN**
+
+Basado en la auditoría anterior, se propone el siguiente plan de acción, priorizado por criticidad.
+
+**[CRITICAL]**
+1.  **Corregir Inconsistencia de Validación de Sesión**
+    *   **Objetivo:** Eliminar la lógica de validación de sesión duplicada y errónea en `services/utilities/utilities.js` y reemplazarla con una que sea consistente con el servicio `auth.js`.
+    *   **Archivos Involucrados:** `services/utilities/utilities.js`.
+    *   **Tipo de Trabajo:** Refactorización, Corrección de Bug Crítico.
+    *   **Dependencias:** Ninguna.
+
+**[HIGH]**
+2.  **Documentar Cambios No Registrados en `ChangesLogs.txt`**
+    *   **Objetivo:** Añadir entradas retroactivas al `ChangesLogs.txt` para documentar la creación del flujo de 3 etapas de `add_cortes.html` y la creación del microservicio `services/utilities/utilities.js`.
+    *   **Archivos Involucrados:** `ChangesLogs.txt`.
+    *   **Tipo de Trabajo:** Documentación.
+    *   **Dependencias:** Ninguna.
+
+**[MEDIUM]**
+3.  **Eliminar Código Muerto**
+    *   **Objetivo:** Eliminar archivos y código innecesarios para reducir la confusión y el desorden en el repositorio.
+    *   **Archivos Involucrados:** `Code.gs`.
+    *   **Tipo de Trabajo:** Refactorización, Limpieza.
+    *   **Dependencias:** Ninguna.
+
+**[LOW]**
+4.  **Consolidar Documentación**
+    *   **Objetivo:** Revisar y consolidar la información de `Instrucciones.txt` y `README.md` para crear una única fuente de verdad, eliminando la duplicación y la información obsoleta.
+    *   **Archivos Involucrados:** `README.md`, `Instrucciones.txt`.
+    *   **Tipo de Trabajo:** Documentación.
+    *   **Dependencias:** Ninguna.
+
