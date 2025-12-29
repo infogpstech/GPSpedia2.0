@@ -1,3 +1,8 @@
+**v4.2.5 (DD/MM/YYYY)**
+*   **FIX (service-worker.js):** Corregido un bug crítico de caché que prevenía que las actualizaciones de la aplicación se reflejaran en el cliente.
+    *   **Causa Raíz:** El Service Worker estaba sirviendo versiones antiguas de los archivos de la aplicación desde la caché, ignorando las nuevas versiones desplegadas en el servidor. Esto causaba que los bugs persistieran a pesar de haber sido corregidos en el código fuente.
+    *   **Solución:** Se ha incrementado la versión de la caché en `service-worker.js` (de `v5` a `v6`). Este cambio fuerza al Service Worker a descartar la caché antigua y a buscar los archivos actualizados, asegurando que todos los usuarios reciban la última versión de la aplicación y sus correcciones. (Línea 2).
+
 **v4.2.4 (DD/MM/YYYY)**
 *   **INFRA (api-manager.js):** Actualizadas las URLs de los microservicios `CATALOG` y `WRITE` a sus últimas versiones desplegadas.
     *   Se han reemplazado las URLs en el objeto `API_ENDPOINTS` para `CATALOG` y `WRITE` para apuntar a los nuevos despliegues. (Líneas 11-12).
