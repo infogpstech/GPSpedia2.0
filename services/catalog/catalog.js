@@ -109,7 +109,7 @@ function doPost(e) {
     }
 
     return ContentService.createTextOutput(JSON.stringify(result))
-      .setMimeType(ContentService.MimeType.JSON);
+      .setMimeType(ContentService.MimeType.TEXT);
 
   } catch (error) {
     const errorResponse = {
@@ -121,7 +121,7 @@ function doPost(e) {
       }
     };
     return ContentService.createTextOutput(JSON.stringify(errorResponse))
-      .setMimeType(ContentService.MimeType.JSON);
+      .setMimeType(ContentService.MimeType.TEXT);
   }
 }
 
