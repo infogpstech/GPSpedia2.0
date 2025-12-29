@@ -1,3 +1,7 @@
+**v5.0.6 (DD/MM/YYYY)**
+*   **INFRA (api-manager.js):** Actualizada la URL del microservicio `CATALOG` a su nueva versión desplegada.
+    *   Se ha reemplazado la URL en el objeto `API_ENDPOINTS` para `CATALOG` para apuntar al nuevo despliegue que contiene las correcciones de estabilidad. (Línea 11).
+
 **v5.0.5 (DD/MM/YYYY)**
 *   **FIX (services/catalog/catalog.js):** Corregido un bug crítico que causaba un crash silencioso en el backend si alguna de las hojas de datos (`Cortes`, `LogosMarca`, etc.) no existía.
     *   **Causa Raíz:** El servicio intentaba leer datos de las hojas sin verificar primero su existencia, provocando un error `TypeError: Cannot read properties of null` que detenía la ejecución y enviaba una respuesta de error genérica al frontend.
