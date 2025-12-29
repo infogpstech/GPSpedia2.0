@@ -78,14 +78,14 @@ function doGet(e) {
             sheetsAccessed: [SHEET_NAMES.CORTES, SHEET_NAMES.TUTORIALES, SHEET_NAMES.RELAY]
         };
         return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
-            .setMimeType(ContentService.MimeType.JSON);
+            .setMimeType(ContentService.MimeType.TEXT);
     }
     const defaultResponse = {
         status: 'success',
         message: 'GPSpedia Catalog-SERVICE v1.2.1 is active.'
     };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
-        .setMimeType(ContentService.MimeType.JSON);
+        .setMimeType(ContentService.MimeType.TEXT);
 }
 function doPost(e) {
   try {
@@ -101,9 +101,6 @@ function doPost(e) {
       case 'getDropdownData':
         result = handleGetDropdownData();
         break;
-      case 'checkVehicle':
-        result = handleCheckVehicle(payload);
-        break;
       case 'getNavigationData':
         result = handleGetNavigationData(payload);
         break;
@@ -112,7 +109,7 @@ function doPost(e) {
     }
 
     return ContentService.createTextOutput(JSON.stringify(result))
-      .setMimeType(ContentService.MimeType.JSON);
+      .setMimeType(ContentService.MimeType.TEXT);
 
   } catch (error) {
     const errorResponse = {
@@ -124,7 +121,7 @@ function doPost(e) {
       }
     };
     return ContentService.createTextOutput(JSON.stringify(errorResponse))
-      .setMimeType(ContentService.MimeType.JSON);
+      .setMimeType(ContentService.MimeType.TEXT);
   }
 }
 
@@ -144,100 +141,97 @@ function mapRowToObject(row, colMap) {
   const obj = {};
   for (const key in colMap) {
     const colIndex = colMap[key] - 1;
-    // Asegurarse de que el valor no es undefined; de lo contrario, asignar null.
-    obj[key] = row[colIndex] !== undefined && row[colIndex] !== '' ? row[colIndex] : null;
+    const value = row[colIndex];
+    // Solo incluir la clave en el objeto si el valor existe (no es undefined, null, o un string vacío)
+    if (value !== undefined && value !== null && value !== '') {
+      obj[key] = value;
+    }
   }
   return obj;
 }
 
 function handleGetCatalogData() {
-    const allData = {};
+    const allData = {
+        cortes: [],
+        logos: [],
+        tutoriales: [],
+        relay: []
+    };
     const ss = getSpreadsheet();
 
     // Fetch Cortes
     const cortesSheet = ss.getSheetByName(SHEET_NAMES.CORTES);
-    let cortesData = [];
     if (cortesSheet) {
         const data = cortesSheet.getDataRange().getValues();
         data.shift();
-        cortesData = data
-          .filter(row => row && row[0]) // <-- FIX: Ignorar filas vacías (chequea si la fila existe y tiene un ID en la primera columna)
-          .map(row => {
-            const vehicle = mapRowToObject(row, COLS_CORTES);
+        allData.cortes = data
+            .filter(row => row && row[0]) // Ignore empty rows
+            .map(row => {
+                const vehicle = mapRowToObject(row, COLS_CORTES);
+                if (!vehicle) return null;
 
-            // Si por alguna razón el mapeo falla, devolvemos null para filtrarlo después
-            if (!vehicle) return null;
+                const cortes = [
+                    { index: 1, util: parseInt(vehicle.utilCorte1, 10) || 0 },
+                    { index: 2, util: parseInt(vehicle.utilCorte2, 10) || 0 },
+                    { index: 3, util: parseInt(vehicle.utilCorte3, 10) || 0 }
+                ].sort((a, b) => b.util - a.util);
 
-            // Re-implementar la lógica de ordenamiento por utilidad
-            const cortes = [
-                { index: 1, util: parseInt(vehicle.utilCorte1, 10) || 0 },
-                { index: 2, util: parseInt(vehicle.utilCorte2, 10) || 0 },
-                { index: 3, util: parseInt(vehicle.utilCorte3, 10) || 0 }
-            ].sort((a, b) => b.util - a.util); // Orden descendente
-
-            const orderedVehicle = { ...vehicle };
-            const tempCortes = {};
-
-            // Guardar los datos originales de los cortes temporalmente
-            for (let i = 1; i <= 3; i++) {
-                tempCortes[i] = {
-                    tipo: vehicle[`tipoCorte${i}`],
-                    ubicacion: vehicle[`ubicacionCorte${i}`],
-                    color: vehicle[`colorCableCorte${i}`],
-                    config: vehicle[`configRelay${i}`],
-                    img: vehicle[`imgCorte${i}`],
-                    util: vehicle[`utilCorte${i}`],
-                    colaborador: vehicle[`colaboradorCorte${i}`]
-                };
-            }
-
-            // Reasignar los cortes en el nuevo orden
-            cortes.forEach((corte, i) => {
-                const newIndex = i + 1;
-                const oldIndex = corte.index;
-                orderedVehicle[`tipoCorte${newIndex}`] = tempCortes[oldIndex].tipo;
-                orderedVehicle[`ubicacionCorte${newIndex}`] = tempCortes[oldIndex].ubicacion;
-                orderedVehicle[`colorCableCorte${newIndex}`] = tempCortes[oldIndex].color;
-                orderedVehicle[`configRelay${newIndex}`] = tempCortes[oldIndex].config;
-                orderedVehicle[`imgCorte${newIndex}`] = tempCortes[oldIndex].img;
-                orderedVehicle[`utilCorte${newIndex}`] = tempCortes[oldIndex].util;
-                orderedVehicle[`colaboradorCorte${newIndex}`] = tempCortes[oldIndex].colaborador;
-            });
-
-            return orderedVehicle;
-        }).filter(Boolean); // <-- FIX: Eliminar cualquier objeto nulo resultante del mapeo
+                const orderedVehicle = { ...vehicle };
+                const tempCortes = {};
+                for (let i = 1; i <= 3; i++) {
+                    tempCortes[i] = {
+                        tipo: vehicle[`tipoCorte${i}`], ubicacion: vehicle[`ubicacionCorte${i}`],
+                        color: vehicle[`colorCableCorte${i}`], config: vehicle[`configRelay${i}`],
+                        img: vehicle[`imgCorte${i}`], util: vehicle[`utilCorte${i}`],
+                        colaborador: vehicle[`colaboradorCorte${i}`]
+                    };
+                }
+                cortes.forEach((corte, i) => {
+                    const newIndex = i + 1;
+                    const oldIndex = corte.index;
+                    orderedVehicle[`tipoCorte${newIndex}`] = tempCortes[oldIndex].tipo;
+                    orderedVehicle[`ubicacionCorte${newIndex}`] = tempCortes[oldIndex].ubicacion;
+                    orderedVehicle[`colorCableCorte${newIndex}`] = tempCortes[oldIndex].color;
+                    orderedVehicle[`configRelay${newIndex}`] = tempCortes[oldIndex].config;
+                    orderedVehicle[`imgCorte${newIndex}`] = tempCortes[oldIndex].img;
+                    orderedVehicle[`utilCorte${newIndex}`] = tempCortes[oldIndex].util;
+                    orderedVehicle[`colaboradorCorte${newIndex}`] = tempCortes[oldIndex].colaborador;
+                });
+                return orderedVehicle;
+            }).filter(Boolean);
+    } else {
+        console.error(`Sheet "${SHEET_NAMES.CORTES}" not found.`);
     }
-    allData.cortes = cortesData;
 
     // Fetch Logos
-    const logosSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.LOGOS_MARCA);
-    let logosData = [];
+    const logosSheet = ss.getSheetByName(SHEET_NAMES.LOGOS_MARCA);
     if (logosSheet) {
         const data = logosSheet.getDataRange().getValues();
         data.shift();
-        logosData = data.map(row => mapRowToObject(row, COLS_LOGOS_MARCA));
+        allData.logos = data.map(row => mapRowToObject(row, COLS_LOGOS_MARCA));
+    } else {
+        console.error(`Sheet "${SHEET_NAMES.LOGOS_MARCA}" not found.`);
     }
-    allData.logos = logosData;
 
     // Fetch Tutoriales
-    const tutorialesSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.TUTORIALES);
-    let tutorialesData = [];
+    const tutorialesSheet = ss.getSheetByName(SHEET_NAMES.TUTORIALES);
     if (tutorialesSheet) {
         const data = tutorialesSheet.getDataRange().getValues();
         data.shift();
-        tutorialesData = data.map(row => mapRowToObject(row, COLS_TUTORIALES));
+        allData.tutoriales = data.map(row => mapRowToObject(row, COLS_TUTORIALES));
+    } else {
+        console.error(`Sheet "${SHEET_NAMES.TUTORIALES}" not found.`);
     }
-    allData.tutoriales = tutorialesData;
 
     // Fetch Relay
-    const relaySheet = getSpreadsheet().getSheetByName(SHEET_NAMES.RELAY);
-    let relayData = [];
+    const relaySheet = ss.getSheetByName(SHEET_NAMES.RELAY);
     if (relaySheet) {
         const data = relaySheet.getDataRange().getValues();
         data.shift();
-        relayData = data.map(row => mapRowToObject(row, COLS_RELAY));
+        allData.relay = data.map(row => mapRowToObject(row, COLS_RELAY));
+    } else {
+        console.error(`Sheet "${SHEET_NAMES.RELAY}" not found.`);
     }
-    allData.relay = relayData;
 
     return { status: 'success', data: allData };
 }
@@ -246,12 +240,25 @@ function handleGetDropdownData() {
     try {
         const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
         if (!sheet) {
-            throw new Error(`Sheet "${SHEET_NAMES.CORTES}" not found.`);
+            // Devuelve una estructura válida pero vacía si la hoja no existe.
+            return {
+                status: 'success',
+                dropdowns: {
+                    categoria: [],
+                    marca: [],
+                    tipoDeCorte: [],
+                    tipoDeEncendido: [],
+                    configRelay: []
+                }
+            };
         }
 
         // Obtener la regla de validación de la columna "Categoría"
         const categoriaRule = sheet.getRange(2, COLS_CORTES.categoria).getDataValidation();
-        const categorias = categoriaRule ? categoriaRule.getCriteriaValues()[0].getValues().flat().filter(String).sort() : [];
+        // Si no hay regla de validación, getCriteriaValues() puede devolver null.
+        const categorias = (categoriaRule && categoriaRule.getCriteriaValues()[0]) ?
+        categoriaRule.getCriteriaValues()[0].getValues().flat().filter(String).sort() : [];
+
 
         const data = sheet.getDataRange().getValues();
         data.shift(); // Remove headers
@@ -268,63 +275,30 @@ function handleGetDropdownData() {
         };
 
         const marcas = getUniqueSortedValues(COLS_CORTES.marca - 1);
-        const tiposCorte = getUniqueSortedValues(COLS_CORTES.tipoCorte1 -1);
+        const tiposCorte = getUniqueSortedValues(COLS_CORTES.tipoCorte1 - 1);
         const tiposEncendido = getUniqueSortedValues(COLS_CORTES.tipoEncendido - 1);
-        const configRelay = getUniqueSortedValues(COLS_CORTES.configRelay1 -1);
+        const configRelay = getUniqueSortedValues(COLS_CORTES.configRelay1 - 1);
 
 
         const dropdownData = {
-            categorias,
-            marcas,
-            tiposCorte,
-            tiposEncendido,
-            configRelay
+            categoria: categorias,
+            marca: marcas,
+            tipoDeCorte: tiposCorte,
+            tipoDeEncendido: tiposEncendido,
+            configRelay: configRelay
         };
 
-        return { status: 'success', data: dropdownData };
+        return { status: 'success', dropdowns: dropdownData };
 
     } catch (error) {
+        // Log a more detailed error on the server-side for debugging
+        console.error("Error in handleGetDropdownData: " + error.toString());
         return {
             status: 'error',
             message: 'Failed to get dropdown data.',
             details: { errorMessage: error.message }
         };
     }
-}
-
-function handleCheckVehicle(payload) {
-    const { marca, modelo, anio, tipoEncendido } = payload;
-    if (!marca || !modelo || !anio || !tipoEncendido) {
-        throw new Error("Parámetros de búsqueda incompletos.");
-    }
-
-    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
-    const data = sheet.getDataRange().getValues();
-    data.shift();
-
-    const paramMarca = marca.trim().toLowerCase();
-    const paramModelo = modelo.trim().toLowerCase();
-    const paramAnio = parseInt(anio.trim(), 10);
-    const paramTipoEncendido = tipoEncendido.trim().toLowerCase();
-
-    for (let i = 0; i < data.length; i++) {
-        const row = data[i];
-        const sheetMarca = (row[COLS_CORTES.marca - 1] || "").toString().trim().toLowerCase();
-        const sheetModelo = (row[COLS_CORTES.modelo - 1] || "").toString().trim().toLowerCase();
-        const sheetVersiones = (row[COLS_CORTES.versionesAplicables - 1] || "").toString().toLowerCase();
-        const sheetTipoEncendido = (row[COLS_CORTES.tipoEncendido - 1] || "").toString().trim().toLowerCase();
-        const anoDesde = row[COLS_CORTES.anoDesde - 1];
-        const anoHasta = row[COLS_CORTES.anoHasta - 1];
-
-        const modeloMatch = sheetModelo === paramModelo || sheetVersiones.includes(paramModelo);
-        const anioMatch = isYearInRangeV2(paramAnio, anoDesde, anoHasta);
-
-        if (sheetMarca === paramMarca && modeloMatch && anioMatch && sheetTipoEncendido === paramTipoEncendido) {
-            const existingRowData = mapRowToObject(row, COLS_CORTES);
-            return { status: 'success', exists: true, data: existingRowData, rowIndex: i + 2 };
-        }
-    }
-    return { status: 'success', exists: false };
 }
 
 // ============================================================================
@@ -354,6 +328,10 @@ function handleGetNavigationData(payload) {
     if (!nivel) throw new Error("El parámetro 'nivel' es requerido.");
 
     const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
+    if (!sheet) {
+        // Si la hoja de Cortes no existe, no se puede navegar. Devolver una respuesta vacía y válida.
+        return { status: 'success', data: [], nextNivel: 'final' };
+    }
     const allData = sheet.getDataRange().getValues();
     allData.shift(); // Quitar encabezados
 

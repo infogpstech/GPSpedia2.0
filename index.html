@@ -1600,14 +1600,24 @@ async function checkSession() {
 
             if (result.valid) {
                 remoteLog('INFO', 'Session is valid. Initializing app.');
-                await initializeAppData(user);
+                // Initialize app but catch data-loading errors separately
+                try {
+                    await initializeAppData(user);
+                } catch (appInitError) {
+                    remoteLog('ERROR', 'Error initializing app data (e.g., catalog). Session remains valid.', { error: appInitError.message });
+                    // Even if the catalog fails, show the logged-in app shell with an error.
+                    // DO NOT log the user out.
+                    hideLoginShowApp(user);
+                    document.getElementById('contenido').innerHTML = `<p style="color:red; text-align:center;">No se pudo cargar el catálogo. Por favor, revisa tu conexión e inténtalo de nuevo.</p>`;
+                }
             } else {
                 remoteLog('WARN', 'Session is invalid according to backend. Logging out.');
                 logout("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
             }
         } catch (error) {
-            remoteLog('ERROR', 'Error during session validation.', { error: error.message, stack: error.stack });
-            showLoginHideApp();
+            // This catch block now specifically handles session validation errors or critical failures.
+            remoteLog('ERROR', 'Error during session validation. Forcing logout.', { error: error.message, stack: error.stack });
+            logout("Error al validar la sesión. Por favor, inicia sesión de nuevo.");
         }
     } else {
         remoteLog('INFO', 'No session data found. Showing login.');
@@ -1762,14 +1772,13 @@ function hideLoginShowApp(user) { // Aceptar el objeto de usuario
 
     // Cargar nombre de usuario en el menú lateral
     const menuUsername = document.getElementById('menu-username');
-    const session = JSON.parse(localStorage.getItem(SESSION_KEY));
-    if (menuUsername && session && session.Nombre_Usuario) {
-        menuUsername.textContent = session.Nombre_Usuario;
+    if (menuUsername && user && user.Nombre_Usuario) {
+        menuUsername.textContent = user.Nombre_Usuario;
     }
 
     // Show inbox for supervisors and jefes
     const inboxLink = document.getElementById('menu-inbox');
-    if (inboxLink && session && (session.Privilegios === 'Supervisor' || session.Privilegios === 'Jefe' || session.Privilegios === 'Desarrollador')) {
+    if (inboxLink && user && (user.Privilegios === 'Supervisor' || user.Privilegios === 'Jefe' || user.Privilegios === 'Desarrollador')) {
         inboxLink.style.display = 'flex';
     }
 

@@ -8,11 +8,11 @@ const API_ENDPOINTS = {
     LEGACY: "https://script.google.com/macros/s/AKfycbwpIFH1nX2BZEjAKbpq9HJpEGNlo_0LqD1CwxWsWFo5J0AJDdbfMrKpcsAV4ZFJzFWd/exec",
 
     // URLs para los nuevos microservicios.
-    AUTH:     "https://script.google.com/macros/s/AKfycbxgUWpVpKaYgR0hpPJPuPS0zao3lCH12tG0iAPufmlu3alkHj1FHckS5G6EzGC26mRQ/exec",
-    CATALOG:  "https://script.google.com/macros/s/AKfycbyLma84mdUG_wMbm4LSwHzSEPy2CtAvMcMqbrSUyb3LICWLQZR4QhsKbIm_HMI9eJ5qlg/exec",
-    WRITE:    "https://script.google.com/macros/s/AKfycbyPu7p1erNGcxDCk4xWNPThvYdHeq3A80gdxvEgQpjnQ-LR6fQUAkS7913w7E5I8LOHNw/exec",
+    AUTH:     "https://script.google.com/macros/s/AKfycbyp96RV2NtENye_bnT-LT-7h4R5rq7rjs8qOTlv4lrOg_2ozeNzpXfcthvUlvVktpQn/exec",
+    CATALOG:  "https://script.google.com/macros/s/AKfycbyzjOeG_e1sU1pe-03SYAcQziltDr8jd4LkCxvPXp1tAavs6IcTEo2yluXK2p3fm9SRzA/exec",
+    WRITE:    "https://script.google.com/macros/s/AKfycbyygeOo52mZRhsm7RADG8U83zG2nCMtNpphrv_XcU0jSJv9t6DuRTe1TlLVq1Oft8-8/exec",
     USERS:    "https://script.google.com/macros/s/AKfycbywTo3Asul37tLML29tmtNwVpFbHabXOfC7sw4c5KagURIXzaZoiKrbr2XAIkv-7n-T/exec",
-    FEEDBACK: "https://script.google.com/macros/s/AKfycbyC1UC0OVcFeaXYP7gJEAuPoqHT-q7CeQRX2b6Wb3IUHijsepWaTr8WilUYORcnEdu4/exec",
+    FEEDBACK: "https://script.google.com/macros/s/AKfycby5t4GHKFIZ1eAjzV54_FiakzlOpFUfT9lbgQHzQPFywys2a0h4Xum7zlcMyUBf8pcD/exec",
     UTILITIES: "https://script.google.com/macros/s/AKfycbz8IJitti8N8hDn_x3dQ9n-UXYiTahz7rGNKClXN19hgIMmbkFAw06gEzTZKx7QcUWt/exec"
 };
 
@@ -25,11 +25,12 @@ const ACTION_TO_SERVICE_MAP = {
     // Catalog Service
     'getCatalogData': 'CATALOG',
     'getDropdownData': 'CATALOG',
-    'checkVehicle': 'CATALOG',
     'getNavigationData': 'CATALOG',
 
     // Write Service
-    'addCorte': 'WRITE',
+    'checkVehicle': 'WRITE',
+    'addOrUpdateCut': 'WRITE',
+    'addSupplementaryInfo': 'WRITE',
 
     // Users Service
     'getUsers': 'USERS',

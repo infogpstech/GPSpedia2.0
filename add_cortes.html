@@ -112,66 +112,38 @@
     </div>
     <script src="api-manager.js"></script>
     <script>
-        const SESSION_KEY = 'gpsepedia_session';
+        // State management for the multi-stage form
         const state = {
             vehicleInfo: {},
             matches: [],
-            selectedVehicleId: null,
+            selectedVehicleId: null, // This will hold the ID of the new or existing vehicle record
             colaborador: ''
         };
 
-        document.addEventListener('DOMContentLoaded', init);
-
-        async function init() {
-            const sessionData = localStorage.getItem(SESSION_KEY);
-            if (!sessionData) {
-                alert("Tu sesión ha expirado. Serás redirigido a la página de inicio de sesión.");
-                window.location.href = 'index.html';
-                return;
-            }
-            const user = JSON.parse(sessionData);
-            state.colaborador = user.Nombre_Usuario;
-
-            toggleLoading(true);
-            try {
-                const data = await routeAction('getDropdownData');
-                populateSelect('categoria', data.dropdowns.categoria);
-                populateSelect('tipoEncendido', data.dropdowns.tipoDeEncendido);
-                populateSelect('tipoCorte1', data.dropdowns.tipoDeCorte);
-                populateSelect('configRelay1', data.dropdowns.configRelay);
-            } catch (error) {
-                alert(`No se pudieron cargar las opciones del formulario: ${error.message}`);
-            } finally {
-                toggleLoading(false);
-            }
-
-            document.getElementById('form-phase-1').addEventListener('submit', handlePhase1Submit);
-            document.getElementById('form-phase-2').addEventListener('submit', handleAddOrUpdateCut);
-            document.getElementById('form-phase-3').addEventListener('submit', handlePhase3Submit);
-        }
-
-        function toggleLoading(isLoading) {
+        // General utility functions
+        const toggleLoading = (isLoading) => {
             document.getElementById('loading-overlay').style.display = isLoading ? 'flex' : 'none';
-        }
+        };
 
-        function populateSelect(id, options) {
+        const populateSelect = (id, options) => {
             const select = document.getElementById(id);
             if (!select) return;
             select.innerHTML = '<option value="">Selecciona una opción</option>';
-            if (options) {
+            if (options && Array.isArray(options)) {
                 options.forEach(option => {
                     if (option) select.innerHTML += `<option value="${option}">${option}</option>`;
                 });
             }
-        }
+        };
 
-        function showPhase(phaseNumber) {
+        const showPhase = (phaseNumber) => {
             document.querySelectorAll('.form-phase').forEach(p => p.classList.remove('active'));
             const stageId = phaseNumber === 1.5 ? 'stage-1-5' : `stage-${phaseNumber}`;
             document.getElementById(stageId).classList.add('active');
-        }
+        };
 
-        async function handlePhase1Submit(e) {
+        // Phase 1: Check for existing vehicle
+        const handlePhase1Submit = async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
             state.vehicleInfo = Object.fromEntries(formData.entries());
@@ -179,11 +151,12 @@
             toggleLoading(true);
             try {
                 const result = await routeAction('checkVehicle', state.vehicleInfo);
-                state.matches = result.matches;
-                if (result.matches.length > 0) {
-                    displayMatches(result.matches);
+                state.matches = result.matches || [];
+                if (state.matches.length > 0) {
+                    displayMatches(state.matches);
                     showPhase(1.5);
                 } else {
+                    // No matches, proceed to create a new record
                     proceedToPhase2(null);
                 }
             } catch (error) {
@@ -191,9 +164,10 @@
             } finally {
                 toggleLoading(false);
             }
-        }
+        };
 
-        function displayMatches(matches) {
+        // Phase 1.5: Display potential matches
+        const displayMatches = (matches) => {
             const container = document.getElementById('matches-container');
             container.innerHTML = '';
             matches.forEach(match => {
@@ -209,74 +183,120 @@
                 card.onclick = () => proceedToPhase2(match.id);
                 container.appendChild(card);
             });
-        }
+        };
 
-        function proceedToPhase2(vehicleId) {
+        // Transition to Phase 2, setting the title and state correctly
+        const proceedToPhase2 = (vehicleId) => {
             state.selectedVehicleId = vehicleId;
             const title = document.getElementById('stage-2-title');
             if (vehicleId) {
                 const match = state.matches.find(m => m.id === vehicleId);
                 title.textContent = `Paso 2: Agregar nuevo corte a ${match.marca} ${match.modelo}`;
             } else {
-                title.textContent = "Paso 2: Agregar Información del Corte";
+                title.textContent = "Paso 2: Agregar Información del Corte (Nuevo Vehículo)";
             }
             document.getElementById('form-phase-2').reset();
             showPhase(2);
-        }
+        };
 
-        async function handleAddOrUpdateCut(e) {
+        // Phase 2: Add the primary cut information
+        const handlePhase2Submit = async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
-            const cutInfo = Object.fromEntries(formData.entries());
+            const cutData = Object.fromEntries(formData.entries());
 
             const payload = {
-                vehicleInfo: state.vehicleInfo,
-                cutInfo: cutInfo,
+                // If we have an ID, we are updating an existing record, so vehicleData is null
+                vehicleData: state.selectedVehicleId ? null : state.vehicleInfo,
+                cutData: cutData,
                 colaborador: state.colaborador,
-                existingVehicleId: state.selectedVehicleId
+                vehicleId: state.selectedVehicleId // This is null if it's a new vehicle
             };
 
             toggleLoading(true);
             try {
-                const result = await routeAction('addCorte', payload);
-                if (result.status === 'success') {
-                    state.selectedVehicleId = result.vehicleId; // Update with the definitive ID
+                const result = await routeAction('addOrUpdateCut', payload);
+                if (result.status === 'success' && result.vehicleId) {
+                    // CRUCIAL: Get the definitive vehicle ID from the backend response
+                    state.selectedVehicleId = result.vehicleId;
                     alert('Corte guardado con éxito. Ahora puedes agregar información suplementaria.');
                     showPhase(3);
                 } else {
-                    throw new Error(result.message || 'Error desconocido al guardar.');
+                    throw new Error(result.message || 'Error desconocido al guardar el corte.');
                 }
             } catch (error) {
                 alert(`Error al guardar el corte: ${error.message}`);
             } finally {
                 toggleLoading(false);
             }
-        }
+        };
 
-        async function handlePhase3Submit(e) {
+        // Phase 3: Add supplementary information
+        const handlePhase3Submit = async (e) => {
             e.preventDefault();
+            if (!state.selectedVehicleId) {
+                alert("Error: No hay un ID de vehículo seleccionado. No se puede guardar.");
+                return;
+            }
             const formData = new FormData(e.target);
-            const supplementaryInfo = Object.fromEntries(formData.entries());
+            const infoData = Object.fromEntries(formData.entries());
 
             const payload = {
                 vehicleId: state.selectedVehicleId,
-                supplementaryInfo: supplementaryInfo
+                infoData: infoData
             };
 
             toggleLoading(true);
             try {
                 const result = await routeAction('addSupplementaryInfo', payload);
                 if (result.status === 'success') {
-                    alert('Información adicional guardada con éxito.');
+                    alert('Información adicional guardada con éxito. Serás redirigido.');
+                    window.location.href = 'index.html'; // Redirect to catalog on final success
                 } else {
-                    throw new Error(result.message || 'Error desconocido al guardar.');
+                    throw new Error(result.message || 'Error desconocido al guardar la información suplementaria.');
                 }
             } catch (error) {
                 alert(`Error al guardar la información suplementaria: ${error.message}`);
             } finally {
                 toggleLoading(false);
             }
-        }
+        };
+
+        // Initialization logic
+        const init = async () => {
+            const sessionData = localStorage.getItem('gpsepedia_session');
+            if (!sessionData) {
+                alert("Tu sesión ha expirado. Serás redirigido a la página de inicio de sesión.");
+                window.location.href = 'index.html';
+                return;
+            }
+            state.colaborador = JSON.parse(sessionData).Nombre_Usuario;
+
+            toggleLoading(true);
+            try {
+                // Fetch all dropdown options in one go
+                const response = await routeAction('getDropdownData');
+                if (response.status === 'success' && response.dropdowns) {
+                    populateSelect('categoria', response.dropdowns.categoria);
+                    populateSelect('tipoEncendido', response.dropdowns.tipoDeEncendido);
+                    populateSelect('tipoCorte1', response.dropdowns.tipoDeCorte);
+                    populateSelect('configRelay1', response.dropdowns.configRelay);
+                } else {
+                    throw new Error(response.message || 'La respuesta del servidor para los dropdowns no fue exitosa.');
+                }
+            } catch (error) {
+                alert(`No se pudieron cargar las opciones del formulario: ${error.message}`);
+            } finally {
+                toggleLoading(false);
+            }
+
+            // Attach event listeners
+            document.getElementById('form-phase-1').addEventListener('submit', handlePhase1Submit);
+            document.getElementById('form-phase-2').addEventListener('submit', handlePhase2Submit);
+            document.getElementById('form-phase-3').addEventListener('submit', handlePhase3Submit);
+        };
+
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
