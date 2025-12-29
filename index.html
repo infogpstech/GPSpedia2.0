@@ -1713,28 +1713,28 @@ function mostrarDetalleModal(item) {
 
     crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, 'img-vehiculo');
 
-    // Secciones de Cortes Dinámicas
-    for (let i = 1; i <= 3; i++) {
-        const tipoCorte = item[`tipoCorte${i}`];
-        if (!tipoCorte) continue;
+    // --- Lógica de Cortes ---
+    const crearPanelCorte = (corteIndex, esRecomendado = false) => {
+        const tipoCorte = item[`tipoCorte${corteIndex}`];
+        if (!tipoCorte) return null;
 
-        const ubicacion = item[`ubicacionCorte${i}`];
-        const colorCable = item[`colorCableCorte${i}`];
-        const imgCorte = item[`imgCorte${i}`];
-        const colaborador = item[`colaboradorCorte${i}`];
-        const utilCount = item[`utilCorte${i}`] || 0;
+        const panel = document.createElement("div");
+        if (esRecomendado) {
+             panel.style.cssText = "padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px; background-color: #f9f9f9;";
+        } else {
+             panel.className = "panel-desplegable";
+             panel.style.maxHeight = '0px'; // FIX: Ensure panel is collapsed by default
+        }
+
+        const ubicacion = item[`ubicacionCorte${corteIndex}`];
+        const colorCable = item[`colorCableCorte${corteIndex}`];
+        const imgCorte = item[`imgCorte${corteIndex}`];
+        const colaborador = item[`colaboradorCorte${corteIndex}`];
+        const utilCount = item[`utilCorte${corteIndex}`] || 0;
 
         let descripcionHTML = '';
         if (ubicacion) descripcionHTML += `<strong>Ubicación:</strong> ${ubicacion}<br>`;
         if (colorCable) descripcionHTML += `<strong>Color(es) de Cable:</strong> ${colorCable}`;
-
-        const btn = document.createElement("button");
-        btn.className = "accordion-btn";
-        btn.innerHTML = `${tipoCorte} <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
-        cont.appendChild(btn);
-
-        const panel = document.createElement("div");
-        panel.className = "panel-desplegable";
 
         if (descripcionHTML) {
             const p = document.createElement("p");
@@ -1754,14 +1754,14 @@ function mostrarDetalleModal(item) {
         utilBtn.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> Útil <span class="util-count">${utilCount}</span>`;
         utilBtn.className = "feedback-btn util-btn";
         utilBtn.style.cssText = "background-color: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer;";
-        utilBtn.onclick = () => handleLike(item.id, i, utilBtn);
+        utilBtn.onclick = () => handleLike(item.id, corteIndex, utilBtn);
         feedbackContainer.appendChild(utilBtn);
 
         const reportBtn = document.createElement("button");
         reportBtn.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Reportar`;
         reportBtn.className = "feedback-btn report-btn";
         reportBtn.style.cssText = "background-color: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer;";
-        reportBtn.onclick = () => toggleReportSection(item.id, i);
+        reportBtn.onclick = () => toggleReportSection(item.id, corteIndex);
         feedbackContainer.appendChild(reportBtn);
 
         const colaboradorInfo = document.createElement("div");
@@ -1774,13 +1774,55 @@ function mostrarDetalleModal(item) {
         panel.appendChild(footerModal);
 
         const reportSection = document.createElement("div");
-        reportSection.id = `report-section-${item.id}-${i}`;
+        reportSection.id = `report-section-${item.id}-${corteIndex}`;
         reportSection.style.display = 'none';
         reportSection.style.marginTop = '15px';
-        reportSection.innerHTML = `<textarea id="report-input-${item.id}-${i}" class="report-textarea" placeholder="Describe el problema..."></textarea><button id="submit-report-${item.id}-${i}" class="submit-report-btn">Enviar</button>`;
+        reportSection.innerHTML = `<textarea id="report-input-${item.id}-${corteIndex}" class="report-textarea" placeholder="Describe el problema..."></textarea><button id="submit-report-${item.id}-${corteIndex}" class="submit-report-btn">Enviar</button>`;
         panel.appendChild(reportSection);
 
-        cont.appendChild(panel);
+        return panel;
+    };
+
+    // --- Corte Recomendado (Corte 1) ---
+    if (item.tipoCorte1) {
+        const tituloRecomendado = document.createElement("h4");
+        tituloRecomendado.innerHTML = `<i class="fa-solid fa-star" style="color: #ffc107;"></i> Corte Recomendado: ${item.tipoCorte1}`;
+
+        const btn = document.createElement("button");
+        btn.className = "accordion-btn active"; // Make it active by default
+        btn.innerHTML = `${item.tipoCorte1} <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+
+        cont.appendChild(tituloRecomendado);
+        cont.appendChild(btn);
+
+        const panelRecomendado = crearPanelCorte(1, false); // Create as a normal panel
+        if (panelRecomendado) {
+            panelRecomendado.style.maxHeight = panelRecomendado.scrollHeight + "px"; // Expand it
+            cont.appendChild(panelRecomendado);
+        }
+    }
+
+    // --- Otros Cortes (Cortes 2 y 3 en Acordeón) ---
+    const tieneOtrosCortes = item.tipoCorte2 || item.tipoCorte3;
+    if (tieneOtrosCortes) {
+        const tituloOtros = document.createElement("h4");
+        tituloOtros.textContent = "Otros Cortes Disponibles";
+        tituloOtros.style.marginTop = '25px';
+        cont.appendChild(tituloOtros);
+
+        for (let i = 2; i <= 3; i++) {
+            if (!item[`tipoCorte${i}`]) continue;
+
+            const btn = document.createElement("button");
+            btn.className = "accordion-btn";
+            btn.innerHTML = `${item[`tipoCorte${i}`]} <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+            cont.appendChild(btn);
+
+            const panel = crearPanelCorte(i, false);
+            if (panel) {
+                cont.appendChild(panel);
+            }
+        }
     }
 
     crearVideoDetalle("Video Guía de Desarme", item.videoGuiaDesarmeUrl, cont);
