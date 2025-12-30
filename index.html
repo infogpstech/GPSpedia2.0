@@ -519,7 +519,13 @@ body.search-active .app-logo {
 }
 .carousel-track {
     display: flex;
-    transition: transform 0.5s ease-in-out;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch; /* Para scrolling suave en iOS */
+    scrollbar-width: none; /* Ocultar scrollbar en Firefox */
+}
+.carousel-track::-webkit-scrollbar {
+    display: none; /* Ocultar scrollbar en Chrome, Safari, etc. */
 }
 .carousel-container .card {
     flex: 0 0 140px; /* Ancho fijo para cada tarjeta */
@@ -1895,23 +1901,31 @@ function mostrarDetalleRelay(item) {
 }
 
 function getLogoUrlForMarca(marca, categoria) {
-    if (!datosLogos || datosLogos.length === 0) return null;
-    let searchMarca = marca;
+    if (!datosLogos || !datosLogos.length || !marca) return null;
+
+    const normalize = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+    const normalizedMarca = normalize(marca);
+
+    // Prioridad 1: Búsqueda exacta con sufijo de categoría (ej. 'hondamotocicletas')
     if (categoria && categoria.toLowerCase() === 'motos') {
-        searchMarca = marca + 'Motocicletas';
+        const catMarca = normalize(marca + 'Motocicletas');
+        const logoEntry = datosLogos.find(logo => normalize(logo.nombreMarca) === catMarca);
+        if (logoEntry && logoEntry.urlLogo) return logoEntry.urlLogo;
     }
 
-    const logoEntry = datosLogos.find(logo => logo.nombreMarca.toLowerCase() === searchMarca.toLowerCase());
+    // Prioridad 2: Búsqueda por nombre de marca normalizado (ej. 'honda')
+    const genericLogoEntry = datosLogos.find(logo => normalize(logo.nombreMarca) === normalizedMarca);
+    if (genericLogoEntry && genericLogoEntry.urlLogo) return genericLogoEntry.urlLogo;
 
-    if (logoEntry) return logoEntry.urlLogo;
-
-    // Fallback for motorcycle brands
+    // Prioridad 3: Fallback a 'Vehiculos' si es de motos (ej. 'hondavehiculos')
     if (categoria && categoria.toLowerCase() === 'motos') {
-        const vehicleLogoEntry = datosLogos.find(logo => logo.nombreMarca.toLowerCase() === marca.toLowerCase() + 'Vehiculos');
-        if (vehicleLogoEntry) return vehicleLogoEntry.urlLogo;
+        const vehicleMarca = normalize(marca + 'Vehiculos');
+        const vehicleLogoEntry = datosLogos.find(logo => normalize(logo.nombreMarca) === vehicleMarca);
+        if (vehicleLogoEntry && vehicleLogoEntry.urlLogo) return vehicleLogoEntry.urlLogo;
     }
 
-    return null; // Return null if no logo is found
+    return null;
 }
 
 function convertirAGoogleThumbnail(url) {
@@ -2008,10 +2022,9 @@ function mostrarDetalleModal(item) {
 
         const panel = document.createElement("div");
         if (esRecomendado) {
-             panel.style.cssText = "padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px; background-color: #f9f9f9;";
+            panel.style.cssText = "padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px; background-color: #f9f9f9;";
         } else {
-             panel.className = "panel-desplegable";
-             panel.style.maxHeight = '0px'; // FIX: Ensure panel is collapsed by default
+            panel.className = "panel-desplegable";
         }
 
         const ubicacion = item[`ubicacionCorte${corteIndex}`];
@@ -2054,7 +2067,6 @@ function mostrarDetalleModal(item) {
         const feedbackContainer = document.createElement("div");
         feedbackContainer.style.cssText = "display: flex; gap: 10px;";
 
-        // REFACTOR: Feedback buttons changed to icon-only with labels
         const utilBtn = document.createElement("div");
         utilBtn.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> <span>Útil (${utilCount})</span>`;
         utilBtn.className = "feedback-btn util-btn";
@@ -2075,7 +2087,6 @@ function mostrarDetalleModal(item) {
 
         footerModal.appendChild(colaboradorInfo);
         footerModal.appendChild(feedbackContainer);
-
         panel.appendChild(footerModal);
 
         const reportSection = document.createElement("div");
@@ -2088,43 +2099,57 @@ function mostrarDetalleModal(item) {
         return panel;
     };
 
-    // --- Corte Recomendado (Corte 1) ---
-    if (item.tipoCorte1) {
-        const tituloRecomendado = document.createElement("h4");
-        tituloRecomendado.innerHTML = `<i class="fa-solid fa-star" style="color: #ffc107;"></i> Corte Recomendado: ${item.tipoCorte1}`;
-        cont.appendChild(tituloRecomendado);
+    // --- REFACTORIZACIÓN DE LÓGICA DE CORTES ---
+    // 1. Recolectar todos los cortes disponibles en un array
+    const allCortes = [];
+    for (let i = 1; i <= 3; i++) {
+        if (item[`tipoCorte${i}`]) {
+            allCortes.push({
+                corteIndex: i,
+                tipoCorte: item[`tipoCorte${i}`],
+                utilCount: parseInt(item[`utilCorte${i}`] || 0, 10)
+            });
+        }
+    }
 
-        // Render the recommended panel directly, making it always visible
-        const panelRecomendado = crearPanelCorte(1, true);
+    // 2. Ordenar los cortes por 'utilCount' de mayor a menor
+    allCortes.sort((a, b) => b.utilCount - a.utilCount);
+
+    // 3. Renderizar los cortes
+    if (allCortes.length > 0) {
+        // Renderizar el Corte Recomendado (el primero después de ordenar)
+        const recomendado = allCortes[0];
+        const tituloRecomendado = document.createElement("h4");
+        tituloRecomendado.innerHTML = `<i class="fa-solid fa-star" style="color: #ffc107;"></i> Corte Recomendado: ${recomendado.tipoCorte}`;
+        cont.appendChild(tituloRecomendado);
+        const panelRecomendado = crearPanelCorte(recomendado.corteIndex, true);
         if (panelRecomendado) {
             cont.appendChild(panelRecomendado);
         }
-    }
 
-    // --- Otros Cortes (Cortes 2 y 3 en Acordeón) ---
-    const tieneOtrosCortes = item.tipoCorte2 || item.tipoCorte3;
-    if (tieneOtrosCortes) {
-        const tituloOtros = document.createElement("h4");
-        tituloOtros.textContent = "Otros Cortes Disponibles";
-        tituloOtros.style.marginTop = '25px';
-        cont.appendChild(tituloOtros);
+        // Renderizar Otros Cortes (el resto del array) en un acordeón
+        if (allCortes.length > 1) {
+            const otrosCortes = allCortes.slice(1);
+            const tituloOtros = document.createElement("h4");
+            tituloOtros.textContent = "Otros Cortes Disponibles";
+            tituloOtros.style.marginTop = '25px';
+            cont.appendChild(tituloOtros);
 
-        for (let i = 2; i <= 3; i++) {
-            if (!item[`tipoCorte${i}`]) continue;
+            otrosCortes.forEach(corte => {
+                const btn = document.createElement("button");
+                btn.className = "accordion-btn";
+                btn.innerHTML = `${corte.tipoCorte} <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+                cont.appendChild(btn);
 
-            const btn = document.createElement("button");
-            btn.className = "accordion-btn";
-            btn.innerHTML = `${item[`tipoCorte${i}`]} <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
-            cont.appendChild(btn);
-
-            const panel = crearPanelCorte(i, false);
-            if (panel) {
-                cont.appendChild(panel);
-            }
+                const panel = crearPanelCorte(corte.corteIndex, false);
+                if (panel) {
+                    cont.appendChild(panel);
+                }
+            });
         }
     }
 
-    // REFACTOR: Video guide moved into a collapsible accordion
+    // --- Video guía en un acordeón ---
     if (item.videoGuiaDesarmeUrl) {
         const btn = document.createElement("button");
         btn.className = "accordion-btn";
@@ -2252,15 +2277,22 @@ function mostrarResultadosBusquedaMarca(busquedaTexto) {
     const marcasUnicas = [...new Set(datosFiltrados.map(item => item.marca))].sort();
     const grid = document.createElement("div"); grid.className = "grid";
     marcasUnicas.forEach(marca => {
-        const ejemplo = datosFiltrados.find(item => item.marca === marca && item.imagenVehiculo) || datosFiltrados.find(item => item.marca === marca);
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarResultadosBusquedaModelo(busquedaTexto, marca);
+
+        const logoUrl = getLogoUrlForMarca(marca, estado.categoria);
+
         const img = document.createElement("img");
-        img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
-        img.alt = `Categoría ${cat}`;
-        img.loading = "lazy"; // Optimización de carga
+        img.src = logoUrl || 'https://placehold.co/280x200/cccccc/333333?text=Sin+Logo';
+        img.alt = `Marca ${marca}`;
+        img.style.objectFit = 'contain';
+        img.loading = "lazy";
         card.appendChild(img);
-        const overlay = document.createElement("div"); overlay.className = "overlay"; overlay.innerHTML = marca; card.appendChild(overlay);
+
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+        overlay.innerHTML = marca;
+        card.appendChild(overlay);
         grid.appendChild(card);
     });
     cont.appendChild(grid);
@@ -2422,6 +2454,35 @@ function mostrarUltimosAgregados() {
     };
 
     if (ultimosCortes.length > getVisibleCards()) {
+        // --- Lógica de Deslizamiento Táctil ---
+        let isDragging = false;
+        let startX, scrollLeft;
+
+        carouselTrack.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.pageX - carouselTrack.offsetLeft;
+            scrollLeft = carouselTrack.scrollLeft;
+            carouselTrack.style.cursor = 'grabbing';
+        });
+
+        carouselTrack.addEventListener('mouseleave', () => {
+            isDragging = false;
+            carouselTrack.style.cursor = 'grab';
+        });
+
+        carouselTrack.addEventListener('mouseup', () => {
+            isDragging = false;
+            carouselTrack.style.cursor = 'grab';
+        });
+
+        carouselTrack.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const x = e.pageX - carouselTrack.offsetLeft;
+            const walk = (x - startX) * 2; // El multiplicador ajusta la sensibilidad
+            carouselTrack.scrollLeft = scrollLeft - walk;
+        });
+
         const prevBtn = document.createElement('button');
         prevBtn.className = 'carousel-btn prev';
         prevBtn.innerHTML = '&#10094;';
@@ -2436,25 +2497,24 @@ function mostrarUltimosAgregados() {
         const cardWidth = 140 + 20;
         const totalCards = ultimosCortes.length;
 
-        const updateCarousel = () => {
-            const visibleCards = getVisibleCards();
-            const maxIndex = totalCards - visibleCards;
-            if (currentIndex > maxIndex) currentIndex = maxIndex;
-            if (currentIndex < 0) currentIndex = 0;
-
-            carouselTrack.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
-            prevBtn.style.display = currentIndex === 0 ? 'none' : 'flex';
-            nextBtn.style.display = currentIndex === maxIndex ? 'none' : 'flex';
+        const updateCarouselButtons = () => {
+            const scrollLeft = carouselTrack.scrollLeft;
+            const maxScrollLeft = carouselTrack.scrollWidth - carouselTrack.clientWidth;
+            prevBtn.style.display = scrollLeft > 0 ? 'flex' : 'none';
+            nextBtn.style.display = scrollLeft < maxScrollLeft - 1 ? 'flex' : 'none';
         };
 
         nextBtn.addEventListener('click', () => {
-            currentIndex++;
-            updateCarousel();
+            carouselTrack.scrollLeft += cardWidth * getVisibleCards();
         });
 
         prevBtn.addEventListener('click', () => {
-            currentIndex--;
-            updateCarousel();
+            carouselTrack.scrollLeft -= cardWidth * getVisibleCards();
+        });
+
+        carouselTrack.addEventListener('scroll', () => {
+             // Pequeño timeout para evitar que el botón desaparezca durante la animación de scroll
+            setTimeout(updateCarouselButtons, 150);
         });
 
         let resizeTimeout;
@@ -3039,11 +3099,17 @@ async function loadInboxItems() {
 
     try {
         const result = await routeAction('getFeedbackItems', {}, 'FEEDBACK');
-        const { feedback, contact } = result.data;
-        inboxItems = [...feedback, ...contact];
+        inboxItems = result.data; // La respuesta ahora es un array unificado
 
-        // Sort items, unresolved first, then by id descending
-        inboxItems.sort((a, b) => (a.isResolved === b.isResolved) ? b.id - a.id : a.isResolved ? 1 : -1);
+        // Ordenar: no resueltos primero, luego por ID descendente
+        inboxItems.sort((a, b) => {
+            const aResolved = a.isResolved === true;
+            const bResolved = b.isResolved === true;
+            if (aResolved !== bResolved) {
+                return aResolved ? 1 : -1;
+            }
+            return b.id - a.id;
+        });
 
         renderInboxList();
     } catch (error) {
@@ -3066,9 +3132,12 @@ function renderInboxList() {
         if (item.isResolved) {
             itemDiv.style.opacity = '0.6';
         }
+
+        const typeLabel = item.type === 'problem_report' ? 'Reporte' : 'Contacto';
+
         itemDiv.innerHTML = `
-            <strong>${item.type === 'problem_report' ? 'Reporte' : 'Contacto'} #${item.id}</strong><br>
-            <small>${item.type === 'problem_report' ? `Usuario: ${item.user}` : `Asunto: ${item.subject}`}</small>
+            <strong>${typeLabel} #${item.id}</strong><br>
+            <small>${item.subject}</small>
         `;
         itemDiv.onclick = () => renderInboxDetail(item.id, item.type);
         listContainer.appendChild(itemDiv);
@@ -3084,21 +3153,14 @@ function renderInboxDetail(itemId, itemType) {
         return;
     }
 
-    let content = `<h3>Detalle del Mensaje</h3>`;
-    if (item.type === 'problem_report') {
-        content += `
-            <p><strong>Tipo:</strong> Reporte de Problema</p>
-            <p><strong>Usuario:</strong> ${item.user}</p>
-            <p><strong>ID Vehículo:</strong> ${item.vehicleId}</p>
-            <p><strong>Problema:</strong><br>${item.problem}</p>
-        `;
-    } else {
-        content += `
-            <p><strong>Tipo:</strong> Formulario de Contacto</p>
-            <p><strong>Asunto:</strong> ${item.subject}</p>
-            <p><strong>Mensaje:</strong><br>${item.message.replace(/\n/g, '<br>')}</p>
-        `;
+    const typeLabel = item.type === 'problem_report' ? 'Reporte de Problema' : 'Formulario de Contacto';
+    let content = `<h3>${item.subject}</h3>`;
+
+    content += `<p><strong>De:</strong> ${item.user} | <strong>Tipo:</strong> ${typeLabel}</p>`;
+    if (item.vehicleId) {
+        content += `<p><strong>ID Vehículo:</strong> ${item.vehicleId}</p>`;
     }
+    content += `<div style="background: #f1f1f1; padding: 10px; border-radius: 5px; margin-top: 10px;"><p>${item.content.replace(/\n/g, '<br>')}</p></div>`;
 
     content += `
         <hr>
@@ -3183,7 +3245,8 @@ document.addEventListener('DOMContentLoaded', () => {
         statusDiv.style.backgroundColor = '#e2e3e5';
 
         try {
-            const result = await routeAction(action, { session: { userId: session.ID } }, 'UTILITIES');
+            // CORRECCIÓN: Enviar el objeto de sesión completo en el payload.
+            const result = await routeAction(action, { session: session }, 'UTILITIES');
             statusDiv.textContent = `Éxito: ${result.message}`;
             statusDiv.style.backgroundColor = '#d4edda';
         } catch (error) {

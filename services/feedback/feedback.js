@@ -396,32 +396,35 @@ function handleSendContactForm(payload) {
 // ============================================================================
 
 function handleGetFeedbackItems(payload) {
-    // No role check here, as we just fetch. Authorization should be handled client-side for UI display.
     const feedbackSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
     const contactSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CONTACTANOS);
 
     const feedbackData = feedbackSheet.getDataRange().getValues().slice(1).map(row => ({
         type: 'problem_report',
         id: row[COLS_FEEDBACKS.ID - 1],
+        subject: `Reporte en Vehículo #${row[COLS_FEEDBACKS.ID_vehiculo - 1]}`,
+        content: row[COLS_FEEDBACKS.Problema - 1],
         user: row[COLS_FEEDBACKS.Usuario - 1],
         vehicleId: row[COLS_FEEDBACKS.ID_vehiculo - 1],
-        problem: row[COLS_FEEDBACKS.Problema - 1],
         reply: row[COLS_FEEDBACKS.Respuesta - 1],
-        isResolved: row[COLS_FEEDBACKS['Se resolvio'] - 1],
+        isResolved: row[COLS_FEEDBACKS['Se resolvio'] - 1] === true,
         responder: row[COLS_FEEDBACKS.Responde - 1]
     }));
 
     const contactData = contactSheet.getDataRange().getValues().slice(1).map(row => ({
         type: 'contact_form',
         id: row[COLS_CONTACTANOS.Contacto_ID - 1],
-        user: 'N/A', // Or derive from message
         subject: row[COLS_CONTACTANOS.Asunto - 1],
-        message: row[COLS_CONTACTANOS.Mensaje - 1],
+        content: row[COLS_CONTACTANOS.Mensaje - 1],
+        user: 'Formulario de Contacto',
+        vehicleId: null,
         reply: row[COLS_CONTACTANOS.Respuesta_mensaje - 1],
+        isResolved: null,
         responder: row[COLS_CONTACTANOS.ID_usuario_responde - 1]
     }));
 
-    return { status: 'success', data: { feedback: feedbackData, contact: contactData } };
+    const unifiedData = [...feedbackData, ...contactData];
+    return { status: 'success', data: unifiedData };
 }
 
 function handleReplyToFeedback(payload) {
