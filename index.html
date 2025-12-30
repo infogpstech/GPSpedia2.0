@@ -2535,21 +2535,36 @@ function mostrarMarcas(categoria) {
     estado = { nivel: "marcas", categoria: categoria };
     const cont = document.getElementById("contenido");
     cont.innerHTML = `<span class="backBtn" onclick="irAPaginaPrincipal()">${backSvg} Volver</span><h4>Marcas de ${categoria}</h4>`;
+
+    if (!datosLogos || datosLogos.length === 0) {
+        debugLog('RENDER_WARNING', 'La variable `datosLogos` está vacía. Los logos pueden no mostrarse correctamente.', {
+            source: 'mostrarMarcas'
+        });
+    }
+
     const itemsInCategory = datosOriginales.filter(item => item.categoria === categoria);
     const marcas = [...new Set(itemsInCategory.map(item => item.marca))].filter(m => m).sort();
-    const grid = document.createElement("div"); grid.className = "grid";
+    const grid = document.createElement("div");
+    grid.className = "grid";
+
     marcas.forEach(m => {
-        const itemsInBrand = itemsInCategory.filter(item => item.marca === m);
         const logoUrl = getLogoUrlForMarca(m, categoria);
         const card = document.createElement("div");
         card.className = "card";
         card.onclick = () => mostrarModelos(categoria, m);
+
         const img = document.createElement("img");
         img.src = logoUrl || 'https://placehold.co/280x200/cccccc/333333?text=Sin+Logo';
         img.alt = `Marca ${m}`;
-        img.style.objectFit = 'contain'; // Asegurar que el logo se vea bien
+        img.style.objectFit = 'contain';
         img.loading = "lazy";
+        img.onerror = function() {
+            this.onerror = null; // Prevenir bucles infinitos si el placeholder también falla
+            this.src = 'https://placehold.co/280x200/f8d7da/dc3545?text=Error';
+            debugLog('IMAGE_ERROR', 'No se pudo cargar el logo.', { marca: m, urlIntentada: logoUrl });
+        };
         card.appendChild(img);
+
         const overlay = document.createElement("div");
         overlay.className = "overlay";
         overlay.innerHTML = m;

@@ -1,3 +1,9 @@
+**v4.2.5 (10/01/2026)**
+*   **FIX (index.html & services/catalog/catalog.js):** Se implementó una solución integral para el fallo persistente en la renderización de logos de marcas.
+    1.  **Backend (`services/catalog/catalog.js`):** Se corrigió una inconsistencia crítica en la función `doGet`. Se actualizó el número de versión reportado de `1.2.1` a `2.3.0` y se añadió `LogosMarca` a la lista de hojas de cálculo accedidas en el modo debug. Esto asegura que la metadata del servicio refleje su funcionalidad real. (Líneas 77, 79).
+    2.  **Frontend (`index.html`):** Se robusteció la función `mostrarMarcas`. Ahora incluye una comprobación defensiva que emite un `debugLog` si `datosLogos` está vacío, alertando sobre problemas de datos. Además, se añadió un manejador de eventos `onerror` a las imágenes de los logos, que muestra una imagen de "Error" y registra un `debugLog` si la carga falla. (Líneas 2535-2565).
+*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `FEEDBACK` a la nueva versión desplegada y proporcionada por el usuario, restaurando la funcionalidad del sistema de Inbox y reportes. (Línea 12).
+
 **v4.2.4 (09/01/2026)**
 *   **FIX CRÍTICO (index.html):** Se solucionó una regresión crítica que impedía la carga del catálogo y causaba la pérdida de sesión en cada recarga.
     *   **Causa Raíz:** Un error de `ReferenceError: updateCarousel is not defined` detenía la ejecución de JavaScript. La función `updateCarousel` se definía dentro de un bloque `if` en la lógica del carrusel, pero era llamada por un `setTimeout` que se encontraba fuera de dicho bloque. Si la condición del `if` no se cumplía (p.ej., si había menos de 6 elementos en el carrusel), la función no se declaraba, provocando el error fatal.
