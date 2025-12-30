@@ -216,6 +216,10 @@ function handleGetCatalogData() {
     allData.cortes = cortesData;
     allData.categoryCounts = categoryCounts;
 
+    // Crear y añadir la lista de categorías ordenada por popularidad
+    const sortedCategories = Object.keys(categoryCounts).sort((a, b) => categoryCounts[b] - categoryCounts[a]);
+    allData.sortedCategories = sortedCategories;
+
     // Fetch Logos
     const logosSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.LOGOS_MARCA);
     let logosData = [];

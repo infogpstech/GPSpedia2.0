@@ -1,6 +1,13 @@
+**v4.2.1 (07/01/2026)**
+*   **FIX (catalog.js & index.html):** Se corrigió un bug funcional en el ordenamiento de categorías. La versión anterior calculaba la popularidad pero no la aplicaba.
+    1.  **Backend (`services/catalog/catalog.js`):** Se añadió la lógica para ordenar la lista de categorías por `vehicleCount` (descendente) antes de enviarla al frontend. (Líneas 220-221).
+    2.  **Frontend (`index.html`):** Se eliminó el ordenamiento alfabético (`.sort()`) que se aplicaba en el cliente, asegurando que el orden del backend sea respetado. Se modificó la función `mostrarCategorias` para usar la nueva lista `sortedCategoriesList` recibida. (Líneas 1611, 1458, 2326-2332).
+*   **FEAT (services/utilities/utilities.js):** Se añadió una nueva funcionalidad al servicio de utilidades para obtener la fecha de creación de una imagen a partir de su URL de Google Drive.
+    1.  **Helper Function:** Se creó una nueva función auxiliar `getImageCreationDate(url)` que extrae el ID del archivo de la URL, accede al archivo mediante `DriveApp` y devuelve su fecha de creación en formato ISO. (Líneas 105-128).
+    2.  **API Endpoint:** Se expuso esta funcionalidad a través de una nueva acción `getImageCreationDateFromUrl` en el `doPost`, permitiendo que sea invocada de forma segura desde el frontend (requiere rol 'Desarrollador'). (Líneas 66-72).
+
 **v4.2.0 (06/01/2026)**
 *   **FEAT (feedback.js):** Se refactorizó completamente la lógica de `handleSuggestYear` para cumplir con los nuevos requisitos de negocio. La función ahora requiere 3 votos de usuarios para aplicar un cambio y ejecuta una comprobación anti-colisión para prevenir el solapamiento de rangos de años entre diferentes generaciones de un mismo modelo.
-*   **FEAT (catalog.js):** Se implementó el ordenamiento de categorías por popularidad. El servicio ahora calcula la cantidad de vehículos por categoría y devuelve la lista ordenada, permitiendo al frontend mostrar las categorías con más contenido primero.
 *   **REFACTOR (catalog.js):** Se centralizó la lógica de conversión de URLs de Google Drive a thumbnails en el backend. La nueva función `convertirAGoogleThumbnail` ahora procesa todas las URLs de imágenes antes de enviarlas al frontend, mejorando el rendimiento y la consistencia.
 *   **UX (index.html):** Se implementaron múltiples mejoras en la interfaz de usuario:
     *   **Layout Principal:** Se reorganizó la página principal para mostrar primero la sección "Últimos Agregados" y luego las "Categorías".

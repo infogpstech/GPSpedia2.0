@@ -1457,6 +1457,7 @@ async function initializeAppData(user) {
         try {
             const result = await postToAction('getCatalogData');
             datosOriginales = result.data.cortes || [];
+            sortedCategoriesList = result.data.sortedCategories || []; // <-- NUEVA LÍNEA
             datosTutoriales = result.data.tutoriales || [];
             datosRelay = result.data.relay || [];
             datosLogos = result.data.logos || [];
@@ -1610,7 +1611,7 @@ function showSkeletonLoader(container) {
 }
 
 // --- VARIABLES GLOBALES DE DATOS ---
-let datosOriginales = [], datosFiltrados = [], datosTutoriales = [], datosRelay = [];
+let datosOriginales = [], sortedCategoriesList = [], datosFiltrados = [], datosTutoriales = [], datosRelay = [];
 let estado = { nivel: "categorias", categoria: null, marca: null, modelo: null };
 let appOpenedFromLink = false;
 
@@ -2332,11 +2333,20 @@ function mostrarCategorias() {
         return;
     }
 
-    const categorias = [...new Set(datosOriginales.map(item => item.categoria))].filter(c => c).sort();
+    // Usar la lista pre-ordenada del backend
+    const categorias = sortedCategoriesList;
+    if (!categorias || categorias.length === 0) {
+        const p = document.createElement('p');
+        p.textContent = 'No se encontraron categorías.';
+        p.style.textAlign = 'center';
+        cont.appendChild(p);
+        return;
+    }
+
     const grid = document.createElement("div"); grid.className = "grid";
     categorias.forEach(cat => {
-        const itemsInCategory = datosOriginales.filter(item => item.categoria === cat);
-        const ejemplo = itemsInCategory.find(item => item.imagenVehiculo);
+        // Encontrar un vehículo de ejemplo para la imagen de la categoría
+        const ejemplo = datosOriginales.find(item => item.categoria === cat && item.imagenVehiculo);
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarMarcas(cat);
         const img = document.createElement("img");

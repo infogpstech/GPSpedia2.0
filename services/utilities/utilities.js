@@ -63,6 +63,13 @@ function doPost(e) {
             case 'migrateTimestamps':
                 result = handleMigrateTimestamps();
                 break;
+            case 'getImageCreationDateFromUrl':
+                if (!payload || !payload.url) {
+                    throw new Error("La URL es requerida en el payload para esta acción.");
+                }
+                const date = getImageCreationDate(payload.url);
+                result = { status: 'success', creationDate: date };
+                break;
             default:
                 throw new Error(`Acción desconocida en Utilities Service: ${action}`);
         }
@@ -99,6 +106,40 @@ function authorize(session, requiredRoles) {
     const userRole = userRow[COLS_USERS.Privilegios - 1];
     if (!requiredRoles.includes(userRole)) {
         throw new Error("No tienes permisos para realizar esta acción.");
+    }
+}
+
+
+// ============================================================================
+// FUNCIONES AUXILIARES (HELPERS)
+// ============================================================================
+
+/**
+ * Extrae el ID de una URL de Google Drive, obtiene el archivo y devuelve su fecha de creación.
+ * @param {string} url La URL de Google Drive.
+ * @returns {string} La fecha de creación del archivo en formato ISO string.
+ * @throws {Error} Si la URL es inválida, no se puede extraer el ID o hay un error al acceder al archivo.
+ */
+function getImageCreationDate(url) {
+    if (!url || typeof url !== 'string') {
+        throw new Error("URL inválida o no proporcionada.");
+    }
+
+    // Expresión regular para extraer el ID de varias formas de URL de Google Drive (incluyendo /d/ y ?id=)
+    const idMatch = url.match(/id=([a-zA-Z0-9_-]+)|\/d\/([a-zA-Z0-9_-]+)/);
+    if (!idMatch) {
+        throw new Error("No se pudo extraer el ID del archivo de la URL proporcionada.");
+    }
+
+    const fileId = idMatch[1] || idMatch[2];
+
+    try {
+        const file = DriveApp.getFileById(fileId);
+        const dateCreated = file.getDateCreated();
+        return dateCreated.toISOString(); // Devolver en formato estándar para consistencia
+    } catch (e) {
+        // Captura errores comunes como "archivo no encontrado" o problemas de permisos.
+        throw new Error(`Error al acceder al archivo de Drive con ID '${fileId}': ${e.message}`);
     }
 }
 
