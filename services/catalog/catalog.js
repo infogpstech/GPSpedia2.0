@@ -344,8 +344,22 @@ function handleCheckVehicle(payload) {
 
 function convertirAGoogleThumbnail(url) {
     if (!url || typeof url !== 'string') return null;
-    const idMatch = url.match(/id=([a-zA-Z0-9_-]+)|\/d\/([a-zA-Z0-9_-]+)/);
-    return idMatch ? `https://drive.google.com/thumbnail?sz=w1000&id=${idMatch[1] || idMatch[2]}` : url;
+
+    // Expresión regular mejorada para capturar el ID de varias URLs de Google Drive:
+    // 1. /file/d/ID
+    // 2. id=ID
+    // 3. /d/ID (para formatos más cortos)
+    const idMatch = url.match(/file\/d\/([a-zA-Z0-9_-]+)|id=([a-zA-Z0-9_-]+)|\/d\/([a-zA-Z0-9_-]+)/);
+
+    // Si se encuentra una coincidencia, construye la URL del thumbnail.
+    // Los grupos de captura pueden estar en idMatch[1], idMatch[2], o idMatch[3].
+    if (idMatch) {
+        const fileId = idMatch[1] || idMatch[2] || idMatch[3];
+        return `https://drive.google.com/thumbnail?sz=w1000&id=${fileId}`;
+    }
+
+    // Si no es una URL de Google Drive reconocible, devolver la URL original.
+    return url;
 }
 
 

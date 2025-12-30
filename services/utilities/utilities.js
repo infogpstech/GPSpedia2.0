@@ -125,13 +125,12 @@ function getImageCreationDate(url) {
         throw new Error("URL inválida o no proporcionada.");
     }
 
-    // Expresión regular para extraer el ID de varias formas de URL de Google Drive (incluyendo /d/ y ?id=)
-    const idMatch = url.match(/id=([a-zA-Z0-9_-]+)|\/d\/([a-zA-Z0-9_-]+)/);
+    const idMatch = url.match(/file\/d\/([a-zA-Z0-9_-]+)|id=([a-zA-Z0-9_-]+)|\/d\/([a-zA-Z0-9_-]+)/);
     if (!idMatch) {
         throw new Error("No se pudo extraer el ID del archivo de la URL proporcionada.");
     }
 
-    const fileId = idMatch[1] || idMatch[2];
+    const fileId = idMatch[1] || idMatch[2] || idMatch[3];
 
     try {
         const file = DriveApp.getFileById(fileId);
@@ -190,9 +189,9 @@ function handleMigrateTimestamps() {
         const url = row[0];
         if (url && typeof url === 'string') {
             try {
-                const idMatch = url.match(/id=([a-zA-Z0-9_-]+)|\/d\/([a-zA-Z0-9_-]+)/);
+                const idMatch = url.match(/file\/d\/([a-zA-Z0-9_-]+)|id=([a-zA-Z0-9_-]+)|\/d\/([a-zA-Z0-9_-]+)/);
                 if (idMatch) {
-                    const fileId = idMatch[1] || idMatch[2];
+                    const fileId = idMatch[1] || idMatch[2] || idMatch[3];
                     const file = DriveApp.getFileById(fileId);
                     const dateCreated = file.getDateCreated();
 
