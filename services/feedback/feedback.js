@@ -20,7 +20,8 @@ const SHEET_NAMES = {
     CORTES: "Cortes",
     FEEDBACKS: "Feedbacks",
     CONTACTANOS: "Contactanos",
-    ACTIVIDAD_USUARIO: "ActividadUsuario"
+    ACTIVIDAD_USUARIO: "ActividadUsuario",
+    SUGERENCIAS_ANO: "SugerenciasAño"
 };
 
 // Mapa de columnas para la hoja "Cortes" (v2.0)
@@ -189,42 +190,93 @@ function handleAssignCollaborator(payload) {
 }
 
 function handleSuggestYear(payload) {
-    const { vehicleId, newYear } = payload;
-    if (!vehicleId || !newYear) throw new Error("Faltan datos para sugerir año.");
+    const { vehicleId, newYear, userId, userName } = payload;
+    if (!vehicleId || !newYear || !userId || !userName) {
+        throw new Error("Faltan datos para sugerir año (vehicleId, newYear, userId, userName).");
+    }
 
     const year = parseInt(newYear, 10);
-    if (isNaN(year)) throw new Error("El año proporcionado no es un número válido.");
+    if (isNaN(year) || year < 1980 || year > 2099) {
+        throw new Error("El año proporcionado no es un número válido.");
+    }
 
-    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
-    const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues();
+    const sugerenciasSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.SUGERENCIAS_ANO);
+    if (!sugerenciasSheet) throw new Error(`Hoja no encontrada: ${SHEET_NAMES.SUGERENCIAS_ANO}`);
 
-    for (let i = 0; i < data.length; i++) {
-        if (data[i][0] == vehicleId) {
-            const rowIndex = i + 2;
-            const range = sheet.getRange(rowIndex, COLS_CORTES.anoDesde, 1, 2);
-            const values = range.getValues()[0];
-            let anoDesde = values[0] ? parseInt(values[0], 10) : year;
-            let anoHasta = values[1] ? parseInt(values[1], 10) : year;
+    // 1. Registrar la sugerencia
+    sugerenciasSheet.appendRow([new Date(), vehicleId, userId, userName, year]);
+    logUserActivity(userId, userName, 'suggest_year', vehicleId, `Año sugerido: ${year}`);
 
-            let updated = false;
-            if (year < anoDesde) {
-                anoDesde = year;
-                updated = true;
-            }
-            if (year > anoHasta) {
-                anoHasta = year;
-                updated = true;
-            }
+    // 2. Contar votos para esta combinación
+    const allSuggestions = sugerenciasSheet.getDataRange().getValues().slice(1);
+    const voteCount = allSuggestions.filter(row => row[1] == vehicleId && row[4] == year).length;
 
-            if (updated) {
-                range.setValues([[anoDesde, anoHasta]]);
-                return { status: 'success', message: `Rango de años actualizado a ${anoDesde}-${anoHasta}.` };
-            } else {
-                return { status: 'info', message: 'El año sugerido ya está dentro del rango existente.' };
+    // 3. Si no se alcanzan los 3 votos, terminar
+    if (voteCount < 3) {
+        return { status: 'success', message: `Sugerencia para el año ${year} registrada. Se necesitan ${3 - voteCount} más para aplicar el cambio.` };
+    }
+
+    // 4. Si se alcanzan los 3 votos, proceder con la lógica de actualización
+    const cortesSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
+    const allCortesData = cortesSheet.getDataRange().getValues();
+    const headers = allCortesData.shift();
+    const vehicleRowIndex = allCortesData.findIndex(row => row[COLS_CORTES.id - 1] == vehicleId);
+
+    if (vehicleRowIndex === -1) throw new Error("Vehículo no encontrado para actualizar.");
+
+    const vehicleRow = allCortesData[vehicleRowIndex];
+    const anoDesde = parseInt(vehicleRow[COLS_CORTES.anoDesde - 1], 10);
+    const anoHasta = parseInt(vehicleRow[COLS_CORTES.anoHasta - 1] || anoDesde, 10);
+
+    // Si el año ya está en el rango, no hacer nada
+    if (year >= anoDesde && year <= anoHasta) {
+        return { status: 'info', message: `El año ${year} ya está dentro del rango actual.` };
+    }
+
+    // 5. Lógica Anti-colisión
+    const marca = vehicleRow[COLS_CORTES.marca - 1];
+    const modelo = vehicleRow[COLS_CORTES.modelo - 1];
+    const tipoEncendido = vehicleRow[COLS_CORTES.tipoEncendido - 1];
+
+    for (const row of allCortesData) {
+        if (row[COLS_CORTES.id - 1] == vehicleId) continue; // No comparar consigo mismo
+
+        const otherMarca = row[COLS_CORTES.marca - 1];
+        const otherModelo = row[COLS_CORTES.modelo - 1];
+        const otherTipoEncendido = row[COLS_CORTES.tipoEncendido - 1];
+
+        if (otherMarca === marca && otherModelo === modelo && otherTipoEncendido === tipoEncendido) {
+            const otherAnoDesde = parseInt(row[COLS_CORTES.anoDesde - 1], 10);
+            const otherAnoHasta = parseInt(row[COLS_CORTES.anoHasta - 1] || otherAnoDesde, 10);
+            if (year >= otherAnoDesde && year <= otherAnoHasta) {
+                logUserActivity(userId, userName, 'suggest_year_collision', vehicleId, `Año ${year} colisiona con rango de vehículo ID ${row[COLS_CORTES.id - 1]}`);
+                return { status: 'warning', message: `La sugerencia para el año ${year} no se puede aplicar porque parece corresponder a una generación diferente del mismo modelo. Se requiere revisión manual.` };
             }
         }
     }
-    throw new Error("Vehículo no encontrado.");
+
+    // 6. Actualizar el rango
+    let newAnoDesde = anoDesde;
+    let newAnoHasta = anoHasta;
+    let updated = false;
+
+    if (year < anoDesde) {
+        newAnoDesde = year;
+        updated = true;
+    }
+    if (year > anoHasta) {
+        newAnoHasta = year;
+        updated = true;
+    }
+
+    if (updated) {
+        cortesSheet.getRange(vehicleRowIndex + 2, COLS_CORTES.anoDesde).setValue(newAnoDesde);
+        cortesSheet.getRange(vehicleRowIndex + 2, COLS_CORTES.anoHasta).setValue(newAnoHasta);
+        logUserActivity(userId, userName, 'apply_year_suggestion', vehicleId, `Rango actualizado a ${newAnoDesde}-${newAnoHasta} basado en 3 votos para el año ${year}.`);
+        return { status: 'success', message: `¡Gracias! Con 3 votos confirmados, el rango de años se ha actualizado a ${newAnoDesde}-${newAnoHasta}.` };
+    }
+
+    return { status: 'info', message: 'No se realizaron cambios.' };
 }
 
 function logUserActivity(userId, userName, activityType, associatedId, details) {

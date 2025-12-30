@@ -153,28 +153,39 @@ function handleGetCatalogData() {
     // Fetch Cortes
     const cortesSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
     let cortesData = [];
+    const categoryCounts = {};
+
     if (cortesSheet) {
         const data = cortesSheet.getDataRange().getValues();
         data.shift();
         cortesData = data
-          .filter(row => row && row[0]) // <-- FIX: Ignorar filas vacías (chequea si la fila existe y tiene un ID en la primera columna)
+          .filter(row => row && row[0])
           .map(row => {
             const vehicle = mapRowToObject(row, COLS_CORTES);
-
-            // Si por alguna razón el mapeo falla, devolvemos null para filtrarlo después
             if (!vehicle) return null;
 
-            // Re-implementar la lógica de ordenamiento por utilidad
+            // Contar vehículos por categoría
+            if (vehicle.categoria) {
+                categoryCounts[vehicle.categoria] = (categoryCounts[vehicle.categoria] || 0) + 1;
+            }
+
+            // Convertir todas las URLs de imágenes a thumbnails
+            vehicle.imagenVehiculo = convertirAGoogleThumbnail(vehicle.imagenVehiculo);
+            vehicle.imgCorte1 = convertirAGoogleThumbnail(vehicle.imgCorte1);
+            vehicle.imgCorte2 = convertirAGoogleThumbnail(vehicle.imgCorte2);
+            vehicle.imgCorte3 = convertirAGoogleThumbnail(vehicle.imgCorte3);
+            vehicle.imgApertura = convertirAGoogleThumbnail(vehicle.imgApertura);
+            vehicle.imgCableAlimen = convertirAGoogleThumbnail(vehicle.imgCableAlimen);
+
             const cortes = [
                 { index: 1, util: parseInt(vehicle.utilCorte1, 10) || 0 },
                 { index: 2, util: parseInt(vehicle.utilCorte2, 10) || 0 },
                 { index: 3, util: parseInt(vehicle.utilCorte3, 10) || 0 }
-            ].sort((a, b) => b.util - a.util); // Orden descendente
+            ].sort((a, b) => b.util - a.util);
 
             const orderedVehicle = { ...vehicle };
             const tempCortes = {};
 
-            // Guardar los datos originales de los cortes temporalmente
             for (let i = 1; i <= 3; i++) {
                 tempCortes[i] = {
                     tipo: vehicle[`tipoCorte${i}`],
@@ -187,7 +198,6 @@ function handleGetCatalogData() {
                 };
             }
 
-            // Reasignar los cortes en el nuevo orden
             cortes.forEach((corte, i) => {
                 const newIndex = i + 1;
                 const oldIndex = corte.index;
@@ -201,9 +211,10 @@ function handleGetCatalogData() {
             });
 
             return orderedVehicle;
-        }).filter(Boolean); // <-- FIX: Eliminar cualquier objeto nulo resultante del mapeo
+        }).filter(Boolean);
     }
     allData.cortes = cortesData;
+    allData.categoryCounts = categoryCounts;
 
     // Fetch Logos
     const logosSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.LOGOS_MARCA);
@@ -326,6 +337,13 @@ function handleCheckVehicle(payload) {
 // ============================================================================
 // FUNCIONES AUXILIARES
 // ============================================================================
+
+function convertirAGoogleThumbnail(url) {
+    if (!url || typeof url !== 'string') return null;
+    const idMatch = url.match(/id=([a-zA-Z0-9_-]+)|\/d\/([a-zA-Z0-9_-]+)/);
+    return idMatch ? `https://drive.google.com/thumbnail?sz=w1000&id=${idMatch[1] || idMatch[2]}` : url;
+}
+
 
 function isYearInRangeV2(inputYear, anoDesde, anoHasta) {
     if (isNaN(inputYear)) return false;

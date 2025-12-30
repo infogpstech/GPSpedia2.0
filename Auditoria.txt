@@ -1,33 +1,51 @@
-### Auditoría del Sistema GPSpedia - v4.0.2
+### Auditoría del Sistema GPSpedia - SAFE RECTIFICATION MODE
 
 #### A. Resumen del Estado Actual del Sistema
 
-1.  **Funcionalidad del Código Fuente:** El código de la aplicación es **estable y funcional**. El análisis de `index.html` confirma que la lógica para renderizar el modal de detalles del vehículo está correctamente implementada y es capaz de manejar múltiples "cortes".
-2.  **Contrato de API Backend:** El servicio `services/catalog/catalog.js` expone correctamente todos los campos necesarios para la visualización completa de los detalles del vehículo, incluyendo los datos para los tres cortes (`tipoCorte1/2/3`, `imgCorte1/2/3`, etc.), imágenes suplementarias (`imgApertura`, `imgCableAlimen`) y logos de marca.
-3.  **Sincronización con el Changelog:** El estado del código coincide con las descripciones de los arreglos documentados en las versiones más recientes (`v4.0.0`, `v4.0.1`) de `ChangesLogs.txt`.
+Se realizó una auditoría completa del frontend y de los servicios de backend seguros (`feedback.js`, `catalog.js`) para comparar el estado actual del código con los nuevos requisitos de la directiva "SAFE FRONTEND/UI IMPLEMENTATION MODE".
 
-En resumen, la aplicación en su estado actual **no presenta los bugs críticos** que se listan como pendientes en la documentación principal.
+**Hallazgos Clave:**
 
-#### B. Lista de Implementaciones Incompletas, Rotas o Inconsistentes
+1.  **Frontend (`index.html`):**
+    *   **Layout de la Página Principal:** La sección "Últimos Agregados" se muestra después de "Categorías", no antes. Se implementa como un carrusel de 10 tarjetas, no 6. Las categorías se ordenan alfabéticamente, no por popularidad (cantidad de vehículos).
+    *   **Navegación:** El flujo de `Categoría -> Marca` muestra los nombres de las marcas como texto, en lugar de los íconos/logos requeridos.
+    *   **Modal de Detalles:** La funcionalidad "Sugerir Año" existe pero no está vinculada al botón "Útil" (👍) y carece de la lógica de confirmación (3 votos). No existen placeholders para la edición "in-modal" de campos vacíos.
+    *   **Imágenes:** La conversión de URLs de Google Drive a thumbnails se realiza correctamente en el frontend. La optimización de carga (`loading="lazy"`) está implementada.
 
-El problema central del proyecto no reside en el código, sino en una **falla crítica de sincronización de la documentación**.
+2.  **Backend (`feedback.js`):**
+    *   **Lógica de "Sugerir Año":** La función `handleSuggestYear` es demasiado simple. Actualiza el rango de años ante cualquier sugerencia fuera del rango actual, pero carece de la lógica mandatoria de "3 votos" y de la comprobación "anti-colisión" para evitar el solapamiento de rangos entre diferentes generaciones de vehículos.
 
-1.  **`README.md` Desactualizado:** El archivo `README.md`, que sirve como la hoja de ruta del proyecto, está severamente desactualizado. La sección "Bugs y Regresiones Críticas" lista incorrectamente las siguientes tareas como pendientes `[ ]` cuando en realidad ya han sido completadas y verificadas en el código:
-    *   `Lógica del Modal de Detalle`: Corregido. El modal ahora muestra todos los cortes disponibles.
-    *   `Carga de Imágenes en Modal`: Corregido. Las imágenes de apertura, alimentación y relay se cargan correctamente.
-    *   `Carga de Logos en Modal`: Corregido. El logo de la marca se muestra en el modal.
+3.  **Backend (`catalog.js`):**
+    *   **Ordenamiento de Categorías:** El servicio no contiene ninguna lógica para calcular la cantidad de vehículos por categoría y ordenarlas. Las devuelve en el orden en que las obtiene de la hoja de cálculo.
+    *   **Conversión de Imágenes:** No realiza la conversión de URLs a thumbnails en el backend; esta lógica reside actualmente en el frontend.
 
-Esta discrepancia crea una imagen falsa del estado del proyecto, dificulta la planificación y podría llevar a la asignación de trabajo para resolver problemas que ya no existen.
+#### B. Plan de Corrección Concreto y Seguro
 
-#### C. Hipótesis de la Causa Raíz
+A continuación se detalla el plan para rectificar las desviaciones encontradas, respetando la restricción de no modificar la lógica crítica de `auth.js` y `catalog.js`.
 
-La causa raíz es un **fallo en el proceso de desarrollo y documentación**. El desarrollador que implementó las correcciones (documentadas en `ChangesLogs.txt`) no completó el ciclo de trabajo actualizando el estado de las tareas correspondientes en el `README.md`. Este es un problema de disciplina de proyecto, no un error técnico en el software.
+1.  **Backend - `catalog.js` (Modificaciones Seguras):**
+    *   **Acción 1.1 (Ordenamiento de Categorías):** Modificar la función `handleGetCatalogData` para que, antes de devolver los datos, calcule un conteo de vehículos por cada categoría. Luego, usar este conteo para ordenar la lista de categorías de forma descendente. Esto no afecta la carga de datos, solo su orden de presentación.
+    *   **Acción 1.2 (Centralización de Thumbnails):** Crear una nueva función auxiliar `convertirAGoogleThumbnail` dentro de `catalog.js` y aplicarla a todos los campos de URL de imagen (`imagenVehiculo`, `imgCorte1`, etc.) antes de enviar la respuesta al frontend. Esto optimiza el rendimiento y centraliza la lógica.
 
-#### D. Plan de Corrección Concreto
+2.  **Backend - `feedback.js` (Modificaciones Seguras):**
+    *   **Acción 2.1 (Lógica de "Sugerir Año"):** Reescribir por completo la función `handleSuggestYear`. La nueva implementación deberá:
+        *   Registrar cada sugerencia de año en una nueva hoja de cálculo (`SugerenciasAño`) junto con el `vehicleId` y el `userId`.
+        *   Contar cuántas veces se ha sugerido el mismo año para el mismo vehículo.
+        *   **Solo si el conteo alcanza 3**, proceder a la lógica de actualización.
+        *   Antes de actualizar, ejecutar la **comprobación anti-colisión** buscando otros registros de la misma marca/modelo para evitar solapamientos de rangos.
+        *   Si todas las condiciones se cumplen, extender `anoDesde` o `anoHasta`. Si no, no hacer nada.
 
-Para resolver esta inconsistencia y alinear el repositorio a un estado coherente, se deben seguir los siguientes pasos:
+3.  **Frontend - `index.html` (Modificaciones de UI/UX):**
+    *   **Acción 3.1 (Layout Principal):**
+        *   Modificar la función `mostrarCategorias` para que renderice primero la sección "Últimos Agregados" y luego el grid de "Categorías".
+        *   Ajustar la función `mostrarUltimosAgregados` para que construya un carrusel con un máximo de 6 tarjetas y su respectiva navegación.
+        *   Aplicar el CSS necesario para que el grid principal no exceda 3 columnas en móviles (`max-width: 480px`).
+    *   **Acción 3.2 (Flujo de Navegación):**
+        *   Modificar la función `mostrarMarcas` para que renderice las marcas como íconos (`<img>`) utilizando las URLs de los logos proporcionadas por el backend, en lugar de texto plano.
+    *   **Acción 3.3 (Modal de Detalles):**
+        *   Vincular la funcionalidad "Sugerir Año" al botón "Útil" (👍). Al hacer clic, primero se registrará el "like" y luego se ejecutará el `prompt` para sugerir un año.
+        *   Implementar la lógica de "edición in-modal": para cada campo de texto en el modal (`ubicacion`, `color`, etc.), añadir un pequeño ícono de "editar". Si el campo está vacío, al hacer clic en el ícono se mostrará un `prompt` para que el usuario ingrese el dato, que se mostrará visualmente (sin guardarlo en el backend). Si el campo ya tiene datos, el ícono estará deshabilitado.
 
-1.  **Actualizar `Auditoria.txt`:** Sobrescribir este archivo con los hallazgos de esta auditoría para que sirva como la nueva fuente de verdad.
-2.  **Sincronizar `README.md`:** Editar la sección "Bugs y Regresiones Críticas" en `README.md` y marcar las tareas mencionadas anteriormente como completadas (`[X]`).
-3.  **Actualizar `ChangesLogs.txt`:** Añadir una nueva entrada para la versión `v4.0.2` que documente la ejecución de esta auditoría y la corrección de la documentación para reflejar el estado real del código.
-4.  **Entregar en un Único Commit:** Agrupar todas las modificaciones de documentación en un único commit con un mensaje claro que indique "Audit & Docs Sync".
+4.  **Documentación:**
+    *   **Acción 4.1 (`ChangesLogs.txt`):** Una vez completadas todas las modificaciones, añadir una nueva entrada de versión que detalle cada uno de los cambios realizados en `index.html`, `catalog.js` y `feedback.js`, con una nota explícita de que la lógica protegida no fue alterada.
+    *   **Acción 4.2 (`Auditoria.txt`):** Este mismo archivo servirá como registro de la auditoría y el plan de acción ejecutado.

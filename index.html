@@ -17,13 +17,44 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background: #f4f4f4;
+    background: var(--bg-color);
+    color: var(--text-color);
     display: flex;
     flex-direction: column;
     min-height: 100%;
+    transition: background-color 0.3s, color 0.3s;
 }
+
+:root {
+    --bg-color: #f4f4f4;
+    --text-color: #333;
+    --card-bg: #fff;
+    --header-color: #333;
+    --modal-bg: #fff;
+    --modal-text: #000;
+    --button-bg: #f0f0f0;
+    --button-text: #007bff;
+    --menu-bg: #fff;
+}
+
+body.dark-mode {
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --card-bg: #1e1e1e;
+    --header-color: #e0e0e0;
+    --modal-bg: #2c2c2c;
+    --modal-text: #e0e0e0;
+    --button-bg: #333;
+    --button-text: #58a6ff;
+    --menu-bg: #1e1e1e;
+}
+
 h1,h2,h3,h4 {
     margin: 10px 0;
+    color: var(--header-color);
+}
+h1.app-title {
+    color: var(--header-color) !important;
 }
 .container {
     padding: 20px;
@@ -257,6 +288,94 @@ body.search-active .search-container.has-text #clear-search-btn {
     text-align: center;
     color: #007bff;
 }
+.dark-mode #side-menu, .dark-mode #side-menu nav a {
+    background-color: var(--menu-bg);
+    color: var(--text-color);
+}
+.dark-mode .backBtn {
+    color: var(--button-text);
+}
+.dark-mode .card {
+    background: var(--card-bg);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
+}
+.dark-mode .section-btn {
+    background-color: var(--button-bg);
+    color: var(--text-color);
+    border-color: #555;
+}
+.dark-mode .section-btn.active {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}
+.dark-mode #detalleCompleto {
+    background: var(--modal-bg);
+    color: var(--modal-text);
+}
+.dark-mode .info-modal-content {
+    background-color: var(--modal-bg);
+    color: var(--modal-text);
+}
+.dark-mode .accordion-btn {
+    background-color: var(--button-bg);
+    color: var(--button-text);
+}
+.dark-mode .accordion-btn:hover, .dark-mode .accordion-btn.active {
+    background-color: #444;
+}
+.dark-mode .panel-desplegable {
+    background-color: var(--modal-bg);
+}
+/* Estilo para el switch de modo oscuro */
+.theme-switch-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 20px;
+    border-top: 1px solid #f0f0f0;
+    margin-top: auto;
+}
+.dark-mode .theme-switch-wrapper {
+    border-top: 1px solid #333;
+}
+.theme-switch {
+    display: inline-block;
+    height: 24px;
+    position: relative;
+    width: 50px;
+}
+.theme-switch input {
+    display:none;
+}
+.slider {
+    background-color: #ccc;
+    bottom: 0;
+    cursor: pointer;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transition: .4s;
+    border-radius: 24px;
+}
+.slider:before {
+    background-color: #fff;
+    bottom: 4px;
+    content: "";
+    height: 16px;
+    left: 4px;
+    position: absolute;
+    transition: .4s;
+    width: 16px;
+    border-radius: 50%;
+}
+input:checked + .slider {
+    background-color: #007bff;
+}
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
 
 /* --- ESTILOS DE BÚSQUEDA ACTIVA --- */
 body.search-active .app-title,
@@ -340,10 +459,17 @@ body.search-active .app-logo {
 .grid {
     display: grid;
     gap: 20px;
-    grid-template-columns: repeat(auto-fit, 140px);
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     justify-content: center;
     max-width: 1200px;
     margin: 0 auto;
+}
+
+@media (max-width: 480px) {
+    .grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 15px;
+    }
 }
 
 /* Estilos de la Tarjeta (Card) */
@@ -381,6 +507,48 @@ body.search-active .app-logo {
 .card:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* --- ESTILOS DEL CARRUSEL --- */
+.carousel-container {
+    position: relative;
+    overflow: hidden;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 25px; /* Espacio para que los botones no se superpongan */
+}
+.carousel-track {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+}
+.carousel-container .card {
+    flex: 0 0 140px; /* Ancho fijo para cada tarjeta */
+    margin-right: 20px;
+}
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.carousel-btn:hover {
+    background: #fff;
+}
+.carousel-btn.prev {
+    left: -5px;
+}
+.carousel-btn.next {
+    right: -5px;
 }
 
 /* --- ESTILOS DE SKELETON LOADER --- */
@@ -831,7 +999,14 @@ body.search-active .app-logo {
         <a href="#" id="inbox-btn" class="menu-link" style="display: none;"><i class="fa-solid fa-inbox"></i> Inbox</a>
         <a href="#" id="dev-tools-btn" class="menu-link" style="display: none;"><i class="fa-solid fa-code"></i> Desarrollador</a>
     </nav>
-    <div style="margin-top: auto; padding: 20px;">
+    <div class="theme-switch-wrapper">
+        <label style="margin-right: 10px;">Modo Oscuro</label>
+        <label class="theme-switch" for="dark-mode-toggle">
+            <input type="checkbox" id="dark-mode-toggle" />
+            <div class="slider round"></div>
+        </label>
+    </div>
+    <div style="padding: 20px;">
         <button id="side-menu-logout-button" style="width: 100%; background: #dc3545; color: #fff; border: none; padding: 12px; border-radius: 8px; cursor: pointer;">Cerrar Sesión</button>
     </div>
 </div>
@@ -1528,10 +1703,31 @@ function mostrarContenidoRelay() {
     cont.appendChild(grid);
 }
 
-function crearElementoDetalle(label, value) {
-    if (!value) return null;
+function handleInModalEdit(itemId, fieldName, iconElement) {
+    const label = iconElement.parentElement.querySelector('strong').textContent.replace(':', '');
+    const newValue = prompt(`Editar valor para "${label}":`);
+    if (newValue && newValue.trim() !== '') {
+        const parentP = iconElement.parentElement;
+        const contentSpan = parentP.querySelector('.field-value');
+        contentSpan.textContent = newValue;
+        contentSpan.classList.remove('empty-field');
+        iconElement.style.color = '#ccc';
+        iconElement.style.cursor = 'not-allowed';
+        iconElement.onclick = null;
+        // NOTE: Backend saving is intentionally skipped as per instructions.
+        alert('Valor actualizado visualmente. El guardado en la base de datos no está implementado en este paso.');
+    }
+}
+
+function crearElementoDetalle(label, value, itemId, fieldName) {
     const p = document.createElement("p");
-    p.innerHTML = `<strong>${label}:</strong> ${value.replace(/\n/g, '<br>')}`;
+    const hasValue = value && value.trim() !== '';
+    const content = hasValue ? value.replace(/\n/g, '<br>') : 'No especificado';
+    const contentClass = hasValue ? 'field-value' : 'field-value empty-field';
+    const iconStyle = hasValue ? 'color: #ccc; cursor: not-allowed;' : 'color: #007bff; cursor: pointer;';
+    const onClickAction = hasValue ? '' : `handleInModalEdit('${itemId}', '${fieldName}', this)`;
+
+    p.innerHTML = `<strong>${label}:</strong> <span class="${contentClass}">${content}</span> <i class="fa-solid fa-pencil edit-icon" style="margin-left: 8px; font-size: 0.8em; ${iconStyle}" onclick="${onClickAction}"></i>`;
     return p;
 }
 
@@ -1640,13 +1836,12 @@ function mostrarDetalleTutorial(item) {
     cont.appendChild(title);
 
     const campos = [
-        { label: "Cómo identificarlo", value: item.comoIdentificarlo },
-        { label: "Dónde encontrarlo", value: item.dondeEncontrarlo },
-        { label: "Detalles", value: item.detalles }
+        { label: "Cómo identificarlo", value: item.comoIdentificarlo, field: 'comoIdentificarlo' },
+        { label: "Dónde encontrarlo", value: item.dondeEncontrarlo, field: 'dondeEncontrarlo' },
+        { label: "Detalles", value: item.detalles, field: 'detalles' }
     ];
     campos.forEach(c => {
-        const p = crearElementoDetalle(c.label, c.value);
-        if (p) cont.appendChild(p);
+        cont.appendChild(crearElementoDetalle(c.label, c.value, item.id, c.field));
     });
 
     crearImagenDetalle("Imagen", item.imagen, cont);
@@ -1678,18 +1873,17 @@ function mostrarDetalleRelay(item) {
     cont.appendChild(title);
 
     const campos = [
-        { label: "Función", value: item.funcion },
-        { label: "Vehículo donde se utiliza", value: item.vehiculoDondeSeUtiliza },
-        { label: "PIN 30 (entrada)", value: item.pin30Entrada },
-        { label: "PIN 85 (bobina +)", value: item.pin85Bobina },
-        { label: "PIN 86 (bobina - )", value: item.pin86Bobina },
-        { label: "PIN 87a (comun cerrado)", value: item.pin87aComunCerrado },
-        { label: "PIN 87 (Comunmente Abierto)", value: item.pin87ComunmenteAbierto },
-        { label: "Observación", value: item.observacion }
+        { label: "Función", value: item.funcion, field: 'funcion' },
+        { label: "Vehículo donde se utiliza", value: item.vehiculoDondeSeUtiliza, field: 'vehiculoDondeSeUtiliza' },
+        { label: "PIN 30 (entrada)", value: item.pin30Entrada, field: 'pin30Entrada' },
+        { label: "PIN 85 (bobina +)", value: item.pin85Bobina, field: 'pin85BobinaPositivo' },
+        { label: "PIN 86 (bobina - )", value: item.pin86Bobina, field: 'pin86bobinaNegativo' },
+        { label: "PIN 87a (comun cerrado)", value: item.pin87aComunCerrado, field: 'pin87aComunCerrado' },
+        { label: "PIN 87 (Comunmente Abierto)", value: item.pin87ComunmenteAbierto, field: 'pin87ComunmenteAbierto' },
+        { label: "Observación", value: item.observacion, field: 'observacion' }
     ];
     campos.forEach(c => {
-        const p = crearElementoDetalle(c.label, c.value);
-        if (p) cont.appendChild(p);
+        cont.appendChild(crearElementoDetalle(c.label, c.value, item.id, c.field));
     });
     crearImagenDetalle("Imagen", item.imagen, cont);
     const relayImg = cont.querySelector('img[alt="Imagen"]');
@@ -1941,6 +2135,20 @@ function mostrarDetalleModal(item) {
         cont.appendChild(panel);
     }
 
+    // --- Sección de Notas Personales ---
+    const personalNotesBtn = document.createElement("button");
+    personalNotesBtn.className = "accordion-btn";
+    personalNotesBtn.innerHTML = `Notas Personales <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+    cont.appendChild(personalNotesBtn);
+    const personalNotesPanel = document.createElement("div");
+    personalNotesPanel.className = "panel-desplegable";
+    personalNotesPanel.innerHTML = `
+        <textarea placeholder="Escribe tus notas privadas aquí. Solo tú podrás verlas." style="width: 100%; min-height: 80px; margin-top: 10px;"></textarea>
+        <button disabled style="margin-top: 5px; background-color: #ccc;">Guardar Nota (Próximamente)</button>
+    `;
+    cont.appendChild(personalNotesPanel);
+
+
     // --- Secciones de Información Suplementaria ---
     if (item.apertura || item.imgApertura) {
         const btn = document.createElement("button");
@@ -2046,7 +2254,11 @@ function mostrarResultadosBusquedaMarca(busquedaTexto) {
         const ejemplo = datosFiltrados.find(item => item.marca === marca && item.imagenVehiculo) || datosFiltrados.find(item => item.marca === marca);
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarResultadosBusquedaModelo(busquedaTexto, marca);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo.imagenVehiculo); img.alt = `Marca ${marca}`; card.appendChild(img);
+        const img = document.createElement("img");
+        img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
+        img.alt = `Categoría ${cat}`;
+        img.loading = "lazy"; // Optimización de carga
+        card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay"; overlay.innerHTML = marca; card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -2102,11 +2314,24 @@ function mostrarCategorias() {
     if (document.getElementById("searchInput").value.trim()) return;
     estado = { nivel: "categorias", categoria: null };
     const cont = document.getElementById("contenido");
-    cont.innerHTML = "<h4>Categorías</h4>";
+    cont.innerHTML = ""; // Limpiar contenido
+
+    // Primero mostrar "Últimos Agregados"
+    mostrarUltimosAgregados();
+
+    const categoriasTitle = document.createElement('h4');
+    categoriasTitle.textContent = 'Categorías';
+    categoriasTitle.style.marginTop = '40px';
+    cont.appendChild(categoriasTitle);
+
     if (!datosOriginales || datosOriginales.length === 0) {
-        cont.innerHTML += '<p style="text-align:center;">No hay datos de cortes disponibles.</p>';
+        const p = document.createElement('p');
+        p.textContent = 'No hay categorías disponibles.';
+        p.style.textAlign = 'center';
+        cont.appendChild(p);
         return;
     }
+
     const categorias = [...new Set(datosOriginales.map(item => item.categoria))].filter(c => c).sort();
     const grid = document.createElement("div"); grid.className = "grid";
     categorias.forEach(cat => {
@@ -2114,38 +2339,125 @@ function mostrarCategorias() {
         const ejemplo = itemsInCategory.find(item => item.imagenVehiculo);
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarMarcas(cat);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo); img.alt = `Categoría ${cat}`; card.appendChild(img);
-        const overlay = document.createElement("div"); overlay.className = "overlay"; overlay.innerHTML = cat; card.appendChild(overlay);
+        const img = document.createElement("img");
+        img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
+        img.alt = `Categoría ${cat}`;
+        card.appendChild(img);
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+        overlay.innerHTML = cat;
+        card.appendChild(overlay);
         grid.appendChild(card);
     });
     cont.appendChild(grid);
-    mostrarUltimosAgregados();
 }
 
 function mostrarUltimosAgregados() {
     const cont = document.getElementById("contenido");
     if (!datosOriginales || datosOriginales.length === 0) return;
 
-    const ultimosCortes = [...datosOriginales].sort((a, b) => b.id - a.id).slice(0, 6);
+    // Usar timestamp si existe, si no, usar id como fallback
+    const ultimosCortes = [...datosOriginales]
+        .sort((a, b) => {
+            const dateA = a.timestamp ? new Date(a.timestamp) : new Date(0);
+            const dateB = b.timestamp ? new Date(b.timestamp) : new Date(0);
+            if (dateB - dateA !== 0) return dateB - dateA;
+            return b.id - a.id; // Fallback al ID si los timestamps son iguales o inválidos
+        })
+        .slice(0, 6);
+
+    if (ultimosCortes.length === 0) return;
 
     const section = document.createElement('div');
-    section.style.marginTop = '40px';
+    section.id = 'ultimos-agregados-section';
+
     const title = document.createElement('h4');
-    title.textContent = 'Últimos agregados:';
+    title.textContent = 'Últimos Agregados';
     section.appendChild(title);
 
-    const grid = document.createElement('div'); grid.className = 'grid';
+    const carouselContainer = document.createElement('div');
+    carouselContainer.className = 'carousel-container';
+
+    const carouselTrack = document.createElement('div');
+    carouselTrack.className = 'carousel-track';
+
     ultimosCortes.forEach(item => {
-        const card = document.createElement("div"); card.className = "card";
+        const card = document.createElement("div");
+        card.className = "card";
+        card.style.animation = 'none';
+        card.style.opacity = '1';
         card.onclick = () => mostrarDetalleModal(item);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(item.imagenVehiculo); img.alt = `${item.marca} ${item.modelo}`; card.appendChild(img);
-        const overlay = document.createElement("div"); overlay.className = "overlay";
+
+        const img = document.createElement("img");
+        img.src = convertirAGoogleThumbnail(item.imagenVehiculo);
+        img.alt = `${item.marca} ${item.modelo}`;
+        img.loading = "lazy";
+        card.appendChild(img);
+
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
         const yearRange = item.anoHasta ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
         overlay.innerHTML = `<div>${item.marca}</div><div style="font-size:0.8em; opacity:0.8;">${item.modelo} ${yearRange || ''}</div>`;
         card.appendChild(overlay);
-        grid.appendChild(card);
+        carouselTrack.appendChild(card);
     });
-    section.appendChild(grid);
+
+    carouselContainer.appendChild(carouselTrack);
+
+    // Función para determinar cuántas tarjetas son visibles
+    const getVisibleCards = () => {
+        const containerWidth = carouselContainer.offsetWidth;
+        const cardWidth = 140 + 20; // card width + margin
+        return Math.floor(containerWidth / cardWidth) || 1;
+    };
+
+    if (ultimosCortes.length > getVisibleCards()) {
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'carousel-btn prev';
+        prevBtn.innerHTML = '&#10094;';
+        carouselContainer.appendChild(prevBtn);
+
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'carousel-btn next';
+        nextBtn.innerHTML = '&#10095;';
+        carouselContainer.appendChild(nextBtn);
+
+        let currentIndex = 0;
+        const cardWidth = 140 + 20;
+        const totalCards = ultimosCortes.length;
+
+        const updateCarousel = () => {
+            const visibleCards = getVisibleCards();
+            const maxIndex = totalCards - visibleCards;
+            if (currentIndex > maxIndex) currentIndex = maxIndex;
+            if (currentIndex < 0) currentIndex = 0;
+
+            carouselTrack.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
+            prevBtn.style.display = currentIndex === 0 ? 'none' : 'flex';
+            nextBtn.style.display = currentIndex === maxIndex ? 'none' : 'flex';
+        };
+
+        nextBtn.addEventListener('click', () => {
+            currentIndex++;
+            updateCarousel();
+        });
+
+        prevBtn.addEventListener('click', () => {
+            currentIndex--;
+            updateCarousel();
+        });
+
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(updateCarousel, 100);
+        });
+
+        // Retrasar la llamada inicial para asegurar que el layout esté estable
+        setTimeout(updateCarousel, 100);
+    }
+
+    section.appendChild(carouselContainer);
     cont.appendChild(section);
 }
 
@@ -2159,14 +2471,19 @@ function mostrarMarcas(categoria) {
     marcas.forEach(m => {
         const itemsInBrand = itemsInCategory.filter(item => item.marca === m);
         const logoUrl = getLogoUrlForMarca(m, categoria);
-        const ejemplo = itemsInBrand.find(item => item.imagenVehiculo);
-        const card = document.createElement("div"); card.className = "card";
+        const card = document.createElement("div");
+        card.className = "card";
         card.onclick = () => mostrarModelos(categoria, m);
         const img = document.createElement("img");
-        img.src = logoUrl || convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
+        img.src = logoUrl || 'https://placehold.co/280x200/cccccc/333333?text=Sin+Logo';
         img.alt = `Marca ${m}`;
+        img.style.objectFit = 'contain'; // Asegurar que el logo se vea bien
+        img.loading = "lazy";
         card.appendChild(img);
-        const overlay = document.createElement("div"); overlay.className = "overlay"; overlay.innerHTML = m; card.appendChild(overlay);
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+        overlay.innerHTML = m;
+        card.appendChild(overlay);
         grid.appendChild(card);
     });
     cont.appendChild(grid);
@@ -2807,6 +3124,38 @@ function renderInboxDetail(itemId, itemType) {
 // Llamar a la configuración de los modales de info cuando se inicializa la app.
 document.addEventListener('DOMContentLoaded', () => {
     setupInfoModals();
+
+        // --- LÓGICA DE MODO OSCURO ---
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+
+        const enableDarkMode = () => {
+            document.body.classList.add('dark-mode');
+            localStorage.setItem('theme', 'dark');
+            darkModeToggle.checked = true;
+        };
+
+        const disableDarkMode = () => {
+            document.body.classList.remove('dark-mode');
+            localStorage.setItem('theme', 'light');
+            darkModeToggle.checked = false;
+        };
+
+        darkModeToggle.addEventListener('change', () => {
+            if (darkModeToggle.checked) {
+                enableDarkMode();
+            } else {
+                disableDarkMode();
+            }
+        });
+
+        // Aplicar el tema al cargar la página
+        const preferredTheme = localStorage.getItem('theme');
+        if (preferredTheme === 'dark') {
+            enableDarkMode();
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && preferredTheme !== 'light') {
+             // Si el usuario no ha elegido, pero su sistema lo prefiere, activarlo
+            enableDarkMode();
+        }
 
     const migrateYearsBtn = document.getElementById('run-migrate-years');
     const migrateTimestampsBtn = document.getElementById('run-migrate-timestamps');
