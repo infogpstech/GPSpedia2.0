@@ -1,3 +1,6 @@
+**v4.2.7 (12/01/2026)**
+*   **FIX (index.html):** Se implementó un mecanismo de fallback para la visualización de marcas. Si los datos de los logos no están disponibles en el backend (la variable `datosLogos` está vacía), la función `mostrarMarcas` ahora renderizará tarjetas de solo texto con los nombres de las marcas en lugar de mostrar imágenes rotas. Esto asegura que la navegación siga siendo funcional y la experiencia de usuario sea fluida incluso con datos incompletos. (Líneas 2535-2588).
+
 **v4.2.6 (11/01/2026)**
 *   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `CATALOG` a la nueva versión desplegada proporcionada por el usuario. (Línea 10).
 
