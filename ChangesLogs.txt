@@ -1,3 +1,6 @@
+**v4.2.2 (08/01/2026)**
+*   **INFRA (api-manager.js):** Se actualizaron las URLs de los microservicios `CATALOG` y `UTILITIES` a las nuevas versiones desplegadas y proporcionadas por el usuario, asegurando que el frontend se comunique con los endpoints más recientes. (Líneas 10, 14).
+
 **v4.2.1 (07/01/2026)**
 *   **FIX (catalog.js & index.html):** Se corrigió un bug funcional en el ordenamiento de categorías. La versión anterior calculaba la popularidad pero no la aplicaba.
     1.  **Backend (`services/catalog/catalog.js`):** Se añadió la lógica para ordenar la lista de categorías por `vehicleCount` (descendente) antes de enviarla al frontend. (Líneas 220-221).
