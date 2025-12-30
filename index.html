@@ -1901,31 +1901,52 @@ function mostrarDetalleRelay(item) {
 }
 
 function getLogoUrlForMarca(marca, categoria) {
-    if (!datosLogos || !datosLogos.length || !marca) return null;
+    if (!datosLogos || !datosLogos.length || !marca) {
+        debugLog('LOGO_SEARCH_FAIL', 'Datos de logo o marca no disponibles.', { marca, categoria });
+        return null;
+    }
 
-    const normalize = (str) => str.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const normalize = (str) => str ? str.toLowerCase().replace(/[^a-z0-9]/g, '') : '';
 
     const normalizedMarca = normalize(marca);
+    const normalizedCategoria = normalize(categoria);
 
-    // Prioridad 1: Búsqueda exacta con sufijo de categoría (ej. 'hondamotocicletas')
-    if (categoria && categoria.toLowerCase() === 'motos') {
-        const catMarca = normalize(marca + 'Motocicletas');
-        const logoEntry = datosLogos.find(logo => normalize(logo.nombreMarca) === catMarca);
-        if (logoEntry && logoEntry.urlLogo) return logoEntry.urlLogo;
+    // 1. Encontrar todos los logos que coincidan parcialmente con el nombre de la marca.
+    const potentialMatches = datosLogos.filter(logo => {
+        const normalizedLogoMarca = normalize(logo.nombreMarca);
+        return normalizedLogoMarca.includes(normalizedMarca);
+    });
+
+    if (potentialMatches.length === 0) {
+        debugLog('LOGO_SEARCH_FAIL', 'No se encontraron logos para la marca.', { marca: normalizedMarca });
+        return null;
     }
 
-    // Prioridad 2: Búsqueda por nombre de marca normalizado (ej. 'honda')
-    const genericLogoEntry = datosLogos.find(logo => normalize(logo.nombreMarca) === normalizedMarca);
-    if (genericLogoEntry && genericLogoEntry.urlLogo) return genericLogoEntry.urlLogo;
-
-    // Prioridad 3: Fallback a 'Vehiculos' si es de motos (ej. 'hondavehiculos')
-    if (categoria && categoria.toLowerCase() === 'motos') {
-        const vehicleMarca = normalize(marca + 'Vehiculos');
-        const vehicleLogoEntry = datosLogos.find(logo => normalize(logo.nombreMarca) === vehicleMarca);
-        if (vehicleLogoEntry && vehicleLogoEntry.urlLogo) return vehicleLogoEntry.urlLogo;
+    if (potentialMatches.length === 1) {
+        return potentialMatches[0].urlLogo;
     }
 
-    return null;
+    // 2. Si hay múltiples coincidencias, usar la categoría para desambiguar.
+    let bestMatch = null;
+    if (normalizedCategoria === 'motos' || normalizedCategoria === 'motocicletas') {
+        // Prioridad para "motocicletas"
+        bestMatch = potentialMatches.find(logo => normalize(logo.nombreMarca).includes('motocicletas'));
+    }
+
+    // Si no se encontró una coincidencia específica de categoría, o si la categoría no es de motos,
+    // buscar una que NO sea de motos (genérica).
+    if (!bestMatch) {
+        bestMatch = potentialMatches.find(logo => !normalize(logo.nombreMarca).includes('motocicletas'));
+    }
+
+    // Si después de desambiguar todavía no hay una "mejor" coincidencia,
+    // simplemente devolver la primera que se encontró.
+    if (bestMatch) {
+        return bestMatch.urlLogo;
+    } else {
+        debugLog('LOGO_SEARCH_WARN', 'Múltiples logos encontrados pero no se pudo desambiguar. Devolviendo el primero.', { marca, categoria, matches: potentialMatches });
+        return potentialMatches[0].urlLogo;
+    }
 }
 
 function convertirAGoogleThumbnail(url) {
@@ -2535,58 +2556,25 @@ function mostrarMarcas(categoria) {
     estado = { nivel: "marcas", categoria: categoria };
     const cont = document.getElementById("contenido");
     cont.innerHTML = `<span class="backBtn" onclick="irAPaginaPrincipal()">${backSvg} Volver</span><h4>Marcas de ${categoria}</h4>`;
-
-    const useLogos = datosLogos && datosLogos.length > 0;
-    if (!useLogos) {
-        debugLog('RENDER_FALLBACK', '`datosLogos` está vacío. Renderizando nombres de marcas como texto.', {
-            source: 'mostrarMarcas'
-        });
-    }
-
     const itemsInCategory = datosOriginales.filter(item => item.categoria === categoria);
     const marcas = [...new Set(itemsInCategory.map(item => item.marca))].filter(m => m).sort();
-    const grid = document.createElement("div");
-    grid.className = "grid";
-
+    const grid = document.createElement("div"); grid.className = "grid";
     marcas.forEach(m => {
+        const itemsInBrand = itemsInCategory.filter(item => item.marca === m);
+        const logoUrl = getLogoUrlForMarca(m, categoria);
         const card = document.createElement("div");
         card.className = "card";
         card.onclick = () => mostrarModelos(categoria, m);
-
-        if (useLogos) {
-            const logoUrl = getLogoUrlForMarca(m, categoria);
-            const img = document.createElement("img");
-            img.src = logoUrl || 'https://placehold.co/280x200/cccccc/333333?text=Sin+Logo';
-            img.alt = `Marca ${m}`;
-            img.style.objectFit = 'contain';
-            img.loading = "lazy";
-            img.onerror = function() {
-                this.onerror = null; // Prevenir bucles infinitos si el placeholder también falla
-                this.src = 'https://placehold.co/280x200/f8d7da/dc3545?text=Error';
-                debugLog('IMAGE_ERROR', 'No se pudo cargar el logo.', { marca: m, urlIntentada: logoUrl });
-            };
-            card.appendChild(img);
-
-            const overlay = document.createElement("div");
-            overlay.className = "overlay";
-            overlay.innerHTML = m;
-            card.appendChild(overlay);
-        } else {
-            // Fallback a una tarjeta de solo texto si los logos no están disponibles
-            card.style.height = '188px';
-            card.style.display = 'flex';
-            card.style.alignItems = 'center';
-            card.style.justifyContent = 'center';
-            card.style.textAlign = 'center';
-            card.style.padding = '10px';
-            card.style.boxSizing = 'border-box';
-
-            const text = document.createElement('h5');
-            text.textContent = m;
-            text.style.margin = '0';
-            card.appendChild(text);
-        }
-
+        const img = document.createElement("img");
+        img.src = logoUrl || 'https://placehold.co/280x200/cccccc/333333?text=Sin+Logo';
+        img.alt = `Marca ${m}`;
+        img.style.objectFit = 'contain'; // Asegurar que el logo se vea bien
+        img.loading = "lazy";
+        card.appendChild(img);
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+        overlay.innerHTML = m;
+        card.appendChild(overlay);
         grid.appendChild(card);
     });
     cont.appendChild(grid);
@@ -2945,12 +2933,18 @@ async function handleLike(vehicleId, corteIndex, buttonElement) {
         return;
     }
 
+    // Disable button to prevent multiple clicks
+    buttonElement.onclick = null;
+    buttonElement.style.cursor = 'default';
+
     // Optimistic UI update
-    const countSpan = buttonElement.querySelector('.util-count');
-    const currentCount = parseInt(countSpan.textContent, 10);
-    countSpan.textContent = currentCount + 1;
-    buttonElement.disabled = true;
-    buttonElement.style.backgroundColor = '#d4edda';
+    const countSpan = buttonElement.querySelector('span');
+    const originalText = countSpan.textContent; // "Útil (X)"
+    const currentCountMatch = originalText.match(/\((\d+)\)/);
+    const currentCount = currentCountMatch ? parseInt(currentCountMatch[1], 10) : 0;
+
+    countSpan.textContent = `Útil (${currentCount + 1})`;
+    buttonElement.style.color = '#155724'; // Darker "success" green
 
     try {
         await postToAction('recordLike', {
@@ -2959,11 +2953,39 @@ async function handleLike(vehicleId, corteIndex, buttonElement) {
             userId: user.ID,
             userName: user.Nombre_Usuario
         });
+
+        // After successful like, prompt for year suggestion
+        const suggestedYearRaw = prompt("¡Gracias por tu feedback! ¿Este corte también aplica para otro año? Si es así, ingrésalo aquí (ej: 2023). Si no, simplemente cancela.");
+
+        if (suggestedYearRaw) { // Check if user entered something
+            const year = parseInt(suggestedYearRaw.trim(), 10);
+            if (!isNaN(year) && year > 1980 && year < 2050) {
+                try {
+                    alert("Procesando tu sugerencia...");
+                    const result = await postToAction('suggestYear', {
+                        vehicleId: vehicleId,
+                        suggestedYear: year,
+                        userName: user.Nombre_Usuario
+                    });
+                    alert(result.message || "Sugerencia enviada. ¡Gracias por tu colaboración!");
+                } catch (error) {
+                    // Error is handled by postToAction which shows a global toast.
+                    // A specific alert might be redundant but can be helpful.
+                    alert("Hubo un error al enviar tu sugerencia. El problema ha sido reportado.");
+                }
+            } else if (suggestedYearRaw.trim() !== "") { // User entered non-year text
+                alert("Por favor, ingresa un año válido (ej: 2023).");
+            }
+        }
+
     } catch (error) {
-        // Revert UI on error
-        countSpan.textContent = currentCount;
-        buttonElement.disabled = false;
-        buttonElement.style.backgroundColor = '';
+        // Revert UI on error during the 'like' action
+        countSpan.textContent = originalText;
+        buttonElement.style.color = '#28a745'; // Revert color
+        // Re-enable the button with the original function
+        buttonElement.onclick = () => handleLike(vehicleId, corteIndex, buttonElement);
+        buttonElement.style.cursor = 'pointer';
+        // The error message is shown globally by postToAction, no need for an extra alert here.
     }
 }
 
