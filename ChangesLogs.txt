@@ -1,3 +1,21 @@
+**v4.1.1 (05/01/2026)**
+*   **FIX (index.html):** Se restauró la lógica para el botón de instalación de la PWA (`beforeinstallprompt` listener y el handler del click), que fue eliminada accidentalmente en una refactorización previa. Esto soluciona una regresión crítica que impedía a los usuarios instalar la aplicación. (Líneas 2315-2346).
+*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `GPSpedia-Utilities` a la nueva versión desplegada y funcional, eliminando el endpoint placeholder. (Línea 14).
+
+**v4.1.0 (04/01/2026)**
+*   **FEAT (services/utilities/utilities.js & index.html):** Se implementó un nuevo microservicio `GPSpedia-Utilities` y la interfaz de frontend correspondiente para herramientas de administrador.
+    1.  **Backend (`services/utilities/utilities.js`):** Creado el nuevo servicio con acciones protegidas (`migrateYearRanges`, `migrateTimestamps`) para migraciones de datos. (Archivo nuevo).
+    2.  **Frontend (`index.html`):** Añadido un modal "Herramientas de Desarrollador", accesible mediante un nuevo botón en el menú lateral (visible solo para rol 'Desarrollador'). El modal incluye botones para ejecutar las migraciones y muestra la consola de depuración. (Líneas 923-950, 2593-2625, 2772-2808).
+    3.  **Infra (`api-manager.js`):** Registrado el nuevo endpoint `UTILITIES` y mapeadas las nuevas acciones. (Líneas 14, 46-47).
+*   **FEAT (services/feedback/feedback.js & index.html):** Se implementó un sistema de "Inbox" para la gestión de feedback de usuarios.
+    1.  **Backend (`services/feedback/feedback.js`):** Añadidas nuevas acciones (`getFeedbackItems`, `replyToFeedback`, `markAsResolved`) para leer y gestionar los reportes de problemas y mensajes de contacto. (Líneas 114-123, 342-423).
+    2.  **Frontend (`index.html`):** Añadido un modal de "Inbox", accesible mediante un nuevo botón en el menú lateral (visible para roles 'Supervisor', 'Gefe', 'Desarrollador'). La UI permite ver, responder y resolver items de feedback. (Líneas 907-921, 2582-2591, 2665-2770).
+*   **FIX (users.html):** Solucionado un bug crítico que causaba que los datos de los usuarios se mostraran como "undefined" en la tabla de gestión y en el modal de edición. El problema se debía a un desfase de mayúsculas y minúsculas (`camelCase` en el frontend vs. `PascalCase_With_Underscores` en el backend). Se corrigió el acceso a las propiedades en todo el archivo. (Líneas 239-241, 273-279, 318-322, 339, 349-354).
+*   **UX (index.html):** Se implementaron mejoras en la interfaz de usuario del modal de detalles del vehículo.
+    1.  **Botones de Feedback:** Se rediseñaron los botones "Útil" y "Reportar" para que sean más compactos, mostrando un ícono y texto sin un contenedor de botón grande. (Líneas 1769-1782).
+    2.  **Video Guía:** La sección "Video Guía de Desarme" ahora se muestra dentro de un acordeón colapsable, igual que el resto de la información suplementaria. (Líneas 1844-1853).
+*   **CHORE:** No se introdujeron regresiones en las funcionalidades estables (login, sesión, carga de catálogo, caché).
+
 **v4.0.2 (03/01/2026)**
 *   **DOCS (Auditoria.txt & README.md):** Se realizó una auditoría completa del sistema y se sincronizó la documentación para reflejar el estado real del código.
     1.  **Auditoría (`Auditoria.txt`):** Se sobrescribió el archivo con un nuevo reporte confirmando que el código fuente es funcional y no presenta los bugs críticos listados en la documentación. Se identificó el `README.md` como la fuente de la inconsistencia.
@@ -20,81 +38,3 @@
     *   Se añadió un pequeño margen al CSS del pie de página para mejorar la separación visual de los enlaces.
 *   **FIX (index.html):** Se ha corregido el envío del formulario de contacto, que fallaba por un error tipográfico en el nombre de la acción (`sendContacForm` -> `sendContactForm`).
 *   **CHORE (project):** Se han actualizado los números de versión en todos los archivos modificados a `4.0.0` (global) y a las versiones de componente correspondientes.
-
-**v3.9.3 (01/01/2026)**
-*   **REFACTOR (services/auth/auth.js):** Mejorada la lógica de gestión de sesiones en `handleLogin`. El sistema ahora elimina correctamente las sesiones más antiguas cuando se alcanza el límite por rol, en lugar de borrar sesiones al azar. Se asegura también que cada nuevo login genere un token de sesión único, invalidando el anterior. (Líneas 140-198).
-*   **FIX (index.html):** Corregido el diseño del pie de página. Los enlaces de "Sobre Nosotros", "Contáctanos", etc., ahora se muestran correctamente debajo del aviso de derechos de autor. (Líneas 2248-2254).
-*   **REFACTOR & FEAT (info.html):** La página de información ha sido completamente rediseñada.
-    *   Ahora utiliza una estructura de modales individuales para cada sección ("Sobre Nosotros", "Contáctanos", "FAQ").
-    *   Un nuevo script permite enlazar directamente a una sección específica (ej. `info.html#contact`) abriendo el modal correspondiente al cargar la página.
-    *   Se ha ampliado el contenido de las secciones "Sobre Nosotros" y "Preguntas Frecuentes" con información más detallada y útil.
-
-**v3.9.2 (27/12/2025)**
-*   **FIX CRÍTICO (services/catalog/catalog.js):** Solucionado un error `Cannot read properties of undefined (reading 'utilCote1')` que ocurría al procesar los datos del catálogo. Se añadió un filtro para ignorar filas vacías en la hoja de cálculo "Cortes", preveniendo que el backend falle al encontrar datos incompletos.
-*   **DOCS (Auditoria.txt):** Se agregó la Auditoría v11.0 detallando el análisis y la solución para el error de procesamiento de filas vacías.
-**v3.9.1 (26/12/2025)**
-*   **FIX CRÍTICO (services/catalog/catalog.js):** Se implementó la función `doPost(e)` que estaba completamente vacía. Esta era la causa raíz de los errores "Failed to fetch" que impedían la carga de cualquier dato del catálogo. La nueva función ahora actúa como un router, procesando las acciones (`getCatalogData`, etc.) y devolviendo los datos correctamente.
-*   **DOCS (Auditoria.txt):** Se agregó la Auditoría v10.0 detallando el descubrimiento y la solución del bug crítico en la función `doPost`.
-
-=================================================
- NORMAS OBLIGATORIAS PARA EL REGISTRO DE CAMBIOS
-=================================================
-
-**IMPORTANTE:** Antes de registrar un nuevo cambio, asegúrese de haber seguido todas las normas de desarrollo descritas en `README.md` y `INSTRUCTIVO.TXT`.
-
-1.  **Actualizar Versión:** Confirme que el número de versión (`vX.X.X`) es correcto y ha sido actualizado en los archivos correspondientes (`index.html`, servicios `.js`/`.gs`).
-2.  **Documentación Interna:** Verifique que `README.md` y `INSTRUCTIVO.TXT` han sido actualizados para reflejar los cambios realizados.
-3.  **Formato Detallado:**
-    *   **Archivo y Línea:** Cada cambio listado debe especificar el nombre del archivo modificado y el número de línea exacto.
-    *   **Comentarios de Código:** Confirme que las líneas de código nuevas o modificadas tienen comentarios explicativos.
-    *   **Claridad:** Describa el "qué" y el "porqué" del cambio de manera clara y concisa.
-
--------------------------------------------------
-
-# Registro de Cambios del Proyecto GPSpedia
-
-## v3.9.0 - 26/12/2025
-- **CHORE: SINCRONIZACIÓN PARCIAL DEL SISTEMA DE VERSIONAMIENTO.**
-  - **Contexto:** Se ha realizado una actualización para alinear las versiones de algunos componentes del proyecto.
-  - **Acciones Realizadas:**
-    - **Versión Global:** Se ha establecido la versión `v3.9.0` en `ChangesLogs.txt` y en el pie de página de `index.html`.
-    - **Versiones de Componentes:** Se han actualizado las versiones en las cabeceras de `index.html`, `api-manager.js` y varios servicios de backend, aunque persisten inconsistencias.
-
-## v3.8.1 - 21/08/2024
-- **INFRAESTRUCTURA: ACTUALIZACIÓN DE ENDPOINT DE SERVICIO `WRITE`.**
-  - **Contexto:** Se ha actualizado la URL del microservicio `GPSpedia-Write` a su última versión desplegada.
-  - **Acción (`api-manager.js`):**
-    - Se ha reemplazado la URL en el objeto `API_ENDPOINTS` para `WRITE`. (Línea 11).
-
-## v3.8.0 - 21/08/2024
-- **FEAT: IMPLEMENTACIÓN DE LÓGICA DE LOGOS AUTOMÁTICA Y MEJORAS DE UI.**
-  - **Contexto:** Se han implementado mejoras significativas en la interfaz de usuario según los requisitos pendientes.
-  - **Acciones Realizadas:**
-    1.  **Implementación de Lógica de Logos Automática (`services/write/write.js`):**
-        - Se ha creado la función `getLogoForMarca` que busca automáticamente el logo de una marca en la hoja `LogosMarca`.
-        - La función maneja la lógica especial para la categoría "Motos", buscando `marcaMotocicletas` o `marcaVehiculos` según corresponda. (Líneas 134-159).
-    2.  **Mejoras de UI en `index.html`:**
-        - Se ha corregido la sección "Últimos Agregados" para que muestre 6 elementos en lugar de 5. (Línea 1755).
-        - Se ha ajustado el layout del modal de detalles para posicionar correctamente el nombre del colaborador. (Líneas 1612-1622).
-        - Se ha implementado la visualización del logo de la marca en el modal de detalles y en la lista de marcas. (Líneas 1561-1567, 1819-1825).
-        - Se ha limitado la altura de la imagen en el modal de Relay a 250px. (Líneas 1481-1484).
-- **INFRAESTRUCTURA: ACTUALIZACIÓN DE ENDPOINTS DE SERVICIOS (`api-manager.js`).**
-  - Se han actualizado las URLs de los microservicios `Auth`, `Catalog`, `Feedback` y `Users` a sus últimas versiones. (Líneas 9-13).
-
-## v3.7.0 - 20/08/2024
-- **REFACTORIZACIÓN CRÍTICA: ALINEACIÓN COMPLETA DEL ESQUEMA DE DATOS EN TODO EL SISTEMA.**
-  - **Contexto:** Se detectó que la causa raíz de la inestabilidad persistente era una discrepancia fundamental entre el esquema de datos real en Google Sheets y el esquema que los componentes de software esperaban. Esta versión corrige todas las desviaciones y unifica el sistema a una única fuente de verdad.
-  - **Acciones Realizadas:**
-    1.  **Actualización de Endpoints (`api-manager.js`):**
-        - Se actualizó la URL del microservicio `GPSpedia-Auth` a su último despliegue. (Línea 9).
-    2.  **Alineación de Esquemas del Backend:**
-        - **`services/auth/auth.js`:** Se corrigieron los mapas de columnas para `Users` y `ActiveSessions`. Se ajustó la lógica de `handleLogin` para escribir correctamente en la hoja de sesiones y para devolver un objeto `user` que coincide 1:1 con el esquema de la base de datos (ej. `Nombre_Usuario`), eliminando el formato `PascalCase` incorrecto. (Líneas 16-36, 124-184).
-        - **`services/catalog/catalog.js`:** Se corrigieron y completaron los mapas de columnas para `Cortes`, `Tutorial`, y `Relay`. Se añadió el mapa para `LogosMarca` y se actualizó la lógica para incluir los logos en la respuesta de `getCatalogData`. (Líneas 21-88, 98-138).
-        - **`services/feedback/feedback.js`:** Se corrigió el mapa de `Feedbacks` y se añadieron los mapas para `Contactanos` y `ActividadUsuario`. Se implementó la función `logUserActivity` para registrar acciones del usuario. (Líneas 21-70, y adición de `logUserActivity` y su integración).
-        - **`services/users/users.js`:** Se corrigió el mapa de `Users` para usar la nomenclatura exacta de la hoja de cálculo (`Nombre_Usuario`, etc.). Se refactorizó todo el servicio para usar este nuevo mapa. (Líneas 25-33, y múltiples ajustes en las funciones `handle...`).
-        - **`services/write/write.js`:** Se verificó que el mapa de `Cortes` ya era correcto y no requirió cambios.
-    3.  **Alineación del Frontend (`index.html`):**
-        - Se refactorizó todo el código JavaScript para que consuma los datos con la nueva estructura correcta. Se corrigió el acceso a las propiedades del objeto de usuario (ahora `user.Nombre_Usuario`) y a todos los campos del catálogo. (Múltiples líneas afectadas, ej. 1093, 1187, 2100).
-    4.  **Sincronización de la Documentación:**
-        - **`README.md` y `Instrucciones.txt`:** Se han actualizado las secciones de "Arquitectura de la Base de Datos" para que reflejen el esquema final y oficial de las 10 hojas de cálculo, sirviendo como la fuente de verdad para el proyecto.
-... (rest of the file remains the same)

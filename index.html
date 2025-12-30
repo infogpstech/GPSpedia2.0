@@ -779,9 +779,28 @@ body.search-active .app-logo {
     max-width: 90%;
     text-align: center;
 }
+
+/* --- ESTILOS DEL TOAST DE NOTIFICACIÓN --- */
+#notification-toast {
+    display: none;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #007bff;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 4001;
+    font-size: 1em;
+    cursor: pointer;
+}
 </style>
 </head>
 <body>
+<!-- Notificación Toast -->
+<div id="notification-toast"></div>
+
 <!-- Contenedor de la Consola de Depuración -->
 <div id="debug-console" style="display: none; position: fixed; bottom: 10px; right: 10px; width: 450px; height: 350px; background-color: rgba(20, 20, 30, 0.9); color: #00ff00; border: 1px solid #00ff00; border-radius: 8px; z-index: 9999; display: flex; flex-direction: column; font-family: 'Courier New', Courier, monospace; box-shadow: 0 0 15px rgba(0, 255, 0, 0.5); backdrop-filter: blur(5px);">
     <div id="debug-header" style="padding: 8px; background-color: #00ff00; color: #14141e; font-weight: bold; cursor: move; border-top-left-radius: 7px; border-top-right-radius: 7px; display: flex; justify-content: space-between; align-items: center;">
@@ -809,6 +828,8 @@ body.search-active .app-logo {
         <a href="#" id="menu-tutoriales" class="menu-link"><i class="fa-solid fa-book-open"></i> Tutoriales</a>
         <a href="#" id="menu-relay" class="menu-link"><i class="fa-solid fa-microchip"></i> Configuración Relay</a>
         <a href="users.html" class="menu-link"><i class="fa-solid fa-users-cog"></i> Mi Perfil / Usuarios</a>
+        <a href="#" id="inbox-btn" class="menu-link" style="display: none;"><i class="fa-solid fa-inbox"></i> Inbox</a>
+        <a href="#" id="dev-tools-btn" class="menu-link" style="display: none;"><i class="fa-solid fa-code"></i> Desarrollador</a>
     </nav>
     <div style="margin-top: auto; padding: 20px;">
         <button id="side-menu-logout-button" style="width: 100%; background: #dc3545; color: #fff; border: none; padding: 12px; border-radius: 8px; cursor: pointer;">Cerrar Sesión</button>
@@ -887,6 +908,49 @@ body.search-active .app-logo {
 <div id="lightbox" class="lightbox" onclick="cerrarLightbox()">
   <img id="lightboxImg" src="">
 </div>
+
+<!-- ========= MODAL DE INBOX ========= -->
+<div id="inbox-modal" class="info-modal">
+    <div class="info-modal-content" style="max-width: 1100px;">
+        <span class="info-close-btn">&times;</span>
+        <h2><i class="fa-solid fa-inbox"></i> Bandeja de Entrada</h2>
+        <div style="display: flex; gap: 20px;">
+            <div id="inbox-list" style="flex: 1; height: 60vh; overflow-y: auto; border-right: 1px solid #ccc; padding-right: 15px;">
+                <!-- List of items will be rendered here -->
+            </div>
+            <div id="inbox-detail" style="flex: 2;">
+                <!-- Detail of selected item will be rendered here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========= MODAL DE DESARROLLADOR ========= -->
+<div id="dev-tools-modal" class="info-modal">
+    <div class="info-modal-content" style="max-width: 900px;">
+        <span class="info-close-btn">&times;</span>
+        <h2><i class="fa-solid fa-code"></i> Herramientas de Desarrollador</h2>
+
+        <div style="display: flex; gap: 20px;">
+            <div style="flex: 1;">
+                <h4>Consola de Depuración</h4>
+                <div id="dev-console-container" style="height: 400px; border: 1px solid #ccc; border-radius: 8px;">
+                    <!-- The existing debug console will be moved here by JS -->
+                </div>
+            </div>
+            <div style="flex: 1;">
+                <h4>Acciones de Migración</h4>
+                <p>Ejecutar scripts de migración de datos. Usar con precaución.</p>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <button id="run-migrate-years" class="btn btn-warning">Migrar Rangos de Años</button>
+                    <button id="run-migrate-timestamps" class="btn btn-warning">Migrar Timestamps</button>
+                </div>
+                <div id="migration-status" style="margin-top: 15px; padding: 10px; border-radius: 5px; background: #f0f0f0; display: none;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <!-- ========= MODALES DE INFORMACIÓN ========= -->
 <div id="about-us-modal" class="info-modal">
@@ -1221,6 +1285,21 @@ async function initializeAppData(user) {
             datosTutoriales = result.data.tutoriales || [];
             datosRelay = result.data.relay || [];
             datosLogos = result.data.logos || [];
+
+            // Notification Logic
+            const lastTimestampKey = 'lastKnownTimestamp';
+            const lastKnownTimestamp = localStorage.getItem(lastTimestampKey);
+            const latestItem = datosOriginales.reduce((latest, item) => {
+                return (item.timestamp && item.timestamp > (latest.timestamp || 0)) ? item : latest;
+            }, {});
+
+            if (latestItem.timestamp) {
+                if (!lastKnownTimestamp || latestItem.timestamp > lastKnownTimestamp) {
+                    showNotificationToast(`¡Nuevo corte agregado para ${latestItem.marca} ${latestItem.modelo}!`);
+                }
+                localStorage.setItem(lastTimestampKey, latestItem.timestamp);
+            }
+
             mostrarCategorias();
             resolve(); // Resolve the promise after content is rendered
         } catch (error) {
@@ -1306,6 +1385,20 @@ function hideLoginShowApp() {
     const session = JSON.parse(localStorage.getItem(SESSION_KEY));
     if (menuUsername && session && session.Nombre_Usuario) {
         menuUsername.textContent = session.Nombre_Usuario;
+    }
+
+    // Show developer tools button if user has the role
+    const devToolsBtn = document.getElementById('dev-tools-btn');
+    const userRole = session ? session.Privilegios : '';
+
+    if (devToolsBtn && userRole === 'Desarrollador') {
+        devToolsBtn.style.display = 'flex';
+    }
+
+    // Show Inbox button for relevant roles
+    const inboxBtn = document.getElementById('inbox-btn');
+    if (inboxBtn && ['Desarrollador', 'Gefe', 'Supervisor'].includes(userRole)) {
+        inboxBtn.style.display = 'flex';
     }
 }
 
@@ -1766,17 +1859,18 @@ function mostrarDetalleModal(item) {
         const feedbackContainer = document.createElement("div");
         feedbackContainer.style.cssText = "display: flex; gap: 10px;";
 
-        const utilBtn = document.createElement("button");
-        utilBtn.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> Útil <span class="util-count">${utilCount}</span>`;
+        // REFACTOR: Feedback buttons changed to icon-only with labels
+        const utilBtn = document.createElement("div");
+        utilBtn.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> <span>Útil (${utilCount})</span>`;
         utilBtn.className = "feedback-btn util-btn";
-        utilBtn.style.cssText = "background-color: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer;";
+        utilBtn.style.cssText = "display: flex; align-items: center; gap: 5px; cursor: pointer; color: #28a745;";
         utilBtn.onclick = () => handleLike(item.id, corteIndex, utilBtn);
         feedbackContainer.appendChild(utilBtn);
 
-        const reportBtn = document.createElement("button");
-        reportBtn.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Reportar`;
+        const reportBtn = document.createElement("div");
+        reportBtn.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <span>Reportar</span>`;
         reportBtn.className = "feedback-btn report-btn";
-        reportBtn.style.cssText = "background-color: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer;";
+        reportBtn.style.cssText = "display: flex; align-items: center; gap: 5px; cursor: pointer; color: #dc3545;";
         reportBtn.onclick = () => toggleReportSection(item.id, corteIndex);
         feedbackContainer.appendChild(reportBtn);
 
@@ -1803,17 +1897,11 @@ function mostrarDetalleModal(item) {
     if (item.tipoCorte1) {
         const tituloRecomendado = document.createElement("h4");
         tituloRecomendado.innerHTML = `<i class="fa-solid fa-star" style="color: #ffc107;"></i> Corte Recomendado: ${item.tipoCorte1}`;
-
-        const btn = document.createElement("button");
-        btn.className = "accordion-btn active"; // Make it active by default
-        btn.innerHTML = `${item.tipoCorte1} <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
-
         cont.appendChild(tituloRecomendado);
-        cont.appendChild(btn);
 
-        const panelRecomendado = crearPanelCorte(1, false); // Create as a normal panel
+        // Render the recommended panel directly, making it always visible
+        const panelRecomendado = crearPanelCorte(1, true);
         if (panelRecomendado) {
-            panelRecomendado.style.maxHeight = panelRecomendado.scrollHeight + "px"; // Expand it
             cont.appendChild(panelRecomendado);
         }
     }
@@ -1841,7 +1929,17 @@ function mostrarDetalleModal(item) {
         }
     }
 
-    crearVideoDetalle("Video Guía de Desarme", item.videoGuiaDesarmeUrl, cont);
+    // REFACTOR: Video guide moved into a collapsible accordion
+    if (item.videoGuiaDesarmeUrl) {
+        const btn = document.createElement("button");
+        btn.className = "accordion-btn";
+        btn.innerHTML = `Video Guía de Desarme <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+        cont.appendChild(btn);
+        const panel = document.createElement("div");
+        panel.className = "panel-desplegable";
+        crearVideoDetalle(null, item.videoGuiaDesarmeUrl, panel); // Pass null for label as it's in the button
+        cont.appendChild(panel);
+    }
 
     // --- Secciones de Información Suplementaria ---
     if (item.apertura || item.imgApertura) {
@@ -2117,6 +2215,18 @@ function mostrarVersiones(filas, categoria, marca, modelo) {
     cont.appendChild(grid);
 }
 
+// --- LÓGICA DE NOTIFICACIONES ---
+function showNotificationToast(message, duration = 5000) {
+    const toast = document.getElementById('notification-toast');
+    toast.textContent = message;
+    toast.style.display = 'block';
+    toast.onclick = () => toast.style.display = 'none';
+
+    setTimeout(() => {
+        toast.style.display = 'none';
+    }, duration);
+}
+
 // --- INICIALIZACIÓN Y LÓGICA DE PWA ---
 let deferredPrompt;
 const installButton = document.getElementById('install-button');
@@ -2135,7 +2245,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
     if (!isStandalone) {
         if (isIOS) {
             // En iOS no se dispara 'beforeinstallprompt', manejaremos un botón personalizado.
-            // La lógica para mostrar el botón de iOS estará en inicializarApp.
             installButton.style.display = 'none';
         } else {
             // Para otros dispositivos (Android, Desktop), mostrar el botón.
@@ -2160,6 +2269,7 @@ installButton.addEventListener('click', async () => {
         installButton.style.display = 'none';
     }
 });
+
 
 // --- REGISTRO DEL SERVICE WORKER ---
 if ('serviceWorker' in navigator) {
@@ -2509,6 +2619,43 @@ function setupInfoModals() {
         openModal('faq-modal');
     });
 
+    // Inbox Modal
+    const inboxBtn = document.getElementById('inbox-btn');
+    if (inboxBtn) {
+        inboxBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            openModal('inbox-modal');
+            loadInboxItems();
+            closeSideMenu();
+        });
+    }
+
+    // Developer tools modal
+    const devToolsBtn = document.getElementById('dev-tools-btn');
+    if (devToolsBtn) {
+        devToolsBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const devModal = document.getElementById('dev-tools-modal');
+            const debugConsole = document.getElementById('debug-console');
+            const devConsoleContainer = document.getElementById('dev-console-container');
+
+            // Move debug console into the modal
+            if (debugConsole && devConsoleContainer) {
+                devConsoleContainer.appendChild(debugConsole);
+                debugConsole.style.position = 'relative';
+                debugConsole.style.width = '100%';
+                debugConsole.style.height = '100%';
+                debugConsole.style.bottom = 'auto';
+                debugConsole.style.right = 'auto';
+                debugConsole.style.display = 'flex';
+            }
+
+            openModal('dev-tools-modal');
+            closeSideMenu();
+        });
+    }
+
+
     // Close button listeners
     closeButtons.forEach(btn => btn.addEventListener('click', closeModal));
 
@@ -2556,8 +2703,145 @@ function setupInfoModals() {
         }
     });
 }
+// --- INBOX LOGIC ---
+let inboxItems = [];
+
+async function loadInboxItems() {
+    const listContainer = document.getElementById('inbox-list');
+    listContainer.innerHTML = '<p>Cargando mensajes...</p>';
+
+    try {
+        const result = await routeAction('getFeedbackItems', {}, 'FEEDBACK');
+        const { feedback, contact } = result.data;
+        inboxItems = [...feedback, ...contact];
+
+        // Sort items, unresolved first, then by id descending
+        inboxItems.sort((a, b) => (a.isResolved === b.isResolved) ? b.id - a.id : a.isResolved ? 1 : -1);
+
+        renderInboxList();
+    } catch (error) {
+        listContainer.innerHTML = `<p style="color: red;">Error al cargar mensajes: ${error.message}</p>`;
+    }
+}
+
+function renderInboxList() {
+    const listContainer = document.getElementById('inbox-list');
+    listContainer.innerHTML = '';
+
+    if (inboxItems.length === 0) {
+        listContainer.innerHTML = '<p>No hay mensajes.</p>';
+        return;
+    }
+
+    inboxItems.forEach(item => {
+        const itemDiv = document.createElement('div');
+        itemDiv.style.cssText = 'padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; border-radius: 5px;';
+        if (item.isResolved) {
+            itemDiv.style.opacity = '0.6';
+        }
+        itemDiv.innerHTML = `
+            <strong>${item.type === 'problem_report' ? 'Reporte' : 'Contacto'} #${item.id}</strong><br>
+            <small>${item.type === 'problem_report' ? `Usuario: ${item.user}` : `Asunto: ${item.subject}`}</small>
+        `;
+        itemDiv.onclick = () => renderInboxDetail(item.id, item.type);
+        listContainer.appendChild(itemDiv);
+    });
+}
+
+function renderInboxDetail(itemId, itemType) {
+    const detailContainer = document.getElementById('inbox-detail');
+    const item = inboxItems.find(i => i.id == itemId && i.type === itemType);
+
+    if (!item) {
+        detailContainer.innerHTML = '<p>Selecciona un item para ver los detalles.</p>';
+        return;
+    }
+
+    let content = `<h3>Detalle del Mensaje</h3>`;
+    if (item.type === 'problem_report') {
+        content += `
+            <p><strong>Tipo:</strong> Reporte de Problema</p>
+            <p><strong>Usuario:</strong> ${item.user}</p>
+            <p><strong>ID Vehículo:</strong> ${item.vehicleId}</p>
+            <p><strong>Problema:</strong><br>${item.problem}</p>
+        `;
+    } else {
+        content += `
+            <p><strong>Tipo:</strong> Formulario de Contacto</p>
+            <p><strong>Asunto:</strong> ${item.subject}</p>
+            <p><strong>Mensaje:</strong><br>${item.message.replace(/\n/g, '<br>')}</p>
+        `;
+    }
+
+    content += `
+        <hr>
+        <h4>Responder</h4>
+        <textarea id="reply-textarea" style="width: 100%; height: 100px; margin-bottom: 10px;" placeholder="Escribe tu respuesta...">${item.reply || ''}</textarea>
+        <button id="reply-btn" class="btn btn-primary">Enviar Respuesta</button>
+    `;
+
+    if(item.type === 'problem_report' && !item.isResolved) {
+        content += `<button id="resolve-btn" class="btn btn-success" style="margin-left: 10px;">Marcar como Resuelto</button>`;
+    }
+
+    detailContainer.innerHTML = content;
+
+    document.getElementById('reply-btn').onclick = async () => {
+        const replyText = document.getElementById('reply-textarea').value;
+        const session = JSON.parse(localStorage.getItem(SESSION_KEY));
+        await routeAction('replyToFeedback', { itemId, itemType, replyText, responderName: session.Nombre_Usuario }, 'FEEDBACK');
+        alert('Respuesta enviada.');
+        loadInboxItems(); // Refresh
+    };
+
+    if(document.getElementById('resolve-btn')) {
+        document.getElementById('resolve-btn').onclick = async () => {
+            await routeAction('markAsResolved', { itemId }, 'FEEDBACK');
+            alert('Marcado como resuelto.');
+            loadInboxItems(); // Refresh
+        };
+    }
+}
+
+
 // Llamar a la configuración de los modales de info cuando se inicializa la app.
-document.addEventListener('DOMContentLoaded', setupInfoModals);
+document.addEventListener('DOMContentLoaded', () => {
+    setupInfoModals();
+
+    const migrateYearsBtn = document.getElementById('run-migrate-years');
+    const migrateTimestampsBtn = document.getElementById('run-migrate-timestamps');
+    const statusDiv = document.getElementById('migration-status');
+    const session = JSON.parse(localStorage.getItem(SESSION_KEY));
+
+    const runMigration = async (action, btn) => {
+        if (!confirm(`¿Estás seguro de que quieres ejecutar la acción '${action}'? Esta operación puede modificar una gran cantidad de datos y no se puede deshacer.`)) {
+            return;
+        }
+
+        btn.disabled = true;
+        statusDiv.style.display = 'block';
+        statusDiv.textContent = `Ejecutando ${action}...`;
+        statusDiv.style.backgroundColor = '#e2e3e5';
+
+        try {
+            const result = await routeAction(action, { session: { userId: session.ID } }, 'UTILITIES');
+            statusDiv.textContent = `Éxito: ${result.message}`;
+            statusDiv.style.backgroundColor = '#d4edda';
+        } catch (error) {
+            statusDiv.textContent = `Error: ${error.message}`;
+            statusDiv.style.backgroundColor = '#f8d7da';
+        } finally {
+            btn.disabled = false;
+        }
+    };
+
+    if(migrateYearsBtn) {
+        migrateYearsBtn.addEventListener('click', () => runMigration('migrateYearRanges', migrateYearsBtn));
+    }
+    if(migrateTimestampsBtn) {
+        migrateTimestampsBtn.addEventListener('click', () => runMigration('migrateTimestamps', migrateTimestampsBtn));
+    }
+});
 
 </script>
 

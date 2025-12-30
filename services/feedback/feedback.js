@@ -111,6 +111,16 @@ function doPost(e) {
             case 'sendContactForm':
                 response = handleSendContactForm(payload);
                 break;
+            // --- INBOX ACTIONS ---
+            case 'getFeedbackItems':
+                response = handleGetFeedbackItems(payload);
+                break;
+            case 'replyToFeedback':
+                response = handleReplyToFeedback(payload);
+                break;
+            case 'markAsResolved':
+                response = handleMarkAsResolved(payload);
+                break;
             default:
                 throw new Error(`Acción desconocida en Feedback Service: ${action}`);
         }
@@ -327,4 +337,85 @@ function handleSendContactForm(payload) {
     sheet.appendRow(newRow);
 
     return { status: 'success', message: 'Formulario de contacto enviado.' };
+}
+
+// ============================================================================
+// HANDLERS FOR INBOX SYSTEM
+// ============================================================================
+
+function handleGetFeedbackItems(payload) {
+    // No role check here, as we just fetch. Authorization should be handled client-side for UI display.
+    const feedbackSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
+    const contactSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CONTACTANOS);
+
+    const feedbackData = feedbackSheet.getDataRange().getValues().slice(1).map(row => ({
+        type: 'problem_report',
+        id: row[COLS_FEEDBACKS.ID - 1],
+        user: row[COLS_FEEDBACKS.Usuario - 1],
+        vehicleId: row[COLS_FEEDBACKS.ID_vehiculo - 1],
+        problem: row[COLS_FEEDBACKS.Problema - 1],
+        reply: row[COLS_FEEDBACKS.Respuesta - 1],
+        isResolved: row[COLS_FEEDBACKS['Se resolvio'] - 1],
+        responder: row[COLS_FEEDBACKS.Responde - 1]
+    }));
+
+    const contactData = contactSheet.getDataRange().getValues().slice(1).map(row => ({
+        type: 'contact_form',
+        id: row[COLS_CONTACTANOS.Contacto_ID - 1],
+        user: 'N/A', // Or derive from message
+        subject: row[COLS_CONTACTANOS.Asunto - 1],
+        message: row[COLS_CONTACTANOS.Mensaje - 1],
+        reply: row[COLS_CONTACTANOS.Respuesta_mensaje - 1],
+        responder: row[COLS_CONTACTANOS.ID_usuario_responde - 1]
+    }));
+
+    return { status: 'success', data: { feedback: feedbackData, contact: contactData } };
+}
+
+function handleReplyToFeedback(payload) {
+    const { itemId, itemType, replyText, responderName } = payload;
+    if (!itemId || !itemType || !replyText || !responderName) {
+        throw new Error("Datos insuficientes para enviar la respuesta.");
+    }
+
+    if (itemType === 'problem_report') {
+        const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
+        const ids = sheet.getRange(2, COLS_FEEDBACKS.ID, sheet.getLastRow() -1, 1).getValues().flat();
+        const rowIndex = ids.findIndex(id => id == itemId);
+        if (rowIndex !== -1) {
+            sheet.getRange(rowIndex + 2, COLS_FEEDBACKS.Respuesta).setValue(replyText);
+            sheet.getRange(rowIndex + 2, COLS_FEEDBACKS.Responde).setValue(responderName);
+        } else {
+            throw new Error("No se encontró el reporte de problema.");
+        }
+    } else if (itemType === 'contact_form') {
+        const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CONTACTANOS);
+        const ids = sheet.getRange(2, COLS_CONTACTANOS.Contacto_ID, sheet.getLastRow() - 1, 1).getValues().flat();
+        const rowIndex = ids.findIndex(id => id == itemId);
+        if (rowIndex !== -1) {
+            sheet.getRange(rowIndex + 2, COLS_CONTACTANOS.Respuesta_mensaje).setValue(replyText);
+            sheet.getRange(rowIndex + 2, COLS_CONTACTANOS.ID_usuario_responde).setValue(responderName);
+        } else {
+            throw new Error("No se encontró el mensaje de contacto.");
+        }
+    }
+
+    return { status: 'success', message: 'Respuesta enviada.' };
+}
+
+function handleMarkAsResolved(payload) {
+    const { itemId } = payload;
+    if (!itemId) throw new Error("ID del item es requerido.");
+
+    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
+    const ids = sheet.getRange(2, COLS_FEEDBACKS.ID, sheet.getLastRow() - 1, 1).getValues().flat();
+    const rowIndex = ids.findIndex(id => id == itemId);
+
+    if (rowIndex !== -1) {
+        sheet.getRange(rowIndex + 2, COLS_FEEDBACKS['Se resolvio']).setValue(true);
+    } else {
+        throw new Error("No se encontró el reporte de problema para marcar como resuelto.");
+    }
+
+    return { status: 'success', message: 'Reporte marcado como resuelto.' };
 }

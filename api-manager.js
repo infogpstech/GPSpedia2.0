@@ -12,7 +12,8 @@ const API_ENDPOINTS = {
     CATALOG:  "https://script.google.com/macros/s/AKfycbyzRyJTYJ0E8MkLDJ2gRYlDnt5lUvOFeGY9_2F1vhTdrnKWigxZ4r8E_gOFP_NZDtUxpA/exec",
     WRITE:    "https://script.google.com/macros/s/AKfycbwzAgwnmSxRfPRTWWpBDSq4Zja3EpRvrY0W0AT5r7ZFsVIIxIRsIIYVitCdmDaEfc-wfA/exec",
     USERS:    "https://script.google.com/macros/s/AKfycbw3kFPGA3N0eoTQ7wIW9TO8UkneOKvN0QzoEHQaQXhbqi7WaQbLcYm0pvhLsKAd16YA/exec",
-    FEEDBACK: "https://script.google.com/macros/s/AKfycbw_MnefNK265XiQKX6O9SAtXxDY0aqtGZdtjCNznZLvPAVAGPflSVon5gJgliTbPkkN/exec"
+    FEEDBACK: "https://script.google.com/macros/s/AKfycbw_MnefNK265XiQKX6O9SAtXxDY0aqtGZdtjCNznZLvPAVAGPflSVon5gJgliTbPkkN/exec",
+    UTILITIES: "https://script.google.com/macros/s/AKfycbz2BgdRqcqEARNm28KH5XZVJkrNqCZTmvfpHYCEymBKp2B8eyxn_ClmKrVEbwTF__p9/exec"
 };
 
 // Mapeo de cada 'action' al servicio que le corresponde.
@@ -39,6 +40,11 @@ const ACTION_TO_SERVICE_MAP = {
     // Feedback Service
     'recordLike': 'FEEDBACK',
     'reportProblem': 'FEEDBACK',
+    'sendContactForm': 'FEEDBACK', // <-- Corregido/Añadido
+
+    // Utilities Service (NUEVO)
+    'migrateYearRanges': 'UTILITIES',
+    'migrateTimestamps': 'UTILITIES',
 
     // Legacy (acciones que aún no se han migrado o son de propósito general)
     'logFrontend': 'LEGACY'
