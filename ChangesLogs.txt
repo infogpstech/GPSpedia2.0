@@ -1,3 +1,6 @@
+**v4.2.6 (11/01/2026)**
+*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `CATALOG` a la nueva versión desplegada proporcionada por el usuario. (Línea 10).
+
 **v4.2.5 (10/01/2026)**
 *   **FIX (index.html & services/catalog/catalog.js):** Se implementó una solución integral para el fallo persistente en la renderización de logos de marcas.
     1.  **Backend (`services/catalog/catalog.js`):** Se corrigió una inconsistencia crítica en la función `doGet`. Se actualizó el número de versión reportado de `1.2.1` a `2.3.0` y se añadió `LogosMarca` a la lista de hojas de cálculo accedidas en el modo debug. Esto asegura que la metadata del servicio refleje su funcionalidad real. (Líneas 77, 79).
