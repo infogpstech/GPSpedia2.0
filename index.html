@@ -2280,7 +2280,7 @@ function mostrarResultadosBusquedaMarca(busquedaTexto) {
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarResultadosBusquedaModelo(busquedaTexto, marca);
 
-        const logoUrl = getLogoUrlForMarca(marca, estado.categoria);
+        const logoUrl = getLogoUrlForMarca(marca, null); // FIX: Pass null for category in search context
 
         const img = document.createElement("img");
         img.src = logoUrl || 'https://placehold.co/280x200/cccccc/333333?text=Sin+Logo';
@@ -2520,11 +2520,11 @@ function mostrarUltimosAgregados() {
         let resizeTimeout;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(updateCarousel, 100);
+            resizeTimeout = setTimeout(updateCarouselButtons, 100);
         });
 
         // Retrasar la llamada inicial para asegurar que el layout esté estable
-        setTimeout(updateCarousel, 100);
+        setTimeout(updateCarouselButtons, 100);
     }
 
     section.appendChild(carouselContainer);

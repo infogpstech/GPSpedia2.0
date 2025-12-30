@@ -49,3 +49,13 @@ A continuación se detalla el plan para rectificar las desviaciones encontradas,
 4.  **Documentación:**
     *   **Acción 4.1 (`ChangesLogs.txt`):** Una vez completadas todas las modificaciones, añadir una nueva entrada de versión que detalle cada uno de los cambios realizados en `index.html`, `catalog.js` y `feedback.js`, con una nota explícita de que la lógica protegida no fue alterada.
     *   **Acción 4.2 (`Auditoria.txt`):** Este mismo archivo servirá como registro de la auditoría y el plan de acción ejecutado.
+**v4.2.3 (08/01/2026) - REGRESSION FIX**
+*   **Problem:** A regression introduced in v4.2.0 broke the search bar functionality, causing cascading failures that could impact login and catalog loading.
+*   **Root Cause:** The search results logic in  incorrectly tried to use  to fetch brand logos. In a global search context, this variable is unreliable ( or stale), causing the rendering process to fail.
+*   **Fix:** The call to  within the search results function was modified to pass  for the category. This forces the function to use its designed fallback mechanism, safely retrieving the generic brand logo and preventing the crash. This was a minimal, targeted fix to restore critical functionality.
+
+
+**v4.2.4 (09/01/2026) - CRITICAL REGRESSION FIX**
+*   **Problem:** A  for the  function was halting all JavaScript execution, breaking catalog loading and causing session loss on every page refresh.
+*   **Root Cause:** The  function was defined inside a conditional block that only runs if the carousel has enough items to need scroll buttons. However, a  that calls this function was located outside the block, causing a fatal error when the condition was false.
+*   **Fix:** The  call was moved inside the conditional block, ensuring it only runs when the  function actually exists. This resolves the critical execution failure and restores core application functionality.
