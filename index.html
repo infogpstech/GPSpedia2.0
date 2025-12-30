@@ -509,6 +509,37 @@ body.search-active .app-logo {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
+/* --- ESTILOS PARA LOGOS DE MARCAS (ICONOS) --- */
+.brand-logo-item {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 10px !important;
+    max-width: 120px;
+    justify-self: center;
+    align-self: center;
+    animation: none !important; /* Override card enter animation */
+    opacity: 1 !important;
+    overflow: visible !important; /* Allow shadow to be visible */
+}
+.brand-logo-item:hover {
+    transform: scale(1.1);
+    box-shadow: none !important;
+}
+.brand-logo-item img {
+    filter: drop-shadow(2px 4px 5px rgba(0,0,0,0.3));
+    transition: filter 0.3s ease, transform 0.3s ease;
+    width: 100%;
+    height: auto;
+    max-height: 80px;
+    object-fit: contain;
+    border-radius: 0 !important;
+}
+.brand-logo-item:hover img {
+    filter: drop-shadow(3px 5px 7px rgba(0,0,0,0.4));
+}
+
 /* --- ESTILOS DEL CARRUSEL --- */
 .carousel-container {
     position: relative;
@@ -1911,10 +1942,10 @@ function getLogoUrlForMarca(marca, categoria) {
     const normalizedMarca = normalize(marca);
     const normalizedCategoria = normalize(categoria);
 
-    // 1. Encontrar todos los logos que coincidan parcialmente con el nombre de la marca.
+    // 1. Find all logos that could potentially match the brand name.
     const potentialMatches = datosLogos.filter(logo => {
         const normalizedLogoMarca = normalize(logo.nombreMarca);
-        return normalizedLogoMarca.includes(normalizedMarca);
+        return normalizedLogoMarca.startsWith(normalizedMarca);
     });
 
     if (potentialMatches.length === 0) {
@@ -1926,26 +1957,43 @@ function getLogoUrlForMarca(marca, categoria) {
         return potentialMatches[0].urlLogo;
     }
 
-    // 2. Si hay múltiples coincidencias, usar la categoría para desambiguar.
+    // 2. Multiple matches exist. Use category to find the best one.
     let bestMatch = null;
-    if (normalizedCategoria === 'motos' || normalizedCategoria === 'motocicletas') {
-        // Prioridad para "motocicletas"
-        bestMatch = potentialMatches.find(logo => normalize(logo.nombreMarca).includes('motocicletas'));
+
+    // Look for a category-specific match first.
+    if (normalizedCategoria) {
+        // Handle synonyms for motorcycles to make matching more robust.
+        const catSynonyms = (normalizedCategoria === 'motos' || normalizedCategoria === 'motocicletas')
+            ? ['motos', 'motocicletas']
+            : [normalizedCategoria];
+
+        for (const synonym of catSynonyms) {
+            bestMatch = potentialMatches.find(logo => normalize(logo.nombreMarca).includes(synonym));
+            if (bestMatch) break; // Found a specific match, stop searching.
+        }
     }
 
-    // Si no se encontró una coincidencia específica de categoría, o si la categoría no es de motos,
-    // buscar una que NO sea de motos (genérica).
+    // 3. If no category-specific match was found, find the "generic" or base logo.
+    // The base logo is the one whose normalized name exactly matches the brand name.
     if (!bestMatch) {
-        bestMatch = potentialMatches.find(logo => !normalize(logo.nombreMarca).includes('motocicletas'));
+        bestMatch = potentialMatches.find(logo => normalize(logo.nombreMarca) === normalizedMarca);
     }
 
-    // Si después de desambiguar todavía no hay una "mejor" coincidencia,
-    // simplemente devolver la primera que se encontró.
+    // As a final fallback, if we still don't have a clear winner (e.g., no exact base match),
+    // find the shortest name, assuming it's the base one (e.g., "Honda" is shorter than "Honda Motocicletas").
+    if (!bestMatch) {
+         bestMatch = potentialMatches.reduce((prev, current) => {
+            return (prev.nombreMarca.length < current.nombreMarca.length) ? prev : current;
+        });
+    }
+
+    // Return the URL of the best match found, or null if something went wrong.
     if (bestMatch) {
         return bestMatch.urlLogo;
     } else {
+        // This case should be rare, but as a last resort, return the first potential match.
         debugLog('LOGO_SEARCH_WARN', 'Múltiples logos encontrados pero no se pudo desambiguar. Devolviendo el primero.', { marca, categoria, matches: potentialMatches });
-        return potentialMatches[0].urlLogo;
+        return potentialMatches.length > 0 ? potentialMatches[0].urlLogo : null;
     }
 }
 
@@ -2385,23 +2433,49 @@ function mostrarCategorias() {
     const cont = document.getElementById("contenido");
     cont.innerHTML = ""; // Limpiar contenido
 
-    // Primero mostrar "Últimos Agregados"
+    // 1. Mostrar "Últimos Agregados"
     mostrarUltimosAgregados();
 
+    // 2. Mostrar "Búsqueda por Marca"
+    const marcasTitle = document.createElement('h4');
+    marcasTitle.textContent = 'Búsqueda por Marca';
+    marcasTitle.style.marginTop = '40px';
+    cont.appendChild(marcasTitle);
+
+    const todasLasMarcas = [...new Set(datosOriginales.map(item => item.marca))].filter(m => m).sort();
+    const marcasGrid = document.createElement("div");
+    marcasGrid.className = "grid";
+    marcasGrid.style.gridTemplateColumns = "repeat(auto-fill, minmax(120px, 1fr))";
+    marcasGrid.style.gap = "30px";
+
+    todasLasMarcas.forEach(marca => {
+        const logoUrl = getLogoUrlForMarca(marca, null); // Get generic logo
+        const logoContainer = document.createElement("div");
+        logoContainer.className = "card brand-logo-item";
+        logoContainer.onclick = () => mostrarSiguientePaso(null, marca); // Categoria es null para buscar en todas
+
+        const img = document.createElement("img");
+        img.src = convertirAGoogleThumbnail(logoUrl) || 'https://placehold.co/120x80/cccccc/333333?text=Sin+Logo';
+        img.alt = `Marca ${marca}`;
+        img.loading = "lazy";
+
+        logoContainer.appendChild(img);
+        marcasGrid.appendChild(logoContainer);
+    });
+    cont.appendChild(marcasGrid);
+
+
+    // 3. Mostrar "Búsqueda por Categoría"
     const categoriasTitle = document.createElement('h4');
-    categoriasTitle.textContent = 'Categorías';
+    categoriasTitle.textContent = 'Búsqueda por Categoría';
     categoriasTitle.style.marginTop = '40px';
     cont.appendChild(categoriasTitle);
 
     if (!datosOriginales || datosOriginales.length === 0) {
-        const p = document.createElement('p');
-        p.textContent = 'No hay categorías disponibles.';
-        p.style.textAlign = 'center';
-        cont.appendChild(p);
+        // This case is already handled implicitly, but we can be explicit.
         return;
     }
 
-    // Usar la lista pre-ordenada del backend
     const categorias = sortedCategoriesList;
     if (!categorias || categorias.length === 0) {
         const p = document.createElement('p');
@@ -2411,11 +2485,12 @@ function mostrarCategorias() {
         return;
     }
 
-    const grid = document.createElement("div"); grid.className = "grid";
+    const categoriasGrid = document.createElement("div");
+    categoriasGrid.className = "grid";
     categorias.forEach(cat => {
-        // Encontrar un vehículo de ejemplo para la imagen de la categoría
         const ejemplo = datosOriginales.find(item => item.categoria === cat && item.imagenVehiculo);
-        const card = document.createElement("div"); card.className = "card";
+        const card = document.createElement("div");
+        card.className = "card";
         card.onclick = () => mostrarMarcas(cat);
         const img = document.createElement("img");
         img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
@@ -2425,9 +2500,9 @@ function mostrarCategorias() {
         overlay.className = "overlay";
         overlay.innerHTML = cat;
         card.appendChild(overlay);
-        grid.appendChild(card);
+        categoriasGrid.appendChild(card);
     });
-    cont.appendChild(grid);
+    cont.appendChild(categoriasGrid);
 }
 
 function mostrarUltimosAgregados() {
@@ -2573,47 +2648,139 @@ function mostrarMarcas(categoria) {
     cont.innerHTML = `<span class="backBtn" onclick="irAPaginaPrincipal()">${backSvg} Volver</span><h4>Marcas de ${categoria}</h4>`;
     const itemsInCategory = datosOriginales.filter(item => item.categoria === categoria);
     const marcas = [...new Set(itemsInCategory.map(item => item.marca))].filter(m => m).sort();
-    const grid = document.createElement("div"); grid.className = "grid";
+
+    // Adjust grid for logos to be more spacious
+    const grid = document.createElement("div");
+    grid.className = "grid";
+    grid.style.gridTemplateColumns = "repeat(auto-fill, minmax(120px, 1fr))";
+    grid.style.gap = "30px";
+
     marcas.forEach(m => {
-        const itemsInBrand = itemsInCategory.filter(item => item.marca === m);
         const logoUrl = getLogoUrlForMarca(m, categoria);
+        const logoContainer = document.createElement("div");
+        logoContainer.className = "card brand-logo-item"; // Apply new style
+        logoContainer.onclick = () => mostrarSiguientePaso(categoria, m);
+
+        const img = document.createElement("img");
+        img.src = convertirAGoogleThumbnail(logoUrl) || 'https://placehold.co/120x80/cccccc/333333?text=Sin+Logo';
+        img.alt = `Marca ${m}`;
+        img.loading = "lazy";
+
+        logoContainer.appendChild(img);
+        grid.appendChild(logoContainer);
+    });
+    cont.appendChild(grid);
+}
+
+function mostrarSiguientePaso(categoria, marca) {
+    const vehiculosDeMarca = datosOriginales.filter(item => item.categoria === categoria && item.marca === marca);
+    const tieneVersionesAplicables = vehiculosDeMarca.some(item => item.versionesAplicables && item.versionesAplicables.trim() !== '');
+
+    if (tieneVersionesAplicables) {
+        mostrarVersionesEquipamiento(categoria, marca);
+    } else {
+        mostrarModelos(categoria, marca); // Si no hay versiones, va directo a modelos
+    }
+}
+
+function mostrarVersionesEquipamiento(categoria, marca) {
+    estado = { nivel: "versionesEquipamiento", categoria, marca };
+    const cont = document.getElementById("contenido");
+    cont.innerHTML = `<span class="backBtn" onclick="mostrarMarcas('${categoria}')">${backSvg} Volver</span><h4>Versiones de Equipamiento para ${marca}</h4>`;
+
+    const vehiculosDeMarca = datosOriginales.filter(item => item.categoria === categoria && item.marca === marca);
+    const versiones = [...new Set(vehiculosDeMarca.map(item => item.versionesAplicables).filter(v => v))];
+
+    const grid = document.createElement("div");
+    grid.className = "grid";
+
+    versiones.forEach(version => {
+        const ejemplo = vehiculosDeMarca.find(item => item.versionesAplicables === version && item.imagenVehiculo);
         const card = document.createElement("div");
         card.className = "card";
-        card.onclick = () => mostrarModelos(categoria, m);
+        card.onclick = () => mostrarModelos(categoria, marca, version); // Pasamos la versión para filtrar
+
         const img = document.createElement("img");
-        img.src = convertirAGoogleThumbnail(logoUrl) || 'https://placehold.co/280x200/cccccc/333333?text=Sin+Logo';
-        img.alt = `Marca ${m}`;
-        img.style.objectFit = 'contain'; // Asegurar que el logo se vea bien
-        img.loading = "lazy";
+        img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
+        img.alt = `Versión ${version}`;
         card.appendChild(img);
+
         const overlay = document.createElement("div");
         overlay.className = "overlay";
-        overlay.innerHTML = m;
+        overlay.innerHTML = version;
+        card.appendChild(overlay);
+        grid.appendChild(card);
+    });
+
+    cont.appendChild(grid);
+}
+
+
+function mostrarModelos(categoria, marca, versionEquipamiento = null) {
+    estado = { nivel: "modelos", categoria, marca, versionEquipamiento };
+    const cont = document.getElementById("contenido");
+    const backAction = versionEquipamiento ? `mostrarVersionesEquipamiento('${categoria}', '${marca}')` : `mostrarMarcas('${categoria}')`;
+    cont.innerHTML = `<span class="backBtn" onclick="${backAction}">${backSvg} Volver</span><h4>Modelos de ${marca} ${versionEquipamiento || ''}</h4>`;
+
+    let modelosFiltrados = datosOriginales.filter(item => item.categoria === categoria && item.marca === marca);
+    if (versionEquipamiento) {
+        modelosFiltrados = modelosFiltrados.filter(item => item.versionesAplicables === versionEquipamiento);
+    }
+
+    const modelosUnicos = [...new Map(modelosFiltrados.map(item => [item.modelo, item])).values()].sort((a,b) => a.modelo.localeCompare(b.modelo));
+
+    if (modelosUnicos.length === 1) {
+        mostrarTiposEncendido(categoria, marca, versionEquipamiento, modelosUnicos[0].modelo);
+        return;
+    }
+
+    const grid = document.createElement("div"); grid.className = "grid";
+    modelosUnicos.forEach(ejemplo => {
+        const card = document.createElement("div"); card.className = "card";
+        card.onclick = () => mostrarTiposEncendido(categoria, marca, versionEquipamiento, ejemplo.modelo);
+        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo.imagenVehiculo); img.alt = `Modelo ${ejemplo.modelo}`; card.appendChild(img);
+        const overlay = document.createElement("div"); overlay.className = "overlay";
+        overlay.innerHTML = `<div>${ejemplo.modelo}</div>`;
         card.appendChild(overlay);
         grid.appendChild(card);
     });
     cont.appendChild(grid);
 }
 
-function mostrarModelos(categoria, marca) {
-    estado = { nivel: "modelos", categoria: categoria, marca: marca };
+function mostrarTiposEncendido(categoria, marca, versionEquipamiento, modelo) {
+     estado = { nivel: "tiposEncendido", categoria, marca, versionEquipamiento, modelo };
     const cont = document.getElementById("contenido");
-    cont.innerHTML = `<span class="backBtn" onclick="mostrarMarcas('${categoria}')">${backSvg} Volver</span><h4>Modelos de ${marca}</h4>`;
-    const modelosFiltrados = datosOriginales.filter(item => item.categoria === categoria && item.marca === marca);
-    const modelosUnicos = [...new Map(modelosFiltrados.map(item => [item.modelo, item])).values()].sort((a,b) => a.modelo.localeCompare(b.modelo));
+    const backAction = `mostrarModelos('${categoria}', '${marca}', ${versionEquipamiento ? `'${versionEquipamiento}'` : null})`;
+    cont.innerHTML = `<span class="backBtn" onclick="${backAction}">${backSvg} Volver</span><h4>Tipos de Encendido para ${modelo}</h4>`;
+
+    let vehiculos = datosOriginales.filter(item =>
+        item.categoria === categoria &&
+        item.marca === marca &&
+        item.modelo === modelo &&
+        (!versionEquipamiento || item.versionesAplicables === versionEquipamiento)
+    );
+
+    const tiposEncendido = [...new Set(vehiculos.map(v => v.tipoEncendido).filter(Boolean))];
+
+    if (tiposEncendido.length === 1) {
+        mostrarVersiones(vehiculos, categoria, marca, modelo);
+        return;
+    }
+
     const grid = document.createElement("div"); grid.className = "grid";
-    modelosUnicos.forEach(ejemplo => {
-        const versiones = modelosFiltrados.filter(item => item.modelo === ejemplo.modelo);
+    tiposEncendido.forEach(tipo => {
+        const ejemplo = vehiculos.find(v => v.tipoEncendido === tipo);
         const card = document.createElement("div"); card.className = "card";
-        card.onclick = () => (versiones.length === 1) ? mostrarDetalleModal(ejemplo) : mostrarVersiones(versiones, categoria, marca, ejemplo.modelo);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo.imagenVehiculo); img.alt = `Modelo ${ejemplo.modelo}`; card.appendChild(img);
-        const overlay = document.createElement("div"); overlay.className = "overlay";
-        if (versiones.length === 1) {
-            const yearRange = ejemplo.anoHasta ? `${ejemplo.anoDesde} - ${ejemplo.anoHasta}` : ejemplo.anoDesde;
-             overlay.innerHTML = `<div>${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8;">${yearRange || ''} ${ejemplo.tipoEncendido || ''}</div>`;
-        } else {
-             overlay.innerHTML = `<div>${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8;">(${versiones.length} cortes)</div>`;
-        }
+        card.onclick = () => mostrarVersiones(vehiculos.filter(v => v.tipoEncendido === tipo), categoria, marca, modelo);
+
+        const img = document.createElement("img");
+        img.src = convertirAGoogleThumbnail(ejemplo.imagenVehiculo);
+        img.alt = tipo;
+        card.appendChild(img);
+
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+        overlay.innerHTML = tipo;
         card.appendChild(overlay);
         grid.appendChild(card);
     });
