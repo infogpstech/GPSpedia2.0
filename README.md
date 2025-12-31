@@ -1064,3 +1064,248 @@ Flujo lineal
 Evitar duplicidad de rutas
 
 NO romper funcionalidades existentes
+
+---
+
+⚠️ REGRESIÓN CRÍTICA DETECTADA – ÚLTIMO COMMIT (NAVEGACIÓN POR MARCAS)
+
+> ATENCIÓN – REGRESIÓN FATAL
+En el último commit donde se agregó la navegación por marcas, se introdujeron regresiones graves que rompen funcionalidades existentes y no cumplen el flujo definido en las instrucciones previas.
+
+Esta sección documenta exactamente qué se rompió y cómo debe corregirse, sin reinterpretaciones.
+
+
+
+
+---
+
+1. Regresión en las secciones de navegación visibles
+
+Estado actual (incorrecto)
+
+Solo aparecen:
+
+Navegación por marca de vehículos
+
+Navegación por categoría
+
+
+Se eliminaron o dejaron inaccesibles otras secciones clave.
+
+
+Estado esperado (OBLIGATORIO)
+
+Las siguientes secciones NO deben desaparecer y deben coexistir:
+
+1. Últimos agregados
+
+
+2. Categoría
+
+
+3. Búsqueda por marca de vehículos
+
+
+4. Búsqueda por marca de motocicletas
+
+
+
+⚠️ Eliminar “Últimos agregados” es una regresión grave
+Esta sección existía y funcionaba antes del último commit y NO debía ser eliminada.
+
+
+---
+
+2. Incumplimiento del flujo de navegación definido
+
+La navegación actual NO sigue el flujo por etapas previamente documentado, específicamente:
+
+No respeta:
+
+Etapas secuenciales
+
+Separación clara entre categorías, marcas, modelos y versiones
+
+
+Se mezclan rutas que generan:
+
+Confusión
+
+Redundancia
+
+Pérdida de contexto para el usuario
+
+
+
+👉 Es obligatorio volver a implementar la navegación exactamente como fue definida en las instrucciones anteriores, sin simplificaciones ni atajos.
+
+
+---
+
+3. Regresión en modales de detalle – Tutoriales
+
+Problema
+
+En los modales de detalle de Tutoriales:
+
+NO aparece el vídeo guía, aunque el contenido existe.
+
+
+
+Acción requerida
+
+Revisar la lógica de renderizado del vídeo en:
+
+Modales
+
+Condiciones de visibilidad
+
+
+Corregir sin afectar otros tipos de modal.
+
+
+
+---
+
+4. Regresión en modales de detalle – Relay
+
+Problema
+
+En los modales de detalle de Relay:
+
+NO aparece la imagen del diagrama de configuración del Relay.
+
+
+
+Acción requerida
+
+Revisar:
+
+Lógica de carga de imagen
+
+Conversión de enlace
+
+Condición de render
+
+
+Confirmar que el diagrama se muestre correctamente como antes del último commit.
+
+
+
+---
+
+5. Error de posicionamiento – Botones de feedback (vehículos)
+
+Estado actual (incorrecto)
+
+Los botones de feedback:
+
+Están a la derecha de la imagen
+
+NO están en la esquina inferior derecha
+
+
+Esto rompe el diseño solicitado.
+
+
+Estado esperado (OBLIGATORIO)
+
+Los botones de feedback deben:
+
+Estar sobre la imagen del corte (overlay)
+
+Posicionados en la parte baja de la imagen
+
+Específicamente en la esquina inferior derecha
+
+
+
+
+---
+
+6. Error de layout – Nombre del colaborador
+
+Estado actual (incorrecto)
+
+El nombre del colaborador:
+
+Fue colocado como overlay sobre la imagen del corte
+
+
+
+Estado esperado (OBLIGATORIO)
+
+El nombre del colaborador:
+
+NO debe ser overlay
+
+Debe estar FUERA de la imagen
+
+Con su propio espacio vertical dedicado
+
+
+No debe compartir contenedor ni capa con:
+
+Imagen
+
+Botones de feedback
+
+
+
+
+---
+
+7. Regresión – Posición del logo de marca en el modal de detalle
+
+Estado actual (incorrecto)
+
+El logo de marca:
+
+NO está en la posición solicitada
+
+
+
+Estado esperado (OBLIGATORIO)
+
+El logo de marca debe:
+
+Aparecer en el modal de detalle
+
+Ubicarse a la derecha del título, donde dice:
+
+> “Detalle de ‘modelo de vehículo’”
+
+
+
+
+Debe integrarse sin romper:
+
+Layout
+
+Responsividad
+
+Jerarquía visual del título
+
+
+
+
+---
+
+Regla crítica de corrección
+
+> Antes de agregar nuevas funcionalidades:
+
+Revertir o corregir las regresiones
+
+Restaurar funcionalidades eliminadas
+
+Alinear la implementación con el README
+
+
+
+
+⚠️ No se deben sacrificar secciones existentes para introducir nuevas rutas de navegación.
+El README define el contrato funcional y visual del catálogo.
+
+
+---

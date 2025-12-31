@@ -792,11 +792,11 @@ body.search-active .app-logo {
 }
 .feedback-overlay {
     position: absolute;
-    top: 10px;
+    bottom: 10px;
     right: 10px;
     display: flex;
-    flex-direction: column;
-    gap: 12px;
+    flex-direction: row;
+    gap: 8px;
 }
 .feedback-btn-overlay {
     background-color: rgba(0, 0, 0, 0.6);
@@ -818,16 +818,6 @@ body.search-active .app-logo {
 }
 .feedback-btn-overlay.util-btn.liked {
     background-color: #28a745; /* Verde para indicar que se le dio "like" */
-}
-.collaborator-info-overlay {
-    position: absolute;
-    bottom: 10px;
-    left: 10px;
-    background: rgba(0, 0, 0, 0.6);
-    color: white;
-    padding: 5px 10px;
-    border-radius: 12px;
-    font-size: 0.8em;
 }
 
 #detalleCompleto h4 {
@@ -1760,6 +1750,36 @@ function mostrarContenidoTutoriales() {
     cont.appendChild(grid);
 }
 
+function mostrarCategoriasPorMarca(marca) {
+    estado = { nivel: "categoriasPorMarca", marca: marca };
+    const cont = document.getElementById("contenido");
+    cont.innerHTML = `<span class="backBtn" onclick="irAPaginaPrincipal()">${backSvg} Volver</span><h4>Categorías para ${marca}</h4>`;
+
+    const categoriasDeMarca = [...new Set(datosOriginales
+        .filter(item => item.marca === marca)
+        .map(item => item.categoria))]
+        .filter(Boolean).sort();
+
+    const grid = document.createElement("div");
+    grid.className = "grid";
+    categoriasDeMarca.forEach(cat => {
+        const ejemplo = datosOriginales.find(item => item.categoria === cat && item.marca === marca && item.imagenVehiculo);
+        const card = document.createElement("div");
+        card.className = "card";
+        card.onclick = () => mostrarModelos(cat, marca); // Ahora sí se pasa la categoría
+        const img = document.createElement("img");
+        img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
+        img.alt = `Categoría ${cat}`;
+        card.appendChild(img);
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+        overlay.innerHTML = cat;
+        card.appendChild(overlay);
+        grid.appendChild(card);
+    });
+    cont.appendChild(grid);
+}
+
 function mostrarContenidoRelay() {
     const cont = document.getElementById("contenido-relay");
     cont.innerHTML = "<h4>Configuración del Relay</h4>";
@@ -1816,7 +1836,7 @@ function crearElementoDetalle(label, value, itemId, fieldName) {
     return p;
 }
 
-function crearImagenDetalle(label, value, container, { extraClass = '', feedbackActions = null, collaboratorName = '' } = {}) {
+function crearImagenDetalle(label, value, container, { extraClass = '', feedbackActions = null } = {}) {
     if (!value) return;
 
     const wrapper = document.createElement('div');
@@ -1840,13 +1860,6 @@ function crearImagenDetalle(label, value, container, { extraClass = '', feedback
         overlay.appendChild(feedbackActions.util);
         overlay.appendChild(feedbackActions.report);
         imgContainer.appendChild(overlay);
-    }
-
-    if (collaboratorName) {
-        const collaboratorInfo = document.createElement('div');
-        collaboratorInfo.className = 'collaborator-info-overlay';
-        collaboratorInfo.innerHTML = `Colaborador: <strong>${collaboratorName}</strong>`;
-        imgContainer.appendChild(collaboratorInfo);
     }
 
     wrapper.appendChild(imgContainer);
@@ -1954,8 +1967,8 @@ function mostrarDetalleTutorial(item) {
         cont.appendChild(crearElementoDetalle(c.label, c.value, item.id, c.field));
     });
 
-    crearImagenDetalle("Imagen", item.imagen, cont);
-    crearVideoDetalle("Video Guía", item.video, cont);
+    crearImagenDetalle("Imagen", item.Imagen, cont);
+    crearVideoDetalle("Video Guía", item.videoGuia, cont);
     document.getElementById("modalDetalle").classList.add("visible");
 }
 
@@ -1996,7 +2009,7 @@ function mostrarDetalleRelay(item) {
     campos.forEach(c => {
         cont.appendChild(crearElementoDetalle(c.label, c.value, item.id, c.field));
     });
-    crearImagenDetalle("Imagen", item.imagen, cont);
+    crearImagenDetalle("Diagrama", item.imagen, contenidoDiv);
     const relayImg = cont.querySelector('img[alt="Imagen"]');
     if (relayImg) {
         relayImg.style.maxHeight = '250px';
@@ -2161,19 +2174,20 @@ function mostrarDetalleModal(item) {
     headerDiv.appendChild(crearBotonCompartir('cortes', item.id, titulo));
     cont.appendChild(headerDiv);
 
-    // --- 2. Título principal con logo de marca ---
+    // --- 2. Título principal con logo de marca (Flexbox Layout) ---
     const titleContainer = document.createElement("div");
-    titleContainer.style.position = 'relative';
+    titleContainer.style.cssText = "display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #007bff; padding-bottom: 10px; margin-bottom: 15px;";
+
     const title = document.createElement("h2");
     title.textContent = `Detalle de ${titulo}`;
-    title.style.cssText = "color:#007bff; border-bottom:3px solid #007bff; padding-bottom:10px; margin-right: 70px;"; // Espacio para el logo
+    title.style.cssText = "color:#007bff; margin: 0; padding: 0; flex-grow: 1;"; // No border here
     titleContainer.appendChild(title);
 
     const logoUrl = getLogoUrlForMarca(item.marca, item.categoria);
     if (logoUrl) {
         const logoImg = document.createElement("img");
         logoImg.src = logoUrl;
-        logoImg.style.cssText = "position: absolute; top: 0; right: 0; height: 50px; width: auto; max-width: 100px; object-fit: contain;";
+        logoImg.style.cssText = "height: 50px; width: auto; max-width: 100px; object-fit: contain; margin-left: 15px;";
         titleContainer.appendChild(logoImg);
     }
     cont.appendChild(titleContainer);
@@ -2225,9 +2239,17 @@ function mostrarDetalleModal(item) {
 
         // Imagen del Corte con Overlays de Feedback
         crearImagenDetalle("Imagen del Corte", item[`imgCorte${corteIndex}`], panel, {
-            feedbackActions: { util: utilBtn, report: reportBtn },
-            collaboratorName: item[`colaboradorCorte${corteIndex}`] || 'N/A'
+            feedbackActions: { util: utilBtn, report: reportBtn }
         });
+
+        // Información del Colaborador (fuera del overlay)
+        const collaboratorName = item[`colaboradorCorte${corteIndex}`];
+        if (collaboratorName) {
+            const collaboratorInfo = document.createElement('p');
+            collaboratorInfo.style.cssText = 'text-align: right; font-size: 0.9em; color: #555; margin-top: 8px; border-top: 1px solid #eee; padding-top: 8px;';
+            collaboratorInfo.innerHTML = `Colaborador: <strong>${collaboratorName}</strong>`;
+            panel.appendChild(collaboratorInfo);
+        }
 
         // Link a Configuración de Relay (si existe)
         const configRelay = item[`configRelay${corteIndex}`];
@@ -2500,6 +2522,9 @@ function mostrarCategorias() {
     const cont = document.getElementById("contenido");
     cont.innerHTML = ""; // Limpiar contenido
 
+    // 1. Mostrar "Últimos Agregados" - RESTAURADO
+    mostrarUltimosAgregados();
+
     // --- Función para crear carruseles ---
     const crearCarrusel = (titulo, items, cardGenerator) => {
         if (!items || items.length === 0) return;
@@ -2553,7 +2578,7 @@ function mostrarCategorias() {
         const logoUrl = getLogoUrlForMarca(marca, null);
         const card = document.createElement("div");
         card.className = "card brand-logo-item";
-        card.onclick = () => mostrarModelos(null, marca);
+        card.onclick = () => mostrarCategoriasPorMarca(marca);
         const img = document.createElement("img");
         img.src = convertirAGoogleThumbnail(logoUrl);
         img.alt = `Marca ${marca}`;
