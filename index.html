@@ -1,4 +1,4 @@
-<!-- GPSpedia Frontend Component | Version: 4.3.1 -->
+<!-- GPSpedia Frontend Component | Version: 4.3.3 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -1968,7 +1968,7 @@ function mostrarDetalleTutorial(item) {
     });
 
     crearImagenDetalle("Imagen", item.Imagen, cont);
-    crearVideoDetalle("Video Guía", item.videoGuia, cont);
+    crearVideoDetalle("Video Guía", item.Video, cont);
     document.getElementById("modalDetalle").classList.add("visible");
 }
 
@@ -2009,7 +2009,7 @@ function mostrarDetalleRelay(item) {
     campos.forEach(c => {
         cont.appendChild(crearElementoDetalle(c.label, c.value, item.id, c.field));
     });
-    crearImagenDetalle("Diagrama", item.imagen, contenidoDiv);
+    crearImagenDetalle("Diagrama", item.imagen, cont);
     const relayImg = cont.querySelector('img[alt="Imagen"]');
     if (relayImg) {
         relayImg.style.maxHeight = '250px';
@@ -2174,33 +2174,66 @@ function mostrarDetalleModal(item) {
     headerDiv.appendChild(crearBotonCompartir('cortes', item.id, titulo));
     cont.appendChild(headerDiv);
 
-    // --- 2. Título principal con logo de marca (Flexbox Layout) ---
+    // --- 2. Nuevo Encabezado Detallado ---
     const titleContainer = document.createElement("div");
-    titleContainer.style.cssText = "display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #007bff; padding-bottom: 10px; margin-bottom: 15px;";
+    titleContainer.style.cssText = "border-bottom: 3px solid #007bff; padding-bottom: 10px; margin-bottom: 15px;";
+
+    // 2.1 Título Principal (Nombre del Modelo y Logo)
+    const mainHeaderDiv = document.createElement('div');
+    mainHeaderDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center;";
 
     const title = document.createElement("h2");
-    title.textContent = `Detalle de ${titulo}`;
-    title.style.cssText = "color:#007bff; margin: 0; padding: 0; flex-grow: 1;"; // No border here
-    titleContainer.appendChild(title);
+    title.textContent = `${item.marca} ${item.modelo}`;
+    title.style.cssText = "color:#007bff; margin: 0; padding: 0; flex-grow: 1;";
+    mainHeaderDiv.appendChild(title);
 
     const logoUrl = getLogoUrlForMarca(item.marca, item.categoria);
     if (logoUrl) {
         const logoImg = document.createElement("img");
         logoImg.src = logoUrl;
         logoImg.style.cssText = "height: 50px; width: auto; max-width: 100px; object-fit: contain; margin-left: 15px;";
-        titleContainer.appendChild(logoImg);
+        mainHeaderDiv.appendChild(logoImg);
     }
+    titleContainer.appendChild(mainHeaderDiv);
+
+    // 2.2 Sub-encabezados (Versión/Encendido, Años, Categoría)
+    const subHeaderDiv = document.createElement('div');
+    subHeaderDiv.style.marginTop = '10px';
+
+    const subHeaderText = document.createElement('p');
+    subHeaderText.style.cssText = "margin: 0; padding: 0; color: #555;";
+
+    // Punto 2 y 3: Versión/Encendido y Rango de Años (letra más pequeña)
+    const equipamiento = item.versionesAplicables || item.tipoEncendido || '';
+    const yearRangeText = item.anoHasta ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
+    subHeaderText.innerHTML = `<span style="font-size: 0.9em;">${equipamiento} | ${yearRangeText}</span>`;
+
+    // Punto 4: Categoría (letra aún más pequeña)
+    if(item.categoria) {
+         subHeaderText.innerHTML += `<br><span style="font-size: 0.8em; color: #777;">${item.categoria}</span>`;
+    }
+
+    subHeaderDiv.appendChild(subHeaderText);
+    titleContainer.appendChild(subHeaderDiv);
     cont.appendChild(titleContainer);
 
     // --- 3. Nota Importante (si existe) ---
     if (item.notaImportante) {
         const p = document.createElement("p");
-        p.innerHTML = `<strong style="color:red;">Nota Importante:</strong> <span style="color:#cc0000; font-weight: bold;">${item.notaImportante}</span>`;
+        p.innerHTML = `<strong style="color:red;">Nota Importante:</strong> <span style="color:#cc0000; font-weight: bold;">${item.notaImportante} ⚠️</span>`;
         cont.appendChild(p);
     }
 
     // --- 4. Imagen del Vehículo (si existe) ---
     crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, { extraClass: 'img-vehiculo' });
+    const vehiculoImg = cont.querySelector('.img-vehiculo');
+    if(vehiculoImg) {
+        vehiculoImg.style.maxHeight = '150px'; // Mitad del tamaño normal (300px)
+        vehiculoImg.style.filter = 'drop-shadow(2px 4px 6px rgba(0,0,0,0.4))';
+        vehiculoImg.style.background = 'none';
+        vehiculoImg.style.border = 'none';
+    }
+
 
     // --- Lógica de Cortes Refactorizada ---
     const crearPanelCorte = (corteIndex, esRecomendado = false) => {
@@ -2209,7 +2242,9 @@ function mostrarDetalleModal(item) {
 
         const panel = document.createElement("div");
         panel.className = esRecomendado ? "panel-recomendado" : "panel-desplegable";
-        if(esRecomendado) panel.style.cssText = "padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px; background-color: #f9f9f9;";
+        if(esRecomendado) {
+            panel.style.cssText = "padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px; background-color: #f9f9f9;";
+        }
 
 
         // Descripción (Ubicación y Color de Cable)
@@ -2241,17 +2276,12 @@ function mostrarDetalleModal(item) {
         crearImagenDetalle("Imagen del Corte", item[`imgCorte${corteIndex}`], panel, {
             feedbackActions: { util: utilBtn, report: reportBtn }
         });
-
-        // Información del Colaborador (fuera del overlay)
-        const collaboratorName = item[`colaboradorCorte${corteIndex}`];
-        if (collaboratorName) {
-            const collaboratorInfo = document.createElement('p');
-            collaboratorInfo.style.cssText = 'text-align: right; font-size: 0.9em; color: #555; margin-top: 8px; border-top: 1px solid #eee; padding-top: 8px;';
-            collaboratorInfo.innerHTML = `Colaborador: <strong>${collaboratorName}</strong>`;
-            panel.appendChild(collaboratorInfo);
+        if(esRecomendado){
+             const imgCorte = panel.querySelector('img[alt="Imagen del Corte"]');
+             if(imgCorte) imgCorte.style.width = '100%';
         }
 
-        // Link a Configuración de Relay (si existe)
+        // Link a Configuración de Relay (si existe) - ANTES del colaborador
         const configRelay = item[`configRelay${corteIndex}`];
         const relayMatch = datosRelay.find(r => r.configuracion === configRelay);
         if (configRelay && relayMatch) {
@@ -2262,6 +2292,15 @@ function mostrarDetalleModal(item) {
             relayLink.style.marginTop = "10px";
             relayLink.onclick = (e) => { e.preventDefault(); mostrarDetalleRelayAnidado(configRelay); };
             panel.appendChild(relayLink);
+        }
+
+        // Información del Colaborador (fuera del overlay, alineado a la izquierda)
+        const collaboratorName = item[`colaboradorCorte${corteIndex}`];
+        if (collaboratorName) {
+            const collaboratorInfo = document.createElement('p');
+            collaboratorInfo.style.cssText = 'text-align: left; font-size: 0.9em; color: #555; margin-top: 8px; border-top: 1px solid #eee; padding-top: 8px;';
+            collaboratorInfo.innerHTML = `Colaborador: <strong>${collaboratorName}</strong>`;
+            panel.appendChild(collaboratorInfo);
         }
 
         // Sección de Reporte (oculta por defecto)
@@ -2330,17 +2369,9 @@ function mostrarDetalleModal(item) {
         });
     }
 
-    // --- 7. Cable de Alimentación ---
-    createAccordionSection("Cable de Alimentación", () => {
-        if (!item.cableAlimen && !item.imgCableAlimen) return null;
-        const panel = document.createElement("div");
-        panel.className = "panel-desplegable";
-        if (item.cableAlimen) panel.appendChild(crearElementoDetalle("Ubicación y color", item.cableAlimen));
-        crearImagenDetalle("Imagen de Alimentación", item.imgCableAlimen, panel);
-        return panel;
-    });
+    // --- REORDENAMIENTO DE SECCIONES SEGÚN ESPECIFICACIÓN ---
 
-    // --- 8. Detalles de Apertura ---
+    // --- 1. Detalles de Apertura ---
     createAccordionSection("Detalles de Apertura", () => {
         if (!item.apertura && !item.imgApertura) return null;
         const panel = document.createElement("div");
@@ -2350,7 +2381,17 @@ function mostrarDetalleModal(item) {
         return panel;
     });
 
-    // --- 9. Video Guía de Desarme ---
+    // --- 2. Cable de Alimentación ---
+    createAccordionSection("Cable de Alimentación", () => {
+        if (!item.cableAlimen && !item.imgCableAlimen) return null;
+        const panel = document.createElement("div");
+        panel.className = "panel-desplegable";
+        if (item.cableAlimen) panel.appendChild(crearElementoDetalle("Ubicación y color", item.cableAlimen));
+        crearImagenDetalle("Imagen de Alimentación", item.imgCableAlimen, panel);
+        return panel;
+    });
+
+    // --- 3. Video Guía de Desarme ---
     createAccordionSection("Video Guía de Desarme", () => {
         if (!item.videoGuiaDesarmeUrl) return null;
         const panel = document.createElement("div");
@@ -2359,13 +2400,8 @@ function mostrarDetalleModal(item) {
         return panel;
     });
 
-    // --- 10. Notas Personales ---
-    createAccordionSection("Notas Personales", () => {
-        const panel = document.createElement("div");
-        panel.className = "panel-desplegable";
-        panel.innerHTML = `<textarea placeholder="Escribe tus notas privadas aquí..." style="width: 100%; min-height: 80px; margin-top: 10px;"></textarea><button disabled style="margin-top: 5px;">Guardar Nota (Próximamente)</button>`;
-        return panel;
-    });
+    // --- 4. Notas Personales (ELIMINADO) ---
+    // La sección de notas personales ha sido eliminada según las especificaciones.
 
     document.getElementById("modalDetalle").classList.add("visible");
 }
@@ -2550,7 +2586,8 @@ function mostrarCategorias() {
         // Aquí podrías agregar la lógica de los botones de scroll si lo necesitas
     };
 
-    // --- 1. Carrusel de Categorías ---
+    // --- ORDEN CORRECTO DE RENDERIZADO ---
+    // 1. Carrusel de Categorías
     const categorias = sortedCategoriesList;
     crearCarrusel('Búsqueda por Categoría', categorias, cat => {
         const ejemplo = datosOriginales.find(item => item.categoria === cat && item.imagenVehiculo);
@@ -2568,9 +2605,9 @@ function mostrarCategorias() {
         return card;
     });
 
-    // --- 2. Carrusel de Marcas de Vehículos (Excluyendo Motocicletas) ---
+    // 2. Carrusel de Marcas de Vehículos (Excluyendo Motocicletas)
     const marcasVehiculos = [...new Set(datosOriginales
-        .filter(item => item.categoria.toLowerCase() !== 'motocicletas')
+        .filter(item => item.categoria && item.categoria.toLowerCase() !== 'motocicletas')
         .map(item => item.marca))]
         .filter(Boolean).sort();
 
@@ -2586,9 +2623,9 @@ function mostrarCategorias() {
         return card;
     });
 
-    // --- 3. Carrusel de Marcas de Motocicletas ---
+    // 3. Carrusel de Marcas de Motocicletas
     const marcasMotos = [...new Set(datosOriginales
-        .filter(item => item.categoria.toLowerCase() === 'motocicletas')
+        .filter(item => item.categoria && item.categoria.toLowerCase() === 'motocicletas')
         .map(item => item.marca))]
         .filter(Boolean).sort();
 
@@ -3590,7 +3627,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <footer class="footer" style="display: none;">
-  Gpspedia v4.3.1 © 2025 todos los derechos reservados.
+  Gpspedia v4.3.3 © 2025 todos los derechos reservados.
   <div class="footer-links">
       <a id="footer-about-link">Sobre Nosotros</a>
       <a id="footer-contact-link">Contáctanos</a>

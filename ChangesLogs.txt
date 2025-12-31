@@ -1,3 +1,21 @@
+**v4.3.3 (31-12-2025)**
+*   **REFACTOR & FIX (index.html):** Se ha rediseñado por completo el modal de detalles del vehículo para alinearlo con la nueva especificación de 12 puntos y corregir múltiples regresiones críticas.
+    *   **Especificación del Modal:**
+        1.  **Restaurada Navegación Principal:** Se corrigió la función `mostrarCategorias` para renderizar correctamente los carruseles de Categorías y Marcas.
+        2.  **Reparado Video en Tutoriales:** Se corrigió la función `mostrarDetalleTutorial` para usar `item.Video` en lugar de `item.videoGuia`, restaurando la visualización de videos.
+        3.  **Reparada Imagen en Relay:** Se corrigió la función `mostrarDetalleRelay` para usar la variable de contenedor correcta, restaurando la visualización de imágenes.
+        4.  **Nuevo Encabezado Detallado:** El encabezado del modal ahora muestra el Título, Logo de Marca, Versión, Rango de Años y Categoría en el formato especificado.
+        5.  **Orden de Contenido:** El cuerpo del modal ahora sigue el orden estricto: Corte Recomendado, Otros Cortes (acordeón), Apertura (acordeón), Alimentación (acordeón) y Video Guía (acordeón).
+        6.  **Corte Recomendado Fijo:** La sección del corte con más "likes" siempre está visible y expandida.
+        7.  **Estilo de Imagen de Vehículo:** La imagen principal del vehículo ahora tiene una altura máxima de 150px y un efecto `drop-shadow`.
+        8.  **Estilo de Imagen de Corte Recomendado:** La imagen dentro del corte recomendado ahora ocupa el 100% del ancho del panel.
+        9.  **Posición del Link de Relay:** El enlace "Ver Configuración de Relay" ahora aparece correctamente *antes* del nombre del colaborador.
+        10. **Alineación del Colaborador:** El nombre del colaborador ahora se alinea a la izquierda.
+        11. **Emoji en Nota Importante:** Se añadió el emoji `⚠️` a la nota importante.
+        12. **Eliminación de Notas Personales:** La sección de notas personales fue eliminada por completo.
+    *   **Archivos Modificados:**
+        *   `index.html`: Líneas 1714-1888, 2125-2405.
+
 **v4.3.2 (31-12-2025)**
 *   **INFRA (api-manager.js):** Se actualizaron las URLs de los microservicios `CATALOG` y `FEEDBACK` a las nuevas versiones desplegadas, asegurando la comunicación con los endpoints correctos.
     *   `api-manager.js`: Líneas 10-14

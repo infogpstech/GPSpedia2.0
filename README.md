@@ -908,6 +908,29 @@ Mejoras pendientes de diseño en el modal de detalle
 
 Además de la lógica funcional, se deben completar las mejoras visuales y de experiencia de usuario pendientes en los modales de detalle.
 
+#### **Estructura y Orden de Contenido Obligatorio para el Modal de Detalle**
+
+La información en el modal debe presentarse exactamente en el siguiente orden y con el formato especificado para garantizar consistencia y claridad.
+
+1.  **Nombre del modelo en el encabezado, seguido por el logo de la marca.**
+2.  **Versión de equipamiento si tiene.** Si no tiene, usar el tipo de encendido.
+3.  **Rango de años.** (Tanto el punto 2 como el 3 deben usar letras más pequeñas que el encabezado principal).
+4.  **Categoría.** (Debe usar letras más pequeñas que los puntos 2 y 3).
+5.  **Imagen del modelo del vehículo.** Debe ser una imagen pequeña (mitad del tamaño de la imagen del corte), centrada, sin bordes ni fondo, y con efecto `drop-shadow`.
+6.  **Nota importante.** Debe estar en color rojo y usar el icono de ⚠️ al final de la nota.
+7.  **Corte recomendado.** Determinado por la mayor cantidad de votos "útil". La imagen de este corte debe ajustarse para que su ancho coincida con el ancho del modal, con altura automática. Cada corte debe contener la siguiente información en este orden:
+    *   Descripción de la ubicación.
+    *   Color de cable.
+    *   Imagen (con botones de feedback en overlay).
+    *   Configuración del Relay.
+    *   Colaborador (posicionado a la izquierda, sin cambiar estilos, solo posición).
+8.  **Corte 2, si está disponible.**
+9.  **Corte 3, si está disponible.**
+10. **Apertura.** Con su descripción e imagen.
+11. **Cables de alimentación.** Con su descripción e imagen.
+12. **Vídeo guía de desarme.**
+
+> La sección de "Notas personales" ha sido eliminada y ya no se implementará.
 
 ---
 
@@ -1014,10 +1037,6 @@ Solo si existe.
 6. Vídeo guía de desarme
 
 Solo si existe.
-
-
-
-7. Notas personales
 
 
 
