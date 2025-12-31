@@ -152,7 +152,7 @@ Esta sección detalla los requerimientos para un nuevo conjunto de funcionalidad
 
 Se creará un nuevo proyecto de Google Apps Script, independiente de los microservicios existentes, con el único propósito de realizar una migración y corrección de datos en la hoja `Cortes` de la base de datos. Este script se ejecutará una sola vez y contendrá dos funciones principales:
 
-**A. Función 1: Migración de Rango de Años**
+**A. Función 1: Migración de Rango de Años (COMPLETADO)**
 *   **Objetivo:** Procesar la columna `anoDesde`, que actualmente contiene rangos de texto (ej. "2016-2022") o años únicos (ej. "2006"), para poblar correctamente las columnas `anoDesde` y `anoHasta` con valores numéricos individuales.
 *   **Lógica de Ejecución:**
     1.  El script iterará sobre cada fila de la hoja `Cortes`.
@@ -166,7 +166,7 @@ Se creará un nuevo proyecto de Google Apps Script, independiente de los microse
         *   El valor de `anoDesde` no se modificará.
         *   El mismo valor se copiará a la columna `anoHasta` de la misma fila.
 
-**B. Función 2: Migración de Timestamps desde Metadatos de Google Drive**
+**B. Función 2: Migración de Timestamps desde Metadatos de Google Drive (COMPLETADO)**
 *   **Objetivo:** Rellenar la columna `timestamp` en la hoja `Cortes` utilizando la fecha de creación del archivo de imagen del vehículo almacenado en Google Drive.
 *   **Lógica de Ejecución:**
     1.  El script iterará sobre cada fila de la hoja `Cortes`.
@@ -258,7 +258,7 @@ Esta sección documenta las tareas de desarrollo, corrección y regresiones pend
 - [X] **Integración de Páginas de Información:** Crear las secciones "Sobre Nosotros", "Contáctanos" y "Preguntas Frecuentes" como modales dentro de `index.html`.
 
 ### Deuda Técnica y Mejoras
-- [ ] **Script de Migración de Timestamps:** Implementar un script de ejecución única para obtener la fecha de creación de las imágenes antiguas de Google Drive y rellenar el campo `timestamp` en los registros existentes.
+- [X] **Script de Migración de Timestamps:** Implementar un script de ejecución única para obtener la fecha de creación de las imágenes antiguas de Google Drive y rellenar el campo `timestamp` en los registros existentes.
 
 ## 4. Componentes del Backend (Microservicios)
 
