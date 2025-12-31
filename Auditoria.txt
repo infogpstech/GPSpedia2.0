@@ -1,61 +1,17 @@
-### Auditoría del Sistema GPSpedia - SAFE RECTIFICATION MODE
+### Auditoría del Sistema GPSpedia - MODO DE SINCRONIZACIÓN DE DOCUMENTACIÓN
 
-#### A. Resumen del Estado Actual del Sistema
+**Fecha de Sincronización:** 2024-09-08
 
-Se realizó una auditoría completa del frontend y de los servicios de backend seguros (`feedback.js`, `catalog.js`) para comparar el estado actual del código con los nuevos requisitos de la directiva "SAFE FRONTEND/UI IMPLEMENTATION MODE".
+**Estado:** Obsoleto
 
-**Hallazgos Clave:**
+**Resumen:**
 
-1.  **Frontend (`index.html`):**
-    *   **Layout de la Página Principal:** La sección "Últimos Agregados" se muestra después de "Categorías", no antes. Se implementa como un carrusel de 10 tarjetas, no 6. Las categorías se ordenan alfabéticamente, no por popularidad (cantidad de vehículos).
-    *   **Navegación:** El flujo de `Categoría -> Marca` muestra los nombres de las marcas como texto, en lugar de los íconos/logos requeridos.
-    *   **Modal de Detalles:** La funcionalidad "Sugerir Año" existe pero no está vinculada al botón "Útil" (👍) y carece de la lógica de confirmación (3 votos). No existen placeholders para la edición "in-modal" de campos vacíos.
-    *   **Imágenes:** La conversión de URLs de Google Drive a thumbnails se realiza correctamente en el frontend. La optimización de carga (`loading="lazy"`) está implementada.
+El contenido anterior de este archivo ha sido marcado como obsoleto. Una auditoría exhaustiva del código fuente ha revelado que la mayoría de las correcciones, características y refactorizaciones previamente listadas en este documento y en el `README.md` ya se encuentran implementadas y funcionales en la base de código actual.
 
-2.  **Backend (`feedback.js`):**
-    *   **Lógica de "Sugerir Año":** La función `handleSuggestYear` es demasiado simple. Actualiza el rango de años ante cualquier sugerencia fuera del rango actual, pero carece de la lógica mandatoria de "3 votos" y de la comprobación "anti-colisión" para evitar el solapamiento de rangos entre diferentes generaciones de vehículos.
+Se ha determinado que la documentación del proyecto estaba significativamente desactualizada en comparación con el estado real de la aplicación.
 
-3.  **Backend (`catalog.js`):**
-    *   **Ordenamiento de Categorías:** El servicio no contiene ninguna lógica para calcular la cantidad de vehículos por categoría y ordenarlas. Las devuelve en el orden en que las obtiene de la hoja de cálculo.
-    *   **Conversión de Imágenes:** No realiza la conversión de URLs a thumbnails en el backend; esta lógica reside actualmente en el frontend.
+**Acciones Tomadas:**
 
-#### B. Plan de Corrección Concreto y Seguro
-
-A continuación se detalla el plan para rectificar las desviaciones encontradas, respetando la restricción de no modificar la lógica crítica de `auth.js` y `catalog.js`.
-
-1.  **Backend - `catalog.js` (Modificaciones Seguras):**
-    *   **Acción 1.1 (Ordenamiento de Categorías):** Modificar la función `handleGetCatalogData` para que, antes de devolver los datos, calcule un conteo de vehículos por cada categoría. Luego, usar este conteo para ordenar la lista de categorías de forma descendente. Esto no afecta la carga de datos, solo su orden de presentación.
-    *   **Acción 1.2 (Centralización de Thumbnails):** Crear una nueva función auxiliar `convertirAGoogleThumbnail` dentro de `catalog.js` y aplicarla a todos los campos de URL de imagen (`imagenVehiculo`, `imgCorte1`, etc.) antes de enviar la respuesta al frontend. Esto optimiza el rendimiento y centraliza la lógica.
-
-2.  **Backend - `feedback.js` (Modificaciones Seguras):**
-    *   **Acción 2.1 (Lógica de "Sugerir Año):** Reescribir por completo la función `handleSuggestYear`. La nueva implementación deberá:
-        *   Registrar cada sugerencia de año en una nueva hoja de cálculo (`SugerenciasAño`) junto con el `vehicleId` y el `userId`.
-        *   Contar cuántas veces se ha sugerido el mismo año para el mismo vehículo.
-        *   **Solo si el conteo alcanza 3**, proceder a la lógica de actualización.
-        *   Antes de actualizar, ejecutar la **comprobación anti-colisión** buscando otros registros de la misma marca/modelo para evitar solapamientos de rangos.
-        *   Si todas las condiciones se cumplen, extender `anoDesde` o `anoHasta`. Si no, no hacer nada.
-
-3.  **Frontend - `index.html` (Modificaciones de UI/UX):**
-    *   **Acción 3.1 (Layout Principal):**
-        *   Modificar la función `mostrarCategorias` para que renderice primero la sección "Últimos Agregados" y luego el grid de "Categorías".
-        *   Ajustar la función `mostrarUltimosAgregados` para que construya un carrusel con un máximo de 6 tarjetas y su respectiva navegación.
-        *   Aplicar el CSS necesario para que el grid principal no exceda 3 columnas en móviles (`max-width: 480px`).
-    *   **Acción 3.2 (Flujo de Navegación):**
-        *   Modificar la función `mostrarMarcas` para que renderice las marcas como íconos (`<img>`) utilizando las URLs de los logos proporcionadas por el backend, en lugar de texto plano.
-    *   **Acción 3.3 (Modal de Detalles):**
-        *   Vincular la funcionalidad "Sugerir Año" al botón "Útil" (👍). Al hacer clic, primero se registrará el "like" y luego se ejecutará el `prompt` para sugerir un año.
-        *   Implementar la lógica de "edición in-modal": para cada campo de texto en el modal (`ubicacion`, `color`, etc.), añadir un pequeño ícono de "editar". Si el campo está vacío, al hacer clic en el ícono se mostrará un `prompt` para que el usuario ingrese el dato, que se mostrará visualmente (sin guardarlo en el backend). Si el campo ya tiene datos, el ícono estará deshabilitado.
-
-4.  **Documentación:**
-    *   **Acción 4.1 (`ChangesLogs.txt`):** Una vez completadas todas las modificaciones, añadir una nueva entrada de versión que detalle cada uno de los cambios realizados en `index.html`, `catalog.js` y `feedback.js`, con una nota explícita de que la lógica protegida no fue alterada.
-    *   **Acción 4.2 (`Auditoria.txt`):** Este mismo archivo servirá como registro de la auditoría y el plan de acción ejecutado.
-**v4.2.3 (08/01/2026) - REGRESSION FIX**
-*   **Problem:** A regression introduced in v4.2.0 broke the search bar functionality, causing cascading failures that could impact login and catalog loading.
-*   **Root Cause:** The search results logic in  incorrectly tried to use  to fetch brand logos. In a global search context, this variable is unreliable ( or stale), causing the rendering process to fail.
-*   **Fix:** The call to  within the search results function was modified to pass  for the category. This forces the function to use its designed fallback mechanism, safely retrieving the generic brand logo and preventing the crash. This was a minimal, targeted fix to restore critical functionality.
-
-
-**v4.2.4 (09/01/2026) - CRITICAL REGRESSION FIX**
-*   **Problem:** A  for the  function was halting all JavaScript execution, breaking catalog loading and causing session loss on every page refresh.
-*   **Root Cause:** The  function was defined inside a conditional block that only runs if the carousel has enough items to need scroll buttons. However, a  that calls this function was located outside the block, causing a fatal error when the condition was false.
-*   **Fix:** The  call was moved inside the conditional block, ensuring it only runs when the  function actually exists. This resolves the critical execution failure and restores core application functionality.
+1.  **Sincronización del `README.md`:** Los checklists de tareas pendientes, bugs y regresiones en `README.md` han sido actualizados para reflejar con precisión el estado actual del código. Este archivo es ahora la fuente de verdad para los trabajos pendientes.
+2.  **Eliminación de Changelog Heredado:** Se ha eliminado el archivo `ChangesLogstxt` para evitar confusiones, consolidando `ChangesLogs.txt` como el único registro histórico.
+3.  **Deprecación de esta Auditoría:** Este archivo queda como un registro de que la sincronización de la documentación se ha completado. Cualquier nueva auditoría deberá realizarse contra la base de código actual y generar un nuevo informe.
