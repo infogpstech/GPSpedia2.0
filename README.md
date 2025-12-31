@@ -215,50 +215,108 @@ Se creará un nuevo proyecto de Google Apps Script, independiente de los microse
 
 ## 4. Trabajos Pendientes (Checklist)
 
-Esta sección documenta las tareas de desarrollo, corrección y regresiones pendientes de la versión actual.
+Esta sección documenta el estado actual de las tareas de desarrollo, bugs, regresiones y nuevas funcionalidades.
 
-### Tareas Completadas Recientemente
-- [X] **Estandarización de la Base de Datos del Backend:** Se ha verificado y actualizado toda la capa de microservicios (`auth`, `catalog`, `users`, `write`, `feedback`) para asegurar que todos apunten exclusivamente a la base de datos canónica v2.0. Se eliminó el código heredado y las referencias a la antigua base de datos v1.5.
-- [X] **Resolución del Bug Crítico "Pantalla Blanca":** Se refactorizó el frontend (`index.html`) para alinearlo con la nueva estructura de datos `camelCase` del backend v2.0, solucionando la incompatibilidad que impedía la renderización de la aplicación.
-- [X] **Implementación del Sistema de Notificación de Errores:** Se añadió un sistema de notificaciones globales en `index.html` y `api-manager.js` para mostrar al usuario los errores de comunicación con la API, mejorando la depuración y la transparencia.
-- [X] **Refactorización del Acceso a Datos del Backend:** Se han actualizado todos los microservicios (`catalog`, `write`, `users`, `feedback`) para utilizar un mapa de columnas fijo, eliminando la inconsistencia arquitectónica y mejorando la estabilidad del sistema.
-- [X] **Corrección del Bug de Sesión de Usuario:** Se solucionó un problema en `users.html` que impedía la correcta visualización de la información del usuario en sesión, afectando funcionalidades como el cambio de contraseña.
-- [X] **Reparación del Formulario de Contacto:** Se corrigió el error "Acción no definida" en el formulario de "Contáctanos", restaurando la capacidad de los usuarios para enviar mensajes.
-- [X] **Corrección de Visualización en Tutoriales:** Se solucionó un bug en `index.html` que provocaba que el texto de los tutoriales se mostrara como "undefined" debido a una inconsistencia de mayúsculas y minúsculas.
+### Implementaciones por hacer
 
-### Bugs y Regresiones Críticas
-- [X] **Lógica del Modal de Detalle:** El modal de detalle actualmente solo carga la información del primer corte (`tipoCorte1`, `ubicacionCorte1`, etc.), ignorando los datos de `corte2` y `corte3` aunque existan. Debe mostrar la información completa de todos los cortes disponibles.
-- [X] **Carga de Imágenes en Modal:** Las imágenes asociadas a la apertura (`imgApertura`), cable de alimentación (`imgCableAlimen`) y la configuración del relay (`imagen` desde la hoja `Relay`) no se están mostrando en el modal de detalle.
-- [X] **Carga de Logos en Modal:** El logo de la marca del vehículo no se está cargando y mostrando correctamente dentro del modal de detalle.
-- [ ] **Refactorización del Flujo de Escritura:** Implementar el nuevo flujo de trabajo de 3 etapas para añadir/actualizar cortes, que fue documentado como completo pero no se encuentra en el código.
-- [ ] **Inconsistencias de Versionamiento:** Sincronizar la versión global (ChangesLogs, UI) y las versiones de componentes (cabeceras en todos los archivos `.html` y `.js`) para cumplir con las normas del proyecto.
-- [X] **Layout del Modal:** Corregir la posición del nombre del colaborador y el estilo de los botones de feedback.
-- [ ] **Visibilidad de Cortes:** Asegurar que las tres opciones de corte sean visibles en el modal si existen los datos.
-- [X] **UI General:** Solucionar bugs visuales (pie de página, botón de limpiar búsqueda, carga de nombre de usuario, saludo de bienvenida).
+#### Bugs y Regresiones Críticas:
 
-### Revisiones de UI/UX
-- [ ] **Rediseño de Botones de Feedback:** Reemplazar los botones "Sí/No" del modal de detalle por un sistema de pulgares (👍/👎). Añadir dos nuevos botones: "Sugerir un año" y "Reportar un problema".
-- [ ] **Reorganización de Secciones Principales:** Alterar el orden de las secciones en `index.html` para que aparezcan en el siguiente orden: 1. "Últimos Agregados", 2. "Búsqueda por Marca", 3. "Búsqueda por Categoría".
-- [ ] **Layout de "Últimos Agregados":** Modificar el layout de la sección "Últimos Agregados" para que muestre los resultados en un formato de 3 columnas, mejorando la densidad de la información.
-- [ ] **Visualización de Marcas con Logos:** En la sección "Búsqueda por Marca", reemplazar los nombres de las marcas en texto plano por sus respectivos logos, obtenidos de la hoja `LogosMarca`.
-- [X] **Ajustes de Layout:** Realizar ajustes de espaciado, encabezado y visualización de "Últimos Agregados" según las especificaciones.
-- [X] **Modal de Detalle - Logo de Marca:** Implementar la visualización del logo de la marca en una esquina (`altura: 50px`, `anchura: auto`).
-- [X] **Modal de Detalle - Imagen de Relay:** Limitar la altura de la imagen de referencia del relay a `250px`.
-- [X] **Listado de Marcas - Logos:** Mostrar el logo de cada marca en la vista de listado de marcas.
+1.  **Lógica del Modal de Detalle:** El modal de detalle solo cargaba la información del primer corte.
+    - **Estado:** `[X] Resuelto`.
 
-### Nuevas Funcionalidades
-- [ ] **Sistema de Navegación Jerárquico:** Implementar un flujo de navegación guiado o "paso a paso" para la búsqueda. El usuario primero seleccionará una Marca, luego se le presentarán los Modelos de esa marca, y finalmente los Años/versiones disponibles.
-- [ ] **Sistema de Gestión de Feedback (Inbox):** Desarrollar una nueva interfaz (accesible para roles de Supervisor/Jefe) que funcione como un "inbox" para gestionar los problemas reportados por los usuarios a través del nuevo botón "Reportar un problema". Debe permitir ver, responder y marcar como resueltos los reportes.
-- [ ] **Implementación de Modo Oscuro:** Añadir una paleta de colores alternativa para un modo oscuro y un interruptor en la UI para que el usuario pueda activarlo/desactivarlo.
-- [X] **Búsqueda Flexible:** Mejorar `checkVehicle` para que devuelva coincidencias parciales y múltiples resultados.
-- [ ] **Debugging Integral:** Implementar un sistema de debugging en backend y frontend accesible por rol.
-- [ ] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes para mejorar el rendimiento.
-- [X] **Soporte para Rango de Años (Feedback-driven):** Implementar la lógica de `suggestYear` en el backend y la UI correspondiente en el frontend.
-- [ ] **Sistema de Versionamiento Híbrido:** Aplicar el nuevo sistema de versionamiento a todos los componentes del código fuente.
-- [X] **Integración de Páginas de Información:** Crear las secciones "Sobre Nosotros", "Contáctanos" y "Preguntas Frecuentes" como modales dentro de `index.html`.
+2.  **Carga de Imágenes en Modal:** Las imágenes asociadas a la apertura, cable de alimentación y relay no se mostraban o lo hacían en un orden incorrecto.
+    - **Estado:** `[ ] En Progreso`. Se muestran pero en orden equivocado, se necesita reducir el espacio vertical.
 
-### Deuda Técnica y Mejoras
-- [X] **Script de Migración de Timestamps:** Implementar un script de ejecución única para obtener la fecha de creación de las imágenes antiguas de Google Drive y rellenar el campo `timestamp` en los registros existentes.
+3.  **Carga de Logos en Modal:** El logo de la marca del vehículo no se cargaba en el modal.
+    - **Estado:** `[ ] Pendiente`.
+
+4.  **Refactorización del Flujo de Escritura:** Implementar el nuevo flujo de trabajo de 3 etapas para añadir/actualizar cortes.
+    - **Estado:** `[ ] En Progreso`. Frontend avanzado, falta la lógica de backend.
+
+5.  **Inconsistencias de Versionamiento:** Sincronizar la versión global y las versiones de componentes.
+    - **Estado:** `[ ] Pendiente`. La versión global debe ser `v2.0` para el próximo gran lanzamiento. Mejorar el formato de registro de fechas.
+
+6.  **Visibilidad de Cortes:** Asegurar que las tres opciones de corte sean visibles en el modal si existen los datos.
+    - **Estado:** `[X] Resuelto`.
+
+#### Revisiones de UI/UX:
+
+8.  **Rediseño de Botones de Feedback:** Reemplazar botones "Sí/No" por sistema de pulgares (👍/👎) y añadir botones para "Sugerir un año" y "Reportar un problema".
+    - **Estado:** `[ ] En Progreso`. Frontend iniciado. Falta revisar lógica de backend y reducir el tamaño de los botones en un 10%.
+
+9.  **Reorganización de Secciones Principales:**
+    - **A. 'Últimos agregados':** Carrusel con navegación y touch scroll. `[X] Implementado`.
+    - **B. 'Categorias':** Carrusel con orden por popularidad. `[ ] Pendiente` (falta botones de navegación).
+    - **C. 'Marcas de vehículos':** Carrusel alfabético con logos. `[X] Implementado`.
+    - **D. 'Marcas de motos':** Carrusel con navegación y touch scroll. `[ ] Falta`.
+
+10. **Visualización de Marcas con Logos:** Usar los logos de Marcas en lugar de tarjetas de texto.
+    - **Estado:** `[X] Implementado`.
+
+#### Nuevas Funcionalidades:
+
+11. **Sistema de Navegación Jerárquico:** Implementar un flujo de navegación guiado (Categoría -> Marca -> Modelo -> Versión/Encendido -> Año).
+    - **Estado:** `[ ] Pendiente`.
+
+12. **Sistema de Gestión de Feedback (Inbox):** Desarrollar una interfaz para que Supervisores/Jefes gestionen los problemas reportados.
+    - **Estado:** `[ ] En Progreso` (Frontend implementado, falta lógica de backend).
+
+13. **Implementación de Modo Oscuro:** Añadir paleta de colores alternativa y un interruptor para activarlo/desactivarlo.
+    - **Estado:** `[X] Implementado`.
+
+14. **Debugging Integral:** Implementar un sistema de debugging accesible por rol.
+    - **Estado:** `[ ] En Progreso`. Implementado, pero la consola debe ser visible únicamente dentro del modal de desarrollador.
+
+15. **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva y uso de thumbnails de diferentes tamaños (tarjetas, modal, lightbox).
+    - **Estado:** `[ ] Pendiente`.
+
+#### Plan Estratégico v4 (Tareas Clave de Alto Nivel):
+
+16. **Diseñar Nuevo Esquema y Script de Migración:** Implementar la estructura DB v2.0 y desarrollar un script para migrar los datos.
+    - **Estado:** `[X] Resuelto`.
+
+17. **Lógica de Gestión de Años Simplificada:** El formulario solo solicitará un año y el rango se expandirá mediante feedback de "likes".
+    - **Estado:** `[ ] En Progreso`. Frontend implementado, falta lógica de backend, hoja de cálculo para votos y estilización del `alert`.
+
+18. **Lógica de Gestión de Logos Automatizada:** Asociar logos de marca automáticamente al agregar un nuevo vehículo.
+    - **Estado:** `[X] Implementado`.
+
+19. **Feedback Granular:** Implementar "likes" y colaborador por cada corte individual.
+    - **Estado:** `[X] Implementado`.
+
+20. **Ordenamiento por Utilidad:** El backend ordenará los cortes de un vehículo según su popularidad.
+    - **Estado:** `[ ] Pendiente`. Verificar si la lógica existe en el backend.
+
+21. **Campos Obligatorios:** Forzar el llenado de campos clave para cada nuevo corte.
+    - **Estado:** `[X] Implementado` en el frontend.
+
+22. **Expansión de Rango de Años por Feedback:** Permitir a los usuarios expandir el rango de años de un vehículo.
+    - **Estado:** `[ ] Pendiente` (Falta la lógica en backend).
+
+23. **Dashboard de Desempeño:** Crear una vista para Supervisores con métricas de contribución.
+    - **Estado:** `[ ] No implementado`.
+
+24. **Edición "In-Modal":** Permitir la edición de datos directamente desde el modal de detalles.
+    - **Estado:** `[ ] No implementado`.
+
+25. **Enlaces de un solo uso:** Generar enlaces temporales para compartir información sin necesidad de estar logueado.
+    - **Estado:** `[ ] No implementado`.
+
+26. **Notificaciones Inteligentes:** Colocar icono de notificaciones 🔔 junto al nombre de usuario. Asegurar compatibilidad de PWA multi-plataforma.
+    - **Estado:** `[ ] No implementado`.
+    - **Nota:** No reemplazar el botón de instalar. Reducirlo y mostrarlo solo si la PWA no está instalada.
+
+27. **Visualización de Logos:** Mostrar logos en el modal de detalle y en el listado de marcas.
+    - **Estado:** `[X] Implementado`.
+
+28. **Modo Offline Robusto:** Implementar caching avanzado.
+    - **Estado:** `[ ] No implementado`.
+
+29. **Notas Personales:** Permitir a los usuarios guardar notas privadas por vehículo.
+    - **Estado:** `[X] Descartado`.
+
+30. **Modal de Relay Anidado:** Mostrar detalles de configuraciones de Relay en un modal secundario.
+    - **Estado:** `[ ] En Progreso`. Implementado, falta la lógica para manejar la validación de datos de 'Sin Relay'.
 
 ## 4. Componentes del Backend (Microservicios)
 
