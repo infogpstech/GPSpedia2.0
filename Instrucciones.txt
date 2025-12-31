@@ -87,7 +87,7 @@ ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
 - [ ] **Implementación de Modo Oscuro:** Añadir una paleta de colores alternativa y un interruptor para activarlo/desactivarlo.
 - [ ] **Debugging Integral:** Implementar un sistema de debugging en backend y frontend accesible por rol.
 - [ ] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes para mejorar el rendimiento.
-- [ ] **Soporte para Rango de Años (Feedback-driven):** Implementar la lógica de `suggestYear` en el backend y la UI correspondiente.
+- [X] **Soporte para Rango de Años (Feedback-driven):** Implementar la lógica de `suggestYear` en el backend y la UI correspondiente.
 - [ ] **Sistema de Versionamiento Híbrido:** Aplicar el nuevo sistema de versionamiento a todos los componentes del código fuente.
 
 ### Deuda Técnica y Mejoras

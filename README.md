@@ -253,7 +253,7 @@ Esta sección documenta las tareas de desarrollo, corrección y regresiones pend
 - [X] **Búsqueda Flexible:** Mejorar `checkVehicle` para que devuelva coincidencias parciales y múltiples resultados.
 - [ ] **Debugging Integral:** Implementar un sistema de debugging en backend y frontend accesible por rol.
 - [ ] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes para mejorar el rendimiento.
-- [ ] **Soporte para Rango de Años (Feedback-driven):** Implementar la lógica de `suggestYear` en el backend y la UI correspondiente en el frontend.
+- [X] **Soporte para Rango de Años (Feedback-driven):** Implementar la lógica de `suggestYear` en el backend y la UI correspondiente en el frontend.
 - [ ] **Sistema de Versionamiento Híbrido:** Aplicar el nuevo sistema de versionamiento a todos los componentes del código fuente.
 - [X] **Integración de Páginas de Información:** Crear las secciones "Sobre Nosotros", "Contáctanos" y "Preguntas Frecuentes" como modales dentro de `index.html`.
 

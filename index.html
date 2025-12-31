@@ -1,4 +1,4 @@
-<!-- GPSpedia Frontend Component | Version: 4.0.0 -->
+<!-- GPSpedia Frontend Component | Version: 4.3.1 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -3199,23 +3199,21 @@ document.querySelectorAll('#side-menu .menu-link').forEach(link => {
 
 async function handleLike(vehicleId, corteIndex, buttonElement) {
     const user = JSON.parse(localStorage.getItem(SESSION_KEY));
-    if (!user || !user.Nombre_Usuario) {
+    if (!user || !user.ID || !user.Nombre_Usuario) {
         alert("Debes iniciar sesión para usar esta función.");
         return;
     }
 
     // Disable button to prevent multiple clicks
-    buttonElement.onclick = null;
+    buttonElement.disabled = true;
     buttonElement.style.cursor = 'default';
 
-    // Optimistic UI update
-    const countSpan = buttonElement.querySelector('span');
-    const originalText = countSpan.textContent; // "Útil (X)"
-    const currentCountMatch = originalText.match(/\((\d+)\)/);
+    // Optimistic UI update based on the title attribute and CSS class
+    const originalTitle = buttonElement.title;
+    const currentCountMatch = originalTitle.match(/\((\d+)\)/);
     const currentCount = currentCountMatch ? parseInt(currentCountMatch[1], 10) : 0;
-
-    countSpan.textContent = `Útil (${currentCount + 1})`;
-    buttonElement.style.color = '#155724'; // Darker "success" green
+    buttonElement.title = `Marcar como útil (${currentCount + 1})`;
+    buttonElement.classList.add('liked');
 
     try {
         await postToAction('recordLike', {
@@ -3226,37 +3224,35 @@ async function handleLike(vehicleId, corteIndex, buttonElement) {
         });
 
         // After successful like, prompt for year suggestion
-        const suggestedYearRaw = prompt("¡Gracias por tu feedback! ¿Este corte también aplica para otro año? Si es así, ingrésalo aquí (ej: 2023). Si no, simplemente cancela.");
+        const suggestedYearRaw = prompt("¡Gracias por tu feedback! ¿Este corte también aplica para otro año? Si es así, ingrésalo aquí (ej: 2023). Si no, cancela.");
 
-        if (suggestedYearRaw) { // Check if user entered something
+        if (suggestedYearRaw && suggestedYearRaw.trim() !== "") {
             const year = parseInt(suggestedYearRaw.trim(), 10);
             if (!isNaN(year) && year > 1980 && year < 2050) {
                 try {
-                    alert("Procesando tu sugerencia...");
                     const result = await postToAction('suggestYear', {
                         vehicleId: vehicleId,
-                        suggestedYear: year,
+                        newYear: year, // Corrected parameter name
+                        userId: user.ID, // Pass userId as required by backend
                         userName: user.Nombre_Usuario
                     });
                     alert(result.message || "Sugerencia enviada. ¡Gracias por tu colaboración!");
                 } catch (error) {
-                    // Error is handled by postToAction which shows a global toast.
-                    // A specific alert might be redundant but can be helpful.
-                    alert("Hubo un error al enviar tu sugerencia. El problema ha sido reportado.");
+                    // Error is handled globally by postToAction, no extra alert needed.
                 }
-            } else if (suggestedYearRaw.trim() !== "") { // User entered non-year text
+            } else {
                 alert("Por favor, ingresa un año válido (ej: 2023).");
             }
         }
-
     } catch (error) {
-        // Revert UI on error during the 'like' action
-        countSpan.textContent = originalText;
-        buttonElement.style.color = '#28a745'; // Revert color
-        // Re-enable the button with the original function
-        buttonElement.onclick = () => handleLike(vehicleId, corteIndex, buttonElement);
+        // Revert UI on error
+        buttonElement.title = originalTitle;
+        buttonElement.classList.remove('liked');
+        // The error message is shown globally by postToAction.
+    } finally {
+        // Re-enable the button after operation is complete
+        buttonElement.disabled = false;
         buttonElement.style.cursor = 'pointer';
-        // The error message is shown globally by postToAction, no need for an extra alert here.
     }
 }
 
@@ -3594,7 +3590,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <footer class="footer" style="display: none;">
-  Gpspedia v4.0.0 © 2025 todos los derechos reservados.
+  Gpspedia v4.3.1 © 2025 todos los derechos reservados.
   <div class="footer-links">
       <a id="footer-about-link">Sobre Nosotros</a>
       <a id="footer-contact-link">Contáctanos</a>

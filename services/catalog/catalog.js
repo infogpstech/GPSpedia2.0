@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-CATALOG SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 2.3.0
+// COMPONENT VERSION: 2.4.0
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -236,7 +236,13 @@ function handleGetCatalogData() {
     if (tutorialesSheet) {
         const data = tutorialesSheet.getDataRange().getValues();
         data.shift();
-        tutorialesData = data.map(row => mapRowToObject(row, COLS_TUTORIALES));
+        tutorialesData = data.map(row => {
+            const tutorial = mapRowToObject(row, COLS_TUTORIALES);
+            if (tutorial) {
+                tutorial.Imagen = convertirAGoogleThumbnail(tutorial.Imagen);
+            }
+            return tutorial;
+        }).filter(Boolean);
     }
     allData.tutoriales = tutorialesData;
 
@@ -246,7 +252,13 @@ function handleGetCatalogData() {
     if (relaySheet) {
         const data = relaySheet.getDataRange().getValues();
         data.shift();
-        relayData = data.map(row => mapRowToObject(row, COLS_RELAY));
+        relayData = data.map(row => {
+            const relayItem = mapRowToObject(row, COLS_RELAY);
+            if (relayItem) {
+                relayItem.imagen = convertirAGoogleThumbnail(relayItem.imagen);
+            }
+            return relayItem;
+        }).filter(Boolean);
     }
     allData.relay = relayData;
 
