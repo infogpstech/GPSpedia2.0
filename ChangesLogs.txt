@@ -1,3 +1,7 @@
+**v4.3.2 (31-12-2025)**
+*   **INFRA (api-manager.js):** Se actualizaron las URLs de los microservicios `CATALOG` y `FEEDBACK` a las nuevas versiones desplegadas, asegurando la comunicación con los endpoints correctos.
+    *   `api-manager.js`: Líneas 10-14
+
 **v4.3.1 (31-12-2025)**
 *   **REFACTOR (services/feedback/feedback.js):** Se mejoró y robusteció la lógica de `handleSuggestYear`. La función ahora solo considera votos de usuarios únicos para aplicar un cambio en el rango de años, previniendo que un solo usuario fuerce una actualización. Adicionalmente, se corrigió el `MimeType` de la respuesta del servicio a `TEXT` para garantizar la compatibilidad con CORS y prevenir errores de `Failed to fetch`. Se eliminó también una declaración duplicada de la función `handleRecordLike`.
     *   `services/feedback/feedback.js`: Líneas 128-140, 210-218
