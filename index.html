@@ -769,7 +769,7 @@ body.search-active .app-logo {
     transform: scale(1);
 }
 
-#detalleCompleto img {
+#detalleCompleto img, .info-modal-content img {
     display: block;
     width: auto; /* Ancho automático para mantener proporción */
     max-width: 100%;
@@ -783,6 +783,53 @@ body.search-active .app-logo {
 .img-vehiculo {
     max-height: 200px !important; /* Límite de altura más pequeño */
 }
+
+/* --- ESTILOS PARA LA SECCIÓN DE FEEDBACK EN MODAL --- */
+.image-container-with-feedback {
+    position: relative;
+    display: inline-block; /* O 'block' dependiendo del layout */
+    margin: 15px auto;
+}
+.feedback-overlay {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.feedback-btn-overlay {
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+    font-size: 1.1em;
+}
+.feedback-btn-overlay:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+    transform: scale(1.1);
+}
+.feedback-btn-overlay.util-btn.liked {
+    background-color: #28a745; /* Verde para indicar que se le dio "like" */
+}
+.collaborator-info-overlay {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 0.8em;
+}
+
 #detalleCompleto h4 {
     color: #007bff;
     border-bottom: 2px solid #eee;
@@ -1769,18 +1816,43 @@ function crearElementoDetalle(label, value, itemId, fieldName) {
     return p;
 }
 
-function crearImagenDetalle(label, value, container, extraClass = '') {
+function crearImagenDetalle(label, value, container, { extraClass = '', feedbackActions = null, collaboratorName = '' } = {}) {
     if (!value) return;
+
+    const wrapper = document.createElement('div');
     const h = document.createElement("h4");
     h.textContent = label;
-    container.appendChild(h);
+    wrapper.appendChild(h);
+
+    const imgContainer = document.createElement('div');
+    imgContainer.className = 'image-container-with-feedback';
+
     const img = document.createElement("img");
     img.src = convertirAGoogleThumbnail(value);
     img.alt = label;
     if (extraClass) img.classList.add(extraClass);
     img.onclick = () => mostrarLightbox(value);
-    container.appendChild(img);
+    imgContainer.appendChild(img);
+
+    if (feedbackActions) {
+        const overlay = document.createElement('div');
+        overlay.className = 'feedback-overlay';
+        overlay.appendChild(feedbackActions.util);
+        overlay.appendChild(feedbackActions.report);
+        imgContainer.appendChild(overlay);
+    }
+
+    if (collaboratorName) {
+        const collaboratorInfo = document.createElement('div');
+        collaboratorInfo.className = 'collaborator-info-overlay';
+        collaboratorInfo.innerHTML = `Colaborador: <strong>${collaboratorName}</strong>`;
+        imgContainer.appendChild(collaboratorInfo);
+    }
+
+    wrapper.appendChild(imgContainer);
+    container.appendChild(wrapper);
 }
+
 
 function crearVideoDetalle(label, value, container) {
     if (!value) return;
@@ -1892,8 +1964,9 @@ function mostrarDetalleRelay(item) {
     uiState.isModalOpen = true;
 
     const cont = document.getElementById("detalleCompleto");
-    cont.innerHTML = "";
+    cont.innerHTML = ""; // Limpiar contenido anterior
 
+    // --- 1. Botones de Cerrar y Compartir ---
     const headerDiv = document.createElement("div");
     headerDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;";
     const closeBtn = document.createElement("button");
@@ -2020,9 +2093,18 @@ function convertirAGoogleThumbnail(url) {
 
 function mostrarLightbox(src) {
     const lightboxImg = document.getElementById("lightboxImg");
-    lightboxImg.src = ""; // Clear previous image
-    const idMatch = String(src).match(/id=([a-zA-Z0-9_-]+)|\/d\/([a-zA-Z0-9_-]+)/);
-    const finalUrl = idMatch ? `https://drive.google.com/thumbnail?id=${idMatch[1] || idMatch[2]}&sz=w2000` : src;
+    lightboxImg.src = ""; // Limpiar imagen anterior para evitar parpadeos
+
+    // Usar la función robusta 'convertirAGoogleThumbnail' para obtener la URL base
+    // y luego ajustar el tamaño para alta resolución.
+    let finalUrl = convertirAGoogleThumbnail(src);
+
+    // Si la URL fue convertida a un thumbnail de Google, reemplazar 'sz=w1000' por 'sz=w2000' para mayor calidad.
+    // Si no, usar la URL tal cual (para imágenes que no son de Drive).
+    if (finalUrl.includes('drive.google.com/thumbnail')) {
+        finalUrl = finalUrl.replace('sz=w1000', 'sz=w2000');
+    }
+
     lightboxImg.src = finalUrl;
     document.getElementById("lightbox").classList.add("visible");
 }
@@ -2063,8 +2145,9 @@ function mostrarDetalleModal(item) {
     uiState.isModalOpen = true;
 
     const cont = document.getElementById("detalleCompleto");
-    cont.innerHTML = "";
+    cont.innerHTML = ""; // Limpiar contenido anterior
 
+    // --- 1. Botones de Cerrar y Compartir ---
     const headerDiv = document.createElement("div");
     headerDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;";
     const closeBtn = document.createElement("button");
@@ -2078,113 +2161,98 @@ function mostrarDetalleModal(item) {
     headerDiv.appendChild(crearBotonCompartir('cortes', item.id, titulo));
     cont.appendChild(headerDiv);
 
+    // --- 2. Título principal con logo de marca ---
+    const titleContainer = document.createElement("div");
+    titleContainer.style.position = 'relative';
     const title = document.createElement("h2");
     title.textContent = `Detalle de ${titulo}`;
-    title.style.cssText = "color:#007bff; border-bottom:3px solid #007bff; padding-bottom:10px;";
-    cont.appendChild(title);
+    title.style.cssText = "color:#007bff; border-bottom:3px solid #007bff; padding-bottom:10px; margin-right: 70px;"; // Espacio para el logo
+    titleContainer.appendChild(title);
 
-    // Contenido Principal y Notas
+    const logoUrl = getLogoUrlForMarca(item.marca, item.categoria);
+    if (logoUrl) {
+        const logoImg = document.createElement("img");
+        logoImg.src = logoUrl;
+        logoImg.style.cssText = "position: absolute; top: 0; right: 0; height: 50px; width: auto; max-width: 100px; object-fit: contain;";
+        titleContainer.appendChild(logoImg);
+    }
+    cont.appendChild(titleContainer);
+
+    // --- 3. Nota Importante (si existe) ---
     if (item.notaImportante) {
         const p = document.createElement("p");
         p.innerHTML = `<strong style="color:red;">Nota Importante:</strong> <span style="color:#cc0000; font-weight: bold;">${item.notaImportante}</span>`;
         cont.appendChild(p);
     }
-    const logoUrl = getLogoUrlForMarca(item.marca, item.categoria);
-    if (logoUrl) {
-        const logoImg = document.createElement("img");
-        logoImg.src = logoUrl;
-        logoImg.style.cssText = "position: absolute; top: 15px; right: 15px; height: 50px; width: auto; max-width: 100px; object-fit: contain;";
-        cont.appendChild(logoImg);
-    }
 
-    crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, 'img-vehiculo');
+    // --- 4. Imagen del Vehículo (si existe) ---
+    crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, { extraClass: 'img-vehiculo' });
 
-    // --- Lógica de Cortes ---
+    // --- Lógica de Cortes Refactorizada ---
     const crearPanelCorte = (corteIndex, esRecomendado = false) => {
         const tipoCorte = item[`tipoCorte${corteIndex}`];
         if (!tipoCorte) return null;
 
         const panel = document.createElement("div");
-        if (esRecomendado) {
-            panel.style.cssText = "padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px; background-color: #f9f9f9;";
-        } else {
-            panel.className = "panel-desplegable";
-        }
+        panel.className = esRecomendado ? "panel-recomendado" : "panel-desplegable";
+        if(esRecomendado) panel.style.cssText = "padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px; background-color: #f9f9f9;";
 
+
+        // Descripción (Ubicación y Color de Cable)
         const ubicacion = item[`ubicacionCorte${corteIndex}`];
         const colorCable = item[`colorCableCorte${corteIndex}`];
-        const imgCorte = item[`imgCorte${corteIndex}`];
-        const colaborador = item[`colaboradorCorte${corteIndex}`];
-        const utilCount = item[`utilCorte${corteIndex}`] || 0;
-
-        let descripcionHTML = '';
-        if (ubicacion) descripcionHTML += `<strong>Ubicación:</strong> ${ubicacion}<br>`;
-        if (colorCable) descripcionHTML += `<strong>Color(es) de Cable:</strong> ${colorCable}`;
-
-        if (descripcionHTML) {
+        if (ubicacion || colorCable) {
+            let descripcionHTML = '';
+            if (ubicacion) descripcionHTML += `<strong>Ubicación:</strong> ${ubicacion}<br>`;
+            if (colorCable) descripcionHTML += `<strong>Color(es) de Cable:</strong> ${colorCable}`;
             const p = document.createElement("p");
             p.innerHTML = descripcionHTML;
             panel.appendChild(p);
         }
 
-        crearImagenDetalle("Imagen del Corte", imgCorte, panel);
+        // Creación de botones de feedback
+        const utilBtn = document.createElement("button");
+        utilBtn.innerHTML = `<i class="fa-solid fa-thumbs-up"></i>`;
+        utilBtn.title = `Marcar como útil (${item[`utilCorte${corteIndex}`] || 0})`;
+        utilBtn.className = "feedback-btn-overlay util-btn";
+        utilBtn.onclick = () => handleLike(item.id, corteIndex, utilBtn);
 
+        const reportBtn = document.createElement("button");
+        reportBtn.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i>`;
+        reportBtn.title = "Reportar un problema";
+        reportBtn.className = "feedback-btn-overlay report-btn";
+        reportBtn.onclick = () => toggleReportSection(item.id, corteIndex);
+
+        // Imagen del Corte con Overlays de Feedback
+        crearImagenDetalle("Imagen del Corte", item[`imgCorte${corteIndex}`], panel, {
+            feedbackActions: { util: utilBtn, report: reportBtn },
+            collaboratorName: item[`colaboradorCorte${corteIndex}`] || 'N/A'
+        });
+
+        // Link a Configuración de Relay (si existe)
         const configRelay = item[`configRelay${corteIndex}`];
         const relayMatch = datosRelay.find(r => r.configuracion === configRelay);
-
-        if (configRelay && relayMatch && relayMatch.imagen) {
+        if (configRelay && relayMatch) {
             const relayLink = document.createElement("a");
             relayLink.href = "#";
             relayLink.textContent = "Ver Configuración de Relay";
             relayLink.style.display = "block";
             relayLink.style.marginTop = "10px";
-            relayLink.onclick = (e) => {
-                e.preventDefault();
-                mostrarDetalleRelayAnidado(configRelay);
-            };
+            relayLink.onclick = (e) => { e.preventDefault(); mostrarDetalleRelayAnidado(configRelay); };
             panel.appendChild(relayLink);
         }
 
-        const footerModal = document.createElement("div");
-        footerModal.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;";
-
-        const feedbackContainer = document.createElement("div");
-        feedbackContainer.style.cssText = "display: flex; gap: 10px;";
-
-        const utilBtn = document.createElement("div");
-        utilBtn.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> <span>Útil (${utilCount})</span>`;
-        utilBtn.className = "feedback-btn util-btn";
-        utilBtn.style.cssText = "display: flex; align-items: center; gap: 5px; cursor: pointer; color: #28a745;";
-        utilBtn.onclick = () => handleLike(item.id, corteIndex, utilBtn);
-        feedbackContainer.appendChild(utilBtn);
-
-        const reportBtn = document.createElement("div");
-        reportBtn.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <span>Reportar</span>`;
-        reportBtn.className = "feedback-btn report-btn";
-        reportBtn.style.cssText = "display: flex; align-items: center; gap: 5px; cursor: pointer; color: #dc3545;";
-        reportBtn.onclick = () => toggleReportSection(item.id, corteIndex);
-        feedbackContainer.appendChild(reportBtn);
-
-        const colaboradorInfo = document.createElement("div");
-        colaboradorInfo.style.cssText = "font-size: 0.8em; color: #555; background: rgba(0, 123, 255, 0.1); padding: 5px 10px; border-radius: 8px;";
-        colaboradorInfo.innerHTML = `Agregado por: <strong style="color: #0056b3;">${colaborador || 'N/A'}</strong>`;
-
-        footerModal.appendChild(colaboradorInfo);
-        footerModal.appendChild(feedbackContainer);
-        panel.appendChild(footerModal);
-
+        // Sección de Reporte (oculta por defecto)
         const reportSection = document.createElement("div");
         reportSection.id = `report-section-${item.id}-${corteIndex}`;
         reportSection.style.display = 'none';
         reportSection.style.marginTop = '15px';
-        reportSection.innerHTML = `<textarea id="report-input-${item.id}-${corteIndex}" class="report-textarea" placeholder="Describe el problema..."></textarea><button id="submit-report-${item.id}-${corteIndex}" class="submit-report-btn">Enviar</button>`;
+        reportSection.innerHTML = `<textarea id="report-input-${item.id}-${corteIndex}" placeholder="Describe el problema..." style="width:100%; min-height:60px;"></textarea><button id="submit-report-${item.id}-${corteIndex}" style="margin-top:5px;">Enviar</button>`;
         panel.appendChild(reportSection);
 
         return panel;
     };
 
-    // --- REFACTORIZACIÓN DE LÓGICA DE CORTES ---
-    // 1. Recolectar todos los cortes disponibles en un array
     const allCortes = [];
     for (let i = 1; i <= 3; i++) {
         if (item[`tipoCorte${i}`]) {
@@ -2195,97 +2263,87 @@ function mostrarDetalleModal(item) {
             });
         }
     }
-
-    // 2. Ordenar los cortes por 'utilCount' de mayor a menor
     allCortes.sort((a, b) => b.utilCount - a.utilCount);
 
-    // 3. Renderizar los cortes
+    // --- 5. Corte Recomendado (si hay cortes) ---
     if (allCortes.length > 0) {
-        // Renderizar el Corte Recomendado (el primero después de ordenar)
         const recomendado = allCortes[0];
         const tituloRecomendado = document.createElement("h4");
         tituloRecomendado.innerHTML = `<i class="fa-solid fa-star" style="color: #ffc107;"></i> Corte Recomendado: ${recomendado.tipoCorte}`;
         cont.appendChild(tituloRecomendado);
         const panelRecomendado = crearPanelCorte(recomendado.corteIndex, true);
-        if (panelRecomendado) {
-            cont.appendChild(panelRecomendado);
-        }
-
-        // Renderizar Otros Cortes (el resto del array) en un acordeón
-        if (allCortes.length > 1) {
-            const otrosCortes = allCortes.slice(1);
-            const tituloOtros = document.createElement("h4");
-            tituloOtros.textContent = "Otros Cortes Disponibles";
-            tituloOtros.style.marginTop = '25px';
-            cont.appendChild(tituloOtros);
-
-            otrosCortes.forEach(corte => {
-                const btn = document.createElement("button");
-                btn.className = "accordion-btn";
-                btn.innerHTML = `${corte.tipoCorte} <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
-                cont.appendChild(btn);
-
-                const panel = crearPanelCorte(corte.corteIndex, false);
-                if (panel) {
-                    cont.appendChild(panel);
-                }
-            });
-        }
+        if (panelRecomendado) cont.appendChild(panelRecomendado);
     }
 
-    // --- Video guía en un acordeón ---
-    if (item.videoGuiaDesarmeUrl) {
+    // --- Contenedor para todas las secciones de acordeón ---
+    const accordionContainer = document.createElement('div');
+    cont.appendChild(accordionContainer);
+
+    const createAccordionSection = (title, contentGenerator) => {
+        const content = contentGenerator();
+        if (!content) return; // No crear la sección si no hay contenido
+
         const btn = document.createElement("button");
         btn.className = "accordion-btn";
-        btn.innerHTML = `Video Guía de Desarme <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
-        cont.appendChild(btn);
-        const panel = document.createElement("div");
-        panel.className = "panel-desplegable";
-        crearVideoDetalle(null, item.videoGuiaDesarmeUrl, panel); // Pass null for label as it's in the button
-        cont.appendChild(panel);
+        btn.innerHTML = `${title} <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+        accordionContainer.appendChild(btn);
+        accordionContainer.appendChild(content);
+    };
+
+    // --- 6. Otros Cortes (si hay más de 1) ---
+    if (allCortes.length > 1) {
+        const otrosCortes = allCortes.slice(1);
+        const tituloOtros = document.createElement("h4");
+        tituloOtros.textContent = "Otros Cortes Disponibles";
+        tituloOtros.style.marginTop = '25px';
+        accordionContainer.appendChild(tituloOtros);
+
+        otrosCortes.forEach(corte => {
+            const btn = document.createElement("button");
+            btn.className = "accordion-btn";
+            btn.innerHTML = `${corte.tipoCorte} <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+            accordionContainer.appendChild(btn);
+            const panel = crearPanelCorte(corte.corteIndex, false);
+            if (panel) accordionContainer.appendChild(panel);
+        });
     }
 
-    // --- Sección de Notas Personales ---
-    const personalNotesBtn = document.createElement("button");
-    personalNotesBtn.className = "accordion-btn";
-    personalNotesBtn.innerHTML = `Notas Personales <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
-    cont.appendChild(personalNotesBtn);
-    const personalNotesPanel = document.createElement("div");
-    personalNotesPanel.className = "panel-desplegable";
-    personalNotesPanel.innerHTML = `
-        <textarea placeholder="Escribe tus notas privadas aquí. Solo tú podrás verlas." style="width: 100%; min-height: 80px; margin-top: 10px;"></textarea>
-        <button disabled style="margin-top: 5px; background-color: #ccc;">Guardar Nota (Próximamente)</button>
-    `;
-    cont.appendChild(personalNotesPanel);
-
-
-    // --- Secciones de Información Suplementaria ---
-    if (item.apertura || item.imgApertura) {
-        const btn = document.createElement("button");
-        btn.className = "accordion-btn";
-        btn.innerHTML = `Detalles de Apertura <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
-        cont.appendChild(btn);
+    // --- 7. Cable de Alimentación ---
+    createAccordionSection("Cable de Alimentación", () => {
+        if (!item.cableAlimen && !item.imgCableAlimen) return null;
         const panel = document.createElement("div");
         panel.className = "panel-desplegable";
-        const p = crearElementoDetalle("Procedimiento", item.apertura);
-        if (p) panel.appendChild(p);
-        crearImagenDetalle("Imagen de Apertura", item.imgApertura, panel);
-        cont.appendChild(panel);
-    }
-
-    if (item.cableAlimen || item.imgCableAlimen) {
-        const btn = document.createElement("button");
-        btn.className = "accordion-btn";
-        btn.innerHTML = `Cable de Alimentación <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
-        cont.appendChild(btn);
-        const panel = document.createElement("div");
-        panel.className = "panel-desplegable";
-        const p = crearElementoDetalle("Ubicación y color", item.cableAlimen);
-        if (p) panel.appendChild(p);
+        if (item.cableAlimen) panel.appendChild(crearElementoDetalle("Ubicación y color", item.cableAlimen));
         crearImagenDetalle("Imagen de Alimentación", item.imgCableAlimen, panel);
-        cont.appendChild(panel);
-    }
+        return panel;
+    });
 
+    // --- 8. Detalles de Apertura ---
+    createAccordionSection("Detalles de Apertura", () => {
+        if (!item.apertura && !item.imgApertura) return null;
+        const panel = document.createElement("div");
+        panel.className = "panel-desplegable";
+        if (item.apertura) panel.appendChild(crearElementoDetalle("Procedimiento", item.apertura));
+        crearImagenDetalle("Imagen de Apertura", item.imgApertura, panel);
+        return panel;
+    });
+
+    // --- 9. Video Guía de Desarme ---
+    createAccordionSection("Video Guía de Desarme", () => {
+        if (!item.videoGuiaDesarmeUrl) return null;
+        const panel = document.createElement("div");
+        panel.className = "panel-desplegable";
+        crearVideoDetalle(null, item.videoGuiaDesarmeUrl, panel);
+        return panel;
+    });
+
+    // --- 10. Notas Personales ---
+    createAccordionSection("Notas Personales", () => {
+        const panel = document.createElement("div");
+        panel.className = "panel-desplegable";
+        panel.innerHTML = `<textarea placeholder="Escribe tus notas privadas aquí..." style="width: 100%; min-height: 80px; margin-top: 10px;"></textarea><button disabled style="margin-top: 5px;">Guardar Nota (Próximamente)</button>`;
+        return panel;
+    });
 
     document.getElementById("modalDetalle").classList.add("visible");
 }
@@ -2359,24 +2417,33 @@ function mostrarResultadosBusquedaMarca(busquedaTexto) {
     }
     cont.innerHTML = `<h4>Resultados de búsqueda para: "${busquedaTexto}"</h4>`;
     const marcasUnicas = [...new Set(datosFiltrados.map(item => item.marca))].sort();
-    const grid = document.createElement("div"); grid.className = "grid";
+
+    const grid = document.createElement("div");
+    grid.className = "grid";
+    grid.style.gridTemplateColumns = "repeat(auto-fill, minmax(120px, 1fr))";
+    grid.style.gap = "30px";
+
     marcasUnicas.forEach(marca => {
-        const card = document.createElement("div"); card.className = "card";
+        const logoUrl = getLogoUrlForMarca(marca, null);
+        const card = document.createElement("div");
+        card.className = "card brand-logo-item"; // Usar el estilo de logo
         card.onclick = () => mostrarResultadosBusquedaModelo(busquedaTexto, marca);
 
-        const logoUrl = getLogoUrlForMarca(marca, null); // FIX: Pass null for category in search context
-
         const img = document.createElement("img");
-        img.src = logoUrl || 'https://placehold.co/280x200/cccccc/333333?text=Sin+Logo';
+        img.src = convertirAGoogleThumbnail(logoUrl);
         img.alt = `Marca ${marca}`;
-        img.style.objectFit = 'contain';
         img.loading = "lazy";
         card.appendChild(img);
 
-        const overlay = document.createElement("div");
-        overlay.className = "overlay";
-        overlay.innerHTML = marca;
-        card.appendChild(overlay);
+        // Opcional: Agregar un texto sutil debajo del logo si se desea
+        const brandName = document.createElement('p');
+        brandName.textContent = marca;
+        brandName.style.textAlign = 'center';
+        brandName.style.marginTop = '8px';
+        brandName.style.fontWeight = 'bold';
+        brandName.style.fontSize = '0.9em';
+        card.appendChild(brandName);
+
         grid.appendChild(card);
     });
     cont.appendChild(grid);
@@ -2433,61 +2500,34 @@ function mostrarCategorias() {
     const cont = document.getElementById("contenido");
     cont.innerHTML = ""; // Limpiar contenido
 
-    // 1. Mostrar "Últimos Agregados"
-    mostrarUltimosAgregados();
+    // --- Función para crear carruseles ---
+    const crearCarrusel = (titulo, items, cardGenerator) => {
+        if (!items || items.length === 0) return;
 
-    // 2. Mostrar "Búsqueda por Marca"
-    const marcasTitle = document.createElement('h4');
-    marcasTitle.textContent = 'Búsqueda por Marca';
-    marcasTitle.style.marginTop = '40px';
-    cont.appendChild(marcasTitle);
+        const section = document.createElement('div');
+        const title = document.createElement('h4');
+        title.textContent = titulo;
+        title.style.marginTop = '40px';
+        section.appendChild(title);
 
-    const todasLasMarcas = [...new Set(datosOriginales.map(item => item.marca))].filter(m => m).sort();
-    const marcasGrid = document.createElement("div");
-    marcasGrid.className = "grid";
-    marcasGrid.style.gridTemplateColumns = "repeat(auto-fill, minmax(120px, 1fr))";
-    marcasGrid.style.gap = "30px";
+        const carouselContainer = document.createElement('div');
+        carouselContainer.className = 'carousel-container';
+        const carouselTrack = document.createElement('div');
+        carouselTrack.className = 'carousel-track';
 
-    todasLasMarcas.forEach(marca => {
-        const logoUrl = getLogoUrlForMarca(marca, null); // Get generic logo
-        const logoContainer = document.createElement("div");
-        logoContainer.className = "card brand-logo-item";
-        logoContainer.onclick = () => mostrarSiguientePaso(null, marca); // Categoria es null para buscar en todas
+        items.forEach(item => {
+            const card = cardGenerator(item);
+            carouselTrack.appendChild(card);
+        });
+        carouselContainer.appendChild(carouselTrack);
+        section.appendChild(carouselContainer);
+        cont.appendChild(section);
+        // Aquí podrías agregar la lógica de los botones de scroll si lo necesitas
+    };
 
-        const img = document.createElement("img");
-        img.src = convertirAGoogleThumbnail(logoUrl) || 'https://placehold.co/120x80/cccccc/333333?text=Sin+Logo';
-        img.alt = `Marca ${marca}`;
-        img.loading = "lazy";
-
-        logoContainer.appendChild(img);
-        marcasGrid.appendChild(logoContainer);
-    });
-    cont.appendChild(marcasGrid);
-
-
-    // 3. Mostrar "Búsqueda por Categoría"
-    const categoriasTitle = document.createElement('h4');
-    categoriasTitle.textContent = 'Búsqueda por Categoría';
-    categoriasTitle.style.marginTop = '40px';
-    cont.appendChild(categoriasTitle);
-
-    if (!datosOriginales || datosOriginales.length === 0) {
-        // This case is already handled implicitly, but we can be explicit.
-        return;
-    }
-
+    // --- 1. Carrusel de Categorías ---
     const categorias = sortedCategoriesList;
-    if (!categorias || categorias.length === 0) {
-        const p = document.createElement('p');
-        p.textContent = 'No se encontraron categorías.';
-        p.style.textAlign = 'center';
-        cont.appendChild(p);
-        return;
-    }
-
-    const categoriasGrid = document.createElement("div");
-    categoriasGrid.className = "grid";
-    categorias.forEach(cat => {
+    crearCarrusel('Búsqueda por Categoría', categorias, cat => {
         const ejemplo = datosOriginales.find(item => item.categoria === cat && item.imagenVehiculo);
         const card = document.createElement("div");
         card.className = "card";
@@ -2500,9 +2540,44 @@ function mostrarCategorias() {
         overlay.className = "overlay";
         overlay.innerHTML = cat;
         card.appendChild(overlay);
-        categoriasGrid.appendChild(card);
+        return card;
     });
-    cont.appendChild(categoriasGrid);
+
+    // --- 2. Carrusel de Marcas de Vehículos (Excluyendo Motocicletas) ---
+    const marcasVehiculos = [...new Set(datosOriginales
+        .filter(item => item.categoria.toLowerCase() !== 'motocicletas')
+        .map(item => item.marca))]
+        .filter(Boolean).sort();
+
+    crearCarrusel('Marcas de Vehículos', marcasVehiculos, marca => {
+        const logoUrl = getLogoUrlForMarca(marca, null);
+        const card = document.createElement("div");
+        card.className = "card brand-logo-item";
+        card.onclick = () => mostrarModelos(null, marca);
+        const img = document.createElement("img");
+        img.src = convertirAGoogleThumbnail(logoUrl);
+        img.alt = `Marca ${marca}`;
+        card.appendChild(img);
+        return card;
+    });
+
+    // --- 3. Carrusel de Marcas de Motocicletas ---
+    const marcasMotos = [...new Set(datosOriginales
+        .filter(item => item.categoria.toLowerCase() === 'motocicletas')
+        .map(item => item.marca))]
+        .filter(Boolean).sort();
+
+    crearCarrusel('Marcas de Motocicletas', marcasMotos, marca => {
+        const logoUrl = getLogoUrlForMarca(marca, 'Motocicletas');
+        const card = document.createElement("div");
+        card.className = "card brand-logo-item";
+        card.onclick = () => mostrarModelos('Motocicletas', marca);
+        const img = document.createElement("img");
+        img.src = convertirAGoogleThumbnail(logoUrl);
+        img.alt = `Marca ${marca}`;
+        card.appendChild(img);
+        return card;
+    });
 }
 
 function mostrarUltimosAgregados() {
@@ -2659,7 +2734,7 @@ function mostrarMarcas(categoria) {
         const logoUrl = getLogoUrlForMarca(m, categoria);
         const logoContainer = document.createElement("div");
         logoContainer.className = "card brand-logo-item"; // Apply new style
-        logoContainer.onclick = () => mostrarSiguientePaso(categoria, m);
+        logoContainer.onclick = () => mostrarModelos(categoria, m);
 
         const img = document.createElement("img");
         img.src = convertirAGoogleThumbnail(logoUrl) || 'https://placehold.co/120x80/cccccc/333333?text=Sin+Logo';
@@ -2670,17 +2745,6 @@ function mostrarMarcas(categoria) {
         grid.appendChild(logoContainer);
     });
     cont.appendChild(grid);
-}
-
-function mostrarSiguientePaso(categoria, marca) {
-    const vehiculosDeMarca = datosOriginales.filter(item => item.categoria === categoria && item.marca === marca);
-    const tieneVersionesAplicables = vehiculosDeMarca.some(item => item.versionesAplicables && item.versionesAplicables.trim() !== '');
-
-    if (tieneVersionesAplicables) {
-        mostrarVersionesEquipamiento(categoria, marca);
-    } else {
-        mostrarModelos(categoria, marca); // Si no hay versiones, va directo a modelos
-    }
 }
 
 function mostrarVersionesEquipamiento(categoria, marca) {

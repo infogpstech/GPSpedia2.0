@@ -574,3 +574,493 @@ Para facilitar la identificación y resolución de problemas durante el desarrol
 ## 10. Auditoría del Sistema
 
 Para consultar los resultados detallados, el análisis de factibilidad y las recomendaciones estratégicas del proyecto, por favor, refiérase al archivo `Auditoria.txt` en la raíz del repositorio.
+---
+
+Revisión y definición formal de la lógica de navegación del catálogo
+
+Observación general
+
+Los iconos de marca funcionan correctamente y su presentación visual es adecuada.
+Sin embargo, la navegación es confusa debido a que:
+
+Se agregó búsqueda por marca sin ajustar el flujo completo de navegación.
+
+Existen rutas redundantes que llevan al mismo resultado final.
+
+No está claramente separado el flujo entre:
+
+Categorías
+
+Marcas de vehículos
+
+Marcas de motocicletas
+
+
+
+El objetivo es unificar criterios de navegación, manteniendo coherencia visual y lógica, y evitando duplicidad de rutas.
+
+
+---
+
+Estructura general de navegación visible para el usuario
+
+Las siguientes secciones deben existir como bloques de navegación independientes, cada una funcionando de forma clara y consistente:
+
+1. Últimos agregados
+
+
+2. Categoría
+
+
+3. Búsqueda por marca de vehículos
+
+
+4. Búsqueda por marca de motocicletas
+
+
+
+👉 Las secciones “Categoría”, “Búsqueda por marca de vehículos” y “Búsqueda por marca de motocicletas”
+DEBEN funcionar con presentación tipo carrusel en su primera etapa, igual que “Últimos agregados”.
+
+
+---
+
+I. Navegación por “Categoría”
+
+Etapa 1 – Vista inicial (DESPUÉS de refresh o inicio de sesión)
+
+Se muestran TODAS las categorías disponibles en el catálogo.
+
+El orden debe ser:
+
+De mayor a menor cantidad de modelos asociados a esa categoría.
+
+
+La presentación debe ser:
+
+Tipo carrusel.
+
+
+
+
+---
+
+Etapa 2 – Selección de categoría (SIN carrusel)
+
+Cuando el usuario selecciona una categoría:
+
+Se muestran TODAS las marcas que tengan al menos un modelo dentro de esa categoría.
+
+La visualización será:
+
+Iconos de marcas
+
+SIN carrusel a partir de este punto.
+
+
+
+
+---
+
+Etapa 3 – Selección de marca
+
+Cuando el usuario selecciona una marca:
+
+Se muestran TODOS los modelos que cumplan:
+
+Categoría seleccionada
+
+Marca seleccionada
+
+
+
+
+---
+
+Etapa 4 – Selección de modelo
+
+Cuando el usuario selecciona un modelo:
+
+Si el modelo tiene versiones de equipamiento (versionesAplicables):
+
+Se muestran dichas versiones.
+
+
+Si el modelo NO tiene versiones de equipamiento:
+
+Se muestran los tipos de encendido.
+
+
+
+
+---
+
+Etapa 5 – Selección de versiones de equipamiento o tipo de encendido
+
+Al seleccionar una versión o tipo de encendido:
+
+Se muestran los rangos de años disponibles.
+
+
+
+
+---
+
+Etapa 6 (final) – Selección de años
+
+Cuando el usuario selecciona el rango de años:
+
+Se abre el modal de detalle.
+
+
+
+
+---
+
+Navegación hacia atrás
+
+TODAS las etapas deben incluir un botón claro de:
+“Regresar a <etapa anterior>”
+
+El botón debe regresar exactamente a la etapa previa, sin reiniciar el flujo completo.
+
+
+
+---
+
+Nota crítica
+
+⚠️ Se debe revisar detenidamente la lógica actual, ya que existen redundancias donde:
+
+Categoría → Marca
+
+Marca → Categoría
+terminan mostrando los mismos datos por rutas distintas.
+
+
+La navegación debe ser lineal y predecible, no circular.
+
+
+---
+
+II. Navegación por “Marcas de vehículos”
+
+Presentación inicial
+
+Mostrar SOLO marcas de vehículos (NO motocicletas).
+
+Presentación:
+
+Tipo carrusel
+
+Sin tarjetas, solo iconos de marcas.
+
+
+
+
+---
+
+Etapa 1 – Selección de marca
+
+Cuando el usuario selecciona una marca:
+
+Se muestran TODOS los modelos de esa marca.
+
+A partir de aquí:
+
+SIN carrusel.
+
+
+
+
+---
+
+Etapas siguientes
+
+Desde este punto, el flujo debe ser idéntico a la navegación por categoría:
+
+Selección de modelo
+
+Versiones de equipamiento o tipos de encendido
+
+Selección de años
+
+Apertura del modal
+
+
+📌 Diferencia clave:
+
+Se deben mostrar todas las categorías EXCEPTO motocicletas.
+
+
+
+---
+
+III. Navegación por “Marcas de motocicletas”
+
+Debe seguir exactamente el mismo flujo que “Marcas de vehículos”.
+
+La única diferencia es que:
+
+Solo se incluye la categoría de motocicletas.
+
+
+Presentación inicial:
+
+Tipo carrusel
+
+Solo marcas de motocicletas.
+
+
+
+
+---
+
+Secciones que NO deben alterarse
+
+Las siguientes secciones del catálogo deben permanecer exactamente igual:
+
+Tutoriales
+
+Relay
+
+Cualquier otra sección fuera del flujo principal de navegación de modelos
+
+
+
+---
+
+Segunda tarea – Revisión de sección Relay
+
+Problema detectado
+
+En las secciones de Relay:
+
+No se está mostrando la imagen de la configuración del relay.
+
+
+Acción requerida
+
+Revisar la lógica de carga/renderizado de imágenes en la sección Relay.
+
+Verificar:
+
+Enlaces
+
+Conversión de URL
+
+Condiciones de render
+-----
+
+Extensión de requisitos – Iconos, modales de detalle y mejoras de diseño
+
+Visualización de iconos de marca (requisito global)
+
+Se debe garantizar consistencia visual de los iconos de marca en TODAS las vistas relevantes del catálogo, no solo en listados principales.
+
+Requisitos obligatorios
+
+1. Resultados de la barra de búsqueda
+
+Los resultados devueltos por la barra de búsqueda:
+
+DEBEN mostrar el icono de la marca correspondiente.
+
+
+Aplica tanto para:
+
+Resultados por modelo
+
+Resultados por marca
+
+Resultados combinados
+
+
+
+
+2. Modal de detalle
+
+El icono de la marca debe mostrarse dentro del modal de detalle.
+
+Ubicación exacta:
+
+A la derecha del título del modal, donde se muestra:
+
+> “Detalle de ‘modelo de vehículo’”
+
+
+
+
+El icono no debe romper:
+
+El layout del título
+
+El flujo responsive del modal
+
+
+
+
+
+
+---
+
+Mejoras pendientes de diseño en el modal de detalle
+
+Además de la lógica funcional, se deben completar las mejoras visuales y de experiencia de usuario pendientes en los modales de detalle.
+
+
+---
+
+1. Botones de feedback sobre imágenes de corte (overlay)
+
+Los botones de:
+
+“Útil”
+
+“Reportar problema”
+
+
+Deben posicionarse:
+
+Sobre la imagen del corte, usando un overlay.
+
+
+No deben ocupar espacio adicional debajo o al costado de la imagen.
+
+
+
+---
+
+2. Comportamiento al abrir imagen en lightbox
+
+Cuando el usuario haga clic sobre la imagen del corte:
+
+La imagen se abre en lightbox.
+
+Los botones de feedback:
+
+Deben desaparecer con animación.
+
+No deben permanecer visibles mientras el lightbox esté activo.
+
+
+Al cerrar el lightbox:
+
+Los botones deben reaparecer correctamente.
+
+
+
+
+---
+
+3. Información del colaborador
+
+El nombre del colaborador que agregó el corte:
+
+Debe tener su propio espacio vertical dedicado.
+
+No debe compartir:
+
+Línea horizontal
+
+Contenedor
+
+Fila con los botones de feedback ni otros elementos interactivos.
+
+
+
+
+
+---
+
+4. Orden correcto de los botones tipo acordeón
+
+⚠️ El orden actual de los botones tipo acordeón es incorrecto y debe corregirse.
+
+El orden OBLIGATORIO es el siguiente:
+
+1. Corte recomendado
+
+Dinámico
+
+Determinado por la mayor cantidad de votos “útil”.
+
+
+
+2. Corte 2
+
+Solo si existe.
+
+
+
+3. Corte 3
+
+Solo si existe.
+
+
+
+4. Apertura
+
+Solo si existe.
+
+
+
+5. Cables de alimentación
+
+Solo si existe.
+
+
+
+6. Vídeo guía de desarme
+
+Solo si existe.
+
+
+
+7. Notas personales
+
+
+
+📌 Importante:
+
+Las secciones solo deben mostrarse si tienen contenido.
+
+El orden debe mantenerse siempre, independientemente de cómo llegue la data.
+
+
+
+---
+
+Regla de implementación
+
+> Todas estas mejoras deben implementarse:
+
+Sin romper la lógica ya reparada
+
+Sin modificar estructuras de datos innecesarias
+
+Sin alterar otros modales o secciones del catálogo
+
+Si algún cambio implica riesgo para la estabilidad:
+
+Documentar el riesgo
+
+Aplicar la solución más conservadora posible
+
+Corregir el problema sin afectar otras secciones.
+
+
+
+---
+
+Regla final
+
+> Cualquier ajuste debe priorizar:
+
+Claridad de navegación
+
+Flujo lineal
+
+Evitar duplicidad de rutas
+
+NO romper funcionalidades existentes
