@@ -1,21 +1,27 @@
-// GPSpedia Utilities-SERVICE | Version: 1.0.1
 // ============================================================================
-// SERVICE FOR ONE-TIME DATA MIGRATION AND UTILITY TASKS
+// GPSPEDIA-UTILITIES SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
+// COMPONENT VERSION: 1.0.0
 
 // ============================================================================
-// GLOBAL CONFIGURATION
+// CONFIGURACIÓN GLOBAL
 // ============================================================================
-const SPREADSHEET_ID = "1M6zAVch_EGKGGRXIo74Nbn_ihH1APZ7cdr2kNdWfiDs"; // GPSpedia_DB_v2.0
+const SPREADSHEET_ID = "1M6zAVch_EGKGGRXIo74Nbn_ihH1APZ7cdr2kNdWfiDs";
+let spreadsheet = null;
+
+function getSpreadsheet() {
+  if (spreadsheet === null) {
+    spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+  }
+  return spreadsheet;
+}
+
 const SHEET_NAMES = {
     CORTES: "Cortes",
-    USERS: "Users",
-    LOGS: "Logs"
+    USERS: "Users"
 };
 
-// Column maps to ensure stability
 const COLS_CORTES = {
-    id: 1,
     anoDesde: 6,
     anoHasta: 7,
     imagenVehiculo: 9,
@@ -24,191 +30,183 @@ const COLS_CORTES = {
 
 const COLS_USERS = {
     ID: 1,
-    Privilegios: 4,
-    SessionToken: 7
+    Privilegios: 4
 };
 
-// ============================================================================
-// DEBUGGING MODULE
-// ============================================================================
-function logToSheet(level, message, details = {}) {
-    try {
-        const logSheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAMES.LOGS);
-        const timestamp = new Date().toISOString();
-        const detailsString = Object.keys(details).length > 0 ? JSON.stringify(details) : '';
-        logSheet.appendRow([timestamp, level, message, detailsString]);
-    } catch (e) {
-        // Fallback to console if sheet logging fails
-        console.error(`[${level}] ${message}`, details, `Sheet logging failed: ${e.message}`);
-    }
-}
 
 // ============================================================================
-// MAIN ROUTER
+// ROUTER PRINCIPAL (doGet y doPost)
 // ============================================================================
 function doGet(e) {
-    if (e.parameter.debug === 'true') {
-        const serviceState = {
-            service: 'GPSpedia-Utilities',
-            version: '1.0.0',
-            spreadsheetId: SPREADSHEET_ID,
-            sheetsAccessed: [SHEET_NAMES.CORTES, SHEET_NAMES.USERS, SHEET_NAMES.LOGS]
-        };
-        return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
-            .setMimeType(ContentService.MimeType.JSON);
-    }
     const defaultResponse = {
         status: 'success',
         message: 'GPSpedia Utilities-SERVICE v1.0.0 is active.'
     };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
-        .setMimeType(ContentService.MimeType.JSON);
+        .setMimeType(ContentService.MimeType.TEXT);
 }
 
 function doPost(e) {
     let response;
     try {
         const request = JSON.parse(e.postData.contents);
-        const { action, payload } = request;
+        const { action, payload, session } = request;
 
-        // Security Check: All actions in this service require developer privileges.
-        if (!_isDeveloper(payload)) {
-            throw new Error("Acceso denegado. Se requieren privilegios de desarrollador.");
-        }
+        // Authorize the user
+        authorize(session, ['Desarrollador']);
 
+        let result;
         switch (action) {
             case 'migrateYearRanges':
-                response = migrateYearRanges();
+                result = handleMigrateYearRanges();
                 break;
             case 'migrateTimestamps':
-                response = migrateTimestamps();
+                result = handleMigrateTimestamps();
+                break;
+            case 'getImageCreationDateFromUrl':
+                if (!payload || !payload.url) {
+                    throw new Error("La URL es requerida en el payload para esta acción.");
+                }
+                const date = getImageCreationDate(payload.url);
+                result = { status: 'success', creationDate: date };
                 break;
             default:
-                throw new Error(`Acción desconocida: ${action}`);
+                throw new Error(`Acción desconocida en Utilities Service: ${action}`);
         }
+        response = result;
     } catch (error) {
-        logToSheet('ERROR', `Utilities Service Error: ${error.message}`, { stack: error.stack });
-        response = { status: 'error', message: error.message, details: { errorMessage: error.toString() } };
+        response = {
+            status: 'error',
+            message: 'Ocurrió un error en el servicio de utilidades.',
+            details: { errorMessage: error.message }
+        };
     }
-    return ContentService.createTextOutput(JSON.stringify(response)).setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify(response))
+        .setMimeType(ContentService.MimeType.TEXT);
 }
 
 // ============================================================================
-// AUTHENTICATION HELPER
+// LÓGICA DE AUTORIZACIÓN
 // ============================================================================
+function authorize(session, requiredRoles) {
+    if (!session || !session.userId) {
+        throw new Error("Autenticación requerida. Sesión no proporcionada.");
+    }
+
+    const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
+    const data = userSheet.getDataRange().getValues();
+    data.shift();
+
+    const userRow = data.find(row => row[COLS_USERS.ID - 1] == session.userId);
+
+    if (!userRow) {
+        throw new Error("Usuario no encontrado.");
+    }
+
+    const userRole = userRow[COLS_USERS.Privilegios - 1];
+    if (!requiredRoles.includes(userRole)) {
+        throw new Error("No tienes permisos para realizar esta acción.");
+    }
+}
+
+
+// ============================================================================
+// FUNCIONES AUXILIARES (HELPERS)
+// ============================================================================
+
 /**
- * Checks if the user associated with the payload has developer privileges.
- * @param {object} payload The request payload containing userId and sessionToken.
- * @returns {boolean} True if the user is a validated developer, false otherwise.
+ * Extrae el ID de una URL de Google Drive, obtiene el archivo y devuelve su fecha de creación.
+ * @param {string} url La URL de Google Drive.
+ * @returns {string} La fecha de creación del archivo en formato ISO string.
+ * @throws {Error} Si la URL es inválida, no se puede extraer el ID o hay un error al acceder al archivo.
  */
-function _isDeveloper(payload) {
+function getImageCreationDate(url) {
+    if (!url || typeof url !== 'string') {
+        throw new Error("URL inválida o no proporcionada.");
+    }
+
+    const idMatch = url.match(/file\/d\/([a-zA-Z0-9_-]+)|id=([a-zA-Z0-9_-]+)|\/d\/([a-zA-Z0-9_-]+)/);
+    if (!idMatch) {
+        throw new Error("No se pudo extraer el ID del archivo de la URL proporcionada.");
+    }
+
+    const fileId = idMatch[1] || idMatch[2] || idMatch[3];
+
     try {
-        const { userId, sessionToken } = payload;
-        if (!userId || !sessionToken) {
-            logToSheet('WARN', 'Auth check failed: Missing userId or sessionToken.');
-            return false;
-        }
-
-        const userSheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAMES.USERS);
-        const data = userSheet.getDataRange().getValues();
-        data.shift(); // Remove headers
-
-        for (const row of data) {
-            const currentUserId = row[COLS_USERS.ID - 1];
-            const currentToken = row[COLS_USERS.SessionToken - 1];
-            const currentRole = (row[COLS_USERS.Privilegios - 1] || '').toString().trim().toLowerCase();
-
-            if (currentUserId == userId && currentToken === sessionToken) {
-                if (currentRole === 'desarrollador') {
-                    return true; // Valid session and correct role found.
-                } else {
-                    logToSheet('WARN', `Auth check failed: User ${userId} is not a developer.`);
-                    return false; // Valid session, but not a developer.
-                }
-            }
-        }
-        logToSheet('WARN', `Auth check failed: No valid session found for user ${userId}.`);
-        return false; // No matching user/session found.
-    } catch (error) {
-        logToSheet('ERROR', `Error in _isDeveloper: ${error.message}`);
-        return false;
+        const file = DriveApp.getFileById(fileId);
+        const dateCreated = file.getDateCreated();
+        return dateCreated.toISOString(); // Devolver en formato estándar para consistencia
+    } catch (e) {
+        // Captura errores comunes como "archivo no encontrado" o problemas de permisos.
+        throw new Error(`Error al acceder al archivo de Drive con ID '${fileId}': ${e.message}`);
     }
 }
 
 
 // ============================================================================
-// MIGRATION LOGIC
+// MANEJADORES DE ACCIONES (HANDLERS)
 // ============================================================================
 
-/**
- * Migrates year ranges from 'anoDesde' to 'anoDesde' and 'anoHasta'.
- */
-function migrateYearRanges() {
-    const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAMES.CORTES);
-    const range = sheet.getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn());
+function handleMigrateYearRanges() {
+    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
+    const range = sheet.getRange(2, 1, sheet.getLastRow() - 1, COLS_CORTES.anoHasta);
     const values = range.getValues();
     let updatedCount = 0;
 
     const newValues = values.map(row => {
-        let anoDesdeRaw = row[COLS_CORTES.anoDesde - 1];
-        let anoHastaRaw = row[COLS_CORTES.anoHasta - 1];
-        let hasChanged = false;
+        let anoDesde = row[COLS_CORTES.anoDesde - 1];
+        let anoHasta = row[COLS_CORTES.anoHasta - 1];
 
-        if (typeof anoDesdeRaw === 'string' && anoDesdeRaw.includes('-')) {
-            const parts = anoDesdeRaw.split('-').map(p => parseInt(p.trim(), 10));
-            if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
-                row[COLS_CORTES.anoDesde - 1] = Math.min(parts[0], parts[1]);
-                row[COLS_CORTES.anoHasta - 1] = Math.max(parts[0], parts[1]);
-                hasChanged = true;
+        if (anoDesde && typeof anoDesde === 'string' && anoDesde.includes('-')) {
+            const parts = anoDesde.split('-').map(p => parseInt(p.trim(), 10));
+            const year1 = parts[0];
+            const year2 = parts[1];
+
+            if (!isNaN(year1) && !isNaN(year2)) {
+                row[COLS_CORTES.anoDesde - 1] = Math.min(year1, year2);
+                row[COLS_CORTES.anoHasta - 1] = Math.max(year1, year2);
+                updatedCount++;
             }
-        } else if (!isNaN(parseInt(anoDesdeRaw)) && !anoHastaRaw) {
-            row[COLS_CORTES.anoHasta - 1] = parseInt(anoDesdeRaw);
-            hasChanged = true;
+        } else if (anoDesde && !isNaN(parseInt(anoDesde, 10)) && !anoHasta) {
+             row[COLS_CORTES.anoHasta - 1] = anoDesde;
+             updatedCount++;
         }
-        if(hasChanged) updatedCount++;
         return row;
     });
 
-    if (updatedCount > 0) {
-        range.setValues(newValues);
-    }
-
-    logToSheet('INFO', 'Migration "migrateYearRanges" completed.', { updatedRows: updatedCount });
-    return { status: 'success', message: `Migración de años completada. ${updatedCount} registros actualizados.` };
+    range.setValues(newValues);
+    return { status: 'success', message: `Migración de rangos de años completada. Se actualizaron ${updatedCount} registros.` };
 }
 
-function migrateTimestamps() {
-    const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAMES.CORTES);
-    const range = sheet.getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn());
-    const values = range.getValues();
+
+function handleMigrateTimestamps() {
+    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
+    const range = sheet.getRange(2, COLS_CORTES.imagenVehiculo, sheet.getLastRow() - 1, 1);
+    const urls = range.getValues();
     let updatedCount = 0;
 
-    const newValues = values.map((row, index) => {
-        const imageUrl = row[COLS_CORTES.imagenVehiculo - 1];
-        const currentTimestamp = row[COLS_CORTES.timestamp - 1];
-
-        if (imageUrl && !currentTimestamp) {
+    urls.forEach((row, index) => {
+        const url = row[0];
+        if (url && typeof url === 'string') {
             try {
-                const fileIdMatch = imageUrl.match(/id=([a-zA-Z0-9_-]+)/);
-                if (fileIdMatch && fileIdMatch[1]) {
-                    const fileId = fileIdMatch[1];
+                const idMatch = url.match(/file\/d\/([a-zA-Z0-9_-]+)|id=([a-zA-Z0-9_-]+)|\/d\/([a-zA-Z0-9_-]+)/);
+                if (idMatch) {
+                    const fileId = idMatch[1] || idMatch[2] || idMatch[3];
                     const file = DriveApp.getFileById(fileId);
-                    const creationDate = file.getDateCreated();
-                    const formattedDate = Utilities.formatDate(creationDate, Session.getScriptTimeZone(), "dd/MM/yyyy");
-                    row[COLS_CORTES.timestamp - 1] = formattedDate;
+                    const dateCreated = file.getDateCreated();
+
+                    // Formatear a DD/MM/AAAA
+                    const formattedDate = Utilities.formatDate(dateCreated, Session.getScriptTimeZone(), "dd/MM/yyyy");
+
+                    sheet.getRange(index + 2, COLS_CORTES.timestamp).setValue(formattedDate);
                     updatedCount++;
                 }
             } catch (e) {
-                 logToSheet('WARN', `Could not process timestamp for row ${index + 2}`, { imageUrl: imageUrl, error: e.message });
+                // Log error but continue
+                console.error(`Error procesando URL en fila ${index + 2}: ${e.message}`);
             }
         }
-        return row;
     });
 
-    if (updatedCount > 0) {
-        range.setValues(newValues);
-    }
-
-    logToSheet('INFO', 'Migration "migrateTimestamps" completed.', { updatedRows: updatedCount });
-    return { status: 'success', message: `Migración de timestamps completada. ${updatedCount} registros actualizados.` };
+    return { status: 'success', message: `Migración de timestamps completada. Se procesaron e intentaron actualizar ${updatedCount} registros.` };
 }
