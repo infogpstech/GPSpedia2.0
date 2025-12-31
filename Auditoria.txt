@@ -28,7 +28,7 @@ A continuación se detalla el plan para rectificar las desviaciones encontradas,
     *   **Acción 1.2 (Centralización de Thumbnails):** Crear una nueva función auxiliar `convertirAGoogleThumbnail` dentro de `catalog.js` y aplicarla a todos los campos de URL de imagen (`imagenVehiculo`, `imgCorte1`, etc.) antes de enviar la respuesta al frontend. Esto optimiza el rendimiento y centraliza la lógica.
 
 2.  **Backend - `feedback.js` (Modificaciones Seguras):**
-    *   **Acción 2.1 (Lógica de "Sugerir Año"):** Reescribir por completo la función `handleSuggestYear`. La nueva implementación deberá:
+    *   **Acción 2.1 (Lógica de "Sugerir Año):** Reescribir por completo la función `handleSuggestYear`. La nueva implementación deberá:
         *   Registrar cada sugerencia de año en una nueva hoja de cálculo (`SugerenciasAño`) junto con el `vehicleId` y el `userId`.
         *   Contar cuántas veces se ha sugerido el mismo año para el mismo vehículo.
         *   **Solo si el conteo alcanza 3**, proceder a la lógica de actualización.
