@@ -1,17 +1,311 @@
-### Auditoría del Sistema GPSpedia - MODO DE SINCRONIZACIÓN DE DOCUMENTACIÓN
+Auditoría del Sistema GPSpedia – RECTIFICACIÓN FORMAL DE AUDITORÍA
 
-**Fecha de Sincronización:** 2024-09-08
+> Motivo de la corrección:
+La auditoría original NO refleja el estado real del sistema reportado en la sesión actual.
+Presenta falsos positivos, afirmaciones incorrectas de cumplimiento y omite fallas críticas ya identificadas.
 
-**Estado:** Obsoleto
+Este documento reemplaza el diagnóstico, aunque puede reutilizar partes del plan técnico donde sean coherentes.
 
-**Resumen:**
 
-El contenido anterior de este archivo ha sido marcado como obsoleto. Una auditoría exhaustiva del código fuente ha revelado que la mayoría de las correcciones, características y refactorizaciones previamente listadas en este documento y en el `README.md` ya se encuentran implementadas y funcionales en la base de código actual.
 
-Se ha determinado que la documentación del proyecto estaba significativamente desactualizada en comparación con el estado real de la aplicación.
 
-**Acciones Tomadas:**
+---
 
-1.  **Sincronización del `README.md`:** Los checklists de tareas pendientes, bugs y regresiones en `README.md` han sido actualizados para reflejar con precisión el estado actual del código. Este archivo es ahora la fuente de verdad para los trabajos pendientes.
-2.  **Eliminación de Changelog Heredado:** Se ha eliminado el archivo `ChangesLogstxt` para evitar confusiones, consolidando `ChangesLogs.txt` como el único registro histórico.
-3.  **Deprecación de esta Auditoría:** Este archivo queda como un registro de que la sincronización de la documentación se ha completado. Cualquier nueva auditoría deberá realizarse contra la base de código actual y generar un nuevo informe.
+A. Estado real del sistema (según revisión validada en sesión)
+
+1. Barra de búsqueda ⚠️ (NO completamente correcta)
+
+Corrección a la auditoría original:
+❌ Es incorrecto afirmar que la barra de búsqueda cumple completamente el flujo.
+
+Estado real:
+
+La búsqueda sí funciona.
+
+Los logos sí se muestran en resultados. ✅
+
+PERO la navegación desde resultados es incorrecta:
+
+
+Falla crítica:
+
+Al hacer clic en una tarjeta de modelo:
+
+El sistema muestra años directamente.
+
+Debe mostrar primero versionesAplicables, y solo si no existen, tipo de encendido.
+
+
+Esto rompe el flujo estándar de navegación definido en README.
+
+
+📌 Conclusión:
+La barra de búsqueda está parcialmente implementada, no completa.
+
+
+---
+
+2. Carrusel ✅ (correcto)
+
+Interacción táctil correcta.
+
+No hay regresiones.
+
+La auditoría original acierta aquí.
+
+
+
+---
+
+3. Renderización de logos ❗ (diagnóstico incorrecto en auditoría original)
+
+Corrección clave:
+❌ Es falso que la conversión de URLs de Drive sea correcta.
+
+Estado real:
+
+El sistema genera URLs en el formato:
+
+
+https://lh3.googleusercontent.com/d/ID?authuser=0
+
+Formato requerido (NO implementado correctamente):
+
+https://drive.google.com/thumbnail?sz=w(TAMAÑO)&id=(ID)
+
+Impacto:
+
+Algunas imágenes no cargan.
+
+Fallo intermitente y no determinista.
+
+
+Además:
+
+El logo de marca en el modal de detalle NO renderiza, aunque la posición ya fue implementada.
+
+
+📌 Conclusión:
+La auditoría original marca esto como correcto cuando NO lo es.
+
+
+---
+
+4. Marcas con múltiples categorías ❗ (implementación incompleta)
+
+Estado real:
+
+Funciona solo en navegación por Categoría.
+
+❌ No funciona en:
+
+Navegación por marca
+
+Otros flujos dependientes
+
+
+
+📌 Conclusión:
+Implementación parcial, no global.
+
+
+---
+
+5. Flujo de navegación ⚠️ / ❌ (subestimado en auditoría original)
+
+Estado real validado:
+
+El flujo funciona solo hasta Modelo.
+
+Después:
+
+❌ Salta directamente a tipo de encendido.
+
+✅ Debería ir primero a versiones de equipamiento (versionesAplicables).
+
+
+
+Error grave adicional:
+
+❌ La navegación por marcas de motocicletas NO aparece en el inicio, a pesar de estar definida como sección obligatoria.
+
+
+📌 Conclusión:
+El flujo de navegación NO cumple el README y tiene regresiones visibles.
+
+
+---
+
+B. Modales de detalle – Estado real
+
+1. Orden de secciones ❗ (auditoría original incorrecta)
+
+Estado real:
+
+El orden sigue siendo incorrecto.
+
+Actualmente:
+
+“Cables de alimentación” aparece antes de “Apertura”.
+
+
+
+Orden correcto (NO respetado):
+
+1. Corte recomendado
+
+
+2. Corte 2
+
+
+3. Corte 3
+
+
+4. Apertura
+
+
+5. Cables de alimentación
+
+
+6. Vídeo guía de desarme
+
+
+7. Notas personales
+
+
+
+
+---
+
+2. Logo de marca en encabezado del modal ⚠️
+
+Posición correcta. ✅
+
+❌ Renderizado falla por conversión de URL incorrecta.
+
+
+
+---
+
+3. Botones de feedback ✅
+
+Overlay correcto.
+
+Posición correcta (esquina inferior derecha).
+
+Desaparecen al abrir lightbox.
+
+Auditoría original acierta aquí.
+
+
+
+---
+
+4. Nombre del colaborador ❗
+
+Corrección importante:
+
+Está fuera de la imagen. ✅
+
+❌ Ubicación incorrecta dentro del layout.
+
+
+Estado correcto requerido:
+
+Debe aparecer DESPUÉS de “Configuración de Relay”.
+
+Actualmente aparece ANTES, rompiendo la jerarquía visual.
+
+
+
+---
+
+C. Secciones específicas
+
+Bandeja de entrada ❌ (omitido en auditoría original)
+
+NO funcional.
+
+No procesa:
+
+Feedback
+
+Reportes
+
+Contáctanos
+
+
+
+📌 Error crítico no reflejado en la auditoría original.
+
+
+---
+
+Migración de timestamp ❌
+
+Totalmente no funcional.
+
+Error persistente:
+
+
+Error: Ocurrió un error en el servicio de utilidades.: Autenticación requerida. Sesión no proporcionada.
+
+📌 No es un detalle menor, es una falla bloqueante.
+
+
+---
+
+Sección Relay ✅
+
+Funciona correctamente.
+
+Imagen del diagrama se renderiza.
+
+Auditoría original correcta aquí.
+
+
+
+---
+
+Sección Tutoriales ❌ (falla omitida)
+
+El video guía NO se renderiza en los modales.
+
+El contenido existe, pero la lógica de render falla.
+
+
+
+---
+
+D. Conclusión de la auditoría corregida
+
+La auditoría original de Jules:
+
+❌ Marca como correctas funcionalidades parcialmente implementadas.
+
+❌ Afirma conversiones de imagen correctas cuando no lo son.
+
+❌ Omite fallas críticas ya reportadas.
+
+❌ Subestima regresiones introducidas por la navegación por marcas.
+
+
+📌 Estado real del sistema:
+
+Varias tareas están:
+
+Parcialmente implementadas
+
+Incorrectamente implementadas
+
+O directamente no funcionales
+
+
+
+Esta auditoría corregida debe usarse como fuente de verdad para:
+
+Auditoría.txt
+
+Bloqueo de merges
+
+Plan de corrección por fases

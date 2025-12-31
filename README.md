@@ -233,27 +233,27 @@ Esta sección documenta las tareas de desarrollo, corrección y regresiones pend
 - [ ] **Refactorización del Flujo de Escritura:** Implementar el nuevo flujo de trabajo de 3 etapas para añadir/actualizar cortes, que fue documentado como completo pero no se encuentra en el código.
 - [ ] **Inconsistencias de Versionamiento:** Sincronizar la versión global (ChangesLogs, UI) y las versiones de componentes (cabeceras en todos los archivos `.html` y `.js`) para cumplir con las normas del proyecto.
 - [X] **Layout del Modal:** Corregir la posición del nombre del colaborador y el estilo de los botones de feedback.
-- [X] **Visibilidad de Cortes:** Asegurar que las tres opciones de corte sean visibles en el modal si existen los datos.
+- [ ] **Visibilidad de Cortes:** Asegurar que las tres opciones de corte sean visibles en el modal si existen los datos.
 - [X] **UI General:** Solucionar bugs visuales (pie de página, botón de limpiar búsqueda, carga de nombre de usuario, saludo de bienvenida).
 
 ### Revisiones de UI/UX
-- [X] **Rediseño de Botones de Feedback:** Reemplazar los botones "Sí/No" del modal de detalle por un sistema de pulgares (👍/👎). Añadir dos nuevos botones: "Sugerir un año" y "Reportar un problema".
-- [X] **Reorganización de Secciones Principales:** Alterar el orden de las secciones en `index.html` para que aparezcan en el siguiente orden: 1. "Últimos Agregados", 2. "Búsqueda por Marca", 3. "Búsqueda por Categoría".
-- [X] **Layout de "Últimos Agregados":** Modificar el layout de la sección "Últimos Agregados" para que muestre los resultados en un formato de 3 columnas, mejorando la densidad de la información.
-- [X] **Visualización de Marcas con Logos:** En la sección "Búsqueda por Marca", reemplazar los nombres de las marcas en texto plano por sus respectivos logos, obtenidos de la hoja `LogosMarca`.
+- [ ] **Rediseño de Botones de Feedback:** Reemplazar los botones "Sí/No" del modal de detalle por un sistema de pulgares (👍/👎). Añadir dos nuevos botones: "Sugerir un año" y "Reportar un problema".
+- [ ] **Reorganización de Secciones Principales:** Alterar el orden de las secciones en `index.html` para que aparezcan en el siguiente orden: 1. "Últimos Agregados", 2. "Búsqueda por Marca", 3. "Búsqueda por Categoría".
+- [ ] **Layout de "Últimos Agregados":** Modificar el layout de la sección "Últimos Agregados" para que muestre los resultados en un formato de 3 columnas, mejorando la densidad de la información.
+- [ ] **Visualización de Marcas con Logos:** En la sección "Búsqueda por Marca", reemplazar los nombres de las marcas en texto plano por sus respectivos logos, obtenidos de la hoja `LogosMarca`.
 - [X] **Ajustes de Layout:** Realizar ajustes de espaciado, encabezado y visualización de "Últimos Agregados" según las especificaciones.
 - [X] **Modal de Detalle - Logo de Marca:** Implementar la visualización del logo de la marca en una esquina (`altura: 50px`, `anchura: auto`).
 - [X] **Modal de Detalle - Imagen de Relay:** Limitar la altura de la imagen de referencia del relay a `250px`.
 - [X] **Listado de Marcas - Logos:** Mostrar el logo de cada marca en la vista de listado de marcas.
 
 ### Nuevas Funcionalidades
-- [X] **Sistema de Navegación Jerárquico:** Implementar un flujo de navegación guiado o "paso a paso" para la búsqueda. El usuario primero seleccionará una Marca, luego se le presentarán los Modelos de esa marca, y finalmente los Años/versiones disponibles.
-- [X] **Sistema de Gestión de Feedback (Inbox):** Desarrollar una nueva interfaz (accesible para roles de Supervisor/Jefe) que funcione como un "inbox" para gestionar los problemas reportados por los usuarios a través del nuevo botón "Reportar un problema". Debe permitir ver, responder y marcar como resueltos los reportes.
-- [X] **Implementación de Modo Oscuro:** Añadir una paleta de colores alternativa para un modo oscuro y un interruptor en la UI para que el usuario pueda activarlo/desactivarlo.
+- [ ] **Sistema de Navegación Jerárquico:** Implementar un flujo de navegación guiado o "paso a paso" para la búsqueda. El usuario primero seleccionará una Marca, luego se le presentarán los Modelos de esa marca, y finalmente los Años/versiones disponibles.
+- [ ] **Sistema de Gestión de Feedback (Inbox):** Desarrollar una nueva interfaz (accesible para roles de Supervisor/Jefe) que funcione como un "inbox" para gestionar los problemas reportados por los usuarios a través del nuevo botón "Reportar un problema". Debe permitir ver, responder y marcar como resueltos los reportes.
+- [ ] **Implementación de Modo Oscuro:** Añadir una paleta de colores alternativa para un modo oscuro y un interruptor en la UI para que el usuario pueda activarlo/desactivarlo.
 - [X] **Búsqueda Flexible:** Mejorar `checkVehicle` para que devuelva coincidencias parciales y múltiples resultados.
-- [X] **Debugging Integral:** Implementar un sistema de debugging en backend y frontend accesible por rol.
-- [X] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes para mejorar el rendimiento.
-- [X] **Soporte para Rango de Años (Feedback-driven):** Implementar la lógica de `suggestYear` en el backend y la UI correspondiente en el frontend.
+- [ ] **Debugging Integral:** Implementar un sistema de debugging en backend y frontend accesible por rol.
+- [ ] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes para mejorar el rendimiento.
+- [ ] **Soporte para Rango de Años (Feedback-driven):** Implementar la lógica de `suggestYear` en el backend y la UI correspondiente en el frontend.
 - [ ] **Sistema de Versionamiento Híbrido:** Aplicar el nuevo sistema de versionamiento a todos los componentes del código fuente.
 - [X] **Integración de Páginas de Información:** Crear las secciones "Sobre Nosotros", "Contáctanos" y "Preguntas Frecuentes" como modales dentro de `index.html`.
 
@@ -1064,5 +1064,248 @@ Flujo lineal
 Evitar duplicidad de rutas
 
 NO romper funcionalidades existentes
+
+---
+
+⚠️ REGRESIÓN CRÍTICA DETECTADA – ÚLTIMO COMMIT (NAVEGACIÓN POR MARCAS)
+
+> ATENCIÓN – REGRESIÓN FATAL
+En el último commit donde se agregó la navegación por marcas, se introdujeron regresiones graves que rompen funcionalidades existentes y no cumplen el flujo definido en las instrucciones previas.
+
+Esta sección documenta exactamente qué se rompió y cómo debe corregirse, sin reinterpretaciones.
+
+
+
+
+---
+
+1. Regresión en las secciones de navegación visibles
+
+Estado actual (incorrecto)
+
+Solo aparecen:
+
+Navegación por marca de vehículos
+
+Navegación por categoría
+
+
+Se eliminaron o dejaron inaccesibles otras secciones clave.
+
+
+Estado esperado (OBLIGATORIO)
+
+Las siguientes secciones NO deben desaparecer y deben coexistir:
+
+1. Últimos agregados
+
+
+2. Categoría
+
+
+3. Búsqueda por marca de vehículos
+
+
+4. Búsqueda por marca de motocicletas
+
+
+
+⚠️ Eliminar “Últimos agregados” es una regresión grave
+Esta sección existía y funcionaba antes del último commit y NO debía ser eliminada.
+
+
+---
+
+2. Incumplimiento del flujo de navegación definido
+
+La navegación actual NO sigue el flujo por etapas previamente documentado, específicamente:
+
+No respeta:
+
+Etapas secuenciales
+
+Separación clara entre categorías, marcas, modelos y versiones
+
+
+Se mezclan rutas que generan:
+
+Confusión
+
+Redundancia
+
+Pérdida de contexto para el usuario
+
+
+
+👉 Es obligatorio volver a implementar la navegación exactamente como fue definida en las instrucciones anteriores, sin simplificaciones ni atajos.
+
+
+---
+
+3. Regresión en modales de detalle – Tutoriales
+
+Problema
+
+En los modales de detalle de Tutoriales:
+
+NO aparece el vídeo guía, aunque el contenido existe.
+
+
+
+Acción requerida
+
+Revisar la lógica de renderizado del vídeo en:
+
+Modales
+
+Condiciones de visibilidad
+
+
+Corregir sin afectar otros tipos de modal.
+
+
+
+---
+
+4. Regresión en modales de detalle – Relay
+
+Problema
+
+En los modales de detalle de Relay:
+
+NO aparece la imagen del diagrama de configuración del Relay.
+
+
+
+Acción requerida
+
+Revisar:
+
+Lógica de carga de imagen
+
+Conversión de enlace
+
+Condición de render
+
+
+Confirmar que el diagrama se muestre correctamente como antes del último commit.
+
+
+
+---
+
+5. Error de posicionamiento – Botones de feedback (vehículos)
+
+Estado actual (incorrecto)
+
+Los botones de feedback:
+
+Están a la derecha de la imagen
+
+NO están en la esquina inferior derecha
+
+
+Esto rompe el diseño solicitado.
+
+
+Estado esperado (OBLIGATORIO)
+
+Los botones de feedback deben:
+
+Estar sobre la imagen del corte (overlay)
+
+Posicionados en la parte baja de la imagen
+
+Específicamente en la esquina inferior derecha
+
+
+
+
+---
+
+6. Error de layout – Nombre del colaborador
+
+Estado actual (incorrecto)
+
+El nombre del colaborador:
+
+Fue colocado como overlay sobre la imagen del corte
+
+
+
+Estado esperado (OBLIGATORIO)
+
+El nombre del colaborador:
+
+NO debe ser overlay
+
+Debe estar FUERA de la imagen
+
+Con su propio espacio vertical dedicado
+
+
+No debe compartir contenedor ni capa con:
+
+Imagen
+
+Botones de feedback
+
+
+
+
+---
+
+7. Regresión – Posición del logo de marca en el modal de detalle
+
+Estado actual (incorrecto)
+
+El logo de marca:
+
+NO está en la posición solicitada
+
+
+
+Estado esperado (OBLIGATORIO)
+
+El logo de marca debe:
+
+Aparecer en el modal de detalle
+
+Ubicarse a la derecha del título, donde dice:
+
+> “Detalle de ‘modelo de vehículo’”
+
+
+
+
+Debe integrarse sin romper:
+
+Layout
+
+Responsividad
+
+Jerarquía visual del título
+
+
+
+
+---
+
+Regla crítica de corrección
+
+> Antes de agregar nuevas funcionalidades:
+
+Revertir o corregir las regresiones
+
+Restaurar funcionalidades eliminadas
+
+Alinear la implementación con el README
+
+
+
+
+⚠️ No se deben sacrificar secciones existentes para introducir nuevas rutas de navegación.
+El README define el contrato funcional y visual del catálogo.
+
 
 ---
