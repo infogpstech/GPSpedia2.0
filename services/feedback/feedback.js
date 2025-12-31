@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-FEEDBACK SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 2.3.0
+// COMPONENT VERSION: 2.2.0
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -21,7 +21,7 @@ const SHEET_NAMES = {
     FEEDBACKS: "Feedbacks",
     CONTACTANOS: "Contactanos",
     ACTIVIDAD_USUARIO: "ActividadUsuario",
-    NOTIFICACIONES: "Notificaciones"
+    SUGERENCIAS_ANO: "SugerenciasAño"
 };
 
 // Mapa de columnas para la hoja "Cortes" (v2.0)
@@ -36,7 +36,7 @@ const COLS_CORTES = {
     timestamp: 37, notaImportante: 38
 };
 
-// Mapa de columnas para la hoja "Feedbacks" (v2.0) - CORREGIDO SEGÚN ESQUEMA CANÓNICO
+// Mapa de columnas para la hoja "Feedbacks" (v2.0)
 const COLS_FEEDBACKS = {
     ID: 1,
     Usuario: 2,
@@ -67,15 +67,6 @@ const COLS_ACTIVIDAD_USUARIO = {
     detalle: 7
 };
 
-const COLS_NOTIFICACIONES = {
-    ID: 1,
-    ID_Usuario: 2,
-    Mensaje: 3,
-    Leido: 4,
-    Timestamp: 5
-};
-
-
 // ============================================================================
 // ROUTER PRINCIPAL (doGet y doPost)
 // ============================================================================
@@ -83,22 +74,16 @@ function doGet(e) {
     if (e.parameter.debug === 'true') {
         const serviceState = {
             service: 'GPSpedia-Feedback',
-            version: '2.3.0', // <-- ACTUALIZADO
+            version: '1.2.1',
             spreadsheetId: SPREADSHEET_ID,
-            sheetsAccessed: [
-                SHEET_NAMES.CORTES,
-                SHEET_NAMES.FEEDBACKS,
-                SHEET_NAMES.CONTACTANOS,
-                SHEET_NAMES.ACTIVIDAD_USUARIO,
-                SHEET_NAMES.NOTIFICACIONES
-            ]
+            sheetsAccessed: [SHEET_NAMES.CORTES, SHEET_NAMES.FEEDBACKS]
         };
         return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
             .setMimeType(ContentService.MimeType.JSON);
     }
     const defaultResponse = {
         status: 'success',
-        message: 'GPSpedia Feedback-SERVICE v2.3.0 is active.'
+        message: 'GPSpedia Feedback-SERVICE v1.2.1 is active.'
     };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
         .setMimeType(ContentService.MimeType.JSON);
@@ -112,7 +97,6 @@ function doPost(e) {
         const payload = request.payload || {};
 
         switch (action) {
-            // --- Acciones de Feedback General ---
             case 'recordLike':
                 response = handleRecordLike(payload);
                 break;
@@ -128,32 +112,16 @@ function doPost(e) {
             case 'sendContactForm':
                 response = handleSendContactForm(payload);
                 break;
-            case 'getComments':
-                response = handleGetComments(payload);
+            // --- INBOX ACTIONS ---
+            case 'getFeedbackItems':
+                response = handleGetFeedbackItems(payload);
                 break;
-
-            // --- Acciones de Bandeja de Entrada (Supervisor/Jefe) ---
-            case 'getReportedProblems':
-                 response = handleGetReportedProblems(payload);
-                 break;
-            case 'replyToProblem':
-                 response = handleReplyToProblem(payload);
-                 break;
-            case 'resolveProblem':
-                 response = handleResolveProblem(payload);
-                 break;
-            case 'deleteProblem':
-                 response = handleDeleteProblem(payload);
-                 break;
-
-            // --- Acciones de Notificaciones (Usuario) ---
-            case 'getUnreadNotifications':
-                response = handleGetUnreadNotifications(payload);
+            case 'replyToFeedback':
+                response = handleReplyToFeedback(payload);
                 break;
-            case 'markNotificationsAsRead':
-                response = handleMarkNotificationsAsRead(payload);
+            case 'markAsResolved':
+                response = handleMarkAsResolved(payload);
                 break;
-
             default:
                 throw new Error(`Acción desconocida en Feedback Service: ${action}`);
         }
@@ -170,16 +138,153 @@ function doPost(e) {
 // MANEJADORES DE ACCIONES (HANDLERS)
 // ============================================================================
 
+function handleRecordLike(payload) {
+    const { vehicleId, corteIndex, userName } = payload;
+    if (!vehicleId || !corteIndex || !userName) {
+        throw new Error("Faltan datos para registrar el 'like'.");
+    }
+
+    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
+    const data = sheet.getRange(2, COLS_CORTES.id, sheet.getLastRow() - 1, 1).getValues();
+
+    for (let i = 0; i < data.length; i++) {
+        if (data[i][0] == vehicleId) {
+            const rowIndex = i + 2;
+            const utilColName = `utilCorte${corteIndex}`;
+            const utilCol = COLS_CORTES[utilColName];
+
+            if (!utilCol) throw new Error("Índice de corte inválido.");
+
+            const cell = sheet.getRange(rowIndex, utilCol);
+            let currentValue = cell.getValue();
+            if (typeof currentValue !== 'number') currentValue = 0;
+
+            cell.setValue(currentValue + 1);
+
+            return { status: 'success', message: 'Like registrado.' };
+        }
+    }
+    throw new Error("No se encontró el vehículo con el ID proporcionado.");
+}
+
+function handleAssignCollaborator(payload) {
+    const { vehicleId, corteIndex, userName } = payload;
+    if (!vehicleId || !corteIndex || !userName) {
+        throw new Error("Faltan datos para asignar colaborador.");
+    }
+    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
+    const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues();
+
+    for (let i = 0; i < data.length; i++) {
+        if (data[i][0] == vehicleId) {
+            const rowIndex = i + 2;
+            const colName = `colaboradorCorte${corteIndex}`;
+            const col = COLS_CORTES[colName];
+            if (!col) throw new Error("Índice de corte inválido.");
+
+            sheet.getRange(rowIndex, col).setValue(userName);
+            return { status: 'success', message: 'Colaborador asignado.' };
+        }
+    }
+    throw new Error("Vehículo no encontrado.");
+}
+
+function handleSuggestYear(payload) {
+    const { vehicleId, newYear, userId, userName } = payload;
+    if (!vehicleId || !newYear || !userId || !userName) {
+        throw new Error("Faltan datos para sugerir año (vehicleId, newYear, userId, userName).");
+    }
+
+    const year = parseInt(newYear, 10);
+    if (isNaN(year) || year < 1980 || year > 2099) {
+        throw new Error("El año proporcionado no es un número válido.");
+    }
+
+    const sugerenciasSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.SUGERENCIAS_ANO);
+    if (!sugerenciasSheet) throw new Error(`Hoja no encontrada: ${SHEET_NAMES.SUGERENCIAS_ANO}`);
+
+    // 1. Registrar la sugerencia
+    sugerenciasSheet.appendRow([new Date(), vehicleId, userId, userName, year]);
+    logUserActivity(userId, userName, 'suggest_year', vehicleId, `Año sugerido: ${year}`);
+
+    // 2. Contar votos para esta combinación
+    const allSuggestions = sugerenciasSheet.getDataRange().getValues().slice(1);
+    const voteCount = allSuggestions.filter(row => row[1] == vehicleId && row[4] == year).length;
+
+    // 3. Si no se alcanzan los 3 votos, terminar
+    if (voteCount < 3) {
+        return { status: 'success', message: `Sugerencia para el año ${year} registrada. Se necesitan ${3 - voteCount} más para aplicar el cambio.` };
+    }
+
+    // 4. Si se alcanzan los 3 votos, proceder con la lógica de actualización
+    const cortesSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
+    const allCortesData = cortesSheet.getDataRange().getValues();
+    const headers = allCortesData.shift();
+    const vehicleRowIndex = allCortesData.findIndex(row => row[COLS_CORTES.id - 1] == vehicleId);
+
+    if (vehicleRowIndex === -1) throw new Error("Vehículo no encontrado para actualizar.");
+
+    const vehicleRow = allCortesData[vehicleRowIndex];
+    const anoDesde = parseInt(vehicleRow[COLS_CORTES.anoDesde - 1], 10);
+    const anoHasta = parseInt(vehicleRow[COLS_CORTES.anoHasta - 1] || anoDesde, 10);
+
+    // Si el año ya está en el rango, no hacer nada
+    if (year >= anoDesde && year <= anoHasta) {
+        return { status: 'info', message: `El año ${year} ya está dentro del rango actual.` };
+    }
+
+    // 5. Lógica Anti-colisión
+    const marca = vehicleRow[COLS_CORTES.marca - 1];
+    const modelo = vehicleRow[COLS_CORTES.modelo - 1];
+    const tipoEncendido = vehicleRow[COLS_CORTES.tipoEncendido - 1];
+
+    for (const row of allCortesData) {
+        if (row[COLS_CORTES.id - 1] == vehicleId) continue; // No comparar consigo mismo
+
+        const otherMarca = row[COLS_CORTES.marca - 1];
+        const otherModelo = row[COLS_CORTES.modelo - 1];
+        const otherTipoEncendido = row[COLS_CORTES.tipoEncendido - 1];
+
+        if (otherMarca === marca && otherModelo === modelo && otherTipoEncendido === tipoEncendido) {
+            const otherAnoDesde = parseInt(row[COLS_CORTES.anoDesde - 1], 10);
+            const otherAnoHasta = parseInt(row[COLS_CORTES.anoHasta - 1] || otherAnoDesde, 10);
+            if (year >= otherAnoDesde && year <= otherAnoHasta) {
+                logUserActivity(userId, userName, 'suggest_year_collision', vehicleId, `Año ${year} colisiona con rango de vehículo ID ${row[COLS_CORTES.id - 1]}`);
+                return { status: 'warning', message: `La sugerencia para el año ${year} no se puede aplicar porque parece corresponder a una generación diferente del mismo modelo. Se requiere revisión manual.` };
+            }
+        }
+    }
+
+    // 6. Actualizar el rango
+    let newAnoDesde = anoDesde;
+    let newAnoHasta = anoHasta;
+    let updated = false;
+
+    if (year < anoDesde) {
+        newAnoDesde = year;
+        updated = true;
+    }
+    if (year > anoHasta) {
+        newAnoHasta = year;
+        updated = true;
+    }
+
+    if (updated) {
+        cortesSheet.getRange(vehicleRowIndex + 2, COLS_CORTES.anoDesde).setValue(newAnoDesde);
+        cortesSheet.getRange(vehicleRowIndex + 2, COLS_CORTES.anoHasta).setValue(newAnoHasta);
+        logUserActivity(userId, userName, 'apply_year_suggestion', vehicleId, `Rango actualizado a ${newAnoDesde}-${newAnoHasta} basado en 3 votos para el año ${year}.`);
+        return { status: 'success', message: `¡Gracias! Con 3 votos confirmados, el rango de años se ha actualizado a ${newAnoDesde}-${newAnoHasta}.` };
+    }
+
+    return { status: 'info', message: 'No se realizaron cambios.' };
+}
+
 function logUserActivity(userId, userName, activityType, associatedId, details) {
     try {
         const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.ACTIVIDAD_USUARIO);
-        // Crear un ID único basado en el timestamp y un número aleatorio
-        const timestamp = new Date();
-        const uniqueId = timestamp.getTime().toString(36) + Math.random().toString(36).slice(2);
-
         const newRow = [];
-        newRow[COLS_ACTIVIDAD_USUARIO.id - 1] = uniqueId;
-        newRow[COLS_ACTIVIDAD_USUARIO.timestamp - 1] = timestamp;
+        newRow[COLS_ACTIVIDAD_USUARIO.id - 1] = ''; // Autogen ID
+        newRow[COLS_ACTIVIDAD_USUARIO.timestamp - 1] = new Date().toISOString();
         newRow[COLS_ACTIVIDAD_USUARIO.idUsuario - 1] = userId;
         newRow[COLS_ACTIVIDAD_USUARIO.nombreUsuario - 1] = userName;
         newRow[COLS_ACTIVIDAD_USUARIO.tipoActividad - 1] = activityType;
@@ -187,6 +292,7 @@ function logUserActivity(userId, userName, activityType, associatedId, details) 
         newRow[COLS_ACTIVIDAD_USUARIO.detalle - 1] = details;
         sheet.appendRow(newRow);
     } catch (e) {
+        // Log error to main log sheet if activity logging fails
         Logger.log(`CRITICAL: Fallo al registrar actividad de usuario. Error: ${e.message}`);
     }
 }
@@ -198,6 +304,7 @@ function handleRecordLike(payload) {
     }
 
     const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
+    // Fetch all IDs from the 'id' column to find the row index
     const ids = sheet.getRange(2, COLS_CORTES.id, sheet.getLastRow() - 1, 1).getValues().flat();
     const rowIndex = ids.findIndex(id => id == vehicleId);
 
@@ -205,7 +312,10 @@ function handleRecordLike(payload) {
         throw new Error("No se encontró el vehículo con el ID proporcionado.");
     }
 
+    // rowIndex is 0-based, but sheet rows are 1-based and we have a header, so add 2
     const actualRow = rowIndex + 2;
+
+    // Determine the correct column for the like count
     const utilColName = `utilCorte${corteIndex}`;
     const utilCol = COLS_CORTES[utilColName];
 
@@ -213,153 +323,56 @@ function handleRecordLike(payload) {
         throw new Error(`Índice de corte inválido: ${corteIndex}`);
     }
 
+    // Get the cell, read the value, increment, and write back
     const cell = sheet.getRange(actualRow, utilCol);
     let currentValue = cell.getValue();
+
+    // Ensure the current value is a number, default to 0 if empty or not a number
     if (typeof currentValue !== 'number' || isNaN(currentValue)) {
         currentValue = 0;
     }
+
     cell.setValue(currentValue + 1);
 
+    // Log this action
     logUserActivity(userId, userName, 'like', vehicleId, `Like en corte ${corteIndex}. Nuevo total: ${currentValue + 1}`);
+
     return { status: 'success', message: 'Like registrado correctamente.' };
-}
-
-function handleAssignCollaborator(payload) {
-    const { vehicleId, corteIndex, userName } = payload;
-    if (!vehicleId || !corteIndex || !userName) {
-        throw new Error("Faltan datos para asignar colaborador.");
-    }
-    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
-    const ids = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues().flat();
-    const rowIndex = ids.findIndex(id => id == vehicleId);
-
-    if (rowIndex === -1) {
-        throw new Error("Vehículo no encontrado.");
-    }
-
-    const actualRow = rowIndex + 2;
-    const colName = `colaboradorCorte${corteIndex}`;
-    const col = COLS_CORTES[colName];
-    if (!col) throw new Error("Índice de corte inválido.");
-
-    sheet.getRange(actualRow, col).setValue(userName);
-    return { status: 'success', message: 'Colaborador asignado.' };
-}
-
-function handleSuggestYear(payload) {
-    const { vehicleId, newYear, userId, userName } = payload;
-    if (!vehicleId || !newYear || !userId || !userName) {
-        throw new Error("Faltan datos para sugerir año (vehicleId, newYear, userId, userName).");
-    }
-
-    const year = parseInt(newYear, 10);
-    if (isNaN(year) || String(year).length !== 4) {
-        throw new Error("El año proporcionado no es un número válido de 4 dígitos.");
-    }
-
-    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
-    const fullDataRange = sheet.getDataRange();
-    const allValues = fullDataRange.getValues();
-    allValues.shift(); // Remove headers
-
-    let targetRowIndex = -1;
-    let targetVehicle = null;
-
-    for (let i = 0; i < allValues.length; i++) {
-        if (allValues[i][COLS_CORTES.id - 1] == vehicleId) {
-            targetRowIndex = i;
-            targetVehicle = {
-                marca: allValues[i][COLS_CORTES.marca - 1],
-                modelo: allValues[i][COLS_CORTES.modelo - 1],
-                tipoEncendido: allValues[i][COLS_CORTES.tipoEncendido - 1],
-                anoDesde: allValues[i][COLS_CORTES.anoDesde - 1],
-                anoHasta: allValues[i][COLS_CORTES.anoHasta - 1]
-            };
-            break;
-        }
-    }
-
-    if (!targetVehicle) {
-        throw new Error("Vehículo no encontrado.");
-    }
-
-    const currentAnoDesde = targetVehicle.anoDesde ? parseInt(targetVehicle.anoDesde, 10) : year;
-    const currentAnoHasta = targetVehicle.anoHasta ? parseInt(targetVehicle.anoHasta, 10) : currentAnoDesde;
-
-    if (year >= currentAnoDesde && year <= currentAnoHasta) {
-        return { status: 'info', message: 'El año sugerido ya está dentro del rango existente.' };
-    }
-
-    // Anti-collision Logic
-    for (let i = 0; i < allValues.length; i++) {
-        if (i === targetRowIndex) continue;
-
-        const otherVehicle = {
-            marca: allValues[i][COLS_CORTES.marca - 1],
-            modelo: allValues[i][COLS_CORTES.modelo - 1],
-            tipoEncendido: allValues[i][COLS_CORTES.tipoEncendido - 1],
-            anoDesde: allValues[i][COLS_CORTES.anoDesde - 1],
-            anoHasta: allValues[i][COLS_CORTES.anoHasta - 1]
-        };
-
-        if (otherVehicle.marca === targetVehicle.marca && otherVehicle.modelo === targetVehicle.modelo && otherVehicle.tipoEncendido === targetVehicle.tipoEncendido) {
-            const otherAnoDesde = otherVehicle.anoDesde ? parseInt(otherVehicle.anoDesde, 10) : null;
-            const otherAnoHasta = otherVehicle.anoHasta ? parseInt(otherVehicle.anoHasta, 10) : otherAnoDesde;
-            if (otherAnoDesde && otherAnoHasta && year >= otherAnoDesde && year <= otherAnoHasta) {
-                throw new Error(`Conflicto de generaciones. El año ${year} ya está cubierto por otro registro (${otherAnoDesde}-${otherAnoHasta}).`);
-            }
-        }
-    }
-
-    let newAnoDesde = currentAnoDesde;
-    let newAnoHasta = currentAnoHasta;
-    let updated = false;
-
-    if (year < currentAnoDesde) {
-        newAnoDesde = year;
-        updated = true;
-    }
-    if (year > currentAnoHasta) {
-        newAnoHasta = year;
-        updated = true;
-    }
-
-    if (updated) {
-        const sheetRowIndex = targetRowIndex + 2;
-        sheet.getRange(sheetRowIndex, COLS_CORTES.anoDesde).setValue(newAnoDesde);
-        sheet.getRange(sheetRowIndex, COLS_CORTES.anoHasta).setValue(newAnoHasta);
-        logUserActivity(userId, userName, 'suggest_year', vehicleId, `Año sugerido: ${year}. Rango actualizado a ${newAnoDesde}-${newAnoHasta}.`);
-        return { status: 'success', message: `Rango de años actualizado a ${newAnoDesde}-${newAnoHasta}.` };
-    }
-
-    return { status: 'info', message: 'No se requirió ninguna actualización.' };
 }
 
 function handleReportProblem(payload) {
     const { vehicleId, problemText, userId, userName } = payload;
     if (!vehicleId || !problemText || !userId || !userName) {
-        throw new Error("Faltan datos para reportar el problema (vehicleId, problemText, userId, userName).");
+        throw new Error("Faltan datos para reportar el problema.");
     }
 
+    // ... (logic for adding problem to Feedbacks sheet) ...
     const feedbackSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
     const newRow = [];
-    newRow[COLS_FEEDBACKS.ID - 1] = new Date().getTime().toString();
+    newRow[COLS_FEEDBACKS.ID - 1] = '';
     newRow[COLS_FEEDBACKS.Usuario - 1] = userName;
     newRow[COLS_FEEDBACKS.ID_vehiculo - 1] = vehicleId;
     newRow[COLS_FEEDBACKS.Problema - 1] = problemText;
-
-    // Inicializar las otras columnas para mantener la estructura
-    newRow[COLS_FEEDBACKS.Respuesta - 1] = "";
-    newRow[COLS_FEEDBACKS["Se resolvio"] - 1] = false;
-    newRow[COLS_FEEDBACKS.Responde - 1] = "";
-    newRow[COLS_FEEDBACKS["Reporte de util"] - 1] = "";
-
     feedbackSheet.appendRow(newRow);
 
+
     logUserActivity(userId, userName, 'report_problem', vehicleId, problemText);
-    return { status: 'success', message: 'Problema reportado correctamente.' };
+    return { status: 'success', message: 'Problema reportado.' };
 }
 
+function handleSuggestYear(payload) {
+    const { vehicleId, newYear, userId, userName } = payload;
+    // ... (validation) ...
+
+    // ... (logic for updating year range) ...
+
+    if (updated) {
+        logUserActivity(userId, userName, 'suggest_year', vehicleId, `Año sugerido: ${newYear}. Rango actualizado a ${anoDesde}-${anoHasta}.`);
+        return { status: 'success', message: `Rango de años actualizado a ${anoDesde}-${anoHasta}.` };
+    } else {
+        return { status: 'info', message: 'El año sugerido ya está dentro del rango existente.' };
+    }
+}
 
 function handleSendContactForm(payload) {
     const { name, email, message } = payload;
@@ -378,178 +391,86 @@ function handleSendContactForm(payload) {
     return { status: 'success', message: 'Formulario de contacto enviado.' };
 }
 
-function handleGetComments(payload) {
-    const { vehicleId } = payload;
-    if (!vehicleId) {
-        throw new Error("Se requiere el ID del vehículo para obtener los comentarios.");
-    }
-
-    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
-    const data = sheet.getDataRange().getValues();
-    data.shift(); // remove headers
-
-    const comments = data
-        .filter(row => row[COLS_FEEDBACKS.ID_vehiculo - 1] == vehicleId)
-        .map(row => ({
-            user: row[COLS_FEEDBACKS.Usuario - 1],
-            problem: row[COLS_FEEDBACKS.Problema - 1],
-            response: row[COLS_FEEDBACKS.Respuesta - 1],
-            responder: row[COLS_FEEDBACKS.Responde - 1]
-        }))
-        .slice(-2); // Take only the last 2 comments
-
-    return { status: 'success', data: comments };
-}
-
 // ============================================================================
-// INBOX HANDLERS (FOR SUPERVISORS/JEFES)
+// HANDLERS FOR INBOX SYSTEM
 // ============================================================================
 
-function handleGetReportedProblems(payload) {
-    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
-    const data = sheet.getDataRange().getValues();
-    const headers = data.shift();
+function handleGetFeedbackItems(payload) {
+    const feedbackSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
+    const contactSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CONTACTANOS);
 
-    const problems = data
-        .map(row => {
-            let problem = {};
-            headers.forEach((header, i) => {
-                const key = Object.keys(COLS_FEEDBACKS).find(k => COLS_FEEDBACKS[k] === i + 1);
-                if (key) problem[key] = row[i];
-            });
-            return problem;
-        })
-        .filter(p => !p["Se resolvio"])
-        .map(p => ({ // Mapear a un formato más simple para el frontend
-             id: p.ID,
-             user: p.Usuario,
-             vehicleId: p.ID_vehiculo,
-             problem: p.Problema
-        }));
+    const feedbackData = feedbackSheet.getDataRange().getValues().slice(1).map(row => ({
+        type: 'problem_report',
+        id: row[COLS_FEEDBACKS.ID - 1],
+        subject: `Reporte en Vehículo #${row[COLS_FEEDBACKS.ID_vehiculo - 1]}`,
+        content: row[COLS_FEEDBACKS.Problema - 1],
+        user: row[COLS_FEEDBACKS.Usuario - 1],
+        vehicleId: row[COLS_FEEDBACKS.ID_vehiculo - 1],
+        reply: row[COLS_FEEDBACKS.Respuesta - 1],
+        isResolved: row[COLS_FEEDBACKS['Se resolvio'] - 1] === true,
+        responder: row[COLS_FEEDBACKS.Responde - 1]
+    }));
 
-    return { status: 'success', data: problems.reverse() }; // Mostrar los más recientes primero
+    const contactData = contactSheet.getDataRange().getValues().slice(1).map(row => ({
+        type: 'contact_form',
+        id: row[COLS_CONTACTANOS.Contacto_ID - 1],
+        subject: row[COLS_CONTACTANOS.Asunto - 1],
+        content: row[COLS_CONTACTANOS.Mensaje - 1],
+        user: 'Formulario de Contacto',
+        vehicleId: null,
+        reply: row[COLS_CONTACTANOS.Respuesta_mensaje - 1],
+        isResolved: null,
+        responder: row[COLS_CONTACTANOS.ID_usuario_responde - 1]
+    }));
+
+    const unifiedData = [...feedbackData, ...contactData];
+    return { status: 'success', data: unifiedData };
 }
 
-
-function handleReplyToProblem(payload) {
-    const { problemId, replyText, responderName } = payload;
-    if (!problemId || !replyText || !responderName) {
-        throw new Error("Faltan datos para responder (problemId, replyText, responderName).");
+function handleReplyToFeedback(payload) {
+    const { itemId, itemType, replyText, responderName } = payload;
+    if (!itemId || !itemType || !replyText || !responderName) {
+        throw new Error("Datos insuficientes para enviar la respuesta.");
     }
 
-    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
-    const idColumn = sheet.getRange(2, COLS_FEEDBACKS.ID, sheet.getLastRow(), 1).getValues().flat();
-    const rowIndex = idColumn.findIndex(id => id == problemId);
-
-    if (rowIndex === -1) {
-        throw new Error("No se encontró el reporte con el ID proporcionado.");
+    if (itemType === 'problem_report') {
+        const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
+        const ids = sheet.getRange(2, COLS_FEEDBACKS.ID, sheet.getLastRow() -1, 1).getValues().flat();
+        const rowIndex = ids.findIndex(id => id == itemId);
+        if (rowIndex !== -1) {
+            sheet.getRange(rowIndex + 2, COLS_FEEDBACKS.Respuesta).setValue(replyText);
+            sheet.getRange(rowIndex + 2, COLS_FEEDBACKS.Responde).setValue(responderName);
+        } else {
+            throw new Error("No se encontró el reporte de problema.");
+        }
+    } else if (itemType === 'contact_form') {
+        const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CONTACTANOS);
+        const ids = sheet.getRange(2, COLS_CONTACTANOS.Contacto_ID, sheet.getLastRow() - 1, 1).getValues().flat();
+        const rowIndex = ids.findIndex(id => id == itemId);
+        if (rowIndex !== -1) {
+            sheet.getRange(rowIndex + 2, COLS_CONTACTANOS.Respuesta_mensaje).setValue(replyText);
+            sheet.getRange(rowIndex + 2, COLS_CONTACTANOS.ID_usuario_responde).setValue(responderName);
+        } else {
+            throw new Error("No se encontró el mensaje de contacto.");
+        }
     }
-
-    const actualRow = rowIndex + 2;
-    sheet.getRange(actualRow, COLS_FEEDBACKS.Respuesta).setValue(replyText);
-    sheet.getRange(actualRow, COLS_FEEDBACKS.Responde).setValue(responderName);
-
-    // La notificación no se puede crear porque ID_Usuario no está en la hoja de Feedbacks.
-    // Esta funcionalidad necesitará ser reimplementada si es necesaria.
 
     return { status: 'success', message: 'Respuesta enviada.' };
 }
 
-
-function handleResolveProblem(payload) {
-    const { problemId } = payload;
-    if (!problemId) throw new Error("Se requiere el ID del problema para resolverlo.");
-
-    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
-    const ids = sheet.getRange(2, COLS_FEEDBACKS.ID, sheet.getLastRow(), 1).getValues().flat();
-    const rowIndex = ids.findIndex(id => id == problemId);
-
-    if (rowIndex === -1) throw new Error("No se encontró el reporte con el ID proporcionado.");
-
-    sheet.getRange(rowIndex + 2, COLS_FEEDBACKS["Se resolvio"]).setValue(true);
-    return { status: 'success', message: 'Problema marcado como resuelto.' };
-}
-
-
-function handleDeleteProblem(payload) {
-    const { problemId } = payload;
-    if (!problemId) throw new Error("Se requiere el ID del problema para eliminarlo.");
+function handleMarkAsResolved(payload) {
+    const { itemId } = payload;
+    if (!itemId) throw new Error("ID del item es requerido.");
 
     const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
-    const ids = sheet.getRange(2, COLS_FEEDBACKS.ID, sheet.getLastRow(), 1).getValues().flat();
-    const rowIndex = ids.findIndex(id => id == problemId);
+    const ids = sheet.getRange(2, COLS_FEEDBACKS.ID, sheet.getLastRow() - 1, 1).getValues().flat();
+    const rowIndex = ids.findIndex(id => id == itemId);
 
-    if (rowIndex === -1) throw new Error("No se encontró el reporte con el ID proporcionado.");
-
-    sheet.deleteRow(rowIndex + 2);
-    return { status: 'success', message: 'Problema eliminado permanentemente.' };
-}
-
-// ============================================================================
-// NOTIFICATION HANDLERS (FOR ALL USERS)
-// ============================================================================
-
-function createNotification(userId, message) {
-    try {
-        const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.NOTIFICACIONES);
-        const timestamp = new Date();
-        const uniqueId = timestamp.getTime().toString(36) + Math.random().toString(36).slice(2);
-
-        sheet.appendRow([uniqueId, userId, message, false, timestamp]);
-    } catch (e) {
-        Logger.log(`CRITICAL: Fallo al crear notificación para el usuario ${userId}. Error: ${e.message}`);
-    }
-}
-
-function handleGetUnreadNotifications(payload) {
-    const { userId } = payload;
-    if (!userId) throw new Error("Se requiere el ID de usuario para obtener notificaciones.");
-
-    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.NOTIFICACIONES);
-    if (!sheet) {
-        // Si la hoja de Notificaciones no existe, no hay notificaciones que mostrar.
-        return { status: 'success', data: [] };
-    }
-    const data = sheet.getDataRange().getValues();
-    data.shift();
-
-    const notifications = data
-        .filter(row => row[COLS_NOTIFICACIONES.ID_Usuario - 1] == userId && !row[COLS_NOTIFICACIONES.Leido - 1])
-        .map(row => ({
-            id: row[COLS_NOTIFICACIONES.ID - 1],
-            message: row[COLS_NOTIFICACIONES.Mensaje - 1],
-            timestamp: row[COLS_NOTIFICACIONES.Timestamp - 1]
-        }));
-
-    return { status: 'success', data: notifications };
-}
-
-
-function handleMarkNotificationsAsRead(payload) {
-    const { userId, notificationIds } = payload;
-    if (!userId || !Array.isArray(notificationIds) || notificationIds.length === 0) {
-        throw new Error("Se requiere ID de usuario y un array de IDs de notificación.");
+    if (rowIndex !== -1) {
+        sheet.getRange(rowIndex + 2, COLS_FEEDBACKS['Se resolvio']).setValue(true);
+    } else {
+        throw new Error("No se encontró el reporte de problema para marcar como resuelto.");
     }
 
-    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.NOTIFICACIONES);
-    const dataRange = sheet.getDataRange();
-    const values = dataRange.getValues();
-
-    let updated = false;
-    for (let i = 1; i < values.length; i++) { // Start from 1 to skip header
-        const rowUserId = values[i][COLS_NOTIFICACIONES.ID_Usuario - 1];
-        const rowNotifId = values[i][COLS_NOTIFICACIONES.ID - 1];
-
-        if (rowUserId == userId && notificationIds.includes(rowNotifId)) {
-            values[i][COLS_NOTIFICACIONES.Leido - 1] = true;
-            updated = true;
-        }
-    }
-
-    if (updated) {
-        dataRange.setValues(values);
-        return { status: 'success', message: `${notificationIds.length} notificaciones marcadas como leídas.` };
-    }
-
-    return { status: 'info', message: 'No se encontraron notificaciones para marcar.' };
+    return { status: 'success', message: 'Reporte marcado como resuelto.' };
 }
