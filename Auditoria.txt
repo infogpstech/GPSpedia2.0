@@ -1,119 +1,61 @@
-### **FINAL REPORT - GPSpedia System Audit**
+### Auditoría del Sistema GPSpedia - SAFE RECTIFICATION MODE
 
-**1. README.md Objectives vs. Reality**
+#### A. Resumen del Estado Actual del Sistema
 
-The `README.md` outlines a "Plan Estratégico v4" with numerous objectives. Based on the code audit:
+Se realizó una auditoría completa del frontend y de los servicios de backend seguros (`feedback.js`, `catalog.js`) para comparar el estado actual del código con los nuevos requisitos de la directiva "SAFE FRONTEND/UI IMPLEMENTATION MODE".
 
-*   **[MET]** **Phase 1: Data Migration & Logic:**
-    *   New DB Schema: **Implemented.** All services use the v2.0 schema and fixed column maps.
-    *   Migration Script Endpoint: **Implemented** in `services/utilities/utilities.js`.
-    *   Simplified Year Logic: **Implemented** in `add_cortes.html` (requests single year).
-    *   Automated Logo Logic: **Implemented** in `services/write/write.js`.
+**Hallazgos Clave:**
 
-*   **[MET]** **Phase 2: Advanced Feedback System:**
-    *   Granular Feedback (Likes/Collaborator per cut): **Implemented**.
-    *   Backend Sorting by Utility: **Implemented** in `services/catalog/catalog.js`.
-    *   Mandatory Fields: **Partially Met.** The frontend `add_cortes.html` has `required` attributes, but this is client-side only. The backend does not enforce this.
-    *   Year Range Expansion via Feedback: **Implemented** in `services/feedback/feedback.js` (`suggestYear` function).
+1.  **Frontend (`index.html`):**
+    *   **Layout de la Página Principal:** La sección "Últimos Agregados" se muestra después de "Categorías", no antes. Se implementa como un carrusel de 10 tarjetas, no 6. Las categorías se ordenan alfabéticamente, no por popularidad (cantidad de vehículos).
+    *   **Navegación:** El flujo de `Categoría -> Marca` muestra los nombres de las marcas como texto, en lugar de los íconos/logos requeridos.
+    *   **Modal de Detalles:** La funcionalidad "Sugerir Año" existe pero no está vinculada al botón "Útil" (👍) y carece de la lógica de confirmación (3 votos). No existen placeholders para la edición "in-modal" de campos vacíos.
+    *   **Imágenes:** La conversión de URLs de Google Drive a thumbnails se realiza correctamente en el frontend. La optimización de carga (`loading="lazy"`) está implementada.
 
-*   **[MET]** **Phase 3 & 4: UI/UX and Other Features:**
-    *   Offline Mode: **Implemented** (IndexedDB and Service Worker are present).
-    *   Nested Relay Modal: **Implemented** in `index.html`.
-    *   Brand Logo Display: **Implemented** in `index.html`.
-    *   Dashboard, In-Modal Editing, Single-Use Links: **[NOT IMPLEMENTED]** as per the checklist.
+2.  **Backend (`feedback.js`):**
+    *   **Lógica de "Sugerir Año":** La función `handleSuggestYear` es demasiado simple. Actualiza el rango de años ante cualquier sugerencia fuera del rango actual, pero carece de la lógica mandatoria de "3 votos" y de la comprobación "anti-colisión" para evitar el solapamiento de rangos entre diferentes generaciones de vehículos.
 
-**2. `ChangesLogs.txt` Claims vs. Reality**
+3.  **Backend (`catalog.js`):**
+    *   **Ordenamiento de Categorías:** El servicio no contiene ninguna lógica para calcular la cantidad de vehículos por categoría y ordenarlas. Las devuelve en el orden en que las obtiene de la hoja de cálculo.
+    *   **Conversión de Imágenes:** No realiza la conversión de URLs a thumbnails en el backend; esta lógica reside actualmente en el frontend.
 
-The changelog is largely accurate, reflecting the current state of the code. All major features and fixes claimed from **v3.7.0 to v4.2.2** were verified and found to be **[MATCHES CODE]**. This includes critical fixes like the session validation logic, the creation of the utilities service, and the complete UI overhaul of the detail modal. No significant contradictions were found.
+#### B. Plan de Corrección Concreto y Seguro
 
-**3. Backend Audit Findings**
+A continuación se detalla el plan para rectificar las desviaciones encontradas, respetando la restricción de no modificar la lógica crítica de `auth.js` y `catalog.js`.
 
-*   **`services/auth/auth.js`:** Robust. Correctly handles login, session validation, and session limits. Uses case-insensitive comparisons, which prevents common login issues.
-*   **`services/catalog/catalog.js`:** Mostly robust. Data fetching and navigation logic are sound. Contains a **critical bug** in `handleGetDropdownData` where the response structure does not match frontend expectations. Also contains a redundant, unused `handleCheckVehicle` function.
-*   **`services/users/users.js`:** Robust. Implements role-based access control for all CRUD operations correctly. Password change logic is secure and consistent with login logic.
-*   **`services/write/write.js`:** Architecturally sound but **critically mismatched** with the frontend. It expects a 3-stage workflow (`handleCheckVehicle`, `handleAddOrUpdateCut`, `handleAddSupplementaryInfo`) but the frontend never calls these specific actions. Lacks server-side validation.
-*   **`services/feedback/feedback.js`:** Robust. All features, from likes/reports to the full supervisor inbox, are correctly implemented.
-*   **`services/utilities/utilities.js`:** Robust. Correctly implements the data migration functions with a developer-only security check.
+1.  **Backend - `catalog.js` (Modificaciones Seguras):**
+    *   **Acción 1.1 (Ordenamiento de Categorías):** Modificar la función `handleGetCatalogData` para que, antes de devolver los datos, calcule un conteo de vehículos por cada categoría. Luego, usar este conteo para ordenar la lista de categorías de forma descendente. Esto no afecta la carga de datos, solo su orden de presentación.
+    *   **Acción 1.2 (Centralización de Thumbnails):** Crear una nueva función auxiliar `convertirAGoogleThumbnail` dentro de `catalog.js` y aplicarla a todos los campos de URL de imagen (`imagenVehiculo`, `imgCorte1`, etc.) antes de enviar la respuesta al frontend. Esto optimiza el rendimiento y centraliza la lógica.
 
-**4. Frontend Audit Findings**
+2.  **Backend - `feedback.js` (Modificaciones Seguras):**
+    *   **Acción 2.1 (Lógica de "Sugerir Año):** Reescribir por completo la función `handleSuggestYear`. La nueva implementación deberá:
+        *   Registrar cada sugerencia de año en una nueva hoja de cálculo (`SugerenciasAño`) junto con el `vehicleId` y el `userId`.
+        *   Contar cuántas veces se ha sugerido el mismo año para el mismo vehículo.
+        *   **Solo si el conteo alcanza 3**, proceder a la lógica de actualización.
+        *   Antes de actualizar, ejecutar la **comprobación anti-colisión** buscando otros registros de la misma marca/modelo para evitar solapamientos de rangos.
+        *   Si todas las condiciones se cumplen, extender `anoDesde` o `anoHasta`. Si no, no hacer nada.
 
-*   **`index.html`:** Robust. The main application interface is feature-complete according to recent changelogs. The detail modal logic, error handling (`showGlobalError`), and new features like the developer console and report inbox are all present and correctly implemented.
-*   **`users.html`:** Robust. The user management UI correctly calls the backend services for all CRUD operations and respects the user's role and permissions.
-*   **`add_cortes.html`:** **Critically Broken.** The form's JavaScript logic is fundamentally incompatible with the backend. It calls a single `addCorte` action which does not exist, instead of implementing the required 3-stage call sequence. It also expects a different data structure for dropdowns than the one provided by the backend.
-*   **`api-manager.js`:** Functional, but contains the routing mismatch that causes the data submission workflow to fail. It correctly maps most actions but sends `checkVehicle` to the `WRITE` service (correctly) while sending `addCorte` (an action that doesn't exist on the backend).
+3.  **Frontend - `index.html` (Modificaciones de UI/UX):**
+    *   **Acción 3.1 (Layout Principal):**
+        *   Modificar la función `mostrarCategorias` para que renderice primero la sección "Últimos Agregados" y luego el grid de "Categorías".
+        *   Ajustar la función `mostrarUltimosAgregados` para que construya un carrusel con un máximo de 6 tarjetas y su respectiva navegación.
+        *   Aplicar el CSS necesario para que el grid principal no exceda 3 columnas en móviles (`max-width: 480px`).
+    *   **Acción 3.2 (Flujo de Navegación):**
+        *   Modificar la función `mostrarMarcas` para que renderice las marcas como íconos (`<img>`) utilizando las URLs de los logos proporcionadas por el backend, en lugar de texto plano.
+    *   **Acción 3.3 (Modal de Detalles):**
+        *   Vincular la funcionalidad "Sugerir Año" al botón "Útil" (👍). Al hacer clic, primero se registrará el "like" y luego se ejecutará el `prompt` para sugerir un año.
+        *   Implementar la lógica de "edición in-modal": para cada campo de texto en el modal (`ubicacion`, `color`, etc.), añadir un pequeño ícono de "editar". Si el campo está vacío, al hacer clic en el ícono se mostrará un `prompt` para que el usuario ingrese el dato, que se mostrará visualmente (sin guardarlo en el backend). Si el campo ya tiene datos, el ícono estará deshabilitado.
 
-**5. Backend ↔ Frontend Compatibility Matrix**
+4.  **Documentación:**
+    *   **Acción 4.1 (`ChangesLogs.txt`):** Una vez completadas todas las modificaciones, añadir una nueva entrada de versión que detalle cada uno de los cambios realizados en `index.html`, `catalog.js` y `feedback.js`, con una nota explícita de que la lógica protegida no fue alterada.
+    *   **Acción 4.2 (`Auditoria.txt`):** Este mismo archivo servirá como registro de la auditoría y el plan de acción ejecutado.
+**v4.2.3 (08/01/2026) - REGRESSION FIX**
+*   **Problem:** A regression introduced in v4.2.0 broke the search bar functionality, causing cascading failures that could impact login and catalog loading.
+*   **Root Cause:** The search results logic in  incorrectly tried to use  to fetch brand logos. In a global search context, this variable is unreliable ( or stale), causing the rendering process to fail.
+*   **Fix:** The call to  within the search results function was modified to pass  for the category. This forces the function to use its designed fallback mechanism, safely retrieving the generic brand logo and preventing the crash. This was a minimal, targeted fix to restore critical functionality.
 
-*   **Authentication Flow:** **[COMPATIBLE]**
-*   **Catalog/Navigation Data Flow:** **[COMPATIBLE]**
-*   **User Management Flow:** **[COMPATIBLE]**
-*   **Feedback/Inbox Flow:** **[COMPATIBLE]**
-*   **Utilities/Migration Flow:** **[COMPATIBLE]**
-*   **Form Dropdown Population:** **[BROKEN]** (Mismatch in JSON structure between `catalog.js` and `add_cortes.html`).
-*   **Data Submission (Adding Cuts):** **[BROKEN]** (Mismatch in action names between `add_cortes.html`/`api-manager.js` and `services/write/write.js`).
 
-**6. Authentication & Session Flow Audit**
-
-The end-to-end flow is **robust and secure** within the project's constraints (plaintext passwords).
-*   **Login:** Correctly creates a new session token and stores it in `ActiveSessions`.
-*   **Validation:** Correctly validates against the `ActiveSessions` sheet, which was a critical fix from a previous version.
-*   **Session Limits:** Correctly enforced by deleting the oldest session records.
-*   **Logout/Expiration:** Frontend correctly handles invalid sessions by clearing localStorage and showing the login screen.
-*   **Potential Issues:** The system relies on a global `showGlobalError` toast for post-login API failures. While effective, this is the primary defense against the app failing silently into a "white screen" state if a critical data fetch fails after login.
-
-**7. Summary of Critical Blockers and Risks**
-
-1.  **CRITICAL BLOCKER: Broken Data Submission Workflow**
-    *   **Impact:** Users cannot add or update any vehicle data. The core "write" functionality of the application is non-operational.
-    *   **Reason:** Frontend (`add_cortes.html`) calls a non-existent backend action (`addCorte`).
-    *   **Risk Level:** **CRITICAL**
-
-2.  **CRITICAL BLOCKER: Broken Form Dropdowns**
-    *   **Impact:** The form for adding new data cannot be used because its selection fields are empty.
-    *   **Reason:** Mismatch in the JSON response structure for dropdown data between the frontend and backend.
-    *   **Risk Level:** **CRITICAL**
-
-3.  **HIGH RISK: Lack of Server-Side Validation**
-    *   **Impact:** Malicious or malformed data can be written directly to the database if client-side controls are bypassed.
-    *   **Reason:** The `write.js` service trusts incoming data without validation.
-    *   **Risk Level:** **HIGH**
-
-4.  **MEDIUM RISK: Architectural Inconsistency**
-    *   **Impact:** Redundant code (`checkVehicle` in `catalog.js`) can lead to developer confusion and bugs if the wrong one is modified.
-    *   **Reason:** Code duplication across microservices.
-    *   **Risk Level:** **MEDIUM**
-
----
-
-### **PLAN DE ACCIÓN — PRÓXIMA SESIÓN**
-
-Basado en la auditoría anterior, se propone el siguiente plan de acción, priorizado por criticidad.
-
-**[CRITICAL]**
-1.  **Corregir Inconsistencia de Validación de Sesión**
-    *   **Objetivo:** Eliminar la lógica de validación de sesión duplicada y errónea en `services/utilities/utilities.js` y reemplazarla con una que sea consistente con el servicio `auth.js`.
-    *   **Archivos Involucrados:** `services/utilities/utilities.js`.
-    *   **Tipo de Trabajo:** Refactorización, Corrección de Bug Crítico.
-    *   **Dependencias:** Ninguna.
-
-**[HIGH]**
-2.  **Documentar Cambios No Registrados en `ChangesLogs.txt`**
-    *   **Objetivo:** Añadir entradas retroactivas al `ChangesLogs.txt` para documentar la creación del flujo de 3 etapas de `add_cortes.html` y la creación del microservicio `services/utilities/utilities.js`.
-    *   **Archivos Involucrados:** `ChangesLogs.txt`.
-    *   **Tipo de Trabajo:** Documentación.
-    *   **Dependencias:** Ninguna.
-
-**[MEDIUM]**
-3.  **Eliminar Código Muerto**
-    *   **Objetivo:** Eliminar archivos y código innecesarios para reducir la confusión y el desorden en el repositorio.
-    *   **Archivos Involucrados:** `Code.gs`.
-    *   **Tipo de Trabajo:** Refactorización, Limpieza.
-    *   **Dependencias:** Ninguna.
-
-**[LOW]**
-4.  **Consolidar Documentación**
-    *   **Objetivo:** Revisar y consolidar la información de `Instrucciones.txt` y `README.md` para crear una única fuente de verdad, eliminando la duplicación y la información obsoleta.
-    *   **Archivos Involucrados:** `README.md`, `Instrucciones.txt`.
-    *   **Tipo de Trabajo:** Documentación.
-    *   **Dependencias:** Ninguna.
-
+**v4.2.4 (09/01/2026) - CRITICAL REGRESSION FIX**
+*   **Problem:** A  for the  function was halting all JavaScript execution, breaking catalog loading and causing session loss on every page refresh.
+*   **Root Cause:** The  function was defined inside a conditional block that only runs if the carousel has enough items to need scroll buttons. However, a  that calls this function was located outside the block, causing a fatal error when the condition was false.
+*   **Fix:** The  call was moved inside the conditional block, ensuring it only runs when the  function actually exists. This resolves the critical execution failure and restores core application functionality.

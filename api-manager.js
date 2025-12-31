@@ -1,4 +1,4 @@
-// GPSpedia Frontend Component | Version: 4.2.0
+// GPSpedia Frontend Component | Version: 3.9.0
 // ============================================================================
 // API MANAGER for GPSpedia Modular Architecture
 // ============================================================================
@@ -8,12 +8,12 @@ const API_ENDPOINTS = {
     LEGACY: "https://script.google.com/macros/s/AKfycbwpIFH1nX2BZEjAKbpq9HJpEGNlo_0LqD1CwxWsWFo5J0AJDdbfMrKpcsAV4ZFJzFWd/exec",
 
     // URLs para los nuevos microservicios.
-    AUTH:     "https://script.google.com/macros/s/AKfycbyp96RV2NtENye_bnT-LT-7h4R5rq7rjs8qOTlv4lrOg_2ozeNzpXfcthvUlvVktpQn/exec",
-    CATALOG:  "https://script.google.com/macros/s/AKfycbyzjOeG_e1sU1pe-03SYAcQziltDr8jd4LkCxvPXp1tAavs6IcTEo2yluXK2p3fm9SRzA/exec",
-    WRITE:    "https://script.google.com/macros/s/AKfycbyygeOo52mZRhsm7RADG8U83zG2nCMtNpphrv_XcU0jSJv9t6DuRTe1TlLVq1Oft8-8/exec",
-    USERS:    "https://script.google.com/macros/s/AKfycbywTo3Asul37tLML29tmtNwVpFbHabXOfC7sw4c5KagURIXzaZoiKrbr2XAIkv-7n-T/exec",
-    FEEDBACK: "https://script.google.com/macros/s/AKfycby5t4GHKFIZ1eAjzV54_FiakzlOpFUfT9lbgQHzQPFywys2a0h4Xum7zlcMyUBf8pcD/exec",
-    UTILITIES: "https://script.google.com/macros/s/AKfycbz8IJitti8N8hDn_x3dQ9n-UXYiTahz7rGNKClXN19hgIMmbkFAw06gEzTZKx7QcUWt/exec"
+    AUTH:     "https://script.google.com/macros/s/AKfycby86oaNWKj9Z3sXWs-tXJn2eIgU9QcpjaC6cyYReswtc_WSypt3fFtQ-3aAs58ZMa72/exec",
+    CATALOG:  "https://script.google.com/macros/s/AKfycby60X5Seu5O0uQ0M5GU6RbdNdXHBmjYvlIvQSf4Wf7ZdjXgKuwuciQXXZ4aWlRHgJ281w/exec",
+    WRITE:    "https://script.google.com/macros/s/AKfycbwzAgwnmSxRfPRTWWpBDSq4Zja3EpRvrY0W0AT5r7ZFsVIIxIRsIIYVitCdmDaEfc-wfA/exec",
+    USERS:    "https://script.google.com/macros/s/AKfycbw3kFPGA3N0eoTQ7wIW9TO8UkneOKvN0QzoEHQaQXhbqi7WaQbLcYm0pvhLsKAd16YA/exec",
+    FEEDBACK: "https://script.google.com/macros/s/AKfycbywWiUg4VN3KBaDUF8Zl7shGhAwtMedHvJ7YMwKoy3kzMM7gkdZzwTvDbr0FIof-Heg/exec",
+    UTILITIES: "https://script.google.com/macros/s/AKfycbzkGXk_kSm3rN7K5PM0RntiPAn7DlH78RkH66a2vuwZwU8KgwDufkOiPjXoUKzuHAgG/exec"
 };
 
 // Mapeo de cada 'action' al servicio que le corresponde.
@@ -25,12 +25,10 @@ const ACTION_TO_SERVICE_MAP = {
     // Catalog Service
     'getCatalogData': 'CATALOG',
     'getDropdownData': 'CATALOG',
-    'getNavigationData': 'CATALOG',
+    'checkVehicle': 'CATALOG',
 
     // Write Service
-    'checkVehicle': 'WRITE',
-    'addOrUpdateCut': 'WRITE',
-    'addSupplementaryInfo': 'WRITE',
+    'addCorte': 'WRITE',
 
     // Users Service
     'getUsers': 'USERS',
@@ -42,15 +40,9 @@ const ACTION_TO_SERVICE_MAP = {
     // Feedback Service
     'recordLike': 'FEEDBACK',
     'reportProblem': 'FEEDBACK',
-    'sendContactForm': 'FEEDBACK',
-    'suggestYear': 'FEEDBACK',
-    'getReportedProblems': 'FEEDBACK',
-    'replyToProblem': 'FEEDBACK',
-    'resolveProblem': 'FEEDBACK',
-    'getUnreadNotifications': 'FEEDBACK',
-    'markNotificationsAsRead': 'FEEDBACK',
+    'sendContactForm': 'FEEDBACK', // <-- Corregido/Añadido
 
-    // Utilities Service
+    // Utilities Service (NUEVO)
     'migrateYearRanges': 'UTILITIES',
     'migrateTimestamps': 'UTILITIES',
 
@@ -94,7 +86,8 @@ async function routeAction(action, payload = {}) {
             throw new Error(`Error de red: ${response.status} ${response.statusText}`);
         }
 
-        const result = await response.json();
+        const text = await response.text();
+        const result = JSON.parse(text);
 
         if (result.status === 'error') {
             const errorMessage = result.details ? `${result.message}: ${result.details.errorMessage}` : result.message;

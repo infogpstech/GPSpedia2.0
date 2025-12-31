@@ -36,21 +36,18 @@
         h1, h2 {
             color: var(--secondary-color);
             border-bottom: 2px solid var(--primary-color);
-            padding-bottom: 8px; /* Reducido */
-            margin-bottom: 15px; /* Reducido */
-            font-size: 1.5em; /* Reducido */
+            padding-bottom: 10px;
+            margin-bottom: 20px;
         }
         .user-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
-            table-layout: fixed; /* Previene que el contenido expanda las celdas */
         }
         .user-table th, .user-table td {
             padding: 12px;
             border-bottom: 1px solid #ddd;
             text-align: left;
-            word-break: break-word; /* Rompe palabras largas para evitar desbordamiento */
         }
         .user-table th {
             background-color: #f8f9fa;
@@ -61,12 +58,11 @@
             font-size: 0.9em;
         }
         .btn {
-            padding: 8px 12px; /* Padding reducido */
+            padding: 10px 15px;
             border: none;
-            border-radius: 6px; /* Borde reducido */
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: 500;
-            font-size: 0.9em; /* Fuente reducida */
+            font-weight: 600;
             transition: background-color 0.3s;
         }
         .btn-primary { background-color: var(--primary-color); color: var(--light-text); }
@@ -242,8 +238,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function displayProfile() {
+    // FIX: Corrected to display Nombre_Usuario in both fields as there's no separate fullname field in the session object
     document.getElementById('profile-username').textContent = currentUser.Nombre_Usuario;
-    document.getElementById('profile-fullname').textContent = currentUser.Nombre_Usuario; // Asumiendo que el nombre completo es el mismo que el de usuario por ahora
+    document.getElementById('profile-fullname').textContent = currentUser.Nombre_Usuario;
     document.getElementById('profile-role').textContent = currentUser.Privilegios;
 }
 
@@ -274,9 +271,10 @@ function renderUserTable() {
     tbody.innerHTML = '';
     allUsers.forEach(user => {
         const row = document.createElement('tr');
+        // FIX: Corrected property access to match backend schema (PascalCase_With_Underscores)
         row.innerHTML = `
             <td>${user.Nombre_Usuario}</td>
-            <td>${user.Nombre_Usuario}</td> <!-- Asumiendo nombre completo = nombre de usuario -->
+            <td>${user.Nombre_Usuario}</td>
             <td>${user.Privilegios}</td>
             <td class="actions-cell">
                 <button class="btn btn-warning btn-sm" onclick='openUserModal(${JSON.stringify(user)})'>Editar</button>
@@ -318,8 +316,9 @@ function openUserModal(user = null) {
 
     if (user) {
         title.textContent = 'Editar Usuario';
+        // FIX: Corrected property access to match backend schema
         document.getElementById('user-id').value = user.ID;
-        document.getElementById('fullname').value = user.Nombre_Usuario;
+        document.getElementById('fullname').value = user.Nombre_Usuario; // Assuming Nombre_Usuario is the full name
         document.getElementById('username-modal').value = user.Nombre_Usuario;
     } else {
         title.textContent = 'Crear Nuevo Usuario';
@@ -339,7 +338,8 @@ function openUserModal(user = null) {
         option.textContent = role;
         roleSelect.appendChild(option);
     });
-    if(user) roleSelect.value = user.privilegios;
+    // FIX: Corrected property access to match backend schema
+    if(user) roleSelect.value = user.Privilegios;
 
     modal.style.display = 'block';
 }
@@ -347,11 +347,11 @@ function openUserModal(user = null) {
 async function handleUserFormSubmit(e) {
     e.preventDefault();
     const userId = document.getElementById('user-id').value;
+    // FIX: Corrected property names to match backend schema
     const userData = {
-        nombre: document.getElementById('fullname').value,
-        nombreUsuario: document.getElementById('username-modal').value,
-        privilegios: document.getElementById('role').value,
-        password: document.getElementById('password-modal').value,
+        Nombre_Usuario: document.getElementById('username-modal').value,
+        Privilegios: document.getElementById('role').value,
+        Password: document.getElementById('password-modal').value,
     };
 
     try {

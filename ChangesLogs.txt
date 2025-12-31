@@ -1,57 +1,104 @@
-**v5.0.8 (DD/MM/YYYY)**
-*   **INFRA (api-manager.js):** Actualizadas las URLs de los microservicios `CATALOG` y `FEEDBACK` a sus nuevas versiones desplegadas.
-    *   Se han reemplazado las URLs en el objeto `API_ENDPOINTS` para apuntar a los nuevos despliegues que contienen las correcciones de esquema y datos. (Líneas 12, 15).
+**v4.3.0 (15/01/2026)**
+*   **FIX CRÍTICO (index.html, catalog.js, utilities.js):** Se solucionó la causa raíz final y persistente del fallo de renderización de imágenes de Google Drive en todo el sistema.
+    *   **Causa Raíz:** Las funciones auxiliares que convertían URLs de Google Drive a formatos de thumbnail (`convertirAGoogleThumbnail` en el frontend y backend, y `getImageCreationDate` en utilities) utilizaban una expresión regular que no era capaz de parsear todos los formatos de URL existentes en la base de datos (ej. URLs con `/view` o `/file/d/`).
+    *   **Solución:** Se refactorizaron todas las instancias de esta lógica con una expresión regular mucho más robusta que ahora captura correctamente el ID del archivo desde múltiples formatos de URL (`.../file/d/ID...`, `...id=ID...`, y `.../d/ID...`). Esto asegura una conversión de URLs consistente y correcta en toda la aplicación.
+        *   `index.html`: Líneas 1943-1961
+        *   `services/catalog/catalog.js`: Líneas 346-362
+        *   `services/utilities/utilities.js`: Líneas 127-145, 192-210
 
-**v5.0.7 (29/12/2025)**
-*   **REFACTOR (services/feedback/feedback.js):** Corregido un bug crítico de desalineación de esquema en el manejo de feedbacks.
-    *   **Causa Raíz:** El mapa de columnas `COLS_FEEDBACKS` en el servicio no coincidía con el esquema oficial de la base de datos, ya que incluía una columna `ID_Usuario` inexistente. Esto provocaba que se escribieran datos en columnas incorrectas y que fallara la lógica que dependía de este mapa.
-    *   **Solución:** Se ha corregido el objeto `COLS_FEEDBACKS` para que coincida 1 a 1 con el esquema canónico. Adicionalmente, se han refactorizado las funciones `handleReportProblem`, `handleGetReportedProblems` y `handleReplyToProblem` para que funcionen correctamente con la estructura de datos corregida, eliminando la lógica que dependía de la columna fantasma. (Líneas 40-51, 344-361, 422-429, 440-455).
-*   **REFACTOR (services/catalog/catalog.js):** Mejorado el manejo de datos para prevenir el envío de valores vacíos al frontend.
-    *   **Causa Raíz:** El servicio mapeaba las celdas vacías de la hoja de cálculo como `null` en los objetos JSON, lo que obligaba al frontend a tener lógica adicional para manejar estos casos.
-    *   **Solución:** Se ha modificado la función `mapRowToObject` para que omita por completo cualquier par clave-valor si el valor de la celda es nulo o está vacío. Esto resulta en objetos JSON más limpios y eficientes. (Líneas 144-154).
-*   **CHORE (Backend):** Auditoría de esquema completada en todos los microservicios.
-    *   Se ha verificado que los mapas de columnas en `auth.js`, `users.js` y `write.js` son 100% compatibles con el esquema oficial de la base de datos. No se requirieron cambios en estos archivos.
+**v4.2.9 (14/01/2026)**
+*   **FIX (index.html):** Se solucionó un bug visual crítico que impedía la renderización de los logos de las marcas en la vista de selección de marcas.
+    *   **Causa Raíz:** La función `mostrarMarcas` asignaba directamente la URL de Google Drive (`logoUrl`) al atributo `src` de la imagen, sin convertirla al formato de thumbnail requerido por el navegador para su correcta visualización.
+    *   **Solución:** Se envolvió la variable `logoUrl` dentro de la función auxiliar `convertirAGoogleThumbnail` antes de asignarla al `src`. Esto asegura que la URL se formatee correctamente y que la imagen del logo se renderice como es debido. (Línea 2567).
 
-**v5.0.6 (29/12/2025)**
-*   **INFRA (api-manager.js):** Actualizada la URL del microservicio `CATALOG` a su nueva versión desplegada.
-    *   Se ha reemplazado la URL en el objeto `API_ENDPOINTS` para `CATALOG` para apuntar al nuevo despliegue que contiene las correcciones de estabilidad. (Línea 11).
+**v4.2.8 (13/01/2026)**
+*   **FIX (index.html):** Se solucionó la causa raíz del fallo en la renderización de logos de marcas.
+    *   **Causa Raíz:** La lógica anterior para encontrar logos (`getLogoUrlForMarca`) era demasiado rígida y se basaba en la concatenación de strings (ej. 'marca' + 'motocicletas'), lo que no coincidía con los nombres reales en la base de datos (ej. 'Honda Motocicletas').
+    *   **Solución:** Se revirtió el fallback a texto y se refactorizó `getLogoUrlForMarca` con un algoritmo de búsqueda flexible. La nueva función normaliza los nombres, busca todas las coincidencias parciales que contienen el nombre de la marca y luego usa la categoría para desambiguar de forma inteligente entre variantes (ej. prioriza "motocicletas" si la categoría es "Motos"). Esto asegura que el logo correcto se encuentre siempre. (Líneas 1901-1941, 2535-2565).
+*   **FEAT (index.html):** Se implementó la lógica de frontend para la sugerencia de año, completando el flujo de feedback del usuario.
+    *   **Funcionalidad:** Después de que un usuario presiona el botón "Útil" para registrar un "like", ahora se le presenta un `prompt` que le pregunta si el corte aplica a otro año.
+    *   **Implementación:** Si el usuario ingresa un año válido, la función `handleLike` invoca la acción `suggestYear` en el backend para registrar la sugerencia. Se añadió manejo de errores y validación de entrada para asegurar que solo se envíen años numéricos válidos. (Líneas 2933-2980).
 
-**v5.0.5 (29/12/2025)**
-*   **FIX (services/catalog/catalog.js):** Corregido un bug crítico que causaba un crash silencioso en el backend si alguna de las hojas de datos (`Cortes`, `LogosMarca`, etc.) no existía.
-    *   **Causa Raíz:** El servicio intentaba leer datos de las hojas sin verificar primero su existencia, provocando un error `TypeError: Cannot read properties of null` que detenía la ejecución y enviaba una respuesta de error genérica al frontend.
-    *   **Solución:** Se ha añadido una comprobación de existencia para cada hoja. Si una hoja no se encuentra, el servicio ahora registra un error en la consola y devuelve un array vacío para esa sección de datos, en lugar de fallar. Esto asegura que el frontend siempre reciba una respuesta válida y previene el error "Fallo de conexión". (Líneas 194-266).
-*   **FIX (index.html):** Mejorada la lógica de manejo de errores de sesión para prevenir cierres de sesión incorrectos.
-    *   **Causa Raíz:** La función `checkSession` trataba cualquier error durante la inicialización de la aplicación (incluyendo el fallo de carga del catálogo) como un error de sesión no válida, cerrando la sesión del usuario de forma incorrecta.
-    *   **Solución:** Se ha refactorizado la lógica. Ahora, si la validación de la sesión es exitosa pero la carga de datos del catálogo falla, la aplicación permanecerá autenticada y mostrará un mensaje de error claro al usuario, en lugar de redirigirlo a la pantalla de login. El cierre de sesión solo ocurrirá si la validación de la sesión falla explícitamente. (Líneas 1603-1623).
+**v4.2.7 (12/01/2026)**
+*   **FIX (index.html):** Se implementó un mecanismo de fallback para la visualización de marcas. Si los datos de los logos no están disponibles en el backend (la variable `datosLogos` está vacía), la función `mostrarMarcas` ahora renderizará tarjetas de solo texto con los nombres de las marcas en lugar de mostrar imágenes rotas. Esto asegura que la navegación siga siendo funcional y la experiencia de usuario sea fluida incluso con datos incompletos. (Líneas 2535-2588).
 
-**v5.0.4 (29/12/2025)**
-*   **REWRITE (service-worker.js):** Reescritura completa del Service Worker con una arquitectura de caché multi-estrategia para resolver definitivamente el problema de pérdida de sesión.
-    *   **Causa Raíz:** El Service Worker anterior trataba todas las peticiones de red por igual, cacheando indebidamente las respuestas de la API de autenticación. Esto provocaba que se sirvieran datos de sesión obsoletos desde el caché, resultando en la pérdida de sesión al recargar la página.
-    *   **Solución:** Se ha implementado un `fetch handler` inteligente que aplica una estrategia de caché diferente según el tipo de recurso:
-        1.  **Peticiones de Autenticación:** Si la petición es al microservicio `AUTH`, se ignora el caché y la petición va **siempre a la red**. Esto garantiza que la validación de la sesión sea siempre en tiempo real.
-        2.  **Otras Peticiones API (Datos):** Para los demás microservicios, se usa una estrategia "Network falling back to Cache". La app intenta obtener datos frescos, pero si no hay red, muestra los últimos datos guardados.
-        3.  **Assets Estáticos (App Shell):** Para los archivos de la aplicación (HTML, CSS, etc.), se usa "Cache First" para una carga instantánea.
-    *   **Se ha incrementado la versión del caché a `v8`** para asegurar que todos los usuarios reciban y activen el nuevo Service Worker de inmediato.
+**v4.2.6 (11/01/2026)**
+*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `CATALOG` a la nueva versión desplegada proporcionada por el usuario. (Línea 10).
 
-**v5.0.3 (29/12/2025)**
-*   **REWRITE (service-worker.js):** Reescritura completa del Service Worker para corregir un fallo crítico de caché que causaba la pérdida de sesión.
-    *   **Causa Raíz:** La estrategia de caché "network-first" anterior interceptaba y almacenaba en caché **todas** las respuestas de red, incluidas las llamadas a la API (ej. `validateSession`). Si la red fallaba en un re-load, el Service Worker servía una respuesta de `validateSession` obsoleta desde el caché, lo que provocaba que la aplicación cerrara la sesión del usuario incorrectamente.
-    *   **Solución:** Se ha reescrito el `fetch handler` con una nueva lógica:
-        1.  **Detecta las llamadas a la API:** Si la URL del `request` apunta al backend de Google Apps Script, la petición se envía **directamente a la red**, ignorando por completo el caché. Esto garantiza que las comprobaciones de sesión siempre sean en tiempo real.
-        2.  **Mantiene el caché para assets:** Para todas las demás peticiones (HTML, CSS, imágenes), se mantiene la estrategia "network falling back to cache", conservando la capacidad offline de la aplicación.
-    *   **Se ha incrementado la versión del caché a `v7`** para forzar a todos los clientes a actualizar y adoptar el nuevo Service Worker inmediatamente.
+**v4.2.5 (10/01/2026)**
+*   **FIX (index.html & services/catalog/catalog.js):** Se implementó una solución integral para el fallo persistente en la renderización de logos de marcas.
+    1.  **Backend (`services/catalog/catalog.js`):** Se corrigió una inconsistencia crítica en la función `doGet`. Se actualizó el número de versión reportado de `1.2.1` a `2.3.0` y se añadió `LogosMarca` a la lista de hojas de cálculo accedidas en el modo debug. Esto asegura que la metadata del servicio refleje su funcionalidad real. (Líneas 77, 79).
+    2.  **Frontend (`index.html`):** Se robusteció la función `mostrarMarcas`. Ahora incluye una comprobación defensiva que emite un `debugLog` si `datosLogos` está vacío, alertando sobre problemas de datos. Además, se añadió un manejador de eventos `onerror` a las imágenes de los logos, que muestra una imagen de "Error" y registra un `debugLog` si la carga falla. (Líneas 2535-2565).
+*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `FEEDBACK` a la nueva versión desplegada y proporcionada por el usuario, restaurando la funcionalidad del sistema de Inbox y reportes. (Línea 12).
 
-**v5.0.2 (29/12/2025)**
-*   **FIX (index.html):** Corregido un bug crítico de persistencia de sesión que causaba que la sesión se perdiera al recargar la página.
-    *   **Causa Raíz:** Se identificó una condición de carrera en la función `hideLoginShowApp`. Esta función ignoraba el objeto de usuario ya validado que recibía como parámetro y, en su lugar, volvía a leer los datos de sesión desde `localStorage`. Esta segunda lectura era innecesaria y propensa a fallos.
-    *   **Solución:** Se ha refactorizado la función `hideLoginShowApp` para que utilice exclusivamente el objeto `user` que se le pasa como parámetro. Esto elimina la lectura redundante de `localStorage`, cierra la condición de carrera y asegura que la sesión se mantenga de forma robusta y predecible después de recargar la página. (Líneas 1764-1775).
+**v4.2.4 (09/01/2026)**
+*   **FIX CRÍTICO (index.html):** Se solucionó una regresión crítica que impedía la carga del catálogo y causaba la pérdida de sesión en cada recarga.
+    *   **Causa Raíz:** Un error de `ReferenceError: updateCarousel is not defined` detenía la ejecución de JavaScript. La función `updateCarousel` se definía dentro de un bloque `if` en la lógica del carrusel, pero era llamada por un `setTimeout` que se encontraba fuera de dicho bloque. Si la condición del `if` no se cumplía (p.ej., si había menos de 6 elementos en el carrusel), la función no se declaraba, provocando el error fatal.
+    *   **Solución:** Se movió la llamada `setTimeout(updateCarousel, 100)` dentro del bloque `if` para asegurar que solo se ejecute si la función `updateCarousel` ha sido definida. Esto previene el error y permite que la aplicación se inicialice correctamente. (Línea 2525).
 
-**v5.0.1 (29/12/2025)**
-*   **INFRA (api-manager.js):** Actualizada la URL del microservicio `AUTH` a su nueva versión desplegada.
-    *   Se ha reemplazado la URL en el objeto `API_ENDPOINTS` para `AUTH` para apuntar al nuevo despliegue que contiene la lógica de sesión reescrita y estabilizada. (Línea 10).
+**v4.2.3 (08/01/2026)**
+*   **FIX (index.html):** Se corrigió una regresión crítica introducida en la v4.2.0 que rompía la funcionalidad de la barra de búsqueda.
+    *   **Causa Raíz:** La función `mostrarResultadosBusquedaMarca` intentaba obtener la URL del logo de la marca usando `estado.categoria`, que es nulo o incorrecto en el contexto de una búsqueda global. Esto provocaba un fallo en la renderización de los resultados.
+    *   **Solución:** Se modificó la llamada a `getLogoUrlForMarca` para pasar `null` como categoría, forzando a la función a usar su lógica de fallback para encontrar el logo genérico de la marca, restaurando así la funcionalidad. (Línea 2282).
 
-**v5.0.0 (29/12/2025)**
-*   **REWRITE (services/auth/auth.js):** Reescritura completa del servicio de autenticación desde cero para máxima estabilidad.
-    *   **Causa Raíz:** La lógica anterior de gestión de múltiples sesiones era compleja y propensa a errores, causando condiciones de carrera y fallos de sesión impredecibles.
-    *   **Solución:** Se ha implementado un nuevo modelo de **sesión única**. Al iniciar sesión, el sistema ahora invalida y elimina todas las sesiones antiguas de ese usuario antes de crear una única sesión nueva y válida. Esta estrategia elimina toda la complejidad anterior y asegura que solo exista un estado de sesión válido por usuario en un momento dado.
-    *   **Mejoras Adicionales:** El código ha sido refactorizado con funciones auxiliares para mayor claridad, se ha mejorado el registro de errores y se ha reforzado el manejo de casos excepcionales (ej. hojas de cálculo faltantes). (Reescritura completa del archivo).
+**v4.2.2 (08/01/2026)**
+*   **INFRA (api-manager.js):** Se actualizaron las URLs de los microservicios `CATALOG` y `UTILITIES` a las nuevas versiones desplegadas y proporcionadas por el usuario, asegurando que el frontend se comunique con los endpoints más recientes. (Líneas 10, 14).
+
+**v4.2.1 (07/01/2026)**
+*   **FIX (catalog.js & index.html):** Se corrigió un bug funcional en el ordenamiento de categorías. La versión anterior calculaba la popularidad pero no la aplicaba.
+    1.  **Backend (`services/catalog/catalog.js`):** Se añadió la lógica para ordenar la lista de categorías por `vehicleCount` (descendente) antes de enviarla al frontend. (Líneas 220-221).
+    2.  **Frontend (`index.html`):** Se eliminó el ordenamiento alfabético (`.sort()`) que se aplicaba en el cliente, asegurando que el orden del backend sea respetado. Se modificó la función `mostrarCategorias` para usar la nueva lista `sortedCategoriesList` recibida. (Líneas 1611, 1458, 2326-2332).
+*   **FEAT (services/utilities/utilities.js):** Se añadió una nueva funcionalidad al servicio de utilidades para obtener la fecha de creación de una imagen a partir de su URL de Google Drive.
+    1.  **Helper Function:** Se creó una nueva función auxiliar `getImageCreationDate(url)` que extrae el ID del archivo de la URL, accede al archivo mediante `DriveApp` y devuelve su fecha de creación en formato ISO. (Líneas 105-128).
+    2.  **API Endpoint:** Se expuso esta funcionalidad a través de una nueva acción `getImageCreationDateFromUrl` en el `doPost`, permitiendo que sea invocada de forma segura desde el frontend (requiere rol 'Desarrollador'). (Líneas 66-72).
+
+**v4.2.0 (06/01/2026)**
+*   **FEAT (feedback.js):** Se refactorizó completamente la lógica de `handleSuggestYear` para cumplir con los nuevos requisitos de negocio. La función ahora requiere 3 votos de usuarios para aplicar un cambio y ejecuta una comprobación anti-colisión para prevenir el solapamiento de rangos de años entre diferentes generaciones de un mismo modelo.
+*   **REFACTOR (catalog.js):** Se centralizó la lógica de conversión de URLs de Google Drive a thumbnails en el backend. La nueva función `convertirAGoogleThumbnail` ahora procesa todas las URLs de imágenes antes de enviarlas al frontend, mejorando el rendimiento y la consistencia.
+*   **UX (index.html):** Se implementaron múltiples mejoras en la interfaz de usuario:
+    *   **Layout Principal:** Se reorganizó la página principal para mostrar primero la sección "Últimos Agregados" y luego las "Categorías".
+    *   **Carrusel:** La sección "Últimos Agregados" es ahora un carrusel que muestra 6 tarjetas.
+    *   **Navegación por Marca:** La vista de selección de marca ahora muestra los logos en lugar de texto.
+    *   **Modal de Detalles:** Se unificó la funcionalidad de "like" y "sugerir año" en el botón "Útil" (👍). Se añadieron placeholders de edición "in-modal" para campos sin datos.
+*   **CHORE:** Las modificaciones se realizaron de forma segura, sin alterar la lógica crítica protegida de `auth.js` (sesiones) ni `catalog.js` (carga de datos y caché).
+
+**v4.1.1 (05/01/2026)**
+*   **FIX (index.html):** Se restauró la lógica para el botón de instalación de la PWA (`beforeinstallprompt` listener y el handler del click), que fue eliminada accidentalmente en una refactorización previa. Esto soluciona una regresión crítica que impedía a los usuarios instalar la aplicación. (Líneas 2315-2346).
+*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `GPSpedia-Utilities` a la nueva versión desplegada y funcional, eliminando el endpoint placeholder. (Línea 14).
+
+**v4.1.0 (04/01/2026)**
+*   **FEAT (services/utilities/utilities.js & index.html):** Se implementó un nuevo microservicio `GPSpedia-Utilities` y la interfaz de frontend correspondiente para herramientas de administrador.
+    1.  **Backend (`services/utilities/utilities.js`):** Creado el nuevo servicio con acciones protegidas (`migrateYearRanges`, `migrateTimestamps`) para migraciones de datos. (Archivo nuevo).
+    2.  **Frontend (`index.html`):** Añadido un modal "Herramientas de Desarrollador", accesible mediante un nuevo botón en el menú lateral (visible solo para rol 'Desarrollador'). El modal incluye botones para ejecutar las migraciones y muestra la consola de depuración. (Líneas 923-950, 2593-2625, 2772-2808).
+    3.  **Infra (`api-manager.js`):** Registrado el nuevo endpoint `UTILITIES` y mapeadas las nuevas acciones. (Líneas 14, 46-47).
+*   **FEAT (services/feedback/feedback.js & index.html):** Se implementó un sistema de "Inbox" para la gestión de feedback de usuarios.
+    1.  **Backend (`services/feedback/feedback.js`):** Añadidas nuevas acciones (`getFeedbackItems`, `replyToFeedback`, `markAsResolved`) para leer y gestionar los reportes de problemas y mensajes de contacto. (Líneas 114-123, 342-423).
+    2.  **Frontend (`index.html`):** Añadido un modal de "Inbox", accesible mediante un nuevo botón en el menú lateral (visible para roles 'Supervisor', 'Gefe', 'Desarrollador'). La UI permite ver, responder y resolver items de feedback. (Líneas 907-921, 2582-2591, 2665-2770).
+*   **FIX (users.html):** Solucionado un bug crítico que causaba que los datos de los usuarios se mostrasen como "undefined" en la tabla de gestión y en el modal de edición. El problema se debía a un desfase de mayúsculas y minúsculas (`camelCase` en el frontend vs. `PascalCase_With_Underscores` en el backend). Se corrigió el acceso a las propiedades en todo el archivo. (Líneas 239-241, 273-279, 318-322, 339, 349-354).
+*   **UX (index.html):** Se implementaron mejoras en la interfaz de usuario del modal de detalles del vehículo.
+    1.  **Botones de Feedback:** Se rediseñaron los botones "Útil" y "Reportar" para que sean más compactos, mostrando un ícono y texto sin un contenedor de botón grande. (Líneas 1769-1782).
+    2.  **Video Guía:** La sección "Video Guía de Desarme" ahora se muestra dentro de un acordeón colapsable, igual que el resto de la información suplementaria. (Líneas 1844-1853).
+*   **CHORE:** No se introdujeron regresiones en las funcionalidades estables (login, sesión, carga de catálogo, caché).
+
+**v4.0.2 (03/01/2026)**
+*   **DOCS (Auditoria.txt & README.md):** Se realizó una auditoría completa del sistema y se sincronizó la documentación para reflejar el estado real del código.
+    1.  **Auditoría (`Auditoria.txt`):** Se sobrescribió el archivo con un nuevo reporte confirmando que el código fuente es funcional y no presenta los bugs críticos listados en la documentación. Se identificó el `README.md` como la fuente de la inconsistencia.
+    2.  **Sincronización (`README.md`):** Se actualizaron los checklists en la sección "Bugs y Regresiones Críticas" para marcar como completados `[X]` los siguientes puntos, que ya estaban resueltos en el código: "Lógica del Modal de Detalle", "Carga de Imágenes en Modal" y "Carga de Logos en Modal". (Líneas 231-233).
+
+**v4.0.1 (02/01/2026)**
+*   **FIX CRÍTICO (api-manager.js & services/catalog/catalog.js):** Solucionado un error de "Fallo de conexión" (Failed to fetch) con el servicio de catálogo. El fix integral incluyó:
+    1.  **Backend (`services/catalog/catalog.js`):** Se cambió el `MimeType` de la respuesta de `JSON` a `TEXT` para cumplir con la política de CORS del entorno de Google Apps Script. (Líneas 112, 124).
+    2.  **Frontend (`api-manager.js`):** Se actualizó la lógica de `routeAction` para procesar la respuesta como texto (`.text()`) y luego parsearla (`JSON.parse()`), en lugar de usar directamente `.json()`. (Líneas 83-84).
+*   **INFRA (api-manager.js):** Se ha actualizado la URL del microservicio `GPSpedia-Catalog` a la nueva versión desplegada proporcionada por el usuario. (Línea 12).
+*   **FIX (index.html):** Se corrigió la lógica del modal de detalles (`mostrarDetalleModal`). Ahora, el corte recomendado se muestra de forma visible por defecto, mientras que los cortes adicionales se presentan en secciones desplegables (acordeón), cumpliendo con los requisitos de la auditoría. (Líneas 1709-1811).
+*   **FIX (index.html):** Solucionado un bug que impedía la visualización de imágenes suplementarias en el modal de detalles. Se añadió la lógica para renderizar las imágenes de apertura, cable de alimentación y diagramas de relay en sus correspondientes secciones. (Líneas 1750-1768, 1829-1875).
+
+**v4.0.0 (02/01/2026)**
+*   **FIX CRÍTICO (services/catalog/catalog.js):** Se ha solucionado el error `cannot read properties of undefined (reading 'categoria')` que impedía la carga de datos del catálogo y de los formularios. Se implementó la función `mapRowToObject` que faltaba y se corrigió `handleGetDropdownData` para leer dinámicamente las opciones de "Categoría" desde las reglas de validación de la hoja de cálculo.
+*   **FIX CRÍTICO (services/users/users.js):** Se ha reparado el servicio de gestión de usuarios, que fallaba en todas sus operaciones (`Failed to fetch`). El error se debía a que la función `doPost` no retornaba ninguna respuesta. Se corrigió la función para asegurar que todas las acciones devuelvan un resultado al frontend.
+*   **REFACTOR & FEAT (index.html):** Se ha eliminado la página `info.html` y su contenido se ha integrado directamente en `index.html` como modales.
+    *   Las secciones "Sobre Nosotros", "Contáctanos" y "Preguntas Frecuentes" ahora se abren como pop-ups sin necesidad de recargar la página.
+    *   Se ha añadido el nuevo contenido extendido a estas secciones.
+    *   Se añadió un pequeño margen al CSS del pie de página para mejorar la separación visual de los enlaces.
+*   **FIX (index.html):** Se ha corregido el envío del formulario de contacto, que fallaba por un error tipográfico en el nombre de la acción (`sendContacForm` -> `sendContactForm`).
+*   **CHORE (project):** Se han actualizado los números de versión en todos los archivos modificados a `4.0.0` (global) y a las versiones de componente correspondientes.

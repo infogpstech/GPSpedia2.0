@@ -1,4 +1,4 @@
-<!-- GPSpedia Frontend Component | Version: 4.2.0 -->
+<!-- GPSpedia Frontend Component | Version: 4.0.0 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -17,73 +17,44 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background: #f4f4f4;
+    background: var(--bg-color);
+    color: var(--text-color);
     display: flex;
     flex-direction: column;
     min-height: 100%;
-}
-h1 { margin: 10px 0; }
-h2, h3, h4 {
-    margin: 6px 0;
-    font-weight: 600;
-}
-h2 { font-size: 1.2rem; }
-h3 { font-size: 1.1rem; }
-h4 { font-size: 1.0rem; }
-
-.sticky-header {
-    position: sticky;
-    top: 0;
-    background: #f4f4f4;
-    z-index: 1100;
-    padding: 10px 20px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-.dark-mode .sticky-header {
-    background: #121212;
+    transition: background-color 0.3s, color 0.3s;
 }
 
-.search-and-menu-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 10px;
+:root {
+    --bg-color: #f4f4f4;
+    --text-color: #333;
+    --card-bg: #fff;
+    --header-color: #333;
+    --modal-bg: #fff;
+    --modal-text: #000;
+    --button-bg: #f0f0f0;
+    --button-text: #007bff;
+    --menu-bg: #fff;
 }
-.search-and-menu-container .search-container {
-    flex-grow: 1;
-    margin-bottom: 0;
+
+body.dark-mode {
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --card-bg: #1e1e1e;
+    --header-color: #e0e0e0;
+    --modal-bg: #2c2c2c;
+    --modal-text: #e0e0e0;
+    --button-bg: #333;
+    --button-text: #58a6ff;
+    --menu-bg: #1e1e1e;
 }
-.side-menu-header {
-    padding: 20px;
-    border-bottom: 1px solid #eee;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
+
+h1,h2,h3,h4 {
+    margin: 10px 0;
+    color: var(--header-color);
 }
-.side-menu-logo {
-    height: 32px;
-    width: 32px;
-    border-radius: 5px;
-}
-.side-menu-username {
-    margin: 0;
-    color: #007bff;
-}
-.btn {
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s;
-}
-.btn-danger {
-    background-color: #dc3545;
-    color: white;
-}
-.btn-padded {
-    padding: 8px 12px;
+h1.app-title {
+    color: var(--header-color) !important;
 }
 .container {
     padding: 20px;
@@ -317,6 +288,94 @@ body.search-active .search-container.has-text #clear-search-btn {
     text-align: center;
     color: #007bff;
 }
+.dark-mode #side-menu, .dark-mode #side-menu nav a {
+    background-color: var(--menu-bg);
+    color: var(--text-color);
+}
+.dark-mode .backBtn {
+    color: var(--button-text);
+}
+.dark-mode .card {
+    background: var(--card-bg);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
+}
+.dark-mode .section-btn {
+    background-color: var(--button-bg);
+    color: var(--text-color);
+    border-color: #555;
+}
+.dark-mode .section-btn.active {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}
+.dark-mode #detalleCompleto {
+    background: var(--modal-bg);
+    color: var(--modal-text);
+}
+.dark-mode .info-modal-content {
+    background-color: var(--modal-bg);
+    color: var(--modal-text);
+}
+.dark-mode .accordion-btn {
+    background-color: var(--button-bg);
+    color: var(--button-text);
+}
+.dark-mode .accordion-btn:hover, .dark-mode .accordion-btn.active {
+    background-color: #444;
+}
+.dark-mode .panel-desplegable {
+    background-color: var(--modal-bg);
+}
+/* Estilo para el switch de modo oscuro */
+.theme-switch-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 20px;
+    border-top: 1px solid #f0f0f0;
+    margin-top: auto;
+}
+.dark-mode .theme-switch-wrapper {
+    border-top: 1px solid #333;
+}
+.theme-switch {
+    display: inline-block;
+    height: 24px;
+    position: relative;
+    width: 50px;
+}
+.theme-switch input {
+    display:none;
+}
+.slider {
+    background-color: #ccc;
+    bottom: 0;
+    cursor: pointer;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transition: .4s;
+    border-radius: 24px;
+}
+.slider:before {
+    background-color: #fff;
+    bottom: 4px;
+    content: "";
+    height: 16px;
+    left: 4px;
+    position: absolute;
+    transition: .4s;
+    width: 16px;
+    border-radius: 50%;
+}
+input:checked + .slider {
+    background-color: #007bff;
+}
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
 
 /* --- ESTILOS DE BÚSQUEDA ACTIVA --- */
 body.search-active .app-title,
@@ -378,10 +437,10 @@ body.search-active .app-logo {
     background-color: #f0f0f0;
     border: 1px solid #ccc;
     border-radius: 8px;
-    padding: 8px 16px; /* Padding reducido */
+    padding: 10px 20px;
     margin: 0;
     cursor: pointer;
-    font-size: 0.9em; /* Fuente ligeramente reducida */
+    font-size: 1em;
     transition: background-color 0.3s, color 0.3s;
 }
 .section-btn.active {
@@ -400,20 +459,15 @@ body.search-active .app-logo {
 .grid {
     display: grid;
     gap: 20px;
-    /* Usar auto-fit para un diseño más robusto y responsivo que se ajusta
-       automáticamente al número de columnas según el espacio disponible. */
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     justify-content: center;
     max-width: 1200px;
     margin: 0 auto;
 }
 
-/* La media query para 2 columnas ya no es necesaria con auto-fit. */
-
-@media (max-width: 600px) {
+@media (max-width: 480px) {
     .grid {
-        /* En pantallas muy pequeñas, podemos ajustar el gap si es necesario.
-           El layout de una columna se manejará automáticamente por minmax. */
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
         gap: 15px;
     }
 }
@@ -439,8 +493,8 @@ body.search-active .app-logo {
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     width: 100%;
-    max-width: 100%;
-    /* justify-self: center; */ /* Eliminado para permitir que la tarjeta ocupe el espacio */
+    max-width: 140px;
+    justify-self: center;
     /* Animación de entrada */
     opacity: 0; /* Estado inicial para la animación */
     animation: card-enter 0.5s ease-out forwards;
@@ -455,38 +509,83 @@ body.search-active .app-logo {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
-/* --- ESTILOS PARA TARJETAS DE LOGO (ICONOS) --- */
-.grid .logo-card {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    cursor: pointer;
-    padding: 10px;
-    text-align: center;
-    transition: transform 0.2s ease;
-    width: 120px;
+/* --- ESTILOS PARA LOGOS DE MARCAS (ICONOS) --- */
+.brand-logo-item {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 10px !important;
+    max-width: 120px;
     justify-self: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
+    align-self: center;
+    animation: none !important; /* Override card enter animation */
+    opacity: 1 !important;
+    overflow: visible !important; /* Allow shadow to be visible */
 }
-.grid .logo-card:hover {
+.brand-logo-item:hover {
     transform: scale(1.1);
+    box-shadow: none !important;
 }
-.logo-card img {
+.brand-logo-item img {
+    filter: drop-shadow(2px 4px 5px rgba(0,0,0,0.3));
+    transition: filter 0.3s ease, transform 0.3s ease;
     width: 100%;
-    height: 80px;
+    height: auto;
+    max-height: 80px;
     object-fit: contain;
-    display: block;
+    border-radius: 0 !important;
 }
-.logo-card .logo-name {
-    font-size: 0.9em;
-    font-weight: bold;
-    color: #333;
+.brand-logo-item:hover img {
+    filter: drop-shadow(3px 5px 7px rgba(0,0,0,0.4));
 }
-.dark-mode .logo-card .logo-name {
-    color: #e0e0e0;
+
+/* --- ESTILOS DEL CARRUSEL --- */
+.carousel-container {
+    position: relative;
+    overflow: hidden;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 25px; /* Espacio para que los botones no se superpongan */
+}
+.carousel-track {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch; /* Para scrolling suave en iOS */
+    scrollbar-width: none; /* Ocultar scrollbar en Firefox */
+}
+.carousel-track::-webkit-scrollbar {
+    display: none; /* Ocultar scrollbar en Chrome, Safari, etc. */
+}
+.carousel-container .card {
+    flex: 0 0 140px; /* Ancho fijo para cada tarjeta */
+    margin-right: 20px;
+}
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.carousel-btn:hover {
+    background: #fff;
+}
+.carousel-btn.prev {
+    left: -5px;
+}
+.carousel-btn.next {
+    right: -5px;
 }
 
 /* --- ESTILOS DE SKELETON LOADER --- */
@@ -670,7 +769,7 @@ body.search-active .app-logo {
     transform: scale(1);
 }
 
-#detalleCompleto img {
+#detalleCompleto img, .info-modal-content img {
     display: block;
     width: auto; /* Ancho automático para mantener proporción */
     max-width: 100%;
@@ -684,10 +783,43 @@ body.search-active .app-logo {
 .img-vehiculo {
     max-height: 200px !important; /* Límite de altura más pequeño */
 }
-/* Regla específica para la imagen dentro del modal de Relay para evitar que sea demasiado grande. */
-#relayDetalleCompleto img {
-    max-height: 250px;
+
+/* --- ESTILOS PARA LA SECCIÓN DE FEEDBACK EN MODAL --- */
+.image-container-with-feedback {
+    position: relative;
+    display: inline-block; /* O 'block' dependiendo del layout */
+    margin: 15px auto;
 }
+.feedback-overlay {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+}
+.feedback-btn-overlay {
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+    font-size: 1.1em;
+}
+.feedback-btn-overlay:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+    transform: scale(1.1);
+}
+.feedback-btn-overlay.util-btn.liked {
+    background-color: #28a745; /* Verde para indicar que se le dio "like" */
+}
+
 #detalleCompleto h4 {
     color: #007bff;
     border-bottom: 2px solid #eee;
@@ -889,226 +1021,28 @@ body.search-active .app-logo {
     max-width: 90%;
     text-align: center;
 }
-.feedback-btn {
-    background: none;
-    border: none;
-    box-shadow: none;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 0.9em;
-    color: #555;
-    padding: 5px;
-    border-radius: 5px;
-    transition: background-color 0.2s, color 0.2s;
-}
-#detalleCompleto .feedback-btn:hover {
-    background-color: #f0f0f0;
-}
-#detalleCompleto .feedback-btn.util-btn.pressed {
-    background-color: #007bff;
-    color: #fff;
-    font-weight: bold;
-}
-.dark-mode #detalleCompleto .feedback-btn {
-    color: #bbb;
-}
-.dark-mode #detalleCompleto .feedback-btn:hover {
-    background-color: #333;
-}
-.dark-mode #detalleCompleto .feedback-btn.util-btn.pressed {
-    background-color: #0056b3;
-    color: #fff;
-}
-.feedback-btn.report-btn {
-    color: #dc3545;
-}
-.inbox-item-actions button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-    align-self: flex-start; /* Alinea los botones a la izquierda */
-    transition: background-color 0.2s;
-}
-.inbox-item-actions button:hover {
-    background-color: #0056b3;
-}
-.inbox-item-actions .delete-btn {
-    background-color: #dc3545; /* Rojo para eliminar */
-    margin-left: auto; /* Empuja el botón de eliminar a la derecha */
-}
-.inbox-item-actions .delete-btn:hover {
-    background-color: #c82333;
-}
 
-/* --- ESTILOS DEL SISTEMA DE NOTIFICACIONES --- */
-#notification-bell {
-    position: relative;
-    cursor: pointer;
-    font-size: 20px;
-    color: #333;
-}
-.dark-mode #notification-bell {
-    color: #e0e0e0;
-}
-#notification-badge {
-    position: absolute;
-    top: -5px;
-    right: -10px;
-    background: red;
-    color: white;
-    border-radius: 50%;
-    padding: 2px 6px;
-    font-size: 10px;
-    font-weight: bold;
-    display: none; /* Oculto por defecto */
-}
-#notification-dropdown {
+/* --- ESTILOS DEL TOAST DE NOTIFICACIÓN --- */
+#notification-toast {
     display: none;
-    position: absolute;
-    top: 50px;
-    right: 0;
-    background: #fff;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    width: 350px;
-    max-height: 400px;
-    overflow-y: auto;
-    z-index: 2600; /* Por encima del menú lateral */
-}
-.dark-mode #notification-dropdown {
-    background: #2c2c2c;
-    border-color: #444;
-}
-.notification-item {
-    padding: 15px;
-    border-bottom: 1px solid #eee;
-    font-size: 0.9em;
-}
-.dark-mode .notification-item {
-    border-bottom-color: #444;
-}
-.notification-item:last-child {
-    border-bottom: none;
-}
-#notification-footer {
-    padding: 10px;
-    text-align: center;
-    background: #f7f7f7;
-}
-.dark-mode #notification-footer {
-    background: #333;
-}
-#mark-all-read-btn {
-    background: none;
-    border: none;
-    color: #007bff;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-
-.report-section textarea {
-    width: 100%;
-    box-sizing: border-box;
-    margin-top: 10px;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-.report-section button {
+    position: fixed;
+    top: 20px;
+    right: 20px;
     background-color: #007bff;
     color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 5px;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    z-index: 4001;
+    font-size: 1em;
     cursor: pointer;
-    margin-top: 5px;
-}
-.comments-section {
-    margin-top: 15px;
-    padding-top: 10px;
-    border-top: 1px solid #eee;
-}
-.comment {
-    font-size: 0.8em;
-    margin-bottom: 10px;
-}
-.comment .user {
-    font-weight: bold;
-    color: #333;
-}
-.comment .text {
-    color: #555;
-}
-.comment .response {
-    margin-left: 15px;
-    padding-left: 10px;
-    border-left: 2px solid #007bff;
-    margin-top: 5px;
-}
-.comment .responder {
-    font-weight: bold;
-    color: #0056b3;
-}
-
-@media (prefers-color-scheme: dark) {
-    body {
-        background: #121212;
-        color: #e0e0e0;
-    }
-    .card, #side-menu, #detalleCompleto, .info-modal-content {
-        background: #1e1e1e;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-    }
-    h1.app-title, h2, h3, h4, #side-menu nav a {
-        color: #e0e0e0;
-    }
-    .search-container input[type="text"], #contact-form input, #contact-form textarea {
-        background: #2c2c2c;
-        border-color: #444;
-        color: #e0e0e0;
-    }
-    .section-btn {
-        background-color: #333;
-        border-color: #555;
-        color: #e0e0e0;
-    }
-    .section-btn.active {
-        background-color: #007bff;
-        color: #fff;
-        border-color: #007bff;
-    }
-    #hamburger-btn {
-        color: #e0e0e0;
-    }
-    .accordion-btn {
-        background-color: #2a2a2a;
-        color: #00aaff;
-    }
-    .accordion-btn:hover, .accordion-btn.active {
-        background-color: #383838;
-    }
-    .panel-desplegable {
-        background-color: #1e1e1e;
-        border-bottom-color: #333;
-    }
-    #detalleCompleto h4 {
-        border-bottom-color: #333;
-    }
-    .footer {
-        background-color: #1e1e1e;
-        color: #aaa;
-    }
 }
 </style>
 </head>
 <body>
+<!-- Notificación Toast -->
+<div id="notification-toast"></div>
+
 <!-- Contenedor de la Consola de Depuración -->
 <div id="debug-console" style="display: none; position: fixed; bottom: 10px; right: 10px; width: 450px; height: 350px; background-color: rgba(20, 20, 30, 0.9); color: #00ff00; border: 1px solid #00ff00; border-radius: 8px; z-index: 9999; display: flex; flex-direction: column; font-family: 'Courier New', Courier, monospace; box-shadow: 0 0 15px rgba(0, 255, 0, 0.5); backdrop-filter: blur(5px);">
     <div id="debug-header" style="padding: 8px; background-color: #00ff00; color: #14141e; font-weight: bold; cursor: move; border-top-left-radius: 7px; border-top-right-radius: 7px; display: flex; justify-content: space-between; align-items: center;">
@@ -1127,8 +1061,7 @@ body.search-active .app-logo {
 <!-- Side Menu (Hamburger) -->
 <div id="menu-overlay"></div>
 <div id="side-menu">
-    <div style="padding: 20px; border-bottom: 1px solid #eee; text-align: center; display: flex; align-items: center; justify-content: center; gap: 10px;">
-        <img src="https://drive.google.com/thumbnail?id=1NxBx-W_gWmcq3fA9zog6Dpe-WXpH_2e8&sz=w64" alt="Logo" style="height: 32px; width: 32px; border-radius: 5px;">
+    <div style="padding: 20px; border-bottom: 1px solid #eee; text-align: center;">
         <h3 id="menu-username" style="margin: 0; color: #007bff;"></h3>
     </div>
     <nav>
@@ -1137,10 +1070,17 @@ body.search-active .app-logo {
         <a href="#" id="menu-tutoriales" class="menu-link"><i class="fa-solid fa-book-open"></i> Tutoriales</a>
         <a href="#" id="menu-relay" class="menu-link"><i class="fa-solid fa-microchip"></i> Configuración Relay</a>
         <a href="users.html" class="menu-link"><i class="fa-solid fa-users-cog"></i> Mi Perfil / Usuarios</a>
-        <a href="#" id="menu-inbox" class="menu-link" style="display: none;"><i class="fa-solid fa-inbox"></i> Inbox de Reportes</a>
-        <a href="#" id="dev-tools-btn" class="menu-link"><i class="fa-solid fa-code"></i> Desarrollador</a>
+        <a href="#" id="inbox-btn" class="menu-link" style="display: none;"><i class="fa-solid fa-inbox"></i> Inbox</a>
+        <a href="#" id="dev-tools-btn" class="menu-link" style="display: none;"><i class="fa-solid fa-code"></i> Desarrollador</a>
     </nav>
-    <div style="margin-top: auto; padding: 20px;">
+    <div class="theme-switch-wrapper">
+        <label style="margin-right: 10px;">Modo Oscuro</label>
+        <label class="theme-switch" for="dark-mode-toggle">
+            <input type="checkbox" id="dark-mode-toggle" />
+            <div class="slider round"></div>
+        </label>
+    </div>
+    <div style="padding: 20px;">
         <button id="side-menu-logout-button" style="width: 100%; background: #dc3545; color: #fff; border: none; padding: 12px; border-radius: 8px; cursor: pointer;">Cerrar Sesión</button>
     </div>
 </div>
@@ -1183,17 +1123,7 @@ body.search-active .app-logo {
              <span id="welcome-message" style="display: none; color: #333; font-weight: bold; font-size: 0.8em;"></span>
           </div>
       </div>
-      <div id="header-controls" style="display: flex; align-items: center; gap: 15px; position: relative;">
-          <div id="notification-bell" style="display: none;">
-              <i class="fa-solid fa-bell"></i>
-              <span id="notification-badge"></span>
-          </div>
-          <div id="notification-dropdown">
-              <div id="notification-list"></div>
-              <div id="notification-footer">
-                  <button id="mark-all-read-btn">Marcar todo como leído</button>
-              </div>
-          </div>
+      <div id="header-controls" style="display: flex; align-items: center; gap: 15px;">
           <button id="logout-button" style="display: none; background-color: #dc3545; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: background-color 0.3s;">Cerrar Sesión</button>
       </div>
   </div>
@@ -1228,37 +1158,45 @@ body.search-active .app-logo {
   <img id="lightboxImg" src="">
 </div>
 
-<!-- ========= MODAL DE SEGUNDO NIVEL (PARA RELAY) ========= -->
-<div id="modalRelay" class="info-modal">
-    <div class="info-modal-content" id="relayDetalleCompleto">
-        <!-- El contenido del detalle del Relay se inyectará aquí con JavaScript -->
+<!-- ========= MODAL DE INBOX ========= -->
+<div id="inbox-modal" class="info-modal">
+    <div class="info-modal-content" style="max-width: 1100px;">
+        <span class="info-close-btn">&times;</span>
+        <h2><i class="fa-solid fa-inbox"></i> Bandeja de Entrada</h2>
+        <div style="display: flex; gap: 20px;">
+            <div id="inbox-list" style="flex: 1; height: 60vh; overflow-y: auto; border-right: 1px solid #ccc; padding-right: 15px;">
+                <!-- List of items will be rendered here -->
+            </div>
+            <div id="inbox-detail" style="flex: 2;">
+                <!-- Detail of selected item will be rendered here -->
+            </div>
+        </div>
     </div>
 </div>
 
 <!-- ========= MODAL DE DESARROLLADOR ========= -->
-<div id="dev-modal" class="info-modal">
-    <div class="info-modal-content" style="max-width: 900px; display: flex; gap: 20px;">
+<div id="dev-tools-modal" class="info-modal">
+    <div class="info-modal-content" style="max-width: 900px;">
         <span class="info-close-btn">&times;</span>
-        <!-- Panel de Control -->
-        <div id="dev-controls" style="width: 250px; border-right: 1px solid #ccc; padding-right: 20px;">
-            <h4>Herramientas de Migración</h4>
-            <button id="migrate-years-btn" class="btn btn-primary" style="width: 100%; margin-bottom: 10px;">Migrar Años</button>
-            <button id="migrate-timestamps-btn" class="btn btn-primary" style="width: 100%;">Migrar Timestamps</button>
-            <div id="migration-status" style="margin-top: 15px; font-size: 0.9em;"></div>
-        </div>
-        <!-- Contenedor para la Consola -->
-        <div id="dev-console-container" style="flex-grow: 1; min-height: 400px;">
-             <!-- La consola de depuración se moverá aquí con JS -->
-        </div>
-    </div>
-</div>
+        <h2><i class="fa-solid fa-code"></i> Herramientas de Desarrollador</h2>
 
-<!-- ========= MODAL DE INBOX DE REPORTES ========= -->
-<div id="inbox-modal" class="info-modal">
-    <div class="info-modal-content" style="max-width: 800px;">
-        <span class="info-close-btn">&times;</span>
-        <h2>Inbox de Reportes</h2>
-        <div id="inbox-content"></div>
+        <div style="display: flex; gap: 20px;">
+            <div style="flex: 1;">
+                <h4>Consola de Depuración</h4>
+                <div id="dev-console-container" style="height: 400px; border: 1px solid #ccc; border-radius: 8px;">
+                    <!-- The existing debug console will be moved here by JS -->
+                </div>
+            </div>
+            <div style="flex: 1;">
+                <h4>Acciones de Migración</h4>
+                <p>Ejecutar scripts de migración de datos. Usar con precaución.</p>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <button id="run-migrate-years" class="btn btn-warning">Migrar Rangos de Años</button>
+                    <button id="run-migrate-timestamps" class="btn btn-warning">Migrar Timestamps</button>
+                </div>
+                <div id="migration-status" style="margin-top: 15px; padding: 10px; border-radius: 5px; background: #f0f0f0; display: none;"></div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -1331,13 +1269,13 @@ body.search-active .app-logo {
 <script>
 // --- SISTEMA DE DEPURACIÓN AVANZADO DEL FRONTEND ---
 
-// La consola de depuración ahora se controla mediante un modal, por lo que no la mostramos al inicio.
+// Activa la consola de depuración si la URL contiene ?debug=true
 const isDebugMode = new URLSearchParams(window.location.search).has('debug');
 const debugConsole = document.getElementById('debug-console');
 
-// if (isDebugMode) {
-//     debugConsole.style.display = 'flex';
-// }
+if (isDebugMode) {
+    debugConsole.style.display = 'flex';
+}
 
 /**
  * Registra un mensaje en la consola de depuración del frontend.
@@ -1459,57 +1397,12 @@ function remoteLog(level, message, data = {}) {
 }
 
 // --- LÓGICA DE INDEXEDDB ---
+// Note: IndexedDB logic is being kept for potential future offline capabilities,
+// but the current implementation will prioritize fetching from the Apps Script backend.
 const DB_NAME = 'gpsepedia-db';
-const DB_VERSION = 2; // Incremented version to update schema
-const CATALOG_STORE = 'catalog';
-
-function openDB() {
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
-        request.onupgradeneeded = (event) => {
-            const db = event.target.result;
-            if (!db.objectStoreNames.contains(CATALOG_STORE)) {
-                db.createObjectStore(CATALOG_STORE, { keyPath: 'id' });
-            }
-        };
-        request.onsuccess = (event) => {
-            resolve(event.target.result);
-        };
-        request.onerror = (event) => {
-            console.error("IndexedDB error:", event.target.errorCode);
-            reject(event.target.errorCode);
-        };
-    });
-}
-
-async function saveDataToDB(data) {
-    const db = await openDB();
-    return new Promise((resolve, reject) => {
-        const transaction = db.transaction([CATALOG_STORE], 'readwrite');
-        const store = transaction.objectStore(CATALOG_STORE);
-        // Clear old data
-        store.clear();
-        const request = store.put({ id: 'full-catalog', ...data });
-
-        request.onsuccess = () => resolve();
-        request.onerror = (event) => reject(event.target.error);
-    });
-}
-
-async function getDataFromDB() {
-    const db = await openDB();
-    return new Promise((resolve, reject) => {
-        const transaction = db.transaction([CATALOG_STORE], 'readonly');
-        const store = transaction.objectStore(CATALOG_STORE);
-        const request = store.get('full-catalog');
-
-        request.onsuccess = (event) => {
-            resolve(event.target.result);
-        };
-        request.onerror = (event) => reject(event.target.error);
-    });
-}
-
+const DB_VERSION = 1;
+const STORES = ['cortes', 'tutoriales', 'relay'];
+let db;
 
 // --- LÓGICA DE DATOS Y API ---
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwpIFH1nX2BZEjAKbpq9HJpEGNlo_0LqD1CwxWsWFo5J0AJDdbfMrKpcsAV4ZFJzFWd/exec";
@@ -1600,24 +1493,14 @@ async function checkSession() {
 
             if (result.valid) {
                 remoteLog('INFO', 'Session is valid. Initializing app.');
-                // Initialize app but catch data-loading errors separately
-                try {
-                    await initializeAppData(user);
-                } catch (appInitError) {
-                    remoteLog('ERROR', 'Error initializing app data (e.g., catalog). Session remains valid.', { error: appInitError.message });
-                    // Even if the catalog fails, show the logged-in app shell with an error.
-                    // DO NOT log the user out.
-                    hideLoginShowApp(user);
-                    document.getElementById('contenido').innerHTML = `<p style="color:red; text-align:center;">No se pudo cargar el catálogo. Por favor, revisa tu conexión e inténtalo de nuevo.</p>`;
-                }
+                await initializeAppData(user);
             } else {
                 remoteLog('WARN', 'Session is invalid according to backend. Logging out.');
                 logout("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
             }
         } catch (error) {
-            // This catch block now specifically handles session validation errors or critical failures.
-            remoteLog('ERROR', 'Error during session validation. Forcing logout.', { error: error.message, stack: error.stack });
-            logout("Error al validar la sesión. Por favor, inicia sesión de nuevo.");
+            remoteLog('ERROR', 'Error during session validation.', { error: error.message, stack: error.stack });
+            showLoginHideApp();
         }
     } else {
         remoteLog('INFO', 'No session data found. Showing login.');
@@ -1637,66 +1520,43 @@ async function login(username, password) {
     }
 }
 
-function renderContentFromData(data) {
-    if (!data) {
-        debugLog('RENDER_ERROR', 'renderContentFromData fue llamado sin datos.');
-        document.getElementById('contenido').innerHTML = `<p style="color:red; text-align:center;">Ocurrió un error al procesar los datos.</p>`;
-        return;
-    }
-    datosOriginales = data.cortes || [];
-    datosTutoriales = data.tutoriales || [];
-    datosRelay = data.relay || [];
-    datosLogos = data.logos || [];
-    // Limpiar el contenido antes de renderizar para evitar duplicados
-    document.getElementById('contenido').innerHTML = '';
-    mostrarUltimosAgregados();
-    mostrarCategorias();
-    lazyLoadImages(); // Re-run lazy loader after new content is added
-}
-
 async function initializeAppData(user) {
-    hideLoginShowApp(user); // Pasar el objeto de usuario
-    document.getElementById('welcome-message').textContent = `Bienvenido, ${user.Nombre_Usuario}`;
-    document.getElementById('welcome-message').style.display = 'block';
+    return new Promise(async (resolve, reject) => {
+        hideLoginShowApp();
+        document.getElementById('welcome-message').textContent = `Bienvenido, ${user.Nombre_Usuario}`;
+        document.getElementById('welcome-message').style.display = 'block';
 
-    showSkeletonLoader(document.getElementById('contenido'));
-
-    try {
-        // 1. Network-first attempt
-        debugLog('CACHE_STRATEGY', 'Intentando obtener datos de la red...');
-        const result = await postToAction('getCatalogData');
-        const freshData = result.data;
-
-        debugLog('CACHE_STRATEGY', 'Datos obtenidos de la red exitosamente.');
-        renderContentFromData(freshData);
-
-        // 2. Update cache in the background
-        saveDataToDB(freshData)
-            .then(() => debugLog('CACHE_STRATEGY', 'Cache de IndexedDB actualizado.'))
-            .catch(err => debugLog('CACHE_ERROR', 'No se pudo actualizar el cache.', { error: err.message }));
-
-    } catch (networkError) {
-        // 3. Fallback to cache
-        debugLog('CACHE_STRATEGY', 'Fallo en la red, intentando obtener datos del cache...', { error: networkError.message });
-        showGlobalError("Fallo de conexión. Mostrando datos locales.");
+        showSkeletonLoader(document.getElementById('contenido'));
 
         try {
-            const cachedDataContainer = await getDataFromDB();
-            if (cachedDataContainer && cachedDataContainer.cortes) {
-                // The data is nested inside the container object, without the 'id' property.
-                const { id, ...cachedData } = cachedDataContainer;
-                debugLog('CACHE_STRATEGY', 'Datos cargados desde el cache exitosamente.');
-                renderContentFromData(cachedData);
-            } else {
-                throw new Error('No hay datos en el cache.');
+            const result = await postToAction('getCatalogData');
+            datosOriginales = result.data.cortes || [];
+            sortedCategoriesList = result.data.sortedCategories || []; // <-- NUEVA LÍNEA
+            datosTutoriales = result.data.tutoriales || [];
+            datosRelay = result.data.relay || [];
+            datosLogos = result.data.logos || [];
+
+            // Notification Logic
+            const lastTimestampKey = 'lastKnownTimestamp';
+            const lastKnownTimestamp = localStorage.getItem(lastTimestampKey);
+            const latestItem = datosOriginales.reduce((latest, item) => {
+                return (item.timestamp && item.timestamp > (latest.timestamp || 0)) ? item : latest;
+            }, {});
+
+            if (latestItem.timestamp) {
+                if (!lastKnownTimestamp || latestItem.timestamp > lastKnownTimestamp) {
+                    showNotificationToast(`¡Nuevo corte agregado para ${latestItem.marca} ${latestItem.modelo}!`);
+                }
+                localStorage.setItem(lastTimestampKey, latestItem.timestamp);
             }
-        } catch (cacheError) {
-            debugLog('CACHE_ERROR', 'Fallo al cargar desde el cache.', { error: cacheError.message });
-            document.getElementById('contenido').innerHTML = `<p style="color:red; text-align:center;">No se pudo cargar el catálogo. Por favor, revisa tu conexión a internet e inténtalo de nuevo.</p>`;
-            // Rethrow the error to be caught by the caller (checkSession)
-            throw cacheError;
+
+            mostrarCategorias();
+            resolve(); // Resolve the promise after content is rendered
+        } catch (error) {
+            document.getElementById('contenido').innerHTML = `<p style="color:red; text-align:center;">No se pudo cargar el catálogo. ${error.message}</p>`;
+            reject(error); // Reject the promise on error
         }
-    }
+    });
 }
 
 function logout(reason = null) {
@@ -1753,7 +1613,7 @@ function showLoginHideApp(reason = null) {
     }
 }
 
-function hideLoginShowApp(user) { // Aceptar el objeto de usuario
+function hideLoginShowApp() {
     remoteLog('INFO', 'hideLoginShowApp called');
     // Ocultar splash y login
     const splash = document.getElementById('splash-screen');
@@ -1772,86 +1632,24 @@ function hideLoginShowApp(user) { // Aceptar el objeto de usuario
 
     // Cargar nombre de usuario en el menú lateral
     const menuUsername = document.getElementById('menu-username');
-    if (menuUsername && user && user.Nombre_Usuario) {
-        menuUsername.textContent = user.Nombre_Usuario;
+    const session = JSON.parse(localStorage.getItem(SESSION_KEY));
+    if (menuUsername && session && session.Nombre_Usuario) {
+        menuUsername.textContent = session.Nombre_Usuario;
     }
 
-    // Show inbox for supervisors and jefes
-    const inboxLink = document.getElementById('menu-inbox');
-    if (inboxLink && user && (user.Privilegios === 'Supervisor' || user.Privilegios === 'Jefe' || user.Privilegios === 'Desarrollador')) {
-        inboxLink.style.display = 'flex';
+    // Show developer tools button if user has the role
+    const devToolsBtn = document.getElementById('dev-tools-btn');
+    const userRole = session ? session.Privilegios : '';
+
+    if (devToolsBtn && userRole === 'Desarrollador') {
+        devToolsBtn.style.display = 'flex';
     }
 
-    // Initialize notifications for all users
-    initializeNotifications(user); // Pasar el objeto de usuario
-}
-
-// --- LÓGICA DEL SISTEMA DE NOTIFICACIONES ---
-
-async function initializeNotifications(user) { // Aceptar el objeto de usuario
-    const bell = document.getElementById('notification-bell');
-    const badge = document.getElementById('notification-badge');
-    const dropdown = document.getElementById('notification-dropdown');
-    const list = document.getElementById('notification-list');
-    const markAllReadBtn = document.getElementById('mark-all-read-btn');
-    let currentNotifications = []; // Variable para almacenar las notificaciones actuales
-
-    // Solo mostrar la campana si el elemento existe (evita errores si el HTML cambia)
-    if (!bell || !user || !user.ID) return; // Asegurarse de que el usuario y su ID existan
-
-    try {
-        const result = await routeAction('getUnreadNotifications', { userId: user.ID }); // Enviar el ID del usuario
-        if (result.status === 'success' && result.data) {
-            const notifications = result.data;
-            currentNotifications = notifications; // Guardar las notificaciones
-            bell.style.display = 'block'; // Mostrar la campana
-
-            if (notifications.length > 0) {
-                badge.textContent = notifications.length;
-                badge.style.display = 'block';
-                list.innerHTML = ''; // Limpiar lista anterior
-                notifications.forEach(n => {
-                    const item = document.createElement('div');
-                    item.className = 'notification-item';
-                    item.textContent = n.message;
-                    list.appendChild(item);
-                });
-            } else {
-                badge.style.display = 'none';
-                list.innerHTML = '<div class="notification-item">No tienes notificaciones nuevas.</div>';
-            }
-        }
-    } catch (error) {
-        console.error("Error fetching notifications:", error);
-        bell.style.display = 'none'; // Ocultar si hay un error
+    // Show Inbox button for relevant roles
+    const inboxBtn = document.getElementById('inbox-btn');
+    if (inboxBtn && ['Desarrollador', 'Gefe', 'Supervisor'].includes(userRole)) {
+        inboxBtn.style.display = 'flex';
     }
-
-    bell.addEventListener('click', (e) => {
-        e.stopPropagation();
-        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-    });
-
-    markAllReadBtn.addEventListener('click', async () => {
-        if (currentNotifications.length === 0) return; // No hacer nada si no hay notificaciones
-
-        try {
-            const notificationIds = currentNotifications.map(n => n.id);
-            await routeAction('markNotificationsAsRead', { notificationIds: notificationIds });
-            badge.style.display = 'none';
-            list.innerHTML = '<div class="notification-item">No tienes notificaciones nuevas.</div>';
-            currentNotifications = []; // Limpiar las notificaciones locales
-            setTimeout(() => { dropdown.style.display = 'none'; }, 500); // Ocultar dropdown después de un momento
-        } catch (error) {
-            alert('Error al marcar las notificaciones como leídas.');
-        }
-    });
-
-    // Cerrar dropdown si se hace clic fuera
-    document.addEventListener('click', (e) => {
-        if (!bell.contains(e.target) && !dropdown.contains(e.target)) {
-            dropdown.style.display = 'none';
-        }
-    });
 }
 
 
@@ -1887,7 +1685,7 @@ function showSkeletonLoader(container) {
 }
 
 // --- VARIABLES GLOBALES DE DATOS ---
-let datosOriginales = [], datosFiltrados = [], datosTutoriales = [], datosRelay = [];
+let datosOriginales = [], sortedCategoriesList = [], datosFiltrados = [], datosTutoriales = [], datosRelay = [];
 let estado = { nivel: "categorias", categoria: null, marca: null, modelo: null };
 let appOpenedFromLink = false;
 
@@ -1927,8 +1725,7 @@ function irAPaginaPrincipal() {
 function mostrarContenidoTutoriales() {
     const cont = document.getElementById("contenido-tutoriales");
     cont.innerHTML = "<h4>Tutoriales</h4>";
-    const grid = document.createElement("div");
-    grid.className = "grid"; // Asegurarse de que el contenedor tiene la clase 'grid'
+    const grid = document.createElement("div"); grid.className = "grid";
     if (!datosTutoriales || datosTutoriales.length === 0) {
         cont.innerHTML += "<p>No hay tutoriales disponibles.</p>";
         return;
@@ -1940,7 +1737,7 @@ function mostrarContenidoTutoriales() {
         card.onclick = () => mostrarDetalleTutorial(item);
 
         const img = document.createElement("img");
-        img.dataset.src = convertirAGoogleThumbnail(item.Imagen); // Lazy load
+        img.src = convertirAGoogleThumbnail(item.Imagen);
         img.alt = item.Tema;
         card.appendChild(img);
 
@@ -1951,14 +1748,42 @@ function mostrarContenidoTutoriales() {
         grid.appendChild(card);
     });
     cont.appendChild(grid);
-    lazyLoadImages();
+}
+
+function mostrarCategoriasPorMarca(marca) {
+    estado = { nivel: "categoriasPorMarca", marca: marca };
+    const cont = document.getElementById("contenido");
+    cont.innerHTML = `<span class="backBtn" onclick="irAPaginaPrincipal()">${backSvg} Volver</span><h4>Categorías para ${marca}</h4>`;
+
+    const categoriasDeMarca = [...new Set(datosOriginales
+        .filter(item => item.marca === marca)
+        .map(item => item.categoria))]
+        .filter(Boolean).sort();
+
+    const grid = document.createElement("div");
+    grid.className = "grid";
+    categoriasDeMarca.forEach(cat => {
+        const ejemplo = datosOriginales.find(item => item.categoria === cat && item.marca === marca && item.imagenVehiculo);
+        const card = document.createElement("div");
+        card.className = "card";
+        card.onclick = () => mostrarModelos(cat, marca); // Ahora sí se pasa la categoría
+        const img = document.createElement("img");
+        img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
+        img.alt = `Categoría ${cat}`;
+        card.appendChild(img);
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+        overlay.innerHTML = cat;
+        card.appendChild(overlay);
+        grid.appendChild(card);
+    });
+    cont.appendChild(grid);
 }
 
 function mostrarContenidoRelay() {
     const cont = document.getElementById("contenido-relay");
     cont.innerHTML = "<h4>Configuración del Relay</h4>";
-    const grid = document.createElement("div");
-    grid.className = "grid";
+    const grid = document.createElement("div"); grid.className = "grid";
     if (!datosRelay || datosRelay.length === 0) {
         cont.innerHTML += "<p>No hay configuraciones de relay disponibles.</p>";
         return;
@@ -1970,7 +1795,7 @@ function mostrarContenidoRelay() {
         card.onclick = () => mostrarDetalleRelay(item);
 
         const img = document.createElement("img");
-        img.dataset.src = convertirAGoogleThumbnail(item.imagen); // Lazy load
+        img.src = convertirAGoogleThumbnail(item.imagen);
         img.alt = item.configuracion;
         card.appendChild(img);
 
@@ -1981,28 +1806,66 @@ function mostrarContenidoRelay() {
         grid.appendChild(card);
     });
     cont.appendChild(grid);
-    lazyLoadImages();
 }
 
-function crearElementoDetalle(label, value) {
-    if (!value) return null;
+function handleInModalEdit(itemId, fieldName, iconElement) {
+    const label = iconElement.parentElement.querySelector('strong').textContent.replace(':', '');
+    const newValue = prompt(`Editar valor para "${label}":`);
+    if (newValue && newValue.trim() !== '') {
+        const parentP = iconElement.parentElement;
+        const contentSpan = parentP.querySelector('.field-value');
+        contentSpan.textContent = newValue;
+        contentSpan.classList.remove('empty-field');
+        iconElement.style.color = '#ccc';
+        iconElement.style.cursor = 'not-allowed';
+        iconElement.onclick = null;
+        // NOTE: Backend saving is intentionally skipped as per instructions.
+        alert('Valor actualizado visualmente. El guardado en la base de datos no está implementado en este paso.');
+    }
+}
+
+function crearElementoDetalle(label, value, itemId, fieldName) {
     const p = document.createElement("p");
-    p.innerHTML = `<strong>${label}:</strong> ${value.replace(/\n/g, '<br>')}`;
+    const hasValue = value && value.trim() !== '';
+    const content = hasValue ? value.replace(/\n/g, '<br>') : 'No especificado';
+    const contentClass = hasValue ? 'field-value' : 'field-value empty-field';
+    const iconStyle = hasValue ? 'color: #ccc; cursor: not-allowed;' : 'color: #007bff; cursor: pointer;';
+    const onClickAction = hasValue ? '' : `handleInModalEdit('${itemId}', '${fieldName}', this)`;
+
+    p.innerHTML = `<strong>${label}:</strong> <span class="${contentClass}">${content}</span> <i class="fa-solid fa-pencil edit-icon" style="margin-left: 8px; font-size: 0.8em; ${iconStyle}" onclick="${onClickAction}"></i>`;
     return p;
 }
 
-function crearImagenDetalle(label, value, container, extraClass = '') {
+function crearImagenDetalle(label, value, container, { extraClass = '', feedbackActions = null } = {}) {
     if (!value) return;
+
+    const wrapper = document.createElement('div');
     const h = document.createElement("h4");
     h.textContent = label;
-    container.appendChild(h);
+    wrapper.appendChild(h);
+
+    const imgContainer = document.createElement('div');
+    imgContainer.className = 'image-container-with-feedback';
+
     const img = document.createElement("img");
     img.src = convertirAGoogleThumbnail(value);
     img.alt = label;
     if (extraClass) img.classList.add(extraClass);
     img.onclick = () => mostrarLightbox(value);
-    container.appendChild(img);
+    imgContainer.appendChild(img);
+
+    if (feedbackActions) {
+        const overlay = document.createElement('div');
+        overlay.className = 'feedback-overlay';
+        overlay.appendChild(feedbackActions.util);
+        overlay.appendChild(feedbackActions.report);
+        imgContainer.appendChild(overlay);
+    }
+
+    wrapper.appendChild(imgContainer);
+    container.appendChild(wrapper);
 }
+
 
 function crearVideoDetalle(label, value, container) {
     if (!value) return;
@@ -2096,17 +1959,16 @@ function mostrarDetalleTutorial(item) {
     cont.appendChild(title);
 
     const campos = [
-        { label: "Cómo identificarlo", value: item.comoIdentificarlo },
-        { label: "Dónde encontrarlo", value: item.dondeEncontrarlo },
-        { label: "Detalles", value: item.detalles }
+        { label: "Cómo identificarlo", value: item.comoIdentificarlo, field: 'comoIdentificarlo' },
+        { label: "Dónde encontrarlo", value: item.dondeEncontrarlo, field: 'dondeEncontrarlo' },
+        { label: "Detalles", value: item.detalles, field: 'detalles' }
     ];
     campos.forEach(c => {
-        const p = crearElementoDetalle(c.label, c.value);
-        if (p) cont.appendChild(p);
+        cont.appendChild(crearElementoDetalle(c.label, c.value, item.id, c.field));
     });
 
-    crearImagenDetalle("Imagen", item.imagen, cont);
-    crearVideoDetalle("Video Guía", item.video, cont);
+    crearImagenDetalle("Imagen", item.Imagen, cont);
+    crearVideoDetalle("Video Guía", item.videoGuia, cont);
     document.getElementById("modalDetalle").classList.add("visible");
 }
 
@@ -2115,8 +1977,9 @@ function mostrarDetalleRelay(item) {
     uiState.isModalOpen = true;
 
     const cont = document.getElementById("detalleCompleto");
-    cont.innerHTML = "";
+    cont.innerHTML = ""; // Limpiar contenido anterior
 
+    // --- 1. Botones de Cerrar y Compartir ---
     const headerDiv = document.createElement("div");
     headerDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;";
     const closeBtn = document.createElement("button");
@@ -2134,20 +1997,19 @@ function mostrarDetalleRelay(item) {
     cont.appendChild(title);
 
     const campos = [
-        { label: "Función", value: item.funcion },
-        { label: "Vehículo donde se utiliza", value: item.vehiculoDondeSeUtiliza },
-        { label: "PIN 30 (entrada)", value: item.pin30Entrada },
-        { label: "PIN 85 (bobina +)", value: item.pin85Bobina },
-        { label: "PIN 86 (bobina - )", value: item.pin86Bobina },
-        { label: "PIN 87a (comun cerrado)", value: item.pin87aComunCerrado },
-        { label: "PIN 87 (Comunmente Abierto)", value: item.pin87ComunmenteAbierto },
-        { label: "Observación", value: item.observacion }
+        { label: "Función", value: item.funcion, field: 'funcion' },
+        { label: "Vehículo donde se utiliza", value: item.vehiculoDondeSeUtiliza, field: 'vehiculoDondeSeUtiliza' },
+        { label: "PIN 30 (entrada)", value: item.pin30Entrada, field: 'pin30Entrada' },
+        { label: "PIN 85 (bobina +)", value: item.pin85Bobina, field: 'pin85BobinaPositivo' },
+        { label: "PIN 86 (bobina - )", value: item.pin86Bobina, field: 'pin86bobinaNegativo' },
+        { label: "PIN 87a (comun cerrado)", value: item.pin87aComunCerrado, field: 'pin87aComunCerrado' },
+        { label: "PIN 87 (Comunmente Abierto)", value: item.pin87ComunmenteAbierto, field: 'pin87ComunmenteAbierto' },
+        { label: "Observación", value: item.observacion, field: 'observacion' }
     ];
     campos.forEach(c => {
-        const p = crearElementoDetalle(c.label, c.value);
-        if (p) cont.appendChild(p);
+        cont.appendChild(crearElementoDetalle(c.label, c.value, item.id, c.field));
     });
-    crearImagenDetalle("Imagen", item.imagen, cont);
+    crearImagenDetalle("Diagrama", item.imagen, contenidoDiv);
     const relayImg = cont.querySelector('img[alt="Imagen"]');
     if (relayImg) {
         relayImg.style.maxHeight = '250px';
@@ -2156,90 +2018,106 @@ function mostrarDetalleRelay(item) {
 }
 
 function getLogoUrlForMarca(marca, categoria) {
-    if (!datosLogos || !marca) return null;
-
-    // Normalizar el nombre de la marca eliminando paréntesis y guiones
-    const normalize = (str) => str.toLowerCase().replace(/[\(\)-]/g, '');
-    const normalizedMarca = normalize(marca);
-
-    let searchNames = [normalizedMarca];
-    if (categoria) {
-        // Ejemplo: si categoria es "Motocicleta", buscará "hondamotocicleta" y luego "honda"
-        searchNames.unshift(normalize(`${marca}${categoria}`));
+    if (!datosLogos || !datosLogos.length || !marca) {
+        debugLog('LOGO_SEARCH_FAIL', 'Datos de logo o marca no disponibles.', { marca, categoria });
+        return null;
     }
 
-    for (const name of searchNames) {
-        const logoEntry = datosLogos.find(logo => normalize(logo.nombreMarca) === name);
-        if (logoEntry && logoEntry.urlLogo) {
-            return convertirAGoogleThumbnail(logoEntry.urlLogo, 'logo');
+    const normalize = (str) => str ? str.toLowerCase().replace(/[^a-z0-9]/g, '') : '';
+
+    const normalizedMarca = normalize(marca);
+    const normalizedCategoria = normalize(categoria);
+
+    // 1. Find all logos that could potentially match the brand name.
+    const potentialMatches = datosLogos.filter(logo => {
+        const normalizedLogoMarca = normalize(logo.nombreMarca);
+        return normalizedLogoMarca.startsWith(normalizedMarca);
+    });
+
+    if (potentialMatches.length === 0) {
+        debugLog('LOGO_SEARCH_FAIL', 'No se encontraron logos para la marca.', { marca: normalizedMarca });
+        return null;
+    }
+
+    if (potentialMatches.length === 1) {
+        return potentialMatches[0].urlLogo;
+    }
+
+    // 2. Multiple matches exist. Use category to find the best one.
+    let bestMatch = null;
+
+    // Look for a category-specific match first.
+    if (normalizedCategoria) {
+        // Handle synonyms for motorcycles to make matching more robust.
+        const catSynonyms = (normalizedCategoria === 'motos' || normalizedCategoria === 'motocicletas')
+            ? ['motos', 'motocicletas']
+            : [normalizedCategoria];
+
+        for (const synonym of catSynonyms) {
+            bestMatch = potentialMatches.find(logo => normalize(logo.nombreMarca).includes(synonym));
+            if (bestMatch) break; // Found a specific match, stop searching.
         }
     }
 
-    return null;
+    // 3. If no category-specific match was found, find the "generic" or base logo.
+    // The base logo is the one whose normalized name exactly matches the brand name.
+    if (!bestMatch) {
+        bestMatch = potentialMatches.find(logo => normalize(logo.nombreMarca) === normalizedMarca);
+    }
+
+    // As a final fallback, if we still don't have a clear winner (e.g., no exact base match),
+    // find the shortest name, assuming it's the base one (e.g., "Honda" is shorter than "Honda Motocicletas").
+    if (!bestMatch) {
+         bestMatch = potentialMatches.reduce((prev, current) => {
+            return (prev.nombreMarca.length < current.nombreMarca.length) ? prev : current;
+        });
+    }
+
+    // Return the URL of the best match found, or null if something went wrong.
+    if (bestMatch) {
+        return bestMatch.urlLogo;
+    } else {
+        // This case should be rare, but as a last resort, return the first potential match.
+        debugLog('LOGO_SEARCH_WARN', 'Múltiples logos encontrados pero no se pudo desambiguar. Devolviendo el primero.', { marca, categoria, matches: potentialMatches });
+        return potentialMatches.length > 0 ? potentialMatches[0].urlLogo : null;
+    }
 }
 
-/**
- * Convierte una variedad de URLs de Google Drive a un formato de thumbnail directo.
- * Es compatible con enlaces de vista, previsualización, uc, open, y googleusercontent.
- * @param {string} url - La URL de Google Drive a convertir.
- * @param {string} [type='image'] - El tipo de imagen ('image', 'logo', o un tamaño específico como 'w2000').
- * @returns {string} La URL del thumbnail, la URL original, o un placeholder.
- */
-function convertirAGoogleThumbnail(url, type = 'image') {
-    if (!url || typeof url !== 'string' || url.trim() === '') {
-        // Para logos, no mostrar placeholder, solo una cadena vacía.
-        return type === 'logo' ? '' : "https://placehold.co/280x200/cccccc/333333?text=Sin+Imagen";
+function convertirAGoogleThumbnail(url) {
+    if (!url) return "https://placehold.co/280x200/cccccc/333333?text=Sin+Imagen";
+
+    // Expresión regular mejorada para capturar el ID de varias URLs de Google Drive:
+    // 1. /file/d/ID
+    // 2. id=ID
+    // 3. /d/ID (para formatos más cortos)
+    const idMatch = String(url).match(/file\/d\/([a-zA-Z0-9_-]+)|id=([a-zA-Z0-9_-]+)|\/d\/([a-zA-Z0-9_-]+)/);
+
+    // Si se encuentra una coincidencia, construye la URL del thumbnail.
+    // Los grupos de captura pueden estar en idMatch[1], idMatch[2], o idMatch[3].
+    if (idMatch) {
+        const fileId = idMatch[1] || idMatch[2] || idMatch[3];
+        return `https://drive.google.com/thumbnail?sz=w1000&id=${fileId}`;
     }
 
-    let fileId = null;
-    const regexPatterns = [
-        // Patrones más específicos primero para mayor precisión
-        // Formatos: /file/d/ID, /d/ID
-        /(?:\/file\/d\/|\/d\/)([a-zA-Z0-9_-]{25,})/,
-        // Formato: open?id=ID
-        /open\?id=([a-zA-Z0-9_-]{25,})/,
-        // Formato: uc?id=ID
-        /uc\?id=([a-zA-Z0-9_-]{25,})/,
-        // Formato: googleusercontent.com/d/ID
-        /googleusercontent\.com\/d\/([a-zA-Z0-9_-]{25,})/,
-        // Fallback para cualquier otro parámetro ?id=ID o &id=ID
-        /[?&]id=([a-zA-Z0-9_-]{25,})/
-    ];
-
-    for (const pattern of regexPatterns) {
-        const match = url.match(pattern);
-        if (match && match[1]) {
-            fileId = match[1];
-            break;
-        }
-    }
-
-    if (fileId) {
-        let size = 'w1000'; // Default size
-        if (type === 'logo') {
-            size = 'w256';
-        } else if (type && !type.startsWith('w')) { // A specific size is requested, e.g., '200'
-            size = `w${type}`;
-        } else if (type) { // A full size parameter is passed, e.g., 'w2000'
-            size = type;
-        }
-        return `https://drive.google.com/thumbnail?sz=${size}&id=${fileId}`;
-    }
-
-    // Si no se pudo extraer un ID pero la URL parece válida, devolverla tal cual.
-    if (url.startsWith('http')) {
-        return url;
-    }
-
-    // Si no es convertible ni una URL válida, devolver placeholder (o vacío para logos).
-    return type === 'logo' ? '' : "https://placehold.co/280x200/cccccc/333333?text=Sin+Imagen";
+    // Si no es una URL de Google Drive reconocible, devolver la URL original.
+    // Esto permite el uso de URLs de imágenes directas de otras fuentes.
+    return url;
 }
 
 function mostrarLightbox(src) {
     const lightboxImg = document.getElementById("lightboxImg");
-    lightboxImg.src = ""; // Limpiar imagen anterior para evitar flashes
-    // Usar la nueva función robusta para obtener la URL de alta resolución
-    const finalUrl = convertirAGoogleThumbnail(src, 'w2000');
+    lightboxImg.src = ""; // Limpiar imagen anterior para evitar parpadeos
+
+    // Usar la función robusta 'convertirAGoogleThumbnail' para obtener la URL base
+    // y luego ajustar el tamaño para alta resolución.
+    let finalUrl = convertirAGoogleThumbnail(src);
+
+    // Si la URL fue convertida a un thumbnail de Google, reemplazar 'sz=w1000' por 'sz=w2000' para mayor calidad.
+    // Si no, usar la URL tal cual (para imágenes que no son de Drive).
+    if (finalUrl.includes('drive.google.com/thumbnail')) {
+        finalUrl = finalUrl.replace('sz=w1000', 'sz=w2000');
+    }
+
     lightboxImg.src = finalUrl;
     document.getElementById("lightbox").classList.add("visible");
 }
@@ -2282,218 +2160,251 @@ function mostrarDetalleModal(item) {
     const cont = document.getElementById("detalleCompleto");
     cont.innerHTML = ""; // Limpiar contenido anterior
 
-    // --- Header del Modal ---
+    // --- 1. Botones de Cerrar y Compartir ---
     const headerDiv = document.createElement("div");
-    headerDiv.style.cssText = "display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;";
-
+    headerDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;";
     const closeBtn = document.createElement("button");
     closeBtn.textContent = "Cerrar";
     closeBtn.onclick = () => cerrarModal();
     closeBtn.className = "backBtn";
     closeBtn.style.cssText = "color:white; background:#dc3545; border:none; margin:0;";
-
-    const yearRange = item.anoHasta && item.anoHasta !== item.anoDesde ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
-    const titulo = `${item.marca} ${item.modelo} ${yearRange || ''}`;
-    const shareBtn = crearBotonCompartir('cortes', item.id, titulo);
-
     headerDiv.appendChild(closeBtn);
-    headerDiv.appendChild(shareBtn);
+    const yearRange = item.anoHasta ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
+    const titulo = `${item.marca} ${item.modelo} ${yearRange || ''}`;
+    headerDiv.appendChild(crearBotonCompartir('cortes', item.id, titulo));
     cont.appendChild(headerDiv);
 
-    // --- Título y Logo ---
-    const titleContainer = document.createElement('div');
-    titleContainer.style.position = 'relative'; // Contenedor relativo para el logo absoluto
-    const titleH2 = document.createElement("h2");
-    titleH2.textContent = `Detalle de ${titulo}`;
-    titleH2.style.cssText = "color:#007bff; border-bottom:3px solid #007bff; padding-bottom:10px; margin-right: 110px;"; // Espacio para el logo
-    titleContainer.appendChild(titleH2);
+    // --- 2. Título principal con logo de marca (Flexbox Layout) ---
+    const titleContainer = document.createElement("div");
+    titleContainer.style.cssText = "display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #007bff; padding-bottom: 10px; margin-bottom: 15px;";
+
+    const title = document.createElement("h2");
+    title.textContent = `Detalle de ${titulo}`;
+    title.style.cssText = "color:#007bff; margin: 0; padding: 0; flex-grow: 1;"; // No border here
+    titleContainer.appendChild(title);
 
     const logoUrl = getLogoUrlForMarca(item.marca, item.categoria);
     if (logoUrl) {
         const logoImg = document.createElement("img");
         logoImg.src = logoUrl;
-        logoImg.style.cssText = "position: absolute; top: -5px; right: 0; height: 50px; width: auto; max-width: 100px; object-fit: contain;";
+        logoImg.style.cssText = "height: 50px; width: auto; max-width: 100px; object-fit: contain; margin-left: 15px;";
         titleContainer.appendChild(logoImg);
     }
     cont.appendChild(titleContainer);
 
-    // --- Nota Importante y Imagen del Vehículo ---
+    // --- 3. Nota Importante (si existe) ---
     if (item.notaImportante) {
         const p = document.createElement("p");
         p.innerHTML = `<strong style="color:red;">Nota Importante:</strong> <span style="color:#cc0000; font-weight: bold;">${item.notaImportante}</span>`;
         cont.appendChild(p);
     }
-    crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, 'img-vehiculo');
 
-    // --- Lógica de Recopilación y Ordenamiento de Cortes ---
-    const cortes = [];
+    // --- 4. Imagen del Vehículo (si existe) ---
+    crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, { extraClass: 'img-vehiculo' });
+
+    // --- Lógica de Cortes Refactorizada ---
+    const crearPanelCorte = (corteIndex, esRecomendado = false) => {
+        const tipoCorte = item[`tipoCorte${corteIndex}`];
+        if (!tipoCorte) return null;
+
+        const panel = document.createElement("div");
+        panel.className = esRecomendado ? "panel-recomendado" : "panel-desplegable";
+        if(esRecomendado) panel.style.cssText = "padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px; background-color: #f9f9f9;";
+
+
+        // Descripción (Ubicación y Color de Cable)
+        const ubicacion = item[`ubicacionCorte${corteIndex}`];
+        const colorCable = item[`colorCableCorte${corteIndex}`];
+        if (ubicacion || colorCable) {
+            let descripcionHTML = '';
+            if (ubicacion) descripcionHTML += `<strong>Ubicación:</strong> ${ubicacion}<br>`;
+            if (colorCable) descripcionHTML += `<strong>Color(es) de Cable:</strong> ${colorCable}`;
+            const p = document.createElement("p");
+            p.innerHTML = descripcionHTML;
+            panel.appendChild(p);
+        }
+
+        // Creación de botones de feedback
+        const utilBtn = document.createElement("button");
+        utilBtn.innerHTML = `<i class="fa-solid fa-thumbs-up"></i>`;
+        utilBtn.title = `Marcar como útil (${item[`utilCorte${corteIndex}`] || 0})`;
+        utilBtn.className = "feedback-btn-overlay util-btn";
+        utilBtn.onclick = () => handleLike(item.id, corteIndex, utilBtn);
+
+        const reportBtn = document.createElement("button");
+        reportBtn.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i>`;
+        reportBtn.title = "Reportar un problema";
+        reportBtn.className = "feedback-btn-overlay report-btn";
+        reportBtn.onclick = () => toggleReportSection(item.id, corteIndex);
+
+        // Imagen del Corte con Overlays de Feedback
+        crearImagenDetalle("Imagen del Corte", item[`imgCorte${corteIndex}`], panel, {
+            feedbackActions: { util: utilBtn, report: reportBtn }
+        });
+
+        // Información del Colaborador (fuera del overlay)
+        const collaboratorName = item[`colaboradorCorte${corteIndex}`];
+        if (collaboratorName) {
+            const collaboratorInfo = document.createElement('p');
+            collaboratorInfo.style.cssText = 'text-align: right; font-size: 0.9em; color: #555; margin-top: 8px; border-top: 1px solid #eee; padding-top: 8px;';
+            collaboratorInfo.innerHTML = `Colaborador: <strong>${collaboratorName}</strong>`;
+            panel.appendChild(collaboratorInfo);
+        }
+
+        // Link a Configuración de Relay (si existe)
+        const configRelay = item[`configRelay${corteIndex}`];
+        const relayMatch = datosRelay.find(r => r.configuracion === configRelay);
+        if (configRelay && relayMatch) {
+            const relayLink = document.createElement("a");
+            relayLink.href = "#";
+            relayLink.textContent = "Ver Configuración de Relay";
+            relayLink.style.display = "block";
+            relayLink.style.marginTop = "10px";
+            relayLink.onclick = (e) => { e.preventDefault(); mostrarDetalleRelayAnidado(configRelay); };
+            panel.appendChild(relayLink);
+        }
+
+        // Sección de Reporte (oculta por defecto)
+        const reportSection = document.createElement("div");
+        reportSection.id = `report-section-${item.id}-${corteIndex}`;
+        reportSection.style.display = 'none';
+        reportSection.style.marginTop = '15px';
+        reportSection.innerHTML = `<textarea id="report-input-${item.id}-${corteIndex}" placeholder="Describe el problema..." style="width:100%; min-height:60px;"></textarea><button id="submit-report-${item.id}-${corteIndex}" style="margin-top:5px;">Enviar</button>`;
+        panel.appendChild(reportSection);
+
+        return panel;
+    };
+
+    const allCortes = [];
     for (let i = 1; i <= 3; i++) {
         if (item[`tipoCorte${i}`]) {
-            cortes.push({
-                index: i, tipo: item[`tipoCorte${i}`], util: parseInt(item[`utilCorte${i}`], 10) || 0,
-                ubicacion: item[`ubicacionCorte${i}`], colorCable: item[`colorCableCorte${i}`],
-                imgCorte: item[`imgCorte${i}`], configRelay: item[`configRelay${i}`],
-                colaborador: item[`colaboradorCorte${i}`]
+            allCortes.push({
+                corteIndex: i,
+                tipoCorte: item[`tipoCorte${i}`],
+                utilCount: parseInt(item[`utilCorte${i}`] || 0, 10)
             });
         }
     }
-    cortes.sort((a, b) => b.util - a.util);
+    allCortes.sort((a, b) => b.utilCount - a.utilCount);
 
-    // --- Renderizar Corte Recomendado (si existe) ---
-    if (cortes.length > 0) {
-        const recomendado = cortes.shift(); // El más popular se saca del array
-        const panel = document.createElement("div");
-        panel.className = "panel-visible";
-        const h4 = document.createElement('h4');
-        h4.innerHTML = `<i class="fa-solid fa-star" style="color: #FFD700;"></i> Corte Recomendado: ${recomendado.tipo}`;
-        h4.style.marginTop = '20px';
-        cont.appendChild(h4);
-        renderizarContenidoCorte(panel, recomendado, item.id);
-        cont.appendChild(panel);
+    // --- 5. Corte Recomendado (si hay cortes) ---
+    if (allCortes.length > 0) {
+        const recomendado = allCortes[0];
+        const tituloRecomendado = document.createElement("h4");
+        tituloRecomendado.innerHTML = `<i class="fa-solid fa-star" style="color: #ffc107;"></i> Corte Recomendado: ${recomendado.tipoCorte}`;
+        cont.appendChild(tituloRecomendado);
+        const panelRecomendado = crearPanelCorte(recomendado.corteIndex, true);
+        if (panelRecomendado) cont.appendChild(panelRecomendado);
     }
 
-    // --- Preparar Acordeones para el resto de la información ---
-    const acordeonItems = [];
-    cortes.forEach(corte => {
-        acordeonItems.push({
-            titulo: `Corte Alternativo: ${corte.tipo} (Útil: ${corte.util})`,
-            renderFn: (panel) => renderizarContenidoCorte(panel, corte, item.id)
-        });
-    });
-    if (item.apertura || item.imgApertura) {
-        acordeonItems.push({
-            titulo: "Información de Apertura",
-            renderFn: (panel) => {
-                if (item.apertura) panel.appendChild(crearElementoDetalle("Detalle", item.apertura));
-                crearImagenDetalle("Imagen de Apertura", item.imgApertura, panel);
-            }
-        });
-    }
-    if (item.videoGuiaDesarmeUrl) {
-        acordeonItems.push({
-            titulo: "Video Guía de Desarme",
-            renderFn: (panel) => {
-                crearVideoDetalle("Video Guía", item.videoGuiaDesarmeUrl, panel);
-            }
-        });
-    }
-    if (item.cableAlimen || item.imgCableAlimen) {
-        acordeonItems.push({
-            titulo: "Información de Alimentación",
-            renderFn: (panel) => {
-                if (item.cableAlimen) panel.appendChild(crearElementoDetalle("Cable de Alimentación", item.cableAlimen));
-                crearImagenDetalle("Imagen de Alimentación", item.imgCableAlimen, panel);
-            }
-        });
-    }
+    // --- Contenedor para todas las secciones de acordeón ---
+    const accordionContainer = document.createElement('div');
+    cont.appendChild(accordionContainer);
 
-    // --- Renderizar Acordeones ---
-    if (acordeonItems.length > 0) {
-        const acordeonContainer = document.createElement('div');
-        acordeonContainer.style.marginTop = '20px';
-        acordeonItems.forEach(ac => {
+    const createAccordionSection = (title, contentGenerator) => {
+        const content = contentGenerator();
+        if (!content) return; // No crear la sección si no hay contenido
+
+        const btn = document.createElement("button");
+        btn.className = "accordion-btn";
+        btn.innerHTML = `${title} <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+        accordionContainer.appendChild(btn);
+        accordionContainer.appendChild(content);
+    };
+
+    // --- 6. Otros Cortes (si hay más de 1) ---
+    if (allCortes.length > 1) {
+        const otrosCortes = allCortes.slice(1);
+        const tituloOtros = document.createElement("h4");
+        tituloOtros.textContent = "Otros Cortes Disponibles";
+        tituloOtros.style.marginTop = '25px';
+        accordionContainer.appendChild(tituloOtros);
+
+        otrosCortes.forEach(corte => {
             const btn = document.createElement("button");
             btn.className = "accordion-btn";
-            btn.innerHTML = `${ac.titulo} <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
-            const panel = document.createElement("div");
-            panel.className = "panel-desplegable";
-            ac.renderFn(panel);
-            acordeonContainer.appendChild(btn);
-            acordeonContainer.appendChild(panel);
+            btn.innerHTML = `${corte.tipoCorte} <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+            accordionContainer.appendChild(btn);
+            const panel = crearPanelCorte(corte.corteIndex, false);
+            if (panel) accordionContainer.appendChild(panel);
         });
-        cont.appendChild(acordeonContainer);
     }
 
-    // --- Mostrar Modal ---
+    // --- 7. Cable de Alimentación ---
+    createAccordionSection("Cable de Alimentación", () => {
+        if (!item.cableAlimen && !item.imgCableAlimen) return null;
+        const panel = document.createElement("div");
+        panel.className = "panel-desplegable";
+        if (item.cableAlimen) panel.appendChild(crearElementoDetalle("Ubicación y color", item.cableAlimen));
+        crearImagenDetalle("Imagen de Alimentación", item.imgCableAlimen, panel);
+        return panel;
+    });
+
+    // --- 8. Detalles de Apertura ---
+    createAccordionSection("Detalles de Apertura", () => {
+        if (!item.apertura && !item.imgApertura) return null;
+        const panel = document.createElement("div");
+        panel.className = "panel-desplegable";
+        if (item.apertura) panel.appendChild(crearElementoDetalle("Procedimiento", item.apertura));
+        crearImagenDetalle("Imagen de Apertura", item.imgApertura, panel);
+        return panel;
+    });
+
+    // --- 9. Video Guía de Desarme ---
+    createAccordionSection("Video Guía de Desarme", () => {
+        if (!item.videoGuiaDesarmeUrl) return null;
+        const panel = document.createElement("div");
+        panel.className = "panel-desplegable";
+        crearVideoDetalle(null, item.videoGuiaDesarmeUrl, panel);
+        return panel;
+    });
+
+    // --- 10. Notas Personales ---
+    createAccordionSection("Notas Personales", () => {
+        const panel = document.createElement("div");
+        panel.className = "panel-desplegable";
+        panel.innerHTML = `<textarea placeholder="Escribe tus notas privadas aquí..." style="width: 100%; min-height: 80px; margin-top: 10px;"></textarea><button disabled style="margin-top: 5px;">Guardar Nota (Próximamente)</button>`;
+        return panel;
+    });
+
     document.getElementById("modalDetalle").classList.add("visible");
 }
 
-function renderizarContenidoCorte(panel, corte, vehicleId) {
-    if (corte.ubicacion || corte.colorCable) {
-        const p = document.createElement("p");
-        p.innerHTML = `<strong>Ubicación:</strong> ${corte.ubicacion || 'N/A'}<br><strong>Color(es) de Cable:</strong> ${corte.colorCable || 'N/A'}`;
-        panel.appendChild(p);
+function mostrarDetalleRelayAnidado(configRelay) {
+    const relayData = datosRelay.find(r => r.configuracion === configRelay);
+    if (!relayData) {
+        alert("No se encontraron detalles para esta configuración de relay.");
+        return;
     }
 
-    if (corte.configRelay) {
-        const relayInfo = datosRelay.find(r => r.configuracion === corte.configRelay);
-        if (relayInfo) {
-            const p = document.createElement("p");
-            p.innerHTML = `<strong>Configuración Relay:</strong> <a href="#" onclick="event.preventDefault(); mostrarDetalleRelayEnModal('${relayInfo.ID}')">${corte.configRelay}</a>`;
-            panel.appendChild(p);
-        } else {
-             panel.appendChild(crearElementoDetalle("Configuración Relay", corte.configRelay));
-        }
-    }
+    // Crear un nuevo modal en lugar de reusar el existente
+    const nestedModal = document.createElement('div');
+    nestedModal.className = 'info-modal';
+    nestedModal.style.display = 'flex';
+    nestedModal.style.zIndex = '2200'; // Asegurar que esté por encima del modal de detalles
 
-    crearImagenDetalle("Imagen del Corte", corte.imgCorte, panel);
+    const modalContent = document.createElement('div');
+    modalContent.className = 'info-modal-content';
 
-    const footerModal = document.createElement("div");
-    footerModal.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee; flex-wrap: wrap; gap: 10px;";
-    const colaboradorInfo = document.createElement("div");
-    colaboradorInfo.style.cssText = "font-size: 0.8em; color: #555;";
-    colaboradorInfo.innerHTML = `Agregado por: <strong>${corte.colaborador || 'N/A'}</strong>`;
-    const feedbackContainer = document.createElement("div");
-    feedbackContainer.style.cssText = "display: flex; gap: 10px; flex-wrap: wrap;";
-    const utilBtn = document.createElement("button");
-    utilBtn.className = "feedback-btn util-btn";
-    utilBtn.innerHTML = `<i class="fa-solid fa-thumbs-up"></i> Útil <span class="util-count">(${corte.util})</span>`;
-    utilBtn.onclick = () => handleLike(vehicleId, corte.index, utilBtn);
-    feedbackContainer.appendChild(utilBtn);
-    const reportBtn = document.createElement("button");
-    reportBtn.className = "feedback-btn report-btn";
-    reportBtn.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Reportar`;
-    reportBtn.onclick = () => toggleReportSection(vehicleId, corte.index);
-    feedbackContainer.appendChild(reportBtn);
-    footerModal.appendChild(colaboradorInfo);
-    footerModal.appendChild(feedbackContainer);
-    panel.appendChild(footerModal);
-    const reportSection = document.createElement("div");
-    reportSection.id = `report-section-${vehicleId}-${corte.index}`;
-    reportSection.className = 'report-section';
-    reportSection.style.display = 'none';
-    reportSection.innerHTML = `
-        <textarea id="report-input-${vehicleId}-${corte.index}" placeholder="Describe el problema o deja un comentario..."></textarea>
-        <button onclick="handleReportSubmit('${vehicleId}', ${corte.index})">Enviar</button>
-        <div class="comments-section" id="comments-section-${vehicleId}-${corte.index}"></div>
-    `;
-    panel.appendChild(reportSection);
-}
+    const closeBtn = document.createElement('span');
+    closeBtn.className = 'info-close-btn';
+    closeBtn.innerHTML = '&times;';
+    closeBtn.onclick = () => document.body.removeChild(nestedModal);
 
-function mostrarDetalleRelayEnModal(relayId) {
-    const relayItem = datosRelay.find(r => r.ID == relayId);
-    if (!relayItem) return;
+    modalContent.appendChild(closeBtn);
 
-    const cont = document.getElementById("relayDetalleCompleto");
-    cont.innerHTML = ""; // Limpiar
-
-    const headerDiv = document.createElement("div");
-    headerDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;";
     const title = document.createElement("h3");
-    title.textContent = `Detalle de Relay: ${relayItem.configuracion}`;
-    const closeBtn = document.createElement("span");
-    closeBtn.innerHTML = "&times;";
-    closeBtn.className = "info-close-btn";
-    closeBtn.onclick = () => document.getElementById("modalRelay").style.display = 'none';
-    headerDiv.appendChild(title);
-    headerDiv.appendChild(closeBtn);
-    cont.appendChild(headerDiv);
+    title.textContent = `Configuración de Relay: ${relayData.configuracion}`;
+    modalContent.appendChild(title);
 
-    const campos = [
-        { label: "Función", value: relayItem.funcion },
-        { label: "PIN 30 (Entrada)", value: relayItem.pin30Entrada },
-        { label: "PIN 85 (Bobina +)", value: relayItem.pin85BobinaPositivo },
-        { label: "PIN 86 (Bobina -)", value: relayItem.pin86bobinaNegativo },
-        { label: "PIN 87a (Común Cerrado)", value: relayItem.pin87aComunCerrado },
-        { label: "PIN 87 (Comúnmente Abierto)", value: relayItem.pin87ComunmenteAbierto },
-        { label: "Observación", value: relayItem.observacion }
-    ];
-    campos.forEach(c => {
-        if (c.value) cont.appendChild(crearElementoDetalle(c.label, c.value));
-    });
-    crearImagenDetalle("Diagrama", relayItem.imagen, cont);
+    crearImagenDetalle("Diagrama", relayData.imagen, modalContent);
+    const relayImg = modalContent.querySelector('img');
+    if (relayImg) {
+        relayImg.style.maxHeight = '250px';
+    }
 
-    document.getElementById("modalRelay").style.display = 'flex';
+    nestedModal.appendChild(modalContent);
+    document.body.appendChild(nestedModal);
 }
 
 function filtrarContenido(textoBusqueda) {
@@ -2528,13 +2439,33 @@ function mostrarResultadosBusquedaMarca(busquedaTexto) {
     }
     cont.innerHTML = `<h4>Resultados de búsqueda para: "${busquedaTexto}"</h4>`;
     const marcasUnicas = [...new Set(datosFiltrados.map(item => item.marca))].sort();
-    const grid = document.createElement("div"); grid.className = "grid";
+
+    const grid = document.createElement("div");
+    grid.className = "grid";
+    grid.style.gridTemplateColumns = "repeat(auto-fill, minmax(120px, 1fr))";
+    grid.style.gap = "30px";
+
     marcasUnicas.forEach(marca => {
-        const ejemplo = datosFiltrados.find(item => item.marca === marca && item.imagenVehiculo) || datosFiltrados.find(item => item.marca === marca);
-        const card = document.createElement("div"); card.className = "card";
+        const logoUrl = getLogoUrlForMarca(marca, null);
+        const card = document.createElement("div");
+        card.className = "card brand-logo-item"; // Usar el estilo de logo
         card.onclick = () => mostrarResultadosBusquedaModelo(busquedaTexto, marca);
-        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo.imagenVehiculo); img.alt = `Marca ${marca}`; card.appendChild(img);
-        const overlay = document.createElement("div"); overlay.className = "overlay"; overlay.innerHTML = marca; card.appendChild(overlay);
+
+        const img = document.createElement("img");
+        img.src = convertirAGoogleThumbnail(logoUrl);
+        img.alt = `Marca ${marca}`;
+        img.loading = "lazy";
+        card.appendChild(img);
+
+        // Opcional: Agregar un texto sutil debajo del logo si se desea
+        const brandName = document.createElement('p');
+        brandName.textContent = marca;
+        brandName.style.textAlign = 'center';
+        brandName.style.marginTop = '8px';
+        brandName.style.fontWeight = 'bold';
+        brandName.style.fontSize = '0.9em';
+        card.appendChild(brandName);
+
         grid.appendChild(card);
     });
     cont.appendChild(grid);
@@ -2586,169 +2517,394 @@ function mostrarResultadosBusquedaVersion(busquedaTexto, marcaFiltro, modeloFilt
 }
 
 function mostrarCategorias() {
-    handleNavigationClick('categoria', {});
-}
-
-async function handleNavigationClick(nivel, filtros) {
+    if (document.getElementById("searchInput").value.trim()) return;
+    estado = { nivel: "categorias", categoria: null };
     const cont = document.getElementById("contenido");
-    showSkeletonLoader(cont);
+    cont.innerHTML = ""; // Limpiar contenido
 
-    try {
-        const result = await postToAction('getNavigationData', { nivel: nivel, filtros: filtros });
+    // 1. Mostrar "Últimos Agregados" - RESTAURADO
+    mostrarUltimosAgregados();
 
-        if (result.status === 'success') {
-            const { data, nextNivel } = result;
+    // --- Función para crear carruseles ---
+    const crearCarrusel = (titulo, items, cardGenerator) => {
+        if (!items || items.length === 0) return;
 
-            // Si el backend nos salta al nivel final, mostramos el detalle directamente
-            if (nextNivel === 'final' && data.length === 1) {
-                const vehicle = datosOriginales.find(item => item.id == data[0].id);
-                mostrarDetalleModal(vehicle);
-                return;
-            }
+        const section = document.createElement('div');
+        const title = document.createElement('h4');
+        title.textContent = titulo;
+        title.style.marginTop = '40px';
+        section.appendChild(title);
 
-            renderNavigationGrid(nivel, data, nextNivel, filtros);
-        } else {
-            throw new Error(result.message);
-        }
-    } catch (error) {
-        cont.innerHTML = `<p style="color:red; text-align:center;">Error al cargar la navegación: ${error.message}</p>`;
-    }
-}
+        const carouselContainer = document.createElement('div');
+        carouselContainer.className = 'carousel-container';
+        const carouselTrack = document.createElement('div');
+        carouselTrack.className = 'carousel-track';
 
-function renderNavigationGrid(currentNivel, data, nextNivel, filtros) {
-    const cont = document.getElementById("contenido");
-    let titulo = `Seleccione ${currentNivel.charAt(0).toUpperCase() + currentNivel.slice(1)}`;
-    let backFunction = '';
-
-    // Lógica mejorada para el botón "Volver"
-    const buildFilterString = (filterObj) => JSON.stringify(filterObj).replace(/"/g, "'");
-
-    const backLinks = {
-        marca: () => `handleNavigationClick('categoria', {})`,
-        modelo: () => `handleNavigationClick('marca', ${buildFilterString({ categoria: filtros.categoria })})`,
-        version: () => `handleNavigationClick('modelo', ${buildFilterString({ categoria: filtros.categoria, marca: filtros.marca })})`,
-        tipoEncendido: () => `handleNavigationClick('version', ${buildFilterString({ categoria: filtros.categoria, marca: filtros.marca, modelo: filtros.modelo })})`,
-        generacion: () => `handleNavigationClick('tipoEncendido', ${buildFilterString({ categoria: filtros.categoria, marca: filtros.marca, modelo: filtros.modelo, version: filtros.version })})`,
+        items.forEach(item => {
+            const card = cardGenerator(item);
+            carouselTrack.appendChild(card);
+        });
+        carouselContainer.appendChild(carouselTrack);
+        section.appendChild(carouselContainer);
+        cont.appendChild(section);
+        // Aquí podrías agregar la lógica de los botones de scroll si lo necesitas
     };
-    if (backLinks[currentNivel]) {
-        backFunction = backLinks[currentNivel]();
-    }
 
-    // Títulos dinámicos
-    if (currentNivel === 'marca') titulo = `Marcas de ${filtros.categoria}`;
-    else if (currentNivel === 'modelo') titulo = `Modelos de ${filtros.marca}`;
-    else if (currentNivel === 'version') titulo = `Versiones de ${filtros.modelo}`;
-    else if (currentNivel === 'tipoEncendido') titulo = `Encendido para ${filtros.version || filtros.modelo}`;
-    else if (currentNivel === 'generacion') titulo = `Generaciones para ${filtros.tipoEncendido}`;
-
-
-    cont.innerHTML = backFunction ? `<span class="backBtn" onclick="${backFunction}">${backSvg} Volver</span><h4>${titulo}</h4>` : `<h4>${titulo}</h4>`;
-
-    const grid = document.createElement("div");
-    grid.className = "grid";
-
-    // Si no hay datos, mostrar un mensaje.
-    if (!data || data.length === 0) {
-        cont.innerHTML += '<p style="text-align:center;">No hay elementos para mostrar en esta sección.</p>';
-        return;
-    }
-
-    data.forEach(item => {
-        if (currentNivel === 'marca') {
-            // Nivel de Marcas: Renderizar como iconos/logos
-            const logoCard = document.createElement("div");
-            logoCard.className = "logo-card";
-
-            const newFiltros = { ...filtros, marca: item.nombreMarca };
-            logoCard.onclick = () => handleNavigationClick(nextNivel, newFiltros);
-
-            const img = document.createElement("img");
-            // Usar la URL del logo proporcionada por el backend.
-            img.dataset.src = convertirAGoogleThumbnail(item.urlLogo, 'logo');
-            // Si no hay logo, se mostrará un espacio vacío, pero el nombre será visible.
-            img.alt = `Logo de ${item.nombreMarca}`;
-
-            const name = document.createElement("div");
-            name.className = "logo-name";
-            name.textContent = item.nombreMarca;
-
-            logoCard.appendChild(img);
-            logoCard.appendChild(name);
-            grid.appendChild(logoCard);
-
-        } else {
-            // Otros niveles: Renderizar como tarjetas estándar
-            const card = document.createElement("div");
-            card.className = "card";
-
-            const newFiltros = { ...filtros };
-            // El 'item' puede ser un string (modelo, etc.) o un objeto ({id, label} para generación)
-            const filterValue = (typeof item === 'object' && item.id) ? item.id : item;
-            const currentFilterKey = (currentNivel === 'version') ? 'versionesAplicables' : currentNivel;
-             newFiltros[currentNivel] = filterValue;
-
-
-            card.onclick = () => {
-                if (nextNivel === 'final') {
-                    // El ID del vehículo final está en item.id
-                    const vehicle = datosOriginales.find(v => v.id == item.id);
-                    if (vehicle) mostrarDetalleModal(vehicle);
-                } else {
-                    handleNavigationClick(nextNivel, newFiltros);
-                }
-            };
-
-            const img = document.createElement("img");
-            const overlay = document.createElement("div");
-            overlay.className = "overlay";
-
-            if (typeof item === 'object' && item.label) { // Nivel de generación
-                overlay.innerHTML = item.label;
-                const vehicle = datosOriginales.find(v => v.id == item.id);
-                img.dataset.src = convertirAGoogleThumbnail(vehicle?.imagenVehiculo);
-            } else { // Otros niveles (modelo, version, tipoEncendido)
-                overlay.innerHTML = item;
-                // Encontrar un vehículo de ejemplo para la imagen
-                const ejemplo = datosOriginales.find(d => d[currentFilterKey] === item && filtros.marca === d.marca && filtros.categoria === d.categoria);
-                img.dataset.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
-            }
-
-            card.appendChild(img);
-            card.appendChild(overlay);
-            grid.appendChild(card);
-        }
+    // --- 1. Carrusel de Categorías ---
+    const categorias = sortedCategoriesList;
+    crearCarrusel('Búsqueda por Categoría', categorias, cat => {
+        const ejemplo = datosOriginales.find(item => item.categoria === cat && item.imagenVehiculo);
+        const card = document.createElement("div");
+        card.className = "card";
+        card.onclick = () => mostrarMarcas(cat);
+        const img = document.createElement("img");
+        img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
+        img.alt = `Categoría ${cat}`;
+        card.appendChild(img);
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+        overlay.innerHTML = cat;
+        card.appendChild(overlay);
+        return card;
     });
 
-    cont.appendChild(grid);
+    // --- 2. Carrusel de Marcas de Vehículos (Excluyendo Motocicletas) ---
+    const marcasVehiculos = [...new Set(datosOriginales
+        .filter(item => item.categoria.toLowerCase() !== 'motocicletas')
+        .map(item => item.marca))]
+        .filter(Boolean).sort();
+
+    crearCarrusel('Marcas de Vehículos', marcasVehiculos, marca => {
+        const logoUrl = getLogoUrlForMarca(marca, null);
+        const card = document.createElement("div");
+        card.className = "card brand-logo-item";
+        card.onclick = () => mostrarCategoriasPorMarca(marca);
+        const img = document.createElement("img");
+        img.src = convertirAGoogleThumbnail(logoUrl);
+        img.alt = `Marca ${marca}`;
+        card.appendChild(img);
+        return card;
+    });
+
+    // --- 3. Carrusel de Marcas de Motocicletas ---
+    const marcasMotos = [...new Set(datosOriginales
+        .filter(item => item.categoria.toLowerCase() === 'motocicletas')
+        .map(item => item.marca))]
+        .filter(Boolean).sort();
+
+    crearCarrusel('Marcas de Motocicletas', marcasMotos, marca => {
+        const logoUrl = getLogoUrlForMarca(marca, 'Motocicletas');
+        const card = document.createElement("div");
+        card.className = "card brand-logo-item";
+        card.onclick = () => mostrarModelos('Motocicletas', marca);
+        const img = document.createElement("img");
+        img.src = convertirAGoogleThumbnail(logoUrl);
+        img.alt = `Marca ${marca}`;
+        card.appendChild(img);
+        return card;
+    });
 }
 
 function mostrarUltimosAgregados() {
     const cont = document.getElementById("contenido");
     if (!datosOriginales || datosOriginales.length === 0) return;
 
-    const ultimosCortes = [...datosOriginales].sort((a, b) => b.id - a.id).slice(0, 6);
+    // Usar timestamp si existe, si no, usar id como fallback
+    const ultimosCortes = [...datosOriginales]
+        .sort((a, b) => {
+            const dateA = a.timestamp ? new Date(a.timestamp) : new Date(0);
+            const dateB = b.timestamp ? new Date(b.timestamp) : new Date(0);
+            if (dateB - dateA !== 0) return dateB - dateA;
+            return b.id - a.id; // Fallback al ID si los timestamps son iguales o inválidos
+        })
+        .slice(0, 6);
+
+    if (ultimosCortes.length === 0) return;
 
     const section = document.createElement('div');
-    section.style.marginTop = '40px';
+    section.id = 'ultimos-agregados-section';
+
     const title = document.createElement('h4');
-    title.textContent = 'Últimos agregados:';
+    title.textContent = 'Últimos Agregados';
     section.appendChild(title);
 
-    const grid = document.createElement('div'); grid.className = 'grid';
+    const carouselContainer = document.createElement('div');
+    carouselContainer.className = 'carousel-container';
+
+    const carouselTrack = document.createElement('div');
+    carouselTrack.className = 'carousel-track';
+
     ultimosCortes.forEach(item => {
-        const card = document.createElement("div"); card.className = "card";
+        const card = document.createElement("div");
+        card.className = "card";
+        card.style.animation = 'none';
+        card.style.opacity = '1';
         card.onclick = () => mostrarDetalleModal(item);
-        const img = document.createElement("img"); img.dataset.src = convertirAGoogleThumbnail(item.imagenVehiculo); img.alt = `${item.marca} ${item.modelo}`; card.appendChild(img);
-        const overlay = document.createElement("div"); overlay.className = "overlay";
+
+        const img = document.createElement("img");
+        img.src = convertirAGoogleThumbnail(item.imagenVehiculo);
+        img.alt = `${item.marca} ${item.modelo}`;
+        img.loading = "lazy";
+        card.appendChild(img);
+
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
         const yearRange = item.anoHasta ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
         overlay.innerHTML = `<div>${item.marca}</div><div style="font-size:0.8em; opacity:0.8;">${item.modelo} ${yearRange || ''}</div>`;
         card.appendChild(overlay);
-        grid.appendChild(card);
+        carouselTrack.appendChild(card);
     });
-    section.appendChild(grid);
+
+    carouselContainer.appendChild(carouselTrack);
+
+    // Función para determinar cuántas tarjetas son visibles
+    const getVisibleCards = () => {
+        const containerWidth = carouselContainer.offsetWidth;
+        const cardWidth = 140 + 20; // card width + margin
+        return Math.floor(containerWidth / cardWidth) || 1;
+    };
+
+    if (ultimosCortes.length > getVisibleCards()) {
+        // --- Lógica de Deslizamiento Táctil ---
+        let isDragging = false;
+        let startX, scrollLeft;
+
+        carouselTrack.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.pageX - carouselTrack.offsetLeft;
+            scrollLeft = carouselTrack.scrollLeft;
+            carouselTrack.style.cursor = 'grabbing';
+        });
+
+        carouselTrack.addEventListener('mouseleave', () => {
+            isDragging = false;
+            carouselTrack.style.cursor = 'grab';
+        });
+
+        carouselTrack.addEventListener('mouseup', () => {
+            isDragging = false;
+            carouselTrack.style.cursor = 'grab';
+        });
+
+        carouselTrack.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const x = e.pageX - carouselTrack.offsetLeft;
+            const walk = (x - startX) * 2; // El multiplicador ajusta la sensibilidad
+            carouselTrack.scrollLeft = scrollLeft - walk;
+        });
+
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'carousel-btn prev';
+        prevBtn.innerHTML = '&#10094;';
+        carouselContainer.appendChild(prevBtn);
+
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'carousel-btn next';
+        nextBtn.innerHTML = '&#10095;';
+        carouselContainer.appendChild(nextBtn);
+
+        let currentIndex = 0;
+        const cardWidth = 140 + 20;
+        const totalCards = ultimosCortes.length;
+
+        const updateCarouselButtons = () => {
+            const scrollLeft = carouselTrack.scrollLeft;
+            const maxScrollLeft = carouselTrack.scrollWidth - carouselTrack.clientWidth;
+            prevBtn.style.display = scrollLeft > 0 ? 'flex' : 'none';
+            nextBtn.style.display = scrollLeft < maxScrollLeft - 1 ? 'flex' : 'none';
+        };
+
+        nextBtn.addEventListener('click', () => {
+            carouselTrack.scrollLeft += cardWidth * getVisibleCards();
+        });
+
+        prevBtn.addEventListener('click', () => {
+            carouselTrack.scrollLeft -= cardWidth * getVisibleCards();
+        });
+
+        carouselTrack.addEventListener('scroll', () => {
+             // Pequeño timeout para evitar que el botón desaparezca durante la animación de scroll
+            setTimeout(updateCarouselButtons, 150);
+        });
+
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(updateCarouselButtons, 100);
+        });
+
+        // Retrasar la llamada inicial para asegurar que el layout esté estable
+        setTimeout(updateCarouselButtons, 100);
+    }
+
+    section.appendChild(carouselContainer);
     cont.appendChild(section);
 }
 
+function mostrarMarcas(categoria) {
+    estado = { nivel: "marcas", categoria: categoria };
+    const cont = document.getElementById("contenido");
+    cont.innerHTML = `<span class="backBtn" onclick="irAPaginaPrincipal()">${backSvg} Volver</span><h4>Marcas de ${categoria}</h4>`;
+    const itemsInCategory = datosOriginales.filter(item => item.categoria === categoria);
+    const marcas = [...new Set(itemsInCategory.map(item => item.marca))].filter(m => m).sort();
+
+    // Adjust grid for logos to be more spacious
+    const grid = document.createElement("div");
+    grid.className = "grid";
+    grid.style.gridTemplateColumns = "repeat(auto-fill, minmax(120px, 1fr))";
+    grid.style.gap = "30px";
+
+    marcas.forEach(m => {
+        const logoUrl = getLogoUrlForMarca(m, categoria);
+        const logoContainer = document.createElement("div");
+        logoContainer.className = "card brand-logo-item"; // Apply new style
+        logoContainer.onclick = () => mostrarModelos(categoria, m);
+
+        const img = document.createElement("img");
+        img.src = convertirAGoogleThumbnail(logoUrl) || 'https://placehold.co/120x80/cccccc/333333?text=Sin+Logo';
+        img.alt = `Marca ${m}`;
+        img.loading = "lazy";
+
+        logoContainer.appendChild(img);
+        grid.appendChild(logoContainer);
+    });
+    cont.appendChild(grid);
+}
+
+function mostrarVersionesEquipamiento(categoria, marca) {
+    estado = { nivel: "versionesEquipamiento", categoria, marca };
+    const cont = document.getElementById("contenido");
+    cont.innerHTML = `<span class="backBtn" onclick="mostrarMarcas('${categoria}')">${backSvg} Volver</span><h4>Versiones de Equipamiento para ${marca}</h4>`;
+
+    const vehiculosDeMarca = datosOriginales.filter(item => item.categoria === categoria && item.marca === marca);
+    const versiones = [...new Set(vehiculosDeMarca.map(item => item.versionesAplicables).filter(v => v))];
+
+    const grid = document.createElement("div");
+    grid.className = "grid";
+
+    versiones.forEach(version => {
+        const ejemplo = vehiculosDeMarca.find(item => item.versionesAplicables === version && item.imagenVehiculo);
+        const card = document.createElement("div");
+        card.className = "card";
+        card.onclick = () => mostrarModelos(categoria, marca, version); // Pasamos la versión para filtrar
+
+        const img = document.createElement("img");
+        img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
+        img.alt = `Versión ${version}`;
+        card.appendChild(img);
+
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+        overlay.innerHTML = version;
+        card.appendChild(overlay);
+        grid.appendChild(card);
+    });
+
+    cont.appendChild(grid);
+}
+
+
+function mostrarModelos(categoria, marca, versionEquipamiento = null) {
+    estado = { nivel: "modelos", categoria, marca, versionEquipamiento };
+    const cont = document.getElementById("contenido");
+    const backAction = versionEquipamiento ? `mostrarVersionesEquipamiento('${categoria}', '${marca}')` : `mostrarMarcas('${categoria}')`;
+    cont.innerHTML = `<span class="backBtn" onclick="${backAction}">${backSvg} Volver</span><h4>Modelos de ${marca} ${versionEquipamiento || ''}</h4>`;
+
+    let modelosFiltrados = datosOriginales.filter(item => item.categoria === categoria && item.marca === marca);
+    if (versionEquipamiento) {
+        modelosFiltrados = modelosFiltrados.filter(item => item.versionesAplicables === versionEquipamiento);
+    }
+
+    const modelosUnicos = [...new Map(modelosFiltrados.map(item => [item.modelo, item])).values()].sort((a,b) => a.modelo.localeCompare(b.modelo));
+
+    if (modelosUnicos.length === 1) {
+        mostrarTiposEncendido(categoria, marca, versionEquipamiento, modelosUnicos[0].modelo);
+        return;
+    }
+
+    const grid = document.createElement("div"); grid.className = "grid";
+    modelosUnicos.forEach(ejemplo => {
+        const card = document.createElement("div"); card.className = "card";
+        card.onclick = () => mostrarTiposEncendido(categoria, marca, versionEquipamiento, ejemplo.modelo);
+        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(ejemplo.imagenVehiculo); img.alt = `Modelo ${ejemplo.modelo}`; card.appendChild(img);
+        const overlay = document.createElement("div"); overlay.className = "overlay";
+        overlay.innerHTML = `<div>${ejemplo.modelo}</div>`;
+        card.appendChild(overlay);
+        grid.appendChild(card);
+    });
+    cont.appendChild(grid);
+}
+
+function mostrarTiposEncendido(categoria, marca, versionEquipamiento, modelo) {
+     estado = { nivel: "tiposEncendido", categoria, marca, versionEquipamiento, modelo };
+    const cont = document.getElementById("contenido");
+    const backAction = `mostrarModelos('${categoria}', '${marca}', ${versionEquipamiento ? `'${versionEquipamiento}'` : null})`;
+    cont.innerHTML = `<span class="backBtn" onclick="${backAction}">${backSvg} Volver</span><h4>Tipos de Encendido para ${modelo}</h4>`;
+
+    let vehiculos = datosOriginales.filter(item =>
+        item.categoria === categoria &&
+        item.marca === marca &&
+        item.modelo === modelo &&
+        (!versionEquipamiento || item.versionesAplicables === versionEquipamiento)
+    );
+
+    const tiposEncendido = [...new Set(vehiculos.map(v => v.tipoEncendido).filter(Boolean))];
+
+    if (tiposEncendido.length === 1) {
+        mostrarVersiones(vehiculos, categoria, marca, modelo);
+        return;
+    }
+
+    const grid = document.createElement("div"); grid.className = "grid";
+    tiposEncendido.forEach(tipo => {
+        const ejemplo = vehiculos.find(v => v.tipoEncendido === tipo);
+        const card = document.createElement("div"); card.className = "card";
+        card.onclick = () => mostrarVersiones(vehiculos.filter(v => v.tipoEncendido === tipo), categoria, marca, modelo);
+
+        const img = document.createElement("img");
+        img.src = convertirAGoogleThumbnail(ejemplo.imagenVehiculo);
+        img.alt = tipo;
+        card.appendChild(img);
+
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+        overlay.innerHTML = tipo;
+        card.appendChild(overlay);
+        grid.appendChild(card);
+    });
+    cont.appendChild(grid);
+}
+
+function mostrarVersiones(filas, categoria, marca, modelo) {
+    estado = { nivel: "versiones", categoria, marca, modelo };
+    const cont = document.getElementById("contenido");
+    cont.innerHTML = `<span class="backBtn" onclick="mostrarModelos('${categoria}','${marca}')">${backSvg} Volver</span><h4>Cortes/Años de ${modelo}</h4>`;
+    const grid = document.createElement("div"); grid.className = "grid";
+    filas.forEach(item => {
+        const card = document.createElement("div"); card.className = "card";
+        card.onclick = () => mostrarDetalleModal(item);
+        const img = document.createElement("img"); img.src = convertirAGoogleThumbnail(item.imagenVehiculo); img.alt = `Corte ${item.anoDesde}`; card.appendChild(img);
+        const overlay = document.createElement("div"); overlay.className = "overlay";
+        const yearRange = item.anoHasta ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
+        overlay.innerHTML = `<div style="font-weight:bold;">${yearRange || modelo}</div><div style="font-size:0.8em;">${item.tipoEncendido || ''}</div>`;
+        card.appendChild(overlay);
+        grid.appendChild(card);
+    });
+    cont.appendChild(grid);
+}
+
+// --- LÓGICA DE NOTIFICACIONES ---
+function showNotificationToast(message, duration = 5000) {
+    const toast = document.getElementById('notification-toast');
+    toast.textContent = message;
+    toast.style.display = 'block';
+    toast.onclick = () => toast.style.display = 'none';
+
+    setTimeout(() => {
+        toast.style.display = 'none';
+    }, duration);
+}
 
 // --- INICIALIZACIÓN Y LÓGICA DE PWA ---
 let deferredPrompt;
@@ -2768,7 +2924,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
     if (!isStandalone) {
         if (isIOS) {
             // En iOS no se dispara 'beforeinstallprompt', manejaremos un botón personalizado.
-            // La lógica para mostrar el botón de iOS estará en inicializarApp.
             installButton.style.display = 'none';
         } else {
             // Para otros dispositivos (Android, Desktop), mostrar el botón.
@@ -2793,6 +2948,7 @@ installButton.addEventListener('click', async () => {
         installButton.style.display = 'none';
     }
 });
+
 
 // --- REGISTRO DEL SERVICE WORKER ---
 if ('serviceWorker' in navigator) {
@@ -2871,30 +3027,6 @@ async function inicializarApp() {
     // Lógica para el botón de instalación de iOS
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-
-    // --- LAZY LOADING DE IMÁGENES ---
-    let observer;
-    function lazyLoadImages() {
-        if (observer) {
-            observer.disconnect();
-        }
-
-        observer = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    img.src = img.dataset.src;
-                    observer.unobserve(img);
-                }
-            });
-        }, { rootMargin: "0px 0px 200px 0px" }); // Carga imágenes 200px antes de que entren en pantalla
-
-        const images = document.querySelectorAll('img[data-src]');
-        images.forEach(img => {
-            observer.observe(img);
-        });
-    }
-
 
     if (!isStandalone && isIOS) {
         // Crear y mostrar un botón/mensaje específico para iOS
@@ -3067,45 +3199,75 @@ document.querySelectorAll('#side-menu .menu-link').forEach(link => {
 
 async function handleLike(vehicleId, corteIndex, buttonElement) {
     const user = JSON.parse(localStorage.getItem(SESSION_KEY));
-    if (!user) {
+    if (!user || !user.Nombre_Usuario) {
         alert("Debes iniciar sesión para usar esta función.");
         return;
     }
+
+    // Disable button to prevent multiple clicks
+    buttonElement.onclick = null;
+    buttonElement.style.cursor = 'default';
+
     // Optimistic UI update
-    buttonElement.classList.add('pressed');
-    buttonElement.disabled = true;
-    const countSpan = buttonElement.querySelector('.util-count');
-    const currentCount = parseInt(countSpan.textContent.replace(/[\(\)]/g, ''), 10);
-    countSpan.textContent = `(${currentCount + 1})`;
+    const countSpan = buttonElement.querySelector('span');
+    const originalText = countSpan.textContent; // "Útil (X)"
+    const currentCountMatch = originalText.match(/\((\d+)\)/);
+    const currentCount = currentCountMatch ? parseInt(currentCountMatch[1], 10) : 0;
+
+    countSpan.textContent = `Útil (${currentCount + 1})`;
+    buttonElement.style.color = '#155724'; // Darker "success" green
 
     try {
         await postToAction('recordLike', {
-            vehicleId,
-            corteIndex,
+            vehicleId: vehicleId,
+            corteIndex: corteIndex,
             userId: user.ID,
             userName: user.Nombre_Usuario
         });
+
+        // After successful like, prompt for year suggestion
+        const suggestedYearRaw = prompt("¡Gracias por tu feedback! ¿Este corte también aplica para otro año? Si es así, ingrésalo aquí (ej: 2023). Si no, simplemente cancela.");
+
+        if (suggestedYearRaw) { // Check if user entered something
+            const year = parseInt(suggestedYearRaw.trim(), 10);
+            if (!isNaN(year) && year > 1980 && year < 2050) {
+                try {
+                    alert("Procesando tu sugerencia...");
+                    const result = await postToAction('suggestYear', {
+                        vehicleId: vehicleId,
+                        suggestedYear: year,
+                        userName: user.Nombre_Usuario
+                    });
+                    alert(result.message || "Sugerencia enviada. ¡Gracias por tu colaboración!");
+                } catch (error) {
+                    // Error is handled by postToAction which shows a global toast.
+                    // A specific alert might be redundant but can be helpful.
+                    alert("Hubo un error al enviar tu sugerencia. El problema ha sido reportado.");
+                }
+            } else if (suggestedYearRaw.trim() !== "") { // User entered non-year text
+                alert("Por favor, ingresa un año válido (ej: 2023).");
+            }
+        }
+
     } catch (error) {
-        // Revert UI on error
-        buttonElement.classList.remove('pressed');
-        buttonElement.disabled = false;
-        countSpan.textContent = `(${currentCount})`;
+        // Revert UI on error during the 'like' action
+        countSpan.textContent = originalText;
+        buttonElement.style.color = '#28a745'; // Revert color
+        // Re-enable the button with the original function
+        buttonElement.onclick = () => handleLike(vehicleId, corteIndex, buttonElement);
+        buttonElement.style.cursor = 'pointer';
+        // The error message is shown globally by postToAction, no need for an extra alert here.
     }
 }
 
-async function toggleReportSection(vehicleId, corteIndex) {
+
+function toggleReportSection(vehicleId, corteIndex) {
     const reportSection = document.getElementById(`report-section-${vehicleId}-${corteIndex}`);
-    const commentsSection = document.getElementById(`comments-section-${vehicleId}-${corteIndex}`);
+    const submitBtn = document.getElementById(`submit-report-${vehicleId}-${corteIndex}`);
 
-    const isVisible = reportSection.style.display === 'block';
-
-    if (!isVisible) {
+    if (reportSection.style.display === 'none') {
         reportSection.style.display = 'block';
-        // Cargar comentarios solo la primera vez que se abre
-        if (!commentsSection.dataset.loaded) {
-            await loadComments(vehicleId, corteIndex);
-            commentsSection.dataset.loaded = 'true';
-        }
+        submitBtn.onclick = () => handleReportSubmit(vehicleId, corteIndex);
     } else {
         reportSection.style.display = 'none';
     }
@@ -3113,7 +3275,7 @@ async function toggleReportSection(vehicleId, corteIndex) {
 
 async function handleReportSubmit(vehicleId, corteIndex) {
     const user = JSON.parse(localStorage.getItem(SESSION_KEY));
-    if (!user) {
+    if (!user || !user.Nombre_Usuario) {
         alert("Debes iniciar sesión para reportar un problema.");
         return;
     }
@@ -3134,45 +3296,11 @@ async function handleReportSubmit(vehicleId, corteIndex) {
             userId: user.ID,
             userName: user.Nombre_Usuario
         });
+        alert("Gracias por tu reporte. Lo revisaremos pronto.");
         reportInput.value = '';
-        // Recargar los comentarios para mostrar el nuevo
-        await loadComments(vehicleId, corteIndex);
+        toggleReportSection(vehicleId, corteIndex);
     } catch (error) {
-        // El error ya se maneja en postToAction
-    }
-}
-
-async function loadComments(vehicleId, corteIndex) {
-    const commentsSection = document.getElementById(`comments-section-${vehicleId}-${corteIndex}`);
-    commentsSection.innerHTML = '<p>Cargando comentarios...</p>';
-
-    try {
-        const result = await postToAction('getComments', { vehicleId });
-        if (result.status === 'success' && result.data) {
-            commentsSection.innerHTML = '';
-            if (result.data.length === 0) {
-                commentsSection.innerHTML = '<p>No hay comentarios aún. ¡Sé el primero!</p>';
-                return;
-            }
-
-            result.data.forEach(comment => {
-                const commentDiv = document.createElement('div');
-                commentDiv.className = 'comment';
-                let html = `<p><span class="user">${comment.user}</span> dice: <span class="text">"${comment.problem}"</span></p>`;
-
-                if (comment.response && comment.responder) {
-                    html += `<div class="response">
-                               <p><span class="responder">${comment.responder}</span> responde: <span class="text">"${comment.response}"</span></p>
-                             </div>`;
-                }
-                commentDiv.innerHTML = html;
-                commentsSection.appendChild(commentDiv);
-            });
-        } else {
-            throw new Error(result.message || 'No se pudieron cargar los comentarios.');
-        }
-    } catch (error) {
-        commentsSection.innerHTML = `<p style="color:red;">Error al cargar comentarios.</p>`;
+        // Error is handled by postToAction
     }
 }
 
@@ -3203,6 +3331,43 @@ function setupInfoModals() {
         e.preventDefault();
         openModal('faq-modal');
     });
+
+    // Inbox Modal
+    const inboxBtn = document.getElementById('inbox-btn');
+    if (inboxBtn) {
+        inboxBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            openModal('inbox-modal');
+            loadInboxItems();
+            closeSideMenu();
+        });
+    }
+
+    // Developer tools modal
+    const devToolsBtn = document.getElementById('dev-tools-btn');
+    if (devToolsBtn) {
+        devToolsBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const devModal = document.getElementById('dev-tools-modal');
+            const debugConsole = document.getElementById('debug-console');
+            const devConsoleContainer = document.getElementById('dev-console-container');
+
+            // Move debug console into the modal
+            if (debugConsole && devConsoleContainer) {
+                devConsoleContainer.appendChild(debugConsole);
+                debugConsole.style.position = 'relative';
+                debugConsole.style.width = '100%';
+                debugConsole.style.height = '100%';
+                debugConsole.style.bottom = 'auto';
+                debugConsole.style.right = 'auto';
+                debugConsole.style.display = 'flex';
+            }
+
+            openModal('dev-tools-modal');
+            closeSideMenu();
+        });
+    }
+
 
     // Close button listeners
     closeButtons.forEach(btn => btn.addEventListener('click', closeModal));
@@ -3251,175 +3416,185 @@ function setupInfoModals() {
         }
     });
 }
+// --- INBOX LOGIC ---
+let inboxItems = [];
+
+async function loadInboxItems() {
+    const listContainer = document.getElementById('inbox-list');
+    listContainer.innerHTML = '<p>Cargando mensajes...</p>';
+
+    try {
+        const result = await routeAction('getFeedbackItems', {}, 'FEEDBACK');
+        inboxItems = result.data; // La respuesta ahora es un array unificado
+
+        // Ordenar: no resueltos primero, luego por ID descendente
+        inboxItems.sort((a, b) => {
+            const aResolved = a.isResolved === true;
+            const bResolved = b.isResolved === true;
+            if (aResolved !== bResolved) {
+                return aResolved ? 1 : -1;
+            }
+            return b.id - a.id;
+        });
+
+        renderInboxList();
+    } catch (error) {
+        listContainer.innerHTML = `<p style="color: red;">Error al cargar mensajes: ${error.message}</p>`;
+    }
+}
+
+function renderInboxList() {
+    const listContainer = document.getElementById('inbox-list');
+    listContainer.innerHTML = '';
+
+    if (inboxItems.length === 0) {
+        listContainer.innerHTML = '<p>No hay mensajes.</p>';
+        return;
+    }
+
+    inboxItems.forEach(item => {
+        const itemDiv = document.createElement('div');
+        itemDiv.style.cssText = 'padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; border-radius: 5px;';
+        if (item.isResolved) {
+            itemDiv.style.opacity = '0.6';
+        }
+
+        const typeLabel = item.type === 'problem_report' ? 'Reporte' : 'Contacto';
+
+        itemDiv.innerHTML = `
+            <strong>${typeLabel} #${item.id}</strong><br>
+            <small>${item.subject}</small>
+        `;
+        itemDiv.onclick = () => renderInboxDetail(item.id, item.type);
+        listContainer.appendChild(itemDiv);
+    });
+}
+
+function renderInboxDetail(itemId, itemType) {
+    const detailContainer = document.getElementById('inbox-detail');
+    const item = inboxItems.find(i => i.id == itemId && i.type === itemType);
+
+    if (!item) {
+        detailContainer.innerHTML = '<p>Selecciona un item para ver los detalles.</p>';
+        return;
+    }
+
+    const typeLabel = item.type === 'problem_report' ? 'Reporte de Problema' : 'Formulario de Contacto';
+    let content = `<h3>${item.subject}</h3>`;
+
+    content += `<p><strong>De:</strong> ${item.user} | <strong>Tipo:</strong> ${typeLabel}</p>`;
+    if (item.vehicleId) {
+        content += `<p><strong>ID Vehículo:</strong> ${item.vehicleId}</p>`;
+    }
+    content += `<div style="background: #f1f1f1; padding: 10px; border-radius: 5px; margin-top: 10px;"><p>${item.content.replace(/\n/g, '<br>')}</p></div>`;
+
+    content += `
+        <hr>
+        <h4>Responder</h4>
+        <textarea id="reply-textarea" style="width: 100%; height: 100px; margin-bottom: 10px;" placeholder="Escribe tu respuesta...">${item.reply || ''}</textarea>
+        <button id="reply-btn" class="btn btn-primary">Enviar Respuesta</button>
+    `;
+
+    if(item.type === 'problem_report' && !item.isResolved) {
+        content += `<button id="resolve-btn" class="btn btn-success" style="margin-left: 10px;">Marcar como Resuelto</button>`;
+    }
+
+    detailContainer.innerHTML = content;
+
+    document.getElementById('reply-btn').onclick = async () => {
+        const replyText = document.getElementById('reply-textarea').value;
+        const session = JSON.parse(localStorage.getItem(SESSION_KEY));
+        await routeAction('replyToFeedback', { itemId, itemType, replyText, responderName: session.Nombre_Usuario }, 'FEEDBACK');
+        alert('Respuesta enviada.');
+        loadInboxItems(); // Refresh
+    };
+
+    if(document.getElementById('resolve-btn')) {
+        document.getElementById('resolve-btn').onclick = async () => {
+            await routeAction('markAsResolved', { itemId }, 'FEEDBACK');
+            alert('Marcado como resuelto.');
+            loadInboxItems(); // Refresh
+        };
+    }
+}
+
+
 // Llamar a la configuración de los modales de info cuando se inicializa la app.
 document.addEventListener('DOMContentLoaded', () => {
     setupInfoModals();
-    setupDevTools();
-    setupInbox();
-});
 
-function setupInbox() {
-    const inboxModal = document.getElementById('inbox-modal');
-    const inboxOpenBtn = document.getElementById('menu-inbox');
-    const inboxCloseBtn = inboxModal.querySelector('.info-close-btn');
+        // --- LÓGICA DE MODO OSCURO ---
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
 
-    if (inboxOpenBtn) {
-        inboxOpenBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            loadInbox();
-            inboxModal.style.display = 'flex';
-            closeSideMenu();
-        });
-    }
+        const enableDarkMode = () => {
+            document.body.classList.add('dark-mode');
+            localStorage.setItem('theme', 'dark');
+            darkModeToggle.checked = true;
+        };
 
-    inboxCloseBtn.addEventListener('click', () => {
-        inboxModal.style.display = 'none';
-    });
+        const disableDarkMode = () => {
+            document.body.classList.remove('dark-mode');
+            localStorage.setItem('theme', 'light');
+            darkModeToggle.checked = false;
+        };
 
-    async function loadInbox() {
-        const inboxContent = document.getElementById('inbox-content');
-        inboxContent.innerHTML = '<p>Cargando reportes...</p>';
-        try {
-            const result = await routeAction('getReportedProblems');
-            if (result.status === 'success' && result.data) {
-                renderInbox(result.data);
+        darkModeToggle.addEventListener('change', () => {
+            if (darkModeToggle.checked) {
+                enableDarkMode();
             } else {
-                inboxContent.innerHTML = `<p style="color:red;">${result.message || 'Error al cargar reportes.'}</p>`;
+                disableDarkMode();
             }
-        } catch (error) {
-            inboxContent.innerHTML = `<p style="color:red;">${error.message}</p>`;
-        }
-    }
+        });
 
-    function renderInbox(problems) {
-        const inboxContent = document.getElementById('inbox-content');
-        inboxContent.innerHTML = '';
-        if (problems.length === 0) {
-            inboxContent.innerHTML = '<p>No hay reportes pendientes.</p>';
+        // Aplicar el tema al cargar la página
+        const preferredTheme = localStorage.getItem('theme');
+        if (preferredTheme === 'dark') {
+            enableDarkMode();
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && preferredTheme !== 'light') {
+             // Si el usuario no ha elegido, pero su sistema lo prefiere, activarlo
+            enableDarkMode();
+        }
+
+    const migrateYearsBtn = document.getElementById('run-migrate-years');
+    const migrateTimestampsBtn = document.getElementById('run-migrate-timestamps');
+    const statusDiv = document.getElementById('migration-status');
+    const session = JSON.parse(localStorage.getItem(SESSION_KEY));
+
+    const runMigration = async (action, btn) => {
+        if (!confirm(`¿Estás seguro de que quieres ejecutar la acción '${action}'? Esta operación puede modificar una gran cantidad de datos y no se puede deshacer.`)) {
             return;
         }
 
-        problems.forEach(problem => {
-            const problemDiv = document.createElement('div');
-            problemDiv.className = 'inbox-item';
-            problemDiv.innerHTML = `
-                <div class="inbox-item-header">
-                    <span><strong>Usuario:</strong> ${problem.user}</span>
-                    <span><strong>Vehículo ID:</strong> ${problem.vehicleId}</span>
-                </div>
-                <p>${problem.problem}</p>
-                <div class="inbox-item-actions">
-                    <textarea id="reply-${problem.id}" placeholder="Escribe una respuesta..."></textarea>
-                    <button onclick="replyToProblem('${problem.id}')">Responder</button>
-                    <button onclick="resolveProblem('${problem.id}')">Resolver</button>
-                    <button class="delete-btn" onclick="deleteProblem('${problem.id}')">Eliminar</button>
-                </div>
-            `;
-            inboxContent.appendChild(problemDiv);
-        });
-    }
-
-    window.deleteProblem = async function(problemId) {
-        if (!confirm('¿Estás seguro de que quieres eliminar este reporte permanentemente?')) return;
-        try {
-            await routeAction('deleteProblem', { problemId });
-            loadInbox(); // Recargar
-        } catch (error) {
-            alert(`Error al eliminar: ${error.message}`);
-        }
-    }
-
-    window.replyToProblem = async function(problemId) {
-        const replyText = document.getElementById(`reply-${problemId}`).value;
-        const user = JSON.parse(localStorage.getItem(SESSION_KEY));
-        if (!replyText || !user) return;
+        btn.disabled = true;
+        statusDiv.style.display = 'block';
+        statusDiv.textContent = `Ejecutando ${action}...`;
+        statusDiv.style.backgroundColor = '#e2e3e5';
 
         try {
-            await routeAction('replyToProblem', { problemId, replyText, responderName: user.Nombre_Usuario });
-            loadInbox(); // Recargar
-        } catch (error) {
-            alert(`Error: ${error.message}`);
-        }
-    }
-
-    window.resolveProblem = async function(problemId) {
-        if (!confirm('¿Marcar este problema como resuelto?')) return;
-        try {
-            await routeAction('resolveProblem', { problemId });
-            loadInbox(); // Recargar
-        } catch (error) {
-            alert(`Error: ${error.message}`);
-        }
-    }
-}
-
-function setupDevTools() {
-    const devModal = document.getElementById('dev-modal');
-    const devConsole = document.getElementById('debug-console');
-    const devConsoleContainer = document.getElementById('dev-console-container');
-    const openBtn = document.getElementById('dev-tools-btn');
-    const closeBtn = devModal.querySelector('.info-close-btn');
-
-    // Mover la consola al modal
-    if (devConsole && devConsoleContainer) {
-        devConsoleContainer.appendChild(devConsole);
-        devConsole.style.position = 'relative';
-        devConsole.style.width = '100%';
-        devConsole.style.height = '100%';
-        devConsole.style.bottom = 'auto';
-        devConsole.style.right = 'auto';
-    }
-
-    // Abrir modal
-    openBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        devModal.style.display = 'flex';
-        // Mostrar la consola de depuración si está en modo debug
-        if (isDebugMode) {
-            devConsole.style.display = 'flex';
-        }
-        closeSideMenu(); // Cerrar el menú lateral
-    });
-
-    // Cerrar modal
-    closeBtn.addEventListener('click', () => {
-        devModal.style.display = 'none';
-    });
-
-    // Lógica de los botones de migración
-    const migrateYearsBtn = document.getElementById('migrate-years-btn');
-    const migrateTimestampsBtn = document.getElementById('migrate-timestamps-btn');
-    const statusDiv = document.getElementById('migration-status');
-
-    migrateYearsBtn.addEventListener('click', async () => {
-        if (!confirm('¿Estás seguro de que quieres ejecutar la migración de años? Esta acción puede modificar datos permanentemente.')) return;
-
-        statusDiv.textContent = 'Migrando años...';
-        try {
-            const result = await routeAction('migrateYearRanges', { role: 'Desarrollador' }); // Rol requerido por el backend
-            statusDiv.textContent = `Años: ${result.message}`;
+            // CORRECCIÓN: Enviar el objeto de sesión completo en el payload.
+            const result = await routeAction(action, { session: session }, 'UTILITIES');
+            statusDiv.textContent = `Éxito: ${result.message}`;
+            statusDiv.style.backgroundColor = '#d4edda';
         } catch (error) {
             statusDiv.textContent = `Error: ${error.message}`;
+            statusDiv.style.backgroundColor = '#f8d7da';
+        } finally {
+            btn.disabled = false;
         }
-    });
+    };
 
-    migrateTimestampsBtn.addEventListener('click', async () => {
-        if (!confirm('¿Estás seguro de que quieres ejecutar la migración de timestamps? Esta acción puede modificar datos permanentemente.')) return;
-
-        statusDiv.textContent = 'Migrando timestamps...';
-        try {
-            const result = await routeAction('migrateTimestamps', { role: 'Desarrollador' }); // Rol requerido por el backend
-            statusDiv.textContent = `Timestamps: ${result.message}`;
-        } catch (error) {
-            statusDiv.textContent = `Error: ${error.message}`;
-        }
-    });
-}
+    if(migrateYearsBtn) {
+        migrateYearsBtn.addEventListener('click', () => runMigration('migrateYearRanges', migrateYearsBtn));
+    }
+    if(migrateTimestampsBtn) {
+        migrateTimestampsBtn.addEventListener('click', () => runMigration('migrateTimestamps', migrateTimestampsBtn));
+    }
+});
 
 </script>
 
 <footer class="footer" style="display: none;">
-  Gpspedia v4.2.0 © 2024 todos los derechos reservados.
+  Gpspedia v4.0.0 © 2025 todos los derechos reservados.
   <div class="footer-links">
       <a id="footer-about-link">Sobre Nosotros</a>
       <a id="footer-contact-link">Contáctanos</a>
