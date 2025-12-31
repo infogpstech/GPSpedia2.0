@@ -247,8 +247,7 @@ function handleChangePassword(payload) {
 
     for (let i = 0; i < data.length; i++) {
         if (data[i][COLS_USERS.ID - 1] == userId) {
-            // Corrección: Alinear con la lógica de login, haciendo la comparación case-insensitive.
-            if (String(data[i][COLS_USERS.Password - 1]).toLowerCase() === String(currentPassword).toLowerCase()) {
+            if (String(data[i][COLS_USERS.Password - 1]) === String(currentPassword)) {
                 userSheet.getRange(i + 2, COLS_USERS.Password).setValue(newPassword);
                 return { status: 'success', message: 'Contraseña actualizada.' };
             } else {
