@@ -1,3 +1,7 @@
+**v4.4.3 (31-12-2025)**
+*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `GPSpedia-Catalog` a la nueva versión desplegada, asegurando que el frontend apunte al endpoint más reciente tras la implementación de la búsqueda flexible.
+    *   **Archivos Modificados:** `api-manager.js`: Línea 11.
+
 **v4.4.2 (31-12-2025)**
 *   **FIX & FEAT (services/catalog/catalog.js):** Se solucionó el error "Parámetros de búsqueda incompletos" y se implementó una lógica de búsqueda flexible.
     *   **Corrección:** Se alineó el parámetro `anoDesde` en la función `handleCheckVehicle` con los datos enviados desde el frontend, eliminando el error.
