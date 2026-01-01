@@ -63,26 +63,30 @@ Esta sección documenta el estado actual de las tareas de desarrollo. Todas las 
 
 ### Bugs y Regresiones Críticas
 
-1.  **Carga de Imágenes en Modal:**
-    - **Orden de Imágenes:** `[Falta Revisión]`
-    - **Layout y Espacio Vertical:** `[Falta Revisión]`
-2.  **Carga de Logos en Modal:** `[Falta Revisión]`
-3.  **Refactorización del Flujo de Escritura:** `[ ] En Progreso` - La interfaz del formulario de 3 etapas está avanzada, pero se necesita implementar toda la lógica de backend correspondiente en el servicio `GPSpedia-Write`.
+1.  **Reducción de espacio vertical de las Imágenes en Modal:**
+    - **Orden de Imágenes:** `[COMPLETADO]`
+    - **Layout ajuste del width mas grande, height auto y Espacio Vertical:** `[Pendiente]`
+2.  **Ajustes esteticos de Logos en Modal
+- Imagen del logo sin bordes, fondo transparente y drop-shadows directo en la imagen del logo de marca:** `[Pendiente]`
+3.  **Refactorización del Flujo de Escritura:** `[Pendiente]` 
+- La interfaz del formulario de 3 etapas está avanzada, pero se necesita implementar toda la lógica de backend correspondiente en el servicio `GPSpedia-Write`.
 4.  **Inconsistencias de Versionamiento:** `[ ] Pendiente` - Es necesario sincronizar la versión global para que el próximo gran lanzamiento sea `v2.0` y mejorar el formato de registro de fechas en `ChangesLogs.txt`.
 
 ### Revisiones de UI/UX
 
-5.  **Rediseño de Botones de Feedback:** `[Falta Revisión]` - Se redujo el tamaño de los botones en un 10%. Pendiente la revisión de la lógica de backend.
-6.  **Navegación para Carrusel de 'Categorías':** `[Falta Revisión]` - Se refactorizó la lógica de botones para que sea reutilizable en todos los carruseles.
-7.  **Creación del Carrusel 'Marcas de motos':** `[Falta Revisión]` - Se añadió la sección a la página principal.
+5.  **Rediseño de Botones de Feedback:** `[Completo]` - Se redujo el tamaño de los botones en un 10%. Pendiente la revisión de la lógica de backend.
+6.  **Navegación para Carrusel de 'Categorías':** `[Completado]` - Se refactorizó la lógica de botones para que sea reutilizable en todos los carruseles.
+7.  **Creación del Carrusel 'Marcas de motos':** `[PENDIENTE]` - Se intenta añadir, sin embago en cada intento causa que el catalogo "No se pudo cargar el catálogo. crearCarrusel is not defined"
 
 ### Nuevas Funcionalidades
 
-8.  **Sistema de Navegación Jerárquico:** `[ ] Pendiente` - Implementar el flujo de navegación guiado completo: Categoría -> Marca -> Modelo -> Versión/Encendido -> Año.
+8.  **Sistema de Navegación Jerárquico:** `[ ] Pendiente` - Implementar el flujo de navegación guiado completo: Categoría -> Marca -> Modelo -> Versión/Tipo Encendido -> Año.
 9.  **Sistema de Gestión de Feedback (Inbox):** `[ ] Pendiente` - La interfaz del Inbox está creada, pero se necesita implementar la lógica de backend en el servicio `GPSpedia-Feedback`.
-10. **Visibilidad de la Consola de Debugging:** `[Falta Revisión]` - Se eliminó la visibilidad por URL; ahora solo es accesible a través del modal de "Desarrollador".
+10. **Visibilidad de la Consola de Debugging:** `[Pendiente]` 
+- la consola de depuracion se nuestra al actualizar la pagina
 11. **Carga Optimizada de Imágenes (Lazy Load):** `[ ] Pendiente` - Implementar la carga progresiva de imágenes y utilizar URLs de thumbnails con tamaños específicos.
 12. **Lógica de Gestión de Años:** `[ ] Pendiente` - Falta implementar la lógica de backend para registrar los votos, la hoja de cálculo para almacenar dichos votos y mejorar la presentación del `alert`.
+se almacenara en la hoja de 'Feedbacks' en la columna 'anoSugerido'
 13. **Ordenamiento por Utilidad:** `[ ] Pendiente de Verificación` - Verificar si el backend (`GPSpedia-Catalog`) ordena los cortes por popularidad. Si no existe, se debe construir.
 14. **Expansión de Rango de Años por Feedback:** `[ ] Pendiente de Verificación` - Verificar si la lógica de backend que expande el rango de años existe. Si no, se debe construir.
 15. **Modal de Relay Anidado:** `[ ] Pendiente` - Implementar la lógica para validar el caso "Sin Relay".
@@ -96,7 +100,7 @@ Esta sección detalla los requerimientos para un nuevo conjunto de funcionalidad
 
 #### **1. Nuevo Microservicio: `GPSpedia-Utilities` (Ejecución Única)**
 
-Se creará un nuevo proyecto de Google Apps Script, independiente de los microservicios existentes, con el único propósito de realizar una migración y corrección de datos en la hoja `Cortes` de la base de datos. Este script se ejecutará una sola vez y contendrá dos funciones principales:
+[Resuelto] Se creará un nuevo proyecto de Google Apps Script, independiente de los microservicios existentes, con el único propósito de realizar una migración y corrección de datos en la hoja `Cortes` de la base de datos. Este script se ejecutará una sola vez y contendrá dos funciones principales:
 
 **A. Función 1: Migración de Rango de Años**
 *   **Objetivo:** Procesar la columna `anoDesde`, que actualmente contiene rangos de texto (ej. "2016-2022") o años únicos (ej. "2006"), para poblar correctamente las columnas `anoDesde` y `anoHasta` con valores numéricos individuales.
@@ -129,6 +133,7 @@ Se creará un nuevo proyecto de Google Apps Script, independiente de los microse
 #### **2. Modificaciones a Servicios Existentes (Lógica Continua)**
 
 **A. Servicio `GPSpedia-Feedback`: Lógica de Expansión de Rango de Años**
+[PENDIENTE]
 *   **Objetivo:** Mejorar la funcionalidad del botón "Útil" para que los usuarios puedan sugerir que un corte aplica a un año fuera del rango establecido, expandiendo dinámicamente la aplicabilidad del registro.
 *   **Lógica de Backend:**
     1.  El frontend enviará el `ID` del vehículo y el `año sugerido` por el usuario al backend.
@@ -148,14 +153,16 @@ Se creará un nuevo proyecto de Google Apps Script, independiente de los microse
         4.  La columna `anoHasta` del **segundo registro** se actualiza a `2026`.
 
 **B. Servicio `GPSpedia-Write`: Gestión de Timestamps y Lógica Frontend**
-*   **Objetivo:** Asegurar que la columna `timestamp` se actualice siempre que se realice una modificación significativa en un registro y que el frontend utilice esta información para mostrar el contenido más reciente.
+[EN PROCESO]
+*   **Objetivo:** Asegurar que la columna `timestamp` se actualice siempre que se realice una modificación significativa en un registro y que el frontend utilice esta información para mostrar el contenido más reciente. [EL FRONTEND YA NUESTRA LOS ULTIMOS CORTES POR ORDEN DE FECHA]
 *   **Lógica de Backend (`write.js`):**
-    1.  Al crear un **vehículo completamente nuevo**, se registrará la fecha actual en la columna `timestamp`.
-    2.  Al añadir un **nuevo corte** a un vehículo ya existente, la columna `timestamp` de esa fila se actualizará con la fecha actual.
-    3.  Al añadir **información suplementaria** (ej. detalles de apertura, videoguía), la columna `timestamp` también se actualizará con la fecha actual.
+    1.  Al crear un **vehículo completamente nuevo**, se registrará la fecha actual en la columna `timestamp`.[PENDIENTE]
+    2.  Al añadir un **nuevo corte** a un vehículo ya existente, la columna `timestamp` de esa fila se actualizará con la fecha actual.[Pendiente]
+    3.  Al añadir **información suplementaria** (ej. detalles de apertura, videoguía), la columna `timestamp` también se actualizará con la fecha actual.[Pendiente]
 *   **Lógica de Frontend (`index.html`):**
-    1.  La sección "Últimos Agregados" deberá obtener los datos del catálogo y ordenarlos en base a la columna `timestamp` en orden descendente antes de renderizarlos.
+    1.  La sección "Últimos Agregados" deberá obtener los datos del catálogo y ordenarlos en base a la columna `timestamp` en orden descendente antes de renderizarlos.[IMPLEMENTADO]
     2.  Las tarjetas de vehículo en esta sección deberán indicar qué tipo de información se agregó o actualizó recientemente (ej. "Nuevo Vehículo", "Corte Adicional", "Info. de Apertura"). Esto podría requerir una lógica adicional o un nuevo campo en la respuesta de la API.
+[pendiente]
 ---
 ### Arquitectura de la Base de Datos
 
@@ -184,7 +191,7 @@ A continuación se detalla la estructura de cada hoja en la base de datos. Los n
 - **Columnas:** `ID_Usuario`, `Usuario`, `ActiveSessions`, `date`, `Logs`.
 
 ##### 7. Hoja: `Feedbacks`
-- **Columnas:** `ID`, `Usuario`, `ID_vehiculo`, `Problema`, `Respuesta`, `Se resolvio`, `Responde`, `Reporte de util`.
+- **Columnas:** `ID`, `Usuario`, `ID_vehiculo`, `Problema`, `Respuesta`, `Se resolvio`, `Responde`, `Reporte de util`, 'anoSugerido'
 
 ##### 8. Hoja: `Contactanos`
 - **Columnas:** `Contacto_ID`, `User_ID`, `Asunto`, `Mensaje`, `Respuesta_mensaje`, `ID_usuario_responde`.
