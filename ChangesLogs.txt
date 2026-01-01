@@ -1,3 +1,7 @@
+**v4.4.5 (31-12-2025)**
+*   **INFRA (api-manager.js):** Se actualizaron las URLs de los microservicios `GPSpedia-Catalog` y `GPSpedia-Write` a las nuevas versiones desplegadas, asegurando que el frontend apunte a los endpoints más recientes.
+    *   **Archivos Modificados:** `api-manager.js`: Líneas 11-12.
+
 **v4.4.4 (31-12-2025)**
 *   **FEAT & REFACTOR (Full-Stack):** Se implementó un flujo de trabajo de adición de cortes completamente nuevo y mejorado, abarcando desde la búsqueda inteligente hasta la gestión de archivos y la documentación.
     *   **Frontend - Visualización de Coincidencias (`add_cortes.html`):**
