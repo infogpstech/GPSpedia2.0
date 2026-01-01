@@ -1,3 +1,8 @@
+**v4.3.10 (31/12/2025)**
+*   **FIX CRÍTICO (index.html):** Se ha solucionado de forma definitiva la causa raíz de la regresión que congelaba la aplicación en la pantalla de bienvenida (splash screen).
+    *   **Causa Raíz:** Un `ReferenceError` fatal de JavaScript. La función `crearCarrusel` era llamada por `mostrarUltimosAgregados` durante la carga inicial, pero su definición se encontraba dentro del ámbito local de `mostrarCategorias`, una función que aún no se había ejecutado. Esto detenía toda la ejecución de scripts.
+    *   **Solución:** Se ha refactorizado la estructura del código para solucionar el error de ámbito. La función `crearCarrusel` fue movida al ámbito global, asegurando que esté definida antes de ser invocada por cualquier otra función. Adicionalmente, se eliminó lógica duplicada y se consolidó el flujo de renderizado de la página principal. (Líneas 2689-2900).
+
 **v4.3.9 (31/12/2025)**
 *   **FIX CRÍTICO (index.html):** Se ha solucionado la causa raíz de una regresión crítica que impedía que la aplicación pasara de la pantalla de bienvenida (splash screen).
     *   **Causa Raíz:** Se introdujo un `ReferenceError` fatal en la función `mostrarDetalleModal`. Una variable `mainHeaderDiv` fue referenciada incorrectamente en lugar de `titleContainer`, provocando la detención completa de la ejecución de JavaScript y congelando la aplicación.
@@ -5,7 +10,7 @@
 
 **v4.3.7 (31/12/2025)**
 *   **FIX CRÍTICO (index.html):** Se solucionó un conjunto de regresiones críticas en la interfaz de usuario introducidas en v4.3.4, re-implementando los estilos y la lógica correctos basados en feedback detallado del usuario.
-    *   **Carrusel de Motocicletas:** Se corrigió la lógica de filtrado en `mostrarCategorias` para incluir tanto "motos" como "motocicletas", restaurando el carrusel de marcas de motocicletas que no se mostraba. (Línea 2351).
+    *   **Carrusel de Motocicletas:** Se corrigió la lógica de filtrado en `mostrarCategorias` para incluir tanto "motos" como "motocicletas", restaurando el carrusel de marcas de motocicletas que no se mostrabant. (Línea 2351).
     *   **Estilo del Logo en Modal:** En `mostrarDetalleModal`, se ajustó el logo de la marca a la altura correcta de `55px` y se aplicó el efecto `drop-shadow` directamente a la imagen en lugar de a su contenedor, corrigiendo el error visual. (Línea 1746).
     *   **Imagen Principal del Vehículo:** Se redimensionó la imagen principal del vehículo en el modal de detalle a una altura de `140px` y se le aplicó el efecto de sombra correcto, siguiendo las especificaciones de diseño. (Línea 1742).
     *   **Imagen de Corte a Ancho Completo:** Se aseguró que la imagen del corte (`imgCorte`) dentro del modal ocupe el 100% del ancho de su contenedor, solucionando el problema de tamaño. (Línea 1789).
