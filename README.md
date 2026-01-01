@@ -215,108 +215,35 @@ Se creará un nuevo proyecto de Google Apps Script, independiente de los microse
 
 ## 4. Trabajos Pendientes (Checklist)
 
-Esta sección documenta el estado actual de las tareas de desarrollo, bugs, regresiones y nuevas funcionalidades.
+Esta sección documenta el estado actual de las tareas de desarrollo, bugs, regresiones y nuevas funcionalidades. Todas las tareas marcadas como `[Falta Revisión]` deben ser validadas por el Project Manager.
 
-### Implementaciones por hacer
+### Bugs y Regresiones Críticas
 
-#### Bugs y Regresiones Críticas:
+1.  **Carga de Imágenes en Modal:**
+    - **Orden de Imágenes:** `[Falta Revisión]`
+    - **Layout y Espacio Vertical:** `[Falta Revisión]`
+2.  **Carga de Logos en Modal:** `[Falta Revisión]`
+3.  **Refactorización del Flujo de Escritura:** `[ ] En Progreso` - La interfaz del formulario de 3 etapas está avanzada, pero se necesita implementar toda la lógica de backend correspondiente en el servicio `GPSpedia-Write`.
+4.  **Inconsistencias de Versionamiento:** `[ ] Pendiente` - Es necesario sincronizar la versión global para que el próximo gran lanzamiento sea `v2.0` y mejorar el formato de registro de fechas en `ChangesLogs.txt`.
 
-1.  **Lógica del Modal de Detalle:** El modal de detalle solo cargaba la información del primer corte.
-    - **Estado:** `[X] Resuelto`.
+### Revisiones de UI/UX
 
-2.  **Carga de Imágenes en Modal:** Las imágenes asociadas a la apertura, cable de alimentación y relay no se mostraban o lo hacían en un orden incorrecto.
-    - **Estado:** `[ ] En Progreso`. Se muestran pero en orden equivocado, se necesita reducir el espacio vertical.
+5.  **Rediseño de Botones de Feedback:** `[Falta Revisión]` - Se redujo el tamaño de los botones en un 10%. Pendiente la revisión de la lógica de backend.
+6.  **Navegación para Carrusel de 'Categorías':** `[Falta Revisión]` - Se refactorizó la lógica de botones para que sea reutilizable en todos los carruseles.
+7.  **Creación del Carrusel 'Marcas de motos':** `[Falta Revisión]` - Se añadió la sección a la página principal.
 
-3.  **Carga de Logos en Modal:** El logo de la marca del vehículo no se cargaba en el modal.
-    - **Estado:** `[ ] Pendiente`.
+### Nuevas Funcionalidades
 
-4.  **Refactorización del Flujo de Escritura:** Implementar el nuevo flujo de trabajo de 3 etapas para añadir/actualizar cortes.
-    - **Estado:** `[ ] En Progreso`. Frontend avanzado, falta la lógica de backend.
-
-5.  **Inconsistencias de Versionamiento:** Sincronizar la versión global y las versiones de componentes.
-    - **Estado:** `[ ] Pendiente`. La versión global debe ser `v2.0` para el próximo gran lanzamiento. Mejorar el formato de registro de fechas.
-
-6.  **Visibilidad de Cortes:** Asegurar que las tres opciones de corte sean visibles en el modal si existen los datos.
-    - **Estado:** `[X] Resuelto`.
-
-#### Revisiones de UI/UX:
-
-8.  **Rediseño de Botones de Feedback:** Reemplazar botones "Sí/No" por sistema de pulgares (👍/👎) y añadir botones para "Sugerir un año" y "Reportar un problema".
-    - **Estado:** `[ ] En Progreso`. Frontend iniciado. Falta revisar lógica de backend y reducir el tamaño de los botones en un 10%.
-
-9.  **Reorganización de Secciones Principales:**
-    - **A. 'Últimos agregados':** Carrusel con navegación y touch scroll. `[X] Implementado`.
-    - **B. 'Categorias':** Carrusel con orden por popularidad. `[ ] Pendiente` (falta botones de navegación).
-    - **C. 'Marcas de vehículos':** Carrusel alfabético con logos. `[X] Implementado`.
-    - **D. 'Marcas de motos':** Carrusel con navegación y touch scroll. `[ ] Falta`.
-
-10. **Visualización de Marcas con Logos:** Usar los logos de Marcas en lugar de tarjetas de texto.
-    - **Estado:** `[X] Implementado`.
-
-#### Nuevas Funcionalidades:
-
-11. **Sistema de Navegación Jerárquico:** Implementar un flujo de navegación guiado (Categoría -> Marca -> Modelo -> Versión/Encendido -> Año).
-    - **Estado:** `[ ] Pendiente`.
-
-12. **Sistema de Gestión de Feedback (Inbox):** Desarrollar una interfaz para que Supervisores/Jefes gestionen los problemas reportados.
-    - **Estado:** `[ ] En Progreso` (Frontend implementado, falta lógica de backend).
-
-13. **Implementación de Modo Oscuro:** Añadir paleta de colores alternativa y un interruptor para activarlo/desactivarlo.
-    - **Estado:** `[X] Implementado`.
-
-14. **Debugging Integral:** Implementar un sistema de debugging accesible por rol.
-    - **Estado:** `[ ] En Progreso`. Implementado, pero la consola debe ser visible únicamente dentro del modal de desarrollador.
-
-15. **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva y uso de thumbnails de diferentes tamaños (tarjetas, modal, lightbox).
-    - **Estado:** `[ ] Pendiente`.
-
-#### Plan Estratégico v4 (Tareas Clave de Alto Nivel):
-
-16. **Diseñar Nuevo Esquema y Script de Migración:** Implementar la estructura DB v2.0 y desarrollar un script para migrar los datos.
-    - **Estado:** `[X] Resuelto`.
-
-17. **Lógica de Gestión de Años Simplificada:** El formulario solo solicitará un año y el rango se expandirá mediante feedback de "likes".
-    - **Estado:** `[ ] En Progreso`. Frontend implementado, falta lógica de backend, hoja de cálculo para votos y estilización del `alert`.
-
-18. **Lógica de Gestión de Logos Automatizada:** Asociar logos de marca automáticamente al agregar un nuevo vehículo.
-    - **Estado:** `[X] Implementado`.
-
-19. **Feedback Granular:** Implementar "likes" y colaborador por cada corte individual.
-    - **Estado:** `[X] Implementado`.
-
-20. **Ordenamiento por Utilidad:** El backend ordenará los cortes de un vehículo según su popularidad.
-    - **Estado:** `[ ] Pendiente`. Verificar si la lógica existe en el backend.
-
-21. **Campos Obligatorios:** Forzar el llenado de campos clave para cada nuevo corte.
-    - **Estado:** `[X] Implementado` en el frontend.
-
-22. **Expansión de Rango de Años por Feedback:** Permitir a los usuarios expandir el rango de años de un vehículo.
-    - **Estado:** `[ ] Pendiente` (Falta la lógica en backend).
-
-23. **Dashboard de Desempeño:** Crear una vista para Supervisores con métricas de contribución.
-    - **Estado:** `[ ] No implementado`.
-
-24. **Edición "In-Modal":** Permitir la edición de datos directamente desde el modal de detalles.
-    - **Estado:** `[ ] No implementado`.
-
-25. **Enlaces de un solo uso:** Generar enlaces temporales para compartir información sin necesidad de estar logueado.
-    - **Estado:** `[ ] No implementado`.
-
-26. **Notificaciones Inteligentes:** Colocar icono de notificaciones 🔔 junto al nombre de usuario. Asegurar compatibilidad de PWA multi-plataforma.
-    - **Estado:** `[ ] No implementado`.
-    - **Nota:** No reemplazar el botón de instalar. Reducirlo y mostrarlo solo si la PWA no está instalada.
-
-27. **Visualización de Logos:** Mostrar logos en el modal de detalle y en el listado de marcas.
-    - **Estado:** `[X] Implementado`.
-
-28. **Modo Offline Robusto:** Implementar caching avanzado.
-    - **Estado:** `[ ] No implementado`.
-
-29. **Notas Personales:** Permitir a los usuarios guardar notas privadas por vehículo.
-    - **Estado:** `[X] Descartado`.
-
-30. **Modal de Relay Anidado:** Mostrar detalles de configuraciones de Relay en un modal secundario.
-    - **Estado:** `[ ] En Progreso`. Implementado, falta la lógica para manejar la validación de datos de 'Sin Relay'.
+8.  **Sistema de Navegación Jerárquico:** `[ ] Pendiente` - Implementar el flujo de navegación guiado completo: Categoría -> Marca -> Modelo -> Versión/Encendido -> Año.
+9.  **Sistema de Gestión de Feedback (Inbox):** `[ ] Pendiente` - La interfaz del Inbox está creada, pero se necesita implementar la lógica de backend en el servicio `GPSpedia-Feedback`.
+10. **Visibilidad de la Consola de Debugging:** `[Falta Revisión]` - Se eliminó la visibilidad por URL; ahora solo es accesible a través del modal de "Desarrollador".
+11. **Carga Optimizada de Imágenes (Lazy Load):** `[ ] Pendiente` - Implementar la carga progresiva de imágenes y utilizar URLs de thumbnails con tamaños específicos.
+12. **Lógica de Gestión de Años:** `[ ] Pendiente` - Falta implementar la lógica de backend para registrar los votos, la hoja de cálculo para almacenar dichos votos y mejorar la presentación del `alert`.
+13. **Ordenamiento por Utilidad:** `[ ] Pendiente de Verificación` - Verificar si el backend (`GPSpedia-Catalog`) ordena los cortes por popularidad. Si no existe, se debe construir.
+14. **Expansión de Rango de Años por Feedback:** `[ ] Pendiente de Verificación` - Verificar si la lógica de backend que expande el rango de años existe. Si no, se debe construir.
+15. **Modal de Relay Anidado:** `[ ] Pendiente` - Implementar la lógica para validar el caso "Sin Relay".
+16. **Dashboard de Desempeño:** `[ ] Falta Implementar` - Crear la nueva sección para Supervisores.
+17. **Edición "In-Modal":** `[ ] Falta Implementar` - Permitir la edición de datos desde el modal de detalles.
 
 ## 4. Componentes del Backend (Microservicios)
 
