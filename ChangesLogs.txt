@@ -1,3 +1,10 @@
+**v4.4.6 (31-12-2025)**
+*   **FEAT & UX (add_cortes.html):** Se implementaron mejoras significativas en la visualización de las tarjetas de coincidencias de vehículos para proporcionar una experiencia de usuario más rica e informativa.
+    *   **Imágenes Detalladas y Lightbox:** Se integró la biblioteca `simple-lightbox-gallery` para permitir que las imágenes de los cortes se abran en una galería a pantalla completa con capacidad de zoom. La imagen del vehículo se muestra en un tamaño reducido (100px), mientras que las imágenes de los cortes son más grandes (180x120px) para facilitar su visualización.
+    *   **Renderizado de Imágenes de Drive:** Se añadió la función `convertirAGoogleThumbnail` para procesar correctamente las URLs de Google Drive y asegurar que todas las imágenes se rendericen correctamente.
+    *   **Información Adicional:** A la derecha de cada imagen de corte, ahora se muestran los detalles de "Ubicación" y "Color de Cable", proporcionando información crucial de un vistazo.
+    *   **Archivos Modificados:** `add_cortes.html`: Líneas 7 (CDN CSS), 35-43 (CSS), 200-212 (JS), 261-344 (JS), 438 (CDN JS).
+
 **v4.4.5 (31-12-2025)**
 *   **INFRA (api-manager.js):** Se actualizaron las URLs de los microservicios `GPSpedia-Catalog` y `GPSpedia-Write` a las nuevas versiones desplegadas, asegurando que el frontend apunte a los endpoints más recientes.
     *   **Archivos Modificados:** `api-manager.js`: Líneas 11-12.

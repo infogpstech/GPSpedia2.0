@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Agregar Nuevo - GPSpedia</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-lightbox-gallery/dist/lightbox.min.css" />
     <link rel="manifest" href="manifest.json">
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; color: #333; }
@@ -34,10 +35,12 @@
         .match-card-info { flex-grow: 1; }
         .match-card-info p { margin: 0 0 8px 0; font-size: 0.9em; }
         .match-card-info h4 { margin: 0 0 10px 0; color: #0056b3; }
-        .match-cuts-container { margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; }
-        .match-cuts-container h5 { margin: 0 0 10px 0; font-size: 0.95em; }
-        .match-cuts-grid { display: flex; gap: 10px; flex-wrap: wrap; }
-        .match-cut-img { width: 80px; height: 80px; border-radius: 4px; object-fit: cover; border: 1px solid #ccc; }
+        .match-vehicle-img { width: 100px; height: auto; border-radius: 6px; object-fit: cover; align-self: center; }
+        .match-cuts-section { margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee; }
+        .match-cut-item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px; }
+        .match-cut-item a { display: block; flex-shrink: 0; }
+        .match-cut-img { width: 180px; height: 120px; border-radius: 6px; object-fit: cover; border: 1px solid #ccc; }
+        .match-cut-details { font-size: 0.9em; }
         .suggestion { font-size: 0.85em; color: #666; margin-top: 5px; }
         .suggestion a { color: #007bff; text-decoration: none; cursor: pointer; }
         .suggestion a:hover { text-decoration: underline; }
@@ -194,6 +197,18 @@
             document.getElementById(`${field}-suggestion`).innerHTML = '';
         }
 
+        function convertirAGoogleThumbnail(url) {
+            if (!url) return "https://placehold.co/280x200/cccccc/333333?text=Sin+Imagen";
+
+            const idMatch = String(url).match(/file\/d\/([a-zA-Z0-9_-]+)|id=([a-zA-Z0-9_-]+)|\/d\/([a-zA-Z0-9_-]+)/);
+
+            if (idMatch) {
+                const fileId = idMatch[1] || idMatch[2] || idMatch[3];
+                return `https://drive.google.com/thumbnail?sz=w1000&id=${fileId}`;
+            }
+            return url;
+        }
+
         function toggleLoading(isLoading) {
             document.getElementById('loading-overlay').style.display = isLoading ? 'flex' : 'none';
         }
@@ -244,47 +259,86 @@
             matches.forEach(match => {
                 const card = document.createElement('div');
                 card.className = 'match-card';
-                card.onclick = () => proceedToPhase2(match.id);
+                // El onclick ahora está en la tarjeta completa para seleccionar, no en las imágenes individuales.
+                card.onclick = (e) => {
+                    // Prevenir que el clic en una imagen de corte (que abre el lightbox) seleccione el vehículo.
+                    if (e.target.closest('a.lightbox-trigger')) {
+                        e.stopPropagation();
+                        return;
+                    }
+                    proceedToPhase2(match.id);
+                };
 
                 const yearRange = match.anoHasta ? `${match.anoDesde} - ${match.anoHasta}` : match.anoDesde;
-                const defaultImg = 'https://via.placeholder.com/150?text=Sin+Imagen';
 
-                // Contenedor de la imagen principal del vehículo
-                const imgHtml = `<img src="${match.imagenVehiculo || defaultImg}" alt="Imagen del Vehículo" class="match-card-img" onerror="this.onerror=null;this.src='${defaultImg}';">`;
+                // --- Sección de Información Principal y Foto Pequeña del Vehículo ---
+                const mainInfoContainer = document.createElement('div');
+                mainInfoContainer.style.cssText = "display: flex; gap: 15px; width: 100%;";
 
-                // Contenedor de la información del vehículo
+                const vehicleImgHtml = `<img src="${convertirAGoogleThumbnail(match.imagenVehiculo)}" alt="Imagen del Vehículo" class="match-vehicle-img" onerror="this.src='https://via.placeholder.com/100?text=Vehículo';">`;
+
                 const infoHtml = `
                     <div class="match-card-info">
                         <h4>${match.marca} ${match.modelo}</h4>
                         <p><strong>Año:</strong> ${yearRange}</p>
                         <p><strong>Encendido:</strong> ${match.tipoEncendido || 'N/A'}</p>
-                        <p><strong>Versiones Adicionales:</strong> ${match.versionesAplicables || 'N/A'}</p>
+                        <p><strong>Versiones:</strong> ${match.versionesAplicables || 'N/A'}</p>
                     </div>
                 `;
+                mainInfoContainer.innerHTML = infoHtml + vehicleImgHtml;
 
-                // Contenedor para las imágenes de los cortes existentes
-                let cutsHtml = '<div class="match-cuts-container">';
+
+                // --- Sección de Cortes Existentes ---
+                const cutsSection = document.createElement('div');
+                cutsSection.className = 'match-cuts-section';
+
                 let hasCuts = false;
-                const cutImages = [];
-
-                // Recopilar todas las imágenes de cortes disponibles
                 for (let i = 1; i <= 3; i++) {
-                    if (match['imgCorte' + i]) {
+                    const imgUrl = match['imgCorte' + i];
+                    if (imgUrl) {
                         hasCuts = true;
-                        cutImages.push(`<img src="${match['imgCorte' + i]}" alt="Corte ${i}" class="match-cut-img" onerror="this.onerror=null;this.src='https://via.placeholder.com/80?text=Corte';">`);
+                        const cutItem = document.createElement('div');
+                        cutItem.className = 'match-cut-item';
+
+                        const thumbnailUrl = convertirAGoogleThumbnail(imgUrl);
+                        const fullImageUrl = thumbnailUrl.replace('sz=w1000', 'sz=w2000'); // URL de alta resolución para el lightbox
+
+                        const link = document.createElement('a');
+                        link.href = fullImageUrl;
+                        link.className = 'lightbox-trigger'; // Clase para inicializar el lightbox
+                        link.innerHTML = `<img src="${thumbnailUrl}" alt="Corte ${i}" class="match-cut-img" onerror="this.src='https://via.placeholder.com/180x120?text=Corte';">`;
+
+                        const details = document.createElement('div');
+                        details.className = 'match-cut-details';
+                        details.innerHTML = `
+                            <p><strong>Tipo:</strong> ${match['tipoCorte' + i] || 'N/A'}</p>
+                            <p><strong>Ubicación:</strong> ${match['ubicacionCorte' + i] || 'N/A'}</p>
+                            <p><strong>Color de Cable:</strong> ${match['colorCableCorte' + i] || 'N/A'}</p>
+                        `;
+
+                        cutItem.appendChild(link);
+                        cutItem.appendChild(details);
+                        cutsSection.appendChild(cutItem);
                     }
                 }
 
-                if (hasCuts) {
-                    cutsHtml += `<h5>Cortes Registrados</h5><div class="match-cuts-grid">${cutImages.join('')}</div>`;
-                } else {
-                    cutsHtml += '<h5>No hay cortes registrados para este vehículo.</h5>';
+                if (!hasCuts) {
+                    cutsSection.innerHTML = '<p>No hay cortes registrados para este vehículo.</p>';
                 }
-                cutsHtml += '</div>';
 
-                card.innerHTML = `${imgHtml}<div style="flex-grow: 1;">${infoHtml}${cutsHtml}</div>`;
+                const cardContent = document.createElement('div');
+                cardContent.style.width = '100%';
+                cardContent.appendChild(mainInfoContainer);
+                cardContent.appendChild(cutsSection);
+
+                card.appendChild(cardContent);
                 container.appendChild(card);
             });
+
+            // Inicializar el Lightbox en todas las imágenes de corte
+            if (typeof SimpleLightbox !== 'undefined') {
+                new SimpleLightbox({elements: '.lightbox-trigger'});
+            }
         }
 
         function proceedToPhase2(vehicleId) {
@@ -354,5 +408,6 @@
             }
         }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/simple-lightbox-gallery/dist/lightbox.min.js"></script>
 </body>
 </html>

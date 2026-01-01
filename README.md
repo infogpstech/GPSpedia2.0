@@ -121,10 +121,13 @@ Esta sección describe los pasos técnicos específicos requeridos para ejecutar
             *   **Búsqueda Exacta (Año y Encendido):** Se requiere una coincidencia precisa.
                 *   `Año`: El año proporcionado debe estar dentro del rango `[anoDesde, anoHasta]` del registro.
                 *   `Tipo de Encendido`: Debe coincidir exactamente.
-        3.  **Respuesta y Visualización:** El backend devuelve una **lista de todas las coincidencias**. El frontend renderiza cada coincidencia en una **tarjeta detallada** que incluye:
-            *   Imagen del vehículo (tamaño 150px).
-            *   Información clave: Marca, Modelo, Rango de Años, Encendido.
-            *   Imágenes en miniatura de los cortes ya existentes para ese vehículo.
+        3.  **Respuesta y Visualización (Mejorada):** El backend devuelve una **lista de todas las coincidencias**. El frontend renderiza cada coincidencia en una **tarjeta interactiva y detallada** que ahora incluye:
+            *   **Imagen del Vehículo:** Una imagen pequeña (100px) para identificación rápida.
+            *   **Información Clave:** Marca, Modelo, Rango de Años, y Tipo de Encendido.
+            *   **Sección de Cortes Detallada:** Para cada corte existente, se muestra:
+                *   Una **imagen grande (180x120px)** del corte.
+                *   A la derecha de la imagen, se listan los detalles clave: **Tipo de Corte, Ubicación y Color de Cable**.
+                *   **Funcionalidad de Lightbox:** Al hacer clic en la imagen del corte, esta se abre en una galería de pantalla completa (lightbox) que permite al usuario hacer **zoom** para examinar los detalles de la imagen con claridad.
         4.  El usuario puede seleccionar un vehículo existente para añadirle información o proceder a crear uno nuevo.
 
     - **Funcionalidad "Quizás quisiste decir...".**
