@@ -285,14 +285,14 @@ function handleGetDropdownData() {
 
 
         const dropdownData = {
-            categorias,
-            marcas,
-            tiposCorte,
-            tiposEncendido,
-            configRelay
+            categoria: categorias,
+            marca: marcas,
+            tipoDeCorte: tiposCorte,
+            tipoDeEncendido: tiposEncendido,
+            configRelay: configRelay
         };
 
-        return { status: 'success', data: dropdownData };
+        return { status: 'success', dropdowns: dropdownData };
 
     } catch (error) {
         return {

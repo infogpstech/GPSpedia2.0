@@ -1,3 +1,9 @@
+**v4.4.0 (31-12-2025)**
+*   **HOTFIX (services/catalog/catalog.js):** Se solucionó un error crítico de `TypeError: Cannot read properties of undefined (reading 'categoria')` que impedía la carga de los datos del formulario.
+    *   **Causa Raíz:** Existía una discrepancia en la estructura del JSON esperado por el frontend y el JSON devuelto por el backend. La función `handleGetDropdownData` devolvía los datos bajo una clave `data` con nombres de campo en plural (ej. `categorias`), mientras que el frontend esperaba una clave `dropdowns` con nombres en singular (ej. `categoria`).
+    *   **Solución:** Se modificó la estructura del objeto de respuesta en `handleGetDropdownData` para que coincida exactamente con la esperada por el frontend, resolviendo el `TypeError`.
+    *   **Archivos Modificados:** `services/catalog/catalog.js`: Líneas 286-298.
+
 **v4.3.9 (31-12-2025)**
 *   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `GPSpedia-Catalog` a la nueva versión desplegada, asegurando que el frontend se comunique con el endpoint más reciente y corregido.
     *   **Archivos Modificados:** `api-manager.js`: Línea 11.
