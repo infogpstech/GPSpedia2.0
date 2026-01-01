@@ -1,19 +1,48 @@
-**v4.3.10 (31/12/2025)**
-*   **FIX CRÍTICO (index.html):** Se ha solucionado de forma definitiva la causa raíz de la regresión que congelaba la aplicación en la pantalla de bienvenida (splash screen).
-    *   **Causa Raíz:** Un `ReferenceError` fatal de JavaScript. La función `crearCarrusel` era llamada por `mostrarUltimosAgregados` durante la carga inicial, pero su definición se encontraba dentro del ámbito local de `mostrarCategorias`, una función que aún no se había ejecutado. Esto detenía toda la ejecución de scripts.
-    *   **Solución:** Se ha refactorizado la estructura del código para solucionar el error de ámbito. La función `crearCarrusel` fue movida al ámbito global, asegurando que esté definida antes de ser invocada por cualquier otra función. Adicionalmente, se eliminó lógica duplicada y se consolidó el flujo de renderizado de la página principal. (Líneas 2689-2900).
+**v4.3.5 (31-12-2025)**
+*   **HOTFIX (service-worker.js):** Se solucionó una regresión crítica introducida en la v4.3.4 que impedía la carga del catálogo y causaba la pérdida de sesión en cada recarga.
+    *   **Causa Raíz:** El commit anterior introdujo cambios significativos en el frontend (`index.html`) pero no incrementó la versión de la caché en el service worker. Esto provocó que los clientes siguieran usando una versión de JavaScript en caché, incompatible con la nueva lógica, causando un error fatal durante la inicialización.
+    *   **Solución:** Se incrementó la versión de la caché de `v4` a `v5` en `service-worker.js`. Esto invalida la caché obsoleta y fuerza a todos los clientes a descargar la última versión de la aplicación, restaurando la funcionalidad completa.
+    *   **Archivos Modificados:** `service-worker.js`: Línea 1.
 
-**v4.3.9 (31/12/2025)**
-*   **FIX CRÍTICO (index.html):** Se ha solucionado la causa raíz de una regresión crítica que impedía que la aplicación pasara de la pantalla de bienvenida (splash screen).
-    *   **Causa Raíz:** Se introdujo un `ReferenceError` fatal en la función `mostrarDetalleModal`. Una variable `mainHeaderDiv` fue referenciada incorrectamente en lugar de `titleContainer`, provocando la detención completa de la ejecución de JavaScript y congelando la aplicación.
-    *   **Solución:** Se ha corregido la referencia de la variable, reemplazando `mainHeaderDiv` por la variable correcta `titleContainer`, lo que restaura el flujo de ejecución normal del script y permite que la aplicación se inicialice correctamente. (Línea 2184).
+**v4.3.4 (31-12-2025)**
+*   **UX (index.html):** Se implementaron múltiples mejoras en la interfaz de usuario para aumentar la compacidad y corregir funcionalidades.
+    *   **Modal de Detalle:** Se redujo el espaciado vertical (márgenes y paddings) entre todos los elementos para un layout más compacto.
+    *   **Logo en Modal:** Se corrigió la lógica de `mostrarDetalleModal` para asegurar que el logo de la marca siempre se cargue y muestre correctamente.
+    *   **Carruseles:** Se refactorizó la lógica de navegación, generalizándola en la función `crearCarrusel` para que todos los carruseles (Últimos Agregados, Categorías, Marcas) tengan botones de navegación funcionales.
+    *   **Sección de Motocicletas:** Se añadió la sección faltante "Marcas de Motocicletas" a la página principal, utilizando la nueva lógica de carrusel.
+    *   **Botones de Feedback:** Se redujo el tamaño de los botones "Útil" y "Reportar" en un 10% mediante CSS.
+    *   **Consola de Debugging:** Se eliminó la lógica que mostraba la consola con un parámetro URL. Ahora, la consola solo es visible cuando se accede al modal de "Desarrollador".
+    *   **Archivos Modificados:** `index.html`: Líneas 814-855, 1282-1288, 1983-2225, 2561-2835, 3331-3351.
 
-**v4.3.7 (31/12/2025)**
-*   **FIX CRÍTICO (index.html):** Se solucionó un conjunto de regresiones críticas en la interfaz de usuario introducidas en v4.3.4, re-implementando los estilos y la lógica correctos basados en feedback detallado del usuario.
-    *   **Carrusel de Motocicletas:** Se corrigió la lógica de filtrado en `mostrarCategorias` para incluir tanto "motos" como "motocicletas", restaurando el carrusel de marcas de motocicletas que no se mostrabant. (Línea 2351).
-    *   **Estilo del Logo en Modal:** En `mostrarDetalleModal`, se ajustó el logo de la marca a la altura correcta de `55px` y se aplicó el efecto `drop-shadow` directamente a la imagen en lugar de a su contenedor, corrigiendo el error visual. (Línea 1746).
-    *   **Imagen Principal del Vehículo:** Se redimensionó la imagen principal del vehículo en el modal de detalle a una altura de `140px` y se le aplicó el efecto de sombra correcto, siguiendo las especificaciones de diseño. (Línea 1742).
-    *   **Imagen de Corte a Ancho Completo:** Se aseguró que la imagen del corte (`imgCorte`) dentro del modal ocupe el 100% del ancho de su contenedor, solucionando el problema de tamaño. (Línea 1789).
+**v4.3.3 (31-12-2025)**
+*   **REFACTOR & FIX (index.html):** Se ha rediseñado por completo el modal de detalles del vehículo para alinearlo con la nueva especificación de 12 puntos y corregir múltiples regresiones críticas.
+    *   **Especificación del Modal:**
+        1.  **Restaurada Navegación Principal:** Se corrigió la función `mostrarCategorias` para renderizar correctamente los carruseles de Categorías y Marcas.
+        2.  **Reparado Video en Tutoriales:** Se corrigió la función `mostrarDetalleTutorial` para usar `item.Video` en lugar de `item.videoGuia`, restaurando la visualización de videos.
+        3.  **Reparada Imagen en Relay:** Se corrigió la función `mostrarDetalleRelay` para usar la variable de contenedor correcta, restaurando la visualización de imágenes.
+        4.  **Nuevo Encabezado Detallado:** El encabezado del modal ahora muestra el Título, Logo de Marca, Versión, Rango de Años y Categoría en el formato especificado.
+        5.  **Orden de Contenido:** El cuerpo del modal ahora sigue el orden estricto: Corte Recomendado, Otros Cortes (acordeón), Apertura (acordeón), Alimentación (acordeón) y Video Guía (acordeón).
+        6.  **Corte Recomendado Fijo:** La sección del corte con más "likes" siempre está visible y expandida.
+        7.  **Estilo de Imagen de Vehículo:** La imagen principal del vehículo ahora tiene una altura máxima de 150px y un efecto `drop-shadow`.
+        8.  **Estilo de Imagen de Corte Recomendado:** La imagen dentro del corte recomendado ahora ocupa el 100% del ancho del panel.
+        9.  **Posición del Link de Relay:** El enlace "Ver Configuración de Relay" ahora aparece correctamente *antes* del nombre del colaborador.
+        10. **Alineación del Colaborador:** El nombre del colaborador ahora se alinea a la izquierda.
+        11. **Emoji en Nota Importante:** Se añadió el emoji `⚠️` a la nota importante.
+        12. **Eliminación de Notas Personales:** La sección de notas personales fue eliminada por completo.
+    *   **Archivos Modificados:**
+        *   `index.html`: Líneas 1714-1888, 2125-2405.
+
+**v4.3.2 (31-12-2025)**
+*   **INFRA (api-manager.js):** Se actualizaron las URLs de los microservicios `CATALOG` y `FEEDBACK` a las nuevas versiones desplegadas, asegurando la comunicación con los endpoints correctos.
+    *   `api-manager.js`: Líneas 10-14
+
+**v4.3.1 (31-12-2025)**
+*   **REFACTOR (services/feedback/feedback.js):** Se mejoró y robusteció la lógica de `handleSuggestYear`. La función ahora solo considera votos de usuarios únicos para aplicar un cambio en el rango de años, previniendo que un solo usuario fuerce una actualización. Adicionalmente, se corrigió el `MimeType` de la respuesta del servicio a `TEXT` para garantizar la compatibilidad con CORS y prevenir errores de `Failed to fetch`. Se eliminó también una declaración duplicada de la función `handleRecordLike`.
+    *   `services/feedback/feedback.js`: Líneas 128-140, 210-218
+*   **FIX (index.html):** Se corrigió un bug crítico en la función `handleLike` que impedía el correcto funcionamiento del feedback de usuario y la sugerencia de años. La nueva implementación asegura que la UI se actualice correctamente, previene envíos duplicados y pasa el `userId` requerido al backend.
+    *   `index.html`: Líneas 3200-3250
+*   **REFACTOR (services/catalog/catalog.js):** Se extendió la funcionalidad de conversión de thumbnails. La función `convertirAGoogleThumbnail` ahora se aplica también a los datos de las secciones "Tutoriales" y "Relay", centralizando completamente la lógica de formateo de imágenes en el backend.
+    *   `services/catalog/catalog.js`: Líneas 240-258
 
 **v4.3.0 (15/01/2026)**
 *   **FIX CRÍTICO (index.html, catalog.js, utilities.js):** Se solucionó la causa raíz final y persistente del fallo de renderización de imágenes de Google Drive en todo el sistema.
