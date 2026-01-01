@@ -12,12 +12,14 @@
 
 **v4.3.4 (31-12-2025)**
 *   **UX (index.html):** Se implementaron múltiples mejoras en la interfaz de usuario para aumentar la compacidad y corregir funcionalidades.
-    *   **Modal de Detalle:** Se redujo el espaciado vertical (márgenes y paddings) entre todos los elementos para un layout más compacto.
-    *   **Logo en Modal:** Se corrigió la lógica de `mostrarDetalleModal` para asegurar que el logo de la marca siempre se cargue y muestre correctamente.
+    
+    *   **Logo en Modal:** Se corrigió la lógica de `mostrarDetalleModal` para asegurar que el logo de la marca siempre se cargue y muestre. 
+
     *   **Carruseles:** Se refactorizó la lógica de navegación, generalizándola en la función `crearCarrusel` para que todos los carruseles (Últimos Agregados, Categorías, Marcas) tengan botones de navegación funcionales.
-    *   **Sección de Motocicletas:** Se añadió la sección faltante "Marcas de Motocicletas" a la página principal, utilizando la nueva lógica de carrusel.
-    *   **Botones de Feedback:** Se redujo el tamaño de los botones "Útil" y "Reportar" en un 10% mediante CSS.
-    *   **Consola de Debugging:** Se eliminó la lógica que mostraba la consola con un parámetro URL. Ahora, la consola solo es visible cuando se accede al modal de "Desarrollador".
+
+    *  **Botones de Feedback:** Se redujo el tamaño de los botones "Útil" y "Reportar" en un 10% mediante CSS.
+
+NOTA SIBRE ESTA ENTEADA, algunos cambios solicitados no se realizaron y se ignoraron instrucciones. 
     *   **Archivos Modificados:** `index.html`: Líneas 814-855, 1282-1288, 1983-2225, 2561-2835, 3331-3351.
 
 **v4.3.3 (31-12-2025)**
