@@ -1,3 +1,7 @@
+**v4.3.9 (31-12-2025)**
+*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `GPSpedia-Catalog` a la nueva versión desplegada, asegurando que el frontend se comunique con el endpoint más reciente y corregido.
+    *   **Archivos Modificados:** `api-manager.js`: Línea 11.
+
 **v4.3.8 (31-12-2025)**
 *   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `GPSpedia-Write` a la nueva versión desplegada, asegurando que el frontend se comunique con el endpoint más reciente para las operaciones de escritura.
     *   **Archivos Modificados:** `api-manager.js`: Línea 12.
