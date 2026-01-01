@@ -185,6 +185,7 @@ function createNewVehicleWithCut(sheet, vehicleInfo, cutInfo, colaborador) {
     newRowData[COLS_CORTES.anoDesde - 1] = vehicleInfo.anoDesde;
     newRowData[COLS_CORTES.tipoEncendido - 1] = vehicleInfo.tipoEncendido;
     newRowData[COLS_CORTES.versionesAplicables - 1] = vehicleInfo.versionesAplicables || '';
+    newRowData[COLS_CORTES.imagenVehiculo - 1] = uploadImageToDrive(cutInfo.imagenVehiculo, `vehiculo_${newRowData[COLS_CORTES.id - 1]}`, folder);
 
     newRowData[COLS_CORTES.tipoCorte1 - 1] = cutInfo.tipoCorte;
     newRowData[COLS_CORTES.ubicacionCorte1 - 1] = cutInfo.ubicacionCorte || '';

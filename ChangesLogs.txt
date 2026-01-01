@@ -1,13 +1,22 @@
+**v4.3.8 (31-12-2025)**
+*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `GPSpedia-Write` a la nueva versión desplegada.
+    *   **Archivos Modificados:** `api-manager.js`: línea 12.
+*   **DOCS (README.md, Instrucciones.txt):** Se actualizó el estado de la tarea "Refactorización del Flujo de Escritura" a `[COMPLETADO]`.
+    *   **Archivos Modificados:** `README.md` (línea 224), `Instrucciones.txt` (línea 71).
+*   **FIX (add_cortes.html, services/write/write.js):** Se corrigió una regresión funcional que impedía subir la imagen principal de un vehículo al crear un nuevo registro. Se restauró el campo en el formulario y la lógica de procesamiento en el backend.
+    *   **Archivos Modificados:** `add_cortes.html` (líneas 77-83, 221-230), `services/write/write.js` (línea 186).
+*   **CHORE (services/write/write.js):** Se verificó que el nombre de la acción `addOrUpdateCut` estaba correctamente alineado entre el frontend y el backend, resolviendo el último punto de la revisión de código.
+
 **v4.3.7 (31-12-2025)**
 *   **FIX & REFACTOR (add_cortes.html, services/write/write.js):** Se implementó y corrigió por completo el flujo de trabajo de 3 etapas para agregar y actualizar cortes de vehículos, resolviendo una funcionalidad crítica que estaba pendiente y robusteciendo el código para el futuro.
-    *   **Causa Raíz:** Existía una desconexión entre el frontend y el backend. El formulario llamaba a una acción incorrecta (`addCorte`), el backend esperaba nombres de campo hardcodeados (ej. `tipoCorte1`), y además retornaba un `MimeType` incorrecto que causaba errores de CORS.
+    *   **Causa Raíz:** Existía una desconexión entre el frontend y el backend. El formulario llamaba a una acción incorrecta (`addCorte`), el backend esperaba nombres de campo hardcodeados (ej. `tipoCorte1`), y además retornaba un `MimeType` incorrecto que causaba errores de CORS. Una regresión adicional eliminó la capacidad de subir la imagen principal del vehículo.
     *   **Solución Integral:**
-        1.  **Refactor Frontend (`add_cortes.html`):** Se refactorizó el formulario de "Paso 2" para usar nombres de campo genéricos (ej. `name="tipoCorte"` en lugar de `name="tipoCorte1"`). Se corrigió la llamada en `handleAddOrUpdateCut` para que apunte a la acción correcta: `addOrUpdateCut`.
-        2.  **Refactor Backend (`services/write/write.js`):** Se reescribió la lógica para que maneje los nombres de campo genéricos enviados por el frontend. Ahora, puede agregar tanto el primer corte a un vehículo nuevo como un segundo o tercer corte a uno existente usando la misma lógica flexible, eliminando el error de hardcodeo.
-        3.  **Implementación Backend (`services/write/write.js`):** Se completó la implementación robusta del flujo de 3 etapas: `handleCheckVehicle`, `handleAddOrUpdateCut`, y `handleAddSupplementaryInfo`, asegurando la creación/actualización de registros y la actualización del `timestamp`.
-        4.  **CORS Fix (`services/write/write.js`):** Se corrigió la función `doPost` para que devuelva `ContentService.MimeType.TEXT`, eliminando los errores de `Failed to fetch`.
+        1.  **Refactor Frontend (`add_cortes.html`):** Se refactorizó el formulario de "Paso 2" para usar nombres de campo genéricos (ej. `name="tipoCorte"`). Se restauró el campo para `imagenVehiculo` y se añadió lógica para mostrarlo solo al crear un vehículo nuevo.
+        2.  **Refactor Backend (`services/write/write.js`):** Se reescribió la lógica para que maneje los nombres de campo genéricos. Puede agregar tanto el primer corte a un vehículo nuevo como un segundo o tercer corte a uno existente usando la misma lógica flexible. Se restauró la funcionalidad para procesar y guardar la `imagenVehiculo` al crear un nuevo registro.
+        3.  **Implementación Backend (`services/write/write.js`):** Se completó la implementación robusta del flujo de 3 etapas: `handleCheckVehicle`, `handleAddOrUpdateCut`, y `handleAddSupplementaryInfo`.
+        4.  **CORS Fix (`services/write/write.js`):** Se corrigió la función `doPost` para que devuelva `ContentService.MimeType.TEXT`.
     *   **Archivos Modificados:**
-        *   `add_cortes.html`: líneas 77-83, 140
+        *   `add_cortes.html`: líneas 77-86, 140, 221-230
         *   `services/write/write.js`: líneas 1-320 (reescritura y refactorización completa)
 
 **v4.3.6 (31-12-2025)**
