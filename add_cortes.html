@@ -74,10 +74,10 @@
             <h2 id="stage-2-title">Paso 2: Agregar Información del Corte</h2>
             <form id="form-phase-2">
                 <div class="form-grid">
-                    <div class="form-group"><label for="tipoCorte1">Tipo de Corte</label><select id="tipoCorte1" name="tipoCorte1" required></select></div>
-                    <div class="form-group"><label for="ubicacionCorte1">Ubicación del Corte</label><input type="text" id="ubicacionCorte1" name="ubicacionCorte1"></div>
-                    <div class="form-group"><label for="colorCableCorte1">Color(es) de Cable</label><input type="text" id="colorCableCorte1" name="colorCableCorte1"></div>
-                    <div class="form-group"><label for="imgCorte1">URL de Imagen del Corte</label><input type="text" id="imgCorte1" name="imgCorte1"></div>
+                    <div class="form-group"><label for="tipoCorte">Tipo de Corte</label><select id="tipoCorte" name="tipoCorte" required></select></div>
+                    <div class="form-group"><label for="ubicacionCorte">Ubicación del Corte</label><input type="text" id="ubicacionCorte" name="ubicacionCorte"></div>
+                    <div class="form-group"><label for="colorCableCorte">Color(es) de Cable</label><input type="text" id="colorCableCorte" name="colorCableCorte"></div>
+                    <div class="form-group"><label for="imgCorte">URL de Imagen del Corte</label><input type="text" id="imgCorte" name="imgCorte"></div>
                 </div>
                 <div class="btn-container">
                     <button onclick="showPhase(1)" class="btn btn-secondary" type="button">Atrás</button>
@@ -137,7 +137,7 @@
                 const data = await routeAction('getDropdownData');
                 populateSelect('categoria', data.dropdowns.categoria);
                 populateSelect('tipoEncendido', data.dropdowns.tipoDeEncendido);
-                populateSelect('tipoCorte1', data.dropdowns.tipoDeCorte);
+                populateSelect('tipoCorte', data.dropdowns.tipoDeCorte);
                 populateSelect('configRelay1', data.dropdowns.configRelay);
             } catch (error) {
                 alert(`No se pudieron cargar las opciones del formulario: ${error.message}`);
@@ -238,7 +238,7 @@
 
             toggleLoading(true);
             try {
-                const result = await routeAction('addCorte', payload);
+                const result = await routeAction('addOrUpdateCut', payload);
                 if (result.status === 'success') {
                     state.selectedVehicleId = result.vehicleId; // Update with the definitive ID
                     alert('Corte guardado con éxito. Ahora puedes agregar información suplementaria.');
