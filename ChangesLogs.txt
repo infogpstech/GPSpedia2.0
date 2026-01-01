@@ -1,3 +1,9 @@
+**v4.4.2 (31-12-2025)**
+*   **FIX & FEAT (services/catalog/catalog.js):** Se solucionó el error "Parámetros de búsqueda incompletos" y se implementó una lógica de búsqueda flexible.
+    *   **Corrección:** Se alineó el parámetro `anoDesde` en la función `handleCheckVehicle` con los datos enviados desde el frontend, eliminando el error.
+    *   **Nueva Funcionalidad:** Se refactorizó la búsqueda para que `marca` y `modelo` utilicen coincidencias parciales e insensibles a mayúsculas/minúsculas, mientras que `año` y `tipo de encendido` siguen siendo exactos. La función ahora devuelve una lista de todas las coincidencias.
+    *   **Archivos Modificados:** `services/catalog/catalog.js`: Líneas 330-366.
+
 **v4.4.1 (31-12-2025)**
 *   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `GPSpedia-Catalog` a la nueva versión desplegada, asegurando que el frontend apunte al endpoint más reciente tras la corrección del bug de carga de formularios.
     *   **Archivos Modificados:** `api-manager.js`: Línea 11.

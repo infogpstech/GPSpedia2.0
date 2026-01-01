@@ -97,8 +97,14 @@ Esta sección describe los pasos técnicos específicos requeridos para ejecutar
     - **Etapa 1: Anti-duplicado y Verificación de Existencia.**
         1.  El frontend (`add_cortes.html`) inicialmente solo pedirá 4 campos: `Marca` (texto), `Modelo` (texto), `Año` (texto) y `Tipo de Encendido` (lista desplegable).
         2.  Al enviar, el backend (`write.js`) realizará una búsqueda en la hoja 'Cortes'.
-        3.  **Lógica de Búsqueda:** La búsqueda será **exacta** para `Marca`, `Año` y `Tipo de Encendido`. Para `Modelo`, la búsqueda será **flexible**, encontrando coincidencias de palabras completas.
-        4.  **Respuesta:** El servicio devolverá una lista de coincidencias (si las hay) al frontend. La UI mostrará los vehículos encontrados y presentará tres opciones al usuario:
+        3.  **Lógica de Búsqueda (Actualizada):** La verificación se realiza cruzando 4 campos para encontrar coincidencias en la base de datos.
+            *   **Búsqueda Flexible (Marca y Modelo):**
+                *   **Marca:** La búsqueda es insensible a mayúsculas/minúsculas y busca coincidencias parciales. Por ejemplo, "Mercedes" encontrará "Mercedes Benz", y "Chery" encontrará "Chery / Chirey".
+                *   **Modelo:** La búsqueda también es flexible. Por ejemplo, "np300" encontrará un vehículo cuyo modelo sea "Frontier NP300".
+            *   **Búsqueda Exacta (Año y Encendido):**
+                *   **Año:** El año proporcionado por el usuario debe estar dentro del rango `[anoDesde, anoHasta]` del registro en la base de datos.
+                *   **Tipo de Encendido:** Debe haber una coincidencia exacta (insensible a mayúsculas/minúsculas).
+        4.  **Respuesta:** El servicio devolverá una **lista con todas las coincidencias** que cumplan los 4 criterios. Si no hay ninguna, la lista estará vacía. La UI mostrará los vehículos encontrados y permitirá al usuario decidir si desea agregar información a un registro existente o crear uno completamente nuevo.
             *   **Opción 1: "Es un Duplicado".** El usuario confirma que el corte ya existe. El formulario se cierra.
             *   **Opción 2: "Agregar otro corte".** El vehículo ya existe, pero el usuario quiere añadir un segundo o tercer corte. El flujo avanza a la **Etapa 2**.
             *   **Opción 3: "Agregar apertura u otra información".** El usuario quiere añadir información suplementaria a un vehículo existente. El flujo avanza a la **Etapa 3**.
