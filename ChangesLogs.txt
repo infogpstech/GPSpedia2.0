@@ -1,3 +1,15 @@
+**v4.3.7 (31-12-2025)**
+*   **UX & FIX (index.html):** Se implementaron múltiples correcciones y mejoras a la interfaz de usuario, abordando regresiones y funcionalidades incompletas de la versión v4.3.4.
+    *   **Consola de Depuración:** Se corrigió un bug que causaba que la consola de depuración apareciera incorrectamente al cargar la página. Se eliminó un estilo en línea conflictivo para asegurar que la consola permanezca oculta por defecto.
+    *   **Modal de Detalle (UI):** Se refinó el diseño del modal de detalles para alinearse con las especificaciones.
+        *   Se eliminó el nombre de la marca del encabezado para un diseño más limpio.
+        *   Se ajustó el tamaño y la posición del logo de la marca.
+        *   Se redujo el tamaño de la imagen principal del vehículo en un 30%.
+        *   Se aplicó correctamente el efecto `drop-shadow` a las imágenes en lugar de a sus contenedores.
+    *   **Imágenes de Corte:** Se solucionó un problema de dimensionamiento con las imágenes de los cortes dentro del modal, asegurando que se muestren con un ancho del 100% y altura automática.
+    *   **Carrusel de Motocicletas:** Se corrigió la lógica de filtrado en la función `mostrarCategorias` para incluir tanto "motos" como "motocicletas". Esto soluciona el bug que impedía que el carrusel "Marcas de Motocicletas" se renderizara en la página principal.
+    *   **Archivos Modificados:** `index.html` (múltiples secciones afectadas por las correcciones de UI y lógica).
+
 **v4.3.6 (31-12-2025)**
 *   **HOTFIX (index.html):** Se solucionó la causa raíz de la regresión crítica que impedía la carga del catálogo.
     *   **Causa Raíz:** Un error de `ReferenceError: crearCarrusel is not defined` detenía la ejecución de todo el JavaScript. La función `crearCarrusel` fue definida dentro del scope de `mostrarCategorias`, pero era llamada por `mostrarUltimosAgregados`, que se ejecutaba antes.

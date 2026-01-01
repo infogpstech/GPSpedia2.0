@@ -1,4 +1,4 @@
-<!-- GPSpedia Frontend Component | Version: 4.3.6 -->
+<!-- GPSpedia Frontend Component | Version: 4.3.7 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -1055,7 +1055,7 @@ body.search-active .app-logo {
 <div id="notification-toast"></div>
 
 <!-- Contenedor de la Consola de Depuración -->
-<div id="debug-console" style="display: none; position: fixed; bottom: 10px; right: 10px; width: 450px; height: 350px; background-color: rgba(20, 20, 30, 0.9); color: #00ff00; border: 1px solid #00ff00; border-radius: 8px; z-index: 9999; display: flex; flex-direction: column; font-family: 'Courier New', Courier, monospace; box-shadow: 0 0 15px rgba(0, 255, 0, 0.5); backdrop-filter: blur(5px);">
+<div id="debug-console" style="display: none; position: fixed; bottom: 10px; right: 10px; width: 450px; height: 350px; background-color: rgba(20, 20, 30, 0.9); color: #00ff00; border: 1px solid #00ff00; border-radius: 8px; z-index: 9999; flex-direction: column; font-family: 'Courier New', Courier, monospace; box-shadow: 0 0 15px rgba(0, 255, 0, 0.5); backdrop-filter: blur(5px);">
     <div id="debug-header" style="padding: 8px; background-color: #00ff00; color: #14141e; font-weight: bold; cursor: move; border-top-left-radius: 7px; border-top-right-radius: 7px; display: flex; justify-content: space-between; align-items: center;">
         <span>GPSpedia Debug Console</span>
         <div>
@@ -2256,16 +2256,18 @@ function mostrarDetalleModal(item) {
     mainHeaderDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center;";
 
     const title = document.createElement("h2");
-    title.textContent = `${item.marca} ${item.modelo}`;
-    title.style.cssText = "color:#007bff; margin: 0; padding: 0; flex-grow: 1;";
+    title.textContent = `${item.modelo}`; // Quitado el nombre de la marca
+    title.style.cssText = "color:#007bff; margin: 0; padding: 0;";
     mainHeaderDiv.appendChild(title);
 
     const logoUrl = getLogoUrlForMarca(item.marca, item.categoria);
     if (logoUrl) {
         const logoImg = document.createElement("img");
-        logoImg.src = convertirAGoogleThumbnail(logoUrl); // CORRECCIÓN: Usar conversor de thumbnails
-        logoImg.style.cssText = "height: 40px; width: auto; max-width: 100px; object-fit: contain; margin-left: 15px;"; // Altura reducida
-        mainHeaderDiv.appendChild(logoImg);
+        logoImg.src = convertirAGoogleThumbnail(logoUrl);
+        // Aumentado en ~10% y movido después del modelo
+        logoImg.style.cssText = "height: 55px; width: auto; max-width: 120px; object-fit: contain; margin-left: 15px;";
+        // Insertar el logo después del título de texto
+        title.insertAdjacentElement('afterend', logoImg);
     }
     titleContainer.appendChild(mainHeaderDiv);
 
@@ -2301,10 +2303,17 @@ function mostrarDetalleModal(item) {
     crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, { extraClass: 'img-vehiculo' });
     const vehiculoImg = cont.querySelector('.img-vehiculo');
     if(vehiculoImg) {
-        vehiculoImg.style.maxHeight = '150px'; // Mitad del tamaño normal (300px)
+        vehiculoImg.style.maxHeight = '105px'; // Reducido en 30% de 150px
         vehiculoImg.style.filter = 'drop-shadow(2px 4px 6px rgba(0,0,0,0.4))';
-        vehiculoImg.style.background = 'none';
+        vehiculoImg.style.background = 'transparent';
         vehiculoImg.style.border = 'none';
+        // El contenedor ahora no necesita estilos
+        const vehiculoImgContainer = vehiculoImg.parentElement;
+        if(vehiculoImgContainer) {
+            vehiculoImgContainer.style.background = 'transparent';
+            vehiculoImgContainer.style.border = 'none';
+            vehiculoImgContainer.style.padding = '0';
+        }
     }
 
 
@@ -2349,9 +2358,11 @@ function mostrarDetalleModal(item) {
         crearImagenDetalle("Imagen del Corte", item[`imgCorte${corteIndex}`], panel, {
             feedbackActions: { util: utilBtn, report: reportBtn }
         });
-        if(esRecomendado){
-             const imgCorte = panel.querySelector('img[alt="Imagen del Corte"]');
-             if(imgCorte) imgCorte.style.width = '100%';
+
+        const imgCorte = panel.querySelector('img[alt="Imagen del Corte"]');
+        if(imgCorte) {
+            imgCorte.style.width = '100%';
+            imgCorte.style.height = 'auto';
         }
 
         // Link a Configuración de Relay (si existe) - ANTES del colaborador
@@ -2654,10 +2665,11 @@ function mostrarCategorias() {
     });
 
     // 2. Carrusel de Marcas de Vehículos (Excluyendo Motocicletas)
-    const marcasVehiculos = [...new Set(datosOriginales
-        .filter(item => item.categoria && item.categoria.toLowerCase() !== 'motocicletas')
-        .map(item => item.marca))]
-        .filter(Boolean).sort();
+    const vehiculosFilter = item => {
+        const cat = (item.categoria || '').toLowerCase();
+        return cat && cat !== 'motocicletas' && cat !== 'motos';
+    };
+    const marcasVehiculos = [...new Set(datosOriginales.filter(vehiculosFilter).map(item => item.marca))].filter(Boolean).sort();
 
     crearCarrusel('Marcas de Vehículos', marcasVehiculos, marca => {
         const logoUrl = getLogoUrlForMarca(marca, null);
@@ -2672,10 +2684,11 @@ function mostrarCategorias() {
     });
 
     // 3. Carrusel de Marcas de Motocicletas
-    const marcasMotos = [...new Set(datosOriginales
-        .filter(item => item.categoria && item.categoria.toLowerCase() === 'motocicletas')
-        .map(item => item.marca))]
-        .filter(Boolean).sort();
+    const motosFilter = item => {
+        const cat = (item.categoria || '').toLowerCase();
+        return cat === 'motocicletas' || cat === 'motos';
+    };
+    const marcasMotos = [...new Set(datosOriginales.filter(motosFilter).map(item => item.marca))].filter(Boolean).sort();
 
     crearCarrusel('Marcas de Motocicletas', marcasMotos, marca => {
         const logoUrl = getLogoUrlForMarca(marca, 'Motocicletas');
@@ -3574,7 +3587,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <footer class="footer" style="display: none;">
-  Gpspedia v4.3.6 © 2025 todos los derechos reservados.
+  Gpspedia v4.3.7 © 2025 todos los derechos reservados.
   <div class="footer-links">
       <a id="footer-about-link">Sobre Nosotros</a>
       <a id="footer-contact-link">Contáctanos</a>
