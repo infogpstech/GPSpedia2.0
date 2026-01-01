@@ -1,6 +1,8 @@
-**v4.3.9 (31-12-2025)**
-*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `GPSpedia-Write` a la nueva versión desplegada y corregida, finalizando el despliegue de la funcionalidad de escritura de datos.
-    *   **Archivos Modificados:** `api-manager.js`: línea 12.
+**v4.3.7 (31-12-2025)**
+*   **HOTFIX (services/catalog/catalog.js):** Se solucionó un error crítico que impedía la carga de los datos del formulario en `add_cortes.html`.
+    *   **Causa Raíz:** Se producía un error de `TypeError: ... .getValues is not a function` en la función `handleGetDropdownData`. El código intentaba llamar a `.getValues()` sobre un array simple devuelto por `getCriteriaValues()`, lo cual es incorrecto.
+    *   **Solución:** Se eliminó la llamada errónea a `.getValues()`, permitiendo que el array de valores de la lista de validación de datos se procese correctamente.
+    *   **Archivos Modificados:** `services/catalog/catalog.js`: Línea 290.
 
 **v4.3.6 (31-12-2025)**
 *   **HOTFIX (index.html):** Se solucionó la causa raíz de la regresión crítica que impedía la carga del catálogo.
@@ -133,7 +135,7 @@ NOTA SIBRE ESTA ENTEADA, algunos cambios solicitados no se realizaron y se ignor
     1.  **Backend (`services/feedback/feedback.js`):** Añadidas nuevas acciones (`getFeedbackItems`, `replyToFeedback`, `markAsResolved`) para leer y gestionar los reportes de problemas y mensajes de contacto. (Líneas 114-123, 342-423).
     2.  **Frontend (`index.html`):** Añadido un modal de "Inbox", accesible mediante un nuevo botón en el menú lateral (visible para roles 'Supervisor', 'Gefe', 'Desarrollador'). La UI permite ver, responder y resolver items de feedback. (Líneas 907-921, 2582-2591, 2665-2770).
 *   **FIX (users.html):** Solucionado un bug crítico que causaba que los datos de los usuarios se mostrasen como "undefined" en la tabla de gestión y en el modal de edición. El problema se debía a un desfase de mayúsculas y minúsculas (`camelCase` en el frontend vs. `PascalCase_With_Underscores` en el backend). Se corrigió el acceso a las propiedades en todo el archivo. (Líneas 239-241, 273-279, 318-322, 339, 349-354).
-*   **UX (index.html):** Se implementaron múltiples mejoras en la interfaz de usuario del modal de detalles del vehículo.
+*   **UX (index.html):** Se implementaron mejoras en la interfaz de usuario del modal de detalles del vehículo.
     1.  **Botones de Feedback:** Se rediseñaron los botones "Útil" y "Reportar" para que sean más compactos, mostrando un ícono y texto sin un contenedor de botón grande. (Líneas 1769-1782).
     2.  **Video Guía:** La sección "Video Guía de Desarme" ahora se muestra dentro de un acordeón colapsable, igual que el resto de la información suplementaria. (Líneas 1844-1853).
 *   **CHORE:** No se introdujeron regresiones en las funcionalidades estables (login, sesión, carga de catálogo, caché).

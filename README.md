@@ -222,7 +222,7 @@ Esta sección documenta el estado actual de las tareas de desarrollo, bugs, regr
     - **Orden de Imágenes:** `[Falta Revisión]`
     - **Layout y Espacio Vertical:** `[Falta Revisión]`
 2.  **Carga de Logos en Modal:** `[Falta Revisión]`
-3.  **Refactorización del Flujo de Escritura:** `[Falta Revisión]` - La interfaz del formulario de 3 etapas está avanzada, pero se necesita implementar toda la lógica de backend correspondiente en el servicio `GPSpedia-Write`.
+3.  **Refactorización del Flujo de Escritura:** `[ ] En Progreso` - La interfaz del formulario de 3 etapas está avanzada, pero se necesita implementar toda la lógica de backend correspondiente en el servicio `GPSpedia-Write`.
 4.  **Inconsistencias de Versionamiento:** `[ ] Pendiente` - Es necesario sincronizar la versión global para que el próximo gran lanzamiento sea `v2.0` y mejorar el formato de registro de fechas en `ChangesLogs.txt`.
 
 ### Revisiones de UI/UX

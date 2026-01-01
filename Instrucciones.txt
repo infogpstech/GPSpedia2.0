@@ -70,7 +70,7 @@ al actualizar la plataforma tarda en mostrar la información.
     - **Layout ajuste del width mas grande, height auto y Espacio Vertical:** `[Pendiente]`
 3.  **Ajustes esteticos de Logos en Modal
 - Imagen del logo sin bordes, fondo transparente y drop-shadows directo en la imagen del logo de marca:** `[Pendiente]`
-4.  **Refactorización del Flujo de Escritura:** `[Falta Revisión]`
+4.  **Refactorización del Flujo de Escritura:** `[Pendiente]`
 - La interfaz del formulario de 3 etapas está avanzada, pero se necesita implementar toda la lógica de backend correspondiente en el servicio `GPSpedia-Write`.
 5.  **Inconsistencias de Versionamiento:** `[ ] Pendiente` - Es necesario sincronizar la versión global para que el próximo gran lanzamiento sea `v2.0` y mejorar el formato de registro de fechas en `ChangesLogs.txt`.
 
