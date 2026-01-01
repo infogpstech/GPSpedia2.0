@@ -1,3 +1,22 @@
+**v4.4.4 (31-12-2025)**
+*   **FEAT & REFACTOR (Full-Stack):** Se implementó un flujo de trabajo de adición de cortes completamente nuevo y mejorado, abarcando desde la búsqueda inteligente hasta la gestión de archivos y la documentación.
+    *   **Frontend - Visualización de Coincidencias (`add_cortes.html`):**
+        *   Se rediseñó la sección de resultados de búsqueda para mostrar tarjetas de coincidencias detalladas.
+        *   Cada tarjeta ahora incluye la imagen del vehículo (150px), información clave y miniaturas de los cortes ya existentes, proporcionando al usuario un contexto visual completo para evitar duplicados.
+        *   **Archivos Modificados:** `add_cortes.html`: Líneas 30-38 (CSS), 205-247 (JavaScript).
+    *   **Backend - Gestión de Archivos (`services/write/write.js`):**
+        *   Se refactorizó por completo la lógica de subida de imágenes.
+        *   El sistema ahora crea una estructura de carpetas jerárquica en Google Drive (`Categoria/Marca/Modelo/Año`).
+        *   Las imágenes se renombran automáticamente a un formato estandarizado (`Marca_Modelo_TipoEncendido_Año_Informacion.jpg`), mejorando drásticamente la organización de los archivos.
+        *   **Archivos Modificados:** `services/write/write.js`: Líneas 46-50 (helper), 211-255, 404-416 (lógica de nombrado).
+    *   **Full-Stack - Sugerencia "Quizás quisiste decir...":**
+        *   **Backend (`services/catalog/catalog.js`):** Se creó una nueva acción `getSuggestion` que utiliza el algoritmo de distancia de Levenshtein para encontrar y sugerir la corrección más probable para errores tipográficos en los campos `marca` y `modelo`.
+        *   **Frontend (`add_cortes.html`):** Se añadieron listeners de eventos `onblur` a los campos de marca y modelo. Cuando el usuario termina de escribir, se llama al backend para obtener una sugerencia, que se muestra discretamente debajo del campo.
+        *   **Archivos Modificados:** `services/catalog/catalog.js`: Líneas 107-110 (router), 369-453 (lógica); `add_cortes.html`: Líneas 39-42 (CSS), 57-67 (HTML), 171-199 (JavaScript).
+    *   **DOCS (README.md):**
+        *   Se actualizó la documentación técnica para reflejar con máximo detalle el funcionamiento de estas nuevas características, incluyendo la lógica de búsqueda flexible, el asistente de sugerencias y el nuevo sistema de gestión de archivos.
+        *   **Archivos Modificados:** `README.md`: Líneas 112-149.
+
 **v4.4.3 (31-12-2025)**
 *   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `GPSpedia-Catalog` a la nueva versión desplegada, asegurando que el frontend apunte al endpoint más reciente tras la implementación de la búsqueda flexible.
     *   **Archivos Modificados:** `api-manager.js`: Línea 11.

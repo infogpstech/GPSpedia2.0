@@ -28,9 +28,19 @@
         #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 1000; display: none; align-items: center; justify-content: center; }
         .spinner { border: 5px solid #f3f3f3; border-top: 5px solid #007bff; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .match-card { border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 10px; cursor: pointer; transition: box-shadow 0.2s; }
-        .match-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .match-card p { margin: 5px 0; }
+        .match-card { border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 15px; cursor: pointer; transition: box-shadow 0.2s, border-color 0.2s; display: flex; align-items: flex-start; gap: 15px; }
+        .match-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); border-color: #007bff; }
+        .match-card-img { width: 150px; height: auto; border-radius: 6px; object-fit: cover; }
+        .match-card-info { flex-grow: 1; }
+        .match-card-info p { margin: 0 0 8px 0; font-size: 0.9em; }
+        .match-card-info h4 { margin: 0 0 10px 0; color: #0056b3; }
+        .match-cuts-container { margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; }
+        .match-cuts-container h5 { margin: 0 0 10px 0; font-size: 0.95em; }
+        .match-cuts-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+        .match-cut-img { width: 80px; height: 80px; border-radius: 4px; object-fit: cover; border: 1px solid #ccc; }
+        .suggestion { font-size: 0.85em; color: #666; margin-top: 5px; }
+        .suggestion a { color: #007bff; text-decoration: none; cursor: pointer; }
+        .suggestion a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -46,8 +56,16 @@
             <form id="form-phase-1">
                 <div class="form-grid">
                     <div class="form-group"><label for="categoria">Categoría</label><select id="categoria" name="categoria" required></select></div>
-                    <div class="form-group"><label for="marca">Marca</label><input type="text" id="marca" name="marca" required></div>
-                    <div class="form-group"><label for="modelo">Modelo</label><input type="text" id="modelo" name="modelo" required></div>
+                    <div class="form-group">
+                        <label for="marca">Marca</label>
+                        <input type="text" id="marca" name="marca" required>
+                        <div class="suggestion" id="marca-suggestion"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="modelo">Modelo</label>
+                        <input type="text" id="modelo" name="modelo" required>
+                        <div class="suggestion" id="modelo-suggestion"></div>
+                    </div>
                     <div class="form-group"><label for="anoDesde">Año</label><input type="number" id="anoDesde" name="anoDesde" required></div>
                     <div class="form-group"><label for="tipoEncendido">Tipo de Encendido</label><select id="tipoEncendido" name="tipoEncendido" required></select></div>
                     <div class="form-group"><label for="versionesAplicables">Versión de Equipamiento (Opcional)</label><input type="text" id="versionesAplicables" name="versionesAplicables" placeholder="Ej: Frontier, NP300"></div>
@@ -148,6 +166,32 @@
             document.getElementById('form-phase-1').addEventListener('submit', handlePhase1Submit);
             document.getElementById('form-phase-2').addEventListener('submit', handleAddOrUpdateCut);
             document.getElementById('form-phase-3').addEventListener('submit', handlePhase3Submit);
+
+            document.getElementById('marca').addEventListener('blur', (e) => handleSuggestion(e.target, 'marca'));
+            document.getElementById('modelo').addEventListener('blur', (e) => handleSuggestion(e.target, 'modelo'));
+        }
+
+        async function handleSuggestion(inputElement, field) {
+            const term = inputElement.value.trim();
+            const suggestionContainer = document.getElementById(`${field}-suggestion`);
+            suggestionContainer.innerHTML = '';
+
+            if (term.length < 3) return;
+
+            try {
+                const result = await routeAction('getSuggestion', { term, field });
+                if (result.suggestion) {
+                    suggestionContainer.innerHTML = `Quizás quisiste decir: <a onclick="applySuggestion('${field}', '${result.suggestion}')">${result.suggestion}</a>`;
+                }
+            } catch (error) {
+                console.error(`Error al obtener sugerencia para ${field}:`, error);
+
+            }
+        }
+
+        function applySuggestion(field, suggestion) {
+            document.getElementById(field).value = suggestion;
+            document.getElementById(`${field}-suggestion`).innerHTML = '';
         }
 
         function toggleLoading(isLoading) {
@@ -195,18 +239,50 @@
 
         function displayMatches(matches) {
             const container = document.getElementById('matches-container');
-            container.innerHTML = '';
+            container.innerHTML = ''; // Limpiar coincidencias anteriores
+
             matches.forEach(match => {
                 const card = document.createElement('div');
                 card.className = 'match-card';
-                const yearRange = match.anoHasta ? `${match.anoDesde} - ${match.anoHasta}` : match.anoDesde;
-                card.innerHTML = `
-                    <p><strong>Modelo:</strong> ${match.marca} ${match.modelo}</p>
-                    <p><strong>Año:</strong> ${yearRange}</p>
-                    <p><strong>Encendido:</strong> ${match.tipoEncendido || 'N/A'}</p>
-                    <p><strong>Versiones:</strong> ${match.versionesAplicables || 'N/A'}</p>
-                `;
                 card.onclick = () => proceedToPhase2(match.id);
+
+                const yearRange = match.anoHasta ? `${match.anoDesde} - ${match.anoHasta}` : match.anoDesde;
+                const defaultImg = 'https://via.placeholder.com/150?text=Sin+Imagen';
+
+                // Contenedor de la imagen principal del vehículo
+                const imgHtml = `<img src="${match.imagenVehiculo || defaultImg}" alt="Imagen del Vehículo" class="match-card-img" onerror="this.onerror=null;this.src='${defaultImg}';">`;
+
+                // Contenedor de la información del vehículo
+                const infoHtml = `
+                    <div class="match-card-info">
+                        <h4>${match.marca} ${match.modelo}</h4>
+                        <p><strong>Año:</strong> ${yearRange}</p>
+                        <p><strong>Encendido:</strong> ${match.tipoEncendido || 'N/A'}</p>
+                        <p><strong>Versiones Adicionales:</strong> ${match.versionesAplicables || 'N/A'}</p>
+                    </div>
+                `;
+
+                // Contenedor para las imágenes de los cortes existentes
+                let cutsHtml = '<div class="match-cuts-container">';
+                let hasCuts = false;
+                const cutImages = [];
+
+                // Recopilar todas las imágenes de cortes disponibles
+                for (let i = 1; i <= 3; i++) {
+                    if (match['imgCorte' + i]) {
+                        hasCuts = true;
+                        cutImages.push(`<img src="${match['imgCorte' + i]}" alt="Corte ${i}" class="match-cut-img" onerror="this.onerror=null;this.src='https://via.placeholder.com/80?text=Corte';">`);
+                    }
+                }
+
+                if (hasCuts) {
+                    cutsHtml += `<h5>Cortes Registrados</h5><div class="match-cuts-grid">${cutImages.join('')}</div>`;
+                } else {
+                    cutsHtml += '<h5>No hay cortes registrados para este vehículo.</h5>';
+                }
+                cutsHtml += '</div>';
+
+                card.innerHTML = `${imgHtml}<div style="flex-grow: 1;">${infoHtml}${cutsHtml}</div>`;
                 container.appendChild(card);
             });
         }

@@ -41,6 +41,11 @@ const COLS_CORTES = {
 // ============================================================================
 // HELPERS
 // ============================================================================
+function sanitizeForFilename(text) {
+    if (text === null || text === undefined) return '';
+    return String(text).replace(/[^a-zA-Z0-9.-]/g, '_').replace(/\s+/g, '_');
+}
+
 function mapRowToObject(row, colMap) {
     const obj = {};
     for (const key in colMap) {
@@ -201,7 +206,8 @@ function handleAddOrUpdateCut(payload) {
         // Handle vehicle image upload
         if (vehicleData.imagenVehiculo) {
             const folder = getOrCreateFolder(vehicleData.categoria, vehicleData.marca, vehicleData.modelo, vehicleData.anio);
-            const imageUrl = uploadImageToDrive(vehicleData.imagenVehiculo, `vehiculo_${Date.now()}`, folder);
+            const filename = `${sanitizeForFilename(vehicleData.marca)}_${sanitizeForFilename(vehicleData.modelo)}_${sanitizeForFilename(vehicleData.tipoEncendido)}_${sanitizeForFilename(vehicleData.anio)}_Vehiculo.jpg`;
+            const imageUrl = uploadImageToDrive(vehicleData.imagenVehiculo, filename, folder);
             newRowData[COLS_CORTES.imagenVehiculo - 1] = imageUrl;
         }
     }
@@ -226,10 +232,12 @@ function handleAddOrUpdateCut(payload) {
             categoria: rowValues[COLS_CORTES.categoria - 1],
             marca: rowValues[COLS_CORTES.marca - 1],
             modelo: rowValues[COLS_CORTES.modelo - 1],
-            anio: rowValues[COLS_CORTES.anoDesde - 1]
+            anio: rowValues[COLS_CORTES.anoDesde - 1],
+            tipoEncendido: rowValues[COLS_CORTES.tipoEncendido - 1]
         } : vehicleData;
         const folder = getOrCreateFolder(folderData.categoria, folderData.marca, folderData.modelo, folderData.anio);
-        const imageUrl = uploadImageToDrive(cutData.imgCorte, `corte${cutSlotIndex}_${Date.now()}`, folder);
+        const filename = `${sanitizeForFilename(folderData.marca)}_${sanitizeForFilename(folderData.modelo)}_${sanitizeForFilename(folderData.tipoEncendido)}_${sanitizeForFilename(folderData.anio)}_Corte${cutSlotIndex}.jpg`;
+        const imageUrl = uploadImageToDrive(cutData.imgCorte, filename, folder);
         cutData.imgCorteUrl = imageUrl;
     }
 
@@ -393,11 +401,18 @@ function handleAddSupplementaryInfo(payload) {
     );
 
     // Process and upload images
+    const marca = rowValues[COLS_CORTES.marca - 1];
+    const modelo = rowValues[COLS_CORTES.modelo - 1];
+    const anio = rowValues[COLS_CORTES.anoDesde - 1];
+    const tipoEncendido = rowValues[COLS_CORTES.tipoEncendido - 1];
+
     if (infoData.imgApertura) {
-        infoData.imgAperturaUrl = uploadImageToDrive(infoData.imgApertura, `apertura_${Date.now()}`, folder);
+        const filename = `${sanitizeForFilename(marca)}_${sanitizeForFilename(modelo)}_${sanitizeForFilename(tipoEncendido)}_${sanitizeForFilename(anio)}_Apertura.jpg`;
+        infoData.imgAperturaUrl = uploadImageToDrive(infoData.imgApertura, filename, folder);
     }
     if (infoData.imgCableAlimen) {
-        infoData.imgCableAlimenUrl = uploadImageToDrive(infoData.imgCableAlimen, `alimentacion_${Date.now()}`, folder);
+        const filename = `${sanitizeForFilename(marca)}_${sanitizeForFilename(modelo)}_${sanitizeForFilename(tipoEncendido)}_${sanitizeForFilename(anio)}_Alimentacion.jpg`;
+        infoData.imgCableAlimenUrl = uploadImageToDrive(infoData.imgCableAlimen, filename, folder);
     }
 
     // Prepare updates

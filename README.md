@@ -110,6 +110,39 @@ Esta sección describe los pasos técnicos específicos requeridos para ejecutar
             *   **Opción 3: "Agregar apertura u otra información".** El usuario quiere añadir información suplementaria a un vehículo existente. El flujo avanza a la **Etapa 3**.
         5.  **Si no hay coincidencias:** El flujo avanza directamente a la **Etapa 2**.
 
+- **Flujo de Trabajo Detallado (Anti-duplicado y Asistente de Búsqueda)**
+
+    - **Etapa 1: Verificación de Vehículo (Anti-duplicado).**
+        1.  El frontend (`add_cortes.html`) solicita 4 campos clave: `Marca`, `Modelo`, `Año` y `Tipo de Encendido`.
+        2.  Al enviar, el backend realiza una búsqueda avanzada con la siguiente lógica:
+            *   **Búsqueda Flexible (Marca y Modelo):** Se utilizan coincidencias parciales e insensibles a mayúsculas/minúsculas.
+                *   Ej. `Marca`: "Mercedes" encontrará "Mercedes Benz".
+                *   Ej. `Modelo`: "np300" encontrará un vehículo cuyo modelo sea "Frontier NP300".
+            *   **Búsqueda Exacta (Año y Encendido):** Se requiere una coincidencia precisa.
+                *   `Año`: El año proporcionado debe estar dentro del rango `[anoDesde, anoHasta]` del registro.
+                *   `Tipo de Encendido`: Debe coincidir exactamente.
+        3.  **Respuesta y Visualización:** El backend devuelve una **lista de todas las coincidencias**. El frontend renderiza cada coincidencia en una **tarjeta detallada** que incluye:
+            *   Imagen del vehículo (tamaño 150px).
+            *   Información clave: Marca, Modelo, Rango de Años, Encendido.
+            *   Imágenes en miniatura de los cortes ya existentes para ese vehículo.
+        4.  El usuario puede seleccionar un vehículo existente para añadirle información o proceder a crear uno nuevo.
+
+    - **Funcionalidad "Quizás quisiste decir...".**
+        1.  Para asistir al usuario y reducir errores, se implementa un corrector ortográfico para los campos `Marca` y `Modelo`.
+        2.  Cuando el usuario deja de escribir en uno de estos campos (`onblur` event), el frontend envía el término al backend.
+        3.  El backend utiliza el **algoritmo de distancia de Levenshtein** para encontrar la cadena de texto más similar en la base de datos.
+        4.  Si se encuentra una coincidencia cercana (con una distancia de Levenshtein baja), el frontend muestra una sugerencia en la que se puede hacer clic, ej: "Quizás quisiste decir: *Chevrolet*".
+
+    - **Etapa 2: Registro de Nuevo Corte y Gestión de Archivos.**
+        1.  Cuando se añade un nuevo corte o un nuevo vehículo, el sistema gestiona las imágenes de la siguiente manera:
+            *   **Creación de Directorios:** El backend crea automáticamente una estructura de carpetas en Google Drive siguiendo la ruta: `GPSpedia/Categoria/Marca/Modelo/Año`.
+            *   **Nomenclatura de Archivos Estandarizada:** Las imágenes subidas se renombran automáticamente para seguir un formato predecible y consistente:
+                *   `Marca_Modelo_TipoEncendido_Año_Vehiculo.jpg`
+                *   `Marca_Modelo_TipoEncendido_Año_Corte1.jpg`
+                *   `Marca_Modelo_TipoEncendido_Año_Apertura.jpg`
+        2.  Esto asegura que todos los archivos estén organizados y sean fácilmente identificables tanto para el sistema como para los administradores.
+
+
     - **Etapa 2: Registro de un Nuevo Corte.**
         1.  El frontend presentará los siguientes campos para el nuevo corte:
             *   `Imagen del vehículo` (botón de subida con vista previa, **solo si es un vehículo completamente nuevo**).

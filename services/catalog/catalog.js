@@ -104,6 +104,9 @@ function doPost(e) {
       case 'checkVehicle':
         result = handleCheckVehicle(payload);
         break;
+      case 'getSuggestion':
+        result = handleGetSuggestion(payload);
+        break;
       default:
         throw new Error(`Acción desconocida: ${action}`);
     }
@@ -352,8 +355,91 @@ function handleCheckVehicle(payload) {
 }
 
 // ============================================================================
+// MANEJADOR DE SUGERENCIAS (PARA "QUIZÁS QUISISTE DECIR...")
+// ============================================================================
+function handleGetSuggestion(payload) {
+    const { term, field } = payload;
+    if (!term || !field) {
+        throw new Error("El término y el campo son requeridos para obtener una sugerencia.");
+    }
+
+    let columnIndex;
+    if (field.toLowerCase() === 'marca') {
+        columnIndex = COLS_CORTES.marca - 1;
+    } else if (field.toLowerCase() === 'modelo') {
+        columnIndex = COLS_CORTES.modelo - 1;
+    } else {
+        throw new Error(`El campo '${field}' no es válido para sugerencias.`);
+    }
+
+    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
+    if (!sheet) return { status: 'success', suggestion: null };
+
+    const data = sheet.getDataRange().getValues();
+    data.shift();
+
+    const uniqueValues = Array.from(new Set(data.map(row => row[columnIndex]).filter(String)));
+
+    let bestMatch = null;
+    let minDistance = Infinity;
+    const searchTerm = term.toLowerCase();
+
+    for (const value of uniqueValues) {
+        const valueLower = value.toLowerCase();
+        if (valueLower === searchTerm) {
+            // Es una coincidencia exacta, no se necesita sugerencia.
+            return { status: 'success', suggestion: null };
+        }
+
+        const distance = levenshteinDistance(searchTerm, valueLower);
+
+        if (distance < minDistance) {
+            minDistance = distance;
+            bestMatch = value;
+        }
+    }
+
+    // Umbral: solo sugerir si la distancia es razonablemente pequeña (ej. <= 3)
+    // y el término no es un substring de la sugerencia (ej. "Chev" y "Chevrolet")
+    if (minDistance <= 3 && bestMatch.toLowerCase().indexOf(searchTerm) === -1) {
+        return { status: 'success', suggestion: bestMatch };
+    }
+
+    return { status: 'success', suggestion: null };
+}
+
+
+// ============================================================================
 // FUNCIONES AUXILIARES
 // ============================================================================
+
+function levenshteinDistance(a, b) {
+    if (a.length === 0) return b.length;
+    if (b.length === 0) return a.length;
+
+    const matrix = Array(b.length + 1).fill(null).map(() => Array(a.length + 1).fill(null));
+
+    for (let i = 0; i <= a.length; i++) {
+        matrix[0][i] = i;
+    }
+    for (let j = 0; j <= b.length; j++) {
+        matrix[j][0] = j;
+    }
+
+    for (let j = 1; j <= b.length; j++) {
+        for (let i = 1; i <= a.length; i++) {
+            const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+            matrix[j][i] = Math.min(
+                matrix[j][i - 1] + 1,          // deletion
+                matrix[j - 1][i] + 1,          // insertion
+                matrix[j - 1][i - 1] + cost    // substitution
+            );
+        }
+    }
+
+    return matrix[b.length][a.length];
+}
+
 
 function convertirAGoogleThumbnail(url) {
     if (!url || typeof url !== 'string') return null;
