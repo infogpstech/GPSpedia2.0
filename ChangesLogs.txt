@@ -1,3 +1,8 @@
+**v4.3.9 (31/12/2025)**
+*   **FIX CRÍTICO (index.html):** Se ha solucionado la causa raíz de una regresión crítica que impedía que la aplicación pasara de la pantalla de bienvenida (splash screen).
+    *   **Causa Raíz:** Se introdujo un `ReferenceError` fatal en la función `mostrarDetalleModal`. Una variable `mainHeaderDiv` fue referenciada incorrectamente en lugar de `titleContainer`, provocando la detención completa de la ejecución de JavaScript y congelando la aplicación.
+    *   **Solución:** Se ha corregido la referencia de la variable, reemplazando `mainHeaderDiv` por la variable correcta `titleContainer`, lo que restaura el flujo de ejecución normal del script y permite que la aplicación se inicialice correctamente. (Línea 2184).
+
 **v4.3.7 (31/12/2025)**
 *   **FIX CRÍTICO (index.html):** Se solucionó un conjunto de regresiones críticas en la interfaz de usuario introducidas en v4.3.4, re-implementando los estilos y la lógica correctos basados en feedback detallado del usuario.
     *   **Carrusel de Motocicletas:** Se corrigió la lógica de filtrado en `mostrarCategorias` para incluir tanto "motos" como "motocicletas", restaurando el carrusel de marcas de motocicletas que no se mostraba. (Línea 2351).

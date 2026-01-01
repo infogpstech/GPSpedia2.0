@@ -1,4 +1,4 @@
-<!-- GPSpedia Frontend Component | Version: 4.3.7 -->
+<!-- GPSpedia Frontend Component | Version: 4.3.9 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -1044,7 +1044,7 @@ body.search-active .app-logo {
 <div id="notification-toast"></div>
 
 <!-- Contenedor de la Consola de Depuración -->
-<div id="debug-console" style="display: none; position: fixed; bottom: 10px; right: 10px; width: 450px; height: 350px; background-color: rgba(20, 20, 30, 0.9); color: #00ff00; border: 1px solid #00ff00; border-radius: 8px; z-index: 9999; display: flex; flex-direction: column; font-family: 'Courier New', Courier, monospace; box-shadow: 0 0 15px rgba(0, 255, 0, 0.5); backdrop-filter: blur(5px);">
+<div id="debug-console" style="display: none; position: fixed; bottom: 10px; right: 10px; width: 450px; height: 350px; background-color: rgba(20, 20, 30, 0.9); color: #00ff00; border: 1px solid #00ff00; border-radius: 8px; z-index: 9999; flex-direction: column; font-family: 'Courier New', Courier, monospace; box-shadow: 0 0 15px rgba(0, 255, 0, 0.5); backdrop-filter: blur(5px);">
     <div id="debug-header" style="padding: 8px; background-color: #00ff00; color: #14141e; font-weight: bold; cursor: move; border-top-left-radius: 7px; border-top-right-radius: 7px; display: flex; justify-content: space-between; align-items: center;">
         <span>GPSpedia Debug Console</span>
         <div>
@@ -1267,6 +1267,7 @@ body.search-active .app-logo {
 
 <script src="api-manager.js"></script>
 <script>
+console.log('[GPSpedia] Script execution started.');
 // --- SISTEMA DE DEPURACIÓN AVANZADO DEL FRONTEND ---
 
 // Activa la consola de depuración si la URL contiene ?debug=true
@@ -1371,6 +1372,7 @@ clearButton.addEventListener('click', () => {
 
 // Sobrescribir window.onerror para capturar todos los errores de JS
 window.onerror = function(message, source, lineno, colno, error) {
+    console.error('[GPSpedia] Uncaught global error:', { message, source, lineno, colno, error });
     debugLog('JAVASCRIPT_ERROR', `Error no capturado: ${message}`, {
         source: `${source}:${lineno}:${colno}`,
         stack: error ? error.stack : 'No disponible'
@@ -1409,8 +1411,10 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwpIFH1nX2BZEjAKbpq9
 const SESSION_KEY = 'gpsepedia_session';
 
 // --- LÓGICA DE AUTENTICACIÓN Y SESIÓN ---
+console.log('[GPSpedia] Authentication logic parsing.');
 
 function sanitizeInput(input) {
+    console.log('[GPSpedia] Sanitize input called.');
     if (typeof input !== 'string') return '';
     // Prevenir inyección de fórmulas de Excel escapando caracteres iniciales peligrosos
     let sanitized = input.trim();
@@ -1425,14 +1429,17 @@ function sanitizeInput(input) {
 const SESSION_ID_KEY = 'gpsepedia_session_id';
 // La función postToAction ahora es reemplazada por routeAction del api-manager.js
 async function postToAction(action, payload = {}) {
+    console.log(`[GPSpedia] postToAction started for action: ${action}`);
     debugLog('API_REQUEST', `Ejecutando acción: ${action}`, payload);
 
     try {
         // Usamos el nuevo enrutador
         const result = await routeAction(action, payload);
+        console.log(`[GPSpedia] postToAction successful for action: ${action}`);
         debugLog('API_RESPONSE', `Respuesta recibida para: ${action}`, result);
         return result;
     } catch (error) {
+        console.error(`[GPSpedia] postToAction failed for action: ${action}`, error);
         debugLog('API_ERROR', `Error en la acción: ${action}`, {
             name: error.name,
             message: error.message,
@@ -1482,45 +1489,56 @@ function showGlobalError(message) {
 }
 
 async function checkSession() {
+    console.log('[GPSpedia] checkSession started.');
     remoteLog('INFO', 'checkSession started');
     const sessionData = localStorage.getItem(SESSION_KEY);
     if (sessionData) {
+        console.log('[GPSpedia] Session data found in localStorage.');
         remoteLog('INFO', 'Session data found in localStorage.');
         try {
             const user = JSON.parse(sessionData);
+            console.log('[GPSpedia] Attempting to validate session for user:', user.ID);
             remoteLog('INFO', 'Attempting to validate session for user.', { userId: user.ID });
             const result = await postToAction('validateSession', { userId: user.ID, sessionToken: user.SessionToken });
 
             if (result.valid) {
+                console.log('[GPSpedia] Session is valid. Initializing app.');
                 remoteLog('INFO', 'Session is valid. Initializing app.');
                 await initializeAppData(user);
             } else {
+                console.warn('[GPSpedia] Session is invalid according to backend. Logging out.');
                 remoteLog('WARN', 'Session is invalid according to backend. Logging out.');
                 logout("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
             }
         } catch (error) {
+            console.error('[GPSpedia] Error during session validation.', error);
             remoteLog('ERROR', 'Error during session validation.', { error: error.message, stack: error.stack });
             showLoginHideApp();
         }
     } else {
+        console.log('[GPSpedia] No session data found. Showing login.');
         remoteLog('INFO', 'No session data found. Showing login.');
         showLoginHideApp();
     }
 }
 
 async function login(username, password) {
+    console.log(`[GPSpedia] login started for user: ${username}`);
     try {
         const result = await postToAction('login', { username, password });
         // La respuesta de login ahora contiene el objeto 'user' completo, incluyendo el nuevo SessionToken.
         // Al guardar este objeto, estamos actualizando el token en localStorage automáticamente.
         localStorage.setItem(SESSION_KEY, JSON.stringify(result.user));
+        console.log(`[GPSpedia] Login successful for user: ${username}. Initializing app data.`);
         await initializeAppData(result.user);
     } catch (error) {
+        console.error(`[GPSpedia] Login failed for user: ${username}`, error);
         // El error ya se muestra en postToAction
     }
 }
 
 async function initializeAppData(user) {
+    console.log('[GPSpedia] initializeAppData started for user:', user.ID);
     return new Promise(async (resolve, reject) => {
         hideLoginShowApp();
         document.getElementById('welcome-message').textContent = `Bienvenido, ${user.Nombre_Usuario}`;
@@ -1529,12 +1547,15 @@ async function initializeAppData(user) {
         showSkeletonLoader(document.getElementById('contenido'));
 
         try {
+            console.log('[GPSpedia] Fetching catalog data...');
             const result = await postToAction('getCatalogData');
+            console.log('[GPSpedia] Catalog data fetched successfully.');
             datosOriginales = result.data.cortes || [];
             sortedCategoriesList = result.data.sortedCategories || []; // <-- NUEVA LÍNEA
             datosTutoriales = result.data.tutoriales || [];
             datosRelay = result.data.relay || [];
             datosLogos = result.data.logos || [];
+            console.log('[GPSpedia] Data assigned to global variables.');
 
             // Notification Logic
             const lastTimestampKey = 'lastKnownTimestamp';
@@ -1560,6 +1581,7 @@ async function initializeAppData(user) {
 }
 
 function logout(reason = null) {
+    console.log(`[GPSpedia] logout called. Reason: ${reason}`);
     localStorage.removeItem(SESSION_KEY);
     localStorage.removeItem(SESSION_ID_KEY);
 
@@ -1567,13 +1589,20 @@ function logout(reason = null) {
 }
 
 function showLoginHideApp(reason = null) {
-    // La lógica de visibilidad es crítica y debe ejecutarse sin interrupciones.
+    console.log(`[GPSpedia] showLoginHideApp called. Reason: ${reason}`);
+    // La lógica de visibilidad es crítica y debe ejecutarse sin interrurupciones.
     try {
         const splash = document.getElementById('splash-screen');
-        if (splash) splash.style.display = 'none';
+        if (splash) {
+            console.log('[GPSpedia] Hiding splash screen.');
+            splash.style.display = 'none';
+        }
 
         const container = document.querySelector('.container');
-        if (container) container.style.display = 'none';
+        if (container) {
+            console.log('[GPSpedia] Hiding main container.');
+            container.style.display = 'none';
+        }
 
         const footer = document.querySelector('.footer');
         if (footer) footer.style.display = 'none';
@@ -1582,7 +1611,10 @@ function showLoginHideApp(reason = null) {
         if (welcomeMsg) welcomeMsg.style.display = 'none';
 
         const loginModal = document.getElementById('login-modal');
-        if (loginModal) loginModal.style.display = 'flex';
+        if (loginModal) {
+            console.log('[GPSpedia] Showing login modal.');
+            loginModal.style.display = 'flex';
+        }
 
         const loginError = document.getElementById('login-error');
         if (loginError) {
@@ -1614,18 +1646,23 @@ function showLoginHideApp(reason = null) {
 }
 
 function hideLoginShowApp() {
+    console.log('[GPSpedia] hideLoginShowApp started.');
     remoteLog('INFO', 'hideLoginShowApp called');
     // Ocultar splash y login
     const splash = document.getElementById('splash-screen');
+    console.log('[GPSpedia] Fading out splash screen.');
     splash.style.opacity = '0';
     setTimeout(() => {
+        console.log('[GPSpedia] Hiding splash screen completely.');
         splash.style.display = 'none';
     }, 500); // Coincide con la transición de opacidad
 
+    console.log('[GPSpedia] Hiding login modal.');
     document.getElementById('login-modal').style.display = 'none';
     remoteLog('INFO', 'Login modal display style set to none.');
 
     // Mostrar contenido principal y footer
+    console.log('[GPSpedia] Showing main container.');
     document.querySelector('.container').style.display = 'block';
     const footer = document.querySelector('.footer');
     if (footer) footer.style.display = 'block';
@@ -3200,6 +3237,7 @@ async function handleSharedLink(seccion, id) {
 
 
 async function inicializarApp() {
+    console.log('[GPSpedia] inicializarApp started.');
     const urlParams = new URLSearchParams(window.location.search);
     const seccion = urlParams.get('seccion');
     const id = urlParams.get('id');
@@ -3780,7 +3818,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <footer class="footer" style="display: none;">
-  Gpspedia v4.3.7 © 2025 todos los derechos reservados.
+  Gpspedia v4.3.9 © 2025 todos los derechos reservados.
   <div class="footer-links">
       <a id="footer-about-link">Sobre Nosotros</a>
       <a id="footer-contact-link">Contáctanos</a>
