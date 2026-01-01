@@ -1,3 +1,7 @@
+**v4.3.8 (31-12-2025)**
+*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `GPSpedia-Write` a la nueva versión desplegada, asegurando que el frontend se comunique con el endpoint más reciente para las operaciones de escritura.
+    *   **Archivos Modificados:** `api-manager.js`: Línea 12.
+
 **v4.3.7 (31-12-2025)**
 *   **HOTFIX (services/catalog/catalog.js):** Se solucionó un error crítico que impedía la carga de los datos del formulario en `add_cortes.html`.
     *   **Causa Raíz:** Se producía un error de `TypeError: ... .getValues is not a function` en la función `handleGetDropdownData`. El código intentaba llamar a `.getValues()` sobre un array simple devuelto por `getCriteriaValues()`, lo cual es incorrecto.
