@@ -1,4 +1,4 @@
-<!-- GPSpedia Frontend Component | Version: 4.3.4 -->
+<!-- GPSpedia Frontend Component | Version: 4.3.6 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -1698,6 +1698,72 @@ let appOpenedFromLink = false;
 
 const backSvg = '<svg style="width:20px;height:20px;margin-right:5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
 
+// --- Función para crear carruseles (Movida al ámbito global para evitar ReferenceError) ---
+const crearCarrusel = (titulo, items, cardGenerator) => {
+    const cont = document.getElementById("contenido"); // Asegurarse que el contenedor sea accesible
+    if (!items || items.length === 0 || !cont) return;
+
+    const section = document.createElement('div');
+    const title = document.createElement('h4');
+    title.textContent = titulo;
+    title.style.marginTop = '40px';
+    section.appendChild(title);
+
+    const carouselContainer = document.createElement('div');
+    carouselContainer.className = 'carousel-container';
+    const carouselTrack = document.createElement('div');
+    carouselTrack.className = 'carousel-track';
+
+    items.forEach(item => {
+        const card = cardGenerator(item);
+        carouselTrack.appendChild(card);
+    });
+    carouselContainer.appendChild(carouselTrack);
+
+    // --- Lógica de Navegación Generalizada ---
+    const getVisibleCards = () => {
+        const containerWidth = carouselContainer.offsetWidth;
+        const cardWidth = 140 + 20; // Ancho de la tarjeta + margen
+        return Math.floor(containerWidth / cardWidth) || 1;
+    };
+
+    if (items.length > getVisibleCards()) {
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'carousel-btn prev';
+        prevBtn.innerHTML = '&#10094;';
+        carouselContainer.appendChild(prevBtn);
+
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'carousel-btn next';
+        nextBtn.innerHTML = '&#10095;';
+        carouselContainer.appendChild(nextBtn);
+
+        const cardWidth = 140 + 20;
+
+        const updateCarouselButtons = () => {
+            const scrollLeft = carouselTrack.scrollLeft;
+            const maxScrollLeft = carouselTrack.scrollWidth - carouselTrack.clientWidth;
+            prevBtn.style.display = scrollLeft > 0 ? 'flex' : 'none';
+            nextBtn.style.display = scrollLeft < maxScrollLeft - 1 ? 'flex' : 'none';
+        };
+
+        nextBtn.addEventListener('click', () => {
+            carouselTrack.scrollBy({ left: cardWidth * getVisibleCards(), behavior: 'smooth' });
+        });
+
+        prevBtn.addEventListener('click', () => {
+            carouselTrack.scrollBy({ left: -cardWidth * getVisibleCards(), behavior: 'smooth' });
+        });
+
+        carouselTrack.addEventListener('scroll', () => setTimeout(updateCarouselButtons, 150));
+        window.addEventListener('resize', () => setTimeout(updateCarouselButtons, 150));
+        setTimeout(updateCarouselButtons, 150); // Llamada inicial
+    }
+
+    section.appendChild(carouselContainer);
+    cont.appendChild(section);
+};
+
 // La función syncAndFetchData ha sido eliminada. La carga de datos ahora se centraliza en initializeAppData.
 
 function mostrarSeccion(seccion) {
@@ -2567,71 +2633,6 @@ function mostrarCategorias() {
 
     // 1. Mostrar "Últimos Agregados"
     mostrarUltimosAgregados();
-
-    // --- Función para crear carruseles ---
-    const crearCarrusel = (titulo, items, cardGenerator) => {
-        if (!items || items.length === 0) return;
-
-        const section = document.createElement('div');
-        const title = document.createElement('h4');
-        title.textContent = titulo;
-        title.style.marginTop = '40px';
-        section.appendChild(title);
-
-        const carouselContainer = document.createElement('div');
-        carouselContainer.className = 'carousel-container';
-        const carouselTrack = document.createElement('div');
-        carouselTrack.className = 'carousel-track';
-
-        items.forEach(item => {
-            const card = cardGenerator(item);
-            carouselTrack.appendChild(card);
-        });
-        carouselContainer.appendChild(carouselTrack);
-
-        // --- Lógica de Navegación Generalizada ---
-        const getVisibleCards = () => {
-            const containerWidth = carouselContainer.offsetWidth;
-            const cardWidth = 140 + 20; // Ancho de la tarjeta + margen
-            return Math.floor(containerWidth / cardWidth) || 1;
-        };
-
-        if (items.length > getVisibleCards()) {
-            const prevBtn = document.createElement('button');
-            prevBtn.className = 'carousel-btn prev';
-            prevBtn.innerHTML = '&#10094;';
-            carouselContainer.appendChild(prevBtn);
-
-            const nextBtn = document.createElement('button');
-            nextBtn.className = 'carousel-btn next';
-            nextBtn.innerHTML = '&#10095;';
-            carouselContainer.appendChild(nextBtn);
-
-            const cardWidth = 140 + 20;
-
-            const updateCarouselButtons = () => {
-                const scrollLeft = carouselTrack.scrollLeft;
-                const maxScrollLeft = carouselTrack.scrollWidth - carouselTrack.clientWidth;
-                prevBtn.style.display = scrollLeft > 0 ? 'flex' : 'none';
-                nextBtn.style.display = scrollLeft < maxScrollLeft - 1 ? 'flex' : 'none';
-            };
-
-            nextBtn.addEventListener('click', () => {
-                carouselTrack.scrollBy({ left: cardWidth * getVisibleCards(), behavior: 'smooth' });
-            });
-
-            prevBtn.addEventListener('click', () => {
-                carouselTrack.scrollBy({ left: -cardWidth * getVisibleCards(), behavior: 'smooth' });
-            });
-
-            carouselTrack.addEventListener('scroll', () => setTimeout(updateCarouselButtons, 150));
-            window.addEventListener('resize', () => setTimeout(updateCarouselButtons, 150));
-            setTimeout(updateCarouselButtons, 150); // Llamada inicial
-        }
-
-        section.appendChild(carouselContainer);
-        cont.appendChild(section);
-    };
 
     // --- ORDEN CORRECTO DE RENDERIZADO ---
     // 1. Carrusel de Categorías
@@ -3573,7 +3574,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <footer class="footer" style="display: none;">
-  Gpspedia v4.3.4 © 2025 todos los derechos reservados.
+  Gpspedia v4.3.6 © 2025 todos los derechos reservados.
   <div class="footer-links">
       <a id="footer-about-link">Sobre Nosotros</a>
       <a id="footer-contact-link">Contáctanos</a>
