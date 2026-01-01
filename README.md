@@ -47,12 +47,12 @@ Esta sección define la hoja de ruta para la siguiente gran versión de GPSpedia
 ### Fase 1: Migración y Lógica de Datos Fundamental
 - **Objetivo:** Migrar a la nueva base de datos (DB v2.0) y establecer la lógica de negocio principal para la gestión de datos.
 - **Tareas Clave:**
-    - [ ] **Diseñar Nuevo Esquema:** Implementar la estructura granular detallada en la sección "Diseño Detallado de `GPSpedia_DB_v2.0`".
-    - [ ] **Script de Migración:** Desarrollar un endpoint para migrar y transformar los datos de la base de datos antigua a la nueva.
+    - [x] **Diseñar Nuevo Esquema:** Implementar la estructura granular detallada en la sección "Diseño Detallado de `GPSpedia_DB_v2.0`".
+    - [X] **Script de Migración:** Desarrollar un endpoint para migrar y transformar los datos de la base de datos antigua a la nueva.
     - [ ] **Lógica de Gestión de Años Simplificada:**
         - El formulario de entrada solo solicitará un único año.
         - Este año se guardará en la columna `anoDesde` al crear un nuevo registro. `anoHasta` quedará vacío.
-    - [ ] **Lógica de Gestión de Logos Automatizada:**
+    - [X] **Lógica de Gestión de Logos Automatizada:**
         - Al agregar un nuevo vehículo, el sistema buscará una coincidencia en la hoja `LogosMarcas` por el campo `marca`.
         - Si se encuentra, se asociará automáticamente. Si no, se usará un logo temporal de GPSpedia. El usuario no seleccionará el logo.
 
@@ -61,7 +61,7 @@ Esta sección define la hoja de ruta para la siguiente gran versión de GPSpedia
 - **Tareas Clave:**
     - [ ] **Feedback Granular:** Implementar "likes" y colaborador por cada corte individual.
     - [ ] **Ordenamiento por Utilidad:** El backend ordenará los cortes de un vehículo según su popularidad antes de enviarlos al frontend.
-    - [ ] **Campos Obligatorios:** Forzar el llenado de `tipo`, `ubicación`, `color` e `imagen` para cada nuevo corte.
+    - [X] **Campos Obligatorios:** Forzar el llenado de `tipo`, `ubicación`, `color` e `imagen` para cada nuevo corte.
     - [ ] **Expansión de Rango de Años por Feedback:**
         - Implementar una nueva función de feedback que permita a los usuarios sugerir que un corte aplica a un año diferente.
         - El backend recibirá el nuevo año y actualizará `anoDesde` (si el nuevo año es menor) o `anoHasta` (si el nuevo año es mayor), expandiendo dinámicamente el rango de aplicabilidad.
@@ -73,16 +73,15 @@ Esta sección define la hoja de ruta para la siguiente gran versión de GPSpedia
     - [ ] **Edición "In-Modal":** Permitir la edición de datos directamente desde el modal de detalles, con permisos por rol.
     - [ ] **Enlaces de un solo uso:** Generar enlaces temporales (24h) y de un solo uso para compartir información.
     - [ ] **Notificaciones Inteligentes:** Reemplazar el banner de instalación con notificaciones "toast" sobre nuevos cortes.
-    - [ ] **Visualización de Logos:**
-        - Mostrar el logo de la marca (formato PNG/WEBP sin fondo) en una esquina del modal de detalle (`altura: 50px`, `anchura: auto`).
+    - [X] **Visualización de Logos:**
+        - Mostrar el logo de la marca (formato PNG/WEBP sin fondo) al final del nombre del modelo de vehículo. (`altura: 50px`, `anchura: auto`).
         - En la vista de listado de marcas, mostrar el logo correspondiente si existe al menos un vehículo de esa marca.
 
 ### Fase 4: Mejoras Adicionales
 - **Objetivo:** Añadir funcionalidades de alto valor para el trabajo en campo.
 - **Tareas Clave:**
     - [ ] **Modo Offline Robusto:** Implementar caching avanzado.
-    - [ ] **Notas Personales:** Permitir a los usuarios guardar notas privadas por vehículo.
-    - [ ] **Modal de Relay Anidado:** Mostrar detalles de configuraciones de Relay en un modal secundario, con la imagen de referencia limitada a `250px` de altura.
+    - [X] **Modal de Relay Anidado:** Mostrar detalles de configuraciones de Relay en un modal secundario, con la imagen de referencia limitada a `250px` de altura.
 
 ---
 
