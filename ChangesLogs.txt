@@ -1,3 +1,9 @@
+**v4.3.5 (31-12-2025)**
+*   **HOTFIX (service-worker.js):** Se solucionó una regresión crítica introducida en la v4.3.4 que impedía la carga del catálogo y causaba la pérdida de sesión en cada recarga.
+    *   **Causa Raíz:** El commit anterior introdujo cambios significativos en el frontend (`index.html`) pero no incrementó la versión de la caché en el service worker. Esto provocó que los clientes siguieran usando una versión de JavaScript en caché, incompatible con la nueva lógica, causando un error fatal durante la inicialización.
+    *   **Solución:** Se incrementó la versión de la caché de `v4` a `v5` en `service-worker.js`. Esto invalida la caché obsoleta y fuerza a todos los clientes a descargar la última versión de la aplicación, restaurando la funcionalidad completa.
+    *   **Archivos Modificados:** `service-worker.js`: Línea 1.
+
 **v4.3.4 (31-12-2025)**
 *   **UX (index.html):** Se implementaron múltiples mejoras en la interfaz de usuario para aumentar la compacidad y corregir funcionalidades.
     *   **Modal de Detalle:** Se redujo el espaciado vertical (márgenes y paddings) entre todos los elementos para un layout más compacto.
