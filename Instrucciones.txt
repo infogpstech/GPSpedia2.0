@@ -57,41 +57,43 @@ Para organizar el desarrollo y asegurar la calidad, el trabajo se dividirá en f
 ---------------------------------
 ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
 ---------------------------------
-**Última Actualización:** 31-12-2025
+**Última Actualización:** 1-01-2026
 
 Esta sección documenta el estado actual de las tareas de desarrollo. Todas las tareas marcadas como `[Falta Revisión]` deben ser validadas por el Project Manager.
 
 ### Bugs y Regresiones Críticas
 
-1.  **Reducción de espacio vertical de las Imágenes en Modal:**
+1. **Optimizacion pendiente** de la carga del catalogo. [PENDIENTE]
+al actualizar la plataforma tarda en mostrar la información. 
+2.  **Reducción de espacio vertical de las Imágenes en Modal:**
     - **Orden de Imágenes:** `[COMPLETADO]`
     - **Layout ajuste del width mas grande, height auto y Espacio Vertical:** `[Pendiente]`
-2.  **Ajustes esteticos de Logos en Modal
+3.  **Ajustes esteticos de Logos en Modal
 - Imagen del logo sin bordes, fondo transparente y drop-shadows directo en la imagen del logo de marca:** `[Pendiente]`
-3.  **Refactorización del Flujo de Escritura:** `[Pendiente]` 
+4.  **Refactorización del Flujo de Escritura:** `[Pendiente]` 
 - La interfaz del formulario de 3 etapas está avanzada, pero se necesita implementar toda la lógica de backend correspondiente en el servicio `GPSpedia-Write`.
-4.  **Inconsistencias de Versionamiento:** `[ ] Pendiente` - Es necesario sincronizar la versión global para que el próximo gran lanzamiento sea `v2.0` y mejorar el formato de registro de fechas en `ChangesLogs.txt`.
+5.  **Inconsistencias de Versionamiento:** `[ ] Pendiente` - Es necesario sincronizar la versión global para que el próximo gran lanzamiento sea `v2.0` y mejorar el formato de registro de fechas en `ChangesLogs.txt`.
 
 ### Revisiones de UI/UX
 
-5.  **Rediseño de Botones de Feedback:** `[Completo]` - Se redujo el tamaño de los botones en un 10%. Pendiente la revisión de la lógica de backend.
-6.  **Navegación para Carrusel de 'Categorías':** `[Completado]` - Se refactorizó la lógica de botones para que sea reutilizable en todos los carruseles.
-7.  **Creación del Carrusel 'Marcas de motos':** `[PENDIENTE]` - Se intenta añadir, sin embago en cada intento causa que el catalogo "No se pudo cargar el catálogo. crearCarrusel is not defined"
+6.  **Rediseño de Botones de Feedback:** `[Completo]` - Se redujo el tamaño de los botones en un 10%. Pendiente la revisión de la lógica de backend.
+7.  **Navegación para Carrusel de 'Categorías':** `[Completado]` - Se refactorizó la lógica de botones para que sea reutilizable en todos los carruseles.
+8.  **Creación del Carrusel 'Marcas de motos':** `[PENDIENTE]` - Se intenta añadir, sin embago en cada intento causa que el catalogo "No se pudo cargar el catálogo. crearCarrusel is not defined"
 
 ### Nuevas Funcionalidades
 
-8.  **Sistema de Navegación Jerárquico:** `[ ] Pendiente` - Implementar el flujo de navegación guiado completo: Categoría -> Marca -> Modelo -> Versión/Tipo Encendido -> Año.
-9.  **Sistema de Gestión de Feedback (Inbox):** `[ ] Pendiente` - La interfaz del Inbox está creada, pero se necesita implementar la lógica de backend en el servicio `GPSpedia-Feedback`.
-10. **Visibilidad de la Consola de Debugging:** `[Pendiente]` 
+9.  **Sistema de Navegación Jerárquico:** `[ ] Pendiente` - Implementar el flujo de navegación guiado completo: Categoría -> Marca -> Modelo -> Versión/Tipo Encendido -> Año.
+10.  **Sistema de Gestión de Feedback (Inbox):** `[ ] Pendiente` - La interfaz del Inbox está creada, pero se necesita implementar la lógica de backend en el servicio `GPSpedia-Feedback`.
+11. **Visibilidad de la Consola de Debugging:** `[Pendiente]` 
 - la consola de depuracion se nuestra al actualizar la pagina
-11. **Carga Optimizada de Imágenes (Lazy Load):** `[ ] Pendiente` - Implementar la carga progresiva de imágenes y utilizar URLs de thumbnails con tamaños específicos.
-12. **Lógica de Gestión de Años:** `[ ] Pendiente` - Falta implementar la lógica de backend para registrar los votos, la hoja de cálculo para almacenar dichos votos y mejorar la presentación del `alert`.
+12. **Carga Optimizada de Imágenes (Lazy Load):** `[ ] Pendiente` - Implementar la carga progresiva de imágenes y utilizar URLs de thumbnails con tamaños específicos.
+13. **Lógica de Gestión de Años:** `[ ] Pendiente` - Falta implementar la lógica de backend para registrar los votos, la hoja de cálculo para almacenar dichos votos y mejorar la presentación del `alert`.
 se almacenara en la hoja de 'Feedbacks' en la columna 'anoSugerido'
-13. **Ordenamiento por Utilidad:** `[ ] Pendiente de Verificación` - Verificar si el backend (`GPSpedia-Catalog`) ordena los cortes por popularidad. Si no existe, se debe construir.
-14. **Expansión de Rango de Años por Feedback:** `[ ] Pendiente de Verificación` - Verificar si la lógica de backend que expande el rango de años existe. Si no, se debe construir.
-15. **Modal de Relay Anidado:** `[ ] Pendiente` - Implementar la lógica para validar el caso "Sin Relay".
-16. **Dashboard de Desempeño:** `[ ] Falta Implementar` - Crear la nueva sección para Supervisores.
-17. **Edición "In-Modal":** `[ ] Falta Implementar` - Permitir la edición de datos desde el modal de detalles.
+14. **Ordenamiento por Utilidad:** `[ ] Pendiente de Verificación` - Verificar si el backend (`GPSpedia-Catalog`) ordena los cortes por popularidad. Si no existe, se debe construir.
+15. **Expansión de Rango de Años por Feedback:** `[ ] Pendiente de Verificación` - Verificar si la lógica de backend que expande el rango de años existe. Si no, se debe construir.
+16. **Modal de Relay Anidado:** `[ ] Pendiente` - Implementar la lógica para validar el caso "Sin Relay".
+17. **Dashboard de Desempeño:** `[ ] Falta Implementar` - Crear la nueva sección para Supervisores.
+18. **Edición "In-Modal":** `[ ] Falta Implementar` - Permitir la edición de datos desde el modal de detalles.
 
 ---
 ### **Plan de Implementación Técnica: Tareas Adicionales**
