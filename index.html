@@ -814,12 +814,7 @@ body.search-active .app-logo {
 }
 .feedback-btn-overlay:hover {
     background-color: rgba(0, 0, 0, 0.8);
-    transform: scale(1.0); /* Efecto de escala reducido al pasar el mouse */
-}
-
-.feedback-btn-overlay {
-    /* ... otros estilos ... */
-    transform: scale(0.9); /* Reducción del 10% */
+    transform: scale(1.1);
 }
 .feedback-btn-overlay.util-btn.liked {
     background-color: #28a745; /* Verde para indicar que se le dio "like" */
@@ -829,12 +824,6 @@ body.search-active .app-logo {
     color: #007bff;
     border-bottom: 2px solid #eee;
     padding-bottom: 5px;
-    margin-top: 15px; /* Reducido de 20px (default) */
-    margin-bottom: 8px; /* Reducido de 10px */
-}
-
-#detalleCompleto p {
-    margin: 4px 0; /* Reducido el margen vertical para los párrafos */
 }
 
 /* --- ESTILOS PARA SECCIONES DESPLEGABLES (ACORDEÓN) --- */
@@ -851,7 +840,7 @@ body.search-active .app-logo {
     font-weight: bold;
     transition: background-color 0.3s ease;
     border-radius: 8px;
-    margin-top: 5px; /* Reducido para compactar */
+    margin-top: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1055,7 +1044,7 @@ body.search-active .app-logo {
 <div id="notification-toast"></div>
 
 <!-- Contenedor de la Consola de Depuración -->
-<div id="debug-console" style="display: none; position: fixed; bottom: 10px; right: 10px; width: 450px; height: 350px; background-color: rgba(20, 20, 30, 0.9); color: #00ff00; border: 1px solid #00ff00; border-radius: 8px; z-index: 9999; flex-direction: column; font-family: 'Courier New', Courier, monospace; box-shadow: 0 0 15px rgba(0, 255, 0, 0.5); backdrop-filter: blur(5px);">
+<div id="debug-console" style="display: none; position: fixed; bottom: 10px; right: 10px; width: 450px; height: 350px; background-color: rgba(20, 20, 30, 0.9); color: #00ff00; border: 1px solid #00ff00; border-radius: 8px; z-index: 9999; display: flex; flex-direction: column; font-family: 'Courier New', Courier, monospace; box-shadow: 0 0 15px rgba(0, 255, 0, 0.5); backdrop-filter: blur(5px);">
     <div id="debug-header" style="padding: 8px; background-color: #00ff00; color: #14141e; font-weight: bold; cursor: move; border-top-left-radius: 7px; border-top-right-radius: 7px; display: flex; justify-content: space-between; align-items: center;">
         <span>GPSpedia Debug Console</span>
         <div>
@@ -1280,9 +1269,13 @@ body.search-active .app-logo {
 <script>
 // --- SISTEMA DE DEPURACIÓN AVANZADO DEL FRONTEND ---
 
-// La consola de depuración ahora se controla únicamente a través del modal de desarrollador
-const isDebugMode = new URLSearchParams(window.location.search).has('debug'); // Se mantiene para debugLog, pero no para visibilidad
+// Activa la consola de depuración si la URL contiene ?debug=true
+const isDebugMode = new URLSearchParams(window.location.search).has('debug');
 const debugConsole = document.getElementById('debug-console');
+
+if (isDebugMode) {
+    debugConsole.style.display = 'flex';
+}
 
 /**
  * Registra un mensaje en la consola de depuración del frontend.
@@ -1698,72 +1691,6 @@ let appOpenedFromLink = false;
 
 const backSvg = '<svg style="width:20px;height:20px;margin-right:5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
 
-// --- Función para crear carruseles (Movida al ámbito global para evitar ReferenceError) ---
-const crearCarrusel = (titulo, items, cardGenerator) => {
-    const cont = document.getElementById("contenido"); // Asegurarse que el contenedor sea accesible
-    if (!items || items.length === 0 || !cont) return;
-
-    const section = document.createElement('div');
-    const title = document.createElement('h4');
-    title.textContent = titulo;
-    title.style.marginTop = '40px';
-    section.appendChild(title);
-
-    const carouselContainer = document.createElement('div');
-    carouselContainer.className = 'carousel-container';
-    const carouselTrack = document.createElement('div');
-    carouselTrack.className = 'carousel-track';
-
-    items.forEach(item => {
-        const card = cardGenerator(item);
-        carouselTrack.appendChild(card);
-    });
-    carouselContainer.appendChild(carouselTrack);
-
-    // --- Lógica de Navegación Generalizada ---
-    const getVisibleCards = () => {
-        const containerWidth = carouselContainer.offsetWidth;
-        const cardWidth = 140 + 20; // Ancho de la tarjeta + margen
-        return Math.floor(containerWidth / cardWidth) || 1;
-    };
-
-    if (items.length > getVisibleCards()) {
-        const prevBtn = document.createElement('button');
-        prevBtn.className = 'carousel-btn prev';
-        prevBtn.innerHTML = '&#10094;';
-        carouselContainer.appendChild(prevBtn);
-
-        const nextBtn = document.createElement('button');
-        nextBtn.className = 'carousel-btn next';
-        nextBtn.innerHTML = '&#10095;';
-        carouselContainer.appendChild(nextBtn);
-
-        const cardWidth = 140 + 20;
-
-        const updateCarouselButtons = () => {
-            const scrollLeft = carouselTrack.scrollLeft;
-            const maxScrollLeft = carouselTrack.scrollWidth - carouselTrack.clientWidth;
-            prevBtn.style.display = scrollLeft > 0 ? 'flex' : 'none';
-            nextBtn.style.display = scrollLeft < maxScrollLeft - 1 ? 'flex' : 'none';
-        };
-
-        nextBtn.addEventListener('click', () => {
-            carouselTrack.scrollBy({ left: cardWidth * getVisibleCards(), behavior: 'smooth' });
-        });
-
-        prevBtn.addEventListener('click', () => {
-            carouselTrack.scrollBy({ left: -cardWidth * getVisibleCards(), behavior: 'smooth' });
-        });
-
-        carouselTrack.addEventListener('scroll', () => setTimeout(updateCarouselButtons, 150));
-        window.addEventListener('resize', () => setTimeout(updateCarouselButtons, 150));
-        setTimeout(updateCarouselButtons, 150); // Llamada inicial
-    }
-
-    section.appendChild(carouselContainer);
-    cont.appendChild(section);
-};
-
 // La función syncAndFetchData ha sido eliminada. La carga de datos ahora se centraliza en initializeAppData.
 
 function mostrarSeccion(seccion) {
@@ -2041,7 +1968,7 @@ function mostrarDetalleTutorial(item) {
     });
 
     crearImagenDetalle("Imagen", item.Imagen, cont);
-    crearVideoDetalle("Video Guía", item.Video, cont);
+    crearVideoDetalle("Video Guía", item.videoGuia, cont);
     document.getElementById("modalDetalle").classList.add("visible");
 }
 
@@ -2054,7 +1981,7 @@ function mostrarDetalleRelay(item) {
 
     // --- 1. Botones de Cerrar y Compartir ---
     const headerDiv = document.createElement("div");
-    headerDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;"; // Reducido el margen
+    headerDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;";
     const closeBtn = document.createElement("button");
     closeBtn.textContent = "Cerrar";
     closeBtn.onclick = () => cerrarModal();
@@ -2082,7 +2009,7 @@ function mostrarDetalleRelay(item) {
     campos.forEach(c => {
         cont.appendChild(crearElementoDetalle(c.label, c.value, item.id, c.field));
     });
-    crearImagenDetalle("Diagrama", item.imagen, cont);
+    crearImagenDetalle("Diagrama", item.imagen, contenidoDiv);
     const relayImg = cont.querySelector('img[alt="Imagen"]');
     if (relayImg) {
         relayImg.style.maxHeight = '250px';
@@ -2247,13 +2174,9 @@ function mostrarDetalleModal(item) {
     headerDiv.appendChild(crearBotonCompartir('cortes', item.id, titulo));
     cont.appendChild(headerDiv);
 
-    // --- 2. Nuevo Encabezado Detallado ---
+    // --- 2. Título principal con logo de marca (Flexbox Layout) ---
     const titleContainer = document.createElement("div");
-    titleContainer.style.cssText = "border-bottom: 3px solid #007bff; padding-bottom: 8px; margin-bottom: 10px;"; // Reducido el padding y margen
-
-    // 2.1 Título Principal (Nombre del Modelo y Logo)
-    const mainHeaderDiv = document.createElement('div');
-    mainHeaderDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center;";
+    titleContainer.style.cssText = "display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #007bff; padding-bottom: 10px; margin-bottom: 15px;";
 
     const title = document.createElement("h2");
     title.textContent = `${item.modelo}`; // Quitado el nombre de la marca
@@ -2264,9 +2187,8 @@ function mostrarDetalleModal(item) {
     if (logoUrl) {
         const logoImg = document.createElement("img");
         logoImg.src = convertirAGoogleThumbnail(logoUrl);
-        // Aumentado en ~10% y movido después del modelo
-        logoImg.style.cssText = "height: 55px; width: auto; max-width: 120px; object-fit: contain; margin-left: 15px;";
-        // Insertar el logo después del título de texto
+        // Corregido: Tamaño aumentado a 55px y drop-shadow aplicado a la imagen
+        logoImg.style.cssText = "height: 55px; width: auto; max-width: 120px; object-fit: contain; margin-left: 15px; border: none; background: transparent; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));";
         title.insertAdjacentElement('afterend', logoImg);
     }
     titleContainer.appendChild(mainHeaderDiv);
@@ -2302,20 +2224,21 @@ function mostrarDetalleModal(item) {
     // --- 4. Imagen del Vehículo (si existe) ---
     crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, { extraClass: 'img-vehiculo' });
     const vehiculoImg = cont.querySelector('.img-vehiculo');
-    if(vehiculoImg) {
-        vehiculoImg.style.maxHeight = '105px'; // Reducido en 30% de 150px
-        vehiculoImg.style.filter = 'drop-shadow(2px 4px 6px rgba(0,0,0,0.4))';
+    if (vehiculoImg) {
+        // Corregido: Reducción del 30% (de 200px a 140px) y estilos aplicados a la imagen
+        vehiculoImg.style.maxHeight = '140px';
         vehiculoImg.style.background = 'transparent';
         vehiculoImg.style.border = 'none';
-        // El contenedor ahora no necesita estilos
+        vehiculoImg.style.boxShadow = 'none'; // Anula el box-shadow por defecto del modal
+        vehiculoImg.style.filter = 'drop-shadow(2px 4px 6px rgba(0,0,0,0.4))';
+
+        // Asegurar que el contenedor no interfiera
         const vehiculoImgContainer = vehiculoImg.parentElement;
-        if(vehiculoImgContainer) {
+        if (vehiculoImgContainer) {
             vehiculoImgContainer.style.background = 'transparent';
             vehiculoImgContainer.style.border = 'none';
-            vehiculoImgContainer.style.padding = '0';
         }
     }
-
 
     // --- Lógica de Cortes Refactorizada ---
     const crearPanelCorte = (corteIndex, esRecomendado = false) => {
@@ -2324,9 +2247,7 @@ function mostrarDetalleModal(item) {
 
         const panel = document.createElement("div");
         panel.className = esRecomendado ? "panel-recomendado" : "panel-desplegable";
-        if(esRecomendado) {
-            panel.style.cssText = "padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px; background-color: #f9f9f9;";
-        }
+        if(esRecomendado) panel.style.cssText = "padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px; background-color: #f9f9f9;";
 
 
         // Descripción (Ubicación y Color de Cable)
@@ -2365,7 +2286,16 @@ function mostrarDetalleModal(item) {
             imgCorte.style.height = 'auto';
         }
 
-        // Link a Configuración de Relay (si existe) - ANTES del colaborador
+        // Información del Colaborador (fuera del overlay)
+        const collaboratorName = item[`colaboradorCorte${corteIndex}`];
+        if (collaboratorName) {
+            const collaboratorInfo = document.createElement('p');
+            collaboratorInfo.style.cssText = 'text-align: right; font-size: 0.9em; color: #555; margin-top: 8px; border-top: 1px solid #eee; padding-top: 8px;';
+            collaboratorInfo.innerHTML = `Colaborador: <strong>${collaboratorName}</strong>`;
+            panel.appendChild(collaboratorInfo);
+        }
+
+        // Link a Configuración de Relay (si existe)
         const configRelay = item[`configRelay${corteIndex}`];
         const relayMatch = datosRelay.find(r => r.configuracion === configRelay);
         if (configRelay && relayMatch) {
@@ -2376,15 +2306,6 @@ function mostrarDetalleModal(item) {
             relayLink.style.marginTop = "10px";
             relayLink.onclick = (e) => { e.preventDefault(); mostrarDetalleRelayAnidado(configRelay); };
             panel.appendChild(relayLink);
-        }
-
-        // Información del Colaborador (fuera del overlay, alineado a la izquierda)
-        const collaboratorName = item[`colaboradorCorte${corteIndex}`];
-        if (collaboratorName) {
-            const collaboratorInfo = document.createElement('p');
-            collaboratorInfo.style.cssText = 'text-align: left; font-size: 0.9em; color: #555; margin-top: 8px; border-top: 1px solid #eee; padding-top: 8px;';
-            collaboratorInfo.innerHTML = `Colaborador: <strong>${collaboratorName}</strong>`;
-            panel.appendChild(collaboratorInfo);
         }
 
         // Sección de Reporte (oculta por defecto)
@@ -2452,6 +2373,35 @@ function mostrarDetalleModal(item) {
             if (panel) accordionContainer.appendChild(panel);
         });
     }
+
+    // --- 7. Cable de Alimentación ---
+    createAccordionSection("Cable de Alimentación", () => {
+        if (!item.cableAlimen && !item.imgCableAlimen) return null;
+        const panel = document.createElement("div");
+        panel.className = "panel-desplegable";
+        if (item.cableAlimen) panel.appendChild(crearElementoDetalle("Ubicación y color", item.cableAlimen));
+        crearImagenDetalle("Imagen de Alimentación", item.imgCableAlimen, panel);
+        return panel;
+    });
+
+    // --- 8. Detalles de Apertura ---
+    createAccordionSection("Detalles de Apertura", () => {
+        if (!item.apertura && !item.imgApertura) return null;
+        const panel = document.createElement("div");
+        panel.className = "panel-desplegable";
+        if (item.apertura) panel.appendChild(crearElementoDetalle("Procedimiento", item.apertura));
+        crearImagenDetalle("Imagen de Apertura", item.imgApertura, panel);
+        return panel;
+    });
+
+    // --- 9. Video Guía de Desarme ---
+    createAccordionSection("Video Guía de Desarme", () => {
+        if (!item.videoGuiaDesarmeUrl) return null;
+        const panel = document.createElement("div");
+        panel.className = "panel-desplegable";
+        crearVideoDetalle(null, item.videoGuiaDesarmeUrl, panel);
+        return panel;
+    });
 
     // --- REORDENAMIENTO DE SECCIONES SEGÚN ESPECIFICACIÓN ---
 
@@ -2642,76 +2592,45 @@ function mostrarCategorias() {
     const cont = document.getElementById("contenido");
     cont.innerHTML = ""; // Limpiar contenido
 
-    // 1. Mostrar "Últimos Agregados"
+    // 1. Mostrar "Últimos Agregados" - RESTAURADO
     mostrarUltimosAgregados();
 
-    // --- ORDEN CORRECTO DE RENDERIZADO ---
-    // 1. Carrusel de Categorías
-    const categorias = sortedCategoriesList;
-    crearCarrusel('Búsqueda por Categoría', categorias, cat => {
-        const ejemplo = datosOriginales.find(item => item.categoria === cat && item.imagenVehiculo);
-        const card = document.createElement("div");
-        card.className = "card";
-        card.onclick = () => mostrarMarcas(cat);
-        const img = document.createElement("img");
-        img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
-        img.alt = `Categoría ${cat}`;
-        card.appendChild(img);
-        const overlay = document.createElement("div");
-        overlay.className = "overlay";
-        overlay.innerHTML = cat;
-        card.appendChild(overlay);
-        return card;
-    });
+    // --- Función para crear carruseles ---
+    const crearCarrusel = (titulo, items, cardGenerator) => {
+        if (!items || items.length === 0) return;
 
-    // 2. Carrusel de Marcas de Vehículos (Excluyendo Motocicletas)
-    const vehiculosFilter = item => {
-        const cat = (item.categoria || '').toLowerCase();
-        return cat && cat !== 'motocicletas' && cat !== 'motos';
+        const section = document.createElement('div');
+        const title = document.createElement('h4');
+        title.textContent = titulo;
+        title.style.marginTop = '40px';
+        section.appendChild(title);
+
+        const carouselContainer = document.createElement('div');
+        carouselContainer.className = 'carousel-container';
+        const carouselTrack = document.createElement('div');
+        carouselTrack.className = 'carousel-track';
+
+        items.forEach(item => {
+            const card = cardGenerator(item);
+            carouselTrack.appendChild(card);
+        });
+        carouselContainer.appendChild(carouselTrack);
+        section.appendChild(carouselContainer);
+        cont.appendChild(section);
+        // Aquí podrías agregar la lógica de los botones de scroll si lo necesitas
     };
-    const marcasVehiculos = [...new Set(datosOriginales.filter(vehiculosFilter).map(item => item.marca))].filter(Boolean).sort();
-
-    crearCarrusel('Marcas de Vehículos', marcasVehiculos, marca => {
-        const logoUrl = getLogoUrlForMarca(marca, null);
-        const card = document.createElement("div");
-        card.className = "card brand-logo-item";
-        card.onclick = () => mostrarCategoriasPorMarca(marca);
-        const img = document.createElement("img");
-        img.src = convertirAGoogleThumbnail(logoUrl);
-        img.alt = `Marca ${marca}`;
-        card.appendChild(img);
-        return card;
-    });
-
-    // 3. Carrusel de Marcas de Motocicletas
-    const motosFilter = item => {
-        const cat = (item.categoria || '').toLowerCase();
-        return cat === 'motocicletas' || cat === 'motos';
-    };
-    const marcasMotos = [...new Set(datosOriginales.filter(motosFilter).map(item => item.marca))].filter(Boolean).sort();
-
-    crearCarrusel('Marcas de Motocicletas', marcasMotos, marca => {
-        const logoUrl = getLogoUrlForMarca(marca, 'Motocicletas');
-        const card = document.createElement("div");
-        card.className = "card brand-logo-item";
-        card.onclick = () => mostrarModelos('Motocicletas', marca);
-        const img = document.createElement("img");
-        img.src = convertirAGoogleThumbnail(logoUrl);
-        img.alt = `Marca ${marca}`;
-        card.appendChild(img);
-        return card;
-    });
-}
 
 function mostrarUltimosAgregados() {
+    const cont = document.getElementById("contenido");
     if (!datosOriginales || datosOriginales.length === 0) return;
 
+    // Usar timestamp si existe, si no, usar id como fallback
     const ultimosCortes = [...datosOriginales]
         .sort((a, b) => {
             const dateA = a.timestamp ? new Date(a.timestamp) : new Date(0);
             const dateB = b.timestamp ? new Date(b.timestamp) : new Date(0);
             if (dateB - dateA !== 0) return dateB - dateA;
-            return b.id - a.id;
+            return b.id - a.id; // Fallback al ID si los timestamps son iguales o inválidos
         })
         .slice(0, 6);
 
@@ -2737,6 +2656,276 @@ function mostrarUltimosAgregados() {
         card.appendChild(overlay);
         return card;
     });
+}
+
+// --- Función para crear carruseles (Movida al ámbito global para evitar ReferenceError) ---
+const crearCarrusel = (titulo, items, cardGenerator) => {
+    const cont = document.getElementById("contenido"); // Asegurarse que el contenedor sea accesible
+    if (!items || items.length === 0 || !cont) return;
+
+    const section = document.createElement('div');
+    const title = document.createElement('h4');
+    title.textContent = titulo;
+    title.style.marginTop = '40px';
+    section.appendChild(title);
+
+    const carouselContainer = document.createElement('div');
+    carouselContainer.className = 'carousel-container';
+    const carouselTrack = document.createElement('div');
+    carouselTrack.className = 'carousel-track';
+
+    items.forEach(item => {
+        const card = cardGenerator(item);
+        carouselTrack.appendChild(card);
+    });
+    carouselContainer.appendChild(carouselTrack);
+
+    // --- Lógica de Navegación Generalizada ---
+    const getVisibleCards = () => {
+        const containerWidth = carouselContainer.offsetWidth;
+        const cardWidth = 140 + 20; // Ancho de la tarjeta + margen
+        return Math.floor(containerWidth / cardWidth) || 1;
+    };
+
+    if (items.length > getVisibleCards()) {
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'carousel-btn prev';
+        prevBtn.innerHTML = '&#10094;';
+        carouselContainer.appendChild(prevBtn);
+
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'carousel-btn next';
+        nextBtn.innerHTML = '&#10095;';
+        carouselContainer.appendChild(nextBtn);
+
+        const cardWidth = 140 + 20;
+
+        const updateCarouselButtons = () => {
+            const scrollLeft = carouselTrack.scrollLeft;
+            const maxScrollLeft = carouselTrack.scrollWidth - carouselTrack.clientWidth;
+            prevBtn.style.display = scrollLeft > 0 ? 'flex' : 'none';
+            nextBtn.style.display = scrollLeft < maxScrollLeft - 1 ? 'flex' : 'none';
+        };
+
+        nextBtn.addEventListener('click', () => {
+            carouselTrack.scrollBy({ left: cardWidth * getVisibleCards(), behavior: 'smooth' });
+        });
+
+        prevBtn.addEventListener('click', () => {
+            carouselTrack.scrollBy({ left: -cardWidth * getVisibleCards(), behavior: 'smooth' });
+        });
+
+        carouselTrack.addEventListener('scroll', () => setTimeout(updateCarouselButtons, 150));
+        window.addEventListener('resize', () => setTimeout(updateCarouselButtons, 150));
+        setTimeout(updateCarouselButtons, 150); // Llamada inicial
+    }
+
+    section.appendChild(carouselContainer);
+    cont.appendChild(section);
+};
+
+function mostrarCategorias() {
+    if (document.getElementById("searchInput").value.trim()) return;
+    estado = { nivel: "categorias", categoria: null };
+    const cont = document.getElementById("contenido");
+    cont.innerHTML = ""; // Limpiar contenido
+
+    // 1. Mostrar "Últimos Agregados"
+    mostrarUltimosAgregados();
+
+    // --- ORDEN CORRECTO DE RENDERIZADO ---
+    // 1. Carrusel de Categorías
+    const categorias = sortedCategoriesList;
+    crearCarrusel('Búsqueda por Categoría', categorias, cat => {
+        const ejemplo = datosOriginales.find(item => item.categoria === cat && item.imagenVehiculo);
+        const card = document.createElement("div");
+        card.className = "card";
+        card.onclick = () => mostrarMarcas(cat);
+        const img = document.createElement("img");
+        img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
+        img.alt = `Categoría ${cat}`;
+        card.appendChild(img);
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+        overlay.innerHTML = cat;
+        card.appendChild(overlay);
+        return card;
+    });
+
+    // --- 2. Carrusel de Marcas de Vehículos (Excluyendo Motocicletas) ---
+    const vehiculosFilter = item => {
+        const cat = (item.categoria || '').toLowerCase();
+        return cat && cat !== 'motocicletas' && cat !== 'motos';
+    };
+    const marcasVehiculos = [...new Set(datosOriginales.filter(vehiculosFilter).map(item => item.marca))].filter(Boolean).sort();
+
+    crearCarrusel('Marcas de Vehículos', marcasVehiculos, marca => {
+        const logoUrl = getLogoUrlForMarca(marca, null);
+        const card = document.createElement("div");
+        card.className = "card brand-logo-item";
+        card.onclick = () => mostrarCategoriasPorMarca(marca);
+        const img = document.createElement("img");
+        img.src = convertirAGoogleThumbnail(logoUrl);
+        img.alt = `Marca ${marca}`;
+        card.appendChild(img);
+        return card;
+    });
+
+    // --- 3. Carrusel de Marcas de Motocicletas ---
+    const motosFilter = item => {
+        const cat = (item.categoria || '').toLowerCase();
+        return cat === 'motocicletas' || cat === 'motos';
+    };
+    const marcasMotos = [...new Set(datosOriginales.filter(motosFilter).map(item => item.marca))].filter(Boolean).sort();
+
+    crearCarrusel('Marcas de Motocicletas', marcasMotos, marca => {
+        const logoUrl = getLogoUrlForMarca(marca, 'Motocicletas');
+        const card = document.createElement("div");
+        card.className = "card brand-logo-item";
+        card.onclick = () => mostrarModelos('Motocicletas', marca);
+        const img = document.createElement("img");
+        img.src = convertirAGoogleThumbnail(logoUrl);
+        img.alt = `Marca ${marca}`;
+        card.appendChild(img);
+        return card;
+    });
+}
+
+function mostrarUltimosAgregados() {
+    const cont = document.getElementById("contenido");
+    if (!datosOriginales || datosOriginales.length === 0) return;
+
+    // Usar timestamp si existe, si no, usar id como fallback
+    const ultimosCortes = [...datosOriginales]
+        .sort((a, b) => {
+            const dateA = a.timestamp ? new Date(a.timestamp) : new Date(0);
+            const dateB = b.timestamp ? new Date(b.timestamp) : new Date(0);
+            if (dateB - dateA !== 0) return dateB - dateA;
+            return b.id - a.id; // Fallback al ID si los timestamps son iguales o inválidos
+        })
+        .slice(0, 6);
+
+    if (ultimosCortes.length === 0) return;
+
+    const section = document.createElement('div');
+    section.id = 'ultimos-agregados-section';
+
+    const title = document.createElement('h4');
+    title.textContent = 'Últimos Agregados';
+    section.appendChild(title);
+
+    const carouselContainer = document.createElement('div');
+    carouselContainer.className = 'carousel-container';
+
+    const carouselTrack = document.createElement('div');
+    carouselTrack.className = 'carousel-track';
+
+    ultimosCortes.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.style.animation = 'none';
+        card.style.opacity = '1';
+        card.onclick = () => mostrarDetalleModal(item);
+
+        const img = document.createElement("img");
+        img.src = convertirAGoogleThumbnail(item.imagenVehiculo);
+        img.alt = `${item.marca} ${item.modelo}`;
+        img.loading = "lazy";
+        card.appendChild(img);
+
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+        const yearRange = item.anoHasta ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
+        overlay.innerHTML = `<div>${item.marca}</div><div style="font-size:0.8em; opacity:0.8;">${item.modelo} ${yearRange || ''}</div>`;
+        card.appendChild(overlay);
+        carouselTrack.appendChild(card);
+    });
+
+    carouselContainer.appendChild(carouselTrack);
+
+    // Función para determinar cuántas tarjetas son visibles
+    const getVisibleCards = () => {
+        const containerWidth = carouselContainer.offsetWidth;
+        const cardWidth = 140 + 20; // card width + margin
+        return Math.floor(containerWidth / cardWidth) || 1;
+    };
+
+    if (ultimosCortes.length > getVisibleCards()) {
+        // --- Lógica de Deslizamiento Táctil ---
+        let isDragging = false;
+        let startX, scrollLeft;
+
+        carouselTrack.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.pageX - carouselTrack.offsetLeft;
+            scrollLeft = carouselTrack.scrollLeft;
+            carouselTrack.style.cursor = 'grabbing';
+        });
+
+        carouselTrack.addEventListener('mouseleave', () => {
+            isDragging = false;
+            carouselTrack.style.cursor = 'grab';
+        });
+
+        carouselTrack.addEventListener('mouseup', () => {
+            isDragging = false;
+            carouselTrack.style.cursor = 'grab';
+        });
+
+        carouselTrack.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const x = e.pageX - carouselTrack.offsetLeft;
+            const walk = (x - startX) * 2; // El multiplicador ajusta la sensibilidad
+            carouselTrack.scrollLeft = scrollLeft - walk;
+        });
+
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'carousel-btn prev';
+        prevBtn.innerHTML = '&#10094;';
+        carouselContainer.appendChild(prevBtn);
+
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'carousel-btn next';
+        nextBtn.innerHTML = '&#10095;';
+        carouselContainer.appendChild(nextBtn);
+
+        let currentIndex = 0;
+        const cardWidth = 140 + 20;
+        const totalCards = ultimosCortes.length;
+
+        const updateCarouselButtons = () => {
+            const scrollLeft = carouselTrack.scrollLeft;
+            const maxScrollLeft = carouselTrack.scrollWidth - carouselTrack.clientWidth;
+            prevBtn.style.display = scrollLeft > 0 ? 'flex' : 'none';
+            nextBtn.style.display = scrollLeft < maxScrollLeft - 1 ? 'flex' : 'none';
+        };
+
+        nextBtn.addEventListener('click', () => {
+            carouselTrack.scrollLeft += cardWidth * getVisibleCards();
+        });
+
+        prevBtn.addEventListener('click', () => {
+            carouselTrack.scrollLeft -= cardWidth * getVisibleCards();
+        });
+
+        carouselTrack.addEventListener('scroll', () => {
+             // Pequeño timeout para evitar que el botón desaparezca durante la animación de scroll
+            setTimeout(updateCarouselButtons, 150);
+        });
+
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(updateCarouselButtons, 100);
+        });
+
+        // Retrasar la llamada inicial para asegurar que el layout esté estable
+        setTimeout(updateCarouselButtons, 100);
+    }
+
+    section.appendChild(carouselContainer);
+    cont.appendChild(section);
 }
 
 function mostrarMarcas(categoria) {
@@ -3196,21 +3385,23 @@ document.querySelectorAll('#side-menu .menu-link').forEach(link => {
 
 async function handleLike(vehicleId, corteIndex, buttonElement) {
     const user = JSON.parse(localStorage.getItem(SESSION_KEY));
-    if (!user || !user.ID || !user.Nombre_Usuario) {
+    if (!user || !user.Nombre_Usuario) {
         alert("Debes iniciar sesión para usar esta función.");
         return;
     }
 
     // Disable button to prevent multiple clicks
-    buttonElement.disabled = true;
+    buttonElement.onclick = null;
     buttonElement.style.cursor = 'default';
 
-    // Optimistic UI update based on the title attribute and CSS class
-    const originalTitle = buttonElement.title;
-    const currentCountMatch = originalTitle.match(/\((\d+)\)/);
+    // Optimistic UI update
+    const countSpan = buttonElement.querySelector('span');
+    const originalText = countSpan.textContent; // "Útil (X)"
+    const currentCountMatch = originalText.match(/\((\d+)\)/);
     const currentCount = currentCountMatch ? parseInt(currentCountMatch[1], 10) : 0;
-    buttonElement.title = `Marcar como útil (${currentCount + 1})`;
-    buttonElement.classList.add('liked');
+
+    countSpan.textContent = `Útil (${currentCount + 1})`;
+    buttonElement.style.color = '#155724'; // Darker "success" green
 
     try {
         await postToAction('recordLike', {
@@ -3221,35 +3412,37 @@ async function handleLike(vehicleId, corteIndex, buttonElement) {
         });
 
         // After successful like, prompt for year suggestion
-        const suggestedYearRaw = prompt("¡Gracias por tu feedback! ¿Este corte también aplica para otro año? Si es así, ingrésalo aquí (ej: 2023). Si no, cancela.");
+        const suggestedYearRaw = prompt("¡Gracias por tu feedback! ¿Este corte también aplica para otro año? Si es así, ingrésalo aquí (ej: 2023). Si no, simplemente cancela.");
 
-        if (suggestedYearRaw && suggestedYearRaw.trim() !== "") {
+        if (suggestedYearRaw) { // Check if user entered something
             const year = parseInt(suggestedYearRaw.trim(), 10);
             if (!isNaN(year) && year > 1980 && year < 2050) {
                 try {
+                    alert("Procesando tu sugerencia...");
                     const result = await postToAction('suggestYear', {
                         vehicleId: vehicleId,
-                        newYear: year, // Corrected parameter name
-                        userId: user.ID, // Pass userId as required by backend
+                        suggestedYear: year,
                         userName: user.Nombre_Usuario
                     });
                     alert(result.message || "Sugerencia enviada. ¡Gracias por tu colaboración!");
                 } catch (error) {
-                    // Error is handled globally by postToAction, no extra alert needed.
+                    // Error is handled by postToAction which shows a global toast.
+                    // A specific alert might be redundant but can be helpful.
+                    alert("Hubo un error al enviar tu sugerencia. El problema ha sido reportado.");
                 }
-            } else {
+            } else if (suggestedYearRaw.trim() !== "") { // User entered non-year text
                 alert("Por favor, ingresa un año válido (ej: 2023).");
             }
         }
+
     } catch (error) {
-        // Revert UI on error
-        buttonElement.title = originalTitle;
-        buttonElement.classList.remove('liked');
-        // The error message is shown globally by postToAction.
-    } finally {
-        // Re-enable the button after operation is complete
-        buttonElement.disabled = false;
+        // Revert UI on error during the 'like' action
+        countSpan.textContent = originalText;
+        buttonElement.style.color = '#28a745'; // Revert color
+        // Re-enable the button with the original function
+        buttonElement.onclick = () => handleLike(vehicleId, corteIndex, buttonElement);
         buttonElement.style.cursor = 'pointer';
+        // The error message is shown globally by postToAction, no need for an extra alert here.
     }
 }
 
@@ -3353,7 +3546,7 @@ function setupInfoModals() {
                 debugConsole.style.height = '100%';
                 debugConsole.style.bottom = 'auto';
                 debugConsole.style.right = 'auto';
-                debugConsole.style.display = 'flex'; // Asegura que la consola sea visible dentro del modal
+                debugConsole.style.display = 'flex';
             }
 
             openModal('dev-tools-modal');
