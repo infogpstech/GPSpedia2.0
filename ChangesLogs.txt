@@ -1,3 +1,20 @@
+**v4.5.1 (1-01-2026)**
+*   **UX (add_cortes.html):** Se implementaron múltiples mejoras de compactación en la UI para reducir el espacio vertical y horizontal, siguiendo los requisitos del usuario.
+    *   Se redujeron los márgenes y paddings en los contenedores principales, secciones y tarjetas.
+    *   Se disminuyó el tamaño de la fuente para los títulos `h2`, `h3` y `h4`.
+    *   Se ajustó el ancho de las tarjetas de resultados para que sean más compactas.
+    *   **Archivos Modificados:** `add_cortes.html`: Líneas 23-28, 38-41 (CSS).
+*   **FIX (add_cortes.html):** Se solucionó un bug crítico que impedía el funcionamiento de la galería de imágenes `SimpleLightbox` en los resultados de búsqueda.
+    *   **Causa Raíz:** La biblioteca se inicializaba una sola vez al cargar la página. No se volvía a inicializar después de que el contenido de los resultados de búsqueda se añadiera dinámicamente al DOM, por lo que los nuevos elementos no tenían los listeners de eventos necesarios.
+    *   **Solución:** Se movió la inicialización de `SimpleLightbox` (`new SimpleLightbox(...)`) dentro de la función `mostrarResultadosBusqueda`, asegurando que se ejecute cada vez que se generan nuevos resultados. Se añadió una lógica para destruir cualquier instancia previa (`if (lightbox) lightbox.destroy();`) para evitar fugas de memoria.
+    *   **Archivos Modificados:** `add_cortes.html`: Líneas 203-207, 303-308.
+*   **CHORE (.gitignore):** Se creó un archivo `.gitignore` para excluir los archivos de log del servidor (`*.log`) y otros artefactos de desarrollo del control de versiones.
+    *   **Archivos Modificados:** `.gitignore` (nuevo archivo).
+*   **CHORE (versioning):** Se actualizaron las versiones de los componentes en los archivos modificados para reflejar los cambios recientes.
+    *   `index.html`: Versión de componente actualizada a `2.4.1`.
+    *   `add_cortes.html`: Versión de componente actualizada a `2.1.0`.
+    *   **Archivos Modificados:** `index.html`: Línea 2; `add_cortes.html`: Línea 2.
+
 **v4.5.0 (1-01-2026)**
 *   **HOTFIX & REFACTOR (add_cortes.html):** Se implementó una corrección crítica y final al flujo de trabajo de anti-duplicados para alinearlo con los requisitos exactos del usuario, eliminando la implementación incorrecta de un modal.
     *   **Flujo de Trabajo Inline:** Se eliminó por completo el modal de elección. En su lugar, cuando se encuentra una coincidencia de vehículo, la interfaz de usuario ahora muestra los resultados y presenta **botones de acción inline** directamente en la página, como se solicitó.
