@@ -1,3 +1,16 @@
+**v4.5.6 (02-01-2026)**
+*   **REFACTOR (add_cortes.html):** Se refactorizó por completo el formulario de la Etapa 2 para reemplazar los campos de URL de imagen por un sistema de subida de archivos con vista previa, cumpliendo con los requisitos estrictos del `README.md`.
+    *   **Causa Raíz:** La implementación anterior solicitaba URLs de imágenes, lo cual era incorrecto y en contra de las especificaciones.
+    *   **Solución:**
+        *   Se reemplazaron los `input[type="text"]` para imágenes por `input[type="file"]`.
+        *   Se añadió lógica JavaScript con `FileReader` para mostrar una vista previa inmediata de la imagen seleccionada por el usuario.
+        *   Se actualizó la lógica de envío del formulario para convertir las imágenes a formato `base64` antes de enviarlas al backend.
+        *   El campo de imagen del corte (`imgCorte1`) ahora es `required`.
+        *   El campo de "Configuración de Relay" ahora tiene "Corte a ignición" como valor por defecto.
+    *   **Archivos Modificados:** `add_cortes.html`.
+*   **CHORE (versioning):** Se actualizó la versión del componente a `2.1.6`.
+    *   **Archivos Modificados:** `add_cortes.html`.
+
 **v4.5.5 (02-01-2026)**
 *   **FIX (add_cortes.html):** Se corrigió la lógica de navegación de los botones en el paso de "Coincidencias". El botón "Agregar información adicional" ahora navega correctamente a la Etapa 3 del formulario.
     *   **Archivos Modificados:** `add_cortes.html`.
