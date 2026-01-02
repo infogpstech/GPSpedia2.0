@@ -122,12 +122,13 @@ Esta sección describe los pasos técnicos específicos requeridos para ejecutar
                 *   `Año`: El año proporcionado debe estar dentro del rango `[anoDesde, anoHasta]` del registro.
                 *   `Tipo de Encendido`: Debe coincidir exactamente.
         3.  **Respuesta y Visualización (Mejorada):** El backend devuelve una **lista de todas las coincidencias**. El frontend renderiza cada coincidencia en una **tarjeta interactiva y detallada** que ahora incluye:
-            *   **Imagen del Vehículo:** Una imagen pequeña (100px) para identificación rápida.
+            *   **Imagen del Vehículo:** Una imagen pequeña (120px) para identificación rápida.
             *   **Información Clave:** Marca, Modelo, Rango de Años, y Tipo de Encendido.
+            *   **Botón de Selección Explícito:** Se ha añadido un botón "Seleccionar este Vehículo" a cada tarjeta. Esta es ahora la única acción que avanza al siguiente paso, previniendo la navegación accidental al hacer clic en las imágenes.
             *   **Sección de Cortes Detallada:** Para cada corte existente, se muestra:
-                *   Una **imagen grande (180x120px)** del corte.
+                *   Una **imagen grande (216x144px)** del corte.
                 *   A la derecha de la imagen, se listan los detalles clave: **Tipo de Corte, Ubicación y Color de Cable**.
-                *   **Funcionalidad de Lightbox:** Al hacer clic en la imagen del corte, esta se abre en una galería de pantalla completa (lightbox) que permite al usuario hacer **zoom** para examinar los detalles de la imagen con claridad.
+                *   **Funcionalidad de Lightbox "In-Modal":** Al hacer clic en la imagen del corte, esta se abre correctamente en una galería modal dentro de la misma página, sin navegar a una nueva pestaña. Se utilizan URLs de thumbnails optimizadas para la carga inicial y de alta resolución para el zoom.
         4.  El usuario puede seleccionar un vehículo existente para añadirle información o proceder a crear uno nuevo.
 
     - **Funcionalidad "Quizás quisiste decir...".**

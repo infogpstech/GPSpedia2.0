@@ -1,3 +1,11 @@
+**v4.4.7 (31-12-2025)**
+*   **FEAT & UX (add_cortes.html):** Se implementó una segunda ronda de mejoras significativas en la UI/UX de los resultados de búsqueda de vehículos, enfocadas en la usabilidad y la navegación.
+    *   **Selección Explícita de Vehículo:** Se añadió un botón "Seleccionar este Vehículo" a cada tarjeta de resultados. Esta es ahora la única acción que permite avanzar al siguiente paso, eliminando la navegación accidental que ocurría al hacer clic en las imágenes o en el texto de la tarjeta.
+    *   **Gestión del Historial del Navegador:** Se integró la API de Historial del navegador (`history.pushState`, `window.onpopstate`) para crear una experiencia de formulario multi-paso fluida. El botón "Atrás" del navegador ahora navega correctamente del paso de resultados al paso de búsqueda, en lugar de sacar al usuario de la página.
+    *   **Archivos Modificados:** `add_cortes.html`: Líneas 205-224 (JS), 241-259 (JS), 304 (HTML).
+*   **DOCS (README.md):** Se actualizó la documentación técnica para reflejar estas nuevas mejoras, detallando el flujo de selección explícito y la gestión del historial del navegador.
+    *   **Archivos Modificados:** `README.md`: Líneas 131-149.
+
 **v4.4.6 (31-12-2025)**
 *   **FEAT & UX (add_cortes.html):** Se implementaron mejoras significativas en la visualización de las tarjetas de coincidencias de vehículos para proporcionar una experiencia de usuario más rica e informativa.
     *   **Imágenes Detalladas y Lightbox:** Se integró la biblioteca `simple-lightbox-gallery` para permitir que las imágenes de los cortes se abran en una galería a pantalla completa con capacidad de zoom. La imagen del vehículo se muestra en un tamaño reducido (100px), mientras que las imágenes de los cortes son más grandes (180x120px) para facilitar su visualización.
