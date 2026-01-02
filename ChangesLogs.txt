@@ -1,3 +1,14 @@
+**v4.5.4 (02-01-2026)**
+*   **REFACTOR (add_cortes.html):** Se refactorizó por completo la funcionalidad del lightbox para corregir un bug crítico de navegación externa.
+    *   **Causa Raíz:** El uso de etiquetas `<a>` con `href` a Google Drive forzaba la navegación a una nueva pestaña y requería autenticación. La librería `SimpleLightbox` era inadecuada para este flujo.
+    *   **Solución Arquitectónica:** Se eliminó `SimpleLightbox` y se reemplazaron las etiquetas `<a>` por `<img>` con `onclick`. Se implementó un lightbox interno basado en la arquitectura de `index.html`, que muestra la imagen en un `<div>` modal sin navegar fuera de la página.
+    *   **Archivos Modificados:** `add_cortes.html`.
+*   **FIX (add_cortes.html):** Se implementó un manejo de errores robusto para la función `handleSuggestion`.
+    *   **Solución:** Se envolvió la llamada a `routeAction('getSuggestion', ...)` en un bloque `try...catch` para que cualquier fallo en esta API no implementada sea capturado silenciosamente en la consola, sin bloquear la renderización de la UI.
+    *   **Archivos Modificados:** `add_cortes.html`.
+*   **CHORE (versioning):** Se actualizó la versión del componente a `2.1.4`.
+    *   **Archivos Modificados:** `add_cortes.html`.
+
 **v4.5.3 (02-01-2026)**
 *   **fix(render):** Se resolvió un error de JavaScript que bloqueaba la ejecución y prevenía que la UI de resultados de búsqueda (`#stage-1-5`) se renderizara.
     *   **Causa Raíz:** La función `handleSuggestion` intentaba llamar a la acción `getSuggestion`, la cual no está definida en el `api-manager.js`, causando un error fatal que detenía toda la ejecución de scripts en la página.
