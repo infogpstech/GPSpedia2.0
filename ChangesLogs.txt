@@ -1,3 +1,18 @@
+**v4.4.9 (31-12-2025)**
+*   **HOTFIX (add_cortes.html):** Se implementó una corrección crítica al flujo de trabajo de anti-duplicados para alinearlo con los requisitos del usuario. La navegación ya no es directa, sino que presenta al usuario opciones claras.
+    *   **Modal de Elección:** Al hacer clic en una tarjeta de vehículo coincidente, ahora se muestra un modal que permite al usuario elegir entre "Agregar Nuevo Corte" (ir al Paso 2), "Agregar Información Suplementaria" (ir al Paso 3), o "Cancelar". Esto evita la navegación no deseada y asegura que el usuario tome una decisión informada.
+    *   **Archivos Modificados:** `add_cortes.html`: Líneas 55-68 (CSS y HTML del modal), 304 (JS), 375-420 (JS).
+*   **DOCS (README.md):** Se actualizó la documentación para describir con precisión el nuevo flujo de navegación basado en el modal de elección.
+    *   **Archivos Modificados:** `README.md`: Líneas 131-140.
+
+**v4.4.8 (31-12-2025)**
+*   **HOTFIX (add_cortes.html):** Se implementaron correcciones críticas en la página de adición de cortes, basadas en el feedback del usuario para resolver una mala interpretación de los requisitos de la función anti-duplicados y un bug severo en la visualización de imágenes.
+    *   **Navegación Intuitiva por Tarjeta:** Se eliminó el botón "Seleccionar este Vehículo", que era redundante. En su lugar, toda la tarjeta de resultados de búsqueda es ahora clickeable, lo cual alinea el comportamiento con el objetivo real: permitir al usuario seleccionar un vehículo existente para añadirle nuevos cortes y evitar duplicados.
+    *   **Corrección de Lightbox:** Se solucionó un bug crítico que requería iniciar sesión en Google para ver las imágenes de los cortes en el lightbox. Se modificó la lógica para que el `href` del enlace del lightbox también utilice la función `convertirAGoogleThumbnail`, asegurando que se genere una URL pública y accesible para la imagen en alta resolución.
+    *   **Archivos Modificados:** `add_cortes.html`: Líneas 285-300, 318.
+*   **DOCS (README.md):** Se actualizó la documentación para reflejar con precisión el flujo de trabajo anti-duplicados corregido, explicando que el objetivo es mostrar al usuario los cortes existentes y que la navegación se realiza haciendo clic en la tarjeta del vehículo.
+    *   **Archivos Modificados:** `README.md`: Líneas 131-144.
+
 **v4.4.7 (31-12-2025)**
 *   **FEAT & UX (add_cortes.html):** Se implementó una segunda ronda de mejoras significativas en la UI/UX de los resultados de búsqueda de vehículos, enfocadas en la usabilidad y la navegación.
     *   **Selección Explícita de Vehículo:** Se añadió un botón "Seleccionar este Vehículo" a cada tarjeta de resultados. Esta es ahora la única acción que permite avanzar al siguiente paso, eliminando la navegación accidental que ocurría al hacer clic en las imágenes o en el texto de la tarjeta.
@@ -155,7 +170,7 @@ NOTA SIBRE ESTA ENTEADA, algunos cambios solicitados no se realizaron y se ignor
 *   **FIX (index.html & services/catalog/catalog.js):** Se implementó una solución integral para el fallo persistente en la renderización de logos de marcas.
     1.  **Backend (`services/catalog/catalog.js`):** Se corrigió una inconsistencia crítica en la función `doGet`. Se actualizó el número de versión reportado de `1.2.1` a `2.3.0` y se añadió `LogosMarca` a la lista de hojas de cálculo accedidas en el modo debug. Esto asegura que la metadata del servicio refleje su funcionalidad real. (Líneas 77, 79).
     2.  **Frontend (`index.html`):** Se robusteció la función `mostrarMarcas`. Ahora incluye una comprobación defensiva que emite un `debugLog` si `datosLogos` está vacío, alertando sobre problemas de datos. Además, se añadió un manejador de eventos `onerror` a las imágenes de los logos, que muestra una imagen de "Error" y registra un `debugLog` si la carga falla. (Líneas 2535-2565).
-*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `FEEDBACK` a la nueva versión desplegada y proporcionada por el usuario, restaurando la funcionalidad del sistema de Inbox y reportes. (Línea 12).
+*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `FEEDBACK` a la newa versión desplegada y proporcionada por el usuario, restaurando la funcionalidad del sistema de Inbox y reportes. (Línea 12).
 
 **v4.2.4 (09/01/2026)**
 *   **FIX CRÍTICO (index.html):** Se solucionó una regresión crítica que impedía la carga del catálogo y causaba la pérdida de sesión en cada recarga.

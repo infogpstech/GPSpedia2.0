@@ -121,15 +121,13 @@ Esta sección describe los pasos técnicos específicos requeridos para ejecutar
             *   **Búsqueda Exacta (Año y Encendido):** Se requiere una coincidencia precisa.
                 *   `Año`: El año proporcionado debe estar dentro del rango `[anoDesde, anoHasta]` del registro.
                 *   `Tipo de Encendido`: Debe coincidir exactamente.
-        3.  **Respuesta y Visualización (Mejorada):** El backend devuelve una **lista de todas las coincidencias**. El frontend renderiza cada coincidencia en una **tarjeta interactiva y detallada** que ahora incluye:
-            *   **Imagen del Vehículo:** Una imagen pequeña (120px) para identificación rápida.
-            *   **Información Clave:** Marca, Modelo, Rango de Años, y Tipo de Encendido.
-            *   **Botón de Selección Explícito:** Se ha añadido un botón "Seleccionar este Vehículo" a cada tarjeta. Esta es ahora la única acción que avanza al siguiente paso, previniendo la navegación accidental al hacer clic en las imágenes.
-            *   **Sección de Cortes Detallada:** Para cada corte existente, se muestra:
-                *   Una **imagen grande (216x144px)** del corte.
-                *   A la derecha de la imagen, se listan los detalles clave: **Tipo de Corte, Ubicación y Color de Cable**.
-                *   **Funcionalidad de Lightbox "In-Modal":** Al hacer clic en la imagen del corte, esta se abre correctamente en una galería modal dentro de la misma página, sin navegar a una nueva pestaña. Se utilizan URLs de thumbnails optimizadas para la carga inicial y de alta resolución para el zoom.
-        4.  El usuario puede seleccionar un vehículo existente para añadirle información o proceder a crear uno nuevo.
+        3.  **Respuesta y Visualización (Anti-duplicado de Cortes):** El backend devuelve una **lista de todas las coincidencias** para mostrar al usuario los cortes ya registrados y evitar duplicados. El frontend renderiza cada coincidencia en una tarjeta interactiva.
+            *   **Modal de Elección:** Al hacer clic en una tarjeta, en lugar de navegar directamente, ahora se abre un **modal con tres opciones claras**:
+                1.  **"Agregar Nuevo Corte":** Lleva al usuario al **Paso 2** para añadir un nuevo corte al vehículo seleccionado.
+                2.  **"Agregar Información Suplementaria":** Lleva al usuario directamente al **Paso 3** para añadir detalles como imágenes de apertura o notas.
+                3.  **"Cancelar":** Cierra el modal, permitiendo al usuario revisar otras coincidencias.
+            *   **Detalles en la Tarjeta:** Cada tarjeta muestra la información del vehículo (imagen, marca, modelo) y una sección detallada con los **cortes existentes**, incluyendo sus imágenes (con lightbox público y funcional), tipo, ubicación y color de cable.
+        4.  Este flujo guiado asegura que el usuario tome una decisión informada antes de proceder, cumpliendo el objetivo principal de la verificación anti-duplicados.
 
     - **Funcionalidad "Quizás quisiste decir...".**
         1.  Para asistir al usuario y reducir errores, se implementa un corrector ortográfico para los campos `Marca` y `Modelo`.

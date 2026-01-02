@@ -45,10 +45,29 @@
         .suggestion { font-size: 0.85em; color: #666; margin-top: 5px; }
         .suggestion a { color: #007bff; text-decoration: none; cursor: pointer; }
         .suggestion a:hover { text-decoration: underline; }
+
+        /* Styles for the new choice modal */
+        .choice-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; }
+        .choice-modal-content { background: #fff; padding: 30px; border-radius: 10px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
+        .choice-modal-content h3 { margin-top: 0; margin-bottom: 20px; }
+        .choice-modal-buttons { display: flex; flex-direction: column; gap: 15px; }
     </style>
 </head>
 <body>
     <div id="loading-overlay"><div class="spinner"></div></div>
+
+    <!-- Modal for user choices -->
+    <div id="choice-modal" class="choice-modal-overlay">
+        <div class="choice-modal-content">
+            <h3>¿Qué deseas hacer?</h3>
+            <div class="choice-modal-buttons">
+                <button id="modal-add-cut" class="btn">Agregar Nuevo Corte</button>
+                <button id="modal-add-info" class="btn">Agregar Información Suplementaria</button>
+                <button id="modal-cancel" class="btn btn-secondary" onclick="hideChoiceModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Volver al Catálogo</a>
         <h1>Agregar Nuevo Corte</h1>
@@ -282,6 +301,8 @@
             matches.forEach(match => {
                 const card = document.createElement('div');
                 card.className = 'match-card';
+                // Show choice modal on card click
+                card.setAttribute('onclick', `showChoiceModal('${match.id}')`);
 
                 const yearRange = match.anoHasta ? `${match.anoDesde} - ${match.anoHasta}` : match.anoDesde;
 
@@ -290,16 +311,16 @@
 
                 const vehicleImgHtml = `<img src="${convertirAGoogleThumbnail(match.imagenVehiculo, 120)}" alt="Imagen del Vehículo" class="match-vehicle-img" onerror="this.src='https://via.placeholder.com/120?text=Vehículo';">`;
 
-                const infoAndButtonHtml = `
+                // Remove the explicit button from the card's inner HTML
+                const infoHtml = `
                     <div class="match-card-info">
                         <h4>${match.marca} ${match.modelo}</h4>
                         <p><strong>Año:</strong> ${yearRange}</p>
                         <p><strong>Encendido:</strong> ${match.tipoEncendido || 'N/A'}</p>
                         <p><strong>Versiones:</strong> ${match.versionesAplicables || 'N/A'}</p>
-                        <button class="btn" style="margin-top: 10px; padding: 8px 15px;" onclick="event.stopPropagation(); proceedToPhase2('${match.id}');">Seleccionar este Vehículo</button>
                     </div>
                 `;
-                mainInfoContainer.innerHTML = infoAndButtonHtml + vehicleImgHtml;
+                mainInfoContainer.innerHTML = infoHtml + vehicleImgHtml;
 
                 const cutsSection = document.createElement('div');
                 cutsSection.className = 'match-cuts-section';
@@ -315,7 +336,8 @@
                         const fullImageUrl = convertirAGoogleThumbnail(imgUrl, 2000); // Alta resolución para zoom
 
                         const link = document.createElement('a');
-                        link.href = fullImageUrl;
+                        // Apply the thumbnail conversion to the href for the lightbox
+                        link.href = convertirAGoogleThumbnail(imgUrl, 2000);
                         link.className = 'lightbox-trigger';
                         link.innerHTML = `<img src="${thumbnailUrl}" alt="Corte ${i}" class="match-cut-img" onerror="this.src='https://via.placeholder.com/216x144?text=Corte';">`;
 
@@ -351,7 +373,23 @@
             }
         }
 
+        function showChoiceModal(vehicleId) {
+            const modal = document.getElementById('choice-modal');
+            const addCutBtn = document.getElementById('modal-add-cut');
+            const addInfoBtn = document.getElementById('modal-add-info');
+
+            addCutBtn.onclick = () => proceedToPhase2(vehicleId);
+            addInfoBtn.onclick = () => proceedToPhase3(vehicleId);
+
+            modal.style.display = 'flex';
+        }
+
+        function hideChoiceModal() {
+            document.getElementById('choice-modal').style.display = 'none';
+        }
+
         function proceedToPhase2(vehicleId) {
+            hideChoiceModal();
             state.selectedVehicleId = vehicleId;
             const title = document.getElementById('stage-2-title');
             if (vehicleId) {
@@ -362,6 +400,20 @@
             }
             document.getElementById('form-phase-2').reset();
             showPhase(2);
+        }
+
+        function proceedToPhase3(vehicleId) {
+            hideChoiceModal();
+            state.selectedVehicleId = vehicleId;
+            const titleElement = document.querySelector('#stage-3 h2');
+            if (vehicleId) {
+                const match = state.matches.find(m => m.id === vehicleId);
+                if(titleElement) titleElement.textContent = `Paso 3: Agregar información a ${match.marca} ${match.modelo}`;
+            } else {
+                if(titleElement) titleElement.textContent = "Paso 3: Información Suplementaria (Opcional)";
+            }
+            document.getElementById('form-phase-3').reset();
+            showPhase(3);
         }
 
         async function handleAddOrUpdateCut(e) {
