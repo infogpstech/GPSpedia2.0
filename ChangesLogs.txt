@@ -1,3 +1,12 @@
+**v4.5.7 (02-01-2026)**
+*   **FIX (api-manager.js):** Se corrigió el error "Acción no definida: addOrUpdateCut" al agregar las acciones `addOrUpdateCut` y `addSupplementaryInfo` al mapa de enrutamiento (`ACTION_TO_SERVICE_MAP`), dirigiéndolas correctamente al servicio `WRITE`.
+    *   **Archivos Modificados:** `api-manager.js`.
+*   **STYLE (add_cortes.html):** Se mejoró el estilo de los nuevos campos de subida de archivos y las vistas previas de imágenes para que sean más coherentes con el diseño general de la aplicación.
+    *   **Archivos Modificados:** `add_cortes.html`.
+*   **CHORE (versioning):** Se actualizaron las versiones de los componentes.
+    *   `api-manager.js`: `3.9.1`
+    *   `add_cortes.html`: `2.1.7`
+
 **v4.5.6 (02-01-2026)**
 *   **REFACTOR (add_cortes.html):** Se refactorizó por completo el formulario de la Etapa 2 para reemplazar los campos de URL de imagen por un sistema de subida de archivos con vista previa, cumpliendo con los requisitos estrictos del `README.md`.
     *   **Causa Raíz:** La implementación anterior solicitaba URLs de imágenes, lo cual era incorrecto y en contra de las especificaciones.

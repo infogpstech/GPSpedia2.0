@@ -1,4 +1,4 @@
-// GPSpedia Frontend Component | Version: 3.9.0
+// GPSpedia Frontend Component | Version: 3.9.1
 // ============================================================================
 // API MANAGER for GPSpedia Modular Architecture
 // ============================================================================
@@ -29,6 +29,8 @@ const ACTION_TO_SERVICE_MAP = {
 
     // Write Service
     'addCorte': 'WRITE',
+    'addOrUpdateCut': 'WRITE',
+    'addSupplementaryInfo': 'WRITE',
 
     // Users Service
     'getUsers': 'USERS',

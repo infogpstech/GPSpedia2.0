@@ -1,4 +1,4 @@
-<!-- GPSpedia Frontend Component | Version: 2.1.6 -->
+<!-- GPSpedia Frontend Component | Version: 2.1.7 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -21,8 +21,11 @@
         .form-group { display: flex; flex-direction: column; }
         label { margin-bottom: 5px; font-weight: bold; font-size: 0.85em; }
         input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 0.9em; }
-        input[type="file"] { padding: 4px; }
-        .image-preview { width: 100%; max-width: 200px; height: auto; border: 1px solid #ccc; border-radius: 6px; margin-top: 10px; display: none; }
+        input[type="file"] { padding: 10px; background-color: #f8f9fa; border: 1px dashed #ccc; cursor: pointer; }
+        input[type="file"]:hover { border-color: #007bff; }
+        .image-preview { width: 100%; max-width: 200px; height: auto; border: 2px dashed #ccc; border-radius: 6px; margin-top: 10px; display: block; object-fit: cover; padding: 5px; }
+        .image-preview:not([src]) { display: none; } /* Ocultar si no hay imagen */
+        .image-preview[src] { display: block; } /* Mostrar si hay imagen */
         input:focus, select:focus, textarea:focus { border-color: #007bff; box-shadow: 0 0 0 3px rgba(0,123,255,0.2); outline: none; }
         .btn-container { text-align: right; margin-top: 20px; }
         .btn { padding: 8px 18px; border: none; border-radius: 6px; background-color: #007bff; color: white; font-size: 0.9em; cursor: pointer; transition: background-color 0.3s; }
