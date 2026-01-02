@@ -1,4 +1,4 @@
-<!-- GPSpedia Frontend Component | Version: 2.1.2 -->
+<!-- GPSpedia Frontend Component | Version: 2.1.3 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -203,15 +203,16 @@
 
             if (term.length < 3) return;
 
-            try {
-                const result = await routeAction('getSuggestion', { term, field });
-                if (result.suggestion) {
-                    suggestionContainer.innerHTML = `Quizás quisiste decir: <a onclick="applySuggestion('${field}', '${result.suggestion}')">${result.suggestion}</a>`;
-                }
-            } catch (error) {
-                console.error(`Error al obtener sugerencia para ${field}:`, error);
-                // No relanzar el error para no detener la ejecución.
-            }
+            // STUB: The getSuggestion feature is not fully implemented and was causing a blocking error.
+            // This call is temporarily disabled to allow the UI to render.
+            // try {
+            //     const result = await routeAction('getSuggestion', { term, field });
+            //     if (result.suggestion) {
+            //         suggestionContainer.innerHTML = `Quizás quisiste decir: <a onclick="applySuggestion('${field}', '${result.suggestion}')">${result.suggestion}</a>`;
+            //     }
+            // } catch (error) {
+            //     console.error(`Error al obtener sugerencia para ${field}:`, error);
+            // }
         }
 
         function applySuggestion(field, suggestion) {
@@ -330,10 +331,15 @@
                         const fullImageUrl = convertirAGoogleThumbnail(imgUrl, 2000); // Alta resolución para zoom
 
                         const link = document.createElement('a');
-                        // Apply the thumbnail conversion to the href for the lightbox
-                        link.href = convertirAGoogleThumbnail(imgUrl, 2000);
-                        link.className = 'lightbox-trigger';
+                        link.href = fullImageUrl; // The lightbox library needs the full URL here
                         link.innerHTML = `<img src="${thumbnailUrl}" alt="Corte ${i}" class="match-cut-img" onerror="this.src='https://via.placeholder.com/216x144?text=Corte';">`;
+
+                        // MANDATORY TECHNICAL ACTION: Explicitly intercept the click event.
+                        link.addEventListener('click', function(event) {
+                            console.log("LIGHTBOX INTERCEPTED — NAVIGATION BLOCKED");
+                            event.preventDefault();
+                            event.stopPropagation();
+                        });
 
                         const details = document.createElement('div');
                         details.className = 'match-cut-details';

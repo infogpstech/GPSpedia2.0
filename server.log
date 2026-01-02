@@ -4,3 +4,7 @@
 127.0.0.1 - - [02/Jan/2026 12:59:26] "GET /api-manager.js HTTP/1.1" 200 -
 127.0.0.1 - - [02/Jan/2026 14:08:27] "GET /add_cortes.html HTTP/1.1" 200 -
 127.0.0.1 - - [02/Jan/2026 14:08:27] "GET /api-manager.js HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jan/2026 14:41:41] "GET /add_cortes.html HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jan/2026 14:41:41] "GET /api-manager.js HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jan/2026 16:46:31] "GET /add_cortes.html HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jan/2026 16:46:31] "GET /api-manager.js HTTP/1.1" 200 -
