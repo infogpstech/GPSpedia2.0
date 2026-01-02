@@ -1,3 +1,4 @@
+<!-- GPSpedia Frontend Component | Version: 2.1.2 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -209,7 +210,7 @@
                 }
             } catch (error) {
                 console.error(`Error al obtener sugerencia para ${field}:`, error);
-
+                // No relanzar el error para no detener la ejecución.
             }
         }
 

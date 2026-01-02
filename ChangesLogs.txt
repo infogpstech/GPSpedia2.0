@@ -1,3 +1,11 @@
+**v4.5.2 (02-01-2026)**
+*   **FIX (add_cortes.html):** Se implementó un manejo de errores robusto en la función `handleSuggestion` para prevenir que fallos en la API de sugerencias detengan la ejecución del JavaScript y bloqueen la renderización de la UI.
+    *   **Causa Raíz:** Una llamada a la acción `getSuggestion` fallaba en el entorno de pruebas, lanzando un error no capturado que impedía la ejecución de la lógica subsiguiente para mostrar los resultados de la búsqueda.
+    *   **Solución:** Se envolvió la llamada a `routeAction('getSuggestion', ...)` dentro de un bloque `try...catch`. Ahora, si la llamada falla, el error se registra en la consola para depuración, pero no se relanza, permitiendo que el resto del script continúe su ejecución sin interrupciones. Esto resuelve el bug que impedía mostrar los resultados y, por consiguiente, arregla el problema del lightbox.
+    *   **Archivos Modificados:** `add_cortes.html`: Líneas 207-213.
+*   **CHORE (versioning):** Se actualizó la versión del componente a `2.1.2` para reflejar el cambio.
+    *   **Archivos Modificados:** `add_cortes.html`: Línea 1.
+
 **v4.5.1 (1-01-2026)**
 *   **UX (add_cortes.html):** Se implementaron múltiples mejoras de compactación en la UI para reducir el espacio vertical y horizontal, siguiendo los requisitos del usuario.
     *   Se redujeron los márgenes y paddings en los contenedores principales, secciones y tarjetas.
@@ -241,7 +249,7 @@ NOTA SIBRE ESTA ENTEADA, algunos cambios solicitados no se realizaron y se ignor
 *   **FEAT (services/feedback/feedback.js & index.html):** Se implementó un sistema de "Inbox" para la gestión de feedback de usuarios.
     1.  **Backend (`services/feedback/feedback.js`):** Añadidas nuevas acciones (`getFeedbackItems`, `replyToFeedback`, `markAsResolved`) para leer y gestionar los reportes de problemas y mensajes de contacto. (Líneas 114-123, 342-423).
     2.  **Frontend (`index.html`):** Añadido un modal de "Inbox", accesible mediante un nuevo botón en el menú lateral (visible para roles 'Supervisor', 'Gefe', 'Desarrollador'). La UI permite ver, responder y resolver items de feedback. (Líneas 907-921, 2582-2591, 2665-2770).
-*   **FIX (users.html):** Solucionado un bug crítico que causaba que los datos de los usuarios se mostrasen como "undefined" en la tabla de gestión y en el modal de edición. El problema se debía a un desfase de mayúsculas y minúsculas (`camelCase` en el frontend vs. `PascalCase_With_Underscores` en el backend). Se corrigió el acceso a las propiedades en todo el archivo. (Líneas 239-241, 273-279, 318-322, 339, 349-354).
+*   **FIX (users.html):** Solucionado un bug crítico que causaba que los datos de los usuarios se mostrasen como "undefined" en la tabla de gestión y en el modal de edición. El problema se debía a un desfase de mayúsculas y minúsculas (`camelCase` en el frontend vs. `PascalCase_With_Underscores` en el backend). Se corrigió el acceso a las propiedades en todo el archivo. (Líneas 239-241, 273-291, 318-322, 339, 349-354).
 *   **UX (index.html):** Se implementaron mejoras en la interfaz de usuario del modal de detalles del vehículo.
     1.  **Botones de Feedback:** Se rediseñaron los botones "Útil" y "Reportar" para que sean más compactos, mostrando un ícono y texto sin un contenedor de botón grande. (Líneas 1769-1782).
     2.  **Video Guía:** La sección "Video Guía de Desarme" ahora se muestra dentro de un acordeón colapsable, igual que el resto de la información suplementaria. (Líneas 1844-1853).
