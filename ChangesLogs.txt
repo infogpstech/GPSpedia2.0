@@ -1,3 +1,13 @@
+**v4.5.5 (02-01-2026)**
+*   **FIX (add_cortes.html):** Se corrigió la lógica de navegación de los botones en el paso de "Coincidencias". El botón "Agregar información adicional" ahora navega correctamente a la Etapa 3 del formulario.
+    *   **Archivos Modificados:** `add_cortes.html`.
+*   **REFACTOR (add_cortes.html):** Se refactorizó el formulario de la Etapa 2 ("Agregar Información del Corte") para cumplir con las especificaciones del `README.md`.
+    *   **Nueva Lógica:** El campo "Imagen del Vehículo" ahora solo se muestra si se está creando un vehículo completamente nuevo.
+    *   **Nuevos Campos:** Se añadió el campo "Configuración de Relay" al formulario de la Etapa 2.
+    *   **Archivos Modificados:** `add_cortes.html`.
+*   **CHORE (versioning):** Se actualizó la versión del componente a `2.1.5`.
+    *   **Archivos Modificados:** `add_cortes.html`.
+
 **v4.5.4 (02-01-2026)**
 *   **REFACTOR (add_cortes.html):** Se refactorizó por completo la funcionalidad del lightbox para corregir un bug crítico de navegación externa.
     *   **Causa Raíz:** El uso de etiquetas `<a>` con `href` a Google Drive forzaba la navegación a una nueva pestaña y requería autenticación. La librería `SimpleLightbox` era inadecuada para este flujo.
@@ -287,7 +297,7 @@ NOTA SIBRE ESTA ENTEADA, algunos cambios solicitados no se realizaron y se ignor
 *   **FIX (index.html):** Se corrigió la lógica del modal de detalles (`mostrarDetalleModal`). Ahora, el corte recomendado se muestra de forma visible por defecto, mientras que los cortes adicionales se presentan en secciones desplegables (acordeón), cumpliendo con los requisitos de la auditoría. (Líneas 1709-1811).
 *   **FIX (index.html):** Solucionado un bug que impedía la visualización de imágenes suplementarias en el modal de detalles. Se añadió la lógica para renderizar las imágenes de apertura, cable de alimentación y diagramas de relay en sus correspondientes secciones. (Líneas 1750-1768, 1829-1875).
 
-**v4.0.0 (02/01/2026)**
+**v4.0.0 (02-01/2026)**
 *   **FIX CRÍTICO (services/catalog/catalog.js):** Se ha solucionado el error `cannot read properties of undefined (reading 'categoria')` que impedía la carga de datos del catálogo y de los formularios. Se implementó la función `mapRowToObject` que faltaba y se corrigió `handleGetDropdownData` para leer dinámicamente las opciones de "Categoría" desde las reglas de validación de la hoja de cálculo.
 *   **FIX CRÍTICO (services/users/users.js):** Se ha reparado el servicio de gestión de usuarios, que fallaba en todas sus operaciones (`Failed to fetch`). El error se debía a que la función `doPost` no retornaba ninguna respuesta. Se corrigió la función para asegurar que todas las acciones devuelvan un resultado al frontend.
 *   **REFACTOR & FEAT (index.html):** Se ha eliminado la página `info.html` y su contenido se ha integrado directamente en `index.html` como modales.

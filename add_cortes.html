@@ -1,4 +1,4 @@
-<!-- GPSpedia Frontend Component | Version: 2.1.4 -->
+<!-- GPSpedia Frontend Component | Version: 2.1.5 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -106,11 +106,16 @@
         <div id="stage-2" class="form-phase">
             <h2 id="stage-2-title">Paso 2: Agregar Información del Corte</h2>
             <form id="form-phase-2">
+                <div id="new-vehicle-image-group" class="form-group" style="display: none; grid-column: 1 / -1;">
+                    <label for="imagenVehiculoNew">URL de Imagen del Vehículo (Requerido para nuevos vehículos)</label>
+                    <input type="text" id="imagenVehiculoNew" name="imagenVehiculo">
+                </div>
                 <div class="form-grid">
                     <div class="form-group"><label for="tipoCorte1">Tipo de Corte</label><select id="tipoCorte1" name="tipoCorte1" required></select></div>
                     <div class="form-group"><label for="ubicacionCorte1">Ubicación del Corte</label><input type="text" id="ubicacionCorte1" name="ubicacionCorte1"></div>
                     <div class="form-group"><label for="colorCableCorte1">Color(es) de Cable</label><input type="text" id="colorCableCorte1" name="colorCableCorte1"></div>
                     <div class="form-group"><label for="imgCorte1">URL de Imagen del Corte</label><input type="text" id="imgCorte1" name="imgCorte1"></div>
+                    <div class="form-group"><label for="configRelayStage2">Configuración de Relay</label><select id="configRelayStage2" name="configRelay1"></select></div>
                 </div>
                 <div class="btn-container">
                     <button onclick="history.back()" class="btn btn-secondary" type="button">Atrás</button>
@@ -126,7 +131,7 @@
             <form id="form-phase-3">
                  <div class="form-grid">
                     <div class="form-group"><label for="imagenVehiculo">URL de Imagen del Vehículo</label><input type="text" id="imagenVehiculo" name="imagenVehiculo"></div>
-                    <div class="form-group"><label for="configRelay1">Configuración de Relay</label><select id="configRelay1" name="configRelay1"></select></div>
+                    <div class="form-group"><label for="configRelay1_stage3">Configuración de Relay</label><select id="configRelay1_stage3" name="configRelay1"></select></div>
                     <div class="form-group"><label for="videoGuiaDesarmeUrl">URL de Video Guía de Desarme</label><input type="text" id="videoGuiaDesarmeUrl" name="videoGuiaDesarmeUrl"></div>
                 </div>
                 <div class="form-group" style="margin-top: 20px;">
@@ -177,7 +182,8 @@
                 populateSelect('categoria', data.dropdowns.categoria);
                 populateSelect('tipoEncendido', data.dropdowns.tipoDeEncendido);
                 populateSelect('tipoCorte1', data.dropdowns.tipoDeCorte);
-                populateSelect('configRelay1', data.dropdowns.configRelay);
+                populateSelect('configRelay1_stage3', data.dropdowns.configRelay);
+                populateSelect('configRelayStage2', data.dropdowns.configRelay);
             } catch (error) {
                 alert(`No se pudieron cargar las opciones del formulario: ${error.message}`);
             } finally {
@@ -217,8 +223,6 @@
                     suggestionContainer.innerHTML = `Quizás quisiste decir: <a onclick="applySuggestion('${field}', '${result.suggestion}')">${result.suggestion}</a>`;
                 }
             } catch (error) {
-                // Log the error for debugging, but don't re-throw or alert the user.
-                // This ensures that a failing suggestion API call does not block the UI.
                 console.error(`Error al obtener sugerencia para ${field}:`, error);
             }
         }
@@ -238,15 +242,11 @@
             return url;
         }
 
-        // Lightbox JavaScript Functions
         function abrirLightbox(imgElement) {
             const lightbox = document.getElementById('lightbox');
             const lightboxImg = document.getElementById('lightboxImg');
-
-            // Get the high-resolution URL from the data attribute
             const highResSrc = imgElement.getAttribute('data-high-res-src');
             if (!highResSrc) return;
-
             lightboxImg.src = highResSrc;
             lightbox.classList.add('visible');
         }
@@ -254,7 +254,6 @@
         function cerrarLightbox() {
             const lightbox = document.getElementById('lightbox');
             lightbox.classList.remove('visible');
-            // Optional: clear src to stop loading if lightbox is closed quickly
             document.getElementById('lightboxImg').src = '';
         }
 
@@ -321,7 +320,6 @@
                 const card = document.createElement('div');
                 card.className = 'match-card';
                 const yearRange = match.anoHasta ? `${match.anoDesde} - ${match.anoHasta}` : match.anoDesde;
-
                 const mainInfoContainer = document.createElement('div');
                 mainInfoContainer.style.cssText = "display: flex; gap: 15px; width: 100%;";
                 const vehicleImgHtml = `<img src="${convertirAGoogleThumbnail(match.imagenVehiculo, 120)}" alt="Imagen del Vehículo" class="match-vehicle-img" onerror="this.src='https://via.placeholder.com/120?text=Vehículo';">`;
@@ -344,10 +342,8 @@
                         hasCuts = true;
                         const cutItem = document.createElement('div');
                         cutItem.className = 'match-cut-item';
-
                         const thumbnailUrl = convertirAGoogleThumbnail(imgUrl, 400);
                         const fullImageUrl = convertirAGoogleThumbnail(imgUrl, 2000);
-
                         const img = document.createElement('img');
                         img.src = thumbnailUrl;
                         img.alt = `Corte ${i}`;
@@ -355,7 +351,6 @@
                         img.setAttribute('data-high-res-src', fullImageUrl);
                         img.setAttribute('onclick', 'abrirLightbox(this)');
                         img.onerror = function() { this.src='https://via.placeholder.com/216x144?text=Corte'; };
-
                         const details = document.createElement('div');
                         details.className = 'match-cut-details';
                         details.innerHTML = `
@@ -363,17 +358,14 @@
                             <p><strong>Ubicación:</strong> ${match['ubicacionCorte' + i] || 'N/A'}</p>
                             <p><strong>Color de Cable:</strong> ${match['colorCableCorte' + i] || 'N/A'}</p>
                         `;
-
                         cutItem.appendChild(img);
                         cutItem.appendChild(details);
                         cutsSection.appendChild(cutItem);
                     }
                 }
-
                 if (!hasCuts) {
                     cutsSection.innerHTML = '<p style="font-size: 0.9em; text-align: center; margin: 10px 0;">No hay cortes registrados para este vehículo.</p>';
                 }
-
                 const cardContent = document.createElement('div');
                 cardContent.style.width = '100%';
                 cardContent.appendChild(mainInfoContainer);
@@ -386,11 +378,20 @@
         function proceedToPhase2(vehicleId) {
             state.selectedVehicleId = vehicleId;
             const title = document.getElementById('stage-2-title');
+            const newVehicleImageGroup = document.getElementById('new-vehicle-image-group');
+            const newVehicleImageInput = document.getElementById('imagenVehiculoNew');
+
             if (vehicleId) {
+                // Existing vehicle
                 const match = state.matches.find(m => m.id === vehicleId);
                 title.textContent = `Paso 2: Agregar nuevo corte a ${match.marca} ${match.modelo}`;
+                newVehicleImageGroup.style.display = 'none';
+                newVehicleImageInput.required = false;
             } else {
+                // New vehicle
                 title.textContent = "Paso 2: Agregar Información del Corte";
+                newVehicleImageGroup.style.display = 'block';
+                newVehicleImageInput.required = true;
             }
             document.getElementById('form-phase-2').reset();
             showPhase(2);
@@ -412,20 +413,28 @@
         async function handleAddOrUpdateCut(e) {
             e.preventDefault();
             const formData = new FormData(e.target);
-            const cutInfo = Object.fromEntries(formData.entries());
+            const formInfo = Object.fromEntries(formData.entries());
+
+            // Separate vehicle image from cut info if it exists
+            if (formInfo.imagenVehiculo) {
+                state.vehicleInfo.imagenVehiculo = formInfo.imagenVehiculo;
+                delete formInfo.imagenVehiculo;
+            }
+
             const payload = {
                 vehicleInfo: state.vehicleInfo,
-                cutInfo: cutInfo,
+                cutInfo: formInfo, // The rest of the form is cutInfo
                 colaborador: state.colaborador,
                 existingVehicleId: state.selectedVehicleId
             };
+
             toggleLoading(true);
             try {
                 const result = await routeAction('addCorte', payload);
                 if (result.status === 'success') {
                     state.selectedVehicleId = result.vehicleId;
                     alert('Corte guardado con éxito. Ahora puedes agregar información suplementaria.');
-                    showPhase(3);
+                    proceedToPhase3(result.vehicleId); // Use proceedToPhase3 to navigate
                 } else {
                     throw new Error(result.message || 'Error desconocido al guardar.');
                 }
