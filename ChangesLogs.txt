@@ -1,3 +1,12 @@
+**v4.5.0 (1-01-2026)**
+*   **HOTFIX & REFACTOR (add_cortes.html):** Se implementó una corrección crítica y final al flujo de trabajo de anti-duplicados para alinearlo con los requisitos exactos del usuario, eliminando la implementación incorrecta de un modal.
+    *   **Flujo de Trabajo Inline:** Se eliminó por completo el modal de elección. En su lugar, cuando se encuentra una coincidencia de vehículo, la interfaz de usuario ahora muestra los resultados y presenta **botones de acción inline** directamente en la página, como se solicitó.
+    *   **Nuevos Botones de Acción:** Los botones ahora son: "Sí, es el mismo corte (cancelar)", "Es uno nuevo", y "Agregar información adicional", cada uno con la funcionalidad correcta (cancelar, ir al Paso 2, o ir al Paso 3).
+    *   **Tarjetas Informativas:** Las tarjetas de resultados ya no son clickeables, sirviendo únicamente como un display informativo para que el usuario tome una decisión usando los botones. Se eliminó el estilo `cursor: pointer` para evitar confusiones.
+    *   **Archivos Modificados:** `add_cortes.html`: Líneas 48-61 (eliminación de CSS), 63-75 (eliminación de HTML), 86-97 (HTML), 281-291 (JS), 354-386 (eliminación de JS).
+*   **DOCS (README.md):** Se actualizó la documentación para describir con precisión el flujo de trabajo final y correcto, detallando el uso de los botones inline y las tarjetas informativas no interactivas.
+    *   **Archivos Modificados:** `README.md`: Líneas 131-140.
+
 **v4.4.9 (31-12-2025)**
 *   **HOTFIX (add_cortes.html):** Se implementó una corrección crítica al flujo de trabajo de anti-duplicados para alinearlo con los requisitos del usuario. La navegación ya no es directa, sino que presenta al usuario opciones claras.
     *   **Modal de Elección:** Al hacer clic en una tarjeta de vehículo coincidente, ahora se muestra un modal que permite al usuario elegir entre "Agregar Nuevo Corte" (ir al Paso 2), "Agregar Información Suplementaria" (ir al Paso 3), o "Cancelar". Esto evita la navegación no deseada y asegura que el usuario tome una decisión informada.

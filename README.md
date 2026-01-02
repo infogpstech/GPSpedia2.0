@@ -121,13 +121,14 @@ Esta sección describe los pasos técnicos específicos requeridos para ejecutar
             *   **Búsqueda Exacta (Año y Encendido):** Se requiere una coincidencia precisa.
                 *   `Año`: El año proporcionado debe estar dentro del rango `[anoDesde, anoHasta]` del registro.
                 *   `Tipo de Encendido`: Debe coincidir exactamente.
-        3.  **Respuesta y Visualización (Anti-duplicado de Cortes):** El backend devuelve una **lista de todas las coincidencias** para mostrar al usuario los cortes ya registrados y evitar duplicados. El frontend renderiza cada coincidencia en una tarjeta interactiva.
-            *   **Modal de Elección:** Al hacer clic en una tarjeta, en lugar de navegar directamente, ahora se abre un **modal con tres opciones claras**:
-                1.  **"Agregar Nuevo Corte":** Lleva al usuario al **Paso 2** para añadir un nuevo corte al vehículo seleccionado.
-                2.  **"Agregar Información Suplementaria":** Lleva al usuario directamente al **Paso 3** para añadir detalles como imágenes de apertura o notas.
-                3.  **"Cancelar":** Cierra el modal, permitiendo al usuario revisar otras coincidencias.
-            *   **Detalles en la Tarjeta:** Cada tarjeta muestra la información del vehículo (imagen, marca, modelo) y una sección detallada con los **cortes existentes**, incluyendo sus imágenes (con lightbox público y funcional), tipo, ubicación y color de cable.
-        4.  Este flujo guiado asegura que el usuario tome una decisión informada antes de proceder, cumpliendo el objetivo principal de la verificación anti-duplicados.
+        3.  **Respuesta y Visualización (Anti-duplicado de Cortes):** Al encontrar coincidencias, la UI muestra los vehículos y sus cortes existentes de forma **informativa**. El flujo de trabajo se controla mediante **botones de elección inline**, eliminando modales y clics innecesarios.
+            *   **Texto de Confirmación:** Se muestra el texto: `"Este modelo ya tiene estos cortes, ¿quieres agregar uno nuevo?"`.
+            *   **Botones de Acción Inline:** Debajo de los resultados, se presentan tres opciones claras:
+                1.  **"Sí, es el mismo corte (cancelar)":** Cancela la operación y regresa al catálogo principal.
+                2.  **"Es uno nuevo":** Avanza al **Paso 2** para agregar un nuevo corte al vehículo encontrado.
+                3.  **"Agregar información adicional":** Avanza directamente al **Paso 3** para añadir detalles suplementarios.
+            *   **Tarjetas Informativas:** Las tarjetas de los vehículos ya no son interactivas (no tienen `onclick`) para evitar confusiones. Su único propósito es mostrar los datos.
+        4.  Este flujo final es directo, mantiene al usuario en el mismo contexto y cumple con el requisito de una interacción inline sin capas de UI adicionales.
 
     - **Funcionalidad "Quizás quisiste decir...".**
         1.  Para asistir al usuario y reducir errores, se implementa un corrector ortográfico para los campos `Marca` y `Modelo`.
