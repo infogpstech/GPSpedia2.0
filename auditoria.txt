@@ -1,0 +1,146 @@
+GPSpedia - INFORME DE AUDITORÍA FORENSE
+FECHA: 2024-08-20
+AUDITOR: JULES
+=================================================
+
+RESUMEN EJECUTIVO
+-----------------
+La auditoría revela un sistema en un estado de fallo sistémico. El código base presenta inconsistencias arquitectónicas críticas, regresiones severas no resueltas, vulnerabilidades de seguridad y una desconexión fundamental entre la documentación y la implementación real. La historia de cambios indica un ciclo de desarrollo inestable, culminando en un rollback manual a una versión conocida por ser defectuosa. El sistema, en su estado actual, no es fiable y requiere una intervención arquitectónica significativa para alcanzar la estabilidad.
+
+=================================================
+1. ANÁLISIS POR ARCHIVO
+=================================================
+
+---------------------------------
+A. Backend (Microservicios)
+---------------------------------
+
+**1. `services/auth/auth.js`**
+- **Propósito Declarado (README):** Autenticación y gestión de sesiones de usuario.
+- **Cumplimiento:** PARCIAL.
+- **Hallazgos:**
+    - **Fallo de Lógica de Sesión:** La función `handleValidateSession` solo comprueba el token en la hoja `Users`, ignorando por completo la hoja `ActiveSessions`. Esto contradice la lógica de `handleLogin`, que sí gestiona múltiples sesiones en `ActiveSessions`. Un usuario podría tener su sesión invalidada por un nuevo inicio de sesión en otro dispositivo, pero `handleValidateSession` seguiría devolviendo `true`, creando un estado de sesión inconsistente.
+    - **Inconsistencia de Versionamiento:** La cabecera del archivo declara la versión del componente como `2.2.1`, pero la respuesta de depuración `doGet` reporta `1.2.1`.
+    - **Riesgo de CORS:** Las funciones `doGet` y `doPost` devuelven `ContentService.MimeType.JSON`. Esto contradice la práctica del resto de los servicios (`write`, `utilities`) y las correcciones documentadas en el `ChangesLogs.txt` (v4.0.1), que establecen que se debe usar `MimeType.TEXT` para evitar errores de CORS en Google Apps Script.
+    - **Vulnerabilidad de Contraseña:** La comparación de contraseñas en `handleLogin` es case-insensitive (`toLowerCase()`). Si bien esto puede ser una decisión de diseño, contradice la lógica de `users.js`, creando una inconsistencia crítica.
+
+**2. `services/catalog/catalog.js`**
+- **Propósito Declarado (README):** Acceso de solo lectura a los datos del catálogo.
+- **Cumplimiento:** PARCIAL.
+- **Hallazgos:**
+    - **Inconsistencia Arquitectónica (MIME Type):** `doGet` devuelve `MimeType.JSON`, mientras que `doPost` devuelve `MimeType.TEXT`. Esto indica una falta de estándar arquitectónico y aumenta la fragilidad de la comunicación con el frontend.
+    - **Lógica Duplicada:** La función `handleCheckVehicle` está duplicada. Existe una implementación en este servicio y otra en `write.js`. Esto viola el principio de responsabilidad única y crea un riesgo de inconsistencia si una se modifica y la otra no.
+    - **Inconsistencia de Versionamiento:** La cabecera declara la versión `2.3.0`, pero la respuesta `doGet` reporta `1.2.1`.
+    - **Redundancia Lógica:** El `README.md` especifica que el backend debe ordenar los cortes por "likes". El código implementa esta lógica, pero es una reimplementación de una funcionalidad que ya existía en el frontend (`index.html`), lo cual es ineficiente.
+
+**3. `services/write/write.js`**
+- **Propósito Declarado (README):** Escritura de datos y subida de archivos.
+- **Cumplimiento:** NO CUMPLE.
+- **Hallazgos:**
+    - **REGRESIÓN CRÍTICA ACTIVA:** El `ChangesLogs.txt` (v4.6.1) afirma que se realizó un rollback manual para eliminar el código que usa `previousRowRange.copyTo(newRowRange)` debido a una regresión grave. Sin embargo, este código **está presente** en el archivo actual. Esto significa que el sistema se encuentra en el estado de regresión documentado como "fallido".
+    - **Lógica Duplicada:** Contiene una implementación de `handleCheckVehicle`, que también existe en `catalog.js`.
+    - **Inconsistencia de Versionamiento:** La cabecera del archivo declara `2.3.0`, pero la respuesta `doGet` reporta `2.2.1`.
+
+**4. `services/feedback/feedback.js`**
+- **Propósito Declarado (README):** Gestión de retroalimentación de usuarios (likes, reportes).
+- **Cumplimiento:** NO CUMPLE.
+- **Hallazgos:**
+    - **Código Duplicado y Conflictivo:** El archivo contiene **dos implementaciones completas y diferentes** de las funciones `handleRecordLike` y `handleSuggestYear`. Esto es un error grave que conduce a un comportamiento impredecible.
+    - **Riesgo de CORS:** `doPost` devuelve `MimeType.JSON`, lo que probablemente causará que todas las funcionalidades de feedback fallen en producción debido a la política de CORS de Apps Script.
+    - **Esquema No Documentado:** Introduce el uso de una hoja de cálculo no definida en la arquitectura del `README.md`: `SugerenciasAño`.
+    - **Inconsistencia de Versionamiento:** La cabecera declara `2.2.0`, pero `doGet` reporta `1.2.1`.
+
+**5. `services/users/users.js`**
+- **Propósito Declarado (README):** Gestión CRUD de usuarios.
+- **Cumplimiento:** NO CUMPLE.
+- **Hallazgos:**
+    - **Función Incompleta (Dead Code):** La función `doPost` fue refactorizada para incluir un `try...catch` pero **nunca devuelve la respuesta (`response`)**, como se documenta en el `ChangesLogs.txt` (v4.0.0). Todas las llamadas a este servicio fallarán con un error de `Failed to fetch` o timeout en el frontend.
+    - **Vulnerabilidad de Contraseña:** La función `handleChangePassword` realiza una comparación de contraseñas **case-sensitive** (`===`). Esto contradice directamente la lógica de login (`auth.js`), que es **case-insensitive**. Como resultado, un usuario que haya iniciado sesión con una capitalización diferente a la almacenada (ej. 'User' vs 'user') **no podrá cambiar su propia contraseña**, creando un bloqueo funcional.
+
+**6. `services/utilities/utilities.js`**
+- **Propósito Declarado (README):** Scripts de migración de datos de ejecución única.
+- **Cumplimiento:** PARCIAL.
+- **Hallazgos:**
+    - **Vulnerabilidad de Autorización:** La función `doPost` invoca `authorize(session, ['Desarrollador'])`, pero el `payload` que recibe `session` no está garantizado. El frontend (`index.html`) en la función `runMigration` llama a `routeAction(action, { session: session })`, pero la variable `session` no está definida en ese scope, resultando en `session: undefined`. Por lo tanto, la autorización **siempre fallará**, haciendo que las herramientas de migración sean inutilizables.
+
+---------------------------------
+B. Frontend (Cliente)
+---------------------------------
+
+**1. `api-manager.js`**
+- **Propósito Declarado (README):** Enrutador central que dirige las solicitudes al microservicio correcto.
+- **Cumplimiento:** CUMPLE.
+- **Hallazgos:**
+    - **Confusión de Enrutamiento:** La acción `checkVehicle` se enruta al servicio `CATALOG`, pero el servicio `WRITE` también implementa esta lógica. El sistema tiene dos fuentes de verdad para la misma operación.
+    - **Manejo de Errores Robusto:** Es el único componente que parece cumplir su función de manera consistente y tiene una lógica de manejo de `MimeType.TEXT` que se alinea con las mejores prácticas para Apps Script.
+
+**2. `index.html`**
+- **Propósito Declarado (README):** Página principal, catálogo y vista de detalles.
+- **Cumplimiento:** PARCIAL.
+- **Hallazgos:**
+    - **Lógica Frágil:** El archivo contiene más de 1500 líneas de JavaScript. La lógica de renderizado es compleja y propensa a `ReferenceError` si las funciones no se definen en el orden correcto de ejecución, como se documenta en la regresión crítica de la v4.3.6.
+    - **Manejo de Sesión Incompleto:** La lógica de `checkSession` asume que una sesión válida en `localStorage` es suficiente. No re-valida activamente el token contra `ActiveSessions`, dependiendo de una lógica de validación fallida en `auth.js`.
+    - **Fallo de Autorización en Utilities:** La llamada a `runMigration` no pasa correctamente el objeto `session`, lo que hace que la funcionalidad de migración del backend sea inoperable.
+
+**3. `add_cortes.html`**
+- **Propósito Declarado (README):** Formulario para agregar/actualizar cortes con un flujo de 3 etapas.
+- **Cumplimiento:** PARCIAL.
+- **Hallazgos:**
+    - **Complejidad Excesiva:** El flujo de múltiples fases implementado en JavaScript es extenso y ha sido la fuente de numerosos bugs y hotfixes, como se evidencia en el `ChangesLogs.txt`. Su complejidad es un riesgo para la estabilidad.
+    - **Llamada a API Inexistente:** La función `handleSuggestion` intenta llamar a la acción `getSuggestion`, pero esta acción **no está definida** en el `ACTION_TO_SERVICE_MAP` de `api-manager.js`, lo que causa un error de "Acción no definida".
+
+**4. `users.html`**
+- **Propósito Declarado (README):** Interfaz para gestión de perfiles y usuarios.
+- **Cumplimiento:** NO CUMPLE.
+- **Hallazgos:**
+    - **Interfaz No Funcional:** Debido a que el backend `users.js` no devuelve ninguna respuesta, **ninguna de las operaciones** (ver, crear, editar, eliminar usuarios) en esta página funcionará. La página está efectivamente muerta.
+    - **Manejo de Datos Rígido:** El código contiene comentarios `// FIX:` que indican que se tuvieron que hacer correcciones manuales para manejar discrepancias de `camelCase` vs. `PascalCase_With_Underscores`, lo que demuestra la fragilidad de la integración con el backend.
+
+=================================================
+2. VERIFICACIÓN DE `ChangesLogs.txt`
+=================================================
+
+- **v4.6.1 (services/write/write.js):**
+    - **Afirmación:** "Se agregó una 'solución' ... este ultimo fix causo una regresion grave ... se recuperó manualmente el repositorio a su estado anterior (v4.5.9)".
+    - **Verificación:** **NO VERIFICADO.** El código problemático (`previousRowRange.copyTo`) **está presente** en el archivo. El rollback manual falló o nunca se realizó.
+- **v4.5.8 (services/write/write.js):**
+    - **Afirmación:** Se refactorizó `handleAddOrUpdateCut` para procesar y guardar correctamente los datos del corte.
+    - **Verificación:** **NO VERIFICADO.** La lógica actual es la que causa la regresión mencionada en v4.6.1, por lo tanto, no es una solución funcional.
+- **v4.4.0 (services/catalog/catalog.js):**
+    - **Afirmación:** Se solucionó `TypeError: Cannot read properties of undefined` corrigiendo la estructura del JSON devuelto.
+    - **Verificación:** **VERIFICADO.** La función `handleGetDropdownData` devuelve una clave `dropdowns`, que coincide con las expectativas del frontend.
+- **v4.3.7 (services/catalog/catalog.js):**
+    - **Afirmación:** Se solucionó `TypeError: ... .getValues is not a function`.
+    - **Verificación:** **VERIFICADO.** La llamada incorrecta a `.getValues()` sobre un array fue eliminada.
+- **v4.3.6 (index.html):**
+    - **Afirmación:** Se solucionó `ReferenceError: crearCarrusel is not defined` moviendo la función al ámbito global.
+    - **Verificación:** **VERIFICADO.** La función `crearCarrusel` está definida en el scope global.
+- **v4.3.5 (service-worker.js):**
+    - **Afirmación:** Se solucionó una regresión crítica incrementando la versión de la caché a `v5`.
+    - **Verificación:** **NO VERIFICADO.** El archivo `service-worker.js` no existe en el repositorio actual, lo que implica otra inconsistencia grave.
+- **v4.0.1 (services/catalog/catalog.js):**
+    - **Afirmación:** Se solucionó "Failed to fetch" cambiando `MimeType` de `JSON` a `TEXT`.
+    - **Verificación:** **NO VERIFICADO.** La implementación actual en `catalog.js` sigue usando una mezcla inconsistente de `JSON` y `TEXT`, contradiciendo esta afirmación.
+- **v4.0.0 (services/users/users.js):**
+    - **Afirmación:** Se reparó el servicio `users.js` que no retornaba ninguna respuesta.
+    - **Verificación:** **NO VERIFICADO.** La función `doPost` en `users.js` **aún no retorna ninguna respuesta**. La corrección nunca se aplicó o se perdió.
+
+=================================================
+3. MATRIZ DE CUMPLIMIENTO DE OBJETIVOS (README.md)
+=================================================
+
+| Requisito Estratégico (README.md)                                | Estado          | Archivos Involucrados                                  | Explicación                                                                                                                              |
+| ---------------------------------------------------------------- | --------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| **Arquitectura de Microservicios**                               | **NO CUMPLE**   | `services/*`, `api-manager.js`                         | La arquitectura es inconsistente (MimeTypes), contiene lógica duplicada entre servicios y presenta fallos de comunicación documentados. |
+| **Fase 1: Migración y Lógica de Datos**                          | **NO CUMPLE**   | `services/write/write.js`, `services/utilities/js`     | El flujo de escritura (`write.js`) está en un estado de regresión crítica. Las utilidades de migración son inutilizables por un fallo de autorización. |
+| **Fase 2: Sistema de Feedback Avanzado**                         | **NO CUMPLE**   | `services/feedback/js`                                 | El servicio contiene código duplicado conflictivo y fallará en producción debido a un `MimeType` incorrecto.                              |
+| **Sistema de Versionamiento Híbrido**                            | **NO CUMPLE**   | `services/*`, `index.html`                             | Las versiones en las cabeceras de los archivos y en las respuestas `doGet` son inconsistentes y no se adhieren a las reglas definidas.     |
+| **Sistema de Depuración (Frontend y Backend)**                   | **PARCIAL**     | `index.html`, `services/*`                             | El modo de depuración existe, pero la información que proporciona (ej. versiones) es incorrecta y, por lo tanto, no fiable.             |
+| **Base de Datos v2.0 y Mapeo de Columnas Fijo**                  | **PARCIAL**     | `services/*`                                           | Todos los servicios usan mapas de columnas fijos, lo cual es correcto. Sin embargo, `feedback.js` introduce una hoja no documentada.    |
+| **Flujo de Trabajo Anti-duplicado (`write.js`)**                 | **NO CUMPLE**   | `add_cortes.html`, `services/write.js`, `catalog.js`   | La lógica está duplicada entre dos servicios y el servicio de escritura principal (`write.js`) está en un estado de regresión conocido. |
+| **Lógica de Expansión de Rango de Años por Feedback**              | **NO CUMPLE**   | `services/feedback.js`                                 | La implementación está duplicada y es propensa a fallos de CORS.                                                                         |
+
+=================================================
+CONCLUSIÓN DE LA AUDITORÍA
+---------------------------------
+El proyecto GPSpedia 2.0 sufre de una deuda técnica severa y sistémica. Las inconsistencias arquitectónicas, las regresiones activas y la divergencia entre la documentación y el código hacen que el sistema sea inherentemente inestable. No se recomienda continuar con el desarrollo de nuevas características hasta que se aborden estos problemas fundamentales. La prioridad debe ser estabilizar la arquitectura del backend, resolver las regresiones y sincronizar el código con la documentación.
