@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-USERS SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 2.2.1
+// COMPONENT VERSION: 2.11.01
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -39,7 +39,7 @@ function doGet(e) {
     if (e.parameter.debug === 'true') {
         const serviceState = {
             service: 'GPSpedia-Users',
-            version: '1.2.1',
+            version: '2.11.01',
             spreadsheetId: SPREADSHEET_ID,
             sheetsAccessed: [SHEET_NAMES.USERS]
         };
@@ -48,7 +48,7 @@ function doGet(e) {
     }
     const defaultResponse = {
         status: 'success',
-        message: 'GPSpedia Users-SERVICE v1.2.1 is active.'
+        message: 'GPSpedia Users-SERVICE v2.11.01 is active.'
     };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
         .setMimeType(ContentService.MimeType.JSON);
