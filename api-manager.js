@@ -10,7 +10,7 @@ const API_ENDPOINTS = {
     // URLs para los nuevos microservicios.
     AUTH:     "https://script.google.com/macros/s/AKfycby86oaNWKj9Z3sXWs-tXJn2eIgU9QcpjaC6cyYReswtc_WSypt3fFtQ-3aAs58ZMa72/exec",
     CATALOG:  "https://script.google.com/macros/s/AKfycbzUdYI2MpBcXvXsNZvfBTbsDmBBzFgsqONemSd6vjwGEP2jls_eIVjXylU-nXgWa7-m7A/exec",
-    WRITE:    "https://script.google.com/macros/s/AKfycbx6GT4xLjmjCeiVRjvkdSZFr_lkKg_SVBhRxIulRwK2k8ltytyPAwRcV1ThZ2gz6LGdsA/exec",
+    WRITE:    "https://script.google.com/macros/s/AKfycbybZK9NT59G3ZuxHSFYnFV4jpC8jv0c_tTEATvERfG855fYuUDRfaON1ixoHgq8YF30nQ/exec",
     USERS:    "https://script.google.com/macros/s/AKfycbw3kFPGA3N0eoTQ7wIW9TO8UkneOKvN0QzoEHQaQXhbqi7WaQbLcYm0pvhLsKAd16YA/exec",
     FEEDBACK: "https://script.google.com/macros/s/AKfycbzJCn0btix2bvOfH7Q8cPEm35b0daNLn-tYc-B6aI5a8uMC7imQxMQxCrDx1tDgAjqo/exec",
     UTILITIES: "https://script.google.com/macros/s/AKfycbzkGXk_kSm3rN7K5PM0RntiPAn7DlH78RkH66a2vuwZwU8KgwDufkOiPjXoUKzuHAgG/exec"

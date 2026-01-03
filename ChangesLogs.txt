@@ -1,3 +1,8 @@
+**v4.5.9 (31-12-2025)**
+*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `GPSpedia-Write` a la nueva versión desplegada proporcionada por el usuario, asegurando que el frontend se comunique con el endpoint más reciente y corregido para todas las operaciones de escritura.
+    *   **Archivos Modificados:** `api-manager.js`.
+*   **CHORE (versioning):** Se actualizó la versión del componente `api-manager.js` a `3.9.2`.
+
 **v4.5.8 (02/01/2026)**
 *   **FIX (services/write/write.js):** Se corrigió la lógica de backend para el registro de nuevos cortes (Etapa 2), asegurando que todos los datos se guarden correctamente.
     *   **Solución:** Se refactorizó `handleAddOrUpdateCut` para procesar y guardar correctamente: año (individual o rango), tipo de corte, ubicación, color de cable, configuración de relay, imagen del corte (subida a Drive) y el timestamp en formato `dd/mm/aaaa`. También se aseguró que la fórmula del ID se copie al crear una nueva fila.
