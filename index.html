@@ -2263,10 +2263,12 @@ function mostrarDetalleModal(item) {
     crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, { extraClass: 'img-vehiculo' });
     const vehiculoImg = cont.querySelector('.img-vehiculo');
     if(vehiculoImg) {
-        vehiculoImg.style.maxHeight = '150px'; // Mitad del tamaño normal (300px)
+        vehiculoImg.style.maxHeight = '135px'; // Reducción del 10% de 150px
         vehiculoImg.style.filter = 'drop-shadow(2px 4px 6px rgba(0,0,0,0.4))';
-        vehiculoImg.style.background = 'none';
+        vehiculoImg.style.background = 'transparent';
         vehiculoImg.style.border = 'none';
+        vehiculoImg.style.padding = '0';
+        vehiculoImg.style.borderRadius = '0';
     }
 
 
@@ -2644,7 +2646,7 @@ function mostrarCategorias() {
             const logoUrl = getLogoUrlForMarca(marca, 'motocicletas');
             const card = document.createElement("div");
             card.className = "card brand-logo-item";
-            card.onclick = () => mostrarModelos('Motocicletas', marca); // Asume categoría es Motocicletas
+            card.onclick = () => mostrarModelos('motocicletas', marca); // Corregido a minúsculas
             const img = document.createElement("img");
             img.src = convertirAGoogleThumbnail(logoUrl);
             img.alt = `Marca ${marca}`;
