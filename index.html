@@ -771,24 +771,24 @@ body.search-active .app-logo {
 
 #detalleCompleto img, .info-modal-content img {
     display: block;
-    width: auto; /* Ancho automático para mantener proporción */
+    width: auto;
     max-width: 100%;
-    max-height: 300px; /* Límite de altura en lugar de altura fija */
-    margin: 15px auto;
+    max-height: 300px;
+    margin: 5px auto; /* Reducido */
     cursor: pointer;
     object-fit: contain;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Sombra más pronunciada */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 .img-vehiculo {
-    max-height: 200px !important; /* Límite de altura más pequeño */
+    max-height: 200px !important;
 }
 
 /* --- ESTILOS PARA LA SECCIÓN DE FEEDBACK EN MODAL --- */
 .image-container-with-feedback {
     position: relative;
-    display: inline-block; /* O 'block' dependiendo del layout */
-    margin: 15px auto;
+    display: inline-block;
+    margin: 5px auto; /* Reducido */
 }
 .feedback-overlay {
     position: absolute;
@@ -2224,9 +2224,9 @@ function mostrarDetalleModal(item) {
     }
 
     const title = document.createElement("h2");
-    title.textContent = `${item.marca} ${item.modelo}`;
+    title.textContent = item.modelo; // Corrección: Mostrar solo el modelo
     title.style.cssText = "color:#007bff; margin: 0; padding: 0; flex-grow: 1;";
-    mainHeaderDiv.appendChild(title); // Título después
+    mainHeaderDiv.appendChild(title);
 
     titleContainer.appendChild(mainHeaderDiv);
 
@@ -2632,23 +2632,7 @@ function mostrarCategorias() {
         return card;
     });
 
-    // 3. Carrusel de Marcas de Motocicletas
-    const marcasMotos = [...new Set(datosOriginales
-        .filter(item => item.categoria && item.categoria.toLowerCase() === 'motocicletas')
-        .map(item => item.marca))]
-        .filter(Boolean).sort();
-
-    crearCarrusel('Marcas de Motocicletas', marcasMotos, marca => {
-        const logoUrl = getLogoUrlForMarca(marca, 'Motocicletas');
-        const card = document.createElement("div");
-        card.className = "card brand-logo-item";
-        card.onclick = () => mostrarModelos('Motocicletas', marca);
-        const img = document.createElement("img");
-        img.src = convertirAGoogleThumbnail(logoUrl);
-        img.alt = `Marca ${marca}`;
-        card.appendChild(img);
-        return card;
-    });
+    // El carrusel de motocicletas fue eliminado para corregir la regresión.
 }
 
 function mostrarUltimosAgregados() {

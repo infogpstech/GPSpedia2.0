@@ -1,3 +1,11 @@
+**v4.6.5 (31-12-2025)**
+*   **FIX (index.html):** Se implementaron correcciones de UI/UX basadas en la revisión del commit anterior.
+    *   **Modal de Detalles - Encabezado:** Se modificó la función `mostrarDetalleModal` para que el título `<h2>` muestre únicamente el nombre del modelo del vehículo, eliminando el nombre de la marca en texto para evitar redundancia.
+    *   **Modal de Detalles - Estilo del Logo:** Se ajustó el CSS para que el logo de la marca se muestre como un ícono limpio, sin fondos, bordes o contenedores que alteren su proporción.
+    *   **Modal de Detalles - Espaciado:** Se redujeron los márgenes de las imágenes y los contenedores de imágenes dentro del modal para crear un layout más compacto.
+    *   **Carrusel de Marcas:** Se eliminó la lógica que generaba el carrusel de "Marcas de Motocicletas" de la función `mostrarCategorias`, corrigiendo el error crítico que mezclaba marcas de vehículos y motos.
+    *   **Archivos Modificados:** `index.html`.
+
 **v4.6.4 (31-12-2025)**
 *   **UX (index.html):** Se implementaron varias mejoras de UI/UX para cumplir con los requisitos de alta precisión.
     *   **Modal de Detalles - Logo:** Se reubicó el logo de la marca a la izquierda del título del modelo en el modal de detalles (`mostrarDetalleModal`), usando flexbox para asegurar la alineación correcta en la misma línea. Se aplicaron estilos para garantizar un fondo transparente y evitar distorsiones.
