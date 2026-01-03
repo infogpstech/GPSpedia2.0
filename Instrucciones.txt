@@ -1,7 +1,7 @@
 =================================================
  INSTRUCTIVO DEL PROYECTO GPSpedia 2.0
 =================================================
-**Versión del Documento:** 4.0
+**Versión del Documento:** 4.1
 **Fecha de Actualización:** 2024-08-20
 
 Este documento detalla las normas de desarrollo, el estado de las tareas pendientes y el flujo de trabajo para el proyecto GPSpedia 2.0.
@@ -24,38 +24,28 @@ NORMAS OBLIGATORIAS DE DESARROLLO
 1.  **Verificación Post-Commit:** Una tarea solo se considera completada después de un commit y la validación explícita del Project Manager.
 
 ---------------------------------
-NUEVO SISTEMA DE VERSIONAMIENTO SEMÁNTICO (X.YY.ZZ)
+SISTEMA DE VERSIONAMIENTO POR ARCHIVO (ACLARACIÓN CRÍTICA)
 ---------------------------------
 **Fecha de Implementación:** 2024-08-20
 
-A partir de esta fecha, el proyecto abandona el sistema de versionamiento híbrido y adopta un **único sistema de versionamiento global** basado en SemVer, con un formato estricto para garantizar la coherencia y la trazabilidad.
+**REGLA FUNDAMENTAL:** El versionado del proyecto es **POR ARCHIVO**. Se abandona cualquier interpretación previa de un versionado global único.
 
-**REINICIO DE VERSIONADO:** El versionado del proyecto se ha reiniciado y comienza en **`2.00.00`**.
-
-#### Formato Estricto: `X.YY.ZZ`
-- **X (Arquitectura / Major):** Representa cambios mayores que rompen la compatibilidad.
-- **Y (Funcionalidad / Minor):** Representa nuevas funcionalidades compatibles con versiones anteriores.
-- **Z (Parche / Patch):** Representa correcciones de bugs y ajustes menores.
+#### Modelo de Versionamiento
+1.  **Versión Global del Proyecto:** La versión conceptual del proyecto es **2.0**. Este número (X) no debe cambiar.
+2.  **Versión por Archivo:** Cada archivo (`.html`, `.js`, `.gs`) mantiene su **propio ciclo de vida** y su propio número de versión.
+3.  **Formato:** El formato `X.Y.Z` se interpreta de la siguiente manera:
+    - `X` (Arquitectura): Fijo en `2` para el frontend, `1` para el backend. No se modifica.
+    - `Y` (Funcionalidad): Representa una nueva funcionalidad o cambio menor en el archivo. No se modifica en esta fase.
+    - `Z` (Edición/Parche): Es el **único dígito que se incrementa** para un archivo específico cuando se le aplica una corrección de bug o un cambio verificable.
 
 #### Reglas de Incremento (OBLIGATORIAS):
-1.  **Incremento de `X` (Major):**
-    - **SOLO** se incrementa si un cambio rompe la compatibilidad con la API o el flujo de trabajo anterior. Un cambio de `X` es un evento significativo y debe ser justificado por una alteración fundamental en el sistema.
+- **SINCRONIZACIÓN PROHIBIDA:** No se deben editar archivos con el único propósito de "alinear" o "normalizar" sus versiones. Cada archivo evoluciona de forma independiente.
+- **INCREMENTO LIMITADO:** Solo se permite incrementar el último dígito (`Z`) de la versión de un archivo.
+- **JUSTIFICACIÓN OBLIGATORIA:** Un incremento de versión solo es válido si el archivo ha recibido un cambio real y funcional, que a su vez está documentado en `changeslogs.txt`. No se incrementa la versión por revisiones, limpieza de código o refactors sin impacto.
 
-2.  **Incremento de `Y` (Minor):**
-    - Se incrementa para nuevas funcionalidades (features) que son **compatibles** con la versión anterior.
-    - `Y` **NO** se incrementa hasta que `Z` haya completado su ciclo de `00` a `99`.
-    - El contador `Y` utiliza dos dígitos (ej. `01`, `02`, ..., `99`).
-
-3.  **Incremento de `Z` (Patch):**
-    - Se incrementa para cada corrección de bug (fix), ajuste de estilo (style), mejora de rendimiento (perf) o refactorización (refactor) que **no introduce nueva funcionalidad**.
-    - `Z` se incrementa de `00` a `99`. Después de `2.00.99`, la siguiente versión es `2.01.00`.
-    - El contador `Z` utiliza dos dígitos (ej. `01`, `02`, ..., `99`).
-
-#### Prohibiciones de Versionamiento:
-- **NO** se debe incrementar la versión por "intenciones" o trabajo no completado.
-- **NO** se debe incrementar la versión por cada `commit`. Un `commit` puede contener varios parches, pero solo justifica un incremento.
-- **NO** se debe incrementar la versión por limpieza de código o refactors que no tienen un impacto verificable en el comportamiento.
-- **TODA** entrada en `changeslogs.txt` debe corresponder a un cambio real y verificable en el código. Las "versiones fantasma" o afirmaciones falsas están estrictamente prohibidas.
+#### Registro en `changeslogs.txt`
+- `changeslogs.txt` debe contener una sección de encabezado que liste el estado actual de la versión de cada archivo del proyecto.
+- Cada nueva entrada en el log debe justificar el incremento de versión del archivo modificado.
 
 ---------------------------------
 PROCESO DE TRABAJO POR FASES
