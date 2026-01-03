@@ -59,3 +59,10 @@ A continuación se detalla el plan para rectificar las desviaciones encontradas,
 *   **Problem:** A  for the  function was halting all JavaScript execution, breaking catalog loading and causing session loss on every page refresh.
 *   **Root Cause:** The  function was defined inside a conditional block that only runs if the carousel has enough items to need scroll buttons. However, a  that calls this function was located outside the block, causing a fatal error when the condition was false.
 *   **Fix:** The  call was moved inside the conditional block, ensuring it only runs when the  function actually exists. This resolves the critical execution failure and restores core application functionality.
+
+#### C. Registro de Incidentes de Proceso
+
+*   **Incidente 01 (10/01/2026):**
+    *   **Tipo:** Commit vacío.
+    *   **Impacto:** Nulo. No se introdujeron cambios en el código ni en la documentación.
+    *   **Acción correctiva:** Se requiere un nuevo commit que contenga cambios verificables y esté asociado a una tarea explícita en `Instrucciones.txt`. Este registro documenta el error de proceso para evitar su repetición.

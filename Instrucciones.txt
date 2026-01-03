@@ -1,8 +1,8 @@
 =================================================
  INSTRUCTIVO DEL PROYECTO GPSpedia 2.0
 =================================================
-**Versión del Documento:** 4.1
-**Fecha de Actualización:** 2024-08-20
+**Versión del Documento:** 3.3
+**Fecha de Actualización:** 2024-08-19
 
 Este documento detalla las normas de desarrollo, el estado de las tareas pendientes y el flujo de trabajo para el proyecto GPSpedia 2.0.
 
@@ -14,8 +14,8 @@ NORMAS OBLIGATORIAS DE DESARROLLO
 
 **A. Control de Versiones y Documentación:**
 1.  **Actualización de Versión:** Cualquier cambio debe reflejarse en el número de versión visible en `index.html` y en los servicios de Apps Script.
-2.  **Consulta y Actualización de Documentación:** Antes y después de cualquier desarrollo, se deben consultar y actualizar `README.md`, `INSTRUCTIVO.TXT` y `changeslogs.txt`.
-3.  **Detalle en `changeslogs.txt`:** Cada entrada debe especificar el archivo y número de línea modificado.
+2.  **Consulta y Actualización de Documentación:** Antes y después de cualquier desarrollo, se deben consultar y actualizar `README.md`, `INSTRUCTIVO.TXT` y `CHANGESLOGS.txt`.
+3.  **Detalle en `CHANGESLOGS.txt`:** Cada entrada debe especificar el archivo y número de línea modificado.
 
 **B. Calidad del Código:**
 1.  **Comentarios:** Todo código nuevo o modificado debe tener un comentario explicando su propósito.
@@ -24,28 +24,22 @@ NORMAS OBLIGATORIAS DE DESARROLLO
 1.  **Verificación Post-Commit:** Una tarea solo se considera completada después de un commit y la validación explícita del Project Manager.
 
 ---------------------------------
-SISTEMA DE VERSIONAMIENTO POR ARCHIVO (ACLARACIÓN CRÍTICA)
+SISTEMA DE VERSIONAMIENTO HÍBRIDO
 ---------------------------------
-**Fecha de Implementación:** 2024-08-20
 
-**REGLA FUNDAMENTAL:** El versionado del proyecto es **POR ARCHIVO**. Se abandona cualquier interpretación previa de un versionado global único.
+El proyecto utiliza un sistema de dos niveles:
 
-#### Modelo de Versionamiento
-1.  **Versión Global del Proyecto:** La versión conceptual del proyecto es **2.0**. Este número (X) no debe cambiar.
-2.  **Versión por Archivo:** Cada archivo (`.html`, `.js`, `.gs`) mantiene su **propio ciclo de vida** y su propio número de versión.
-3.  **Formato:** El formato `X.Y.Z` se interpreta de la siguiente manera:
-    - `X` (Arquitectura): Fijo en `2` para el frontend, `1` para el backend. No se modifica.
-    - `Y` (Funcionalidad): Representa una nueva funcionalidad o cambio menor en el archivo. No se modifica en esta fase.
-    - `Z` (Edición/Parche): Es el **único dígito que se incrementa** para un archivo específico cuando se le aplica una corrección de bug o un cambio verificable.
+1.  **Versión Global (Pública):**
+    *   **Formato:** `vMAJOR.MINOR.PATCH` (ej. `v3.2.7`).
+    *   **Función:** Representa el estado general del proyecto. Se actualiza en `ChangesLogs.txt` y `index.html` en cada `submit`.
 
-#### Reglas de Incremento (OBLIGATORIAS):
-- **SINCRONIZACIÓN PROHIBIDA:** No se deben editar archivos con el único propósito de "alinear" o "normalizar" sus versiones. Cada archivo evoluciona de forma independiente.
-- **INCREMENTO LIMITADO:** Solo se permite incrementar el último dígito (`Z`) de la versión de un archivo.
-- **JUSTIFICACIÓN OBLIGATORIA:** Un incremento de versión solo es válido si el archivo ha recibido un cambio real y funcional, que a su vez está documentado en `changeslogs.txt`. No se incrementa la versión por revisiones, limpieza de código o refactors sin impacto.
-
-#### Registro en `changeslogs.txt`
-- `changeslogs.txt` debe contener una sección de encabezado que liste el estado actual de la versión de cada archivo del proyecto.
-- Cada nueva entrada en el log debe justificar el incremento de versión del archivo modificado.
+2.  **Versión de Componente (Interna):**
+    *   **Formato:** `ARQUITECTURA.ARCHIVO.EDICION` (ej. `2.1.0`).
+    *   **Función:** Rastrea la madurez de cada archivo de código (`.html`, `.gs`, `.js`).
+    *   **Reglas:**
+        *   **Frontend (arq. `2`):** `index.html`, `api-manager.js`, etc., inician en `2.0.0`.
+        *   **Backend (arq. `1`):** Cada microservicio (`auth.js`, etc.) inicia en `1.0.0`.
+    *   **Ubicación:** Debe registrarse en un comentario en la cabecera de cada archivo.
 
 ---------------------------------
 PROCESO DE TRABAJO POR FASES
@@ -56,8 +50,8 @@ Para organizar el desarrollo y asegurar la calidad, el trabajo se dividirá en f
 1.  **Asignación de Tareas:** Se define un conjunto de tareas (ej. "Ajustes de UI en `index.html`").
 2.  **Desarrollo y Commit:** Se realizan todos los cambios de código necesarios para completar la fase.
 3.  **Revisión Post-Commit:** El Project Manager revisa los cambios.
-    *   **Si es satisfactorio:** Se marca la tarea como completada en `README.md` y `INSTRUCTIVO.TXT`. Se registra el éxito en `changeslogs.txt`.
-    *   **Si NO es satisfactorio:** Se registra el problema en `changeslogs.txt` y se crea una nueva tarea para solucionarlo. No se marcan las tareas como completadas.
+    *   **Si es satisfactorio:** Se marca la tarea como completada en `README.md` y `INSTRUCTIVO.TXT`. Se registra el éxito en `CHANGESLOGS.txt`.
+    *   **Si NO es satisfactorio:** Se registra el problema en `CHANGESLOGS.txt` y se crea una nueva tarea para solucionarlo. No se marcan las tareas como completadas.
 4.  **Nuevas Solicitudes:** Cualquier nueva implementación o cambio solicitado se agregará primero a la lista de pendientes en `README.md` y `INSTRUCTIVO.TXT` sin marcar. Solo se marcarán como completadas después de un ciclo de desarrollo y una revisión post-commit exitosa.
 
 ---------------------------------
@@ -78,7 +72,7 @@ al actualizar la plataforma tarda en mostrar la información.
 - Imagen del logo sin bordes, fondo transparente y drop-shadows directo en la imagen del logo de marca:** `[Pendiente]`
 4.  **Refactorización del Flujo de Escritura:** `[Falta Revisión]`
 - Se ha completado la refactorización del flujo de adición de cortes en `add_cortes.html`, implementando la lógica de anti-duplicados con una interfaz de botones inline, mejorando la UX y corrigiendo bugs de visualización.
-5.  **Inconsistencias de Versionamiento:** `[RESUELTO]` - El sistema de versionamiento ha sido reiniciado y normalizado.
+5.  **Inconsistencias de Versionamiento:** `[ ] Pendiente` - Es necesario sincronizar la versión global para que el próximo gran lanzamiento sea `v2.0` y mejorar el formato de registro de fechas en `ChangesLogs.txt`.
 
 ### Revisiones de UI/UX
 
@@ -209,31 +203,3 @@ A continuación se detalla la estructura de cada hoja en la base de datos. Los n
 
 ##### 10. Hoja: `ActividadUsuario`
 - **Columnas:** `id`, `timestamp`, `idUsuario`, `nombreUsuario`, `tipoActividad`, `idElementoAsociado`, `detalle`.
-
----------------------------------
-TAREAS PENDIENTES DERIVADAS DE AUDITORÍA
----------------------------------
-
-**A. Inconsistencias Arquitectónicas y Bugs Críticos de Backend**
-
-1.  **BUG (`services/auth/auth.js`):** La lógica de validación de sesión (`handleValidateSession`) no consulta la hoja `ActiveSessions`, lo que puede llevar a aceptar sesiones que ya han sido invalidadas por un nuevo inicio de sesión.
-2.  **DEUDA TÉCNICA (`services/auth/auth.js`):** El servicio devuelve `MimeType.JSON`, lo que genera un riesgo de CORS. Debe estandarizarse para devolver `MimeType.TEXT`.
-3.  **BUG (`services/users/users.js`):** La comparación de contraseñas para el login (`auth.js`) es case-insensitive, mientras que para el cambio de contraseña (`users.js`) es case-sensitive. Esto debe unificarse para evitar que los usuarios no puedan cambiar su contraseña.
-4.  **DEUDA TÉCNICA (`services/catalog/catalog.js`):** El servicio tiene una inconsistencia de MimeType (`doGet` devuelve JSON, `doPost` devuelve TEXT). Debe estandarizarse a `TEXT`.
-5.  **DEUDA TÉCNICA (`services/catalog/catalog.js` y `services/write/write.js`):** La función `handleCheckVehicle` está duplicada en ambos servicios. Se debe eliminar una de las dos y centralizar la lógica.
-6.  **REGRESIÓN (`services/write/write.js`):** El archivo contiene el código `previousRowRange.copyTo(newRowRange)` que, según `changeslogs.txt`, causa una regresión crítica y debería haber sido eliminado en un rollback.
-7.  **BUG (`services/feedback/feedback.js`):** El archivo contiene dos implementaciones duplicadas y conflictivas de `handleRecordLike` y `handleSuggestYear`. Se debe eliminar el código duplicado.
-8.  **BUG (`services/feedback/feedback.js`):** El servicio devuelve `MimeType.JSON`, lo que provocará fallos de CORS en producción. Debe estandarizarse a `TEXT`.
-9.  **DEUDA TÉCNICA (`services/feedback/feedback.js`):** El servicio utiliza una hoja no documentada (`SugerenciasAño`). Su uso debe ser formalizado en la documentación de la arquitectura o eliminado.
-10. **BUG (`services/users/users.js`):** La función `doPost` del servicio no devuelve ninguna respuesta, lo que hace que todas las operaciones de gestión de usuarios fallen en el frontend. La función debe ser completada para que devuelva la variable `response`.
-11. **BUG (`services/utilities/utilities.js`):** La funcionalidad de migración es inoperable porque la llamada desde el frontend (`index.html`) no pasa el objeto `session` requerido para la autorización. La llamada en el frontend debe ser corregida.
-
-**B. Inconsistencias y Bugs de Frontend**
-
-12. **DEUDA TÉCNICA (`api-manager.js`):** La acción `checkVehicle` se enruta a `CATALOG`, pero también existe en `WRITE`. Se debe definir una única fuente de verdad para esta acción.
-13. **INCOMPLETO (`add_cortes.html`):** La función `handleSuggestion` llama a la acción `getSuggestion`, pero esta no está registrada en el `ACTION_TO_SERVICE_MAP` de `api-manager.js`.
-14. **INCONSISTENCIA (`changeslogs.txt` vs. `service-worker.js`):** El changelog menciona una corrección en el archivo `service-worker.js`, pero este archivo no existe en el repositorio.
-
-**C. Sincronización de Versiones**
-
-15. **DEUDA TÉCNICA (Todos los archivos):** Los números de versión en las cabeceras de los archivos y en las respuestas `doGet` de los servicios backend no están sincronizados con la versión global definida en `changeslogs.txt`.
