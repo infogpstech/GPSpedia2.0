@@ -780,8 +780,26 @@ body.search-active .app-logo {
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
-.img-vehiculo {
-    max-height: 200px !important;
+.img-vehiculo-icono {
+    max-height: 122px !important;
+    filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.4));
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
+
+.img-corte-uniforme {
+    width: 100%;
+    height: auto;
+    max-width: 400px; /* Opcional: un ancho máximo para imágenes muy grandes */
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
 }
 
 /* --- ESTILOS PARA LA SECCIÓN DE FEEDBACK EN MODAL --- */
@@ -2260,11 +2278,7 @@ function mostrarDetalleModal(item) {
     }
 
     // --- 4. Imagen del Vehículo (si existe) ---
-    crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, { extraClass: 'img-vehiculo' });
-    const vehiculoImg = cont.querySelector('.img-vehiculo');
-    if(vehiculoImg) {
-        vehiculoImg.style.cssText = "max-height: 122px !important; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.4)); background: transparent !important; border: none !important; padding: 0 !important; border-radius: 0 !important; box-shadow: none !important;";
-    }
+    crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, { extraClass: 'img-vehiculo-icono' });
 
 
     // --- Lógica de Cortes Refactorizada ---
@@ -2306,6 +2320,7 @@ function mostrarDetalleModal(item) {
 
         // Imagen del Corte con Overlays de Feedback
         crearImagenDetalle("Imagen del Corte", item[`imgCorte${corteIndex}`], panel, {
+            extraClass: 'img-corte-uniforme',
             feedbackActions: { util: utilBtn, report: reportBtn }
         });
         if(esRecomendado){
@@ -2409,7 +2424,7 @@ function mostrarDetalleModal(item) {
         const panel = document.createElement("div");
         panel.className = "panel-desplegable";
         if (item.apertura) panel.appendChild(crearElementoDetalle("Procedimiento", item.apertura));
-        crearImagenDetalle("Imagen de Apertura", item.imgApertura, panel);
+        crearImagenDetalle("Imagen de Apertura", item.imgApertura, panel, { extraClass: 'img-corte-uniforme' });
         return panel;
     });
 
@@ -2419,7 +2434,7 @@ function mostrarDetalleModal(item) {
         const panel = document.createElement("div");
         panel.className = "panel-desplegable";
         if (item.cableAlimen) panel.appendChild(crearElementoDetalle("Ubicación y color", item.cableAlimen));
-        crearImagenDetalle("Imagen de Alimentación", item.imgCableAlimen, panel);
+        crearImagenDetalle("Imagen de Alimentación", item.imgCableAlimen, panel, { extraClass: 'img-corte-uniforme' });
         return panel;
     });
 
@@ -2641,7 +2656,7 @@ function mostrarCategorias() {
             const logoUrl = getLogoUrlForMarca(marca, 'motocicletas');
             const card = document.createElement("div");
             card.className = "card brand-logo-item";
-            card.onclick = () => mostrarModelos('motocicletas', marca); // Corregido a minúsculas
+            card.onclick = () => mostrarModelos('Motocicletas', marca);
             const img = document.createElement("img");
             img.src = convertirAGoogleThumbnail(logoUrl);
             img.alt = `Marca ${marca}`;

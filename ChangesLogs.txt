@@ -1,3 +1,12 @@
+**v4.6.9 (03-01-2026)**
+*   **FIX & REFACTOR (index.html):** Se implementaron correcciones de alta precisión para resolver una regresión de estilos en el modal de detalles y el bug persistente del carrusel de motocicletas.
+    *   **Aislamiento de Estilos de Imagen (Modal):**
+        *   Se crearon dos nuevas clases CSS: `.img-vehiculo-icono` para la imagen del modelo del vehículo y `.img-corte-uniforme` para todas las demás imágenes de soporte (cortes, apertura, alimentación).
+        *   Se refactorizó la función `mostrarDetalleModal` para aplicar estas clases específicas, garantizando que el estilo de "ícono limpio" (tamaño reducido, sin `box-shadow`) solo se aplique a la imagen del modelo, mientras que las demás imágenes mantengan un tamaño uniforme y centrado, corrigiendo la regresión.
+    *   **Carrusel de Motocicletas (Fix Definitivo):**
+        *   Se corrigió la causa raíz que impedía el renderizado. Se modificó la función `mostrarModelos` para que el filtro de categoría sea insensible a mayúsculas y minúsculas (`item.categoria.toLowerCase() === categoria.toLowerCase()`). Esto asegura que el carrusel de "Motocicletas" se muestre correctamente.
+    *   **Archivos Modificados:** `index.html`.
+
 **v4.6.8 (03-01-2026)**
 *   **FIX & UX (index.html):** Se implementaron las correcciones finales de UI/UX basadas en la última revisión de código para asegurar la consistencia visual y funcional.
     *   **Carrusel de Motocicletas (Fix Definitivo):** Se corrigió la lógica de renderizado en `mostrarCategorias` para que el filtro de categoría sea insensible a mayúsculas y minúsculas (`item.categoria.toLowerCase() === 'motocicletas'`). Esto resuelve de forma definitiva el bug que impedía la visualización del carrusel de motocicletas.
