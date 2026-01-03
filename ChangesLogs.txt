@@ -1,37 +1,10 @@
-**v4.6.9 (03-01-2026)**
+**v4.7.0 (03-01-2026)**
 *   **FIX & REFACTOR (index.html):** Se implementaron correcciones de alta precisión para resolver una regresión de estilos en el modal de detalles y el bug persistente del carrusel de motocicletas.
     *   **Aislamiento de Estilos de Imagen (Modal):**
-        *   Se crearon dos nuevas clases CSS: `.img-vehiculo-icono` para la imagen del modelo del vehículo y `.img-corte-uniforme` para todas las demás imágenes de soporte (cortes, apertura, alimentación).
-        *   Se refactorizó la función `mostrarDetalleModal` para aplicar estas clases específicas, garantizando que el estilo de "ícono limpio" (tamaño reducido, sin `box-shadow`) solo se aplique a la imagen del modelo, mientras que las demás imágenes mantengan un tamaño uniforme y centrado, corrigiendo la regresión.
+        *   Se creó una nueva clase CSS `.img-vehiculo-modal` y se aplicó exclusivamente a la imagen principal del vehículo en `mostrarDetalleModal`.
+        *   Se eliminaron los estilos en línea que causaban la regresión, y se movió la estilización (sombra, tamaño, fondo transparente) a la nueva clase en el bloque `<style>`. Esto garantiza que solo la imagen principal del vehículo tenga el estilo de "ícono", mientras que las imágenes de los cortes y otras imágenes de soporte no se vean afectadas.
     *   **Carrusel de Motocicletas (Fix Definitivo):**
-        *   Se corrigió la causa raíz que impedía el renderizado. Se modificó la función `mostrarModelos` para que el filtro de categoría sea insensible a mayúsculas y minúsculas (`item.categoria.toLowerCase() === categoria.toLowerCase()`). Esto asegura que el carrusel de "Motocicletas" se muestre correctamente.
-    *   **Archivos Modificados:** `index.html`.
-
-**v4.6.8 (03-01-2026)**
-*   **FIX & UX (index.html):** Se implementaron las correcciones finales de UI/UX basadas en la última revisión de código para asegurar la consistencia visual y funcional.
-    *   **Carrusel de Motocicletas (Fix Definitivo):** Se corrigió la lógica de renderizado en `mostrarCategorias` para que el filtro de categoría sea insensible a mayúsculas y minúsculas (`item.categoria.toLowerCase() === 'motocicletas'`). Esto resuelve de forma definitiva el bug que impedía la visualización del carrusel de motocicletas.
-    *   **Consistencia Visual en Modal (Fix Definitivo):** Se ajustó el estilo de la imagen del modelo del vehículo (`imagenVehiculo`) en `mostrarDetalleModal`. Se redujo su `max-height` a `122px` y se eliminó explícitamente el `box-shadow`, completando el requerimiento de alinearlo con la apariencia de "ícono limpio" de los logos.
-    *   **Archivos Modificados:** `index.html`.
-
-**v4.6.7 (03-01-2026)**
-*   **FIX & UX (index.html):** Se implementaron las correcciones finales basadas en la última revisión de código para asegurar la consistencia visual y funcional.
-    *   **Carrusel de Motocicletas:** Se corrigió la lógica de renderizado en `mostrarCategorias`. Se estandarizó el uso de "motocicletas" en minúsculas en la llamada `onclick`, resolviendo la inconsistencia que impedía la visualización del carrusel.
-    *   **Consistencia Visual en Modal:** Se ajustó el estilo de la imagen del modelo del vehículo (`imagenVehiculo`) en `mostrarDetalleModal`. Se eliminaron los estilos de contenedor y se redujo su `max-height` en un 10% (a `135px`), alineando su apariencia con el tratamiento visual de los logos de marca.
-    *   **Archivos Modificados:** `index.html`.
-
-**v4.6.6 (03-01-2026)**
-*   **FIX & REFACTOR (index.html):** Se implementaron las correcciones finales de UI/UX basadas en la última revisión crítica, resolviendo las inconsistencias pendientes.
-    *   **Carrusel de Marcas:** Se reintrodujo el carrusel para "Marcas de Motocicletas", asegurando que se renderice como una sección separada y funcional, consumiendo únicamente los datos de la categoría 'Motocicletas'. Esto corrige la regresión anterior donde se mezclaban las marcas.
-    *   **Estilo del Logo en Modal:** Se ajustó el CSS del logo de la marca en el modal de detalles (`#detalleCompleto`) para eliminar completamente cualquier estilo que simulara un contenedor (background, border, padding, etc.), logrando la apariencia de un "ícono limpio".
-    *   **Economía de Espacio (Modal):** Se realizó una segunda pasada de compactación, reduciendo de forma más agresiva los márgenes (`margin`) y `padding` de los elementos `h4`, `p`, imágenes y contenedores de imágenes dentro del modal para optimizar el uso del espacio vertical.
-    *   **Archivos Modificados:** `index.html`.
-
-**v4.6.5 (31-12-2025)**
-*   **FIX (index.html):** Se implementaron correcciones de UI/UX basadas en la revisión del commit anterior.
-    *   **Modal de Detalles - Encabezado:** Se modificó la función `mostrarDetalleModal` para que el título `<h2>` muestre únicamente el nombre del modelo del vehículo, eliminando el nombre de la marca en texto para evitar redundancia.
-    *   **Modal de Detalles - Estilo del Logo:** Se ajustó el CSS para que el logo de la marca se muestre como un ícono limpio, sin fondos, bordes o contenedores que alteren su proporción.
-    *   **Modal de Detalles - Espaciado:** Se redujeron los márgenes de las imágenes y los contenedores de imágenes dentro del modal para crear un layout más compacto.
-    *   **Carrusel de Marcas:** Se eliminó la lógica que generaba el carrusel de "Marcas de Motocicletas" de la función `mostrarCategorias`, corrigiendo el error crítico que mezclaba marcas de vehículos y motos.
+        *   Se corrigió la lógica de filtrado en la función `mostrarCategorias`. El filtro ahora es insensible a mayúsculas y minúsculas y reconoce tanto "motocicletas" como "motos" como categorías válidas para el carrusel de motocicletas, resolviendo el problema de renderizado.
     *   **Archivos Modificados:** `index.html`.
 
 **v4.6.4 (31-12-2025)**

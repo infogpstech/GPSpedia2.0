@@ -771,42 +771,28 @@ body.search-active .app-logo {
 
 #detalleCompleto img, .info-modal-content img {
     display: block;
-    width: auto;
+    width: auto; /* Ancho automático para mantener proporción */
     max-width: 100%;
-    max-height: 300px;
-    margin: 2px auto; /* Reducido aun más */
+    max-height: 300px; /* Límite de altura en lugar de altura fija */
+    margin: 15px auto;
     cursor: pointer;
     object-fit: contain;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Sombra más pronunciada */
 }
-.img-vehiculo-icono {
-    max-height: 122px !important;
+.img-vehiculo-modal {
+    max-height: 150px !important;
     filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.4));
-    background: transparent !important;
+    background: none !important;
     border: none !important;
-    padding: 0 !important;
-    border-radius: 0 !important;
     box-shadow: none !important;
-    margin-left: auto;
-    margin-right: auto;
-    display: block;
-}
-
-.img-corte-uniforme {
-    width: 100%;
-    height: auto;
-    max-width: 400px; /* Opcional: un ancho máximo para imágenes muy grandes */
-    margin-left: auto;
-    margin-right: auto;
-    display: block;
 }
 
 /* --- ESTILOS PARA LA SECCIÓN DE FEEDBACK EN MODAL --- */
 .image-container-with-feedback {
     position: relative;
-    display: inline-block;
-    margin: 2px auto; /* Reducido aun más */
+    display: inline-block; /* O 'block' dependiendo del layout */
+    margin: 15px auto;
 }
 .feedback-overlay {
     position: absolute;
@@ -846,14 +832,13 @@ body.search-active .app-logo {
 #detalleCompleto h4 {
     color: #007bff;
     border-bottom: 2px solid #eee;
-    padding-bottom: 4px; /* Reducido */
-    margin-top: 8px; /* Reducido aun más */
-    margin-bottom: 4px; /* Reducido aun más */
+    padding-bottom: 5px;
+    margin-top: 15px; /* Reducido de 20px (default) */
+    margin-bottom: 8px; /* Reducido de 10px */
 }
 
 #detalleCompleto p {
-    margin: 1px 0; /* Reducido aun más */
-    line-height: 1.4; /* Mejora legibilidad en espacios compactos */
+    margin: 4px 0; /* Reducido el margen vertical para los párrafos */
 }
 
 /* --- ESTILOS PARA SECCIONES DESPLEGABLES (ACORDEÓN) --- */
@@ -861,16 +846,16 @@ body.search-active .app-logo {
     background-color: #f0f0f0;
     color: #007bff; /* Color de texto azul */
     cursor: pointer;
-    padding: 12px; /* Reducido */
+    padding: 15px;
     width: 100%;
     border: none;
     text-align: left;
     outline: none;
-    font-size: 1.05em; /* Ligeramente reducido */
+    font-size: 1.1em;
     font-weight: bold;
     transition: background-color 0.3s ease;
     border-radius: 8px;
-    margin-top: 2px; /* Reducido aun más */
+    margin-top: 5px; /* Reducido para compactar */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1141,7 +1126,7 @@ body.search-active .app-logo {
     </div>
 </div>
 
-<div class="container" style="display: none;">
+<div id="main-content-container" class="container" style="display: none;">
 
   <div class="header-container">
       <div class="header-branding" style="flex-direction: column; align-items: flex-start;">
@@ -1598,7 +1583,7 @@ function showLoginHideApp(reason = null) {
         const splash = document.getElementById('splash-screen');
         if (splash) splash.style.display = 'none';
 
-        const container = document.querySelector('.container');
+        const container = document.getElementById('main-content-container');
         if (container) container.style.display = 'none';
 
         const footer = document.querySelector('.footer');
@@ -2110,29 +2095,69 @@ function mostrarDetalleRelay(item) {
 }
 
 function getLogoUrlForMarca(marca, categoria) {
-    if (!datosLogos || datosLogos.length === 0) return null;
-    if (!marca) return null;
+    if (!datosLogos || !datosLogos.length || !marca) {
+        debugLog('LOGO_SEARCH_FAIL', 'Datos de logo o marca no disponibles.', { marca, categoria });
+        return null;
+    }
 
     const normalize = (str) => str ? str.toLowerCase().replace(/[^a-z0-9]/g, '') : '';
-    const normalizedMarca = normalize(marca);
 
+    const normalizedMarca = normalize(marca);
+    const normalizedCategoria = normalize(categoria);
+
+    // 1. Find all logos that could potentially match the brand name.
     const potentialMatches = datosLogos.filter(logo => {
         const normalizedLogoMarca = normalize(logo.nombreMarca);
         return normalizedLogoMarca.startsWith(normalizedMarca);
     });
 
-    if (potentialMatches.length === 0) return null;
-    if (potentialMatches.length === 1) return potentialMatches[0].urlLogo;
-
-    // Lógica de desambiguación para casos como "Honda" y "Honda Motocicletas"
-    if (categoria && (normalize(categoria) === 'motocicletas' || normalize(categoria) === 'motos')) {
-        const motoMatch = potentialMatches.find(logo => normalize(logo.nombreMarca).includes('motocicletas') || normalize(logo.nombreMarca).includes('motos'));
-        if (motoMatch) return motoMatch.urlLogo;
+    if (potentialMatches.length === 0) {
+        debugLog('LOGO_SEARCH_FAIL', 'No se encontraron logos para la marca.', { marca: normalizedMarca });
+        return null;
     }
 
-    // Fallback: buscar coincidencia exacta o devolver la primera
-    const exactMatch = potentialMatches.find(logo => normalize(logo.nombreMarca) === normalizedMarca);
-    return exactMatch ? exactMatch.urlLogo : potentialMatches[0].urlLogo;
+    if (potentialMatches.length === 1) {
+        return potentialMatches[0].urlLogo;
+    }
+
+    // 2. Multiple matches exist. Use category to find the best one.
+    let bestMatch = null;
+
+    // Look for a category-specific match first.
+    if (normalizedCategoria) {
+        // Handle synonyms for motorcycles to make matching more robust.
+        const catSynonyms = (normalizedCategoria === 'motos' || normalizedCategoria === 'motocicletas')
+            ? ['motos', 'motocicletas']
+            : [normalizedCategoria];
+
+        for (const synonym of catSynonyms) {
+            bestMatch = potentialMatches.find(logo => normalize(logo.nombreMarca).includes(synonym));
+            if (bestMatch) break; // Found a specific match, stop searching.
+        }
+    }
+
+    // 3. If no category-specific match was found, find the "generic" or base logo.
+    // The base logo is the one whose normalized name exactly matches the brand name.
+    if (!bestMatch) {
+        bestMatch = potentialMatches.find(logo => normalize(logo.nombreMarca) === normalizedMarca);
+    }
+
+    // As a final fallback, if we still don't have a clear winner (e.g., no exact base match),
+    // find the shortest name, assuming it's the base one (e.g., "Honda" is shorter than "Honda Motocicletas").
+    if (!bestMatch) {
+         bestMatch = potentialMatches.reduce((prev, current) => {
+            return (prev.nombreMarca.length < current.nombreMarca.length) ? prev : current;
+        });
+    }
+
+    // Return the URL of the best match found, or null if something went wrong.
+    if (bestMatch) {
+        return bestMatch.urlLogo;
+    } else {
+        // This case should be rare, but as a last resort, return the first potential match.
+        debugLog('LOGO_SEARCH_WARN', 'Múltiples logos encontrados pero no se pudo desambiguar. Devolviendo el primero.', { marca, categoria, matches: potentialMatches });
+        return potentialMatches.length > 0 ? potentialMatches[0].urlLogo : null;
+    }
 }
 
 function convertirAGoogleThumbnail(url) {
@@ -2232,21 +2257,20 @@ function mostrarDetalleModal(item) {
 
     // 2.1 Título Principal (Nombre del Modelo y Logo)
     const mainHeaderDiv = document.createElement('div');
-    mainHeaderDiv.style.cssText = "display: flex; justify-content: flex-start; align-items: center; gap: 15px;";
+    mainHeaderDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center;";
+
+    const title = document.createElement("h2");
+    title.textContent = `${item.marca} ${item.modelo}`;
+    title.style.cssText = "color:#007bff; margin: 0; padding: 0; flex-grow: 1;";
+    mainHeaderDiv.appendChild(title);
 
     const logoUrl = getLogoUrlForMarca(item.marca, item.categoria);
     if (logoUrl) {
         const logoImg = document.createElement("img");
-        logoImg.src = convertirAGoogleThumbnail(logoUrl);
-        logoImg.style.cssText = "height: 40px; width: auto; max-width: 100px; object-fit: contain; background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; border-radius: 0 !important;";
-        mainHeaderDiv.appendChild(logoImg); // Logo primero
+        logoImg.src = convertirAGoogleThumbnail(logoUrl); // CORRECCIÓN: Usar conversor de thumbnails
+        logoImg.style.cssText = "height: 40px; width: auto; max-width: 100px; object-fit: contain; margin-left: 15px;"; // Altura reducida
+        mainHeaderDiv.appendChild(logoImg);
     }
-
-    const title = document.createElement("h2");
-    title.textContent = item.modelo; // Corrección: Mostrar solo el modelo
-    title.style.cssText = "color:#007bff; margin: 0; padding: 0; flex-grow: 1;";
-    mainHeaderDiv.appendChild(title);
-
     titleContainer.appendChild(mainHeaderDiv);
 
     // 2.2 Sub-encabezados (Versión/Encendido, Años, Categoría)
@@ -2278,7 +2302,7 @@ function mostrarDetalleModal(item) {
     }
 
     // --- 4. Imagen del Vehículo (si existe) ---
-    crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, { extraClass: 'img-vehiculo-icono' });
+    crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, { extraClass: 'img-vehiculo-modal' });
 
 
     // --- Lógica de Cortes Refactorizada ---
@@ -2320,7 +2344,6 @@ function mostrarDetalleModal(item) {
 
         // Imagen del Corte con Overlays de Feedback
         crearImagenDetalle("Imagen del Corte", item[`imgCorte${corteIndex}`], panel, {
-            extraClass: 'img-corte-uniforme',
             feedbackActions: { util: utilBtn, report: reportBtn }
         });
         if(esRecomendado){
@@ -2424,7 +2447,7 @@ function mostrarDetalleModal(item) {
         const panel = document.createElement("div");
         panel.className = "panel-desplegable";
         if (item.apertura) panel.appendChild(crearElementoDetalle("Procedimiento", item.apertura));
-        crearImagenDetalle("Imagen de Apertura", item.imgApertura, panel, { extraClass: 'img-corte-uniforme' });
+        crearImagenDetalle("Imagen de Apertura", item.imgApertura, panel);
         return panel;
     });
 
@@ -2434,7 +2457,7 @@ function mostrarDetalleModal(item) {
         const panel = document.createElement("div");
         panel.className = "panel-desplegable";
         if (item.cableAlimen) panel.appendChild(crearElementoDetalle("Ubicación y color", item.cableAlimen));
-        crearImagenDetalle("Imagen de Alimentación", item.imgCableAlimen, panel, { extraClass: 'img-corte-uniforme' });
+        crearImagenDetalle("Imagen de Alimentación", item.imgCableAlimen, panel);
         return panel;
     });
 
@@ -2451,6 +2474,43 @@ function mostrarDetalleModal(item) {
     // La sección de notas personales ha sido eliminada según las especificaciones.
 
     document.getElementById("modalDetalle").classList.add("visible");
+
+    // --- LÓGICA DE FEEDBACK (MOVIDA DENTRO DEL MODAL) ---
+    async function handleLike(vehicleId, corteIndex, buttonElement) {
+        const user = JSON.parse(localStorage.getItem(SESSION_KEY));
+        if (!user || !user.ID || !user.Nombre_Usuario) {
+            alert("Debes iniciar sesión para usar esta función.");
+            return;
+        }
+
+        buttonElement.disabled = true;
+        buttonElement.style.cursor = 'default';
+        const originalTitle = buttonElement.title;
+        const currentCountMatch = originalTitle.match(/\((\d+)\)/);
+        const currentCount = currentCountMatch ? parseInt(currentCountMatch[1], 10) : 0;
+        buttonElement.title = `Marcar como útil (${currentCount + 1})`;
+        buttonElement.classList.add('liked');
+
+        try {
+            await postToAction('recordLike', { vehicleId, corteIndex, userId: user.ID, userName: user.Nombre_Usuario });
+            const suggestedYearRaw = prompt("¡Gracias! ¿Este corte aplica a otro año? (ej: 2023)");
+            if (suggestedYearRaw && suggestedYearRaw.trim() !== "") {
+                const year = parseInt(suggestedYearRaw.trim(), 10);
+                if (!isNaN(year) && year > 1980 && year < 2050) {
+                    const result = await postToAction('suggestYear', { vehicleId, newYear: year, userId: user.ID, userName: user.Nombre_Usuario });
+                    alert(result.message || "Sugerencia enviada. ¡Gracias!");
+                } else {
+                    alert("Por favor, ingresa un año válido.");
+                }
+            }
+        } catch (error) {
+            buttonElement.title = originalTitle;
+            buttonElement.classList.remove('liked');
+        } finally {
+            buttonElement.disabled = false;
+            buttonElement.style.cursor = 'pointer';
+        }
+    }
 }
 
 function mostrarDetalleRelayAnidado(configRelay) {
@@ -2627,9 +2687,12 @@ function mostrarCategorias() {
         return card;
     });
 
-    // 2. Carrusel de Marcas de Vehículos (Excluyendo Motocicletas)
+    // 2. Carrusel de Marcas de Vehículos (Excluyendo Motocicletas y Motos)
     const marcasVehiculos = [...new Set(datosOriginales
-        .filter(item => item.categoria && item.categoria.toLowerCase() !== 'motocicletas')
+        .filter(item => {
+            const cat = item.categoria ? item.categoria.toLowerCase() : '';
+            return cat && cat !== 'motocicletas' && cat !== 'motos';
+        })
         .map(item => item.marca))]
         .filter(Boolean).sort();
 
@@ -2645,25 +2708,26 @@ function mostrarCategorias() {
         return card;
     });
 
-    // 3. Carrusel de Marcas de Motocicletas
+    // 3. Carrusel de Marcas de Motocicletas (Incluyendo "Motos")
     const marcasMotos = [...new Set(datosOriginales
-        .filter(item => item.categoria && item.categoria.toLowerCase() === 'motocicletas')
+        .filter(item => {
+            const cat = item.categoria ? item.categoria.toLowerCase() : '';
+            return cat === 'motocicletas' || cat === 'motos';
+        })
         .map(item => item.marca))]
         .filter(Boolean).sort();
 
-    if (marcasMotos.length > 0) {
-        crearCarrusel('Marcas de Motocicletas', marcasMotos, marca => {
-            const logoUrl = getLogoUrlForMarca(marca, 'motocicletas');
-            const card = document.createElement("div");
-            card.className = "card brand-logo-item";
-            card.onclick = () => mostrarModelos('Motocicletas', marca);
-            const img = document.createElement("img");
-            img.src = convertirAGoogleThumbnail(logoUrl);
-            img.alt = `Marca ${marca}`;
-            card.appendChild(img);
-            return card;
-        });
-    }
+    crearCarrusel('Marcas de Motocicletas', marcasMotos, marca => {
+        const logoUrl = getLogoUrlForMarca(marca, 'Motocicletas');
+        const card = document.createElement("div");
+        card.className = "card brand-logo-item";
+        card.onclick = () => mostrarModelos('Motocicletas', marca);
+        const img = document.createElement("img");
+        img.src = convertirAGoogleThumbnail(logoUrl);
+        img.alt = `Marca ${marca}`;
+        card.appendChild(img);
+        return card;
+    });
 }
 
 function mostrarUltimosAgregados() {
@@ -2771,7 +2835,7 @@ function mostrarModelos(categoria, marca, versionEquipamiento = null) {
     const backAction = versionEquipamiento ? `mostrarVersionesEquipamiento('${categoria}', '${marca}')` : `mostrarMarcas('${categoria}')`;
     cont.innerHTML = `<span class="backBtn" onclick="${backAction}">${backSvg} Volver</span><h4>Modelos de ${marca} ${versionEquipamiento || ''}</h4>`;
 
-    let modelosFiltrados = datosOriginales.filter(item => item.categoria && item.categoria.toLowerCase() === categoria.toLowerCase() && item.marca === marca);
+    let modelosFiltrados = datosOriginales.filter(item => item.categoria === categoria && item.marca === marca);
     if (versionEquipamiento) {
         modelosFiltrados = modelosFiltrados.filter(item => item.versionesAplicables === versionEquipamiento);
     }
@@ -3037,10 +3101,11 @@ window.addEventListener('load', () => {
 });
 
 
-inicializarApp();
+document.addEventListener('DOMContentLoaded', () => {
+    inicializarApp();
 
-// Event listener para el acordeón
-document.getElementById('detalleCompleto').addEventListener('click', function(e) {
+    // Event listener para el acordeón
+    document.getElementById('detalleCompleto').addEventListener('click', function(e) {
     const clickedBtn = e.target.closest('.accordion-btn');
     if (!clickedBtn) return;
 
@@ -3156,65 +3221,7 @@ document.querySelectorAll('#side-menu .menu-link').forEach(link => {
         // Para enlaces a otras páginas, el menú se cerrará automáticamente en la carga de la nueva página.
     });
 });
-
-async function handleLike(vehicleId, corteIndex, buttonElement) {
-    const user = JSON.parse(localStorage.getItem(SESSION_KEY));
-    if (!user || !user.ID || !user.Nombre_Usuario) {
-        alert("Debes iniciar sesión para usar esta función.");
-        return;
-    }
-
-    // Disable button to prevent multiple clicks
-    buttonElement.disabled = true;
-    buttonElement.style.cursor = 'default';
-
-    // Optimistic UI update based on the title attribute and CSS class
-    const originalTitle = buttonElement.title;
-    const currentCountMatch = originalTitle.match(/\((\d+)\)/);
-    const currentCount = currentCountMatch ? parseInt(currentCountMatch[1], 10) : 0;
-    buttonElement.title = `Marcar como útil (${currentCount + 1})`;
-    buttonElement.classList.add('liked');
-
-    try {
-        await postToAction('recordLike', {
-            vehicleId: vehicleId,
-            corteIndex: corteIndex,
-            userId: user.ID,
-            userName: user.Nombre_Usuario
-        });
-
-        // After successful like, prompt for year suggestion
-        const suggestedYearRaw = prompt("¡Gracias por tu feedback! ¿Este corte también aplica para otro año? Si es así, ingrésalo aquí (ej: 2023). Si no, cancela.");
-
-        if (suggestedYearRaw && suggestedYearRaw.trim() !== "") {
-            const year = parseInt(suggestedYearRaw.trim(), 10);
-            if (!isNaN(year) && year > 1980 && year < 2050) {
-                try {
-                    const result = await postToAction('suggestYear', {
-                        vehicleId: vehicleId,
-                        newYear: year, // Corrected parameter name
-                        userId: user.ID, // Pass userId as required by backend
-                        userName: user.Nombre_Usuario
-                    });
-                    alert(result.message || "Sugerencia enviada. ¡Gracias por tu colaboración!");
-                } catch (error) {
-                    // Error is handled globally by postToAction, no extra alert needed.
-                }
-            } else {
-                alert("Por favor, ingresa un año válido (ej: 2023).");
-            }
-        }
-    } catch (error) {
-        // Revert UI on error
-        buttonElement.title = originalTitle;
-        buttonElement.classList.remove('liked');
-        // The error message is shown globally by postToAction.
-    } finally {
-        // Re-enable the button after operation is complete
-        buttonElement.disabled = false;
-        buttonElement.style.cursor = 'pointer';
-    }
-}
+});
 
 
 function toggleReportSection(vehicleId, corteIndex) {
