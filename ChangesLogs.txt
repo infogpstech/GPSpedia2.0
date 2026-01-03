@@ -1,9 +1,11 @@
 **v4.6.1 (02/01/2026)**
-*   **FIX (services/write/write.js):** Se solucionó un defecto crítico en la creación de nuevos vehículos (Stage 2). Las nuevas filas ahora heredan correctamente todas las validaciones de datos, fórmulas (especialmente la de ID) y formatos de la fila anterior.
+*   **FIX (services/write/write.js):** Se agrego una "solucion" a un defecto crítico en la creación de nuevos vehículos (Stage 2). Las nuevas filas deberian de heredan correctamente todas las validaciones de datos, fórmulas (especialmente la de ID) y formatos de la fila.
     *   **Causa Raíz:** El método anterior de creación de filas no copiaba la estructura completa de la fila anterior, lo que resultaba en la pérdida de validaciones y fórmulas esenciales.
     *   **Solución:** Se refactorizó la lógica de creación de nuevas filas en `handleAddOrUpdateCut`. El nuevo método utiliza `previousRowRange.copyTo(newRowRange)` para duplicar la fila anterior en su totalidad, y luego ejecuta `newRowRange.clearContent()` para vaciar los valores de las celdas sin eliminar las fórmulas y validaciones subyacentes.
 *   **CHORE (versioning):** Se actualizó la versión del componente a `2.3.0`.
-    *   **Archivos Modificados:** `services/write/write.js`.
+    *   **Archivos Modificados:** `services/write/write.js`. **Nota para el auditor:** este ultimo fix causo una regresion grave que deshabilitaba la captura de validacion de datos de la sheet en el formulario de add_cortes.html, se recuperó manualmente el repositorio a su estado anterior (con el bug de la renderizacion de las imagenes en catalogo) 
+considerar esta ultima version como fallida y no se debe trabajar desde esta version (4.6.1) un usar el estado del la version anterior (4.5.9)
+
 
 **v4.5.9 (31-12-2025)**
 *   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `GPSpedia-Write` a la nueva versión desplegada proporcionada por el usuario, asegurando que el frontend se comunique con el endpoint más reciente y corregido para todas las operaciones de escritura.
