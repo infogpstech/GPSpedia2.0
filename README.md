@@ -97,12 +97,54 @@ Esta sección describe los pasos técnicos específicos requeridos para ejecutar
     - **Etapa 1: Anti-duplicado y Verificación de Existencia.**
         1.  El frontend (`add_cortes.html`) inicialmente solo pedirá 4 campos: `Marca` (texto), `Modelo` (texto), `Año` (texto) y `Tipo de Encendido` (lista desplegable).
         2.  Al enviar, el backend (`write.js`) realizará una búsqueda en la hoja 'Cortes'.
-        3.  **Lógica de Búsqueda:** La búsqueda será **exacta** para `Marca`, `Año` y `Tipo de Encendido`. Para `Modelo`, la búsqueda será **flexible**, encontrando coincidencias de palabras completas.
-        4.  **Respuesta:** El servicio devolverá una lista de coincidencias (si las hay) al frontend. La UI mostrará los vehículos encontrados y presentará tres opciones al usuario:
+        3.  **Lógica de Búsqueda (Actualizada):** La verificación se realiza cruzando 4 campos para encontrar coincidencias en la base de datos.
+            *   **Búsqueda Flexible (Marca y Modelo):**
+                *   **Marca:** La búsqueda es insensible a mayúsculas/minúsculas y busca coincidencias parciales. Por ejemplo, "Mercedes" encontrará "Mercedes Benz", y "Chery" encontrará "Chery / Chirey".
+                *   **Modelo:** La búsqueda también es flexible. Por ejemplo, "np300" encontrará un vehículo cuyo modelo sea "Frontier NP300".
+            *   **Búsqueda Exacta (Año y Encendido):**
+                *   **Año:** El año proporcionado por el usuario debe estar dentro del rango `[anoDesde, anoHasta]` del registro en la base de datos.
+                *   **Tipo de Encendido:** Debe haber una coincidencia exacta (insensible a mayúsculas/minúsculas).
+        4.  **Respuesta:** El servicio devolverá una **lista con todas las coincidencias** que cumplan los 4 criterios. Si no hay ninguna, la lista estará vacía. La UI mostrará los vehículos encontrados y permitirá al usuario decidir si desea agregar información a un registro existente o crear uno completamente nuevo.
             *   **Opción 1: "Es un Duplicado".** El usuario confirma que el corte ya existe. El formulario se cierra.
             *   **Opción 2: "Agregar otro corte".** El vehículo ya existe, pero el usuario quiere añadir un segundo o tercer corte. El flujo avanza a la **Etapa 2**.
             *   **Opción 3: "Agregar apertura u otra información".** El usuario quiere añadir información suplementaria a un vehículo existente. El flujo avanza a la **Etapa 3**.
         5.  **Si no hay coincidencias:** El flujo avanza directamente a la **Etapa 2**.
+
+- **Flujo de Trabajo Detallado (Anti-duplicado y Asistente de Búsqueda)**
+
+    - **Etapa 1: Verificación de Vehículo (Anti-duplicado).**
+        1.  El frontend (`add_cortes.html`) solicita 4 campos clave: `Marca`, `Modelo`, `Año` y `Tipo de Encendido`.
+        2.  Al enviar, el backend realiza una búsqueda avanzada con la siguiente lógica:
+            *   **Búsqueda Flexible (Marca y Modelo):** Se utilizan coincidencias parciales e insensibles a mayúsculas/minúsculas.
+                *   Ej. `Marca`: "Mercedes" encontrará "Mercedes Benz".
+                *   Ej. `Modelo`: "np300" encontrará un vehículo cuyo modelo sea "Frontier NP300".
+            *   **Búsqueda Exacta (Año y Encendido):** Se requiere una coincidencia precisa.
+                *   `Año`: El año proporcionado debe estar dentro del rango `[anoDesde, anoHasta]` del registro.
+                *   `Tipo de Encendido`: Debe coincidir exactamente.
+        3.  **Respuesta y Visualización (Anti-duplicado de Cortes):** Al encontrar coincidencias, la UI muestra los vehículos y sus cortes existentes de forma **informativa**. El flujo de trabajo se controla mediante **botones de elección inline**, eliminando modales y clics innecesarios.
+            *   **Texto de Confirmación:** Se muestra el texto: `"Este modelo ya tiene estos cortes, ¿quieres agregar uno nuevo?"`.
+            *   **Botones de Acción Inline:** Debajo de los resultados, se presentan tres opciones claras:
+                1.  **"Sí, es el mismo corte (cancelar)":** Cancela la operación y regresa al catálogo principal.
+                2.  **"Es uno nuevo":** Avanza al **Paso 2** para agregar un nuevo corte al vehículo encontrado.
+                3.  **"Agregar información adicional":** Avanza directamente al **Paso 3** para añadir detalles suplementarios.
+            *   **Tarjetas Informativas:** Las tarjetas de los vehículos ya no son interactivas (no tienen `onclick`) para evitar confusiones. Su único propósito es mostrar los datos.
+        4.  Este flujo final es directo, mantiene al usuario en el mismo contexto y cumple con el requisito de una interacción inline sin capas de UI adicionales.
+
+    - **Funcionalidad "Quizás quisiste decir...".**
+        1.  Para asistir al usuario y reducir errores, se implementa un corrector ortográfico para los campos `Marca` y `Modelo`.
+        2.  Cuando el usuario deja de escribir en uno de estos campos (`onblur` event), el frontend envía el término al backend.
+        3.  El backend utiliza el **algoritmo de distancia de Levenshtein** para encontrar la cadena de texto más similar en la base de datos.
+        4.  Si se encuentra una coincidencia cercana (con una distancia de Levenshtein baja), el frontend muestra una sugerencia en la que se puede hacer clic, ej: "Quizás quisiste decir: *Chevrolet*".
+
+    - **Etapa 2: Registro de Nuevo Corte y Gestión de Archivos.**
+        1.  Cuando se añade un nuevo corte o un nuevo vehículo, el sistema gestiona las imágenes de la siguiente manera:
+            *   **Creación de Directorios:** El backend crea automáticamente una estructura de carpetas en Google Drive siguiendo la ruta: `GPSpedia/Categoria/Marca/Modelo/Año`.
+            *   **Nomenclatura de Archivos Estandarizada:** Las imágenes subidas se renombran automáticamente para seguir un formato predecible y consistente:
+                *   `Marca_Modelo_TipoEncendido_Año_Vehiculo.jpg`
+                *   `Marca_Modelo_TipoEncendido_Año_Corte1.jpg`
+                *   `Marca_Modelo_TipoEncendido_Año_Apertura.jpg`
+        2.  Esto asegura que todos los archivos estén organizados y sean fácilmente identificables tanto para el sistema como para los administradores.
+
 
     - **Etapa 2: Registro de un Nuevo Corte.**
         1.  El frontend presentará los siguientes campos para el nuevo corte:
@@ -222,7 +264,7 @@ Esta sección documenta el estado actual de las tareas de desarrollo, bugs, regr
     - **Orden de Imágenes:** `[Falta Revisión]`
     - **Layout y Espacio Vertical:** `[Falta Revisión]`
 2.  **Carga de Logos en Modal:** `[Falta Revisión]`
-3.  **Refactorización del Flujo de Escritura:** `[ ] En Progreso` - La interfaz del formulario de 3 etapas está avanzada, pero se necesita implementar toda la lógica de backend correspondiente en el servicio `GPSpedia-Write`.
+3.  **Refactorización del Flujo de Escritura:** `[Falta Revisión]` - Se ha completado la refactorización del flujo de adición de cortes en `add_cortes.html`, implementando la lógica de anti-duplicados con una interfaz de botones inline, mejorando la UX y corrigiendo bugs de visualización.
 4.  **Inconsistencias de Versionamiento:** `[ ] Pendiente` - Es necesario sincronizar la versión global para que el próximo gran lanzamiento sea `v2.0` y mejorar el formato de registro de fechas en `ChangesLogs.txt`.
 
 ### Revisiones de UI/UX

@@ -1,4 +1,4 @@
-// GPSpedia Frontend Component | Version: 3.9.0
+// GPSpedia Frontend Component | Version: 3.9.1
 // ============================================================================
 // API MANAGER for GPSpedia Modular Architecture
 // ============================================================================
@@ -9,8 +9,8 @@ const API_ENDPOINTS = {
 
     // URLs para los nuevos microservicios.
     AUTH:     "https://script.google.com/macros/s/AKfycby86oaNWKj9Z3sXWs-tXJn2eIgU9QcpjaC6cyYReswtc_WSypt3fFtQ-3aAs58ZMa72/exec",
-    CATALOG:  "https://script.google.com/macros/s/AKfycbzwyVF1mpEEPar8GJ5ab4otvk21RL9We2mFlaIRtqrAO6zJWZwihatVushXu0LTSME0UA/exec",
-    WRITE:    "https://script.google.com/macros/s/AKfycbwzAgwnmSxRfPRTWWpBDSq4Zja3EpRvrY0W0AT5r7ZFsVIIxIRsIIYVitCdmDaEfc-wfA/exec",
+    CATALOG:  "https://script.google.com/macros/s/AKfycbzUdYI2MpBcXvXsNZvfBTbsDmBBzFgsqONemSd6vjwGEP2jls_eIVjXylU-nXgWa7-m7A/exec",
+    WRITE:    "https://script.google.com/macros/s/AKfycbwuf57VJd1t4oQ5pb5ZyoLmP55APL2l6_aJ68pKpVUdxcK0OwsNUBzeqCdWV5ROblJ45w/exec",
     USERS:    "https://script.google.com/macros/s/AKfycbw3kFPGA3N0eoTQ7wIW9TO8UkneOKvN0QzoEHQaQXhbqi7WaQbLcYm0pvhLsKAd16YA/exec",
     FEEDBACK: "https://script.google.com/macros/s/AKfycbzJCn0btix2bvOfH7Q8cPEm35b0daNLn-tYc-B6aI5a8uMC7imQxMQxCrDx1tDgAjqo/exec",
     UTILITIES: "https://script.google.com/macros/s/AKfycbzkGXk_kSm3rN7K5PM0RntiPAn7DlH78RkH66a2vuwZwU8KgwDufkOiPjXoUKzuHAgG/exec"
@@ -29,6 +29,8 @@ const ACTION_TO_SERVICE_MAP = {
 
     // Write Service
     'addCorte': 'WRITE',
+    'addOrUpdateCut': 'WRITE',
+    'addSupplementaryInfo': 'WRITE',
 
     // Users Service
     'getUsers': 'USERS',

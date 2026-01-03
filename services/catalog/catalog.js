@@ -104,6 +104,9 @@ function doPost(e) {
       case 'checkVehicle':
         result = handleCheckVehicle(payload);
         break;
+      case 'getSuggestion':
+        result = handleGetSuggestion(payload);
+        break;
       default:
         throw new Error(`Acción desconocida: ${action}`);
     }
@@ -262,7 +265,7 @@ function handleGetDropdownData() {
 
         // Obtener la regla de validación de la columna "Categoría"
         const categoriaRule = sheet.getRange(2, COLS_CORTES.categoria).getDataValidation();
-        const categorias = categoriaRule ? categoriaRule.getCriteriaValues()[0].getValues().flat().filter(String).sort() : [];
+        const categorias = categoriaRule ? categoriaRule.getCriteriaValues()[0].flat().filter(String).sort() : [];
 
         const data = sheet.getDataRange().getValues();
         data.shift(); // Remove headers
@@ -285,14 +288,14 @@ function handleGetDropdownData() {
 
 
         const dropdownData = {
-            categorias,
-            marcas,
-            tiposCorte,
-            tiposEncendido,
-            configRelay
+            categoria: categorias,
+            marca: marcas,
+            tipoDeCorte: tiposCorte,
+            tipoDeEncendido: tiposEncendido,
+            configRelay: configRelay
         };
 
-        return { status: 'success', data: dropdownData };
+        return { status: 'success', dropdowns: dropdownData };
 
     } catch (error) {
         return {
@@ -304,43 +307,139 @@ function handleGetDropdownData() {
 }
 
 function handleCheckVehicle(payload) {
-    const { marca, modelo, anio, tipoEncendido } = payload;
-    if (!marca || !modelo || !anio || !tipoEncendido) {
+    const { marca, modelo, anoDesde, tipoEncendido } = payload;
+    if (!marca || !modelo || !anoDesde || !tipoEncendido) {
         throw new Error("Parámetros de búsqueda incompletos.");
     }
 
     const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
+    if (!sheet) {
+        return { status: 'success', matches: [] }; // Si no hay hoja, no hay coincidencias
+    }
     const data = sheet.getDataRange().getValues();
-    data.shift();
+    data.shift(); // Quitar encabezados
 
     const paramMarca = marca.trim().toLowerCase();
     const paramModelo = modelo.trim().toLowerCase();
-    const paramAnio = parseInt(anio.trim(), 10);
+    const paramAnio = parseInt(anoDesde.trim(), 10);
     const paramTipoEncendido = tipoEncendido.trim().toLowerCase();
+
+    const matches = [];
 
     for (let i = 0; i < data.length; i++) {
         const row = data[i];
+        if (!row[0]) continue; // Omitir filas vacías
+
         const sheetMarca = (row[COLS_CORTES.marca - 1] || "").toString().trim().toLowerCase();
         const sheetModelo = (row[COLS_CORTES.modelo - 1] || "").toString().trim().toLowerCase();
         const sheetVersiones = (row[COLS_CORTES.versionesAplicables - 1] || "").toString().toLowerCase();
         const sheetTipoEncendido = (row[COLS_CORTES.tipoEncendido - 1] || "").toString().trim().toLowerCase();
-        const anoDesde = row[COLS_CORTES.anoDesde - 1];
-        const anoHasta = row[COLS_CORTES.anoHasta - 1];
+        const sheetAnoDesde = row[COLS_CORTES.anoDesde - 1];
+        const sheetAnoHasta = row[COLS_CORTES.anoHasta - 1];
 
-        const modeloMatch = sheetModelo === paramModelo || sheetVersiones.includes(paramModelo);
-        const anioMatch = isYearInRangeV2(paramAnio, anoDesde, anoHasta);
+        // Búsqueda flexible para marca y modelo
+        const marcaMatch = sheetMarca.includes(paramMarca) || paramMarca.includes(sheetMarca);
+        const modeloMatch = sheetModelo.includes(paramModelo) || paramModelo.includes(sheetModelo) || sheetVersiones.includes(paramModelo);
 
-        if (sheetMarca === paramMarca && modeloMatch && anioMatch && sheetTipoEncendido === paramTipoEncendido) {
-            const existingRowData = mapRowToObject(row, COLS_CORTES);
-            return { status: 'success', exists: true, data: existingRowData, rowIndex: i + 2 };
+        // Búsqueda exacta para año y tipo de encendido
+        const anioMatch = isYearInRangeV2(paramAnio, sheetAnoDesde, sheetAnoHasta);
+        const tipoEncendidoMatch = sheetTipoEncendido === paramTipoEncendido;
+
+        if (marcaMatch && modeloMatch && anioMatch && tipoEncendidoMatch) {
+            const matchData = mapRowToObject(row, COLS_CORTES);
+            matches.push(matchData);
         }
     }
-    return { status: 'success', exists: false };
+
+    return { status: 'success', matches: matches };
 }
+
+// ============================================================================
+// MANEJADOR DE SUGERENCIAS (PARA "QUIZÁS QUISISTE DECIR...")
+// ============================================================================
+function handleGetSuggestion(payload) {
+    const { term, field } = payload;
+    if (!term || !field) {
+        throw new Error("El término y el campo son requeridos para obtener una sugerencia.");
+    }
+
+    let columnIndex;
+    if (field.toLowerCase() === 'marca') {
+        columnIndex = COLS_CORTES.marca - 1;
+    } else if (field.toLowerCase() === 'modelo') {
+        columnIndex = COLS_CORTES.modelo - 1;
+    } else {
+        throw new Error(`El campo '${field}' no es válido para sugerencias.`);
+    }
+
+    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
+    if (!sheet) return { status: 'success', suggestion: null };
+
+    const data = sheet.getDataRange().getValues();
+    data.shift();
+
+    const uniqueValues = Array.from(new Set(data.map(row => row[columnIndex]).filter(String)));
+
+    let bestMatch = null;
+    let minDistance = Infinity;
+    const searchTerm = term.toLowerCase();
+
+    for (const value of uniqueValues) {
+        const valueLower = value.toLowerCase();
+        if (valueLower === searchTerm) {
+            // Es una coincidencia exacta, no se necesita sugerencia.
+            return { status: 'success', suggestion: null };
+        }
+
+        const distance = levenshteinDistance(searchTerm, valueLower);
+
+        if (distance < minDistance) {
+            minDistance = distance;
+            bestMatch = value;
+        }
+    }
+
+    // Umbral: solo sugerir si la distancia es razonablemente pequeña (ej. <= 3)
+    // y el término no es un substring de la sugerencia (ej. "Chev" y "Chevrolet")
+    if (minDistance <= 3 && bestMatch.toLowerCase().indexOf(searchTerm) === -1) {
+        return { status: 'success', suggestion: bestMatch };
+    }
+
+    return { status: 'success', suggestion: null };
+}
+
 
 // ============================================================================
 // FUNCIONES AUXILIARES
 // ============================================================================
+
+function levenshteinDistance(a, b) {
+    if (a.length === 0) return b.length;
+    if (b.length === 0) return a.length;
+
+    const matrix = Array(b.length + 1).fill(null).map(() => Array(a.length + 1).fill(null));
+
+    for (let i = 0; i <= a.length; i++) {
+        matrix[0][i] = i;
+    }
+    for (let j = 0; j <= b.length; j++) {
+        matrix[j][0] = j;
+    }
+
+    for (let j = 1; j <= b.length; j++) {
+        for (let i = 1; i <= a.length; i++) {
+            const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+            matrix[j][i] = Math.min(
+                matrix[j][i - 1] + 1,          // deletion
+                matrix[j - 1][i] + 1,          // insertion
+                matrix[j - 1][i - 1] + cost    // substitution
+            );
+        }
+    }
+
+    return matrix[b.length][a.length];
+}
+
 
 function convertirAGoogleThumbnail(url) {
     if (!url || typeof url !== 'string') return null;
