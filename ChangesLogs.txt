@@ -1,3 +1,9 @@
+**v4.6.2 (03/01/2026)**
+*   **DOCS (Instrucciones.txt):** Se ha reestructurado completamente el archivo `Instrucciones.txt` para agrupar todas las tareas pendientes en módulos funcionales y auditables.
+    *   **Migración de Tareas:** Todos los hallazgos pendientes de `Auditoria.txt` y las tareas del `Instrucciones.txt` anterior han sido migradas a esta nueva estructura.
+    *   **Nuevo Formato:** Cada tarea ahora sigue un formato estricto que incluye descripción, impacto esperado, riesgos conocidos, dependencias y un estado `PENDIENTE`.
+    *   **Archivos Modificados:** `Instrucciones.txt`.
+
 **v4.6.1 (02/01/2026)**
 *   **FIX (services/write/write.js):** Se agrego una "solucion" a un defecto crítico en la creación de nuevos vehículos (Stage 2). Las nuevas filas deberian de heredan correctamente todas las validaciones de datos, fórmulas (especialmente la de ID) y formatos de la fila.
     *   **Causa Raíz:** El método anterior de creación de filas no copiaba la estructura completa de la fila anterior, lo que resultaba en la pérdida de validaciones y fórmulas esenciales.
