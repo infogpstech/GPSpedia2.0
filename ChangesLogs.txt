@@ -1,3 +1,10 @@
+**v4.6.6 (03-01-2026)**
+*   **FIX & REFACTOR (index.html):** Se implementaron las correcciones finales de UI/UX basadas en la última revisión crítica, resolviendo las inconsistencias pendientes.
+    *   **Carrusel de Marcas:** Se reintrodujo el carrusel para "Marcas de Motocicletas", asegurando que se renderice como una sección separada y funcional, consumiendo únicamente los datos de la categoría 'Motocicletas'. Esto corrige la regresión anterior donde se mezclaban las marcas.
+    *   **Estilo del Logo en Modal:** Se ajustó el CSS del logo de la marca en el modal de detalles (`#detalleCompleto`) para eliminar completamente cualquier estilo que simulara un contenedor (background, border, padding, etc.), logrando la apariencia de un "ícono limpio".
+    *   **Economía de Espacio (Modal):** Se realizó una segunda pasada de compactación, reduciendo de forma más agresiva los márgenes (`margin`) y `padding` de los elementos `h4`, `p`, imágenes y contenedores de imágenes dentro del modal para optimizar el uso del espacio vertical.
+    *   **Archivos Modificados:** `index.html`.
+
 **v4.6.5 (31-12-2025)**
 *   **FIX (index.html):** Se implementaron correcciones de UI/UX basadas en la revisión del commit anterior.
     *   **Modal de Detalles - Encabezado:** Se modificó la función `mostrarDetalleModal` para que el título `<h2>` muestre únicamente el nombre del modelo del vehículo, eliminando el nombre de la marca en texto para evitar redundancia.

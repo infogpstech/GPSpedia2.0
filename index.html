@@ -774,7 +774,7 @@ body.search-active .app-logo {
     width: auto;
     max-width: 100%;
     max-height: 300px;
-    margin: 5px auto; /* Reducido */
+    margin: 2px auto; /* Reducido aun más */
     cursor: pointer;
     object-fit: contain;
     border-radius: 8px;
@@ -788,7 +788,7 @@ body.search-active .app-logo {
 .image-container-with-feedback {
     position: relative;
     display: inline-block;
-    margin: 5px auto; /* Reducido */
+    margin: 2px auto; /* Reducido aun más */
 }
 .feedback-overlay {
     position: absolute;
@@ -828,13 +828,14 @@ body.search-active .app-logo {
 #detalleCompleto h4 {
     color: #007bff;
     border-bottom: 2px solid #eee;
-    padding-bottom: 5px;
-    margin-top: 12px; /* Reducido para compactar */
-    margin-bottom: 6px; /* Reducido para compactar */
+    padding-bottom: 4px; /* Reducido */
+    margin-top: 8px; /* Reducido aun más */
+    margin-bottom: 4px; /* Reducido aun más */
 }
 
 #detalleCompleto p {
-    margin: 2px 0; /* Reducido para compactar */
+    margin: 1px 0; /* Reducido aun más */
+    line-height: 1.4; /* Mejora legibilidad en espacios compactos */
 }
 
 /* --- ESTILOS PARA SECCIONES DESPLEGABLES (ACORDEÓN) --- */
@@ -842,16 +843,16 @@ body.search-active .app-logo {
     background-color: #f0f0f0;
     color: #007bff; /* Color de texto azul */
     cursor: pointer;
-    padding: 15px;
+    padding: 12px; /* Reducido */
     width: 100%;
     border: none;
     text-align: left;
     outline: none;
-    font-size: 1.1em;
+    font-size: 1.05em; /* Ligeramente reducido */
     font-weight: bold;
     transition: background-color 0.3s ease;
     border-radius: 8px;
-    margin-top: 4px; /* Reducido para compactar */
+    margin-top: 2px; /* Reducido aun más */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -2219,7 +2220,7 @@ function mostrarDetalleModal(item) {
     if (logoUrl) {
         const logoImg = document.createElement("img");
         logoImg.src = convertirAGoogleThumbnail(logoUrl);
-        logoImg.style.cssText = "height: 40px; width: auto; max-width: 100px; object-fit: contain; background: transparent; border: none; box-shadow: none;";
+        logoImg.style.cssText = "height: 40px; width: auto; max-width: 100px; object-fit: contain; background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; border-radius: 0 !important;";
         mainHeaderDiv.appendChild(logoImg); // Logo primero
     }
 
@@ -2632,7 +2633,25 @@ function mostrarCategorias() {
         return card;
     });
 
-    // El carrusel de motocicletas fue eliminado para corregir la regresión.
+    // 3. Carrusel de Marcas de Motocicletas
+    const marcasMotos = [...new Set(datosOriginales
+        .filter(item => item.categoria && item.categoria.toLowerCase() === 'motocicletas')
+        .map(item => item.marca))]
+        .filter(Boolean).sort();
+
+    if (marcasMotos.length > 0) {
+        crearCarrusel('Marcas de Motocicletas', marcasMotos, marca => {
+            const logoUrl = getLogoUrlForMarca(marca, 'motocicletas');
+            const card = document.createElement("div");
+            card.className = "card brand-logo-item";
+            card.onclick = () => mostrarModelos('Motocicletas', marca); // Asume categoría es Motocicletas
+            const img = document.createElement("img");
+            img.src = convertirAGoogleThumbnail(logoUrl);
+            img.alt = `Marca ${marca}`;
+            card.appendChild(img);
+            return card;
+        });
+    }
 }
 
 function mostrarUltimosAgregados() {
