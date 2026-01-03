@@ -1804,16 +1804,10 @@ function mostrarDetalleModal(item) {
         const tituloRecomendado = document.createElement("h4");
         tituloRecomendado.innerHTML = `<i class="fa-solid fa-star" style="color: #ffc107;"></i> Corte Recomendado: ${item.tipoCorte1}`;
 
-        const btn = document.createElement("button");
-        btn.className = "accordion-btn active"; // Make it active by default
-        btn.innerHTML = `${item.tipoCorte1} <svg class="accordion-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
-
         cont.appendChild(tituloRecomendado);
-        cont.appendChild(btn);
 
-        const panelRecomendado = crearPanelCorte(1, false); // Create as a normal panel
+        const panelRecomendado = crearPanelCorte(1, true); // Usar el estilo de panel recomendado, no el de acordeón
         if (panelRecomendado) {
-            panelRecomendado.style.maxHeight = panelRecomendado.scrollHeight + "px"; // Expand it
             cont.appendChild(panelRecomendado);
         }
     }
@@ -2067,8 +2061,18 @@ function mostrarMarcas(categoria) {
         const img = document.createElement("img");
         img.src = logoUrl || convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
         img.alt = `Marca ${m}`;
+        // Ajuste de estilo conservador para logos: asegurar que no se estiren y se vean centrados.
+        img.style.objectFit = 'contain';
+        img.style.padding = '5px';
+        img.style.height = '100px'; // Se reduce la altura para dar espacio al texto.
         card.appendChild(img);
-        const overlay = document.createElement("div"); overlay.className = "overlay"; overlay.innerHTML = m; card.appendChild(overlay);
+
+        // Reemplazo del 'overlay': Se crea un 'label' de texto simple debajo de la imagen.
+        const label = document.createElement("div");
+        label.textContent = m;
+        label.style.cssText = "text-align: center; padding: 10px 8px; font-weight: bold; background: #fff; font-size: 1em; border-top: 1px solid #f0f0f0;";
+        card.appendChild(label);
+
         grid.appendChild(card);
     });
     cont.appendChild(grid);
@@ -2315,7 +2319,9 @@ document.getElementById('detalleCompleto').addEventListener('click', function(e)
     // Abrir el panel clickeado si no estaba ya activo
     if (!isActive) {
         clickedBtn.classList.add('active');
-        panel.style.maxHeight = panel.scrollHeight + "px";
+        // Usar un valor fijo grande en lugar de scrollHeight, que puede ser 0 si el contenido (imágenes) no ha cargado.
+        // Esto asegura que el panel tenga espacio para expandirse completamente.
+        panel.style.maxHeight = "1000px";
         const iframe = panel.querySelector('iframe');
         if (iframe && iframe.dataset.originalSrc) {
             iframe.src = iframe.dataset.originalSrc; // Restaura el video

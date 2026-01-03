@@ -1,3 +1,8 @@
+**v4.0.2 (31-12-2025)**
+*   **FIX (index.html):** Solucionado el bug que impedía la visualización de los cortes 2 y 3, así como las imágenes de apertura y alimentación en el modal de detalle. El ajuste conservador se realizó en el event listener del acordeón, reemplazando el cálculo de `scrollHeight` por una altura fija (`1000px`) para garantizar la expansión del panel. (Línea ~2309).
+*   **FIX (index.html):** Corregida la visualización del "Corte Recomendado" en el modal de detalle. Se simplificó la lógica para que se muestre como un panel estático siempre visible, en lugar de un acordeón defectuoso, utilizando la funcionalidad existente. (Línea ~1804).
+*   **FIX (index.html):** Mejorada la presentación visual de los logos en la sección "Búsqueda por Marca". Se reemplazó el texto superpuesto (`overlay`) por una etiqueta de texto simple debajo de la imagen del logo, adhiriéndose a un ajuste mínimo y localizado. (Línea ~2061).
+
 **v4.0.1 (02/01/2026)**
 *   **FIX CRÍTICO (api-manager.js & services/catalog/catalog.js):** Solucionado un error de "Fallo de conexión" (Failed to fetch) con el servicio de catálogo. El fix integral incluyó:
     1.  **Backend (`services/catalog/catalog.js`):** Se cambió el `MimeType` de la respuesta de `JSON` a `TEXT` para cumplir con la política de CORS del entorno de Google Apps Script. (Líneas 112, 124).
@@ -92,4 +97,3 @@
         - Se refactorizó todo el código JavaScript para que consuma los datos con la nueva estructura correcta. Se corrigió el acceso a las propiedades del objeto de usuario (ahora `user.Nombre_Usuario`) y a todos los campos del catálogo. (Múltiples líneas afectadas, ej. 1093, 1187, 2100).
     4.  **Sincronización de la Documentación:**
         - **`README.md` y `Instrucciones.txt`:** Se han actualizado las secciones de "Arquitectura de la Base de Datos" para que reflejen el esquema final y oficial de las 10 hojas de cálculo, sirviendo como la fuente de verdad para el proyecto.
-... (rest of the file remains the same)
