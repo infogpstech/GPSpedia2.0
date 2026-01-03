@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-WRITE SERVICE (STANDARDIZED FOR DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 2.2.1
+// COMPONENT VERSION: 2.3.0
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -91,39 +91,74 @@ function handleAddOrUpdateCut(payload) {
     }
 
     const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
+    const formattedDate = Utilities.formatDate(new Date(), "GMT-6", "dd/MM/yyyy");
     let rowIndex;
-    let newRowData = new Array(sheet.getLastColumn()).fill('');
-    let anioParaFolder = vehicleData.anoDesde;
+    let newId;
 
-    if (vehicleId) {
+    if (vehicleId) { // --- Lógica para vehículo EXISTENTE ---
         const ids = sheet.getRange(2, 1, sheet.getLastRow(), 1).getValues().flat();
         const existingIndex = ids.findIndex(id => id.toString() == vehicleId.toString());
         if (existingIndex === -1) throw new Error("El ID del vehículo no fue encontrado.");
         rowIndex = existingIndex + 2;
-        anioParaFolder = sheet.getRange(rowIndex, COLS_CORTES.anoDesde).getValue();
 
-    } else {
+        const rowValues = sheet.getRange(rowIndex, 1, 1, sheet.getLastColumn()).getValues()[0];
+        const vehicleInfo = mapRowToObject(rowValues, COLS_CORTES);
+
+        let cutSlotIndex = -1;
+        for (let i = 1; i <= 3; i++) {
+            if (!rowValues[COLS_CORTES[`tipoCorte${i}`] - 1]) {
+                cutSlotIndex = i;
+                break;
+            }
+        }
+        if (cutSlotIndex === -1) throw new Error("No hay espacios disponibles para más cortes.");
+
+        let imageUrl = '';
+        if (cutData.imgCorte1) {
+            const folder = getOrCreateFolder(vehicleInfo.categoria, vehicleInfo.marca, vehicleInfo.modelo, vehicleInfo.anoDesde);
+            const filename = `${sanitizeForFilename(vehicleInfo.marca)}_${sanitizeForFilename(vehicleInfo.modelo)}_${sanitizeForFilename(vehicleInfo.tipoEncendido)}_${vehicleInfo.anoDesde}_Corte${cutSlotIndex}.jpg`;
+            imageUrl = uploadImageToDrive(cutData.imgCorte1, filename, folder);
+        }
+
+        sheet.getRange(rowIndex, COLS_CORTES[`tipoCorte${cutSlotIndex}`]).setValue(cutData.tipoCorte1);
+        sheet.getRange(rowIndex, COLS_CORTES[`ubicacionCorte${cutSlotIndex}`]).setValue(cutData.ubicacionCorte1);
+        sheet.getRange(rowIndex, COLS_CORTES[`colorCableCorte${cutSlotIndex}`]).setValue(cutData.colorCableCorte1);
+        sheet.getRange(rowIndex, COLS_CORTES[`configRelay${cutSlotIndex}`]).setValue(cutData.configRelay1);
+        sheet.getRange(rowIndex, COLS_CORTES[`imgCorte${cutSlotIndex}`]).setValue(imageUrl);
+        sheet.getRange(rowIndex, COLS_CORTES[`colaboradorCorte${cutSlotIndex}`]).setValue(colaborador);
+        sheet.getRange(rowIndex, COLS_CORTES.timestamp).setValue(formattedDate);
+
+        newId = vehicleId;
+
+    } else { // --- Lógica para vehículo NUEVO ---
         if (!vehicleData) throw new Error("Los datos del vehículo son requeridos para un nuevo registro.");
 
         const lastRow = sheet.getLastRow();
         rowIndex = lastRow + 1;
 
-        // Copiar fórmula de ID y validaciones de datos
+        // Copiar la fila anterior para heredar TODAS las validaciones, formatos y fórmulas.
         const previousRowRange = sheet.getRange(lastRow, 1, 1, sheet.getLastColumn());
         const newRowRange = sheet.getRange(rowIndex, 1, 1, sheet.getLastColumn());
-        previousRowRange.copyTo(newRowRange, {formatOnly: true}); // Copia formato y validaciones
-        sheet.getRange(lastRow, COLS_CORTES.id).copyTo(newRowRange.getCell(1, COLS_CORTES.id)); // Copia la fórmula del ID
+        previousRowRange.copyTo(newRowRange);
 
-        // Parsear año
+        // Limpiar SOLO el contenido de la fila nueva, preservando fórmulas y validaciones.
+        newRowRange.clearContent();
+
+        let newRowData = new Array(sheet.getLastColumn()).fill(null); // Usar null para no sobreescribir celdas
+
+        // Parsear año según las reglas estrictas
         const yearInput = vehicleData.anoDesde.trim();
+        let anoDesde, anioParaFolder;
         if (yearInput.includes('-')) {
             const [start, end] = yearInput.split('-').map(y => parseInt(y.trim(), 10));
-            newRowData[COLS_CORTES.anoDesde - 1] = Math.min(start, end);
+            anoDesde = Math.min(start, end);
             newRowData[COLS_CORTES.anoHasta - 1] = Math.max(start, end);
         } else {
-            newRowData[COLS_CORTES.anoDesde - 1] = parseInt(yearInput, 10);
+            anoDesde = parseInt(yearInput, 10);
             newRowData[COLS_CORTES.anoHasta - 1] = '';
         }
+        newRowData[COLS_CORTES.anoDesde - 1] = anoDesde;
+        anioParaFolder = anoDesde;
 
         newRowData[COLS_CORTES.marca - 1] = vehicleData.marca;
         newRowData[COLS_CORTES.modelo - 1] = vehicleData.modelo;
@@ -137,51 +172,31 @@ function handleAddOrUpdateCut(payload) {
             const imageUrl = uploadImageToDrive(vehicleData.imagenVehiculo, filename, folder);
             newRowData[COLS_CORTES.imagenVehiculo - 1] = imageUrl;
         }
-    }
 
-    const rowValues = sheet.getRange(rowIndex, 1, 1, sheet.getLastColumn()).getValues()[0];
-    let cutSlotIndex = -1;
-    for (let i = 1; i <= 3; i++) {
-        if (!rowValues[COLS_CORTES[`tipoCorte${i}`] - 1]) {
-            cutSlotIndex = i;
-            break;
+        // Para un vehículo nuevo, el corte siempre va en el slot 1
+        const cutSlotIndex = 1;
+        let imageUrl = '';
+        if (cutData.imgCorte1) {
+            const folder = getOrCreateFolder(vehicleData.categoria, vehicleData.marca, vehicleData.modelo, anioParaFolder);
+            const filename = `${sanitizeForFilename(vehicleData.marca)}_${sanitizeForFilename(vehicleData.modelo)}_${sanitizeForFilename(vehicleData.tipoEncendido)}_${anioParaFolder}_Corte${cutSlotIndex}.jpg`;
+            imageUrl = uploadImageToDrive(cutData.imgCorte1, filename, folder);
         }
-    }
 
-    if (cutSlotIndex === -1) throw new Error("No hay espacios disponibles para más cortes.");
-
-    let imageUrl = '';
-    if (cutData.imgCorte1) {
-        const folderData = vehicleId ? mapRowToObject(rowValues, COLS_CORTES) : vehicleData;
-        const folder = getOrCreateFolder(folderData.categoria, folderData.marca, folderData.modelo, anioParaFolder);
-        const filename = `${sanitizeForFilename(folderData.marca)}_${sanitizeForFilename(folderData.modelo)}_${sanitizeForFilename(folderData.tipoEncendido)}_${folderData.anoDesde}_Corte${cutSlotIndex}.jpg`;
-        imageUrl = uploadImageToDrive(cutData.imgCorte1, filename, folder);
-    }
-
-    const formattedDate = Utilities.formatDate(new Date(), "GMT-6", "dd/MM/yyyy");
-
-    if (vehicleId) {
-        sheet.getRange(rowIndex, COLS_CORTES[`tipoCorte${cutSlotIndex}`]).setValue(cutData.tipoCorte1);
-        sheet.getRange(rowIndex, COLS_CORTES[`ubicacionCorte${cutSlotIndex}`]).setValue(cutData.ubicacionCorte1);
-        sheet.getRange(rowIndex, COLS_CORTES[`colorCableCorte${cutSlotIndex}`]).setValue(cutData.colorCableCorte1);
-        sheet.getRange(rowIndex, COLS_CORTES[`configRelay${cutSlotIndex}`]).setValue(cutData.configRelay1);
-        sheet.getRange(rowIndex, COLS_CORTES[`imgCorte${cutSlotIndex}`]).setValue(imageUrl);
-        sheet.getRange(rowIndex, COLS_CORTES[`colaboradorCorte${cutSlotIndex}`]).setValue(colaborador);
-        sheet.getRange(rowIndex, COLS_CORTES.timestamp).setValue(formattedDate);
-    } else {
-        newRowData[COLS_CORTES[`tipoCorte${cutSlotIndex}`] - 1] = cutData.tipoCorte1;
-        newRowData[COLS_CORTES[`ubicacionCorte${cutSlotIndex}`] - 1] = cutData.ubicacionCorte1;
-        newRowData[COLS_CORTES[`colorCableCorte${cutSlotIndex}`] - 1] = cutData.colorCableCorte1;
-        newRowData[COLS_CORTES[`configRelay${cutSlotIndex}`] - 1] = cutData.configRelay1;
-        newRowData[COLS_CORTES[`imgCorte${cutSlotIndex}`] - 1] = imageUrl;
-        newRowData[COLS_CORTES[`colaboradorCorte${cutSlotIndex}`] - 1] = colaborador;
+        newRowData[COLS_CORTES.tipoCorte1 - 1] = cutData.tipoCorte1;
+        newRowData[COLS_CORTES.ubicacionCorte1 - 1] = cutData.ubicacionCorte1;
+        newRowData[COLS_CORTES.colorCableCorte1 - 1] = cutData.colorCableCorte1;
+        newRowData[COLS_CORTES.configRelay1 - 1] = cutData.configRelay1;
+        newRowData[COLS_CORTES.imgCorte1 - 1] = imageUrl;
+        newRowData[COLS_CORTES.colaboradorCorte1 - 1] = colaborador;
         newRowData[COLS_CORTES.timestamp - 1] = formattedDate;
+
         sheet.getRange(rowIndex, 1, 1, newRowData.length).setValues([newRowData]);
+
+        Utilities.sleep(1500); // Espera extendida para que la fórmula del ID se calcule
+        newId = sheet.getRange(rowIndex, COLS_CORTES.id).getValue();
     }
 
-    Utilities.sleep(1000); // Wait for spreadsheet to process the new row
-    const newId = sheet.getRange(rowIndex, COLS_CORTES.id).getValue();
-    return { status: 'success', message: `Corte agregado.`, vehicleId: newId };
+    return { status: 'success', message: `Corte agregado exitosamente.`, vehicleId: newId };
 }
 
 
