@@ -1,8 +1,8 @@
 =================================================
  INSTRUCTIVO DEL PROYECTO GPSpedia 2.0
 =================================================
-**Versión del Documento:** 3.3
-**Fecha de Actualización:** 2024-08-19
+**Versión del Documento:** 4.0
+**Fecha de Actualización:** 2024-08-20
 
 Este documento detalla las normas de desarrollo, el estado de las tareas pendientes y el flujo de trabajo para el proyecto GPSpedia 2.0.
 
@@ -14,8 +14,8 @@ NORMAS OBLIGATORIAS DE DESARROLLO
 
 **A. Control de Versiones y Documentación:**
 1.  **Actualización de Versión:** Cualquier cambio debe reflejarse en el número de versión visible en `index.html` y en los servicios de Apps Script.
-2.  **Consulta y Actualización de Documentación:** Antes y después de cualquier desarrollo, se deben consultar y actualizar `README.md`, `INSTRUCTIVO.TXT` y `CHANGESLOGS.txt`.
-3.  **Detalle en `CHANGESLOGS.txt`:** Cada entrada debe especificar el archivo y número de línea modificado.
+2.  **Consulta y Actualización de Documentación:** Antes y después de cualquier desarrollo, se deben consultar y actualizar `README.md`, `INSTRUCTIVO.TXT` y `changeslogs.txt`.
+3.  **Detalle en `changeslogs.txt`:** Cada entrada debe especificar el archivo y número de línea modificado.
 
 **B. Calidad del Código:**
 1.  **Comentarios:** Todo código nuevo o modificado debe tener un comentario explicando su propósito.
@@ -24,22 +24,38 @@ NORMAS OBLIGATORIAS DE DESARROLLO
 1.  **Verificación Post-Commit:** Una tarea solo se considera completada después de un commit y la validación explícita del Project Manager.
 
 ---------------------------------
-SISTEMA DE VERSIONAMIENTO HÍBRIDO
+NUEVO SISTEMA DE VERSIONAMIENTO SEMÁNTICO (X.YY.ZZ)
 ---------------------------------
+**Fecha de Implementación:** 2024-08-20
 
-El proyecto utiliza un sistema de dos niveles:
+A partir de esta fecha, el proyecto abandona el sistema de versionamiento híbrido y adopta un **único sistema de versionamiento global** basado en SemVer, con un formato estricto para garantizar la coherencia y la trazabilidad.
 
-1.  **Versión Global (Pública):**
-    *   **Formato:** `vMAJOR.MINOR.PATCH` (ej. `v3.2.7`).
-    *   **Función:** Representa el estado general del proyecto. Se actualiza en `ChangesLogs.txt` y `index.html` en cada `submit`.
+**REINICIO DE VERSIONADO:** El versionado del proyecto se ha reiniciado y comienza en **`2.00.00`**.
 
-2.  **Versión de Componente (Interna):**
-    *   **Formato:** `ARQUITECTURA.ARCHIVO.EDICION` (ej. `2.1.0`).
-    *   **Función:** Rastrea la madurez de cada archivo de código (`.html`, `.gs`, `.js`).
-    *   **Reglas:**
-        *   **Frontend (arq. `2`):** `index.html`, `api-manager.js`, etc., inician en `2.0.0`.
-        *   **Backend (arq. `1`):** Cada microservicio (`auth.js`, etc.) inicia en `1.0.0`.
-    *   **Ubicación:** Debe registrarse en un comentario en la cabecera de cada archivo.
+#### Formato Estricto: `X.YY.ZZ`
+- **X (Arquitectura / Major):** Representa cambios mayores que rompen la compatibilidad.
+- **Y (Funcionalidad / Minor):** Representa nuevas funcionalidades compatibles con versiones anteriores.
+- **Z (Parche / Patch):** Representa correcciones de bugs y ajustes menores.
+
+#### Reglas de Incremento (OBLIGATORIAS):
+1.  **Incremento de `X` (Major):**
+    - **SOLO** se incrementa si un cambio rompe la compatibilidad con la API o el flujo de trabajo anterior. Un cambio de `X` es un evento significativo y debe ser justificado por una alteración fundamental en el sistema.
+
+2.  **Incremento de `Y` (Minor):**
+    - Se incrementa para nuevas funcionalidades (features) que son **compatibles** con la versión anterior.
+    - `Y` **NO** se incrementa hasta que `Z` haya completado su ciclo de `00` a `99`.
+    - El contador `Y` utiliza dos dígitos (ej. `01`, `02`, ..., `99`).
+
+3.  **Incremento de `Z` (Patch):**
+    - Se incrementa para cada corrección de bug (fix), ajuste de estilo (style), mejora de rendimiento (perf) o refactorización (refactor) que **no introduce nueva funcionalidad**.
+    - `Z` se incrementa de `00` a `99`. Después de `2.00.99`, la siguiente versión es `2.01.00`.
+    - El contador `Z` utiliza dos dígitos (ej. `01`, `02`, ..., `99`).
+
+#### Prohibiciones de Versionamiento:
+- **NO** se debe incrementar la versión por "intenciones" o trabajo no completado.
+- **NO** se debe incrementar la versión por cada `commit`. Un `commit` puede contener varios parches, pero solo justifica un incremento.
+- **NO** se debe incrementar la versión por limpieza de código o refactors que no tienen un impacto verificable en el comportamiento.
+- **TODA** entrada en `changeslogs.txt` debe corresponder a un cambio real y verificable en el código. Las "versiones fantasma" o afirmaciones falsas están estrictamente prohibidas.
 
 ---------------------------------
 PROCESO DE TRABAJO POR FASES
@@ -50,8 +66,8 @@ Para organizar el desarrollo y asegurar la calidad, el trabajo se dividirá en f
 1.  **Asignación de Tareas:** Se define un conjunto de tareas (ej. "Ajustes de UI en `index.html`").
 2.  **Desarrollo y Commit:** Se realizan todos los cambios de código necesarios para completar la fase.
 3.  **Revisión Post-Commit:** El Project Manager revisa los cambios.
-    *   **Si es satisfactorio:** Se marca la tarea como completada en `README.md` y `INSTRUCTIVO.TXT`. Se registra el éxito en `CHANGESLOGS.txt`.
-    *   **Si NO es satisfactorio:** Se registra el problema en `CHANGESLOGS.txt` y se crea una nueva tarea para solucionarlo. No se marcan las tareas como completadas.
+    *   **Si es satisfactorio:** Se marca la tarea como completada en `README.md` y `INSTRUCTIVO.TXT`. Se registra el éxito en `changeslogs.txt`.
+    *   **Si NO es satisfactorio:** Se registra el problema en `changeslogs.txt` y se crea una nueva tarea para solucionarlo. No se marcan las tareas como completadas.
 4.  **Nuevas Solicitudes:** Cualquier nueva implementación o cambio solicitado se agregará primero a la lista de pendientes en `README.md` y `INSTRUCTIVO.TXT` sin marcar. Solo se marcarán como completadas después de un ciclo de desarrollo y una revisión post-commit exitosa.
 
 ---------------------------------
@@ -72,7 +88,7 @@ al actualizar la plataforma tarda en mostrar la información.
 - Imagen del logo sin bordes, fondo transparente y drop-shadows directo en la imagen del logo de marca:** `[Pendiente]`
 4.  **Refactorización del Flujo de Escritura:** `[Falta Revisión]`
 - Se ha completado la refactorización del flujo de adición de cortes en `add_cortes.html`, implementando la lógica de anti-duplicados con una interfaz de botones inline, mejorando la UX y corrigiendo bugs de visualización.
-5.  **Inconsistencias de Versionamiento:** `[ ] Pendiente` - Es necesario sincronizar la versión global para que el próximo gran lanzamiento sea `v2.0` y mejorar el formato de registro de fechas en `ChangesLogs.txt`.
+5.  **Inconsistencias de Versionamiento:** `[RESUELTO]` - El sistema de versionamiento ha sido reiniciado y normalizado.
 
 ### Revisiones de UI/UX
 
