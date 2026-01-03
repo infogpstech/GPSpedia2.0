@@ -1,3 +1,9 @@
+**v4.6.8 (03-01-2026)**
+*   **FIX & UX (index.html):** Se implementaron las correcciones finales de UI/UX basadas en la última revisión de código para asegurar la consistencia visual y funcional.
+    *   **Carrusel de Motocicletas (Fix Definitivo):** Se corrigió la lógica de renderizado en `mostrarCategorias` para que el filtro de categoría sea insensible a mayúsculas y minúsculas (`item.categoria.toLowerCase() === 'motocicletas'`). Esto resuelve de forma definitiva el bug que impedía la visualización del carrusel de motocicletas.
+    *   **Consistencia Visual en Modal (Fix Definitivo):** Se ajustó el estilo de la imagen del modelo del vehículo (`imagenVehiculo`) en `mostrarDetalleModal`. Se redujo su `max-height` a `122px` y se eliminó explícitamente el `box-shadow`, completando el requerimiento de alinearlo con la apariencia de "ícono limpio" de los logos.
+    *   **Archivos Modificados:** `index.html`.
+
 **v4.6.7 (03-01-2026)**
 *   **FIX & UX (index.html):** Se implementaron las correcciones finales basadas en la última revisión de código para asegurar la consistencia visual y funcional.
     *   **Carrusel de Motocicletas:** Se corrigió la lógica de renderizado en `mostrarCategorias`. Se estandarizó el uso de "motocicletas" en minúsculas en la llamada `onclick`, resolviendo la inconsistencia que impedía la visualización del carrusel.

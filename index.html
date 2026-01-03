@@ -2263,12 +2263,7 @@ function mostrarDetalleModal(item) {
     crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, { extraClass: 'img-vehiculo' });
     const vehiculoImg = cont.querySelector('.img-vehiculo');
     if(vehiculoImg) {
-        vehiculoImg.style.maxHeight = '135px'; // Reducción del 10% de 150px
-        vehiculoImg.style.filter = 'drop-shadow(2px 4px 6px rgba(0,0,0,0.4))';
-        vehiculoImg.style.background = 'transparent';
-        vehiculoImg.style.border = 'none';
-        vehiculoImg.style.padding = '0';
-        vehiculoImg.style.borderRadius = '0';
+        vehiculoImg.style.cssText = "max-height: 122px !important; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.4)); background: transparent !important; border: none !important; padding: 0 !important; border-radius: 0 !important; box-shadow: none !important;";
     }
 
 
@@ -2761,7 +2756,7 @@ function mostrarModelos(categoria, marca, versionEquipamiento = null) {
     const backAction = versionEquipamiento ? `mostrarVersionesEquipamiento('${categoria}', '${marca}')` : `mostrarMarcas('${categoria}')`;
     cont.innerHTML = `<span class="backBtn" onclick="${backAction}">${backSvg} Volver</span><h4>Modelos de ${marca} ${versionEquipamiento || ''}</h4>`;
 
-    let modelosFiltrados = datosOriginales.filter(item => item.categoria === categoria && item.marca === marca);
+    let modelosFiltrados = datosOriginales.filter(item => item.categoria && item.categoria.toLowerCase() === categoria.toLowerCase() && item.marca === marca);
     if (versionEquipamiento) {
         modelosFiltrados = modelosFiltrados.filter(item => item.versionesAplicables === versionEquipamiento);
     }
