@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-CATALOG SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 2.11.01
+// COMPONENT VERSION: 2.3.0
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -73,7 +73,7 @@ function doGet(e) {
     if (e.parameter.debug === 'true') {
         const serviceState = {
             service: 'GPSpedia-Catalog',
-            version: '2.11.01', // <-- CORREGIDO
+            version: '2.3.0', // <-- CORREGIDO
             spreadsheetId: SPREADSHEET_ID,
             sheetsAccessed: [SHEET_NAMES.CORTES, SHEET_NAMES.TUTORIALES, SHEET_NAMES.RELAY, SHEET_NAMES.LOGOS_MARCA] // <-- CORREGIDO
         };
@@ -82,7 +82,7 @@ function doGet(e) {
     }
     const defaultResponse = {
         status: 'success',
-        message: 'GPSpedia Catalog-SERVICE v2.11.01 is active.' // <-- CORREGIDO
+        message: 'GPSpedia Catalog-SERVICE v2.3.0 is active.' // <-- CORREGIDO
     };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
         .setMimeType(ContentService.MimeType.JSON);

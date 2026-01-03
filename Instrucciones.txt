@@ -219,3 +219,31 @@ A continuación se detalla la estructura de cada hoja en la base de datos. Los n
 
 ##### 10. Hoja: `ActividadUsuario`
 - **Columnas:** `id`, `timestamp`, `idUsuario`, `nombreUsuario`, `tipoActividad`, `idElementoAsociado`, `detalle`.
+
+---------------------------------
+TAREAS PENDIENTES DERIVADAS DE AUDITORÍA
+---------------------------------
+
+**A. Inconsistencias Arquitectónicas y Bugs Críticos de Backend**
+
+1.  **BUG (`services/auth/auth.js`):** La lógica de validación de sesión (`handleValidateSession`) no consulta la hoja `ActiveSessions`, lo que puede llevar a aceptar sesiones que ya han sido invalidadas por un nuevo inicio de sesión.
+2.  **DEUDA TÉCNICA (`services/auth/auth.js`):** El servicio devuelve `MimeType.JSON`, lo que genera un riesgo de CORS. Debe estandarizarse para devolver `MimeType.TEXT`.
+3.  **BUG (`services/users/users.js`):** La comparación de contraseñas para el login (`auth.js`) es case-insensitive, mientras que para el cambio de contraseña (`users.js`) es case-sensitive. Esto debe unificarse para evitar que los usuarios no puedan cambiar su contraseña.
+4.  **DEUDA TÉCNICA (`services/catalog/catalog.js`):** El servicio tiene una inconsistencia de MimeType (`doGet` devuelve JSON, `doPost` devuelve TEXT). Debe estandarizarse a `TEXT`.
+5.  **DEUDA TÉCNICA (`services/catalog/catalog.js` y `services/write/write.js`):** La función `handleCheckVehicle` está duplicada en ambos servicios. Se debe eliminar una de las dos y centralizar la lógica.
+6.  **REGRESIÓN (`services/write/write.js`):** El archivo contiene el código `previousRowRange.copyTo(newRowRange)` que, según `changeslogs.txt`, causa una regresión crítica y debería haber sido eliminado en un rollback.
+7.  **BUG (`services/feedback/feedback.js`):** El archivo contiene dos implementaciones duplicadas y conflictivas de `handleRecordLike` y `handleSuggestYear`. Se debe eliminar el código duplicado.
+8.  **BUG (`services/feedback/feedback.js`):** El servicio devuelve `MimeType.JSON`, lo que provocará fallos de CORS en producción. Debe estandarizarse a `TEXT`.
+9.  **DEUDA TÉCNICA (`services/feedback/feedback.js`):** El servicio utiliza una hoja no documentada (`SugerenciasAño`). Su uso debe ser formalizado en la documentación de la arquitectura o eliminado.
+10. **BUG (`services/users/users.js`):** La función `doPost` del servicio no devuelve ninguna respuesta, lo que hace que todas las operaciones de gestión de usuarios fallen en el frontend. La función debe ser completada para que devuelva la variable `response`.
+11. **BUG (`services/utilities/utilities.js`):** La funcionalidad de migración es inoperable porque la llamada desde el frontend (`index.html`) no pasa el objeto `session` requerido para la autorización. La llamada en el frontend debe ser corregida.
+
+**B. Inconsistencias y Bugs de Frontend**
+
+12. **DEUDA TÉCNICA (`api-manager.js`):** La acción `checkVehicle` se enruta a `CATALOG`, pero también existe en `WRITE`. Se debe definir una única fuente de verdad para esta acción.
+13. **INCOMPLETO (`add_cortes.html`):** La función `handleSuggestion` llama a la acción `getSuggestion`, pero esta no está registrada en el `ACTION_TO_SERVICE_MAP` de `api-manager.js`.
+14. **INCONSISTENCIA (`changeslogs.txt` vs. `service-worker.js`):** El changelog menciona una corrección en el archivo `service-worker.js`, pero este archivo no existe en el repositorio.
+
+**C. Sincronización de Versiones**
+
+15. **DEUDA TÉCNICA (Todos los archivos):** Los números de versión en las cabeceras de los archivos y en las respuestas `doGet` de los servicios backend no están sincronizados con la versión global definida en `changeslogs.txt`.

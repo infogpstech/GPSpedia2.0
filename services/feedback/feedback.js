@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-FEEDBACK SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 2.11.01
+// COMPONENT VERSION: 2.2.0
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -74,7 +74,7 @@ function doGet(e) {
     if (e.parameter.debug === 'true') {
         const serviceState = {
             service: 'GPSpedia-Feedback',
-            version: '2.11.01',
+            version: '1.2.1',
             spreadsheetId: SPREADSHEET_ID,
             sheetsAccessed: [SHEET_NAMES.CORTES, SHEET_NAMES.FEEDBACKS]
         };
@@ -83,7 +83,7 @@ function doGet(e) {
     }
     const defaultResponse = {
         status: 'success',
-        message: 'GPSpedia Feedback-SERVICE v2.11.01 is active.'
+        message: 'GPSpedia Feedback-SERVICE v1.2.1 is active.'
     };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
         .setMimeType(ContentService.MimeType.JSON);

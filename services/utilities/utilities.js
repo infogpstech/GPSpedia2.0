@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-UTILITIES SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 2.11.01
+// COMPONENT VERSION: 1.0.0
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -40,7 +40,7 @@ const COLS_USERS = {
 function doGet(e) {
     const defaultResponse = {
         status: 'success',
-        message: 'GPSpedia Utilities-SERVICE v2.11.01 is active.'
+        message: 'GPSpedia Utilities-SERVICE v1.0.0 is active.'
     };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
         .setMimeType(ContentService.MimeType.TEXT);

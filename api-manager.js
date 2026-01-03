@@ -1,4 +1,4 @@
-// GPSpedia Frontend Component | Version: 2.11.01
+// GPSpedia Frontend Component | Version: 3.9.1
 // ============================================================================
 // API MANAGER for GPSpedia Modular Architecture
 // ============================================================================

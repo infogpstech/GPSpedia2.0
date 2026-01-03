@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-WRITE SERVICE (STANDARDIZED FOR DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 2.11.01
+// COMPONENT VERSION: 2.3.0
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -41,7 +41,7 @@ function doGet(e) {
     if (e.parameter.debug === 'true') {
         const serviceState = {
             service: 'GPSpedia-Write',
-            version: '2.11.01',
+            version: '2.2.1',
             spreadsheetId: SPREADSHEET_ID,
             driveFolderId: DRIVE_FOLDER_ID,
             sheetsAccessed: [SHEET_NAMES.CORTES]
@@ -49,7 +49,7 @@ function doGet(e) {
         return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
             .setMimeType(ContentService.MimeType.TEXT);
     }
-    const defaultResponse = { status: 'success', message: 'GPSpedia Write-SERVICE v2.11.01 is active.' };
+    const defaultResponse = { status: 'success', message: 'GPSpedia Write-SERVICE v2.2.1 is active.' };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
         .setMimeType(ContentService.MimeType.TEXT);
 }
