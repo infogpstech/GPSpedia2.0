@@ -1,3 +1,10 @@
+**v4.6.4 (31-12-2025)**
+*   **UX (index.html):** Se implementaron varias mejoras de UI/UX para cumplir con los requisitos de alta precisión.
+    *   **Modal de Detalles - Logo:** Se reubicó el logo de la marca a la izquierda del título del modelo en el modal de detalles (`mostrarDetalleModal`), usando flexbox para asegurar la alineación correcta en la misma línea. Se aplicaron estilos para garantizar un fondo transparente y evitar distorsiones.
+    *   **Modal de Detalles - Espaciado:** Se redujo el espaciado vertical (márgenes y paddings) en los elementos `h4`, `p` y botones de acordeón dentro del modal de detalles para lograr un layout más compacto y eficiente.
+    *   **Carrusel de Motocicletas:** Se verificó que la implementación del carrusel para marcas de motocicletas ya existía y funcionaba según lo esperado, utilizando la función `crearCarrusel` reutilizable. No se requirieron cambios de código para esta tarea.
+    *   **Archivos Modificados:** `index.html`.
+
 **v4.6.2 (03/01/2026)**
 *   **DOCS (Instrucciones.txt):** Se ha reestructurado completamente el archivo `Instrucciones.txt` para agrupar todas las tareas pendientes en módulos funcionales y auditables.
     *   **Migración de Tareas:** Todos los hallazgos pendientes de `Auditoria.txt` y las tareas del `Instrucciones.txt` anterior han sido migradas a esta nueva estructura.

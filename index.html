@@ -829,12 +829,12 @@ body.search-active .app-logo {
     color: #007bff;
     border-bottom: 2px solid #eee;
     padding-bottom: 5px;
-    margin-top: 15px; /* Reducido de 20px (default) */
-    margin-bottom: 8px; /* Reducido de 10px */
+    margin-top: 12px; /* Reducido para compactar */
+    margin-bottom: 6px; /* Reducido para compactar */
 }
 
 #detalleCompleto p {
-    margin: 4px 0; /* Reducido el margen vertical para los párrafos */
+    margin: 2px 0; /* Reducido para compactar */
 }
 
 /* --- ESTILOS PARA SECCIONES DESPLEGABLES (ACORDEÓN) --- */
@@ -851,7 +851,7 @@ body.search-active .app-logo {
     font-weight: bold;
     transition: background-color 0.3s ease;
     border-radius: 8px;
-    margin-top: 5px; /* Reducido para compactar */
+    margin-top: 4px; /* Reducido para compactar */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -2091,69 +2091,29 @@ function mostrarDetalleRelay(item) {
 }
 
 function getLogoUrlForMarca(marca, categoria) {
-    if (!datosLogos || !datosLogos.length || !marca) {
-        debugLog('LOGO_SEARCH_FAIL', 'Datos de logo o marca no disponibles.', { marca, categoria });
-        return null;
-    }
+    if (!datosLogos || datosLogos.length === 0) return null;
+    if (!marca) return null;
 
     const normalize = (str) => str ? str.toLowerCase().replace(/[^a-z0-9]/g, '') : '';
-
     const normalizedMarca = normalize(marca);
-    const normalizedCategoria = normalize(categoria);
 
-    // 1. Find all logos that could potentially match the brand name.
     const potentialMatches = datosLogos.filter(logo => {
         const normalizedLogoMarca = normalize(logo.nombreMarca);
         return normalizedLogoMarca.startsWith(normalizedMarca);
     });
 
-    if (potentialMatches.length === 0) {
-        debugLog('LOGO_SEARCH_FAIL', 'No se encontraron logos para la marca.', { marca: normalizedMarca });
-        return null;
+    if (potentialMatches.length === 0) return null;
+    if (potentialMatches.length === 1) return potentialMatches[0].urlLogo;
+
+    // Lógica de desambiguación para casos como "Honda" y "Honda Motocicletas"
+    if (categoria && (normalize(categoria) === 'motocicletas' || normalize(categoria) === 'motos')) {
+        const motoMatch = potentialMatches.find(logo => normalize(logo.nombreMarca).includes('motocicletas') || normalize(logo.nombreMarca).includes('motos'));
+        if (motoMatch) return motoMatch.urlLogo;
     }
 
-    if (potentialMatches.length === 1) {
-        return potentialMatches[0].urlLogo;
-    }
-
-    // 2. Multiple matches exist. Use category to find the best one.
-    let bestMatch = null;
-
-    // Look for a category-specific match first.
-    if (normalizedCategoria) {
-        // Handle synonyms for motorcycles to make matching more robust.
-        const catSynonyms = (normalizedCategoria === 'motos' || normalizedCategoria === 'motocicletas')
-            ? ['motos', 'motocicletas']
-            : [normalizedCategoria];
-
-        for (const synonym of catSynonyms) {
-            bestMatch = potentialMatches.find(logo => normalize(logo.nombreMarca).includes(synonym));
-            if (bestMatch) break; // Found a specific match, stop searching.
-        }
-    }
-
-    // 3. If no category-specific match was found, find the "generic" or base logo.
-    // The base logo is the one whose normalized name exactly matches the brand name.
-    if (!bestMatch) {
-        bestMatch = potentialMatches.find(logo => normalize(logo.nombreMarca) === normalizedMarca);
-    }
-
-    // As a final fallback, if we still don't have a clear winner (e.g., no exact base match),
-    // find the shortest name, assuming it's the base one (e.g., "Honda" is shorter than "Honda Motocicletas").
-    if (!bestMatch) {
-         bestMatch = potentialMatches.reduce((prev, current) => {
-            return (prev.nombreMarca.length < current.nombreMarca.length) ? prev : current;
-        });
-    }
-
-    // Return the URL of the best match found, or null if something went wrong.
-    if (bestMatch) {
-        return bestMatch.urlLogo;
-    } else {
-        // This case should be rare, but as a last resort, return the first potential match.
-        debugLog('LOGO_SEARCH_WARN', 'Múltiples logos encontrados pero no se pudo desambiguar. Devolviendo el primero.', { marca, categoria, matches: potentialMatches });
-        return potentialMatches.length > 0 ? potentialMatches[0].urlLogo : null;
-    }
+    // Fallback: buscar coincidencia exacta o devolver la primera
+    const exactMatch = potentialMatches.find(logo => normalize(logo.nombreMarca) === normalizedMarca);
+    return exactMatch ? exactMatch.urlLogo : potentialMatches[0].urlLogo;
 }
 
 function convertirAGoogleThumbnail(url) {
@@ -2253,20 +2213,21 @@ function mostrarDetalleModal(item) {
 
     // 2.1 Título Principal (Nombre del Modelo y Logo)
     const mainHeaderDiv = document.createElement('div');
-    mainHeaderDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center;";
-
-    const title = document.createElement("h2");
-    title.textContent = `${item.marca} ${item.modelo}`;
-    title.style.cssText = "color:#007bff; margin: 0; padding: 0; flex-grow: 1;";
-    mainHeaderDiv.appendChild(title);
+    mainHeaderDiv.style.cssText = "display: flex; justify-content: flex-start; align-items: center; gap: 15px;";
 
     const logoUrl = getLogoUrlForMarca(item.marca, item.categoria);
     if (logoUrl) {
         const logoImg = document.createElement("img");
-        logoImg.src = convertirAGoogleThumbnail(logoUrl); // CORRECCIÓN: Usar conversor de thumbnails
-        logoImg.style.cssText = "height: 40px; width: auto; max-width: 100px; object-fit: contain; margin-left: 15px;"; // Altura reducida
-        mainHeaderDiv.appendChild(logoImg);
+        logoImg.src = convertirAGoogleThumbnail(logoUrl);
+        logoImg.style.cssText = "height: 40px; width: auto; max-width: 100px; object-fit: contain; background: transparent; border: none; box-shadow: none;";
+        mainHeaderDiv.appendChild(logoImg); // Logo primero
     }
+
+    const title = document.createElement("h2");
+    title.textContent = `${item.marca} ${item.modelo}`;
+    title.style.cssText = "color:#007bff; margin: 0; padding: 0; flex-grow: 1;";
+    mainHeaderDiv.appendChild(title); // Título después
+
     titleContainer.appendChild(mainHeaderDiv);
 
     // 2.2 Sub-encabezados (Versión/Encendido, Años, Categoría)
