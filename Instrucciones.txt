@@ -66,40 +66,38 @@ ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
 - [X] **Corrección del Bug de Sesión de Usuario:** Se solucionó un problema en `users.html` que impedía la correcta visualización de la información del usuario en sesión.
 - [X] **Reparación del Formulario de Contacto:** Se corrigió el error "Acción no definida" en el formulario de "Contáctanos".
 - [X] **Corrección de Visualización en Tutoriales:** Se solucionó un bug en `index.html` que provocaba que el texto de los tutoriales se mostrara como "undefined".
+- [x] **Lógica del Modal de Detalle:** El modal de detalle actualmente solo carga la información del primer corte, ignorando los datos de `corte2` y `corte3`.
+- [x] **Carga de Imágenes en Modal:** Las imágenes asociadas a la apertura, cable de alimentación y configuración del relay no se están mostrando en el modal.
+- [X] **Carga de Logos en Modal:** El logo de la marca del vehículo no se está cargando y mostrando correctamente dentro del modal.
+- [X] **Refactorización del Flujo de Escritura:** Implementar el nuevo flujo de trabajo de 3 etapas para añadir/actualizar cortes.
 
-### Bugs y Regresiones Críticas
-- [ ] **Lógica del Modal de Detalle:** El modal de detalle actualmente solo carga la información del primer corte, ignorando los datos de `corte2` y `corte3`.
-- [ ] **Carga de Imágenes en Modal:** Las imágenes asociadas a la apertura, cable de alimentación y configuración del relay no se están mostrando en el modal.
-- [ ] **Carga de Logos en Modal:** El logo de la marca del vehículo no se está cargando y mostrando correctamente dentro del modal.
-- [ ] **Refactorización del Flujo de Escritura:** Implementar el nuevo flujo de trabajo de 3 etapas para añadir/actualizar cortes.
-- [ ] **Inconsistencias de Versionamiento:** Sincronizar la versión global y las versiones de componentes en todos los archivos.
-- [ ] **Visibilidad de Cortes:** Asegurar que las tres opciones de corte sean visibles en el modal si existen los datos.
 
 ### Revisiones de UI/UX
-- [ ] **Rediseño de Botones de Feedback:** Reemplazar los botones "Sí/No" por un sistema de pulgares (👍/👎) y añadir botones para "Sugerir un año" y "Reportar un problema".
-- [ ] **Reorganización de Secciones Principales:** Alterar el orden a: 1. "Últimos Agregados", 2. "Búsqueda por Marca", 3. "Búsqueda por Categoría".
-- [ ] **Layout de "Últimos Agregados":** Modificar el layout para que muestre los resultados en un formato de 3 columnas.
-- [ ] **Visualización de Marcas con Logos:** En "Búsqueda por Marca", reemplazar los nombres de las marcas por sus respectivos logos.
+- [ ] **Visualización de Marcas en el modal de detalles:** El logo de la marca deben estar sin fondo, sin marcos que deformen o corten la imagen, a la Izquierda del titlo del detalle de modal (donde se muestra el nombre del modelo del vehículo).
+-[ ] ajustar el espacio interno y externo de todos los contenedores 'div' para la economia del espacio. 
+-[ ] implementar de la sección de navegacion de marcas de moto en tipo carussel. (como esta actualmente la navegacion de marca de vehículo) 
+
+
 
 ### Nuevas Funcionalidades
-- [ ] **Sistema de Navegación Jerárquico:** Implementar un flujo de navegación guiado (Marca -> Modelo -> Año).
-- [ ] **Sistema de Gestión de Feedback (Inbox):** Desarrollar una interfaz para que Supervisores/Jefes gestionen los problemas reportados por los usuarios.
-- [ ] **Implementación de Modo Oscuro:** Añadir una paleta de colores alternativa y un interruptor para activarlo/desactivarlo.
-- [ ] **Debugging Integral:** Implementar un sistema de debugging en backend y frontend accesible por rol.
-- [ ] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes para mejorar el rendimiento.
-- [ ] **Soporte para Rango de Años (Feedback-driven):** Implementar la lógica de `suggestYear` en el backend y la UI correspondiente.
-- [ ] **Sistema de Versionamiento Híbrido:** Aplicar el nuevo sistema de versionamiento a todos los componentes del código fuente.
+- [ ] **Sistema de Navegación Jerárquico:** Implementar un flujo de navegación guiado Categoria -> Marca -> Modelo Version de equipamiento/Tipo de encendido -> Año.
+se usara principalmente la version de equipamiento, y si no hay disponble para ese modelo se usara el tipo de encendido. 
 
-### Deuda Técnica y Mejoras
-- [ ] **Script de Migración de Timestamps:** Implementar un script de ejecución única para rellenar el campo `timestamp` en los registros existentes.
-- [ ] **Script de Migración de Rango de Años:** Implementar el script de ejecución única para poblar `anoDesde` y `anoHasta`.
+- [ ] **Sistema de Gestión de Feedback (Inbox):** Desarrollar una interfaz para que Supervisores/Jefes gestionen los problemas reportados por los usuarios. 
+
+- [ ] **Debugging Integral:** Ocultar por defecto la consola de depuracion. actualmente se muestra al cargar la pagina.
+- [ ] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes para mejorar el rendimiento.
+usando enlaces de formato thumbnail con la propiedad 'sz' adecuada segun el uso. 
+para la tarjeta un tamaño pequeño, para imagen del modelo un tamaño mediano, para la imagen del modal un tamaño grande. para el lightbox un tamaño de alta resolucion. 
+
+- [ ] **Soporte para Rango de Años (Feedback-driven):** Implementar la lógica de `suggestYear` en el backend y la UI correspondiente.
 
 ---
 ### **Plan de Implementación Técnica: Tareas Adicionales**
 
 Esta sección detalla los requerimientos para un nuevo conjunto de funcionalidades críticas centradas en la migración de datos y la mejora de la lógica de negocio para la gestión de rangos de años y timestamps.
 
-#### **1. Nuevo Microservicio: `GPSpedia-Utilities` (Ejecución Única)**
+#### **1. Nuevo Microservicio: `GPSpedia-Utilities` (Ejecución Única)** [COMPLETADO]
 
 Se creará un nuevo proyecto de Google Apps Script, independiente de los microservicios existentes, con el único propósito de realizar una migración y corrección de datos en la hoja `Cortes` de la base de datos. Este script se ejecutará una sola vez y contendrá dos funciones principales:
 
