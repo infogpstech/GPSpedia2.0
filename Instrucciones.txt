@@ -1,12 +1,10 @@
 =================================================
  INSTRUCTIVO DEL PROYECTO GPSpedia 2.0
 =================================================
-**Versión del Documento:** 3.3
-**Fecha de Actualización:** 2024-08-19
+**Versión del Documento:** 4.0
+**Fecha de Actualización:** 03/01/2026
 
 Este documento detalla las normas de desarrollo, el estado de las tareas pendientes y el flujo de trabajo para el proyecto GPSpedia 2.0.
-
-Para un análisis detallado del sistema, los hallazgos de la auditoría y las recomendaciones estratégicas, consulte el archivo `Auditoria.txt`.
 
 ---------------------------------
 NORMAS OBLIGATORIAS DE DESARROLLO
@@ -14,192 +12,155 @@ NORMAS OBLIGATORIAS DE DESARROLLO
 
 **A. Control de Versiones y Documentación:**
 1.  **Actualización de Versión:** Cualquier cambio debe reflejarse en el número de versión visible en `index.html` y en los servicios de Apps Script.
-2.  **Consulta y Actualización de Documentación:** Antes y después de cualquier desarrollo, se deben consultar y actualizar `README.md`, `INSTRUCTIVO.TXT` y `CHANGESLOGS.txt`.
-3.  **Detalle en `CHANGESLOGS.txt`:** Cada entrada debe especificar el archivo y número de línea modificado.
+2.  **Consulta y Actualización de Documentación:** Antes y después de cualquier desarrollo, se deben consultar y actualizar `README.md`, `Instrucciones.txt` y `ChangesLogs.txt`.
+3.  **Detalle en `ChangesLogs.txt`:** Cada entrada debe especificar el archivo y número de línea modificado.
 
 **B. Calidad del Código:**
 1.  **Comentarios:** Todo código nuevo o modificado debe tener un comentario explicando su propósito.
 
 **C. Proceso de Aprobación:**
-1.  **Verificación Post-Commit:** Una tarea solo se considera completada después de un commit y la validación explícita del Project Manager.
+1.  **PROHIBIDO marcar tareas como “completadas” sin revisión del Project Manager.**
+2.  **PROHIBIDO asumir que un cambio resolvió un problema.**
+3.  **SOLO describir qué se cambió o qué se debe cambiar.**
+4.  Si una tarea introduce nuevos errores: Marcar como **EN REVISIÓN**.
+5.  Si la tarea no funciona o no cumple: Marcar como **REQUIERE NUEVA REVISIÓN**.
 
 ---------------------------------
-SISTEMA DE VERSIONAMIENTO HÍBRIDO
+ESTADO Y TAREAS PENDIENTES
 ---------------------------------
 
-El proyecto utiliza un sistema de dos niveles:
+### Módulo: Layout y Navegación Principal
 
-1.  **Versión Global (Pública):**
-    *   **Formato:** `vMAJOR.MINOR.PATCH` (ej. `v3.2.7`).
-    *   **Función:** Representa el estado general del proyecto. Se actualiza en `ChangesLogs.txt` y `index.html` en cada `submit`.
+**Descripción funcional breve:** Componentes visuales y de navegación de la página principal (`index.html`), incluyendo la estructura de carruseles y la presentación de categorías y marcas.
 
-2.  **Versión de Componente (Interna):**
-    *   **Formato:** `ARQUITECTURA.ARCHIVO.EDICION` (ej. `2.1.0`).
-    *   **Función:** Rastrea la madurez de cada archivo de código (`.html`, `.gs`, `.js`).
-    *   **Reglas:**
-        *   **Frontend (arq. `2`):** `index.html`, `api-manager.js`, etc., inician en `2.0.0`.
-        *   **Backend (arq. `1`):** Cada microservicio (`auth.js`, etc.) inicia en `1.0.0`.
-    *   **Ubicación:** Debe registrarse en un comentario en la cabecera de cada archivo.
+**Archivos involucrados:**
+- `index.html`
+- `services/catalog/catalog.js`
 
----------------------------------
-PROCESO DE TRABAJO POR FASES
----------------------------------
+**Tareas pendientes:**
+- [ ] **(BUG)** El carrusel "Marcas de motos" rompe la carga del catálogo.
+  - **Impacto esperado:** La creación de este carrusel causa un error `crearCarrusel is not defined` que impide la visualización de todo el catálogo.
+  - **Riesgos conocidos:** La lógica de `crearCarrusel` puede tener dependencias de scope o de tiempo de ejecución que no se están cumpliendo.
+  - **Dependencias:** Ninguna.
+  - **Estado:** PENDIENTE
 
-Para organizar el desarrollo y asegurar la calidad, el trabajo se dividirá en fases. Cada fase se enfocará en un conjunto específico de tareas y culminará en un commit.
+- [ ] **(INCONSISTENCIA)** El layout de la página principal no sigue el orden definido en `README.md`.
+  - **Impacto esperado:** La sección "Últimos Agregados" debe mostrarse *antes* que "Categorías". Actualmente se muestra después.
+  - **Riesgos conocidos:** Cambiar el orden de renderizado podría afectar la inicialización de los carruseles si no se hace correctamente.
+  - **Dependencias:** Ninguna.
+  - **Estado:** PENDIENTE
 
-1.  **Asignación de Tareas:** Se define un conjunto de tareas (ej. "Ajustes de UI en `index.html`").
-2.  **Desarrollo y Commit:** Se realizan todos los cambios de código necesarios para completar la fase.
-3.  **Revisión Post-Commit:** El Project Manager revisa los cambios.
-    *   **Si es satisfactorio:** Se marca la tarea como completada en `README.md` y `INSTRUCTIVO.TXT`. Se registra el éxito en `CHANGESLOGS.txt`.
-    *   **Si NO es satisfactorio:** Se registra el problema en `CHANGESLOGS.txt` y se crea una nueva tarea para solucionarlo. No se marcan las tareas como completadas.
-4.  **Nuevas Solicitudes:** Cualquier nueva implementación o cambio solicitado se agregará primero a la lista de pendientes en `README.md` y `INSTRUCTIVO.TXT` sin marcar. Solo se marcarán como completadas después de un ciclo de desarrollo y una revisión post-commit exitosa.
+- [ ] **(INCOMPLETO)** El carrusel "Últimos Agregados" muestra 10 tarjetas en lugar de 6.
+  - **Impacto esperado:** La UI debe mostrar un carrusel más compacto con solo 6 elementos para mejorar la visualización inicial.
+  - **Riesgos conocidos:** Ninguno.
+  - **Dependencias:** Ninguna.
+  - **Estado:** PENDIENTE
 
----------------------------------
-ESTADO ACTUAL DEL PROYECTO (CHECKLIST)
----------------------------------
-**Última Actualización:** 1-01-2026
+- [ ] **(INCONSISTENCIA)** Las categorías se ordenan alfabéticamente en el frontend.
+  - **Impacto esperado:** El backend (`catalog.js`) debe ser el responsable de ordenar las categorías por popularidad (cantidad de vehículos) antes de enviarlas al frontend. El frontend no debe re-ordenarlas.
+  - **Riesgos conocidos:** La lógica de conteo y ordenamiento en el backend debe ser eficiente para no retrasar la carga inicial.
+  - **Dependencias:** Tarea de backend en `catalog.js`.
+  - **Estado:** PENDIENTE
 
-Esta sección documenta el estado actual de las tareas de desarrollo. Todas las tareas marcadas como `[Falta Revisión]` deben ser validadas por el Project Manager.
+- [ ] **(BUG)** La navegación por "Categoría -> Marca" muestra texto en lugar de íconos.
+  - **Impacto esperado:** La UI debe renderizar los logos de las marcas (`<img>`) en lugar de texto plano para una experiencia de usuario más visual y consistente.
+  - **Riesgos conocidos:** Depende de que las URLs de los logos en la base de datos sean correctas y accesibles.
+  - **Dependencias:** Ninguna.
+  - **Estado:** PENDIENTE
 
-### Bugs y Regresiones Críticas
+### Módulo: Modal de Detalles de Vehículo
 
-1. **Optimizacion pendiente** de la carga del catalogo. [PENDIENTE]
-al actualizar la plataforma tarda en mostrar la información. 
-2.  **Reducción de espacio vertical de las Imágenes en Modal:**
-    - **Orden de Imágenes:** `[COMPLETADO]`
-    - **Layout ajuste del width mas grande, height auto y Espacio Vertical:** `[Pendiente]`
-3.  **Ajustes esteticos de Logos en Modal
-- Imagen del logo sin bordes, fondo transparente y drop-shadows directo en la imagen del logo de marca:** `[Pendiente]`
-4.  **Refactorización del Flujo de Escritura:** `[Falta Revisión]`
-- Se ha completado la refactorización del flujo de adición de cortes en `add_cortes.html`, implementando la lógica de anti-duplicados con una interfaz de botones inline, mejorando la UX y corrigiendo bugs de visualización.
-5.  **Inconsistencias de Versionamiento:** `[ ] Pendiente` - Es necesario sincronizar la versión global para que el próximo gran lanzamiento sea `v2.0` y mejorar el formato de registro de fechas en `ChangesLogs.txt`.
+**Descripción funcional breve:** Gestiona la visualización de toda la información de un vehículo en un modal, incluyendo cortes, imágenes, y datos suplementarios.
 
-### Revisiones de UI/UX
+**Archivos involucrados:**
+- `index.html`
 
-6.  **Rediseño de Botones de Feedback:** `[Completo]` - Se redujo el tamaño de los botones en un 10%. Pendiente la revisión de la lógica de backend.
-7.  **Navegación para Carrusel de 'Categorías':** `[Completado]` - Se refactorizó la lógica de botones para que sea reutilizable en todos los carruseles.
-8.  **Creación del Carrusel 'Marcas de motos':** `[PENDIENTE]` - Se intenta añadir, sin embago en cada intento causa que el catalogo "No se pudo cargar el catálogo. crearCarrusel is not defined"
+**Tareas pendientes:**
+- [ ] **(INCOMPLETO)** La funcionalidad "Sugerir Año" no está vinculada al botón "Útil".
+  - **Impacto esperado:** El flujo de usuario debe ser: clic en "Útil" -> se registra el "like" -> se presenta el prompt para sugerir un año. Actualmente son acciones separadas o no vinculadas.
+  - **Riesgos conocidos:** Requiere modificar la lógica del `event listener` del botón "Útil" para encadenar ambas acciones.
+  - **Dependencias:** Depende de la tarea de backend "Lógica de Votación para Sugerir Año".
+  - **Estado:** PENDIENTE
 
-### Nuevas Funcionalidades
+- [ ] **(INCOMPLETO)** No existen placeholders para la edición "in-modal" de campos vacíos.
+  - **Impacto esperado:** La UI debe mostrar un ícono de "editar" junto a los campos de texto del modal. Si el campo está vacío, el ícono debe permitir al usuario ingresar datos (solo visualmente, sin guardar).
+  - **Riesgos conocidos:** La lógica para gestionar el estado visual de los campos (vacío/con datos, ícono activado/desactivado) puede ser compleja.
+  - **Dependencias:** Ninguna.
+  - **Estado:** PENDIENTE
 
-9.  **Sistema de Navegación Jerárquico:** `[ ] Pendiente` - Implementar el flujo de navegación guiado completo: Categoría -> Marca -> Modelo -> Versión/Tipo Encendido -> Año.
-10.  **Sistema de Gestión de Feedback (Inbox):** `[ ] Pendiente` - La interfaz del Inbox está creada, pero se necesita implementar la lógica de backend en el servicio `GPSpedia-Feedback`.
-11. **Visibilidad de la Consola de Debugging:** `[Pendiente]` 
-- la consola de depuracion se nuestra al actualizar la pagina
-12. **Carga Optimizada de Imágenes (Lazy Load):** `[ ] Pendiente` - Implementar la carga progresiva de imágenes y utilizar URLs de thumbnails con tamaños específicos.
-13. **Lógica de Gestión de Años:** `[ ] Pendiente` - Falta implementar la lógica de backend para registrar los votos, la hoja de cálculo para almacenar dichos votos y mejorar la presentación del `alert`.
-se almacenara en la hoja de 'Feedbacks' en la columna 'anoSugerido'
-14. **Ordenamiento por Utilidad:** `[ ] Pendiente de Verificación` - Verificar si el backend (`GPSpedia-Catalog`) ordena los cortes por popularidad. Si no existe, se debe construir.
-15. **Expansión de Rango de Años por Feedback:** `[ ] Pendiente de Verificación` - Verificar si la lógica de backend que expande el rango de años existe. Si no, se debe construir.
-16. **Modal de Relay Anidado:** `[ ] Pendiente` - Implementar la lógica para validar el caso "Sin Relay".
-17. **Dashboard de Desempeño:** `[ ] Falta Implementar` - Crear la nueva sección para Supervisores.
-18. **Edición "In-Modal":** `[ ] Falta Implementar` - Permitir la edición de datos desde el modal de detalles.
+- [ ] **(BUG)** Las imágenes en el modal de detalle no tienen el layout correcto.
+  - **Impacto esperado:** Se debe reducir el espacio vertical y ajustar el `width` y `height` de las imágenes para un diseño más compacto.
+  - **Riesgos conocidos:** Los cambios de CSS deben ser específicos para no afectar otras imágenes en la aplicación.
+  - **Dependencias:** Ninguna.
+  - **Estado:** PENDIENTE
 
----
-### **Plan de Implementación Técnica: Tareas Adicionales**
+- [ ] **(BUG)** Los logos de marca en el modal no tienen el estilo correcto.
+  - **Impacto esperado:** El logo debe mostrarse sin bordes, con fondo transparente y un efecto `drop-shadow`.
+  - **Riesgos conocidos:** Ninguno.
+  - **Dependencias:** Ninguna.
+  - **Estado:** PENDIENTE
 
-Esta sección detalla los requerimientos para un nuevo conjunto de funcionalidades críticas centradas en la migración de datos y la mejora de la lógica de negocio para la gestión de rangos de años y timestamps.
+### Módulo: Sistema de Feedback y Calidad de Datos
 
-#### **1. Nuevo Microservicio: `GPSpedia-Utilities` (Ejecución Única)**
+**Descripción funcional breve:** Lógica de backend para gestionar las interacciones de los usuarios que mejoran la calidad de los datos, como la sugerencia de años.
 
-[Resuelto] Se creará un nuevo proyecto de Google Apps Script, independiente de los microservicios existentes, con el único propósito de realizar una migración y corrección de datos en la hoja `Cortes` de la base de datos. Este script se ejecutará una sola vez y contendrá dos funciones principales:
+**Archivos involucrados:**
+- `services/feedback/feedback.js`
 
-**A. Función 1: Migración de Rango de Años**
-*   **Objetivo:** Procesar la columna `anoDesde`, que actualmente contiene rangos de texto (ej. "2016-2022") o años únicos (ej. "2006"), para poblar correctamente las columnas `anoDesde` y `anoHasta` con valores numéricos individuales.
-*   **Lógica de Ejecución:**
-    1.  El script iterará sobre cada fila de la hoja `Cortes`.
-    2.  Para cada fila, leerá el valor de la celda en la columna `anoDesde`.
-    3.  **Si el valor contiene un guion (`-`):**
-        *   Se dividirá la cadena de texto en dos partes.
-        *   Se identificarán los dos valores numéricos, determinando cuál es el menor y cuál es el mayor.
-        *   El valor numérico **menor** se escribirá de nuevo en la columna `anoDesde` de esa fila, sobrescribiendo el rango de texto.
-        *   El valor numérico **mayor** se escribirá en la columna `anoHasta` de la misma fila.
-    4.  **Si el valor es un único número de 4 dígitos (ej. "2006"):**
-        *   El valor de `anoDesde` no se modificará.
-        *   El mismo valor se copiará a la columna `anoHasta` de la misma fila.
+**Tareas pendientes:**
+- [ ] **(INCOMPLETO)** La lógica de backend para "Sugerir Año" es demasiado simple y no sigue las reglas de negocio.
+  - **Impacto esperado:** La función `handleSuggestYear` debe ser reescrita para implementar un sistema de votación (requiere 3 votos para confirmar un cambio) y una lógica "anti-colisión" para evitar el solapamiento de rangos de años entre diferentes generaciones de vehículos.
+  - **Riesgos conocidos:** La lógica anti-colisión requiere una búsqueda compleja en la base de datos y puede ser propensa a errores si no se manejan todos los casos borde.
+  - **Dependencias:** Ninguna.
+  - **Estado:** PENDIENTE
 
-**B. Función 2: Migración de Timestamps desde Metadatos de Google Drive**
-*   **Objetivo:** Rellenar la columna `timestamp` en la hoja `Cortes` utilizando la fecha de creación del archivo de imagen del vehículo almacenado en Google Drive.
-*   **Lógica de Ejecución:**
-    1.  El script iterará sobre cada fila de la hoja `Cortes`.
-    2.  Para cada fila, leerá la URL en la columna `imagenVehiculo`.
-    3.  **Si existe una URL:**
-        *   Se extraerá el `ID` del archivo de Google Drive de la URL.
-        *   Utilizando el servicio `DriveApp` de Apps Script, se obtendrá el objeto de archivo (`File`) correspondiente a ese ID.
-        *   Se accederá a los metadatos del archivo para obtener su fecha de creación (`dateCreated`).
-        *   La fecha se formateará al estándar `DD/MM/AAAA`.
-        *   La fecha formateada se escribirá en la columna `timestamp` de la fila correspondiente.
+### Módulo: Sistema de Catálogo (Backend)
 
----
+**Descripción funcional breve:** Servicio de backend responsable de leer y proveer los datos del catálogo al frontend.
 
-#### **2. Modificaciones a Servicios Existentes (Lógica Continua)**
+**Archivos involucrados:**
+- `services/catalog/catalog.js`
 
-**A. Servicio `GPSpedia-Feedback`: Lógica de Expansión de Rango de Años**
-[PENDIENTE]
-*   **Objetivo:** Mejorar la funcionalidad del botón "Útil" para que los usuarios puedan sugerir que un corte aplica a un año fuera del rango establecido, expandiendo dinámicamente la aplicabilidad del registro.
-*   **Lógica de Backend:**
-    1.  El frontend enviará el `ID` del vehículo y el `año sugerido` por el usuario al backend.
-    2.  El backend verificará si el `año sugerido` ya se encuentra dentro del rango `[anoDesde, anoHasta]`. Si es así, no se realizará ninguna acción.
-    3.  **Lógica de Anti-colisión de Generaciones:**
-        *   Antes de realizar cualquier cambio, el sistema buscará en toda la hoja `Cortes` si existe **otro registro** con la misma `marca`, `modelo` y `tipoEncendido`.
-        *   Esta comprobación es crucial para evitar que los rangos de diferentes generaciones de un mismo modelo se solapen incorrectamente.
-    4.  **Actualización del Rango:**
-        *   Si el `año sugerido` es **menor** que `anoDesde` y no hay colisión, el valor de `anoDesde` se actualizará al `año sugerido`.
-        *   Si el `año sugerido` es **mayor** que `anoHasta` y no hay colisión, el valor de `anoHasta` se actualizará al `año sugerido`.
-*   **Manejo de Casos de Múltiples Generaciones (Ejemplo Técnico):**
-    *   **Escenario:** El usuario indica que el corte para una **Honda CR-V (2016-2022)** también fue útil para un modelo **2026**.
-    *   **Proceso:**
-        1.  El sistema detecta que `2026` está fuera del rango `2016-2022`.
-        2.  Realiza una búsqueda y encuentra otro registro para **Honda CR-V** con un rango de `2023-2025`.
-        3.  En lugar de modificar el registro original (`2016-2022`), el sistema identifica que `2026` es una extensión lógica del segundo registro (`2023-2025`).
-        4.  La columna `anoHasta` del **segundo registro** se actualiza a `2026`.
+**Tareas pendientes:**
+- [ ] **(INCOMPLETO)** El servicio no ordena las categorías por popularidad.
+  - **Impacto esperado:** La función `handleGetCatalogData` debe calcular el número de vehículos por categoría y ordenar la lista de categorías de forma descendente antes de devolverla.
+  - **Riesgos conocidos:** Puede impactar ligeramente el rendimiento de la carga inicial.
+  - **Dependencias:** Ninguna.
+  - **Estado:** PENDIENTE
 
-**B. Servicio `GPSpedia-Write`: Gestión de Timestamps y Lógica Frontend**
-[EN PROCESO]
-*   **Objetivo:** Asegurar que la columna `timestamp` se actualice siempre que se realice una modificación significativa en un registro y que el frontend utilice esta información para mostrar el contenido más reciente. [EL FRONTEND YA NUESTRA LOS ULTIMOS CORTES POR ORDEN DE FECHA]
-*   **Lógica de Backend (`write.js`):**
-    1.  Al crear un **vehículo completamente nuevo**, se registrará la fecha actual en la columna `timestamp`.[PENDIENTE]
-    2.  Al añadir un **nuevo corte** a un vehículo ya existente, la columna `timestamp` de esa fila se actualizará con la fecha actual.[Pendiente]
-    3.  Al añadir **información suplementaria** (ej. detalles de apertura, videoguía), la columna `timestamp` también se actualizará con la fecha actual.[Pendiente]
-*   **Lógica de Frontend (`index.html`):**
-    1.  La sección "Últimos Agregados" deberá obtener los datos del catálogo y ordenarlos en base a la columna `timestamp` en orden descendente antes de renderizarlos.[IMPLEMENTADO]
-    2.  Las tarjetas de vehículo en esta sección deberán indicar qué tipo de información se agregó o actualizó recientemente (ej. "Nuevo Vehículo", "Corte Adicional", "Info. de Apertura"). Esto podría requerir una lógica adicional o un nuevo campo en la respuesta de la API.
-[pendiente]
----
-### Arquitectura de la Base de Datos
+- [ ] **(DEUDA TÉCNICA)** La conversión de URLs a thumbnails se realiza en el frontend.
+  - **Impacto esperado:** Esta lógica debe moverse al backend (`catalog.js`) para centralizarla, optimizar el rendimiento y reducir la carga en el cliente. Se debe crear una función `convertirAGoogleThumbnail` y aplicarla a todos los campos de URL de imagen.
+  - **Riesgos conocidos:** Asegurarse de que la nueva función de backend sea robusta y maneje todos los formatos de URL de Google Drive existentes en la base de datos.
+  - **Dependencias:** Ninguna.
+  - **Estado:** PENDIENTE
 
-#### Arquitectura v2.0 (Canónica)
-- **ID de Google Sheet:** `1M6zAVch_EGKGGRXIo74Nbn_ihH1APZ7cdr2kNdWfiDs`
-- **Principio de Diseño:** Estructura granular y robusta, explícita y a prueba de errores de formato.
+### Módulo: Formulario de Adición de Cortes
 
-A continuación se detalla la estructura de cada hoja en la base de datos. Los nombres de las columnas deben coincidir **exactamente** con los especificados.
+**Descripción funcional breve:** Gestiona el flujo de trabajo de múltiples pasos para agregar nuevos vehículos y cortes a la base de datos.
 
-##### 1. Hoja: `Users`
-- **Columnas:** `ID`, `Nombre_Usuario`, `Password`, `Privilegios`, `Telefono`, `Correo_Electronico`, `SessionToken`.
+**Archivos involucrados:**
+- `add_cortes.html`
+- `services/write/write.js`
 
-##### 2. Hoja: `Cortes`
-- **Columnas:** `id`, `categoria`, `marca`, `modelo`, `versionesAplicables`, `anoDesde`, `anoHasta`, `tipoEncendido`, `imagenVehiculo`, `videoGuiaDesarmeUrl`, `contadorBusqueda`, `tipoCorte1`, `ubicacionCorte1`, `colorCableCorte1`, `configRelay1`, `imgCorte1`, `utilCorte1`, `colaboradorCorte1`, `tipoCorte2`, `ubicacionCorte2`, `colorCableCorte2`, `configRelay2`, `imgCorte2`, `utilCorte2`, `colaboradorCorte2`, `tipoCorte3`, `ubicacionCorte3`, `colorCableCorte3`, `configRelay3`, `imgCorte3`, `utilCorte3`, `colaboradorCorte3`, `apertura`, `imgApertura`, `cableAlimen`, `imgCableAlimen`, `timestamp`, `notaImportante`.
+**Tareas pendientes:**
+- [ ] **(FALTA REVISIÓN)** El flujo de escritura fue refactorizado.
+  - **Impacto esperado:** Se implementó una nueva lógica anti-duplicados con una interfaz de botones inline. Se necesita una revisión completa por parte del Project Manager para validar que cumple con todos los requisitos y no introduce regresiones.
+  - **Riesgos conocidos:** La complejidad del flujo de múltiples pasos puede ocultar bugs o casos borde no manejados.
+  - **Dependencias:** Ninguna.
+  - **Estado:** PENDIENTE
 
-##### 3. Hoja: `LogosMarca`
-- **Columnas:** `id`, `nombreMarca`, `urlLogo`, `fabricanteNombre`.
+### Módulo: Gestión de Versiones y Documentación
 
-##### 4. Hoja: `Tutorial`
-- **Columnas:** `ID`, `Tema`, `Imagen`, `comoIdentificarlo`, `dondeEncontrarlo`, `Detalles`, `Video`.
+**Descripción funcional breve:** Tareas relacionadas con el mantenimiento de la documentación del proyecto y el sistema de versionamiento.
 
-##### 5. Hoja: `Relay`
-- **Columnas:** `ID`, `configuracion`, `funcion`, `vehiculoDondeSeUtiliza`, `pin30Entrada`, `pin85BobinaPositivo`, `pin86bobinaNegativo`, `pin87aComunCerrado`, `pin87ComunmenteAbierto`, `imagen`, `observacion`.
+**Archivos involucrados:**
+- `ChangesLogs.txt`
+- `Instrucciones.txt`
+- `README.md`
 
-##### 6. Hoja: `ActiveSessions`
-- **Columnas:** `ID_Usuario`, `Usuario`, `ActiveSessions`, `date`, `Logs`.
-
-##### 7. Hoja: `Feedbacks`
-- **Columnas:** `ID`, `Usuario`, `ID_vehiculo`, `Problema`, `Respuesta`, `Se resolvio`, `Responde`, `Reporte de util`, 'anoSugerido'
-
-##### 8. Hoja: `Contactanos`
-- **Columnas:** `Contacto_ID`, `User_ID`, `Asunto`, `Mensaje`, `Respuesta_mensaje`, `ID_usuario_responde`.
-
-##### 9. Hoja: `Logs`
-- **Columnas:** `Timestamp`, `Level`, `Message`, `Data`.
-
-##### 10. Hoja: `ActividadUsuario`
-- **Columnas:** `id`, `timestamp`, `idUsuario`, `nombreUsuario`, `tipoActividad`, `idElementoAsociado`, `detalle`.
+**Tareas pendientes:**
+- [ ] **(DEUDA TÉCNICA)** Existen inconsistencias de versionamiento.
+  - **Impacto esperado:** Sincronizar la versión global para que el próximo gran lanzamiento sea `v2.0` y mejorar el formato de registro de fechas en `ChangesLogs.txt` para que sea consistente.
+  - **Riesgos conocidos:** Ninguno.
+  - **Dependencias:** Ninguna.
+  - **Estado:** PENDIENTE
