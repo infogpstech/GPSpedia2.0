@@ -1,46 +1,7 @@
-**v4.7.1 (04/01/2026)**
-*   **DOCS (Instrucciones.txt):** Se actualizaron los estados de las tareas 14 y 22 a "[en revisión]" para reflejar que se ha enviado una propuesta de solución para su validación.
-    *   **Archivos Modificados:** `Instrucciones.txt`.
-*   **FIX (api-manager.js):** Se solucionó el bug reportado en la Tarea 21. Se añadieron las acciones `suggestYear` y `getFeedbackItems` al `ACTION_TO_SERVICE_MAP`, restaurando la funcionalidad de sugerencia de año y la carga de items en el inbox.
-    *   **Archivos Modificados:** `api-manager.js`.
-
-**v4.7.0 (04/01/2026)**
-*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `WRITE` a la nueva versión desplegada proporcionada por el usuario.
-    *   **Archivos Modificados:** `api-manager.js`.
-
-**v4.6.9 (04/01/2026)**
-*   **FIX (services/write/write.js):** Se solucionó un bug crítico que impedía la creación de nuevos vehículos.
-    *   **Causa Raíz:** Al crear un nuevo registro, una llamada `setValues` sobrescribía la fila entera, eliminando la fórmula de la columna `ID` que se había heredado de la fila anterior. Esto resultaba en registros nuevos sin ID.
-    *   **Solución:** Se refactorizó la lógica de creación para usar llamadas `setValue` individuales para cada celda. Esto permite actualizar los campos necesarios sin sobrescribir la columna `ID`, preservando así la fórmula `autoincremental` y asegurando la integridad de los datos.
-    *   **Archivos Modificados:** `services/write/write.js`.
-
-**v4.6.8 (04/01/2026)**
-*   **SECURITY & VERSIONING (services/users/users.js & users.html):** Se completó la implementación y verificación del parche de seguridad para la gestión de usuarios, asegurando la consistencia entre el frontend y el backend y actualizando las versiones de los componentes.
-    *   **Backend (`services/users/users.js`):** Se verificó que el servicio (v2.3.0) utiliza correctamente el `sessionToken` para una autorización segura basada en servidor.
-    *   **Frontend (`users.html`):** Se aplicó el parche de seguridad y se actualizó la versión del componente a `3.7.0`. El frontend ahora envía el `sessionToken` en lugar de roles en las solicitudes CRUD.
-    *   **Archivos Modificados:** `users.html`.
-*   **HOTFIX (api-manager.js):** Se corrigió una URL de endpoint incorrecta para el servicio `AUTH` que fue introducida en un commit anterior. La URL ha sido restaurada a la versión correcta y funcional, previniendo una regresión crítica en la autenticación.
-    *   **Archivos Modificados:** `api-manager.js`.
-*   **DOCS (Instrucciones.txt):** Se documentaron tres bugs críticos reportados por el usuario como nuevas tareas pendientes (21, 22, 23) y se eliminó contenido duplicado para mantener la claridad del documento.
-    *   **Archivos Modificados:** `Instrucciones.txt`.
-
-**v4.6.7 (04/01/2026)**
-*   **SECURITY (services/users/users.js & users.html):** Se solucionó una vulnerabilidad crítica de seguridad que permitía la escalada de privilegios en la gestión de usuarios.
-    *   **Causa Raíz:** El backend (`services/users/users.js`) confiaba en un parámetro de rol (`creatorRole`, `updaterRole`, `deleterRole`) enviado desde el frontend (`users.html`) para autorizar operaciones de Crear, Actualizar y Eliminar usuarios. Un usuario malintencionado podría haber manipulado este parámetro en el cliente para obtener permisos de administrador.
-    *   **Solución (Full-Stack):**
-        1.  **Backend:** Se refactorizó el servicio de usuarios para que ignore los roles enviados por el cliente. Se implementó una nueva función `getVerifiedRole(sessionToken)` que valida el token de sesión contra la base de datos (`ActiveSessions` y `Users`) para obtener el rol real del usuario solicitante de forma segura en el servidor. Todas las operaciones de gestión de usuarios ahora usan este rol verificado para la autorización.
-        2.  **Frontend:** Se modificó `users.html` para que envíe el `sessionToken` del usuario actual en lugar de su rol en todas las solicitudes de gestión de usuarios, alineándose con los nuevos requisitos del backend.
-    *   **Archivos Modificados:** `services/users/users.js`, `users.html`.
-
-**v4.6.6 (04/01/2026)**
-*   **INFRA (api-manager.js):** Se actualizaron las URLs de los microservicios `AUTH` y `FEEDBACK` a las nuevas versiones desplegadas proporcionadas por el usuario. Esto asegura que el frontend se comunique con las implementaciones más recientes de estos servicios.
-    *   **Archivos Modificados:** `api-manager.js`: Líneas 11, 15.
-
 **v4.6.5 (04/01/2026)**
-*   **FIX (services/auth/auth.js):** Se corrigió un bug crítico en la lógica de autenticación que impedía a los usuarios iniciar sesión si sus contraseñas contenían caracteres especiales o una combinación de mayúsculas y minúsculas.
-    *   **Causa Raíz:** El proceso de comparación de contraseñas convertía tanto la contraseña almacenada como la ingresada a minúsculas (`.toLowerCase()`) antes de verificarlas. Esto causaba que cualquier contraseña con mayúsculas (ej. "MiClave123") fuera incorrectamente rechazada.
-    *   **Solución:** Se eliminaron las llamadas a `.toLowerCase()` de la lógica de comparación. La verificación ahora es sensible a mayúsculas y minúsculas (`case-sensitive`), asegurando que las contraseñas se validen de forma exacta y permitiendo el uso de caracteres variados.
-    *   **Archivos Modificados:** `services/auth/auth.js`: Línea 138.
+*   **CHORE (project):** Se ejecutó una directiva de reseteo total del proyecto para realinear los objetivos de desarrollo, revirtiendo todas las modificaciones de código pendientes que no habían sido consolidadas.
+*   **DOCS (Instrucciones.txt):** Siguiendo la nueva directiva, se ha actualizado el archivo de instrucciones para documentar una nueva lista de 8 tareas críticas y no negociables. Estas tareas ahora constituyen el único trabajo pendiente autorizado y definen el alcance para la siguiente fase de desarrollo.
+    *   **Archivos Modificados:** `Instrucciones.txt`.
 
 **v4.6.4 (04/01/2026)**
 *   **FIX (services/feedback/feedback.js):** Se solucionó un bug crítico que impedía el funcionamiento de la bandeja de entrada (Inbox).
@@ -49,7 +10,7 @@
     *   **Solución:** Se cambió el `MimeType` de la respuesta a `ContentService.MimeType.TEXT` en la función `doPost`, restaurando la comunicación entre el frontend y el servicio de feedback.
     *   **Archivos Modificados:** `services/feedback/feedback.js`: Líneas 128, 132.
 
-**v4.6.3 (04/01/2026)**
+**v4.6.3 (31-12-2025)**
 *   **FIX CRÍTICO (service-worker.js):** Se solucionó la causa raíz de múltiples regresiones visuales y funcionales al invalidar la caché del PWA.
     *   **Causa Raíz:** Cambios previos en el frontend no se reflejaban porque el service worker servía una versión obsoleta de la aplicación desde la caché.
     *   **Solución:** Se incrementó la `CACHE_NAME` de `v5` a `v6`, forzando a todos los clientes a descargar la última versión de la aplicación.
@@ -230,7 +191,7 @@ considerar esta ultima version como fallida y no se debe trabajar desde esta ver
         *   **Archivos Modificados:** `README.md`: Líneas 112-149.
 
 **v4.4.3 (31-12-2025)**
-*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `GPSpedia-Catalog` a la nueva versión desplegada, asegurando que el frontend apunte al endpoint más reciente tras la implementación de la búsqueda flexible.
+*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `GPSpedia-Catalog` a la nueva versión desplegada, asegurando que el frontend apunte a la endpoint más reciente tras la implementación de la búsqueda flexible.
     *   **Archivos Modificados:** `api-manager.js`: Línea 11.
 
 **v4.4.2 (31-12-2025)**

@@ -198,7 +198,6 @@
         </div>
     </div>
 <script>
-// COMPONENT VERSION: 3.7.0
 // --- LÓGICA DE DEPURACIÓN REMOTA ---
 function remoteLog(level, message, data = {}) {
     fetch(SCRIPT_URL, {
@@ -357,12 +356,10 @@ async function handleUserFormSubmit(e) {
 
     try {
         if (userId) {
-            // SECURITY PATCH: Send sessionToken instead of role for backend verification
-            await postToAction('updateUser', { userId, updates: userData, sessionToken: currentUser.SessionToken });
+            await postToAction('updateUser', { userId, updates: userData, updaterRole: currentUser.Privilegios });
             alert('Usuario actualizado');
         } else {
-            // SECURITY PATCH: Send sessionToken instead of role for backend verification
-            await postToAction('createUser', { newUser: userData, sessionToken: currentUser.SessionToken });
+            await postToAction('createUser', { newUser: userData, creatorRole: currentUser.Privilegios });
             alert('Usuario creado');
         }
         document.getElementById('user-modal').style.display = 'none';
@@ -375,8 +372,7 @@ async function handleUserFormSubmit(e) {
 async function deleteUser(userId) {
     if (confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
         try {
-            // SECURITY PATCH: Send sessionToken instead of role for backend verification
-            await postToAction('deleteUser', { userId, sessionToken: currentUser.SessionToken });
+            await postToAction('deleteUser', { userId, deleterRole: currentUser.Privilegios });
             alert('Usuario eliminado');
             fetchUsers();
         } catch (error) {
