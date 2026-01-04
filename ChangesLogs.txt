@@ -1,3 +1,11 @@
+**v4.6.7 (31-12-2025)**
+*   **SECURITY (services/users/users.js & users.html):** Se solucionó una vulnerabilidad crítica de seguridad que permitía la escalada de privilegios en la gestión de usuarios.
+    *   **Causa Raíz:** El backend (`services/users/users.js`) confiaba en un parámetro de rol (`creatorRole`, `updaterRole`, `deleterRole`) enviado desde el frontend (`users.html`) para autorizar operaciones de Crear, Actualizar y Eliminar usuarios. Un usuario malintencionado podría haber manipulado este parámetro en el cliente para obtener permisos de administrador.
+    *   **Solución (Full-Stack):**
+        1.  **Backend:** Se refactorizó el servicio de usuarios para que ignore los roles enviados por el cliente. Se implementó una nueva función `getVerifiedRole(sessionToken)` que valida el token de sesión contra la base de datos (`ActiveSessions` y `Users`) para obtener el rol real del usuario solicitante de forma segura en el servidor. Todas las operaciones de gestión de usuarios ahora usan este rol verificado para la autorización.
+        2.  **Frontend:** Se modificó `users.html` para que envíe el `sessionToken` del usuario actual en lugar de su rol en todas las solicitudes de gestión de usuarios, alineándose con los nuevos requisitos del backend.
+    *   **Archivos Modificados:** `services/users/users.js`, `users.html`.
+
 **v4.6.6 (31-12-2025)**
 *   **INFRA (api-manager.js):** Se actualizaron las URLs de los microservicios `AUTH` y `FEEDBACK` a las nuevas versiones desplegadas proporcionadas por el usuario. Esto asegura que el frontend se comunique con las implementaciones más recientes de estos servicios.
     *   **Archivos Modificados:** `api-manager.js`: Líneas 11, 15.
