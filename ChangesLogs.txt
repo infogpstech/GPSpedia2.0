@@ -1,3 +1,7 @@
+**v4.6.6 (31-12-2025)**
+*   **INFRA (api-manager.js):** Se actualizaron las URLs de los microservicios `AUTH` y `FEEDBACK` a las nuevas versiones desplegadas proporcionadas por el usuario. Esto asegura que el frontend se comunique con las implementaciones más recientes de estos servicios.
+    *   **Archivos Modificados:** `api-manager.js`: Líneas 11, 15.
+
 **v4.6.5 (31-12-2025)**
 *   **FIX (services/auth/auth.js):** Se corrigió un bug crítico en la lógica de autenticación que impedía a los usuarios iniciar sesión si sus contraseñas contenían caracteres especiales o una combinación de mayúsculas y minúsculas.
     *   **Causa Raíz:** El proceso de comparación de contraseñas convertía tanto la contraseña almacenada como la ingresada a minúsculas (`.toLowerCase()`) antes de verificarlas. Esto causaba que cualquier contraseña con mayúsculas (ej. "MiClave123") fuera incorrectamente rechazada.
