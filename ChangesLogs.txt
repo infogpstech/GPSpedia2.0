@@ -1,3 +1,13 @@
+**v4.6.8 (31-12-2025)**
+*   **SECURITY & VERSIONING (services/users/users.js & users.html):** Se completó la implementación y verificación del parche de seguridad para la gestión de usuarios, asegurando la consistencia entre el frontend y el backend y actualizando las versiones de los componentes.
+    *   **Backend (`services/users/users.js`):** Se verificó que el servicio (v2.3.0) utiliza correctamente el `sessionToken` para una autorización segura basada en servidor.
+    *   **Frontend (`users.html`):** Se aplicó el parche de seguridad y se actualizó la versión del componente a `3.7.0`. El frontend ahora envía el `sessionToken` en lugar de roles en las solicitudes CRUD.
+    *   **Archivos Modificados:** `users.html`.
+*   **HOTFIX (api-manager.js):** Se corrigió una URL de endpoint incorrecta para el servicio `AUTH` que fue introducida en un commit anterior. La URL ha sido restaurada a la versión correcta y funcional, previniendo una regresión crítica en la autenticación.
+    *   **Archivos Modificados:** `api-manager.js`.
+*   **DOCS (Instrucciones.txt):** Se documentaron tres bugs críticos reportados por el usuario como nuevas tareas pendientes (21, 22, 23) y se eliminó contenido duplicado para mantener la claridad del documento.
+    *   **Archivos Modificados:** `Instrucciones.txt`.
+
 **v4.6.7 (31-12-2025)**
 *   **SECURITY (services/users/users.js & users.html):** Se solucionó una vulnerabilidad crítica de seguridad que permitía la escalada de privilegios en la gestión de usuarios.
     *   **Causa Raíz:** El backend (`services/users/users.js`) confiaba en un parámetro de rol (`creatorRole`, `updaterRole`, `deleterRole`) enviado desde el frontend (`users.html`) para autorizar operaciones de Crear, Actualizar y Eliminar usuarios. Un usuario malintencionado podría haber manipulado este parámetro en el cliente para obtener permisos de administrador.

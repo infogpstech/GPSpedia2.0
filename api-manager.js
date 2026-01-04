@@ -8,10 +8,10 @@ const API_ENDPOINTS = {
     LEGACY: "https://script.google.com/macros/s/AKfycbwpIFH1nX2BZEjAKbpq9HJpEGNlo_0LqD1CwxWsWFo5J0AJDdbfMrKpcsAV4ZFJzFWd/exec",
 
     // URLs para los nuevos microservicios.
-    AUTH:     "https://script.google.com/macros/s/AKfycbwl6yNrsE0vwmNzvDJcUpnSABqxVGS7XOPurAMfeHQsBGb5TiePKWDThM7_XCIqeK-7/exec",
+    AUTH:     "https://script.google.com/macros/s/AKfycbwl6yNrsE0vwmNzvDJcUpnSABqxVGS7XOPurAMfeHQsBGb5TiePKWDThM7_XCIqeK-7/exec", // URL Corregida
     CATALOG:  "https://script.google.com/macros/s/AKfycbzUdYI2MpBcXvXsNZvfBTbsDmBBzFgsqONemSd6vjwGEP2jls_eIVjXylU-nXgWa7-m7A/exec",
     WRITE:    "https://script.google.com/macros/s/AKfycbwuf57VJd1t4oQ5pb5ZyoLmP55APL2l6_aJ68pKpVUdxcK0OwsNUBzeqCdWV5ROblJ45w/exec",
-    USERS:    "https://script.google.com/macros/s/AKfycbw3kFPGA3N0eoTQ7wIW9TO8UkneOKvN0QzoEHQaQXhbqi7WaQbLcYm0pvhLsKAd16YA/exec",
+    USERS:    "https://script.google.com/macros/s/AKfycbwi-W0LqFG-LnldnSLIZE4gmHjVqTXlY2mCKHUrewhuahW1Mfpw2x2El9T47IH1TvDk/exec",
     FEEDBACK: "https://script.google.com/macros/s/AKfycbwm5WBosW3FRbRhN7hPgP0QS2BuwxoRN0m2IZ8GMfpbfLHO5Xy6lmaK9ItHb_8wO-6n/exec",
     UTILITIES: "https://script.google.com/macros/s/AKfycbzkGXk_kSm3rN7K5PM0RntiPAn7DlH78RkH66a2vuwZwU8KgwDufkOiPjXoUKzuHAgG/exec"
 };
@@ -42,7 +42,9 @@ const ACTION_TO_SERVICE_MAP = {
     // Feedback Service
     'recordLike': 'FEEDBACK',
     'reportProblem': 'FEEDBACK',
-    'sendContactForm': 'FEEDBACK', // <-- Corregido/Añadido
+    'sendContactForm': 'FEEDBACK',
+    'suggestYear': 'FEEDBACK',
+    'getFeedbackItems': 'FEEDBACK',
 
     // Utilities Service (NUEVO)
     'migrateYearRanges': 'UTILITIES',

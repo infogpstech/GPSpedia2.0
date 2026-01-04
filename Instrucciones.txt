@@ -185,3 +185,32 @@ MÓDULO: BACKEND (MICROSERVICIOS)
     1.  Actualizar el `SPREADSHEET_ID` para que apunte a la DB v2.0, o eliminarlo si ya no es necesario para el logging.
     2.  Modificar el `switch` en el `doPost` para que, en el `default` case, devuelva un error claro que indique que la acción debe ser manejada por un microservicio, en lugar de un "Acción desconocida" genérico. Esto mejorará la depuración del `api-manager.js`.
   - **Impacto Potencial:** Mejora la claridad en la depuración y elimina configuraciones obsoletas.
+
+---------------------------------
+MÓDULO: BUGS REPORTADOS POR EL USUARIO (AÑADIDO 2025-12-31)
+---------------------------------
+
+### Archivo: `api-manager.js` y `services/feedback/feedback.js`
+
+- **Tarea 21: Corregir Acciones de Feedback Faltantes**
+  - **Urgencia:** Crítica
+  - **Tipo:** Bug
+  - **Descripción:** El usuario reporta errores "Acción no definida" para `suggestYear` y `getFeedbackItems`. Estas acciones deben ser añadidas al `ACTION_TO_SERVICE_MAP` en `api-manager.js` y apuntar al servicio `FEEDBACK`.
+  - **Impacto Potencial:** Soluciona dos flujos de usuario rotos: la sugerencia de año después de un "like" y la carga de mensajes en la bandeja de entrada (Inbox).
+
+### Archivo: `services/write/write.js`
+
+- **Tarea 22: Corregir Herencia de Fórmulas al Crear Filas**
+  - **Urgencia:** Alta
+  - **Tipo:** Bug Crítico (Corrupción de Datos)
+  - **Descripción:** El usuario reporta que al crear un nuevo vehículo, la nueva fila en la hoja de cálculo no hereda la fórmula de la columna `ID` de la fila anterior. Esto impide la generación de nuevos IDs y rompe la integridad de los datos.
+  - **Impacto Potencial:** Previene la creación de nuevos registros de vehículos, bloqueando una funcionalidad principal de la aplicación.
+
+### Archivo: `services/users/users.js` y `users.html`
+
+- **Tarea 23: Investigar Error "Datos Insuficientes"**
+  - **Urgencia:** Alta
+  - **Tipo:** Bug (Incompatibilidad de Versiones)
+  - **Descripción:** El usuario reporta el error "Datos insuficientes para crear el usuario". El diagnóstico indica que la versión del backend desplegada (`2.2.1`) espera `creatorRole`, mientras que la versión del frontend en el repositorio envía `sessionToken`. Esto representa una incompatibilidad entre el código del repositorio y el entorno de producción del usuario.
+  - **Solución a Largo Plazo:** El usuario debe desplegar la última versión del servicio `users.js` que contiene el parche de seguridad y la lógica para manejar `sessionToken`.
+  - **Solución a Corto Plazo:** Mantener el frontend (`users.html`) en un estado compatible con la versión `2.2.1` del backend.

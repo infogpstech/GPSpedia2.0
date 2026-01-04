@@ -198,6 +198,7 @@
         </div>
     </div>
 <script>
+// COMPONENT VERSION: 3.7.0
 // --- LÓGICA DE DEPURACIÓN REMOTA ---
 function remoteLog(level, message, data = {}) {
     fetch(SCRIPT_URL, {
@@ -356,11 +357,11 @@ async function handleUserFormSubmit(e) {
 
     try {
         if (userId) {
-            // SECURITY FIX: Send sessionToken instead of updaterRole
+            // SECURITY PATCH: Send sessionToken instead of role for backend verification
             await postToAction('updateUser', { userId, updates: userData, sessionToken: currentUser.SessionToken });
             alert('Usuario actualizado');
         } else {
-            // SECURITY FIX: Send sessionToken instead of creatorRole
+            // SECURITY PATCH: Send sessionToken instead of role for backend verification
             await postToAction('createUser', { newUser: userData, sessionToken: currentUser.SessionToken });
             alert('Usuario creado');
         }
@@ -374,7 +375,7 @@ async function handleUserFormSubmit(e) {
 async function deleteUser(userId) {
     if (confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
         try {
-            // SECURITY FIX: Send sessionToken instead of deleterRole
+            // SECURITY PATCH: Send sessionToken instead of role for backend verification
             await postToAction('deleteUser', { userId, sessionToken: currentUser.SessionToken });
             alert('Usuario eliminado');
             fetchUsers();
