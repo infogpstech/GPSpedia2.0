@@ -780,12 +780,8 @@ body.search-active .app-logo {
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Sombra más pronunciada */
 }
-.img-vehiculo-modal {
-    max-height: 150px !important;
-    filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.4));
-    background: none !important;
-    border: none !important;
-    box-shadow: none !important;
+.img-vehiculo {
+    max-height: 200px !important; /* Límite de altura más pequeño */
 }
 
 /* --- ESTILOS PARA LA SECCIÓN DE FEEDBACK EN MODAL --- */
@@ -1126,7 +1122,7 @@ body.search-active .app-logo {
     </div>
 </div>
 
-<div id="main-content-container" class="container" style="display: none;">
+<div class="container" style="display: none;">
 
   <div class="header-container">
       <div class="header-branding" style="flex-direction: column; align-items: flex-start;">
@@ -1583,7 +1579,7 @@ function showLoginHideApp(reason = null) {
         const splash = document.getElementById('splash-screen');
         if (splash) splash.style.display = 'none';
 
-        const container = document.getElementById('main-content-container');
+        const container = document.querySelector('.container');
         if (container) container.style.display = 'none';
 
         const footer = document.querySelector('.footer');
@@ -2302,7 +2298,14 @@ function mostrarDetalleModal(item) {
     }
 
     // --- 4. Imagen del Vehículo (si existe) ---
-    crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, { extraClass: 'img-vehiculo-modal' });
+    crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, { extraClass: 'img-vehiculo' });
+    const vehiculoImg = cont.querySelector('.img-vehiculo');
+    if(vehiculoImg) {
+        vehiculoImg.style.maxHeight = '150px'; // Mitad del tamaño normal (300px)
+        vehiculoImg.style.filter = 'drop-shadow(2px 4px 6px rgba(0,0,0,0.4))';
+        vehiculoImg.style.background = 'none';
+        vehiculoImg.style.border = 'none';
+    }
 
 
     // --- Lógica de Cortes Refactorizada ---
@@ -2474,43 +2477,6 @@ function mostrarDetalleModal(item) {
     // La sección de notas personales ha sido eliminada según las especificaciones.
 
     document.getElementById("modalDetalle").classList.add("visible");
-
-    // --- LÓGICA DE FEEDBACK (MOVIDA DENTRO DEL MODAL) ---
-    async function handleLike(vehicleId, corteIndex, buttonElement) {
-        const user = JSON.parse(localStorage.getItem(SESSION_KEY));
-        if (!user || !user.ID || !user.Nombre_Usuario) {
-            alert("Debes iniciar sesión para usar esta función.");
-            return;
-        }
-
-        buttonElement.disabled = true;
-        buttonElement.style.cursor = 'default';
-        const originalTitle = buttonElement.title;
-        const currentCountMatch = originalTitle.match(/\((\d+)\)/);
-        const currentCount = currentCountMatch ? parseInt(currentCountMatch[1], 10) : 0;
-        buttonElement.title = `Marcar como útil (${currentCount + 1})`;
-        buttonElement.classList.add('liked');
-
-        try {
-            await postToAction('recordLike', { vehicleId, corteIndex, userId: user.ID, userName: user.Nombre_Usuario });
-            const suggestedYearRaw = prompt("¡Gracias! ¿Este corte aplica a otro año? (ej: 2023)");
-            if (suggestedYearRaw && suggestedYearRaw.trim() !== "") {
-                const year = parseInt(suggestedYearRaw.trim(), 10);
-                if (!isNaN(year) && year > 1980 && year < 2050) {
-                    const result = await postToAction('suggestYear', { vehicleId, newYear: year, userId: user.ID, userName: user.Nombre_Usuario });
-                    alert(result.message || "Sugerencia enviada. ¡Gracias!");
-                } else {
-                    alert("Por favor, ingresa un año válido.");
-                }
-            }
-        } catch (error) {
-            buttonElement.title = originalTitle;
-            buttonElement.classList.remove('liked');
-        } finally {
-            buttonElement.disabled = false;
-            buttonElement.style.cursor = 'pointer';
-        }
-    }
 }
 
 function mostrarDetalleRelayAnidado(configRelay) {
@@ -2687,12 +2653,9 @@ function mostrarCategorias() {
         return card;
     });
 
-    // 2. Carrusel de Marcas de Vehículos (Excluyendo Motocicletas y Motos)
+    // 2. Carrusel de Marcas de Vehículos (Excluyendo Motocicletas)
     const marcasVehiculos = [...new Set(datosOriginales
-        .filter(item => {
-            const cat = item.categoria ? item.categoria.toLowerCase() : '';
-            return cat && cat !== 'motocicletas' && cat !== 'motos';
-        })
+        .filter(item => item.categoria && item.categoria.toLowerCase() !== 'motocicletas')
         .map(item => item.marca))]
         .filter(Boolean).sort();
 
@@ -2708,12 +2671,9 @@ function mostrarCategorias() {
         return card;
     });
 
-    // 3. Carrusel de Marcas de Motocicletas (Incluyendo "Motos")
+    // 3. Carrusel de Marcas de Motocicletas
     const marcasMotos = [...new Set(datosOriginales
-        .filter(item => {
-            const cat = item.categoria ? item.categoria.toLowerCase() : '';
-            return cat === 'motocicletas' || cat === 'motos';
-        })
+        .filter(item => item.categoria && item.categoria.toLowerCase() === 'motocicletas')
         .map(item => item.marca))]
         .filter(Boolean).sort();
 
@@ -3101,11 +3061,10 @@ window.addEventListener('load', () => {
 });
 
 
-document.addEventListener('DOMContentLoaded', () => {
-    inicializarApp();
+inicializarApp();
 
-    // Event listener para el acordeón
-    document.getElementById('detalleCompleto').addEventListener('click', function(e) {
+// Event listener para el acordeón
+document.getElementById('detalleCompleto').addEventListener('click', function(e) {
     const clickedBtn = e.target.closest('.accordion-btn');
     if (!clickedBtn) return;
 
@@ -3221,7 +3180,65 @@ document.querySelectorAll('#side-menu .menu-link').forEach(link => {
         // Para enlaces a otras páginas, el menú se cerrará automáticamente en la carga de la nueva página.
     });
 });
-});
+
+async function handleLike(vehicleId, corteIndex, buttonElement) {
+    const user = JSON.parse(localStorage.getItem(SESSION_KEY));
+    if (!user || !user.ID || !user.Nombre_Usuario) {
+        alert("Debes iniciar sesión para usar esta función.");
+        return;
+    }
+
+    // Disable button to prevent multiple clicks
+    buttonElement.disabled = true;
+    buttonElement.style.cursor = 'default';
+
+    // Optimistic UI update based on the title attribute and CSS class
+    const originalTitle = buttonElement.title;
+    const currentCountMatch = originalTitle.match(/\((\d+)\)/);
+    const currentCount = currentCountMatch ? parseInt(currentCountMatch[1], 10) : 0;
+    buttonElement.title = `Marcar como útil (${currentCount + 1})`;
+    buttonElement.classList.add('liked');
+
+    try {
+        await postToAction('recordLike', {
+            vehicleId: vehicleId,
+            corteIndex: corteIndex,
+            userId: user.ID,
+            userName: user.Nombre_Usuario
+        });
+
+        // After successful like, prompt for year suggestion
+        const suggestedYearRaw = prompt("¡Gracias por tu feedback! ¿Este corte también aplica para otro año? Si es así, ingrésalo aquí (ej: 2023). Si no, cancela.");
+
+        if (suggestedYearRaw && suggestedYearRaw.trim() !== "") {
+            const year = parseInt(suggestedYearRaw.trim(), 10);
+            if (!isNaN(year) && year > 1980 && year < 2050) {
+                try {
+                    const result = await postToAction('suggestYear', {
+                        vehicleId: vehicleId,
+                        newYear: year, // Corrected parameter name
+                        userId: user.ID, // Pass userId as required by backend
+                        userName: user.Nombre_Usuario
+                    });
+                    alert(result.message || "Sugerencia enviada. ¡Gracias por tu colaboración!");
+                } catch (error) {
+                    // Error is handled globally by postToAction, no extra alert needed.
+                }
+            } else {
+                alert("Por favor, ingresa un año válido (ej: 2023).");
+            }
+        }
+    } catch (error) {
+        // Revert UI on error
+        buttonElement.title = originalTitle;
+        buttonElement.classList.remove('liked');
+        // The error message is shown globally by postToAction.
+    } finally {
+        // Re-enable the button after operation is complete
+        buttonElement.disabled = false;
+        buttonElement.style.cursor = 'pointer';
+    }
+}
 
 
 function toggleReportSection(vehicleId, corteIndex) {
