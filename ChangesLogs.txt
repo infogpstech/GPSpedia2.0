@@ -1,13 +1,9 @@
 **v4.6.4 (04/01/2026)**
 *   **FIX (services/feedback/feedback.js):** Se solucionó un bug crítico que impedía el funcionamiento de la bandeja de entrada (Inbox).
-    *   **Causa Raíz:** El servicio devolvía una respuesta con `MimeType.JSON`, lo cual es incompatible con la política de CORS de Google Apps Script y provocaba un error `Failed to fetch` en el frontend.
+    *
+**Causa Raíz:** El servicio devolvía una respuesta con `MimeType.JSON`, lo cual es incompatible con la política de CORS de Google Apps Script y provocaba un error `Failed to fetch` en el frontend.
     *   **Solución:** Se cambió el `MimeType` de la respuesta a `ContentService.MimeType.TEXT` en la función `doPost`, restaurando la comunicación entre el frontend y el servicio de feedback.
     *   **Archivos Modificados:** `services/feedback/feedback.js`: Líneas 128, 132.
-*   **FIX (services/users/users.js):** Se corrigió una inconsistencia en la funcionalidad de cambio de contraseña.
-    *   **Causa Raíz:** La comparación de la contraseña actual en `handleChangePassword` era sensible a mayúsculas y minúsculas, mientras que la función de `login` no lo es. Esto podía impedir que un usuario cambiara su contraseña.
-    *   **Solución:** Se modificó la comparación para que sea insensible a mayúsculas y minúsculas (`.toLowerCase()`), alineando el comportamiento con el del servicio de autenticación.
-    *   **Archivos Modificados:** `services/users/users.js`: Línea 249.
-*   **CHORE (users.html):** Se verificó que el bug de visualización de datos de usuario (Tarea 7 de la auditoría) ya se encontraba solucionado en el código, por lo que no se requirieron modificaciones.
 
 **v4.6.3 (31-12-2025)**
 *   **FIX CRÍTICO (service-worker.js):** Se solucionó la causa raíz de múltiples regresiones visuales y funcionales al invalidar la caché del PWA.
