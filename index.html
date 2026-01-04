@@ -753,14 +753,13 @@ body.search-active .app-logo {
 
 #detalleCompleto {
     background: #fff;
-    padding: 30px;
+    padding: 20px; /* Reducido para economizar espacio */
     width: 90%;
-    max-width: 800px; /* Ancho máximo para el modal */
+    max-width: 800px;
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     max-height: 90vh;
     overflow-y: auto;
-    /* Transición para el efecto de escalado */
     transform: scale(0.95);
     transition: transform 0.3s ease;
 }
@@ -771,24 +770,24 @@ body.search-active .app-logo {
 
 #detalleCompleto img, .info-modal-content img {
     display: block;
-    width: auto; /* Ancho automático para mantener proporción */
+    width: auto;
     max-width: 100%;
-    max-height: 300px; /* Límite de altura en lugar de altura fija */
-    margin: 15px auto;
+    max-height: 300px;
+    margin: 10px auto; /* Reducido para economizar espacio */
     cursor: pointer;
     object-fit: contain;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Sombra más pronunciada */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 .img-vehiculo {
-    max-height: 200px !important; /* Límite de altura más pequeño */
+    max-height: 200px !important;
 }
 
 /* --- ESTILOS PARA LA SECCIÓN DE FEEDBACK EN MODAL --- */
 .image-container-with-feedback {
     position: relative;
-    display: inline-block; /* O 'block' dependiendo del layout */
-    margin: 15px auto;
+    display: inline-block;
+    margin: 10px auto; /* Reducido para economizar espacio */
 }
 .feedback-overlay {
     position: absolute;
@@ -814,35 +813,34 @@ body.search-active .app-logo {
 }
 .feedback-btn-overlay:hover {
     background-color: rgba(0, 0, 0, 0.8);
-    transform: scale(1.0); /* Efecto de escala reducido al pasar el mouse */
+    transform: scale(1.0);
 }
 
 .feedback-btn-overlay {
-    /* ... otros estilos ... */
-    transform: scale(0.9); /* Reducción del 10% */
+    transform: scale(0.9);
 }
 .feedback-btn-overlay.util-btn.liked {
-    background-color: #28a745; /* Verde para indicar que se le dio "like" */
+    background-color: #28a745;
 }
 
 #detalleCompleto h4 {
     color: #007bff;
     border-bottom: 2px solid #eee;
     padding-bottom: 5px;
-    margin-top: 15px; /* Reducido de 20px (default) */
-    margin-bottom: 8px; /* Reducido de 10px */
+    margin-top: 10px; /* Reducido para economizar espacio */
+    margin-bottom: 5px; /* Reducido para economizar espacio */
 }
 
 #detalleCompleto p {
-    margin: 4px 0; /* Reducido el margen vertical para los párrafos */
+    margin: 2px 0; /* Reducido para economizar espacio */
 }
 
 /* --- ESTILOS PARA SECCIONES DESPLEGABLES (ACORDEÓN) --- */
 .accordion-btn {
     background-color: #f0f0f0;
-    color: #007bff; /* Color de texto azul */
+    color: #007bff;
     cursor: pointer;
-    padding: 15px;
+    padding: 12px 15px; /* Reducido para economizar espacio */
     width: 100%;
     border: none;
     text-align: left;
@@ -851,7 +849,7 @@ body.search-active .app-logo {
     font-weight: bold;
     transition: background-color 0.3s ease;
     border-radius: 8px;
-    margin-top: 5px; /* Reducido para compactar */
+    margin-top: 3px; /* Reducido para economizar espacio */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -2253,20 +2251,21 @@ function mostrarDetalleModal(item) {
 
     // 2.1 Título Principal (Nombre del Modelo y Logo)
     const mainHeaderDiv = document.createElement('div');
-    mainHeaderDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center;";
-
-    const title = document.createElement("h2");
-    title.textContent = `${item.marca} ${item.modelo}`;
-    title.style.cssText = "color:#007bff; margin: 0; padding: 0; flex-grow: 1;";
-    mainHeaderDiv.appendChild(title);
+    mainHeaderDiv.style.cssText = "display: flex; justify-content: flex-start; align-items: center; gap: 15px;";
 
     const logoUrl = getLogoUrlForMarca(item.marca, item.categoria);
     if (logoUrl) {
         const logoImg = document.createElement("img");
-        logoImg.src = convertirAGoogleThumbnail(logoUrl); // CORRECCIÓN: Usar conversor de thumbnails
-        logoImg.style.cssText = "height: 40px; width: auto; max-width: 100px; object-fit: contain; margin-left: 15px;"; // Altura reducida
+        logoImg.src = convertirAGoogleThumbnail(logoUrl);
+        logoImg.style.cssText = "height: 40px; width: auto; max-width: 100px; object-fit: contain; background: transparent; border: none; box-shadow: none;";
         mainHeaderDiv.appendChild(logoImg);
     }
+
+    const title = document.createElement("h2");
+    title.textContent = item.modelo;
+    title.style.cssText = "color:#007bff; margin: 0; padding: 0;";
+    mainHeaderDiv.appendChild(title);
+
     titleContainer.appendChild(mainHeaderDiv);
 
     // 2.2 Sub-encabezados (Versión/Encendido, Años, Categoría)

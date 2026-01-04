@@ -6,7 +6,7 @@ GPSpedia v4.3.7 - 2024-07-31 - Cache Invalidation and UI Fix Verification
 
 *   **SOLUCIÓN IMPLEMENTADA:**
     *   **Archivo Modificado:** `service-worker.js`
-    *   **Cambio Realizado:** Se incrementó la versión del caché de `gpsepedia-cache-v3` a `gpsepedia-cache-v4` en la constante `CACHE_NAME`.
+    *   **Cambio Realizado:** Se incrementó la versión del caché de `gpsepedia-cache-v6` a `gpsepedia-cache-v7` en la constante `CACHE_NAME`.
     *   **Efecto:** Este cambio obliga al Service Worker a descartar todos los archivos cacheados y a buscar las versiones más recientes del servidor. Como resultado, las correcciones de UI previamente implementadas (carrusel de motocicletas, estilos de imagen en el modal) ahora son visibles para el usuario.
 
 *   **VERIFICACIÓN ADICIONAL:**
