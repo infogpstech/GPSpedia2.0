@@ -1,33 +1,25 @@
-127.0.0.1 - - [04/Jan/2026 12:47:21] "GET /index.html HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:47:21] "GET /icon-v3-512x512.png HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:47:21] "GET /api-manager.js HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:47:21] "GET /service-worker.js HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:47:21] "GET /index.html HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:47:21] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:47:21] "GET /icon-v3-192x192.png HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:47:21] "GET /icon-v3-512x512.png HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:47:21] "GET /icon-pwa-192x192.png HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:47:21] "GET /api-manager.js HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:47:21] "GET /icon-pwa-512x512.png HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:52:02] "GET /index.html HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:52:02] "GET /icon-v3-512x512.png HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:52:02] "GET /api-manager.js HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:52:02] "GET /service-worker.js HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:52:03] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:52:03] "GET /icon-v3-192x192.png HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:52:03] "GET /index.html HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:52:03] "GET /icon-pwa-192x192.png HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:52:03] "GET /icon-pwa-512x512.png HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:52:03] "GET /icon-v3-512x512.png HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:52:03] "GET /api-manager.js HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:53:32] "GET /index.html HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:53:32] "GET /icon-v3-512x512.png HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:53:32] "GET /api-manager.js HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:53:33] "GET /service-worker.js HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:53:33] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:53:33] "GET /icon-v3-192x192.png HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:53:33] "GET /index.html HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:53:33] "GET /icon-pwa-192x192.png HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:53:33] "GET /icon-pwa-512x512.png HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:53:33] "GET /icon-v3-512x512.png HTTP/1.1" 200 -
-127.0.0.1 - - [04/Jan/2026 12:53:33] "GET /api-manager.js HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 14:54:28] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 14:54:28] "GET /icon-v3-512x512.png HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 14:54:28] "GET /api-manager.js HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 14:54:28] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 14:54:28] "GET /icon-v3-512x512.png HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 14:54:28] "GET /api-manager.js HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 14:54:28] code 404, message File not found
+127.0.0.1 - - [04/Jan/2026 14:54:28] "GET /1-wPjLp_zO-1Z2bX_vC-s_4fG_hJ_kL_i HTTP/1.1" 404 -
+127.0.0.1 - - [04/Jan/2026 14:54:28] code 404, message File not found
+127.0.0.1 - - [04/Jan/2026 14:54:28] "GET /1-honda_moto_logo_id HTTP/1.1" 404 -
+127.0.0.1 - - [04/Jan/2026 14:54:28] code 404, message File not found
+127.0.0.1 - - [04/Jan/2026 14:54:28] code 404, message File not found
+127.0.0.1 - - [04/Jan/2026 14:54:28] "GET /1-fake_motorcycle_image_id HTTP/1.1" 404 -
+127.0.0.1 - - [04/Jan/2026 14:54:28] "GET /1-aB_cDe_fGh_iJ_kLm_nOp HTTP/1.1" 404 -
+127.0.0.1 - - [04/Jan/2026 14:54:28] "GET /service-worker.js HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 14:54:28] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 14:54:28] "GET /icon-v3-192x192.png HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 14:54:28] "GET /icon-pwa-192x192.png HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 14:54:28] "GET /icon-pwa-512x512.png HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jan/2026 14:54:28] code 404, message File not found
+127.0.0.1 - - [04/Jan/2026 14:54:28] "GET /1-aB_cDe_fGh_iJ_kLm_nOp HTTP/1.1" 404 -
+127.0.0.1 - - [04/Jan/2026 14:54:28] code 404, message File not found
+127.0.0.1 - - [04/Jan/2026 14:54:28] code 404, message File not found
+127.0.0.1 - - [04/Jan/2026 14:54:28] "GET /1-wPjLp_zO-1Z2bX_vC-s_4fG_hJ_kL_i HTTP/1.1" 404 -
+127.0.0.1 - - [04/Jan/2026 14:54:28] "GET /1-xYz_aBc_dEf_gH_iJ_kL_m HTTP/1.1" 404 -

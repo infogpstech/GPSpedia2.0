@@ -753,7 +753,7 @@ body.search-active .app-logo {
 
 #detalleCompleto {
     background: #fff;
-    padding: 20px; /* Reducido para economizar espacio */
+    padding: 15px; /* Reducido para economizar espacio */
     width: 90%;
     max-width: 800px;
     border-radius: 15px;
@@ -779,8 +779,14 @@ body.search-active .app-logo {
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
-.img-vehiculo {
-    max-height: 200px !important;
+.img-vehiculo-modal {
+    max-height: 150px;
+    filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.4));
+    background: none;
+    border: none;
+}
+.img-corte {
+    width: 100%;
 }
 
 /* --- ESTILOS PARA LA SECCIÓN DE FEEDBACK EN MODAL --- */
@@ -827,12 +833,12 @@ body.search-active .app-logo {
     color: #007bff;
     border-bottom: 2px solid #eee;
     padding-bottom: 5px;
-    margin-top: 10px; /* Reducido para economizar espacio */
-    margin-bottom: 5px; /* Reducido para economizar espacio */
+    margin-top: 8px; /* Reducido para economizar espacio */
+    margin-bottom: 4px; /* Reducido para economizar espacio */
 }
 
 #detalleCompleto p {
-    margin: 2px 0; /* Reducido para economizar espacio */
+    margin: 1px 0; /* Reducido para economizar espacio */
 }
 
 /* --- ESTILOS PARA SECCIONES DESPLEGABLES (ACORDEÓN) --- */
@@ -2257,7 +2263,7 @@ function mostrarDetalleModal(item) {
     if (logoUrl) {
         const logoImg = document.createElement("img");
         logoImg.src = convertirAGoogleThumbnail(logoUrl);
-        logoImg.style.cssText = "height: 40px; width: auto; max-width: 100px; object-fit: contain; background: transparent; border: none; box-shadow: none;";
+        logoImg.style.cssText = "height: 40px; width: auto; max-width: 100px; object-fit: contain; background: transparent; border: none; box-shadow: none; flex-shrink: 0;";
         mainHeaderDiv.appendChild(logoImg);
     }
 
@@ -2297,14 +2303,7 @@ function mostrarDetalleModal(item) {
     }
 
     // --- 4. Imagen del Vehículo (si existe) ---
-    crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, { extraClass: 'img-vehiculo' });
-    const vehiculoImg = cont.querySelector('.img-vehiculo');
-    if(vehiculoImg) {
-        vehiculoImg.style.maxHeight = '150px'; // Mitad del tamaño normal (300px)
-        vehiculoImg.style.filter = 'drop-shadow(2px 4px 6px rgba(0,0,0,0.4))';
-        vehiculoImg.style.background = 'none';
-        vehiculoImg.style.border = 'none';
-    }
+    crearImagenDetalle("Vehículo", item.imagenVehiculo, cont, { extraClass: 'img-vehiculo-modal' });
 
 
     // --- Lógica de Cortes Refactorizada ---
@@ -2346,12 +2345,9 @@ function mostrarDetalleModal(item) {
 
         // Imagen del Corte con Overlays de Feedback
         crearImagenDetalle("Imagen del Corte", item[`imgCorte${corteIndex}`], panel, {
+            extraClass: esRecomendado ? 'img-corte' : '',
             feedbackActions: { util: utilBtn, report: reportBtn }
         });
-        if(esRecomendado){
-             const imgCorte = panel.querySelector('img[alt="Imagen del Corte"]');
-             if(imgCorte) imgCorte.style.width = '100%';
-        }
 
         // Link a Configuración de Relay (si existe) - ANTES del colaborador
         const configRelay = item[`configRelay${corteIndex}`];
@@ -2654,7 +2650,7 @@ function mostrarCategorias() {
 
     // 2. Carrusel de Marcas de Vehículos (Excluyendo Motocicletas)
     const marcasVehiculos = [...new Set(datosOriginales
-        .filter(item => item.categoria && item.categoria.toLowerCase() !== 'motocicletas')
+        .filter(item => item.categoria && !['motocicletas', 'motos'].includes(item.categoria.toLowerCase()))
         .map(item => item.marca))]
         .filter(Boolean).sort();
 
@@ -2672,7 +2668,7 @@ function mostrarCategorias() {
 
     // 3. Carrusel de Marcas de Motocicletas
     const marcasMotos = [...new Set(datosOriginales
-        .filter(item => item.categoria && item.categoria.toLowerCase() === 'motocicletas')
+        .filter(item => item.categoria && ['motocicletas', 'motos'].includes(item.categoria.toLowerCase()))
         .map(item => item.marca))]
         .filter(Boolean).sort();
 
