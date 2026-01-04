@@ -135,7 +135,7 @@ MÓDULO: BACKEND (MICROSERVICIOS)
 
 ### Archivo: `services/users/users.js`
 
-- **Tarea 14: Corregir Falla de Seguridad en Permisos**
+- **Tarea 14: Corregir Falla de Seguridad en Permisos [en revisión]**
   - **Urgencia:** Crítica
   - **Tipo:** Riesgo de Seguridad
   - **Descripción:** Refactorizar TODAS las funciones de CRUD (`handleCreateUser`, `handleUpdateUser`, `handleDeleteUser`) para que la validación de permisos se base en una sesión verificada del *solicitante* en el backend, no en un parámetro (`creatorRole`, `updaterRole`) enviado desde el cliente. Se debe requerir un `sessionToken` en el payload y validarlo antes de proceder.
@@ -200,7 +200,7 @@ MÓDULO: BUGS REPORTADOS POR EL USUARIO (AÑADIDO 2025-12-31)
 
 ### Archivo: `services/write/write.js`
 
-- **Tarea 22: Corregir Herencia de Fórmulas al Crear Filas**
+- **Tarea 22: Corregir Herencia de Fórmulas al Crear Filas [en revisión]**
   - **Urgencia:** Alta
   - **Tipo:** Bug Crítico (Corrupción de Datos)
   - **Descripción:** El usuario reporta que al crear un nuevo vehículo, la nueva fila en la hoja de cálculo no hereda la fórmula de la columna `ID` de la fila anterior. Esto impide la generación de nuevos IDs y rompe la integridad de los datos.
