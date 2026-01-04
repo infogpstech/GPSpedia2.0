@@ -1,166 +1,169 @@
 =================================================
- INSTRUCTIVO DEL PROYECTO GPSpedia 2.0
+ INSTRUCCIONES Y TAREAS PENDIENTES - GPSpedia
 =================================================
-**Versión del Documento:** 4.0
-**Fecha de Actualización:** 03/01/2026
+**Versión del Documento:** 1.0 (Post-Auditoría)
+**Fecha de Generación:** 2024-08-20
 
-Este documento detalla las normas de desarrollo, el estado de las tareas pendientes y el flujo de trabajo para el proyecto GPSpedia 2.0.
-
----------------------------------
-NORMAS OBLIGATORIAS DE DESARROLLO
----------------------------------
-
-**A. Control de Versiones y Documentación:**
-1.  **Actualización de Versión:** Cualquier cambio debe reflejarse en el número de versión visible en `index.html` y en los servicios de Apps Script.
-2.  **Consulta y Actualización de Documentación:** Antes y después de cualquier desarrollo, se deben consultar y actualizar `README.md`, `Instrucciones.txt` y `ChangesLogs.txt`.
-3.  **Detalle en `ChangesLogs.txt`:** Cada entrada debe especificar el archivo y número de línea modificado.
-
-**B. Calidad del Código:**
-1.  **Comentarios:** Todo código nuevo o modificado debe tener un comentario explicando su propósito.
-
-**C. Proceso de Aprobación:**
-1.  **PROHIBIDO marcar tareas como “completadas” sin revisión del Project Manager.**
-2.  **PROHIBIDO asumir que un cambio resolvió un problema.**
-3.  **SOLO describir qué se cambió o qué se debe cambiar.**
-4.  Si una tarea introduce nuevos errores: Marcar como **EN REVISIÓN**.
-5.  Si la tarea no funciona o no cumple: Marcar como **REQUIERE NUEVA REVISIÓN**.
+Este documento convierte los hallazgos de `Auditoria.txt` en una lista de tareas accionables para estabilizar y mejorar el proyecto.
 
 ---------------------------------
-ESTADO Y TAREAS PENDIENTES
+MÓDULO: ARQUITECTURA GENERAL Y DOCUMENTACIÓN
 ---------------------------------
 
-### Módulo: Layout y Navegación Principal
+### Archivo: N/A (Proyecto General)
 
-**Descripción funcional breve:** Componentes visuales y de navegación de la página principal (`index.html`), incluyendo la estructura de carruseles y la presentación de categorías y marcas.
+- **Tarea 1: Refactorizar Arquitectura Frontend**
+  - **Urgencia:** Alta
+  - **Tipo:** Deuda Técnica Crítica
+  - **Descripción:** Rediseñar la arquitectura de `index.html`, `add_cortes.html` y `users.html` para separar HTML, CSS y JavaScript en archivos independientes. Implementar un framework ligero o un patrón modular para gestionar el estado de la aplicación de forma estructurada, eliminando la dependencia de variables globales y la manipulación directa del DOM.
+  - **Impacto Potencial:** Reducción drástica de la complejidad, facilidad de mantenimiento, menor riesgo de regresiones y mejora del rendimiento.
 
-**Archivos involucrados:**
-- `index.html`
-- `services/catalog/catalog.js`
+- **Tarea 2: Unificar y Limpiar Documentación**
+  - **Urgencia:** Media
+  - **Tipo:** Inconsistencia
+  - **Descripción:**
+    1.  Eliminar el archivo obsoleto `ChangesLogstxt`.
+    2.  Auditar y actualizar el `README.md` para que el estado de las tareas (`[X]`, `[ ]`) refleje la realidad del código.
+    3.  Estandarizar el sistema de versionamiento y asegurar que se aplique consistentemente en todos los archivos y en `ChangesLogs.txt`.
+  - **Impacto Potencial:** La documentación se vuelve una fuente fiable, facilitando el onboarding de nuevos desarrolladores y la planificación de futuras funcionalidades.
 
-**Tareas pendientes:**
-- [ ] **(BUG)** El carrusel "Marcas de motos" rompe la carga del catálogo.
-  - **Impacto esperado:** La creación de este carrusel causa un error `crearCarrusel is not defined` que impide la visualización de todo el catálogo.
-  - **Riesgos conocidos:** La lógica de `crearCarrusel` puede tener dependencias de scope o de tiempo de ejecución que no se están cumpliendo.
-  - **Dependencias:** Ninguna.
-  - **Estado:** PENDIENTE
+- **Tarea 3: Implementar Caché en Backend**
+  - **Urgencia:** Alta
+  - **Tipo:** Deuda Técnica (Rendimiento)
+  - **Descripción:** Implementar un mecanismo de caché en el lado del servidor (Google Apps Script) para todas las operaciones de lectura (`getCatalogData`, `getUsers`, etc.). Utilizar `CacheService` de Apps Script para almacenar temporalmente los resultados de `getDataRange().getValues()` y evitar lecturas repetitivas e ineficientes de la hoja de cálculo.
+  - **Impacto Potencial:** Mejora radical del rendimiento y la velocidad de respuesta de la aplicación, especialmente en la carga inicial.
 
-- [ ] **(INCONSISTENCIA)** El layout de la página principal no sigue el orden definido en `README.md`.
-  - **Impacto esperado:** La sección "Últimos Agregados" debe mostrarse *antes* que "Categorías". Actualmente se muestra después.
-  - **Riesgos conocidos:** Cambiar el orden de renderizado podría afectar la inicialización de los carruseles si no se hace correctamente.
-  - **Dependencias:** Ninguna.
-  - **Estado:** PENDIENTE
+---------------------------------
+MÓDULO: FRONTEND
+---------------------------------
 
-- [ ] **(INCOMPLETO)** El carrusel "Últimos Agregados" muestra 10 tarjetas en lugar de 6.
-  - **Impacto esperado:** La UI debe mostrar un carrusel más compacto con solo 6 elementos para mejorar la visualización inicial.
-  - **Riesgos conocidos:** Ninguno.
-  - **Dependencias:** Ninguna.
-  - **Estado:** PENDIENTE
+### Archivo: `api-manager.js`
 
-- [ ] **(INCONSISTENCIA)** Las categorías se ordenan alfabéticamente en el frontend.
-  - **Impacto esperado:** El backend (`catalog.js`) debe ser el responsable de ordenar las categorías por popularidad (cantidad de vehículos) antes de enviarlas al frontend. El frontend no debe re-ordenarlas.
-  - **Riesgos conocidos:** La lógica de conteo y ordenamiento en el backend debe ser eficiente para no retrasar la carga inicial.
-  - **Dependencias:** Tarea de backend en `catalog.js`.
-  - **Estado:** PENDIENTE
+- **Tarea 4: Dinamizar Configuración de API**
+  - **Urgencia:** Baja
+  - **Tipo:** Deuda Técnica
+  - **Descripción:** Modificar el `api-manager.js` para que cargue las URLs de los servicios y el mapa de acciones desde un objeto de configuración centralizado o un endpoint dedicado, en lugar de tenerlos codificados.
+  - **Impacto Potencial:** Facilita la gestión de diferentes entornos (desarrollo, producción) y la adición de nuevos microservicios o acciones.
 
-- [ ] **(BUG)** La navegación por "Categoría -> Marca" muestra texto en lugar de íconos.
-  - **Impacto esperado:** La UI debe renderizar los logos de las marcas (`<img>`) en lugar de texto plano para una experiencia de usuario más visual y consistente.
-  - **Riesgos conocidos:** Depende de que las URLs de los logos en la base de datos sean correctas y accesibles.
-  - **Dependencias:** Ninguna.
-  - **Estado:** PENDIENTE
+### Archivo: `index.html`
 
-### Módulo: Modal de Detalles de Vehículo
+- **Tarea 5: Corregir Lógica de Sesión**
+  - **Urgencia:** Alta
+  - **Tipo:** Inconsistencia Funcional
+  - **Descripción:** Refactorizar la lógica de `checkSession` para que, después de validar el token con el backend, se actualice el `localStorage` con la información más reciente del usuario. La aplicación debe confiar únicamente en el estado validado por el backend en cada carga.
+  - **Impacto Potencial:** Elimina condiciones de carrera y asegura que el estado de la sesión en el frontend sea siempre consistente con el del backend.
 
-**Descripción funcional breve:** Gestiona la visualización de toda la información de un vehículo en un modal, incluyendo cortes, imágenes, y datos suplementarios.
+- **Tarea 6: Eliminar Código Muerto (IndexedDB)**
+  - **Urgencia:** Baja
+  - **Tipo:** Deuda Técnica
+  - **Descripción:** Eliminar por completo el código relacionado con la inicialización y uso de IndexedDB, ya que no se está utilizando y añade complejidad innecesaria.
+  - **Impacto Potencial:** Código más limpio y ligero.
 
-**Archivos involucrados:**
-- `index.html`
+### Archivo: `users.html`
 
-**Tareas pendientes:**
-- [ ] **(INCOMPLETO)** La funcionalidad "Sugerir Año" no está vinculada al botón "Útil".
-  - **Impacto esperado:** El flujo de usuario debe ser: clic en "Útil" -> se registra el "like" -> se presenta el prompt para sugerir un año. Actualmente son acciones separadas o no vinculadas.
-  - **Riesgos conocidos:** Requiere modificar la lógica del `event listener` del botón "Útil" para encadenar ambas acciones.
-  - **Dependencias:** Depende de la tarea de backend "Lógica de Votación para Sugerir Año".
-  - **Estado:** PENDIENTE
+- **Tarea 7: Corregir Mapeo de Datos de Usuario**
+  - **Urgencia:** Crítica
+  - **Tipo:** Bug
+  - **Descripción:** Modificar el JavaScript de `users.html` para que acceda a las propiedades del objeto de usuario utilizando los nombres correctos devueltos por el backend (`PascalCase_With_Underscores`, ej. `user.Nombre_Usuario`), en lugar de `camelCase`.
+  - **Impacto Potencial:** Soluciona el bug crítico que impide mostrar los datos de los usuarios en la tabla de gestión y en los modales de edición.
 
-- [ ] **(INCOMPLETO)** No existen placeholders para la edición "in-modal" de campos vacíos.
-  - **Impacto esperado:** La UI debe mostrar un ícono de "editar" junto a los campos de texto del modal. Si el campo está vacío, el ícono debe permitir al usuario ingresar datos (solo visualmente, sin guardar).
-  - **Riesgos conocidos:** La lógica para gestionar el estado visual de los campos (vacío/con datos, ícono activado/desactivado) puede ser compleja.
-  - **Dependencias:** Ninguna.
-  - **Estado:** PENDIENTE
+---------------------------------
+MÓDULO: BACKEND (MICROSERVICIOS)
+---------------------------------
 
-- [ ] **(BUG)** Las imágenes en el modal de detalle no tienen el layout correcto.
-  - **Impacto esperado:** Se debe reducir el espacio vertical y ajustar el `width` y `height` de las imágenes para un diseño más compacto.
-  - **Riesgos conocidos:** Los cambios de CSS deben ser específicos para no afectar otras imágenes en la aplicación.
-  - **Dependencias:** Ninguna.
-  - **Estado:** PENDIENTE
+### Archivo: `services/auth/auth.js`
 
-- [ ] **(BUG)** Los logos de marca en el modal no tienen el estilo correcto.
-  - **Impacto esperado:** El logo debe mostrarse sin bordes, con fondo transparente y un efecto `drop-shadow`.
-  - **Riesgos conocidos:** Ninguno.
-  - **Dependencias:** Ninguna.
-  - **Estado:** PENDIENTE
+- **Tarea 8: Implementar Almacenamiento Seguro de Contraseñas**
+  - **Urgencia:** Crítica
+  - **Tipo:** Riesgo de Seguridad
+  - **Descripción:**
+    1.  Eliminar la conversión a `.toLowerCase()` en la comparación de contraseñas.
+    2.  Implementar un mecanismo de hashing para las contraseñas. Se debe añadir una utilidad de hashing (ej. SHA-256 con un salt) y migrar las contraseñas existentes a su formato hasheado. La comparación debe hacerse sobre los hashes, no sobre el texto plano.
+  - **Impacto Potencial:** Mejora fundamental de la seguridad de las cuentas de usuario.
 
-### Módulo: Sistema de Feedback y Calidad de Datos
+- **Tarea 9: Refactorizar Validación de Sesión**
+  - **Urgencia:** Media
+  - **Tipo:** Ineficiencia
+  - **Descripción:** Modificar `handleValidateSession` para que consulte la hoja `ActiveSessions` en lugar de leer toda la hoja `Users`. Esto alinea la función con su propósito lógico.
+  - **Impacto Potencial:** Validación de sesión mucho más rápida y eficiente.
 
-**Descripción funcional breve:** Lógica de backend para gestionar las interacciones de los usuarios que mejoran la calidad de los datos, como la sugerencia de años.
+### Archivo: `services/catalog/catalog.js`
 
-**Archivos involucrados:**
-- `services/feedback/feedback.js`
+- **Tarea 10: Separar Responsabilidades del Servicio**
+  - **Urgencia:** Media
+  - **Tipo:** Deuda Técnica
+  - **Descripción:** Refactorizar `handleGetCatalogData`. Mover la lógica de negocio (ordenamiento de cortes, transformación de URLs) a funciones auxiliares o incluso a un servicio de "transformación" separado si la complejidad aumenta. El handler principal solo debe ser responsable de obtener y devolver los datos.
+  - **Impacto Potencial:** Servicio más limpio, fácil de mantener y testear.
 
-**Tareas pendientes:**
-- [ ] **(INCOMPLETO)** La lógica de backend para "Sugerir Año" es demasiado simple y no sigue las reglas de negocio.
-  - **Impacto esperado:** La función `handleSuggestYear` debe ser reescrita para implementar un sistema de votación (requiere 3 votos para confirmar un cambio) y una lógica "anti-colisión" para evitar el solapamiento de rangos de años entre diferentes generaciones de vehículos.
-  - **Riesgos conocidos:** La lógica anti-colisión requiere una búsqueda compleja en la base de datos y puede ser propensa a errores si no se manejan todos los casos borde.
-  - **Dependencias:** Ninguna.
-  - **Estado:** PENDIENTE
+### Archivo: `services/feedback/feedback.js`
 
-### Módulo: Sistema de Catálogo (Backend)
+- **Tarea 11: Eliminar Código Duplicado**
+  - **Urgencia:** Media
+  - **Tipo:** Deuda Técnica
+  - **Descripción:** Identificar y eliminar la función `handleRecordLike` duplicada, unificando la lógica en una sola implementación.
+  - **Impacto Potencial:** Reduce la confusión y el riesgo de aplicar correcciones en un solo lugar.
 
-**Descripción funcional breve:** Servicio de backend responsable de leer y proveer los datos del catálogo al frontend.
+- **Tarea 12: Corregir `MimeType` de Respuesta**
+  - **Urgencia:** Crítica
+  - **Tipo:** Bug
+  - **Descripción:** Cambiar el `MimeType` de la respuesta del `doPost` de `ContentService.MimeType.JSON` a `ContentService.MimeType.TEXT`.
+  - **Impacto Potencial:** Soluciona el error `Failed to fetch` que actualmente impide que toda la funcionalidad del "Inbox" (reportes, contacto) funcione.
 
-**Archivos involucrados:**
-- `services/catalog/catalog.js`
+- **Tarea 13: Refactorizar Búsquedas en Hoja de Cálculo**
+  - **Urgencia:** Baja
+  - **Tipo:** Ineficiencia
+  - **Descripción:** Investigar métodos más eficientes para encontrar una fila por ID que no requieran leer toda la hoja de cálculo, como `TextFinder` o la creación de un índice en una propiedad del script, si es aplicable para lecturas menos frecuentes. Aplicar esta optimización a `handleRecordLike` y `handleAssignCollaborator`.
+  - **Impacto Potencial:** Mejora del rendimiento en operaciones de escritura de feedback.
 
-**Tareas pendientes:**
-- [ ] **(INCOMPLETO)** El servicio no ordena las categorías por popularidad.
-  - **Impacto esperado:** La función `handleGetCatalogData` debe calcular el número de vehículos por categoría y ordenar la lista de categorías de forma descendente antes de devolverla.
-  - **Riesgos conocidos:** Puede impactar ligeramente el rendimiento de la carga inicial.
-  - **Dependencias:** Ninguna.
-  - **Estado:** PENDIENTE
+### Archivo: `services/users/users.js`
 
-- [ ] **(DEUDA TÉCNICA)** La conversión de URLs a thumbnails se realiza en el frontend.
-  - **Impacto esperado:** Esta lógica debe moverse al backend (`catalog.js`) para centralizarla, optimizar el rendimiento y reducir la carga en el cliente. Se debe crear una función `convertirAGoogleThumbnail` y aplicarla a todos los campos de URL de imagen.
-  - **Riesgos conocidos:** Asegurarse de que la nueva función de backend sea robusta y maneje todos los formatos de URL de Google Drive existentes en la base de datos.
-  - **Dependencias:** Ninguna.
-  - **Estado:** PENDIENTE
+- **Tarea 14: Corregir Falla de Seguridad en Permisos**
+  - **Urgencia:** Crítica
+  - **Tipo:** Riesgo de Seguridad
+  - **Descripción:** Refactorizar TODAS las funciones de CRUD (`handleCreateUser`, `handleUpdateUser`, `handleDeleteUser`) para que la validación de permisos se base en una sesión verificada del *solicitante* en el backend, no en un parámetro (`creatorRole`, `updaterRole`) enviado desde el cliente. Se debe requerir un `sessionToken` en el payload y validarlo antes de proceder.
+  - **Impacto Potencial:** Cierra una vulnerabilidad crítica que permite la escalada de privilegios.
 
-### Módulo: Formulario de Adición de Cortes
+- **Tarea 15: Corregir Inconsistencia en Cambio de Contraseña**
+  - **Urgencia:** Media
+  - **Tipo:** Bug
+  - **Descripción:** Modificar la comparación de la `currentPassword` en `handleChangePassword` para que sea `case-insensitive` (`.toLowerCase()`), haciéndola consistente con la lógica de `login`.
+  - **Dependencias:** Depende de la Tarea 8. La comparación debe hacerse sobre el hash, no sobre el texto plano. Una vez implementado el hashing, esta tarea debe asegurar que el proceso de verificación sea consistente.
+  - **Impacto Potencial:** Soluciona el bug que impide a los usuarios cambiar su contraseña si la escriben con una capitalización diferente.
 
-**Descripción funcional breve:** Gestiona el flujo de trabajo de múltiples pasos para agregar nuevos vehículos y cortes a la base de datos.
+### Archivo: `services/write/write.js`
 
-**Archivos involucrados:**
-- `add_cortes.html`
-- `services/write/write.js`
+- **Tarea 16: Simular Transacciones y Mejorar Manejo de Errores**
+  - **Urgencia:** Alta
+  - **Tipo:** Riesgo de Datos
+  - **Descripción:** Refactorizar `handleAddOrUpdateCut` para simular una transacción. Primero, intentar todas las operaciones propensas a fallos (creación de carpetas, subida de archivos) y solo si TODAS tienen éxito, proceder con la escritura en la hoja de cálculo. Implementar `try...catch` robustos en cada paso y una lógica de `rollback` manual (ej. eliminar el archivo subido si la escritura en la hoja falla).
+  - **Impacto Potencial:** Reduce drásticamente el riesgo de corrupción y datos inconsistentes.
 
-**Tareas pendientes:**
-- [ ] **(FALTA REVISIÓN)** El flujo de escritura fue refactorizado.
-  - **Impacto esperado:** Se implementó una nueva lógica anti-duplicados con una interfaz de botones inline. Se necesita una revisión completa por parte del Project Manager para validar que cumple con todos los requisitos y no introduce regresiones.
-  - **Riesgos conocidos:** La complejidad del flujo de múltiples pasos puede ocultar bugs o casos borde no manejados.
-  - **Dependencias:** Ninguna.
-  - **Estado:** PENDIENTE
+- **Tarea 17: Unificar Lógica de `handleCheckVehicle`**
+  - **Urgencia:** Media
+  - **Tipo:** Inconsistencia
+  - **Descripción:** Eliminar la implementación de `handleCheckVehicle` de uno de los servicios (`catalog.js` o `write.js`) y asegurar que el `api-manager.js` siempre enrute esta acción al servicio correcto que la contiene.
+  - **Impacto Potencial:** Asegura un comportamiento consistente de la funcionalidad anti-duplicados.
 
-### Módulo: Gestión de Versiones y Documentación
+### Archivo: `services/utilities/utilities.js`
 
-**Descripción funcional breve:** Tareas relacionadas con el mantenimiento de la documentación del proyecto y el sistema de versionamiento.
+- **Tarea 18: Hacer Scripts de Migración Idempotentes**
+  - **Urgencia:** Alta
+  - **Tipo:** Riesgo de Datos
+  - **Descripción:** Modificar `handleMigrateYearRanges` y `handleMigrateTimestamps` para que verifiquen el estado de una fila antes de intentar modificarla. Por ejemplo, `handleMigrateYearRanges` no debería procesar una fila si `anoHasta` ya tiene un valor, y `handleMigrateTimestamps` no debería ejecutarse si `timestamp` ya está poblado.
+  - **Impacto Potencial:** Previene la corrupción de datos si los scripts se ejecutan accidentalmente más de una vez.
 
-**Archivos involucrados:**
-- `ChangesLogs.txt`
-- `Instrucciones.txt`
-- `README.md`
+- **Tarea 19: Corregir Falla de Seguridad en Autorización**
+  - **Urgencia:** Crítica
+  - **Tipo:** Riesgo de Seguridad
+  - **Descripción:** Reemplazar la función `authorize` actual. La nueva implementación debe recibir un `sessionToken` (no todo el objeto `session`), buscar ese token en la hoja `ActiveSessions` para encontrar el `userId`, y luego buscar el rol de ese `userId` en la hoja `Users`. La autorización debe basarse en este rol verificado en el backend.
+  - **Impacto Potencial:** Cierra la vulnerabilidad que permite la ejecución no autorizada de acciones de migración destructivas.
 
-**Tareas pendientes:**
-- [ ] **(DEUDA TÉCNICA)** Existen inconsistencias de versionamiento.
-  - **Impacto esperado:** Sincronizar la versión global para que el próximo gran lanzamiento sea `v2.0` y mejorar el formato de registro de fechas en `ChangesLogs.txt` para que sea consistente.
-  - **Riesgos conocidos:** Ninguno.
-  - **Dependencias:** Ninguna.
-  - **Estado:** PENDIENTE
+### Archivo: `Code.gs` (Legacy)
+
+- **Tarea 20: Corregir Configuración de Fallback**
+  - **Urgencia:** Baja
+  - **Tipo:** Deuda Técnica / Bug
+  - **Descripción:**
+    1.  Actualizar el `SPREADSHEET_ID` para que apunte a la DB v2.0, o eliminarlo si ya no es necesario para el logging.
+    2.  Modificar el `switch` en el `doPost` para que, en el `default` case, devuelva un error claro que indique que la acción debe ser manejada por un microservicio, en lugar de un "Acción desconocida" genérico. Esto mejorará la depuración del `api-manager.js`.
+  - **Impacto Potencial:** Mejora la claridad en la depuración y elimina configuraciones obsoletas.
