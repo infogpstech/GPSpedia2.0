@@ -1,3 +1,10 @@
+**v4.6.4 (04/01/2026)**
+*   **FIX (services/feedback/feedback.js):** Se solucionó un bug crítico que impedía el funcionamiento de la bandeja de entrada (Inbox).
+    *
+**Causa Raíz:** El servicio devolvía una respuesta con `MimeType.JSON`, lo cual es incompatible con la política de CORS de Google Apps Script y provocaba un error `Failed to fetch` en el frontend.
+    *   **Solución:** Se cambió el `MimeType` de la respuesta a `ContentService.MimeType.TEXT` en la función `doPost`, restaurando la comunicación entre el frontend y el servicio de feedback.
+    *   **Archivos Modificados:** `services/feedback/feedback.js`: Líneas 128, 132.
+
 **v4.6.3 (31-12-2025)**
 *   **FIX CRÍTICO (service-worker.js):** Se solucionó la causa raíz de múltiples regresiones visuales y funcionales al invalidar la caché del PWA.
     *   **Causa Raíz:** Cambios previos en el frontend no se reflejaban porque el service worker servía una versión obsoleta de la aplicación desde la caché.
