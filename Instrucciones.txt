@@ -40,7 +40,7 @@ MÓDULO: ARQUITECTURA GENERAL Y DOCUMENTACIÓN
   - **Urgencia:** Media
   - **Tipo:** Inconsistencia
   - **Descripción:**
-    1.  Eliminar el archivo obsoleto `ChangesLogstxt`.
+    1.  Eliminar el archivo obsoletos `ChangesLogstxt`.
     2.  Auditar y actualizar el `README.md` para que el estado de las tareas (`[X]`, `[ ]`) refleje la realidad del código.
     3.  Estandarizar el sistema de versionamiento y asegurar que se aplique consistentemente en todos los archivos y en `ChangesLogs.txt`.
   - **Impacto Potencial:** La documentación se vuelve una fuente fiable, facilitando el onboarding de nuevos desarrolladores y la planificación de futuras funcionalidades.
@@ -135,7 +135,7 @@ MÓDULO: BACKEND (MICROSERVICIOS)
 
 ### Archivo: `services/users/users.js`
 
-- **Tarea 14: Corregir Falla de Seguridad en Permisos [en revisión]**
+- **Tarea 14: Corregir Falla de Seguridad en Permisos**
   - **Urgencia:** Crítica
   - **Tipo:** Riesgo de Seguridad
   - **Descripción:** Refactorizar TODAS las funciones de CRUD (`handleCreateUser`, `handleUpdateUser`, `handleDeleteUser`) para que la validación de permisos se base en una sesión verificada del *solicitante* en el backend, no en un parámetro (`creatorRole`, `updaterRole`) enviado desde el cliente. Se debe requerir un `sessionToken` en el payload y validarlo antes de proceder.
@@ -187,30 +187,74 @@ MÓDULO: BACKEND (MICROSERVICIOS)
   - **Impacto Potencial:** Mejora la claridad en la depuración y elimina configuraciones obsoletas.
 
 ---------------------------------
-MÓDULO: BUGS REPORTADOS POR EL USUARIO (AÑADIDO 2025-12-31)
+NUEVAS TAREAS CRÍTICAS (AÑADIDO 2026-01-04)
 ---------------------------------
 
-### Archivo: `api-manager.js` y `services/feedback/feedback.js`
+### MÓDULO: FEEDBACK Y MANEJO DE DATOS
 
-- **Tarea 21: Corregir Acciones de Feedback Faltantes**
+- **Tarea 21: Corregir Bugs Críticos en Servicio de Feedback**
+  - **Urgencia:** Prioridad Alta
+  - **Tipo:** Bug Crítico (Corrupción de Datos)
+  - **Descripción:** Se han detectado múltiples fallos en la forma en que el servicio de feedback guarda los datos:
+    1.  **ID de Usuario Faltante:** El ID del usuario no se está guardando en la hoja de cálculo de `Feedbacks` o `Contactenos`.
+    2.  **Fórmula de ID Rota:** La fórmula oficial para generar IDs (`C-` para Contacto, `F-` para Feedback, `L-` para Logs) no se está heredando al crear nuevas filas.
+    3.  **Correo Electrónico Faltante:** En el formulario de "Contáctanos", el correo del usuario no se guarda.
+  - **Requerimiento Técnico:** Asegurar que la herencia de fórmulas funcione. Si `copyTo()` no es suficiente, la fórmula debe ser replicada explícitamente desde el backend.
+  - **Impacto Potencial:** Restaura la integridad de los datos, permitiendo trazar quién reporta un problema o envía un mensaje.
+
+- **Tarea 22: Corregir Herencia de ID en Servicio de Escritura (Cortes)**
+  - **Urgencia:** Crítica
+  - **Tipo:** Bug Crítico (Corrupción de Datos)
+  - **Descripción:** Similar a la Tarea 21, el servicio `write` no hereda la fórmula del ID (`="V-"&TEXTO(FILA()-1,"000")`) al crear una nueva fila de corte.
+  - **Impacto Potencial:** Restaura la capacidad de generar IDs únicos y correctos para nuevos cortes de vehículos.
+
+- **Tarea 23: Corregir Bugs Críticos en Servicio de Usuarios**
   - **Urgencia:** Crítica
   - **Tipo:** Bug
-  - **Descripción:** El usuario reporta errores "Acción no definida" para `suggestYear` y `getFeedbackItems`. Estas acciones deben ser añadidas al `ACTION_TO_SERVICE_MAP` en `api-manager.js` y apuntar al servicio `FEEDBACK`.
-  - **Impacto Potencial:** Soluciona dos flujos de usuario rotos: la sugerencia de año después de un "like" y la carga de mensajes en la bandeja de entrada (Inbox).
+  - **Descripción:**
+    1.  **Cambio de Contraseña Inoperante:** El botón "Cambiar Contraseña" en la UI no ejecuta ninguna acción.
+    2.  **Creación de Usuario Rota:** La creación de nuevos usuarios sigue fallando.
+    3.  **Fórmula de ID Rota:** La fórmula para los IDs de usuario (`="U-"&TEXTO(FILA()-1,"000")`) no se está heredando correctamente.
+  - **Impacto Potencial:** Restaura funcionalidades básicas y críticas de la gestión de usuarios.
 
-### Archivo: `services/write/write.js`
+### MÓDULO: ARQUITECTURA FRONTEND Y GESTIÓN DE IMÁGENES
 
-- **Tarea 22: Corregir Herencia de Fórmulas al Crear Filas [en revisión]**
+- **Tarea 24: Reestructuración Urgente del Frontend**
+  - **Urgencia:** Crítica
+  - **Tipo:** Deuda Técnica Crítica
+  - **Descripción:** El frontend debe ser separado inmediatamente en archivos HTML, CSS y JavaScript por funcionalidad o componente. Esto es un requisito no negociable para la mantenibilidad y aplica a todas las páginas, incluyendo `add_cortes.html`.
+  - **Impacto Potencial:** Reduce drásticamente la complejidad del código, facilita futuras modificaciones y disminuye el riesgo de regresiones.
+
+- **Tarea 25: Implementar Proxy de Imágenes en Backend**
+  - **Urgencia:** No Negociable
+  - **Tipo:** Requerimiento de Arquitectura
+  - **Descripción:** Diseñar e implementar una solución para manejar las imágenes de Google Drive a través de un proxy en el backend.
+    1.  **Backend:** Crear una ruta que reciba un `fileId`, obtenga el archivo de Drive y devuelva el `blob` con su `Content-Type` correcto.
+    2.  **Normalización de Datos:** El backend solo debe enviar el `fileId` al frontend. Si existen URLs completas en la base de datos, deben ser normalizadas para extraer y guardar únicamente el ID.
+    3.  **Frontend:** Todas las etiquetas `<img>` deben apuntar al endpoint del backend (ej. `/image?img=<fileId>`). Toda la lógica de conversión de URLs de Drive debe ser eliminada del frontend.
+  - **Restricción:** El frontend NO debe recibir URLs directas de Google Drive. El tamaño de las imágenes debe ser controlado exclusivamente por CSS, sin usar parámetros de URL (`=w...`, `sz`, etc.).
+  - **Impacto Potencial:** Centraliza la lógica de imágenes, mejora la seguridad al no exponer URLs directas y permite un control de renderizado más robusto.
+
+- **Tarea 26: Corregir y Rediseñar Estilos de Imágenes**
   - **Urgencia:** Alta
-  - **Tipo:** Bug Crítico (Corrupción de Datos)
-  - **Descripción:** El usuario reporta que al crear un nuevo vehículo, la nueva fila en la hoja de cálculo no hereda la fórmula de la columna `ID` de la fila anterior. Esto impide la generación de nuevos IDs y rompe la integridad de los datos.
-  - **Impacto Potencial:** Previene la creación de nuevos registros de vehículos, bloqueando una funcionalidad principal de la aplicación.
+  - **Tipo:** Bug Visual / UX
+  - **Descripción:** Aplicar correcciones de estilo específicas al modal de detalles del vehículo:
+    1.  **Logo de Marca:** Debe estar a la izquierda del nombre del modelo, sin contenedor, fondo o borde, y con un efecto `drop-shadow`.
+    2.  **Imagen del Vehículo:** Sin contenedor, tamaño reducido en un 10% y centrado.
+    3.  **Layout de Escritorio (Modal):**
+        *   Imagen del vehículo a la izquierda (máx. 200px de ancho).
+        *   Imagen del corte recomendado a la derecha de la información del vehículo.
+        *   Imágenes de cortes, apertura y alimentación deben tener el mismo ancho (`width: 100%`) y altura automática para ocupar todo el espacio horizontal disponible en su contenedor.
+        *   En un contenedor separado a la derecha, mostrar las imágenes de los cortes verticalmente, sin exceder los 300px de ancho total, mientras la información del modal permanece a la izquierda.
+  - **Impacto Potencial:** Mejora significativamente la presentación visual y la experiencia de usuario en una de las vistas más importantes de la aplicación.
 
-### Archivo: `services/users/users.js` y `users.html`
+### MÓDULO: FLUJO DE USUARIO
 
-- **Tarea 23: Investigar Error "Datos Insuficientes"**
+- **Tarea 27: Implementación de Fase 3 en `add_cortes.html`**
   - **Urgencia:** Alta
-  - **Tipo:** Bug (Incompatibilidad de Versiones)
-  - **Descripción:** El usuario reporta el error "Datos insuficientes para crear el usuario". El diagnóstico indica que la versión del backend desplegada (`2.2.1`) espera `creatorRole`, mientras que la versión del frontend en el repositorio envía `sessionToken`. Esto representa una incompatibilidad entre el código del repositorio y el entorno de producción del usuario.
-  - **Solución a Largo Plazo:** El usuario debe desplegar la última versión del servicio `users.js` que contiene el parche de seguridad y la lógica para manejar `sessionToken`.
-  - **Solución a Corto Plazo:** Mantener el frontend (`users.html`) en un estado compatible con la versión `2.2.1` del backend.
+  - **Tipo:** Funcionalidad Inconclusa
+  - **Descripción:** La Fase 3 del formulario de añadir cortes está mal implementada y debe ser reconstruida según las especificaciones del `README.md`.
+    1.  **Flujo Opcional:** El usuario debe poder presionar "Terminar" para cerrar el formulario si no desea añadir información suplementaria.
+    2.  **Componentes:** La UI debe incluir secciones para "Apertura" y "Alimentación", cada una con campos para color de cable, ubicación, un botón para subir imagen (no URL) y una vista previa de la imagen.
+    3.  **Backend:** El backend debe manejar la subida de estas imágenes a Drive, renombrarlas y guardar la información en la fila correcta del vehículo (heredado de la Fase 1).
+  - **Impacto Potencial:** Completa un flujo de usuario crítico que actualmente está roto.
