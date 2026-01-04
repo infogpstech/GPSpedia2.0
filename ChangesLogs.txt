@@ -1,3 +1,7 @@
+**v4.7.0 (31-12-2025)**
+*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `WRITE` a la nueva versión desplegada proporcionada por el usuario.
+    *   **Archivos Modificados:** `api-manager.js`.
+
 **v4.6.9 (31-12-2025)**
 *   **FIX (services/write/write.js):** Se solucionó un bug crítico que impedía la creación de nuevos vehículos.
     *   **Causa Raíz:** Al crear un nuevo registro, una llamada `setValues` sobrescribía la fila entera, eliminando la fórmula de la columna `ID` que se había heredado de la fila anterior. Esto resultaba en registros nuevos sin ID.
