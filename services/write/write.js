@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-WRITE SERVICE (STANDARDIZED FOR DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 2.3.0
+// COMPONENT VERSION: 2.3.1
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -41,7 +41,7 @@ function doGet(e) {
     if (e.parameter.debug === 'true') {
         const serviceState = {
             service: 'GPSpedia-Write',
-            version: '2.2.1',
+            version: '2.3.1',
             spreadsheetId: SPREADSHEET_ID,
             driveFolderId: DRIVE_FOLDER_ID,
             sheetsAccessed: [SHEET_NAMES.CORTES]
@@ -49,7 +49,7 @@ function doGet(e) {
         return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
             .setMimeType(ContentService.MimeType.TEXT);
     }
-    const defaultResponse = { status: 'success', message: 'GPSpedia Write-SERVICE v2.2.1 is active.' };
+    const defaultResponse = { status: 'success', message: 'GPSpedia Write-SERVICE v2.3.1 is active.' };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
         .setMimeType(ContentService.MimeType.TEXT);
 }
@@ -144,7 +144,7 @@ function handleAddOrUpdateCut(payload) {
         // Limpiar SOLO el contenido de la fila nueva, preservando fórmulas y validaciones.
         newRowRange.clearContent();
 
-        let newRowData = new Array(sheet.getLastColumn()).fill(null); // Usar null para no sobreescribir celdas
+        // REFACTOR: Usar setValue para no sobrescribir la fórmula de la columna ID
 
         // Parsear año según las reglas estrictas
         const yearInput = vehicleData.anoDesde.trim();
@@ -152,25 +152,25 @@ function handleAddOrUpdateCut(payload) {
         if (yearInput.includes('-')) {
             const [start, end] = yearInput.split('-').map(y => parseInt(y.trim(), 10));
             anoDesde = Math.min(start, end);
-            newRowData[COLS_CORTES.anoHasta - 1] = Math.max(start, end);
+            sheet.getRange(rowIndex, COLS_CORTES.anoHasta).setValue(Math.max(start, end));
         } else {
             anoDesde = parseInt(yearInput, 10);
-            newRowData[COLS_CORTES.anoHasta - 1] = '';
+            sheet.getRange(rowIndex, COLS_CORTES.anoHasta).setValue('');
         }
-        newRowData[COLS_CORTES.anoDesde - 1] = anoDesde;
+        sheet.getRange(rowIndex, COLS_CORTES.anoDesde).setValue(anoDesde);
         anioParaFolder = anoDesde;
 
-        newRowData[COLS_CORTES.marca - 1] = vehicleData.marca;
-        newRowData[COLS_CORTES.modelo - 1] = vehicleData.modelo;
-        newRowData[COLS_CORTES.tipoEncendido - 1] = vehicleData.tipoEncendido;
-        newRowData[COLS_CORTES.categoria - 1] = vehicleData.categoria || '';
-        newRowData[COLS_CORTES.versionesAplicables - 1] = vehicleData.versionesAplicables || '';
+        sheet.getRange(rowIndex, COLS_CORTES.marca).setValue(vehicleData.marca);
+        sheet.getRange(rowIndex, COLS_CORTES.modelo).setValue(vehicleData.modelo);
+        sheet.getRange(rowIndex, COLS_CORTES.tipoEncendido).setValue(vehicleData.tipoEncendido);
+        sheet.getRange(rowIndex, COLS_CORTES.categoria).setValue(vehicleData.categoria || '');
+        sheet.getRange(rowIndex, COLS_CORTES.versionesAplicables).setValue(vehicleData.versionesAplicables || '');
 
         if (vehicleData.imagenVehiculo) {
             const folder = getOrCreateFolder(vehicleData.categoria, vehicleData.marca, vehicleData.modelo, anioParaFolder);
             const filename = `${sanitizeForFilename(vehicleData.marca)}_${sanitizeForFilename(vehicleData.modelo)}_${sanitizeForFilename(vehicleData.tipoEncendido)}_${yearInput}_Vehiculo.jpg`;
             const imageUrl = uploadImageToDrive(vehicleData.imagenVehiculo, filename, folder);
-            newRowData[COLS_CORTES.imagenVehiculo - 1] = imageUrl;
+            sheet.getRange(rowIndex, COLS_CORTES.imagenVehiculo).setValue(imageUrl);
         }
 
         // Para un vehículo nuevo, el corte siempre va en el slot 1
@@ -182,16 +182,15 @@ function handleAddOrUpdateCut(payload) {
             imageUrl = uploadImageToDrive(cutData.imgCorte1, filename, folder);
         }
 
-        newRowData[COLS_CORTES.tipoCorte1 - 1] = cutData.tipoCorte1;
-        newRowData[COLS_CORTES.ubicacionCorte1 - 1] = cutData.ubicacionCorte1;
-        newRowData[COLS_CORTES.colorCableCorte1 - 1] = cutData.colorCableCorte1;
-        newRowData[COLS_CORTES.configRelay1 - 1] = cutData.configRelay1;
-        newRowData[COLS_CORTES.imgCorte1 - 1] = imageUrl;
-        newRowData[COLS_CORTES.colaboradorCorte1 - 1] = colaborador;
-        newRowData[COLS_CORTES.timestamp - 1] = formattedDate;
+        sheet.getRange(rowIndex, COLS_CORTES.tipoCorte1).setValue(cutData.tipoCorte1);
+        sheet.getRange(rowIndex, COLS_CORTES.ubicacionCorte1).setValue(cutData.ubicacionCorte1);
+        sheet.getRange(rowIndex, COLS_CORTES.colorCableCorte1).setValue(cutData.colorCableCorte1);
+        sheet.getRange(rowIndex, COLS_CORTES.configRelay1).setValue(cutData.configRelay1);
+        sheet.getRange(rowIndex, COLS_CORTES.imgCorte1).setValue(imageUrl);
+        sheet.getRange(rowIndex, COLS_CORTES.colaboradorCorte1).setValue(colaborador);
+        sheet.getRange(rowIndex, COLS_CORTES.timestamp).setValue(formattedDate);
 
-        sheet.getRange(rowIndex, 1, 1, newRowData.length).setValues([newRowData]);
-
+        SpreadsheetApp.flush(); // Asegura que los cambios se escriban antes de leer el ID
         Utilities.sleep(1500); // Espera extendida para que la fórmula del ID se calcule
         newId = sheet.getRange(rowIndex, COLS_CORTES.id).getValue();
     }
