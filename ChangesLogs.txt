@@ -1,3 +1,9 @@
+**v4.7.1 (04-01-2026)**
+*   **HOTFIX (service-worker.js):** Se solucionó la causa raíz de por qué los cambios de la v4.7.0 no eran visibles para los usuarios.
+    *   **Causa Raíz:** La versión anterior no incrementó la versión de la caché en el service worker (`CACHE_NAME`). Esto provocó que los clientes siguieran utilizando una versión obsoleta de `index.html` servida desde la caché del PWA, ignorando por completo las correcciones de UI y estabilidad.
+    *   **Solución:** Se incrementó la versión de la caché a `v7`. Esto invalida la caché antigua y obliga a todos los clientes a descargar la versión más reciente del frontend, haciendo que el carrusel de motocicletas, los estilos del modal y las demás mejoras sean finalmente visibles y funcionales.
+    *   **Archivos Modificados:** `service-worker.js`.
+
 **v4.7.0 (03-01-2026)**
 *   **FIX & REFACTOR (index.html):** Se implementaron correcciones de alta precisión para resolver una regresión de estilos en el modal de detalles y el bug persistente del carrusel de motocicletas.
     *   **Aislamiento de Estilos de Imagen (Modal):**
@@ -286,7 +292,7 @@ NOTA SIBRE ESTA ENTEADA, algunos cambios solicitados no se realizaron y se ignor
 **v4.2.8 (13/01/2026)**
 *   **FIX (index.html):** Se solucionó la causa raíz del fallo en la renderización de logos de marcas.
     *   **Causa Raíz:** La lógica anterior para encontrar logos (`getLogoUrlForMarca`) era demasiado rígida y se basaba en la concatenación de strings (ej. 'marca' + 'motocicletas'), lo que no coincidía con los nombres reales en la base de datos (ej. 'Honda Motocicletas').
-    *   **Solución:** Se revirtió el fallback a texto y se refactorizó `getLogoUrlForMarca` con un algoritmo de búsqueda flexible. La nueva función normaliza los nombres, busca todas las coincidencias parciales que contienen el nombre de la marca y luego usa la categoría para desambiguiar de forma inteligente entre variantes (ej. prioriza "motocicletas" si la categoría es "Motos"). Esto asegura que el logo correcto se encuentre siempre. (Líneas 1901-1941, 2535-2565).
+    *   **Solución:** Se revirtió el fallback a texto y se refactorizó `getLogoUrlForMarca` con un algoritmo de búsqueda flexible. La nueva función normaliza los nombres, busca todas las coincidencias parciales que contienen el nombre de la marca y luego usa la categoría para desambiguar de forma inteligente entre variantes (ej. prioriza "motocicletas" si la categoría es "Motos"). Esto asegura que el logo correcto se encuentre siempre. (Líneas 1901-1941, 2535-2565).
 *   **FEAT (index.html):** Se implementó la lógica de frontend para la sugerencia de año, completando el flujo de feedback del usuario.
     *   **Funcionalidad:** Después de que un usuario presiona el botón "Útil" para registrar un "like", ahora se le presenta un `prompt` que le pregunta si el corte aplica a otro año.
     *   **Implementación:** Si el usuario ingresa un año válido, la función `handleLike` invoca la acción `suggestYear` en el backend para registrar la sugerencia. Se añadió manejo de errores y validación de entrada para asegurar que solo se envíen años numéricos válidos. (Líneas 2933-2980).
