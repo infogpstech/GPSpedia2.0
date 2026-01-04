@@ -126,11 +126,11 @@ function doPost(e) {
                 throw new Error(`Acción desconocida en Feedback Service: ${action}`);
         }
         return ContentService.createTextOutput(JSON.stringify(response))
-            .setMimeType(ContentService.MimeType.JSON);
+            .setMimeType(ContentService.MimeType.TEXT);
     } catch (error) {
         response = { status: 'error', message: error.message };
         return ContentService.createTextOutput(JSON.stringify(response))
-            .setMimeType(ContentService.MimeType.JSON);
+            .setMimeType(ContentService.MimeType.TEXT);
     }
 }
 

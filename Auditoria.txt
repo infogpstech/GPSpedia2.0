@@ -1,61 +1,150 @@
-### Auditoría del Sistema GPSpedia - SAFE RECTIFICATION MODE
+=================================================
+ INFORME DE AUDITORÍA TÉCNICA PROFUNDA - GPSpedia
+=================================================
+**Versión de Auditoría:** 1.0
+**Fecha de Ejecución:** 2024-08-20
+**Analista:** Jules
 
-#### A. Resumen del Estado Actual del Sistema
+---------------------------------
+RESUMEN EJECUTIVO
+---------------------------------
 
-Se realizó una auditoría completa del frontend y de los servicios de backend seguros (`feedback.js`, `catalog.js`) para comparar el estado actual del código con los nuevos requisitos de la directiva "SAFE FRONTEND/UI IMPLEMENTATION MODE".
+Esta auditoría revela una arquitectura con una visión clara pero con una ejecución deficiente, resultando en una base de código frágil, inconsistente y con significativa deuda técnica. El proyecto sufre de una discrepancia crítica entre los objetivos documentados (`README.md`, `ChangesLogs.txt`) y la implementación real del código.
 
 **Hallazgos Clave:**
+1.  **Arquitectura Frontend Monolítica:** Todos los archivos frontend (`index.html`, `add_cortes.html`, `users.html`) son aplicaciones de un solo archivo que mezclan HTML, CSS y JavaScript complejo. Esta estructura es difícil de mantener, depurar y escalar.
+2.  **Inconsistencia Sistémica en Backend:** Los microservicios, aunque conceptualmente separados, presentan patrones de codificación inconsistentes, especialmente en el manejo de errores, la lógica de acceso a datos y la implementación de la seguridad.
+3.  **Seguridad Deficiente:** Se identificaron múltiples fallos de seguridad, incluyendo la comparación de contraseñas en texto plano e insensible a mayúsculas/minúsculas, lógica de autorización defectuosa y una falta general de validación de entradas.
+4.  **Acceso a Datos Ineficiente:** La mayoría de los servicios leen rangos completos de la hoja de cálculo (`getDataRange().getValues()`) para realizar búsquedas simples, lo que es extremadamente ineficiente y no escalará con el crecimiento de los datos.
+5.  **Documentación Desactualizada y Contradictoria:** El `README.md` describe funcionalidades que no existen o funcionan de manera diferente. Los `ChangesLogs.txt` a menudo documentan regresiones o correcciones que introducen nuevos problemas, y existe un archivo de log duplicado (`ChangesLogstxt`).
 
-1.  **Frontend (`index.html`):**
-    *   **Layout de la Página Principal:** La sección "Últimos Agregados" se muestra después de "Categorías", no antes. Se implementa como un carrusel de 10 tarjetas, no 6. Las categorías se ordenan alfabéticamente, no por popularidad (cantidad de vehículos).
-    *   **Navegación:** El flujo de `Categoría -> Marca` muestra los nombres de las marcas como texto, en lugar de los íconos/logos requeridos.
-    *   **Modal de Detalles:** La funcionalidad "Sugerir Año" existe pero no está vinculada al botón "Útil" (👍) y carece de la lógica de confirmación (3 votos). No existen placeholders para la edición "in-modal" de campos vacíos.
-    *   **Imágenes:** La conversión de URLs de Google Drive a thumbnails se realiza correctamente en el frontend. La optimización de carga (`loading="lazy"`) está implementada.
+A continuación, se presenta el desglose detallado por componente.
 
-2.  **Backend (`feedback.js`):**
-    *   **Lógica de "Sugerir Año":** La función `handleSuggestYear` es demasiado simple. Actualiza el rango de años ante cualquier sugerencia fuera del rango actual, pero carece de la lógica mandatoria de "3 votos" y de la comprobación "anti-colisión" para evitar el solapamiento de rangos entre diferentes generaciones de vehículos.
+---------------------------------
+1. ANÁLISIS DEL FRONTEND
+---------------------------------
 
-3.  **Backend (`catalog.js`):**
-    *   **Ordenamiento de Categorías:** El servicio no contiene ninguna lógica para calcular la cantidad de vehículos por categoría y ordenarlas. Las devuelve en el orden en que las obtiene de la hoja de cálculo.
-    *   **Conversión de Imágenes:** No realiza la conversión de URLs a thumbnails en el backend; esta lógica reside actualmente en el frontend.
+### 1.1. Arquitectura General del Frontend
 
-#### B. Plan de Corrección Concreto y Seguro
+- **Hallazgo (Deuda Técnica Crítica):** La arquitectura de todos los archivos HTML principales es monolítica. `index.html` contiene más de 3500 líneas de código, mezclando la estructura de la página, más de 800 líneas de CSS y más de 2000 líneas de JavaScript. Este patrón se repite en `add_cortes.html` y `users.html`.
+  - **Impacto:** Mantenimiento casi imposible, alta propensión a regresiones, dificultad extrema para la depuración y reutilización de código nula. Un pequeño cambio puede tener efectos imprevistos en toda la aplicación.
 
-A continuación se detalla el plan para rectificar las desviaciones encontradas, respetando la restricción de no modificar la lógica crítica de `auth.js` y `catalog.js`.
+- **Hallazgo (Riesgo Alto):** Existe una dependencia masiva de variables globales y manipulación directa del DOM (`document.getElementById`, `innerHTML`). No hay un manejo de estado estructurado.
+  - **Impacto:** El estado de la aplicación es impredecible. Las funciones modifican directamente el DOM y las variables globales, lo que lleva a comportamientos inesperados y errores difíciles de rastrear, como los `ReferenceError` documentados en el `ChangesLogs.txt`.
 
-1.  **Backend - `catalog.js` (Modificaciones Seguras):**
-    *   **Acción 1.1 (Ordenamiento de Categorías):** Modificar la función `handleGetCatalogData` para que, antes de devolver los datos, calcule un conteo de vehículos por cada categoría. Luego, usar este conteo para ordenar la lista de categorías de forma descendente. Esto no afecta la carga de datos, solo su orden de presentación.
-    *   **Acción 1.2 (Centralización de Thumbnails):** Crear una nueva función auxiliar `convertirAGoogleThumbnail` dentro de `catalog.js` y aplicarla a todos los campos de URL de imagen (`imagenVehiculo`, `imgCorte1`, etc.) antes de enviar la respuesta al frontend. Esto optimiza el rendimiento y centraliza la lógica.
+### 1.2. `api-manager.js` (Enrutador de Frontend)
 
-2.  **Backend - `feedback.js` (Modificaciones Seguras):**
-    *   **Acción 2.1 (Lógica de "Sugerir Año):** Reescribir por completo la función `handleSuggestYear`. La nueva implementación deberá:
-        *   Registrar cada sugerencia de año en una nueva hoja de cálculo (`SugerenciasAño`) junto con el `vehicleId` y el `userId`.
-        *   Contar cuántas veces se ha sugerido el mismo año para el mismo vehículo.
-        *   **Solo si el conteo alcanza 3**, proceder a la lógica de actualización.
-        *   Antes de actualizar, ejecutar la **comprobación anti-colisión** buscando otros registros de la misma marca/modelo para evitar solapamientos de rangos.
-        *   Si todas las condiciones se cumplen, extender `anoDesde` o `anoHasta`. Si no, no hacer nada.
+- **Hallazgo (Deuda Técnica Media):** El archivo centraliza correctamente el enrutamiento de la API, pero utiliza un mapa estático (`ACTION_TO_SERVICE_MAP`) y URLs de producción codificadas.
+  - **Impacto:** Cada nueva acción de backend requiere una modificación manual de este archivo. No hay un mecanismo dinámico para descubrir servicios o acciones. Las URLs codificadas dificultan la transición entre entornos de desarrollo y producción.
 
-3.  **Frontend - `index.html` (Modificaciones de UI/UX):**
-    *   **Acción 3.1 (Layout Principal):**
-        *   Modificar la función `mostrarCategorias` para que renderice primero la sección "Últimos Agregados" y luego el grid de "Categorías".
-        *   Ajustar la función `mostrarUltimosAgregados` para que construya un carrusel con un máximo de 6 tarjetas y su respectiva navegación.
-        *   Aplicar el CSS necesario para que el grid principal no exceda 3 columnas en móviles (`max-width: 480px`).
-    *   **Acción 3.2 (Flujo de Navegación):**
-        *   Modificar la función `mostrarMarcas` para que renderice las marcas como íconos (`<img>`) utilizando las URLs de los logos proporcionadas por el backend, en lugar de texto plano.
-    *   **Acción 3.3 (Modal de Detalles):**
-        *   Vincular la funcionalidad "Sugerir Año" al botón "Útil" (👍). Al hacer clic, primero se registrará el "like" y luego se ejecutará el `prompt` para sugerir un año.
-        *   Implementar la lógica de "edición in-modal": para cada campo de texto en el modal (`ubicacion`, `color`, etc.), añadir un pequeño ícono de "editar". Si el campo está vacío, al hacer clic en el ícono se mostrará un `prompt` para que el usuario ingrese el dato, que se mostrará visualmente (sin guardarlo en el backend). Si el campo ya tiene datos, el ícono estará deshabilitado.
+### 1.3. `index.html`
 
-4.  **Documentación:**
-    *   **Acción 4.1 (`ChangesLogs.txt`):** Una vez completadas todas las modificaciones, añadir una nueva entrada de versión que detalle cada uno de los cambios realizados en `index.html`, `catalog.js` y `feedback.js`, con una nota explícita de que la lógica protegida no fue alterada.
-    *   **Acción 4.2 (`Auditoria.txt`):** Este mismo archivo servirá como registro de la auditoría y el plan de acción ejecutado.
-**v4.2.3 (08/01/2026) - REGRESSION FIX**
-*   **Problem:** A regression introduced in v4.2.0 broke the search bar functionality, causing cascading failures that could impact login and catalog loading.
-*   **Root Cause:** The search results logic in  incorrectly tried to use  to fetch brand logos. In a global search context, this variable is unreliable ( or stale), causing the rendering process to fail.
-*   **Fix:** The call to  within the search results function was modified to pass  for the category. This forces the function to use its designed fallback mechanism, safely retrieving the generic brand logo and preventing the crash. This was a minimal, targeted fix to restore critical functionality.
+- **Hallazgo (Inconsistencia Funcional):** La lógica de `checkSession` es frágil. Valida una sesión contra el backend, pero el resto de la aplicación depende de la copia local en `localStorage`, que puede no estar sincronizada.
+  - **Impacto:** Potencial para condiciones de carrera donde la UI cree que el usuario está autenticado cuando su sesión ya ha sido invalidada en el backend.
 
+- **Hallazgo (Error de Lógica):** La función `sanitizeInput` fue identificada en logs (`ChangesLogstxt`) como una fuente de errores de autenticación al alterar contraseñas. Aunque se ha eliminado su uso en el campo de contraseña, la función aún existe, representando un riesgo si se reutiliza incorrectamente.
 
-**v4.2.4 (09/01/2026) - CRITICAL REGRESSION FIX**
-*   **Problem:** A  for the  function was halting all JavaScript execution, breaking catalog loading and causing session loss on every page refresh.
-*   **Root Cause:** The  function was defined inside a conditional block that only runs if the carousel has enough items to need scroll buttons. However, a  that calls this function was located outside the block, causing a fatal error when the condition was false.
-*   **Fix:** The  call was moved inside the conditional block, ensuring it only runs when the  function actually exists. This resolves the critical execution failure and restores core application functionality.
+- **Hallazgo (Código Muerto):** La lógica de IndexedDB existe pero no se utiliza activamente, ya que la aplicación prioriza las llamadas directas al backend.
+  - **Impacto:** Código obsoleto que añade complejidad sin aportar funcionalidad.
+
+- **Hallazgo (Error de Lógica):** La función `crearCarrusel` se definió originalmente dentro de otro scope, causando un `ReferenceError` (documentado en `ChangesLogs.txt v4.3.6`). Aunque fue movida al ámbito global, esto evidencia la fragilidad de la estructura del código.
+
+### 1.4. `add_cortes.html`
+
+- **Hallazgo (Deuda Técnica Alta):** Repite la arquitectura monolítica de `index.html`, con más de 400 líneas de JavaScript para gestionar un flujo de múltiples pasos. La lógica de estado (en qué paso se encuentra el usuario) se gestiona con variables globales y manipulación de clases CSS.
+  - **Impacto:** Flujo de usuario frágil y difícil de seguir. Errores en la gestión del estado pueden llevar a que el usuario quede "atascado" en un paso del formulario.
+
+- **Hallazgo (Inconsistencia):** La funcionalidad "Quizás quisiste decir..." (`handleSuggestion`) realiza una llamada a una acción `getSuggestion` que, según el `ChangesLogs.txt` (`v4.5.3`), no estaba implementada o definida, causando errores fatales que bloqueaban la renderización. Aunque el código actual maneja el error con `try...catch`, la dependencia en una funcionalidad históricamente inestable es un riesgo.
+
+### 1.5. `users.html`
+
+- **Hallazgo (Error de Lógica Crítico):** El código del frontend accede a las propiedades del objeto de usuario usando `camelCase` (ej. `user.Nombre_Usuario`), pero la respuesta del backend (y el `ChangesLogs.txt v4.1.0`) indica que los nombres de las columnas en la base de datos usan `PascalCase_With_Underscores` (ej. `Nombre_Usuario`). Múltiples `FIX` en el código actual confirman esta discrepancia, que ha sido una fuente recurrente de bugs de "undefined".
+  - **Impacto:** La UI no puede mostrar datos del usuario, causando que la tabla y los modales de edición aparezcan vacíos o con errores.
+
+---------------------------------
+2. ANÁLISIS DEL BACKEND (MICROSERVICIOS)
+---------------------------------
+
+### 2.1. `services/auth/auth.js`
+
+- **Hallazgo (Error de Lógica de Seguridad Crítico):** La comparación de contraseñas (`handleLogin`) es insensible a mayúsculas y minúsculas (`.toLowerCase()`). Esto significa que "Password123", "password123" y "PASSWORD123" son consideradas contraseñas idénticas.
+  - **Impacto:** Reduce drásticamente la seguridad de las contraseñas.
+
+- **Hallazgo (Inconsistencia de Seguridad):** Mientras que el login es `case-insensitive`, el servicio de `users.js` (`handleChangePassword`) realiza una comparación `case-sensitive` (`===`).
+  - **Impacto:** Un usuario podría no poder cambiar su contraseña si la ingresa con una capitalización diferente a la que está almacenada, aunque podría iniciar sesión con ella.
+
+- **Hallazgo (Deuda Técnica):** La lógica de límite de sesiones es compleja y propensa a errores. Elimina sesiones activas basándose en el orden de las filas en la hoja de cálculo, lo cual no garantiza que se elimine la sesión más antigua si las filas han sido reordenadas.
+  - **Impacto:** Comportamiento de sesión impredecible para usuarios con múltiples dispositivos.
+
+- **Hallazgo (Ineficiencia):** La función `handleValidateSession` lee toda la tabla de usuarios para validar un token, en lugar de consultar la tabla `ActiveSessions`. Esto contradice el propósito de dicha tabla.
+
+### 2.2. `services/catalog/catalog.js`
+
+- **Hallazgo (Deuda Técnica Alta):** El servicio tiene una responsabilidad excesiva. No solo sirve datos, sino que también realiza lógica de negocio como el ordenamiento de cortes por popularidad y la transformación de datos (ej. `convertirAGoogleThumbnail`).
+  - **Impacto:** Viola el principio de responsabilidad única, haciendo el servicio más complejo y difícil de mantener.
+
+- **Hallazgo (Ineficiencia Crítica):** La función `handleGetCatalogData` lee y procesa CADA fila de las hojas `Cortes`, `LogosMarca`, `Tutoriales` y `Relay` en cada solicitud. No hay ningún tipo de caché.
+  - **Impacto:** Rendimiento extremadamente bajo que se degradará rápidamente a medida que crezcan los datos. La aplicación será cada vez más lenta.
+
+- **Hallazgo (Error de Lógica):** La función `mapRowToObject` asigna `null` a los campos vacíos. Sin embargo, en otras partes del código, se espera un string vacío, lo que puede causar errores de `null pointer` en el frontend si no se maneja adecuadamente.
+
+### 2.3. `services/feedback/feedback.js`
+
+- **Hallazgo (Código Duplicado):** Existen dos funciones `handleRecordLike` con implementaciones ligeramente diferentes.
+  - **Impacto:** Confusión para el mantenimiento y riesgo de que una sea corregida y la otra no.
+
+- **Hallazgo (Ineficiencia):** Al igual que otros servicios, `handleRecordLike` y `handleAssignCollaborator` iteran sobre todos los IDs de la hoja de `Cortes` para encontrar la fila correcta en lugar de usar una búsqueda más directa si la API de Google Sheets lo permitiera.
+
+- **Hallazgo (Complejidad Excesiva):** La lógica de `handleSuggestYear` (votación, anti-colisión) es extremadamente compleja para ser ejecutada en un entorno sin transacciones como Google Apps Script.
+  - **Impacto:** Es propensa a condiciones de carrera y a dejar los datos en un estado inconsistente si la ejecución falla a mitad de camino.
+
+- **Hallazgo (Error de Lógica):** El `doPost` de este servicio (y otros) devolvía `MimeType.JSON`, lo cual es incorrecto para Google Apps Script y causa errores de CORS. El `ChangesLogs.txt` confirma que esto fue un bug recurrente. Aunque el código actual parece haberlo corregido a `MimeType.TEXT` en la mayoría de los casos, la inconsistencia histórica es un hallazgo. **CORRECCIÓN:** El `doPost` de este servicio aún devuelve `MimeType.JSON`, lo que significa que el bug de "Failed to fetch" para el inbox persiste.
+
+### 2.4. `services/users/users.js`
+
+- **Hallazgo (Error de Lógica de Seguridad):** La lógica de permisos de CRUD está codificada de forma rígida y es compleja. El rol de un usuario se obtiene de la hoja en tiempo real, pero el rol del *solicitante* se pasa desde el frontend (`creatorRole`, `updaterRole`).
+  - **Impacto:** Un atacante podría falsificar el `payload` desde el cliente y escalar sus privilegios para crear o modificar usuarios que no debería poder. La validación de permisos debe basarse en una sesión de backend verificada, no en un parámetro enviado por el cliente.
+
+- **Hallazgo (Error de Lógica):** La función `handleChangePassword` realiza una comparación de contraseñas `case-sensitive` (`===`), lo cual es inconsistente con el `login` `case-insensitive` del servicio de autenticación.
+  - **Impacto:** Causa una UX confusa y fallos al intentar cambiar la contraseña.
+
+### 2.5. `services/write/write.js`
+
+- **Hallazgo (Riesgo Crítico):** El servicio carece de manejo de transacciones. Una operación como `handleAddOrUpdateCut` implica múltiples pasos (crear carpetas en Drive, subir archivos, escribir en la hoja de cálculo). Si un paso intermedio falla (ej. la subida del archivo), la hoja de cálculo puede quedar en un estado inconsistente.
+  - **Impacto:** Alto riesgo de corrupción de datos, como registros de vehículos que apuntan a imágenes que no existen.
+
+- **Hallazgo (Error de Lógica):** La función `uploadImageToDrive` maneja URLs y datos base64, pero su manejo de errores es insuficiente. Un fallo en la subida de una imagen no revierte la creación de la fila en la hoja de cálculo.
+  - **Impacto:** Contribuye al riesgo de datos inconsistentes.
+
+- **Hallazgo (Inconsistencia):** La función de `handleCheckVehicle` está duplicada entre `catalog.js` y `write.js`, con implementaciones ligeramente diferentes.
+  - **Impacto:** Riesgo de que la lógica de anti-duplicados se comporte de manera diferente dependiendo de qué servicio la ejecute.
+
+### 2.6. `services/utilities/utilities.js`
+
+- **Hallazgo (Riesgo Alto):** Las funciones de migración (`handleMigrateYearRanges`, `handleMigrateTimestamps`) no son idempotentes. Si se ejecutan varias veces, podrían corromper los datos (ej. intentando parsear un rango de años que ya fue parseado).
+  - **Impacto:** Riesgo de destrucción de datos si el script se ejecuta más de una vez.
+
+- **Hallazgo (Error de Lógica de Seguridad):** La función `authorize` es fundamentalmente insegura. Recibe el objeto `session` completo desde el frontend. Un atacante puede fabricar un objeto `session` con cualquier `userId` y rol para obtener acceso no autorizado.
+  - **Impacto:** La protección de estas funciones críticas es inexistente.
+
+### 2.7. `Code.gs` (Legacy)
+
+- **Hallazgo (Deuda Técnica):** El archivo apunta a un `SPREADSHEET_ID` obsoleto (`1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo`), correspondiente a la DB v1.5.
+  - **Impacto:** Aunque solo se use para logging, es una pieza de configuración desactualizada que puede causar confusión.
+
+- **Hallazgo (Inconsistencia):** Su única función restante es `logFrontend`, pero el `api-manager.js` también enruta otras acciones (`validateSession`, etc.) al endpoint `LEGACY` como fallback, lo cual causará un error de "Acción desconocida" si un microservicio falla.
+  - **Impacto:** El mecanismo de fallback es defectuoso.
+
+---------------------------------
+3. ANÁLISIS DE DOCUMENTACIÓN
+---------------------------------
+
+- **Hallazgo (Inconsistencia Crítica):** Existe un conflicto directo entre `README.md` y la realidad del código. Por ejemplo, el `README.md` describe un "Plan Estratégico v4" con tareas marcadas como completadas (`[X]`) que, según la auditoría del código, no están implementadas o son incorrectas.
+  - **Ejemplo:** La tarea "[X] Visualización de Logos" está marcada como completa, pero el `ChangesLogs.txt` documenta numerosos bugs y regresiones relacionados con esta funcionalidad.
+  - **Impacto:** La documentación no es una fuente fiable del estado del proyecto.
+
+- **Hallazgo (Deuda Técnica):** Existen dos archivos de log de cambios: `ChangesLogs.txt` y `ChangesLogstxt`. Este último parece ser una versión más antigua y descontinuada.
+  - **Impacto:** Confusión y dificultad para rastrear el historial real de cambios.
+
+- **Hallazgo (Inconsistencia):** El sistema de versionamiento híbrido descrito en `README.md` no se sigue consistentemente. Las versiones de los componentes en los encabezados de los archivos no siempre se actualizan y a menudo no coinciden con la versión global declarada en `ChangesLogs.txt`.
+  - **Impacto:** Imposibilidad de saber qué versión de un componente está desplegada, dificultando la depuración.

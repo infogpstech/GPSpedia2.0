@@ -1,3 +1,22 @@
+**v4.6.4 (04/01/2026)**
+*   **FIX (services/feedback/feedback.js):** Se solucionó un bug crítico que impedía el funcionamiento de la bandeja de entrada (Inbox).
+    *
+**Causa Raíz:** El servicio devolvía una respuesta con `MimeType.JSON`, lo cual es incompatible con la política de CORS de Google Apps Script y provocaba un error `Failed to fetch` en el frontend.
+    *   **Solución:** Se cambió el `MimeType` de la respuesta a `ContentService.MimeType.TEXT` en la función `doPost`, restaurando la comunicación entre el frontend y el servicio de feedback.
+    *   **Archivos Modificados:** `services/feedback/feedback.js`: Líneas 128, 132.
+
+**v4.6.3 (31-12-2025)**
+*   **FIX CRÍTICO (service-worker.js):** Se solucionó la causa raíz de múltiples regresiones visuales y funcionales al invalidar la caché del PWA.
+    *   **Causa Raíz:** Cambios previos en el frontend no se reflejaban porque el service worker servía una versión obsoleta de la aplicación desde la caché.
+    *   **Solución:** Se incrementó la `CACHE_NAME` de `v5` a `v6`, forzando a todos los clientes a descargar la última versión de la aplicación.
+*   **FEAT & UX (index.html):** Se implementaron las mejoras de UI/UX solicitadas, corrigiendo la visualización del carrusel de motocicletas y optimizando el modal de detalles.
+    *   **Carrusel de Motocicletas:** Se robusteció la lógica de filtrado en `mostrarCategorias` para reconocer tanto "Motocicletas" como "motos" como categorías válidas, asegurando que el carrusel se renderice incluso con datos inconsistentes.
+    *   **Modal de Detalles (Logo):** El logo de la marca ahora se muestra correctamente a la izquierda del título del modelo y se ha añadido `flex-shrink: 0` para prevenir que se deforme con títulos largos.
+    *   **Modal de Detalles (Economía de Espacio):** Se redujeron los márgenes y paddings en `#detalleCompleto`, `h4`, y `p` para un diseño más compacto.
+*   **REFACTOR (index.html):** Se refactorizó el CSS y el JavaScript del modal de detalles para utilizar clases específicas para las imágenes, como fue solicitado en la revisión de código.
+    *   Se añadieron las clases `.img-vehiculo-modal` y `.img-corte` al CSS.
+    *   La función `mostrarDetalleModal` fue actualizada para aplicar estas nuevas clases a las imágenes correspondientes, mejorando la mantenibilidad y especificidad de los estilos.
+
 **v4.6.2 (03/01/2026)**
 *   **DOCS (Instrucciones.txt):** Se ha reestructurado completamente el archivo `Instrucciones.txt` para agrupar todas las tareas pendientes en módulos funcionales y auditables.
     *   **Migración de Tareas:** Todos los hallazgos pendientes de `Auditoria.txt` y las tareas del `Instrucciones.txt` anterior han sido migradas a esta nueva estructura.
@@ -9,7 +28,7 @@
     *   **Causa Raíz:** El método anterior de creación de filas no copiaba la estructura completa de la fila anterior, lo que resultaba en la pérdida de validaciones y fórmulas esenciales.
     *   **Solución:** Se refactorizó la lógica de creación de nuevas filas en `handleAddOrUpdateCut`. El nuevo método utiliza `previousRowRange.copyTo(newRowRange)` para duplicar la fila anterior en su totalidad, y luego ejecuta `newRowRange.clearContent()` para vaciar los valores de las celdas sin eliminar las fórmulas y validaciones subyacentes.
 *   **CHORE (versioning):** Se actualizó la versión del componente a `2.3.0`.
-    *   **Archivos Modificados:** `services/write/write.js`. **Nota para el auditor:** este ultimo fix causo una regresion grave que deshabilitaba la captura de validacion de datos de la sheet en el formulario de add_cortes.html, se recuperó manualmente el repositorio a su estado anterior (con el bug de la renderizacion de las imagenes en catalogo) 
+    *   **Archivos Modificados:** `services/write/write.js`. **Nota para el auditor:** este ultimo fix causo una regresion grave que deshabilitaba la captura de validacion de datos de la sheet en el formulario de add_cortes.html, se recuperó manualmente el repositorio a su estado anterior (con el bug de la renderizacion de las imagenes en catalogo)
 considerar esta ultima version como fallida y no se debe trabajar desde esta version (4.6.1) un usar el estado del la version anterior (4.5.9)
 
 
@@ -214,14 +233,14 @@ considerar esta ultima version como fallida y no se debe trabajar desde esta ver
 
 **v4.3.4 (31-12-2025)**
 *   **UX (index.html):** Se implementaron múltiples mejoras en la interfaz de usuario para aumentar la compacidad y corregir funcionalidades.
-    
-    *   **Logo en Modal:** Se corrigió la lógica de `mostrarDetalleModal` para asegurar que el logo de la marca siempre se cargue y muestre. 
+
+    *   **Logo en Modal:** Se corrigió la lógica de `mostrarDetalleModal` para asegurar que el logo de la marca siempre se cargue y muestre.
 
     *   **Carruseles:** Se refactorizó la lógica de navegación, generalizándola en la función `crearCarrusel` para que todos los carruseles (Últimos Agregados, Categorías, Marcas) tengan botones de navegación funcionales.
 
     *  **Botones de Feedback:** Se redujo el tamaño de los botones "Útil" y "Reportar" en un 10% mediante CSS.
 
-NOTA SIBRE ESTA ENTEADA, algunos cambios solicitados no se realizaron y se ignoraron instrucciones. 
+NOTA SIBRE ESTA ENTEADA, algunos cambios solicitados no se realizaron y se ignoraron instrucciones.
     *   **Archivos Modificados:** `index.html`: Líneas 814-855, 1282-1288, 1983-2225, 2561-2835, 3331-3351.
 
 **v4.3.3 (31-12-2025)**
