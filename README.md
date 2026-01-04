@@ -47,12 +47,12 @@ Esta sección define la hoja de ruta para la siguiente gran versión de GPSpedia
 ### Fase 1: Migración y Lógica de Datos Fundamental
 - **Objetivo:** Migrar a la nueva base de datos (DB v2.0) y establecer la lógica de negocio principal para la gestión de datos.
 - **Tareas Clave:**
-    - [ ] **Diseñar Nuevo Esquema:** Implementar la estructura granular detallada en la sección "Diseño Detallado de `GPSpedia_DB_v2.0`".
-    - [ ] **Script de Migración:** Desarrollar un endpoint para migrar y transformar los datos de la base de datos antigua a la nueva.
+    - [x] **Diseñar Nuevo Esquema:** Implementar la estructura granular detallada en la sección "Diseño Detallado de `GPSpedia_DB_v2.0`".
+    - [X] **Script de Migración:** Desarrollar un endpoint para migrar y transformar los datos de la base de datos antigua a la nueva.
     - [ ] **Lógica de Gestión de Años Simplificada:**
         - El formulario de entrada solo solicitará un único año.
         - Este año se guardará en la columna `anoDesde` al crear un nuevo registro. `anoHasta` quedará vacío.
-    - [ ] **Lógica de Gestión de Logos Automatizada:**
+    - [X] **Lógica de Gestión de Logos Automatizada:**
         - Al agregar un nuevo vehículo, el sistema buscará una coincidencia en la hoja `LogosMarcas` por el campo `marca`.
         - Si se encuentra, se asociará automáticamente. Si no, se usará un logo temporal de GPSpedia. El usuario no seleccionará el logo.
 
@@ -61,7 +61,7 @@ Esta sección define la hoja de ruta para la siguiente gran versión de GPSpedia
 - **Tareas Clave:**
     - [ ] **Feedback Granular:** Implementar "likes" y colaborador por cada corte individual.
     - [ ] **Ordenamiento por Utilidad:** El backend ordenará los cortes de un vehículo según su popularidad antes de enviarlos al frontend.
-    - [ ] **Campos Obligatorios:** Forzar el llenado de `tipo`, `ubicación`, `color` e `imagen` para cada nuevo corte.
+    - [X] **Campos Obligatorios:** Forzar el llenado de `tipo`, `ubicación`, `color` e `imagen` para cada nuevo corte.
     - [ ] **Expansión de Rango de Años por Feedback:**
         - Implementar una nueva función de feedback que permita a los usuarios sugerir que un corte aplica a un año diferente.
         - El backend recibirá el nuevo año y actualizará `anoDesde` (si el nuevo año es menor) o `anoHasta` (si el nuevo año es mayor), expandiendo dinámicamente el rango de aplicabilidad.
@@ -73,16 +73,15 @@ Esta sección define la hoja de ruta para la siguiente gran versión de GPSpedia
     - [ ] **Edición "In-Modal":** Permitir la edición de datos directamente desde el modal de detalles, con permisos por rol.
     - [ ] **Enlaces de un solo uso:** Generar enlaces temporales (24h) y de un solo uso para compartir información.
     - [ ] **Notificaciones Inteligentes:** Reemplazar el banner de instalación con notificaciones "toast" sobre nuevos cortes.
-    - [ ] **Visualización de Logos:**
-        - Mostrar el logo de la marca (formato PNG/WEBP sin fondo) en una esquina del modal de detalle (`altura: 50px`, `anchura: auto`).
+    - [X] **Visualización de Logos:**
+        - Mostrar el logo de la marca (formato PNG/WEBP sin fondo) al final del nombre del modelo de vehículo. (`altura: 50px`, `anchura: auto`).
         - En la vista de listado de marcas, mostrar el logo correspondiente si existe al menos un vehículo de esa marca.
 
 ### Fase 4: Mejoras Adicionales
 - **Objetivo:** Añadir funcionalidades de alto valor para el trabajo en campo.
 - **Tareas Clave:**
     - [ ] **Modo Offline Robusto:** Implementar caching avanzado.
-    - [ ] **Notas Personales:** Permitir a los usuarios guardar notas privadas por vehículo.
-    - [ ] **Modal de Relay Anidado:** Mostrar detalles de configuraciones de Relay en un modal secundario, con la imagen de referencia limitada a `250px` de altura.
+    - [X] **Modal de Relay Anidado:** Mostrar detalles de configuraciones de Relay en un modal secundario, con la imagen de referencia limitada a `250px` de altura.
 
 ---
 
@@ -98,12 +97,54 @@ Esta sección describe los pasos técnicos específicos requeridos para ejecutar
     - **Etapa 1: Anti-duplicado y Verificación de Existencia.**
         1.  El frontend (`add_cortes.html`) inicialmente solo pedirá 4 campos: `Marca` (texto), `Modelo` (texto), `Año` (texto) y `Tipo de Encendido` (lista desplegable).
         2.  Al enviar, el backend (`write.js`) realizará una búsqueda en la hoja 'Cortes'.
-        3.  **Lógica de Búsqueda:** La búsqueda será **exacta** para `Marca`, `Año` y `Tipo de Encendido`. Para `Modelo`, la búsqueda será **flexible**, encontrando coincidencias de palabras completas.
-        4.  **Respuesta:** El servicio devolverá una lista de coincidencias (si las hay) al frontend. La UI mostrará los vehículos encontrados y presentará tres opciones al usuario:
+        3.  **Lógica de Búsqueda (Actualizada):** La verificación se realiza cruzando 4 campos para encontrar coincidencias en la base de datos.
+            *   **Búsqueda Flexible (Marca y Modelo):**
+                *   **Marca:** La búsqueda es insensible a mayúsculas/minúsculas y busca coincidencias parciales. Por ejemplo, "Mercedes" encontrará "Mercedes Benz", y "Chery" encontrará "Chery / Chirey".
+                *   **Modelo:** La búsqueda también es flexible. Por ejemplo, "np300" encontrará un vehículo cuyo modelo sea "Frontier NP300".
+            *   **Búsqueda Exacta (Año y Encendido):**
+                *   **Año:** El año proporcionado por el usuario debe estar dentro del rango `[anoDesde, anoHasta]` del registro en la base de datos.
+                *   **Tipo de Encendido:** Debe haber una coincidencia exacta (insensible a mayúsculas/minúsculas).
+        4.  **Respuesta:** El servicio devolverá una **lista con todas las coincidencias** que cumplan los 4 criterios. Si no hay ninguna, la lista estará vacía. La UI mostrará los vehículos encontrados y permitirá al usuario decidir si desea agregar información a un registro existente o crear uno completamente nuevo.
             *   **Opción 1: "Es un Duplicado".** El usuario confirma que el corte ya existe. El formulario se cierra.
             *   **Opción 2: "Agregar otro corte".** El vehículo ya existe, pero el usuario quiere añadir un segundo o tercer corte. El flujo avanza a la **Etapa 2**.
             *   **Opción 3: "Agregar apertura u otra información".** El usuario quiere añadir información suplementaria a un vehículo existente. El flujo avanza a la **Etapa 3**.
         5.  **Si no hay coincidencias:** El flujo avanza directamente a la **Etapa 2**.
+
+- **Flujo de Trabajo Detallado (Anti-duplicado y Asistente de Búsqueda)**
+
+    - **Etapa 1: Verificación de Vehículo (Anti-duplicado).**
+        1.  El frontend (`add_cortes.html`) solicita 4 campos clave: `Marca`, `Modelo`, `Año` y `Tipo de Encendido`.
+        2.  Al enviar, el backend realiza una búsqueda avanzada con la siguiente lógica:
+            *   **Búsqueda Flexible (Marca y Modelo):** Se utilizan coincidencias parciales e insensibles a mayúsculas/minúsculas.
+                *   Ej. `Marca`: "Mercedes" encontrará "Mercedes Benz".
+                *   Ej. `Modelo`: "np300" encontrará un vehículo cuyo modelo sea "Frontier NP300".
+            *   **Búsqueda Exacta (Año y Encendido):** Se requiere una coincidencia precisa.
+                *   `Año`: El año proporcionado debe estar dentro del rango `[anoDesde, anoHasta]` del registro.
+                *   `Tipo de Encendido`: Debe coincidir exactamente.
+        3.  **Respuesta y Visualización (Anti-duplicado de Cortes):** Al encontrar coincidencias, la UI muestra los vehículos y sus cortes existentes de forma **informativa**. El flujo de trabajo se controla mediante **botones de elección inline**, eliminando modales y clics innecesarios.
+            *   **Texto de Confirmación:** Se muestra el texto: `"Este modelo ya tiene estos cortes, ¿quieres agregar uno nuevo?"`.
+            *   **Botones de Acción Inline:** Debajo de los resultados, se presentan tres opciones claras:
+                1.  **"Sí, es el mismo corte (cancelar)":** Cancela la operación y regresa al catálogo principal.
+                2.  **"Es uno nuevo":** Avanza al **Paso 2** para agregar un nuevo corte al vehículo encontrado.
+                3.  **"Agregar información adicional":** Avanza directamente al **Paso 3** para añadir detalles suplementarios.
+            *   **Tarjetas Informativas:** Las tarjetas de los vehículos ya no son interactivas (no tienen `onclick`) para evitar confusiones. Su único propósito es mostrar los datos.
+        4.  Este flujo final es directo, mantiene al usuario en el mismo contexto y cumple con el requisito de una interacción inline sin capas de UI adicionales.
+
+    - **Funcionalidad "Quizás quisiste decir...".**
+        1.  Para asistir al usuario y reducir errores, se implementa un corrector ortográfico para los campos `Marca` y `Modelo`.
+        2.  Cuando el usuario deja de escribir en uno de estos campos (`onblur` event), el frontend envía el término al backend.
+        3.  El backend utiliza el **algoritmo de distancia de Levenshtein** para encontrar la cadena de texto más similar en la base de datos.
+        4.  Si se encuentra una coincidencia cercana (con una distancia de Levenshtein baja), el frontend muestra una sugerencia en la que se puede hacer clic, ej: "Quizás quisiste decir: *Chevrolet*".
+
+    - **Etapa 2: Registro de Nuevo Corte y Gestión de Archivos.**
+        1.  Cuando se añade un nuevo corte o un nuevo vehículo, el sistema gestiona las imágenes de la siguiente manera:
+            *   **Creación de Directorios:** El backend crea automáticamente una estructura de carpetas en Google Drive siguiendo la ruta: `GPSpedia/Categoria/Marca/Modelo/Año`.
+            *   **Nomenclatura de Archivos Estandarizada:** Las imágenes subidas se renombran automáticamente para seguir un formato predecible y consistente:
+                *   `Marca_Modelo_TipoEncendido_Año_Vehiculo.jpg`
+                *   `Marca_Modelo_TipoEncendido_Año_Corte1.jpg`
+                *   `Marca_Modelo_TipoEncendido_Año_Apertura.jpg`
+        2.  Esto asegura que todos los archivos estén organizados y sean fácilmente identificables tanto para el sistema como para los administradores.
+
 
     - **Etapa 2: Registro de un Nuevo Corte.**
         1.  El frontend presentará los siguientes campos para el nuevo corte:
@@ -152,7 +193,7 @@ Esta sección detalla los requerimientos para un nuevo conjunto de funcionalidad
 
 Se creará un nuevo proyecto de Google Apps Script, independiente de los microservicios existentes, con el único propósito de realizar una migración y corrección de datos en la hoja `Cortes` de la base de datos. Este script se ejecutará una sola vez y contendrá dos funciones principales:
 
-**A. Función 1: Migración de Rango de Años**
+**A. Función 1: Migración de Rango de Años (COMPLETADO)**
 *   **Objetivo:** Procesar la columna `anoDesde`, que actualmente contiene rangos de texto (ej. "2016-2022") o años únicos (ej. "2006"), para poblar correctamente las columnas `anoDesde` y `anoHasta` con valores numéricos individuales.
 *   **Lógica de Ejecución:**
     1.  El script iterará sobre cada fila de la hoja `Cortes`.
@@ -166,7 +207,7 @@ Se creará un nuevo proyecto de Google Apps Script, independiente de los microse
         *   El valor de `anoDesde` no se modificará.
         *   El mismo valor se copiará a la columna `anoHasta` de la misma fila.
 
-**B. Función 2: Migración de Timestamps desde Metadatos de Google Drive**
+**B. Función 2: Migración de Timestamps desde Metadatos de Google Drive (COMPLETADO)**
 *   **Objetivo:** Rellenar la columna `timestamp` en la hoja `Cortes` utilizando la fecha de creación del archivo de imagen del vehículo almacenado en Google Drive.
 *   **Lógica de Ejecución:**
     1.  El script iterará sobre cada fila de la hoja `Cortes`.
@@ -215,50 +256,35 @@ Se creará un nuevo proyecto de Google Apps Script, independiente de los microse
 
 ## 4. Trabajos Pendientes (Checklist)
 
-Esta sección documenta las tareas de desarrollo, corrección y regresiones pendientes de la versión actual.
-
-### Tareas Completadas Recientemente
-- [X] **Estandarización de la Base de Datos del Backend:** Se ha verificado y actualizado toda la capa de microservicios (`auth`, `catalog`, `users`, `write`, `feedback`) para asegurar que todos apunten exclusivamente a la base de datos canónica v2.0. Se eliminó el código heredado y las referencias a la antigua base de datos v1.5.
-- [X] **Resolución del Bug Crítico "Pantalla Blanca":** Se refactorizó el frontend (`index.html`) para alinearlo con la nueva estructura de datos `camelCase` del backend v2.0, solucionando la incompatibilidad que impedía la renderización de la aplicación.
-- [X] **Implementación del Sistema de Notificación de Errores:** Se añadió un sistema de notificaciones globales en `index.html` y `api-manager.js` para mostrar al usuario los errores de comunicación con la API, mejorando la depuración y la transparencia.
-- [X] **Refactorización del Acceso a Datos del Backend:** Se han actualizado todos los microservicios (`catalog`, `write`, `users`, `feedback`) para utilizar un mapa de columnas fijo, eliminando la inconsistencia arquitectónica y mejorando la estabilidad del sistema.
-- [X] **Corrección del Bug de Sesión de Usuario:** Se solucionó un problema en `users.html` que impedía la correcta visualización de la información del usuario en sesión, afectando funcionalidades como el cambio de contraseña.
-- [X] **Reparación del Formulario de Contacto:** Se corrigió el error "Acción no definida" en el formulario de "Contáctanos", restaurando la capacidad de los usuarios para enviar mensajes.
-- [X] **Corrección de Visualización en Tutoriales:** Se solucionó un bug en `index.html` que provocaba que el texto de los tutoriales se mostrara como "undefined" debido a una inconsistencia de mayúsculas y minúsculas.
+Esta sección documenta el estado actual de las tareas de desarrollo, bugs, regresiones y nuevas funcionalidades. Todas las tareas marcadas como `[Falta Revisión]` deben ser validadas por el Project Manager.
 
 ### Bugs y Regresiones Críticas
-- [ ] **Lógica del Modal de Detalle:** El modal de detalle actualmente solo carga la información del primer corte (`tipoCorte1`, `ubicacionCorte1`, etc.), ignorando los datos de `corte2` y `corte3` aunque existan. Debe mostrar la información completa de todos los cortes disponibles.
-- [ ] **Carga de Imágenes en Modal:** Las imágenes asociadas a la apertura (`imgApertura`), cable de alimentación (`imgCableAlimen`) y la configuración del relay (`imagen` desde la hoja `Relay`) no se están mostrando en el modal de detalle.
-- [ ] **Carga de Logos en Modal:** El logo de la marca del vehículo no se está cargando y mostrando correctamente dentro del modal de detalle.
-- [ ] **Refactorización del Flujo de Escritura:** Implementar el nuevo flujo de trabajo de 3 etapas para añadir/actualizar cortes, que fue documentado como completo pero no se encuentra en el código.
-- [ ] **Inconsistencias de Versionamiento:** Sincronizar la versión global (ChangesLogs, UI) y las versiones de componentes (cabeceras en todos los archivos `.html` y `.js`) para cumplir con las normas del proyecto.
-- [X] **Layout del Modal:** Corregir la posición del nombre del colaborador y el estilo de los botones de feedback.
-- [ ] **Visibilidad de Cortes:** Asegurar que las tres opciones de corte sean visibles en el modal si existen los datos.
-- [X] **UI General:** Solucionar bugs visuales (pie de página, botón de limpiar búsqueda, carga de nombre de usuario, saludo de bienvenida).
+
+1.  **Carga de Imágenes en Modal:**
+    - **Orden de Imágenes:** `[Falta Revisión]`
+    - **Layout y Espacio Vertical:** `[Falta Revisión]`
+2.  **Carga de Logos en Modal:** `[Falta Revisión]`
+3.  **Refactorización del Flujo de Escritura:** `[Falta Revisión]` - Se ha completado la refactorización del flujo de adición de cortes en `add_cortes.html`, implementando la lógica de anti-duplicados con una interfaz de botones inline, mejorando la UX y corrigiendo bugs de visualización.
+4.  **Inconsistencias de Versionamiento:** `[ ] Pendiente` - Es necesario sincronizar la versión global para que el próximo gran lanzamiento sea `v2.0` y mejorar el formato de registro de fechas en `ChangesLogs.txt`.
 
 ### Revisiones de UI/UX
-- [ ] **Rediseño de Botones de Feedback:** Reemplazar los botones "Sí/No" del modal de detalle por un sistema de pulgares (👍/👎). Añadir dos nuevos botones: "Sugerir un año" y "Reportar un problema".
-- [ ] **Reorganización de Secciones Principales:** Alterar el orden de las secciones en `index.html` para que aparezcan en el siguiente orden: 1. "Últimos Agregados", 2. "Búsqueda por Marca", 3. "Búsqueda por Categoría".
-- [ ] **Layout de "Últimos Agregados":** Modificar el layout de la sección "Últimos Agregados" para que muestre los resultados en un formato de 3 columnas, mejorando la densidad de la información.
-- [ ] **Visualización de Marcas con Logos:** En la sección "Búsqueda por Marca", reemplazar los nombres de las marcas en texto plano por sus respectivos logos, obtenidos de la hoja `LogosMarca`.
-- [X] **Ajustes de Layout:** Realizar ajustes de espaciado, encabezado y visualización de "Últimos Agregados" según las especificaciones.
-- [X] **Modal de Detalle - Logo de Marca:** Implementar la visualización del logo de la marca en una esquina (`altura: 50px`, `anchura: auto`).
-- [X] **Modal de Detalle - Imagen de Relay:** Limitar la altura de la imagen de referencia del relay a `250px`.
-- [X] **Listado de Marcas - Logos:** Mostrar el logo de cada marca en la vista de listado de marcas.
+
+5.  **Rediseño de Botones de Feedback:** `[Falta Revisión]` - Se redujo el tamaño de los botones en un 10%. Pendiente la revisión de la lógica de backend.
+6.  **Navegación para Carrusel de 'Categorías':** `[Falta Revisión]` - Se refactorizó la lógica de botones para que sea reutilizable en todos los carruseles.
+7.  **Creación del Carrusel 'Marcas de motos':** `[Falta Revisión]` - Se añadió la sección a la página principal.
 
 ### Nuevas Funcionalidades
-- [ ] **Sistema de Navegación Jerárquico:** Implementar un flujo de navegación guiado o "paso a paso" para la búsqueda. El usuario primero seleccionará una Marca, luego se le presentarán los Modelos de esa marca, y finalmente los Años/versiones disponibles.
-- [ ] **Sistema de Gestión de Feedback (Inbox):** Desarrollar una nueva interfaz (accesible para roles de Supervisor/Jefe) que funcione como un "inbox" para gestionar los problemas reportados por los usuarios a través del nuevo botón "Reportar un problema". Debe permitir ver, responder y marcar como resueltos los reportes.
-- [ ] **Implementación de Modo Oscuro:** Añadir una paleta de colores alternativa para un modo oscuro y un interruptor en la UI para que el usuario pueda activarlo/desactivarlo.
-- [X] **Búsqueda Flexible:** Mejorar `checkVehicle` para que devuelva coincidencias parciales y múltiples resultados.
-- [ ] **Debugging Integral:** Implementar un sistema de debugging en backend y frontend accesible por rol.
-- [ ] **Carga Optimizada de Imágenes (Lazy Load):** Implementar carga progresiva de imágenes para mejorar el rendimiento.
-- [ ] **Soporte para Rango de Años (Feedback-driven):** Implementar la lógica de `suggestYear` en el backend y la UI correspondiente en el frontend.
-- [ ] **Sistema de Versionamiento Híbrido:** Aplicar el nuevo sistema de versionamiento a todos los componentes del código fuente.
-- [X] **Integración de Páginas de Información:** Crear las secciones "Sobre Nosotros", "Contáctanos" y "Preguntas Frecuentes" como modales dentro de `index.html`.
 
-### Deuda Técnica y Mejoras
-- [ ] **Script de Migración de Timestamps:** Implementar un script de ejecución única para obtener la fecha de creación de las imágenes antiguas de Google Drive y rellenar el campo `timestamp` en los registros existentes.
+8.  **Sistema de Navegación Jerárquico:** `[ ] Pendiente` - Implementar el flujo de navegación guiado completo: Categoría -> Marca -> Modelo -> Versión/Encendido -> Año.
+9.  **Sistema de Gestión de Feedback (Inbox):** `[ ] Pendiente` - La interfaz del Inbox está creada, pero se necesita implementar la lógica de backend en el servicio `GPSpedia-Feedback`.
+10. **Visibilidad de la Consola de Debugging:** `[Falta Revisión]` - Se eliminó la visibilidad por URL; ahora solo es accesible a través del modal de "Desarrollador".
+11. **Carga Optimizada de Imágenes (Lazy Load):** `[ ] Pendiente` - Implementar la carga progresiva de imágenes y utilizar URLs de thumbnails con tamaños específicos.
+12. **Lógica de Gestión de Años:** `[ ] Pendiente` - Falta implementar la lógica de backend para registrar los votos, la hoja de cálculo para almacenar dichos votos y mejorar la presentación del `alert`.
+13. **Ordenamiento por Utilidad:** `[ ] Pendiente de Verificación` - Verificar si el backend (`GPSpedia-Catalog`) ordena los cortes por popularidad. Si no existe, se debe construir.
+14. **Expansión de Rango de Años por Feedback:** `[ ] Pendiente de Verificación` - Verificar si la lógica de backend que expande el rango de años existe. Si no, se debe construir.
+15. **Modal de Relay Anidado:** `[ ] Pendiente` - Implementar la lógica para validar el caso "Sin Relay".
+16. **Dashboard de Desempeño:** `[ ] Falta Implementar` - Crear la nueva sección para Supervisores.
+17. **Edición "In-Modal":** `[ ] Falta Implementar` - Permitir la edición de datos desde el modal de detalles.
 
 ## 4. Componentes del Backend (Microservicios)
 
@@ -574,3 +600,757 @@ Para facilitar la identificación y resolución de problemas durante el desarrol
 ## 10. Auditoría del Sistema
 
 Para consultar los resultados detallados, el análisis de factibilidad y las recomendaciones estratégicas del proyecto, por favor, refiérase al archivo `Auditoria.txt` en la raíz del repositorio.
+---
+
+Revisión y definición formal de la lógica de navegación del catálogo
+
+Observación general
+
+Los iconos de marca funcionan correctamente y su presentación visual es adecuada.
+Sin embargo, la navegación es confusa debido a que:
+
+Se agregó búsqueda por marca sin ajustar el flujo completo de navegación.
+
+Existen rutas redundantes que llevan al mismo resultado final.
+
+No está claramente separado el flujo entre:
+
+Categorías
+
+Marcas de vehículos
+
+Marcas de motocicletas
+
+
+
+El objetivo es unificar criterios de navegación, manteniendo coherencia visual y lógica, y evitando duplicidad de rutas.
+
+
+---
+
+Estructura general de navegación visible para el usuario
+
+Las siguientes secciones deben existir como bloques de navegación independientes, cada una funcionando de forma clara y consistente:
+
+1. Últimos agregados
+
+
+2. Categoría
+
+
+3. Búsqueda por marca de vehículos
+
+
+4. Búsqueda por marca de motocicletas
+
+
+
+👉 Las secciones “Categoría”, “Búsqueda por marca de vehículos” y “Búsqueda por marca de motocicletas”
+DEBEN funcionar con presentación tipo carrusel en su primera etapa, igual que “Últimos agregados”.
+
+
+---
+
+I. Navegación por “Categoría”
+
+Etapa 1 – Vista inicial (DESPUÉS de refresh o inicio de sesión)
+
+Se muestran TODAS las categorías disponibles en el catálogo.
+
+El orden debe ser:
+
+De mayor a menor cantidad de modelos asociados a esa categoría.
+
+
+La presentación debe ser:
+
+Tipo carrusel.
+
+
+
+
+---
+
+Etapa 2 – Selección de categoría (SIN carrusel)
+
+Cuando el usuario selecciona una categoría:
+
+Se muestran TODAS las marcas que tengan al menos un modelo dentro de esa categoría.
+
+La visualización será:
+
+Iconos de marcas
+
+SIN carrusel a partir de este punto.
+
+
+
+
+---
+
+Etapa 3 – Selección de marca
+
+Cuando el usuario selecciona una marca:
+
+Se muestran TODOS los modelos que cumplan:
+
+Categoría seleccionada
+
+Marca seleccionada
+
+
+
+
+---
+
+Etapa 4 – Selección de modelo
+
+Cuando el usuario selecciona un modelo:
+
+Si el modelo tiene versiones de equipamiento (versionesAplicables):
+
+Se muestran dichas versiones.
+
+
+Si el modelo NO tiene versiones de equipamiento:
+
+Se muestran los tipos de encendido.
+
+
+
+
+---
+
+Etapa 5 – Selección de versiones de equipamiento o tipo de encendido
+
+Al seleccionar una versión o tipo de encendido:
+
+Se muestran los rangos de años disponibles.
+
+
+
+
+---
+
+Etapa 6 (final) – Selección de años
+
+Cuando el usuario selecciona el rango de años:
+
+Se abre el modal de detalle.
+
+
+
+
+---
+
+Navegación hacia atrás
+
+TODAS las etapas deben incluir un botón claro de:
+“Regresar a <etapa anterior>”
+
+El botón debe regresar exactamente a la etapa previa, sin reiniciar el flujo completo.
+
+
+
+---
+
+Nota crítica
+
+⚠️ Se debe revisar detenidamente la lógica actual, ya que existen redundancias donde:
+
+Categoría → Marca
+
+Marca → Categoría
+terminan mostrando los mismos datos por rutas distintas.
+
+
+La navegación debe ser lineal y predecible, no circular.
+
+
+---
+
+II. Navegación por “Marcas de vehículos”
+
+Presentación inicial
+
+Mostrar SOLO marcas de vehículos (NO motocicletas).
+
+Presentación:
+
+Tipo carrusel
+
+Sin tarjetas, solo iconos de marcas.
+
+
+
+
+---
+
+Etapa 1 – Selección de marca
+
+Cuando el usuario selecciona una marca:
+
+Se muestran TODOS los modelos de esa marca.
+
+A partir de aquí:
+
+SIN carrusel.
+
+
+
+
+---
+
+Etapas siguientes
+
+Desde este punto, el flujo debe ser idéntico a la navegación por categoría:
+
+Selección de modelo
+
+Versiones de equipamiento o tipos de encendido
+
+Selección de años
+
+Apertura del modal
+
+
+📌 Diferencia clave:
+
+Se deben mostrar todas las categorías EXCEPTO motocicletas.
+
+
+
+---
+
+III. Navegación por “Marcas de motocicletas”
+
+Debe seguir exactamente el mismo flujo que “Marcas de vehículos”.
+
+La única diferencia es que:
+
+Solo se incluye la categoría de motocicletas.
+
+
+Presentación inicial:
+
+Tipo carrusel
+
+Solo marcas de motocicletas.
+
+
+
+
+---
+
+Secciones que NO deben alterarse
+
+Las siguientes secciones del catálogo deben permanecer exactamente igual:
+
+Tutoriales
+
+Relay
+
+Cualquier otra sección fuera del flujo principal de navegación de modelos
+
+
+
+---
+
+Segunda tarea – Revisión de sección Relay
+
+Problema detectado
+
+En las secciones de Relay:
+
+No se está mostrando la imagen de la configuración del relay.
+
+
+Acción requerida
+
+Revisar la lógica de carga/renderizado de imágenes en la sección Relay.
+
+Verificar:
+
+Enlaces
+
+Conversión de URL
+
+Condiciones de render
+-----
+
+Extensión de requisitos – Iconos, modales de detalle y mejoras de diseño
+
+Visualización de iconos de marca (requisito global)
+
+Se debe garantizar consistencia visual de los iconos de marca en TODAS las vistas relevantes del catálogo, no solo en listados principales.
+
+Requisitos obligatorios
+
+1. Resultados de la barra de búsqueda
+
+Los resultados devueltos por la barra de búsqueda:
+
+DEBEN mostrar el icono de la marca correspondiente.
+
+
+Aplica tanto para:
+
+Resultados por modelo
+
+Resultados por marca
+
+Resultados combinados
+
+
+
+
+2. Modal de detalle
+
+El icono de la marca debe mostrarse dentro del modal de detalle.
+
+Ubicación exacta:
+
+A la derecha del título del modal, donde se muestra:
+
+> “Detalle de ‘modelo de vehículo’”
+
+
+
+
+El icono no debe romper:
+
+El layout del título
+
+El flujo responsive del modal
+
+
+
+
+
+
+---
+
+Mejoras pendientes de diseño en el modal de detalle
+
+Además de la lógica funcional, se deben completar las mejoras visuales y de experiencia de usuario pendientes en los modales de detalle.
+
+#### **Estructura y Orden de Contenido Obligatorio para el Modal de Detalle**
+
+La información en el modal debe presentarse exactamente en el siguiente orden y con el formato especificado para garantizar consistencia y claridad.
+
+1.  **Nombre del modelo en el encabezado, seguido por el logo de la marca.**
+2.  **Versión de equipamiento si tiene.** Si no tiene, usar el tipo de encendido.
+3.  **Rango de años.** (Tanto el punto 2 como el 3 deben usar letras más pequeñas que el encabezado principal).
+4.  **Categoría.** (Debe usar letras más pequeñas que los puntos 2 y 3).
+5.  **Imagen del modelo del vehículo.** Debe ser una imagen pequeña (mitad del tamaño de la imagen del corte), centrada, sin bordes ni fondo, y con efecto `drop-shadow`.
+6.  **Nota importante.** Debe estar en color rojo y usar el icono de ⚠️ al final de la nota.
+7.  **Corte recomendado.** Determinado por la mayor cantidad de votos "útil". La imagen de este corte debe ajustarse para que su ancho coincida con el ancho del modal, con altura automática. Cada corte debe contener la siguiente información en este orden:
+    *   Descripción de la ubicación.
+    *   Color de cable.
+    *   Imagen (con botones de feedback en overlay).
+    *   Configuración del Relay.
+    *   Colaborador (posicionado a la izquierda, sin cambiar estilos, solo posición).
+8.  **Corte 2, si está disponible.**
+9.  **Corte 3, si está disponible.**
+10. **Apertura.** Con su descripción e imagen.
+11. **Cables de alimentación.** Con su descripción e imagen.
+12. **Vídeo guía de desarme.**
+
+> La sección de "Notas personales" ha sido eliminada y ya no se implementará.
+
+---
+
+1. Botones de feedback sobre imágenes de corte (overlay)
+
+Los botones de:
+
+“Útil”
+
+“Reportar problema”
+
+
+Deben posicionarse:
+
+Sobre la imagen del corte, usando un overlay.
+
+
+No deben ocupar espacio adicional debajo o al costado de la imagen.
+
+
+
+---
+
+2. Comportamiento al abrir imagen en lightbox
+
+Cuando el usuario haga clic sobre la imagen del corte:
+
+La imagen se abre en lightbox.
+
+Los botones de feedback:
+
+Deben desaparecer con animación.
+
+No deben permanecer visibles mientras el lightbox esté activo.
+
+
+Al cerrar el lightbox:
+
+Los botones deben reaparecer correctamente.
+
+
+
+
+---
+
+3. Información del colaborador
+
+El nombre del colaborador que agregó el corte:
+
+Debe tener su propio espacio vertical dedicado.
+
+No debe compartir:
+
+Línea horizontal
+
+Contenedor
+
+Fila con los botones de feedback ni otros elementos interactivos.
+
+
+
+
+
+---
+
+4. Orden correcto de los botones tipo acordeón
+
+⚠️ El orden actual de los botones tipo acordeón es incorrecto y debe corregirse.
+
+El orden OBLIGATORIO es el siguiente:
+
+1. Corte recomendado
+
+Dinámico
+
+Determinado por la mayor cantidad de votos “útil”.
+
+
+
+2. Corte 2
+
+Solo si existe.
+
+
+
+3. Corte 3
+
+Solo si existe.
+
+
+
+4. Apertura
+
+Solo si existe.
+
+
+
+5. Cables de alimentación
+
+Solo si existe.
+
+
+
+6. Vídeo guía de desarme
+
+Solo si existe.
+
+
+
+📌 Importante:
+
+Las secciones solo deben mostrarse si tienen contenido.
+
+El orden debe mantenerse siempre, independientemente de cómo llegue la data.
+
+
+
+---
+
+Regla de implementación
+
+> Todas estas mejoras deben implementarse:
+
+Sin romper la lógica ya reparada
+
+Sin modificar estructuras de datos innecesarias
+
+Sin alterar otros modales o secciones del catálogo
+
+Si algún cambio implica riesgo para la estabilidad:
+
+Documentar el riesgo
+
+Aplicar la solución más conservadora posible
+
+Corregir el problema sin afectar otras secciones.
+
+
+
+---
+
+Regla final
+
+> Cualquier ajuste debe priorizar:
+
+Claridad de navegación
+
+Flujo lineal
+
+Evitar duplicidad de rutas
+
+NO romper funcionalidades existentes
+
+---
+
+⚠️ REGRESIÓN CRÍTICA DETECTADA – ÚLTIMO COMMIT (NAVEGACIÓN POR MARCAS)
+
+> ATENCIÓN – REGRESIÓN FATAL
+En el último commit donde se agregó la navegación por marcas, se introdujeron regresiones graves que rompen funcionalidades existentes y no cumplen el flujo definido en las instrucciones previas.
+
+Esta sección documenta exactamente qué se rompió y cómo debe corregirse, sin reinterpretaciones.
+
+
+
+
+---
+
+1. Regresión en las secciones de navegación visibles
+
+Estado actual (incorrecto)
+
+Solo aparecen:
+
+Navegación por marca de vehículos
+
+Navegación por categoría
+
+
+Se eliminaron o dejaron inaccesibles otras secciones clave.
+
+
+Estado esperado (OBLIGATORIO)
+
+Las siguientes secciones NO deben desaparecer y deben coexistir:
+
+1. Últimos agregados
+
+
+2. Categoría
+
+
+3. Búsqueda por marca de vehículos
+
+
+4. Búsqueda por marca de motocicletas
+
+
+
+⚠️ Eliminar “Últimos agregados” es una regresión grave
+Esta sección existía y funcionaba antes del último commit y NO debía ser eliminada.
+
+
+---
+
+2. Incumplimiento del flujo de navegación definido
+
+La navegación actual NO sigue el flujo por etapas previamente documentado, específicamente:
+
+No respeta:
+
+Etapas secuenciales
+
+Separación clara entre categorías, marcas, modelos y versiones
+
+
+Se mezclan rutas que generan:
+
+Confusión
+
+Redundancia
+
+Pérdida de contexto para el usuario
+
+
+
+👉 Es obligatorio volver a implementar la navegación exactamente como fue definida en las instrucciones anteriores, sin simplificaciones ni atajos.
+
+
+---
+
+3. Regresión en modales de detalle – Tutoriales
+
+Problema
+
+En los modales de detalle de Tutoriales:
+
+NO aparece el vídeo guía, aunque el contenido existe.
+
+
+
+Acción requerida
+
+Revisar la lógica de renderizado del vídeo en:
+
+Modales
+
+Condiciones de visibilidad
+
+
+Corregir sin afectar otros tipos de modal.
+
+
+
+---
+
+4. Regresión en modales de detalle – Relay
+
+Problema
+
+En los modales de detalle de Relay:
+
+NO aparece la imagen del diagrama de configuración del Relay.
+
+
+
+Acción requerida
+
+Revisar:
+
+Lógica de carga de imagen
+
+Conversión de enlace
+
+Condición de render
+
+
+Confirmar que el diagrama se muestre correctamente como antes del último commit.
+
+
+
+---
+
+5. Error de posicionamiento – Botones de feedback (vehículos)
+
+Estado actual (incorrecto)
+
+Los botones de feedback:
+
+Están a la derecha de la imagen
+
+NO están en la esquina inferior derecha
+
+
+Esto rompe el diseño solicitado.
+
+
+Estado esperado (OBLIGATORIO)
+
+Los botones de feedback deben:
+
+Estar sobre la imagen del corte (overlay)
+
+Posicionados en la parte baja de la imagen
+
+Específicamente en la esquina inferior derecha
+
+
+
+
+---
+
+6. Error de layout – Nombre del colaborador
+
+Estado actual (incorrecto)
+
+El nombre del colaborador:
+
+Fue colocado como overlay sobre la imagen del corte
+
+
+
+Estado esperado (OBLIGATORIO)
+
+El nombre del colaborador:
+
+NO debe ser overlay
+
+Debe estar FUERA de la imagen
+
+Con su propio espacio vertical dedicado
+
+
+No debe compartir contenedor ni capa con:
+
+Imagen
+
+Botones de feedback
+
+
+
+
+---
+
+7. Regresión – Posición del logo de marca en el modal de detalle
+
+Estado actual (incorrecto)
+
+El logo de marca:
+
+NO está en la posición solicitada
+
+
+
+Estado esperado (OBLIGATORIO)
+
+El logo de marca debe:
+
+Aparecer en el modal de detalle
+
+Ubicarse a la derecha del título, donde dice:
+
+> “Detalle de ‘modelo de vehículo’”
+
+
+
+
+Debe integrarse sin romper:
+
+Layout
+
+Responsividad
+
+Jerarquía visual del título
+
+
+
+
+---
+
+Regla crítica de corrección
+
+> Antes de agregar nuevas funcionalidades:
+
+Revertir o corregir las regresiones
+
+Restaurar funcionalidades eliminadas
+
+Alinear la implementación con el README
+
+
+
+
+⚠️ No se deben sacrificar secciones existentes para introducir nuevas rutas de navegación.
+El README define el contrato funcional y visual del catálogo.
+
+
+---

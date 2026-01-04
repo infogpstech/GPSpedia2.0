@@ -238,6 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function displayProfile() {
+    // FIX: Corrected to display Nombre_Usuario in both fields as there's no separate fullname field in the session object
     document.getElementById('profile-username').textContent = currentUser.Nombre_Usuario;
     document.getElementById('profile-fullname').textContent = currentUser.Nombre_Usuario;
     document.getElementById('profile-role').textContent = currentUser.Privilegios;
@@ -270,13 +271,14 @@ function renderUserTable() {
     tbody.innerHTML = '';
     allUsers.forEach(user => {
         const row = document.createElement('tr');
+        // FIX: Corrected property access to match backend schema (PascalCase_With_Underscores)
         row.innerHTML = `
-            <td>${user.nombreUsuario}</td>
-            <td>${user.nombre}</td>
-            <td>${user.privilegios}</td>
+            <td>${user.Nombre_Usuario}</td>
+            <td>${user.Nombre_Usuario}</td>
+            <td>${user.Privilegios}</td>
             <td class="actions-cell">
                 <button class="btn btn-warning btn-sm" onclick='openUserModal(${JSON.stringify(user)})'>Editar</button>
-                <button class="btn btn-danger btn-sm" onclick="deleteUser('${user.id}')">Eliminar</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteUser('${user.ID}')">Eliminar</button>
             </td>
         `;
         tbody.appendChild(row);
@@ -314,9 +316,10 @@ function openUserModal(user = null) {
 
     if (user) {
         title.textContent = 'Editar Usuario';
-        document.getElementById('user-id').value = user.id;
-        document.getElementById('fullname').value = user.nombre;
-        document.getElementById('username-modal').value = user.nombreUsuario;
+        // FIX: Corrected property access to match backend schema
+        document.getElementById('user-id').value = user.ID;
+        document.getElementById('fullname').value = user.Nombre_Usuario; // Assuming Nombre_Usuario is the full name
+        document.getElementById('username-modal').value = user.Nombre_Usuario;
     } else {
         title.textContent = 'Crear Nuevo Usuario';
         document.getElementById('user-id').value = '';
@@ -335,7 +338,8 @@ function openUserModal(user = null) {
         option.textContent = role;
         roleSelect.appendChild(option);
     });
-    if(user) roleSelect.value = user.privilegios;
+    // FIX: Corrected property access to match backend schema
+    if(user) roleSelect.value = user.Privilegios;
 
     modal.style.display = 'block';
 }
@@ -343,11 +347,11 @@ function openUserModal(user = null) {
 async function handleUserFormSubmit(e) {
     e.preventDefault();
     const userId = document.getElementById('user-id').value;
+    // FIX: Corrected property names to match backend schema
     const userData = {
-        nombre: document.getElementById('fullname').value,
-        nombreUsuario: document.getElementById('username-modal').value,
-        privilegios: document.getElementById('role').value,
-        password: document.getElementById('password-modal').value,
+        Nombre_Usuario: document.getElementById('username-modal').value,
+        Privilegios: document.getElementById('role').value,
+        Password: document.getElementById('password-modal').value,
     };
 
     try {
