@@ -1,8 +1,26 @@
-=================================================
- INSTRUCCIONES Y TAREAS PENDIENTES - GPSpedia
-=================================================
 **Versión del Documento:** 1.0 (Post-Auditoría)
 **Fecha de Generación:** 2024-08-20
+=================================================
+
+NORMAS OBLIGATORIAS DE DESARROLLO
+---------------------------------
+
+**A. Control de Versiones y Documentación:**
+1.  **Actualización de Versión:** Cualquier cambio debe reflejarse en el número de versión visible en `index.html` y en los servicios de Apps Script.
+2.  **Consulta y Actualización de Documentación:** Antes y después de cualquier desarrollo, se deben consultar y actualizar `README.md`, `Instrucciones.txt` y `ChangesLogs.txt`.
+3.  **Detalle en `ChangesLogs.txt`:** Cada entrada debe especificar el archivo y número de línea modificado.
+
+**B. Calidad del Código:**
+1.  **Comentarios:** Todo código nuevo o modificado debe tener un comentario explicando su propósito.
+
+**C. Proceso de Aprobación:**
+1.  **PROHIBIDO marcar tareas como “completadas” sin revisión del Project Manager.**
+2.  **PROHIBIDO asumir que un cambio resolvió un problema.**
+3.  **SOLO describir qué se cambió o qué se debe cambiar.**
+4.  Si una tarea introduce nuevos errores: Marcar como **EN REVISIÓN**.
+5.  Si la tarea no funciona o no cumple: Marcar como **REQUIERE NUEVA REVISIÓN**.
+ INSTRUCCIONES Y TAREAS PENDIENTES - GPSpedia
+=================================================
 
 Este documento convierte los hallazgos de `Auditoria.txt` en una lista de tareas accionables para estabilizar y mejorar el proyecto.
 
