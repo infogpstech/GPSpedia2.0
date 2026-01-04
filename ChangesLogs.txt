@@ -1,3 +1,9 @@
+**v4.6.5 (31-12-2025)**
+*   **FIX (services/auth/auth.js):** Se corrigió un bug crítico en la lógica de autenticación que impedía a los usuarios iniciar sesión si sus contraseñas contenían caracteres especiales o una combinación de mayúsculas y minúsculas.
+    *   **Causa Raíz:** El proceso de comparación de contraseñas convertía tanto la contraseña almacenada como la ingresada a minúsculas (`.toLowerCase()`) antes de verificarlas. Esto causaba que cualquier contraseña con mayúsculas (ej. "MiClave123") fuera incorrectamente rechazada.
+    *   **Solución:** Se eliminaron las llamadas a `.toLowerCase()` de la lógica de comparación. La verificación ahora es sensible a mayúsculas y minúsculas (`case-sensitive`), asegurando que las contraseñas se validen de forma exacta y permitiendo el uso de caracteres variados.
+    *   **Archivos Modificados:** `services/auth/auth.js`: Línea 138.
+
 **v4.6.4 (04/01/2026)**
 *   **FIX (services/feedback/feedback.js):** Se solucionó un bug crítico que impedía el funcionamiento de la bandeja de entrada (Inbox).
     *
