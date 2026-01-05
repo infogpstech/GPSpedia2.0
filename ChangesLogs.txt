@@ -1,3 +1,15 @@
+**v5.0.0 (05/01/2026)**
+*   **REFACTOR (Arquitectura):** Se completó una reestructuración arquitectónica mayor para alinear el proyecto con la especificación `v4` del `README.md`.
+    *   **Modularización del Frontend:** Se desacopló el archivo monolítico `index.html`. El CSS y el JavaScript fueron extraídos a archivos externos (`style.css` y `main.js`), mejorando la mantenibilidad y claridad del código.
+        *   **Archivos Creados:** `style.css`, `main.js`.
+        *   **Archivos Modificados:** `index.html`.
+    *   **Nuevo Microservicio de Imágenes:** Se creó el nuevo `GPSpedia-Image` (`services/image/image.js`), que actúa como un proxy seguro para servir imágenes desde Google Drive. Esto elimina la exposición directa de URLs de Drive en el frontend, mejorando la seguridad y centralizando la lógica de acceso a imágenes.
+        *   **Archivos Creados:** `services/image/image.js`.
+    *   **Refactorización del Frontend para el Servicio de Imágenes:** Se refactorizó todo el código JavaScript del frontend (`main.js`) para eliminar la lógica de conversión de URLs de Google Drive (`convertirAGoogleThumbnail`). Todas las solicitudes de imágenes ahora se enrutan a través del nuevo `GPSpedia-Image`.
+        *   **Archivos Modificados:** `main.js`.
+    *   **Actualización del API Manager:** Se registró el endpoint del nuevo servicio `IMAGE` en `api-manager.js` para hacerlo accesible al frontend. Se actualizó la URL con el endpoint desplegado proporcionado por el usuario.
+        *   **Archivos Modificados:** `api-manager.js`.
+
 **v4.7.4 (04/01/2026)**
 *   **DOCS (README.md):** Actualización de documentación arquitectónica.
     *   Se ha reestructurado y ampliado `README.md` para incluir diagramas de arquitectura y comunicación, responsabilidades por capa y una justificación técnica de la nueva arquitectura modular.
