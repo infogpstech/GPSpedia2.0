@@ -282,8 +282,32 @@ SEGUIMIENTO DE REVISIONES DE CÓDIGO
 
 - **Tarea 31: Ajustar Layout de Logo en Modal de Vehículo**
   - **Estado:** [NECESITA NUEVA REVISION]
-  - **Nota del PM:** EL LOGO NO DEBE DE TENER CONTENEDOR, FONDO, MARCO O BORDE, AL LADO IZQUIERDO DEL NOMBRE DEL MODELO.
+  - **Nota del PM:** EL LOGO NO DEBE DE TENER CONTENEDOR, FONDO, MARCO O BORDE, AL LADO IZQUIERDO DEL NOMBRE DEL MODELO. El logo de marca seguido de el nombre del vehículo debe estar en el extreno izquierdo del encabezado, actualmente están separados, corregir cualquier registro que contradiga está característica instrucciones.txt o README.md.
 
 - **Tarea 32: Corregir Posicionamiento de Botones de Feedback**
   - **Estado:** [COMPLETADO]
   - **Nota del PM:** [RESUELTO] Los botones "Útil" y "Reportar" ahora se posicionan correctamente.
+
+### Revisión v4.7.3 (2026-01-04)
+
+- **Tarea 33: Corregir Mapeo de Datos de Usuario (Regresión)**
+  - **Estado:** [PENDIENTE]
+  - **Nota del PM:** [FRACASO] Ocurre el error de 'Failed to fetch' que imposibilita el uso y la gestión de usuarios.
+
+### Revisión v4.7.1 (2026-01-04)
+
+- **Tarea 34: Corregir Funcionalidad de Sugerencia de Año e Inbox**
+  - **Estado:** [NECESITA REVISION]
+  - **Nota del PM:** Ocurre el error de "Error inesperado: update Is not defined".
+
+### Revisión v4.6.9 (2026-01-04)
+
+- **Tarea 35: Corregir Herencia de Fórmula de ID en Creación de Vehículos**
+  - **Estado:** [PENDIENTE]
+  - **Nota del PM:** [FRACASO] La nueva fila insertada es incapaz de captar la fórmula del ID de la fila anterior. Quizás sea necesario inyectar la fórmula directamente desde el backend.
+
+### Feedback Adicional
+
+- **Tarea 36: Corregir Botones de Respuesta en Inbox**
+  - **Estado:** [PENDIENTE]
+  - **Nota del PM:** Los botones de responder en inbox no funcionan. No tienen ninguna acción.
