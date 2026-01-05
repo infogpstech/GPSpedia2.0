@@ -1,3 +1,9 @@
+**v4.7.2 (04/01/2026)**
+*   **FIX (services/users/users.js):** Se solucionó una regresión crítica que causaba un error 'Failed to fetch' e inhabilitaba por completo el módulo de gestión de usuarios.
+    *   **Causa Raíz:** La función `doPost(e)`, punto de entrada obligatorio para todas las solicitudes POST en Google Apps Script, estaba ausente en el archivo del servicio. Esto provocaba que el backend no pudiera procesar ni responder a ninguna llamada desde el frontend (`users.html`).
+    *   **Solución:** Se re-implementó la función `doPost(e)`. Esta ahora actúa como un enrutador que parsea la acción de la solicitud y la dirige al manejador correspondiente (ej. `handleGetUsers`, `handleCreateUser`). Se aseguró que la respuesta sea devuelta con `MimeType.TEXT` para cumplir con la política de CORS, restaurando la funcionalidad completa del módulo.
+    *   **Archivos Modificados:** `services/users/users.js`.
+
 **v4.7.1 (04/01/2026)**
 *   **DOCS (Instrucciones.txt):** Se actualizaron los estados de las tareas 14 y 22 a "[en revisión]" para reflejar que se ha enviado una propuesta de solución para su validación.
     *   **Archivos Modificados:** `Instrucciones.txt`.
@@ -77,7 +83,7 @@ considerar esta ultima version como fallida y no se debe trabajar desde esta ver
 
 
 **v4.5.9 (31-12-2025)**
-*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `GPSpedia-Write` a la nueva versión desplegada proporcionada por el usuario, asegurando que el frontend se comunique con el endpoint más reciente y corregido para todas las operaciones de escritura.
+*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `GPSpedia-Write` a la nueva versión desplegada proporcionada por el usuario, asegurando que el frontend apunte a el endpoint más reciente y corregido para todas las operaciones de escritura.
     *   **Archivos Modificados:** `api-manager.js`.
 *   **CHORE (versioning):** Se actualizó la versión del componente `api-manager.js` a `3.9.2`.
 

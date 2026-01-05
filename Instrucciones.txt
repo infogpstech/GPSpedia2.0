@@ -293,6 +293,7 @@ SEGUIMIENTO DE REVISIONES DE CÓDIGO
 - **Tarea 33: Corregir Mapeo de Datos de Usuario (Regresión)**
   - **Estado:** [PENDIENTE]
   - **Nota del PM:** [FRACASO] Ocurre el error de 'Failed to fetch' que imposibilita el uso y la gestión de usuarios.
+  - **Observaciones de Auditoría (2026-01-04):** El archivo `services/users/users.js` carece de la función `doPost`, que es el punto de entrada para todas las solicitudes. Esta ausencia es la causa directa del error 'Failed to fetch', ya que el servicio no puede procesar ni responder a ninguna solicitud.
 
 ### Revisión v4.7.1 (2026-01-04)
 
