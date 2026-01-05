@@ -40,6 +40,119 @@ La arquitectura de GPSpedia 2.0 se compone de tres capas principales:
                          └──────────────────┘
 ```
 
+### Arquitectura Final Propuesta
+
+Esta sección define la arquitectura objetivo para la refactorización completa de GPSpedia, centrada en la separación de responsabilidades, la seguridad y la mantenibilidad a largo plazo.
+
+---
+#### **🎯 PRINCIPIOS NO NEGOCIABLES**
+---
+1.  **El frontend NO procesa lógica de negocio:** La UI solo "pinta" datos. Toda la lógica (ordenar, filtrar, calcular) reside en el backend.
+2.  **El backend entrega datos listos:** El frontend no debe transformar datos. Si la UI necesita algo, el backend debe proveerlo en el formato exacto.
+3.  **Google Drive sigue siendo el host real:** Las imágenes se almacenan en Drive, pero no se exponen directamente.
+4.  **El frontend nunca ve URLs de Drive:** Para seguridad y control, el frontend solo manejará `fileId`.
+5.  **Cada archivo JS tiene una sola responsabilidad:** Separación estricta de lógica (API, estado, renderizado).
+6.  **Cada microservicio tiene límites claros:** Cero duplicidad de funciones entre servicios.
+
+---
+#### **🗂️ BACKEND (Google Apps Script – Microservicios)**
+---
+🔹 **1. catalog-service (EXISTENTE – SE EXPANDE)**
+- **Responsabilidad:** Proveer datos completos, normalizados y ordenados del catálogo.
+- **Funciones Existentes:** `handleGetCatalogData`, `handleCheckVehicle`, `handleGetSuggestion`, `mapRowToObject`, `isYearInRangeV2`, `levenshteinDistance`.
+- **NUEVAS Funciones Requeridas:** `normalizeVehicleData`, `ordenarCortesPorUtilidad`, `prepararDatosModal`, `contarCategorias`, `prepararCarruseles`.
+- **Devuelve al frontend (Ejemplo):**
+  ```json
+  {
+    "catalogo": [],
+    "carruselVehiculos": [],
+    "carruselMotos": [],
+    "categoriasOrdenadas": [],
+    "marcas": []
+  }
+  ```
+- **Regla Crítica:** Solo devuelve `imageId`, NUNCA URLs de imágenes.
+
+🔹 **2. image-service (NUEVO – CRÍTICO)**
+- **Responsabilidad:** Servir imágenes desde Drive como un proxy seguro.
+- **Ruta:** `GET /image?fileId=XXXX`
+- **Funciones:** `getImageById(fileId)`, `extraerFileId`, `getBlobFromDrive`, `setContentType`.
+- **Características:** Devuelve un `blob`, maneja permisos y es cacheable. No genera URLs públicas ni redimensiona imágenes.
+
+🔹 **3. write-service (EXISTENTE – AJUSTE)**
+- **Responsabilidad:** Escritura controlada y consistente de datos.
+- **Funciones:** `addOrUpdateCut`, `crearNuevaFila`, `inyectarFormulaId`, `subirImagenADrive`.
+- **Regla Crítica:** Es el único responsable de inyectar las fórmulas de ID para nuevos registros (`V-` para cortes, `F-` para feedback, `C-` para contacto, etc.).
+
+🔹 **4. feedback-service**
+- **Responsabilidad:** Gestionar toda la retroalimentación del usuario.
+- **Funciones:** `submitFeedback`.
+- **Regla Crítica:** Debe guardar siempre el `userId` y el `timestamp` correcto.
+
+🔹 **5. auth-service**
+- **Responsabilidad:** Autenticación, sesiones y seguridad de contraseñas.
+- **Funciones:** `login`, `logout`, `validateSession`, `hashPassword`.
+
+🔹 **6. users-service**
+- **Responsabilidad:** Gestión de CRUD de usuarios.
+- **Funciones:** `createUser`, `updateUser`, `changePassword`.
+
+🔹 **7. utilities-service (OPCIONAL)**
+- **Responsabilidad:** Proveer funciones de utilidad compartidas entre servicios.
+- **Funciones:** `sanitizeText`, `formatDate`, `validateInput`.
+
+---
+#### **🎨 FRONTEND (HTML + JS Modular)**
+---
+📁 **Estructura de Archivos FINAL**
+```
+/js
+ ├── api/
+ │   ├── catalogApi.js
+ │   ├── imageApi.js
+ │   ├── writeApi.js
+ │   ├── authApi.js
+ │   └── usersApi.js
+ │
+ ├── state/
+ │   └── appState.js
+ │
+ ├── ui/
+ │   ├── catalogRender.js
+ │   ├── modal.js
+ │   ├── carousel.js
+ │   ├── forms.js
+ │   └── events.js
+ │
+ ├── utils/
+ │   └── dom.js
+ │
+ └── main.js
+
+/css
+ ├── base.css
+ ├── layout.css
+ ├── modal.css
+ ├── carousel.css
+ ├── forms.css
+ └── images.css
+```
+
+🔹 **Lógica por Archivo**
+- **`main.js`:** Orquesta la aplicación (`initApp`, `loadInitialData`).
+- **`api/*.js`:** Contienen toda la lógica de `fetch` para comunicarse con el backend.
+- **`api/imageApi.js`:** Su función `getImageUrl(fileId)` retorna una ruta al proxy del backend (`/image?fileId=xxx`), no a Google Drive.
+- **`state/appState.js`:** Gestiona el estado global (ej. `currentVehicle`, `modalOpen`), eliminando variables globales.
+- **`ui/*.js`:** Módulos responsables de renderizar partes específicas de la UI (catálogo, modales, carruseles).
+- **`ui/events.js`:** Gestiona todos los listeners de eventos (`onSearchSubmit`, `onMarcaClick`).
+- **`utils/dom.js`:** Helpers para la manipulación del DOM.
+
+---
+#### **✅ RESULTADO FINAL**
+- **Código auditable y escalable:** Cada pieza tiene una única responsabilidad.
+- **Estable y fácil de mantener:** Los cambios en un módulo no rompen otros.
+- **Backend manda, frontend pinta:** Separación clara de responsabilidades que elimina bugs intermitentes y regresiones visuales.
+
 ## 3. Plan Estratégico v4 (Final y Optimizado)
 
 Esta sección define la hoja de ruta para la siguiente gran versión de GPSpedia, centrada en una re-arquitectura de datos y la implementación de funcionalidades de alta eficiencia.
@@ -138,7 +251,7 @@ Esta sección describe los pasos técnicos específicos requeridos para ejecutar
 
     - **Etapa 2: Registro de Nuevo Corte y Gestión de Archivos.**
         1.  Cuando se añade un nuevo corte o un nuevo vehículo, el sistema gestiona las imágenes de la siguiente manera:
-            *   **Creación de Directorios:** El backend crea automáticamente una estructura de carpetas en Google Drive siguiendo la ruta: `GPSpedia/Categoria/Marca/Modelo/Año`.
+            *   **Creación de Directorios:** El backend crea automáticamente una estructura de carpetas jerárquica en Google Drive siguiendo la ruta: `GPSpedia/Categoria/Marca/Modelo/Año`.
             *   **Nomenclatura de Archivos Estandarizada:** Las imágenes subidas se renombran automáticamente para seguir un formato predecible y consistente:
                 *   `Marca_Modelo_TipoEncendido_Año_Vehiculo.jpg`
                 *   `Marca_Modelo_TipoEncendido_Año_Corte1.jpg`

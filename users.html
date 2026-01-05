@@ -198,7 +198,7 @@
         </div>
     </div>
 <script>
-// COMPONENT VERSION: 3.7.1
+// COMPONENT VERSION: 3.7.2
 // --- LÓGICA DE DEPURACIÓN REMOTA ---
 function remoteLog(level, message, data = {}) {
     // No-op in local, but kept for structure
@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
     currentUser = JSON.parse(sessionData);
-    if (!currentUser || !currentUser.user) { // Defensive check for valid session structure
+    if (!currentUser || !currentUser.user || !currentUser.token) { // Ensure token exists
         localStorage.removeItem(SESSION_KEY);
         window.location.href = 'index.html';
         return;
@@ -243,8 +243,9 @@ function displayProfile() {
 
 async function postToAction(action, payload = {}) {
     try {
-        // The api-manager will handle routing
-        const result = await routeAction(action, payload);
+        // SECURITY FIX: Always include the session token for backend verification
+        const securePayload = { ...payload, sessionToken: currentUser.token };
+        const result = await routeAction(action, securePayload);
         return result;
     } catch (error) {
         console.error(`Error in action '${action}':`, error);
@@ -255,8 +256,7 @@ async function postToAction(action, payload = {}) {
 
 async function fetchUsers() {
     try {
-        // The backend uses the session object for authorization
-        const result = await postToAction('getUsers', { session: currentUser });
+        const result = await postToAction('getUsers');
         if (result.status === 'success') {
             allUsers = result.users;
             renderUserTable();
@@ -273,7 +273,6 @@ function renderUserTable() {
     tbody.innerHTML = '';
     allUsers.forEach(user => {
         const row = document.createElement('tr');
-        // FIX: Corrected properties to match backend: Nombre_Completo and Rol
         row.innerHTML = `
             <td>${user.Nombre_Usuario}</td>
             <td>${user.Nombre_Completo}</td>
@@ -321,7 +320,6 @@ function openUserModal(user = null) {
 
     if (user) {
         title.textContent = 'Editar Usuario';
-        // FIX: Corrected properties to match backend: Nombre_Completo
         document.getElementById('user-id').value = user.ID;
         document.getElementById('fullname').value = user.Nombre_Completo;
         document.getElementById('username-modal').value = user.Nombre_Usuario;
@@ -333,7 +331,6 @@ function openUserModal(user = null) {
     const roleSelect = document.getElementById('role');
     roleSelect.innerHTML = '';
     let availableRoles = [];
-    // FIX: Access role from currentUser.user.Rol
     const userRole = currentUser.user.Rol;
     if (userRole === 'Desarrollador') availableRoles = ['Desarrollador', 'Gefe', 'Supervisor', 'Tecnico', 'Tecnico_Exterior'];
     else if (userRole === 'Gefe') availableRoles = ['Gefe', 'Supervisor', 'Tecnico'];
@@ -345,7 +342,6 @@ function openUserModal(user = null) {
         option.textContent = role;
         roleSelect.appendChild(option);
     });
-    // FIX: Corrected property to match backend: Rol
     if(user) roleSelect.value = user.Rol;
 
     modal.style.display = 'block';
@@ -354,7 +350,6 @@ function openUserModal(user = null) {
 async function handleUserFormSubmit(e) {
     e.preventDefault();
     const userId = document.getElementById('user-id').value;
-    // FIX: Corrected property names to match backend schema (Rol, Contrasena)
     const userData = {
         Nombre_Usuario: document.getElementById('username-modal').value,
         Nombre_Completo: document.getElementById('fullname').value,
@@ -367,13 +362,11 @@ async function handleUserFormSubmit(e) {
 
     try {
         if (userId) {
-            // The backend expects the user object nested under 'updatedUser'
-            const payload = { updatedUser: { ...userData, ID: userId }, session: currentUser };
+            const payload = { updatedUser: { ...userData, ID: userId } };
             await postToAction('updateUser', payload);
             alert('Usuario actualizado');
         } else {
-            // The backend expects the user object nested under 'newUser'
-            const payload = { newUser: userData, session: currentUser };
+            const payload = { newUser: userData };
             await postToAction('createUser', payload);
             alert('Usuario creado');
         }
@@ -387,8 +380,7 @@ async function handleUserFormSubmit(e) {
 async function deleteUser(userId) {
     if (confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
         try {
-            // Pass session for backend authorization
-            await postToAction('deleteUser', { userId, session: currentUser });
+            await postToAction('deleteUser', { userId });
             alert('Usuario eliminado');
             fetchUsers();
         } catch (error) {
@@ -415,7 +407,6 @@ async function handleChangePasswordSubmit(e) {
 
     try {
         await postToAction('changePassword', {
-            session: currentUser,
             currentPassword,
             newPassword
         });

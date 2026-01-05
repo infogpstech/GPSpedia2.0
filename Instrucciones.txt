@@ -1,4 +1,4 @@
-**Versión del Documento:** 1.0 (Post-Auditoría)
+**Versión del Documento:** 1.1 (Post-Arquitectura)
 **Fecha de Generación:** 2024-08-20
 =================================================
 
@@ -282,7 +282,7 @@ SEGUIMIENTO DE REVISIONES DE CÓDIGO
 
 - **Tarea 31: Ajustar Layout de Logo en Modal de Vehículo**
   - **Estado:** [NECESITA NUEVA REVISION]
-  - **Nota del PM:** EL LOGO NO DEBE DE TENER CONTENEDOR, FONDO, MARCO O BORDE, AL LADO IZQUIERDO DEL NOMBRE DEL MODELO. El logo de marca seguido de el nombre del vehículo debe estar en el extreno izquierdo del encabezado, actualmente están separados, corregir cualquier registro que contradiga está característica instrucciones.txt o README.md.
+  - **Nota del PM:** EL LOGO NO DEBE DE TENER CONTENEDOR, FONDO, MARCO O BORDE, AL LADO IZQUIEDO DEL NOMBRE DEL MODELO. El logo de marca seguido de el nombre del vehículo debe estar en el extreno izquierdo del encabezado, actualmente están separados, corregir cualquier registro que contradiga está característica instrucciones.txt o README.md.
 
 - **Tarea 32: Corregir Posicionamiento de Botones de Feedback**
   - **Estado:** [COMPLETADO]
@@ -312,3 +312,56 @@ SEGUIMIENTO DE REVISIONES DE CÓDIGO
 - **Tarea 36: Corregir Botones de Respuesta en Inbox**
   - **Estado:** [PENDIENTE]
   - **Nota del PM:** Los botones de responder en inbox no funcionan. No tienen ninguna acción.
+
+---------------------------------
+TAREAS DE ARQUITECTURA FINAL
+---------------------------------
+
+### MÓDULO: Backend Refactor
+
+- **Tarea 37: Expandir `catalog-service`**
+  - **Urgencia:** Alta
+  - **Tipo:** Arquitectura
+  - **Descripción:** Centralizar toda la lógica de preparación de datos del catálogo. Añadir funciones para normalizar, ordenar y preparar datos para modales y carruseles. El servicio solo debe devolver `imageId`, nunca URLs de Drive.
+
+- **Tarea 38: Crear `image-service` (Proxy)**
+  - **Urgencia:** Crítica
+  - **Tipo:** Arquitectura / Seguridad
+  - **Descripción:** Implementar un nuevo microservicio que actúe como un proxy seguro para las imágenes de Google Drive. Debe exponer un único endpoint `GET /image?fileId=XXXX` que devuelva el blob de la imagen, ocultando las URLs de Drive al frontend.
+
+- **Tarea 39: Refactorizar `write-service`**
+  - **Urgencia:** Alta
+  - **Tipo:** Arquitectura / Integridad de Datos
+  - **Descripción:** Reforzar el servicio para que sea el único responsable de generar y controlar los IDs de todos los nuevos registros (Cortes, Feedback, Contacto, Logs, Usuarios) mediante la inyección de fórmulas en la hoja de cálculo.
+
+- **Tarea 40: Refactorizar `feedback-service`**
+  - **Urgencia:** Media
+  - **Tipo:** Arquitectura
+  - **Descripción:** Asegurar que el servicio guarde correctamente el `userId` y el `timestamp` en todos los envíos de feedback y contacto.
+
+### MÓDULO: Frontend Refactor
+
+- **Tarea 41: Modularizar Estructura de Archivos Frontend**
+  - **Urgencia:** Crítica
+  - **Tipo:** Arquitectura
+  - **Descripción:** Reestructurar el frontend en la nueva arquitectura de carpetas: `/js/api`, `/js/state`, `/js/ui`, `/js/utils`, y `/css`. Separar toda la lógica en los archivos correspondientes (`catalogApi.js`, `appState.js`, `catalogRender.js`, etc.).
+
+- **Tarea 42: Centralizar Estado en `appState.js`**
+  - **Urgencia:** Alta
+  - **Tipo:** Arquitectura
+  - **Descripción:** Eliminar variables globales y gestionar todo el estado de la aplicación (vehículo actual, marca seleccionada, estado del modal) a través del módulo `appState.js`.
+
+- **Tarea 43: Aislar Lógica de API**
+  - **Urgencia:** Alta
+  - **Tipo:** Arquitectura
+  - **Descripción:** Mover todas las llamadas `fetch` y la lógica de comunicación con el backend a los módulos dedicados en `/js/api/`. El resto de la aplicación interactuará con estos módulos, no directamente con `fetch`.
+
+- **Tarea 44: Aislar Manipulación del DOM**
+  - **Urgencia:** Alta
+  - **Tipo:** Arquitectura
+  - **Descripción:** Crear un módulo `/js/utils/dom.js` con helpers para la manipulación del DOM. El resto de los módulos de UI (`catalogRender.js`, `modal.js`) usarán estos helpers en lugar de manipular el DOM directamente.
+
+- **Tarea 45: Implementar `imageApi.js`**
+  - **Urgencia:** Crítica
+  - **Tipo:** Arquitectura
+  - **Descripción:** Crear el módulo `imageApi.js` cuya única función, `getImageUrl(fileId)`, construirá la URL que apunta al nuevo `image-service` en el backend (ej. `/image?fileId=xxx`), eliminando toda la lógica de URLs de Google Drive del frontend.
