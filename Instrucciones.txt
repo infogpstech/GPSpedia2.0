@@ -19,6 +19,9 @@ NORMAS OBLIGATORIAS DE DESARROLLO
 3.  **SOLO describir qué se cambió o qué se debe cambiar.**
 4.  Si una tarea introduce nuevos errores: Marcar como **EN REVISIÓN**.
 5.  Si la tarea no funciona o no cumple: Marcar como **REQUIERE NUEVA REVISIÓN**.
+6.  **No inferir que un cambio fue exitoso.**
+7.  **No usar términos como "se corrigió" antes de ser confirmado por el PM.**
+
  INSTRUCCIONES Y TAREAS PENDIENTES - GPSpedia
 =================================================
 
@@ -258,3 +261,29 @@ NUEVAS TAREAS CRÍTICAS (AÑADIDO 2026-01-04)
     2.  **Componentes:** La UI debe incluir secciones para "Apertura" y "Alimentación", cada una con campos para color de cable, ubicación, un botón para subir imagen (no URL) y una vista previa de la imagen.
     3.  **Backend:** El backend debe manejar la subida de estas imágenes a Drive, renombrarlas y guardar la información en la fila correcta del vehículo (heredado de la Fase 1).
   - **Impacto Potencial:** Completa un flujo de usuario crítico que actualmente está roto.
+
+---------------------------------
+SEGUIMIENTO DE REVISIONES DE CÓDIGO
+---------------------------------
+
+### Revisión v4.7.2 (2026-01-04)
+
+- **Tarea 28: Corregir Renderizado y Estilo del Catálogo Principal**
+  - **Estado:** [PENDIENTE]
+  - **Nota del PM:** [FRACASO] Ningun cambio percibido en el aspecto del catalogo, se recomienda realizar de nuevo esta tarea para rectificar y corregir según la necesidad y directriz de la tarea. Carrusel aun no se renderiza, el logo de marca aun se presenta a la izquieda y aun esta en un contenedor circular con fondo y bordes contradiciendo los requerimientos de la tarea. La imagenes de los cortes y la demas información (apertura y cable de alimentación) deben de tener el mismo ancho y cin altura automática, en dispositivos moviles debe de cubrir todo el ancho del modal mientras que en escritorio debe de mantenerse en una presentacion lateral. a la izquierda la imagen del vehiculo con la demas informacion abajo, mientras que las imágenes a la derecha desplazables verticalmente.
+
+- **Tarea 29: Corregir Visualización de Videos en Modal de Tutoriales**
+  - **Estado:** [COMPLETADO]
+  - **Nota del PM:** [RESUELTO] La lógica de fallback (`item.Video` -> `item.videoGuia`) ha solucionado la regresión.
+
+- **Tarea 30: Corregir Visualización de Diagrama en Modal de Relay**
+  - **Estado:** [COMPLETADO]
+  - **Nota del PM:** [RESUELTO] La corrección del selector de imágenes ha restaurado la funcionalidad.
+
+- **Tarea 31: Ajustar Layout de Logo en Modal de Vehículo**
+  - **Estado:** [NECESITA NUEVA REVISION]
+  - **Nota del PM:** EL LOGO NO DEBE DE TENER CONTENEDOR, FONDO, MARCO O BORDE, AL LADO IZQUIERDO DEL NOMBRE DEL MODELO.
+
+- **Tarea 32: Corregir Posicionamiento de Botones de Feedback**
+  - **Estado:** [COMPLETADO]
+  - **Nota del PM:** [RESUELTO] Los botones "Útil" y "Reportar" ahora se posicionan correctamente.

@@ -198,7 +198,7 @@
         </div>
     </div>
 <script>
-// COMPONENT VERSION: 3.8.0
+// COMPONENT VERSION: 3.7.0
 // --- LÓGICA DE DEPURACIÓN REMOTA ---
 function remoteLog(level, message, data = {}) {
     fetch(SCRIPT_URL, {
@@ -239,7 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function displayProfile() {
-    // FIX: Corrected property access to match backend schema (PascalCase_With_Underscores)
+    // FIX: Corrected to display Nombre_Usuario in both fields as there's no separate fullname field in the session object
     document.getElementById('profile-username').textContent = currentUser.Nombre_Usuario;
     document.getElementById('profile-fullname').textContent = currentUser.Nombre_Usuario;
     document.getElementById('profile-role').textContent = currentUser.Privilegios;
@@ -259,7 +259,6 @@ async function postToAction(action, payload = {}) {
 
 async function fetchUsers() {
     try {
-        // FIX: Corrected property access to match backend schema (PascalCase_With_Underscores)
         const result = await postToAction('getUsers', { privilegios: currentUser.Privilegios });
         allUsers = result.users;
         renderUserTable();
@@ -318,9 +317,9 @@ function openUserModal(user = null) {
 
     if (user) {
         title.textContent = 'Editar Usuario';
-        // FIX: Corrected property access to match backend schema (PascalCase_With_Underscores)
+        // FIX: Corrected property access to match backend schema
         document.getElementById('user-id').value = user.ID;
-        document.getElementById('fullname').value = user.Nombre_Usuario;
+        document.getElementById('fullname').value = user.Nombre_Usuario; // Assuming Nombre_Usuario is the full name
         document.getElementById('username-modal').value = user.Nombre_Usuario;
     } else {
         title.textContent = 'Crear Nuevo Usuario';
@@ -330,7 +329,6 @@ function openUserModal(user = null) {
     const roleSelect = document.getElementById('role');
     roleSelect.innerHTML = '';
     let availableRoles = [];
-    // FIX: Corrected property access to match backend schema (PascalCase_With_Underscores)
     if (currentUser.Privilegios === 'Desarrollador') availableRoles = ['Desarrollador', 'Gefe', 'Supervisor', 'Tecnico', 'Tecnico_Exterior'];
     else if (currentUser.Privilegios === 'Gefe') availableRoles = ['Gefe', 'Supervisor', 'Tecnico'];
     else if (currentUser.Privilegios === 'Supervisor') availableRoles = ['Tecnico'];
@@ -341,7 +339,7 @@ function openUserModal(user = null) {
         option.textContent = role;
         roleSelect.appendChild(option);
     });
-    // FIX: Corrected property access to match backend schema (PascalCase_With_Underscores)
+    // FIX: Corrected property access to match backend schema
     if(user) roleSelect.value = user.Privilegios;
 
     modal.style.display = 'block';
@@ -350,7 +348,7 @@ function openUserModal(user = null) {
 async function handleUserFormSubmit(e) {
     e.preventDefault();
     const userId = document.getElementById('user-id').value;
-    // FIX: Corrected property names to match backend schema (PascalCase_With_Underscores)
+    // FIX: Corrected property names to match backend schema
     const userData = {
         Nombre_Usuario: document.getElementById('username-modal').value,
         Privilegios: document.getElementById('role').value,
@@ -359,11 +357,11 @@ async function handleUserFormSubmit(e) {
 
     try {
         if (userId) {
-            // SECURITY PATCH: Send sessionToken for backend verification
+            // SECURITY PATCH: Send sessionToken instead of role for backend verification
             await postToAction('updateUser', { userId, updates: userData, sessionToken: currentUser.SessionToken });
             alert('Usuario actualizado');
         } else {
-            // SECURITY PATCH: Send sessionToken for backend verification
+            // SECURITY PATCH: Send sessionToken instead of role for backend verification
             await postToAction('createUser', { newUser: userData, sessionToken: currentUser.SessionToken });
             alert('Usuario creado');
         }
@@ -377,7 +375,7 @@ async function handleUserFormSubmit(e) {
 async function deleteUser(userId) {
     if (confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
         try {
-            // SECURITY PATCH: Send sessionToken for backend verification
+            // SECURITY PATCH: Send sessionToken instead of role for backend verification
             await postToAction('deleteUser', { userId, sessionToken: currentUser.SessionToken });
             alert('Usuario eliminado');
             fetchUsers();
@@ -404,9 +402,8 @@ async function handleChangePasswordSubmit(e) {
     }
 
     try {
-        // FIX: Corrected property access to match backend schema (PascalCase_With_Underscores)
         await postToAction('changePassword', {
-            userId: currentUser.ID,
+            userId: currentUser.ID, // Assuming currentUser has an ID
             currentPassword,
             newPassword
         });
