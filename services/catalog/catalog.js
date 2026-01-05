@@ -218,16 +218,29 @@ function mapRowToObject(row, colMap, imageFields = new Set()) {
 
 function handleGetCatalogData() {
     const cache = CacheService.getScriptCache();
-    const cacheKey = 'catalog_data_v2'; // Use a versioned key
-    const cachedData = cache.get(cacheKey);
+    const cacheKey = 'catalog_data_v2';
+    let cachedData = null;
 
-    if (cachedData) {
-        // Si los datos están en caché, los devolvemos directamente.
-        const parsedData = JSON.parse(cachedData);
-        return { status: 'success', data: parsedData, source: 'cache' };
+    // 1. Intento de lectura de caché con manejo de errores
+    try {
+        cachedData = cache.get(cacheKey);
+    } catch (e) {
+        console.error("CATALOG-SERVICE: Error al leer la caché (get). Se procederá sin caché. Error: " + e.message);
+        cachedData = null; // Asegurarse de que cachedData es null si falla
     }
 
-    // Si no están en caché, procedemos a leer de la hoja de cálculo.
+    if (cachedData) {
+        try {
+            // 2. Intento de parseo de datos cacheados con manejo de errores
+            const parsedData = JSON.parse(cachedData);
+            return { status: 'success', data: parsedData, source: 'cache' };
+        } catch (e) {
+            console.error("CATALOG-SERVICE: Datos de caché corruptos. Se procederá a leer de la hoja. Error: " + e.message);
+            // Si el parseo falla, los datos están corruptos, así que se procede a leer de la fuente.
+        }
+    }
+
+    // Si no hay datos en caché (o están corruptos), procedemos a leer de la hoja de cálculo.
     const allData = {};
 
     // Fetch Cortes
@@ -324,8 +337,15 @@ function handleGetCatalogData() {
     }
     allData.relay = relayData;
 
-    // Guardar los datos en caché por 1 hora (3600 segundos)
-    cache.put(cacheKey, JSON.stringify(allData), 3600);
+    // --- ESCRITURA EN CACHÉ DESHABILITADA ---
+    // La siguiente línea se deshabilita para prevenir el error "Argumento demasiado grande".
+    // El objeto `allData` excede el límite de 100 KB de CacheService.
+    // Una futura estrategia de caché deberá ser más granular (ej. cachear solo metadatos).
+    // try {
+    //     cache.put(cacheKey, JSON.stringify(allData), 3600);
+    // } catch (e) {
+    //     console.error("CATALOG-SERVICE: Error al escribir en la caché (put). La operación continuará. Error: " + e.message);
+    // }
 
     return { status: 'success', data: allData, source: 'spreadsheet' };
 }

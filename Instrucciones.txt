@@ -1,3 +1,19 @@
+---------------------------------
+TAREAS CRÍTICAS (AÑADIDO 2026-01-05)
+---------------------------------
+
+### MÓDULO: INFRAESTRUCTURA BACKEND (CACHE)
+
+- **Tarea 29: Corregir Abuso de CacheService y Prevenir Fallos Críticos**
+  - **Estado:** CRÍTICA – EN REVISIÓN
+  - **Urgencia:** Máxima
+  - **Tipo:** Bug Crítico (Producción)
+  - **Descripción:** Se detectó un error fatal en producción ("Argumento demasiado grande") causado por un uso incorrecto de `CacheService` en el `catalog-service`. El servicio intentaba cachear el objeto completo del catálogo, que excede el límite de 100 KB.
+  - **Requerimiento Técnico:**
+    1.  **Remediación en `catalog-service`:** Se deshabilitó por completo la escritura en caché del catálogo (`cache.put`) para estabilizar el servicio de forma inmediata.
+    2.  **Endurecimiento General:** Todas las operaciones de lectura y escritura de caché (`cache.get`, `cache.put`) en todos los microservicios (`catalog-service`, `image-service`) han sido envueltas en bloques `try...catch`. Esto asegura que un fallo transitorio o un error en la caché NO detenga la ejecución del servicio, garantizando la disponibilidad de la aplicación.
+  - **Impacto Potencial:** Restaura la funcionalidad del catálogo en producción y aumenta la resiliencia de toda la arquitectura backend ante fallos en el sistema de caché.
+
 **Versión del Documento:** 1.1 (Post-Auditoría de Catalog-Service)
 **Fecha de Generación:** 2026-01-05
 =================================================

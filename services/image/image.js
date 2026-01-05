@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-IMAGE SERVICE (PROXY SEGURO DE IMÁGENES)
 // ============================================================================
-// COMPONENT VERSION: 1.0.0
+// COMPONENT VERSION: 1.1.0
 
 /**
  * @summary Este servicio actúa como un proxy seguro para las imágenes de Google Drive.
@@ -31,18 +31,29 @@ function doGet(e) {
 
   const cache = CacheService.getScriptCache();
   const cacheKey = `image_${fileId}`;
-  const cachedImage = cache.get(cacheKey);
+  let cachedImage = null;
 
-  // 2. Servir desde la caché si está disponible
+  // Intento de lectura de caché con manejo de errores
+  try {
+    cachedImage = cache.get(cacheKey);
+  } catch (e) {
+    console.error(`IMAGE-SERVICE: Error al leer la caché para fileId ${fileId}. Se procederá sin caché. Error: ${e.message}`);
+    cachedImage = null;
+  }
+
+  // 2. Servir desde la caché si está disponible y es válida
   if (cachedImage) {
     try {
+      const cached = JSON.parse(cachedImage);
       const imageBlob = Utilities.newBlob(
-        Utilities.base64Decode(cachedImage),
-        guessMimeType(fileId)
+        Utilities.base64Decode(cached.data),
+        cached.contentType
       );
+      // Asigna un nombre al blob para que el navegador lo pueda interpretar.
+      imageBlob.setName(fileId);
       return ContentService.createImage(imageBlob);
     } catch (cacheError) {
-      // Si hay un error con los datos cacheados, proceder a obtenerlos de Drive.
+      // Si hay un error con los datos cacheados (ej. formato antiguo), proceder a obtenerlos de Drive.
     }
   }
 
@@ -50,15 +61,27 @@ function doGet(e) {
   try {
     const file = DriveApp.getFileById(fileId);
     const imageBlob = file.getBlob();
+    const contentType = imageBlob.getContentType();
+    const base64Data = Utilities.base64Encode(imageBlob.getBytes());
 
-    // 4. Guardar en caché para futuras solicitudes (expira en 6 horas)
-    cache.put(cacheKey, Utilities.base64Encode(imageBlob.getBytes()), 21600);
+    // 4. Guardar en caché solo si es seguro (tamaño < 90KB)
+    // El límite de CacheService es 100KB. Se usa 90KB como margen de seguridad.
+    if (base64Data.length < 90 * 1024) {
+      try {
+        const cacheData = JSON.stringify({ data: base64Data, contentType: contentType });
+        cache.put(cacheKey, cacheData, 21600); // Expira en 6 horas
+      } catch (e) {
+        // Si la escritura en caché falla, la operación principal no se interrumpe.
+        console.error(`IMAGE-SERVICE: Error al escribir en la caché para fileId ${fileId}. La imagen se servirá igualmente. Error: ${e.message}`);
+      }
+    }
 
     // 5. Devolver la imagen
     return ContentService.createImage(imageBlob);
 
   } catch (error) {
-    // 6. Manejo de errores (ej. archivo no encontrado)
+    // 6. Manejo de errores (ej. archivo no encontrado o permisos incorrectos)
+    // Este bloque se ejecuta si DriveApp.getFileById(fileId) falla.
     return createErrorResponse(`No se pudo encontrar o acceder al archivo con ID: ${fileId}`, 404);
   }
 }
@@ -81,19 +104,4 @@ function createErrorResponse(message, statusCode) {
   };
   return ContentService.createTextOutput(JSON.stringify(error))
     .setMimeType(ContentService.MimeType.JSON);
-}
-
-/**
- * Intenta adivinar el MimeType basándose en la extensión de archivo común.
- * Esto es un fallback, ya que DriveApp suele manejar esto correctamente, pero es útil
- * al reconstruir un blob desde base64 cacheado.
- * @param {string} filenameOrId - El ID o nombre del archivo.
- * @returns {string} - El MimeType adivinado (default: 'image/jpeg').
- */
-function guessMimeType(filenameOrId) {
-    if (filenameOrId.toLowerCase().endsWith('.png')) {
-        return 'image/png';
-    }
-    // Por defecto, se asume JPEG, que es el formato más común.
-    return 'image/jpeg';
 }

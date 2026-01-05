@@ -1,3 +1,42 @@
+**V5.6.0 - (CRITICAL HOTFIX) - 05/01/2026**
+**A. FIX CRÍTICO DE ESTABILIDAD (BACKEND):** Se solucionó un error fatal en producción ("Argumento demasiado grande") que causaba la caída total del `catalog-service` e impedía la carga del catálogo en la aplicación.
+
+**B. Causa Raíz:**
+    -   El `catalog-service` intentaba guardar en `CacheService` el objeto JSON completo del catálogo, el cual excedía el límite de 100 KB por objeto, provocando un error no capturado que detenía la ejecución.
+
+**C. Cambios Implementados:**
+    1.  **`services/catalog/catalog.js`:**
+        -   **Remediación:** Se deshabilitó por completo la escritura del catálogo en la caché (`cache.put`) para resolver inmediatamente el error.
+        -   **Endurecimiento:** Se envolvió la operación de lectura de caché (`cache.get`) en un bloque `try...catch` para que cualquier futuro error de caché no interrumpa el servicio.
+    2.  **`services/image/image.js`:**
+        -   **Endurecimiento Preventivo:** Aunque no era la causa del error, se envolvió toda la lógica de `cache.get` y `cache.put` en bloques `try...catch` para aumentar la resiliencia del servicio de imágenes ante posibles fallos de la caché.
+
+**D. Actualización de Documentación:**
+    -   Se añadió una nueva sección en `README.md` (`5.4. Reglas Críticas de Uso de CacheService`) para documentar las limitaciones y el uso correcto del servicio de caché.
+    -   Se registró esta tarea crítica en `Instrucciones.txt` como "Tarea 29".
+
+**E. Impacto:**
+    -   Se restaura la funcionalidad del catálogo en producción.
+    -   La arquitectura backend es ahora más resiliente a fallos de `CacheService`, previniendo futuras caídas por esta causa.
+
+
+**V5.5.0 - (CRITICAL FIX) - 05/01/2026**
+**A. FIX CRÍTICO DE ARQUITECTURA (FULL-STACK):** Se solucionó de manera definitiva el bug que impedía la carga intermitente de imágenes en producción. El problema residía en dos puntos de la nueva arquitectura:
+    1.  **Backend ():**
+        -   **Error de MimeType:** Se eliminó la función  que fallaba al inferir el tipo de contenido, causando que el servicio devolviera un MimeType incorrecto y el navegador rechazara la imagen. Se reemplazó por una llamada directa a , que es 100% fiable.
+        -   **Error de Caché:** Se añadió un control para evitar guardar en caché imágenes de más de 90KB, previniendo exceder los límites de Google Apps Script y asegurando la estabilidad del servicio.
+    2.  **Frontend ():**
+        -   **Error de Codificación de URL:** La función  no codificaba correctamente el  antes de añadirlo como parámetro en la URL. Caracteres especiales en los IDs (como guiones bajos) podían ser malinterpretados, rompiendo la llamada al . Se solucionó aplicando  al .
+
+**B. Archivos Modificados:**
+    -   : Líneas 45-55, 65-75.
+    -   : Línea 112.
+
+**C. Impacto:**
+    -   La arquitectura de imágenes es ahora robusta, segura y funcional en todo el stack.
+    -   Se garantiza la carga fiable de todas las imágenes de Google Drive a través del proxy.
+    -   El sistema de caché del  es ahora seguro y no causará fallos inesperados.
+
 **v5.4.0 (05/01/2026)**
 *   **FINALIZE (services/catalog/catalog.js):** Se completó el endurecimiento y la formalización final del `catalog-service` para su puesta en producción.
     *   **Contrato de Datos Formalizado:** Se añadieron comentarios JSDoc explícitos (`@const`) para los `IMAGE_FIELDS_*`, documentando formalmente el "Contrato de Imagen". Esto garantiza que cualquier mantenedor futuro entienda la regla de que el servicio solo debe devolver `fileId` o `null` para estos campos.

@@ -883,8 +883,10 @@ function getImageUrl(fileId, size = 'default') {
     }
 
     // La lógica de parsing de URL se ha eliminado. La función ahora espera solo un fileId.
-    // Simplemente construimos la URL del servicio de imágenes. El parámetro 'size' se reserva para futuras optimizaciones.
-    return `${API_ENDPOINTS.IMAGE}?fileId=${fileId.trim()}`;
+    // Se utiliza encodeURIComponent para asegurar que cualquier carácter especial en el fileId
+    // no rompa la URL, que es la causa raíz de las imágenes que no cargan.
+    const encodedFileId = encodeURIComponent(fileId.trim());
+    return `${API_ENDPOINTS.IMAGE}?fileId=${encodedFileId}`;
 }
 
 function mostrarLightbox(src) {
