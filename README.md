@@ -65,28 +65,39 @@ Frontend               catalog-service           Spreadsheet
    │                        │                        │
 ```
 
-#### **🔹 Flujo de Imágenes (Proxy Seguro - NO NEGOCIABLE)**
-Este flujo es crítico para la seguridad. El frontend **nunca** accede directamente a Google Drive.
+#### **🔹 Flujo de Imágenes Final y Verificado (Proxy Seguro)**
+Este diagrama documenta el flujo de datos correcto y final para la carga de imágenes, asegurando la separación de responsabilidades y la seguridad.
 
-1.  **Petición:** El **Frontend** (ej. `imageApi.js`) necesita mostrar una imagen. Construye una URL que apunta al `image-service` del backend, pasando el `fileId` como parámetro (ej. `/image?fileId=xxxx`).
-2.  **Proxy:** `image-service` recibe la petición, extrae el `fileId` y utiliza `DriveApp` para obtener el `blob` (los datos binarios) del archivo desde **Google Drive**.
-3.  **Respuesta:** `image-service` devuelve el `blob` de la imagen directamente al **Frontend** con el `Content-Type` adecuado (ej. `image/jpeg`). El navegador renderiza la imagen.
+1.  **Petición de Datos:** El **Frontend** solicita el catálogo al `catalog-service`.
+2.  **Respuesta de Datos:** `catalog-service` lee la **Spreadsheet** y devuelve los datos del vehículo, incluyendo los campos de imagen que contienen **únicamente el `fileId` de Google Drive** (ej: `"1-t2Gz_D0s-BAA4c3zE-s4nJ0sY9z_ABC"`). **No realiza ninguna transformación de URL.**
+3.  **Construcción de URL de Imagen:** Al renderizar la UI, el **Frontend** (`main.js`) toma el `fileId` y utiliza la función `getImageUrl(fileId)` para construir una URL que apunta al `image-service`.
+4.  **Petición de Imagen (Proxy):** El `<img>` en el HTML del navegador realiza una petición `GET` a la URL generada (ej: `.../exec?fileId=1-t2Gz...`).
+5.  **Obtención del Archivo:** El `image-service` recibe la petición, extrae el `fileId`, y usa `DriveApp.getFileById()` para obtener el `blob` del archivo directamente desde **Google Drive**.
+6.  **Respuesta de Imagen:** El `image-service` devuelve el `blob` de la imagen con el `Content-Type` correcto. El navegador lo renderiza.
 
 ```
-Frontend                image-service              Google Drive
-   │                         │                         │
-   ├─ GET /image?fileId=xxx ─>│                         │
-   │                         ├─ DriveApp.getFileById()──> │
-   │                         │ <─── File Blob ───────────┤
-   │                         │                         │
-   │ <─── Image Blob ──────── │                         │
-   │                         │                         │
+┌──────────┐   ┌───────────────────┐   ┌───────────────┐   ┌───────────────┐   ┌──────────────┐
+│ Frontend │   │   API Manager     │   │ catalog-service │   │ image-service │   │ Google Drive │
+└────┬─────┘   └─────────┬─────────┘   └───────┬─────────┘   └───────┬─────────┘   └──────┬───────┘
+     │                   │                     │                     │                     │
+     ├─ getCatalogData() ─>───────────────────> │                     │                     │
+     │                   │                     ├─ getSheetData() ────> (Spreadsheet)      │
+     │                   │ <───────────────────┼─ { ..., imagenVehiculo: "fileId", ... } │
+     │ <─────────────────┴─ { data }            │                     │                     │
+     │                                         │                     │                     │
+     │ UI Render:                              │                     │                     │
+     │ getImageUrl(fileId)                     │                     │                     │
+     │ src="/image?fileId=..."                 │                     │                     │
+     ├─ GET /image?fileId=... ──────────────────────────────────────> │                     │
+     │                   │                     │                     ├─ getFileById(fileId)─>
+     │                   │                     │                     │ <─── Image Blob ────┤
+     │ <───────────────────────────────────────┴─ Image Blob          │                     │
+     │                                         │                     │                     │
 ```
-⚠️ **Aclaraciones Explícitas:**
--   El frontend **NO** recibe URLs de Google Drive.
--   El frontend **NO** transforma enlaces de `lh3.googleusercontent.com`.
--   El backend **NO** devuelve URLs públicas.
--   El tamaño de las imágenes se controla **SOLO por CSS** en el frontend.
+⚠️ **Responsabilidades Clave (Final):**
+-   **`catalog-service`:** Su única responsabilidad es leer y servir los datos crudos. **No debe transformar URLs ni IDs.**
+-   **`main.js` (`getImageUrl`)**: Su única responsabilidad es tomar un `fileId` y construir la URL del proxy. **No debe parsear URLs complejas.**
+-   **`image-service`**: Es el único punto de contacto con Google Drive. Abstrae y protege el sistema de archivos.
 
 ### 2.3. Responsabilidades por Capa
 

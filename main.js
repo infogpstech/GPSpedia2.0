@@ -876,14 +876,15 @@ function getLogoUrlForMarca(marca, categoria) {
     }
 }
 
-function getImageUrl(url) {
-    if (!url) return "https://placehold.co/280x200/cccccc/333333?text=Sin+Imagen";
-    const idMatch = String(url).match(/file\/d\/([a-zA-Z0-9_-]+)|id=([a-zA-Z0-9_-]+)|\/d\/([a-zA-Z0-9_-]+)/);
-    if (idMatch) {
-        const fileId = idMatch[1] || idMatch[2] || idMatch[3];
-        return `${API_ENDPOINTS.IMAGE}?fileId=${fileId}`;
+function getImageUrl(fileId, size = 'default') {
+    // Si no hay fileId, devolver la imagen de placeholder.
+    if (!fileId || typeof fileId !== 'string' || fileId.trim() === '') {
+        return "https://placehold.co/280x200/cccccc/333333?text=Sin+Imagen";
     }
-    return url; // Fallback for non-Google Drive URLs
+
+    // La lógica de parsing de URL se ha eliminado. La función ahora espera solo un fileId.
+    // Simplemente construimos la URL del servicio de imágenes. El parámetro 'size' se reserva para futuras optimizaciones.
+    return `${API_ENDPOINTS.IMAGE}?fileId=${fileId.trim()}`;
 }
 
 function mostrarLightbox(src) {

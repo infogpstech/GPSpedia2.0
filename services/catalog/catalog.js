@@ -71,11 +71,19 @@ const COLS_RELAY = {
 // ============================================================================
 function doGet(e) {
     if (e.parameter.debug === 'true') {
+        const cache = CacheService.getScriptCache();
+        const cacheKey = 'catalog_data_v2';
+        const cachedData = cache.get(cacheKey);
+
         const serviceState = {
             service: 'GPSpedia-Catalog',
-            version: '2.3.0', // <-- CORREGIDO
+            version: '2.3.0',
             spreadsheetId: SPREADSHEET_ID,
-            sheetsAccessed: [SHEET_NAMES.CORTES, SHEET_NAMES.TUTORIALES, SHEET_NAMES.RELAY, SHEET_NAMES.LOGOS_MARCA] // <-- CORREGIDO
+            sheetsAccessed: [SHEET_NAMES.CORTES, SHEET_NAMES.TUTORIALES, SHEET_NAMES.RELAY, SHEET_NAMES.LOGOS_MARCA],
+            cacheStatus: {
+                isCached: cachedData !== null,
+                cacheKey: cacheKey
+            }
         };
         return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
             .setMimeType(ContentService.MimeType.JSON);
@@ -151,6 +159,17 @@ function mapRowToObject(row, colMap) {
 }
 
 function handleGetCatalogData() {
+    const cache = CacheService.getScriptCache();
+    const cacheKey = 'catalog_data_v2'; // Use a versioned key
+    const cachedData = cache.get(cacheKey);
+
+    if (cachedData) {
+        // Si los datos están en caché, los devolvemos directamente.
+        const parsedData = JSON.parse(cachedData);
+        return { status: 'success', data: parsedData, source: 'cache' };
+    }
+
+    // Si no están en caché, procedemos a leer de la hoja de cálculo.
     const allData = {};
 
     // Fetch Cortes
@@ -172,13 +191,7 @@ function handleGetCatalogData() {
                 categoryCounts[vehicle.categoria] = (categoryCounts[vehicle.categoria] || 0) + 1;
             }
 
-            // Convertir todas las URLs de imágenes a thumbnails
-            vehicle.imagenVehiculo = convertirAGoogleThumbnail(vehicle.imagenVehiculo);
-            vehicle.imgCorte1 = convertirAGoogleThumbnail(vehicle.imgCorte1);
-            vehicle.imgCorte2 = convertirAGoogleThumbnail(vehicle.imgCorte2);
-            vehicle.imgCorte3 = convertirAGoogleThumbnail(vehicle.imgCorte3);
-            vehicle.imgApertura = convertirAGoogleThumbnail(vehicle.imgApertura);
-            vehicle.imgCableAlimen = convertirAGoogleThumbnail(vehicle.imgCableAlimen);
+            // Se elimina la conversión de URLs. El backend ahora envía solo los IDs.
 
             const cortes = [
                 { index: 1, util: parseInt(vehicle.utilCorte1, 10) || 0 },
@@ -253,7 +266,10 @@ function handleGetCatalogData() {
     }
     allData.relay = relayData;
 
-    return { status: 'success', data: allData };
+    // Guardar los datos en caché por 1 hora (3600 segundos)
+    cache.put(cacheKey, JSON.stringify(allData), 3600);
+
+    return { status: 'success', data: allData, source: 'spreadsheet' };
 }
 
 function handleGetDropdownData() {
@@ -438,27 +454,6 @@ function levenshteinDistance(a, b) {
     }
 
     return matrix[b.length][a.length];
-}
-
-
-function convertirAGoogleThumbnail(url) {
-    if (!url || typeof url !== 'string') return null;
-
-    // Expresión regular mejorada para capturar el ID de varias URLs de Google Drive:
-    // 1. /file/d/ID
-    // 2. id=ID
-    // 3. /d/ID (para formatos más cortos)
-    const idMatch = url.match(/file\/d\/([a-zA-Z0-9_-]+)|id=([a-zA-Z0-9_-]+)|\/d\/([a-zA-Z0-9_-]+)/);
-
-    // Si se encuentra una coincidencia, construye la URL del thumbnail.
-    // Los grupos de captura pueden estar en idMatch[1], idMatch[2], o idMatch[3].
-    if (idMatch) {
-        const fileId = idMatch[1] || idMatch[2] || idMatch[3];
-        return `https://drive.google.com/thumbnail?sz=w1000&id=${fileId}`;
-    }
-
-    // Si no es una URL de Google Drive reconocible, devolver la URL original.
-    return url;
 }
 
 
