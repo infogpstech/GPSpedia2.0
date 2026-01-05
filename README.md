@@ -1,201 +1,160 @@
-# GPSpedia - Sistema de Gestión de Cortes Vehiculares (v2.0 - Arquitectura Modular)
+# GPSpedia - Documentación Arquitectónica v4
 
 ## 1. Descripción General
 
 GPSpedia es una Aplicación Web Progresiva (PWA) interna diseñada para técnicos e instaladores de GPS. Su objetivo principal es centralizar y estandarizar el conocimiento sobre los puntos de corte de corriente e ignición en una amplia variedad de vehículos, mejorando la eficiencia y reduciendo errores en las instalaciones.
 
-La versión 2.0 representa una refactorización completa del sistema original, migrando de una arquitectura monolítica a una basada en **microservicios**. Este cambio mejora drásticamente el rendimiento, la escalabilidad y la facilidad de mantenimiento del proyecto.
+Esta documentación describe la **arquitectura final propuesta** para el sistema, migrando de un modelo monolítico a una arquitectura desacoplada basada en microservicios y un frontend modular.
 
 ## 2. Arquitectura del Sistema
 
-La arquitectura de GPSpedia 2.0 se compone de tres capas principales:
+La arquitectura de GPSpedia se compone de tres capas principales, cada una con responsabilidades claramente definidas para asegurar la mantenibilidad, escalabilidad y seguridad del sistema.
 
-1.  **Frontend (Cliente):** Una PWA construida con HTML, CSS y JavaScript puro. Se encarga de toda la interfaz de usuario y la interacción.
-2.  **Backend (Servidor):** Compuesto por cinco microservicios independientes, cada uno desplegado como un proyecto de Google Apps Script.
-3.  **Base de Datos:** Una única hoja de cálculo de Google Sheets que actúa como base de datos central para todos los servicios.
+### 2.1. Diagrama de Arquitectura General
 
-### Diagrama de Comunicación
+El sistema está diseñado con una separación estricta entre el frontend (la interfaz de usuario en el navegador) y el backend (la lógica de negocio en Google Apps Script). Google Drive actúa como el sistema de almacenamiento de archivos, pero su acceso está mediado exclusivamente por el backend.
+
 ```
-                         ┌──────────────────┐
-                         │   API_MANAGER.JS │ (Enrutador Lógico en Frontend)
-                         └──────────────────┘
-                                   │
-           ┌───────────────────────┼───────────────────────┐
-           ▼                       ▼                       ▼
-┌───────────────────┐   ┌────────────────────┐   ┌──────────────────┐
-│ GPSpedia-Auth     │   │ GPSpedia-Catalog   │   │ GPSpedia-Write   │
-│ (auth.js)         │   │ (catalog.js)       │   │ (write.js)       │
-└───────────────────┘   └────────────────────┘   └──────────────────┘
-           ▲                       ▲                       ▲
-           │                       │                       │
-┌───────────────────┐   ┌────────────────────┐             │
-│ GPSpedia-Users    │   │ GPSpedia-Feedback  │             │
-│ (users.js)        │   │ (feedback.js)      │             │
-└───────────────────┘   └────────────────────┘             │
-           │                       │                       │
-           └───────────────────────▼───────────────────────┘
-                                   │
-                         ┌──────────────────┐
-                         │  GOOGLE SHEETS   │ (Base de Datos Central)
-                         └──────────────────┘
-```
-
-### Arquitectura Final Propuesta
-
-Esta sección define la arquitectura objetivo para la refactorización completa de GPSpedia, centrada en la separación de responsabilidades, la seguridad y la mantenibilidad a largo plazo.
-
----
-#### **🎯 PRINCIPIOS NO NEGOCIABLES**
----
-1.  **El frontend NO procesa lógica de negocio:** La UI solo "pinta" datos. Toda la lógica (ordenar, filtrar, calcular) reside en el backend.
-2.  **El backend entrega datos listos:** El frontend no debe transformar datos. Si la UI necesita algo, el backend debe proveerlo en el formato exacto.
-3.  **Google Drive sigue siendo el host real:** Las imágenes se almacenan en Drive, pero no se exponen directamente.
-4.  **El frontend nunca ve URLs de Drive:** Para seguridad y control, el frontend solo manejará `fileId`.
-5.  **Cada archivo JS tiene una sola responsabilidad:** Separación estricta de lógica (API, estado, renderizado).
-6.  **Cada microservicio tiene límites claros:** Cero duplicidad de funciones entre servicios.
-
----
-#### **🗂️ BACKEND (Google Apps Script – Microservicios)**
----
-🔹 **1. catalog-service (EXISTENTE – SE EXPANDE)**
-- **Responsabilidad:** Proveer datos completos, normalizados y ordenados del catálogo.
-- **Funciones Existentes:** `handleGetCatalogData`, `handleCheckVehicle`, `handleGetSuggestion`, `mapRowToObject`, `isYearInRangeV2`, `levenshteinDistance`.
-- **NUEVAS Funciones Requeridas:** `normalizeVehicleData`, `ordenarCortesPorUtilidad`, `prepararDatosModal`, `contarCategorias`, `prepararCarruseles`.
-- **Devuelve al frontend (Ejemplo):**
-  ```json
-  {
-    "catalogo": [],
-    "carruselVehiculos": [],
-    "carruselMotos": [],
-    "categoriasOrdenadas": [],
-    "marcas": []
-  }
-  ```
-- **Regla Crítica:** Solo devuelve `imageId`, NUNCA URLs de imágenes.
-
-🔹 **2. image-service (NUEVO – CRÍTICO)**
-- **Responsabilidad:** Servir imágenes desde Drive como un proxy seguro.
-- **Ruta:** `GET /image?fileId=XXXX`
-- **Funciones:** `getImageById(fileId)`, `extraerFileId`, `getBlobFromDrive`, `setContentType`.
-- **Características:** Devuelve un `blob`, maneja permisos y es cacheable. No genera URLs públicas ni redimensiona imágenes.
-
-🔹 **3. write-service (EXISTENTE – AJUSTE)**
-- **Responsabilidad:** Escritura controlada y consistente de datos.
-- **Funciones:** `addOrUpdateCut`, `crearNuevaFila`, `inyectarFormulaId`, `subirImagenADrive`.
-- **Regla Crítica:** Es el único responsable de inyectar las fórmulas de ID para nuevos registros (`V-` para cortes, `F-` para feedback, `C-` para contacto, etc.).
-
-🔹 **4. feedback-service**
-- **Responsabilidad:** Gestionar toda la retroalimentación del usuario.
-- **Funciones:** `submitFeedback`.
-- **Regla Crítica:** Debe guardar siempre el `userId` y el `timestamp` correcto.
-
-🔹 **5. auth-service**
-- **Responsabilidad:** Autenticación, sesiones y seguridad de contraseñas.
-- **Funciones:** `login`, `logout`, `validateSession`, `hashPassword`.
-
-🔹 **6. users-service**
-- **Responsabilidad:** Gestión de CRUD de usuarios.
-- **Funciones:** `createUser`, `updateUser`, `changePassword`.
-
-🔹 **7. utilities-service (OPCIONAL)**
-- **Responsabilidad:** Proveer funciones de utilidad compartidas entre servicios.
-- **Funciones:** `sanitizeText`, `formatDate`, `validateInput`.
-
----
-#### **🎨 FRONTEND (HTML + JS Modular)**
----
-📁 **Estructura de Archivos FINAL**
-```
-/js
- ├── api/
- │   ├── catalogApi.js
- │   ├── imageApi.js
- │   ├── writeApi.js
- │   ├── authApi.js
- │   └── usersApi.js
- │
- ├── state/
- │   └── appState.js
- │
- ├── ui/
- │   ├── catalogRender.js
- │   ├── modal.js
- │   ├── carousel.js
- │   ├── forms.js
- │   └── events.js
- │
- ├── utils/
- │   └── dom.js
- │
- └── main.js
-
-/css
- ├── base.css
- ├── layout.css
- ├── modal.css
- ├── carousel.css
- ├── forms.css
- └── images.css
+┌───────────────────────────┐
+│     Frontend (Cliente)    │
+│  (HTML + CSS + JS Modular)│
+└─────────────┬─────────────┘
+              │
+              │ HTTP Requests
+              ▼
+┌───────────────────────────┐
+│   Backend (Apps Script)   │
+│     (Microservicios)      │
+├───────────────────────────┤
+│ 🔹 auth-service           │
+│ 🔹 users-service          │
+│ 🔹 feedback-service      │
+│ 🔹 catalog-service       │
+│ 🔹 write-service         │
+│ 🔹 image-service (Nuevo)  │
+└─────────────┬─────────────┘
+              │
+              │ Lectura/Escritura
+              ▼
+┌───────────────────────────┐   ┌───────────────────────────┐
+│     Google Sheets         │   │      Google Drive         │
+│   (Base de Datos)         │   │ (Almacén de Imágenes)     │
+└───────────────────────────┘   └───────────────────────────┘
 ```
 
-🔹 **Lógica por Archivo**
-- **`main.js`:** Orquesta la aplicación (`initApp`, `loadInitialData`).
-- **`api/*.js`:** Contienen toda la lógica de `fetch` para comunicarse con el backend.
-- **`api/imageApi.js`:** Su función `getImageUrl(fileId)` retorna una ruta al proxy del backend (`/image?fileId=xxx`), no a Google Drive.
-- **`state/appState.js`:** Gestiona el estado global (ej. `currentVehicle`, `modalOpen`), eliminando variables globales.
-- **`ui/*.js`:** Módulos responsables de renderizar partes específicas de la UI (catálogo, modales, carruseles).
-- **`ui/events.js`:** Gestiona todos los listeners de eventos (`onSearchSubmit`, `onMarcaClick`).
-- **`utils/dom.js`:** Helpers para la manipulación del DOM.
+### 2.2. Diagrama de Comunicación (Flujo de Datos)
+
+La comunicación entre las capas sigue flujos estrictos para garantizar la integridad y seguridad de los datos.
+
+#### **🔹 Flujo de Datos del Catálogo**
+Este flujo describe cómo el frontend solicita y recibe información del catálogo.
+
+1.  **Petición:** El **Frontend** (ej. `catalogApi.js`) realiza una llamada `fetch` al microservicio `catalog-service`.
+2.  **Procesamiento:** `catalog-service` recibe la petición, accede a la **Spreadsheet** de Google Sheets, lee los datos, los normaliza, ordena y prepara la respuesta.
+3.  **Respuesta:** `catalog-service` devuelve al **Frontend** un objeto JSON con los datos listos para ser renderizados.
+
+```
+Frontend               catalog-service           Spreadsheet
+   │                        │                        │
+   ├─ GET /catalogData ───> │                        │
+   │                        ├─ getDataRange() ─────> │
+   │                        │ <─── Raw Data ─────────┤
+   │                        │                        │
+   │                        │ normalize() & sort()   │
+   │ <─── JSON (Datos) ──── │                        │
+   │                        │                        │
+```
+
+#### **🔹 Flujo de Imágenes (Proxy Seguro - NO NEGOCIABLE)**
+Este flujo es crítico para la seguridad. El frontend **nunca** accede directamente a Google Drive.
+
+1.  **Petición:** El **Frontend** (ej. `imageApi.js`) necesita mostrar una imagen. Construye una URL que apunta al `image-service` del backend, pasando el `fileId` como parámetro (ej. `/image?fileId=xxxx`).
+2.  **Proxy:** `image-service` recibe la petición, extrae el `fileId` y utiliza `DriveApp` para obtener el `blob` (los datos binarios) del archivo desde **Google Drive**.
+3.  **Respuesta:** `image-service` devuelve el `blob` de la imagen directamente al **Frontend** con el `Content-Type` adecuado (ej. `image/jpeg`). El navegador renderiza la imagen.
+
+```
+Frontend                image-service              Google Drive
+   │                         │                         │
+   ├─ GET /image?fileId=xxx ─>│                         │
+   │                         ├─ DriveApp.getFileById()──> │
+   │                         │ <─── File Blob ───────────┤
+   │                         │                         │
+   │ <─── Image Blob ──────── │                         │
+   │                         │                         │
+```
+⚠️ **Aclaraciones Explícitas:**
+-   El frontend **NO** recibe URLs de Google Drive.
+-   El frontend **NO** transforma enlaces de `lh3.googleusercontent.com`.
+-   El backend **NO** devuelve URLs públicas.
+-   El tamaño de las imágenes se controla **SOLO por CSS** en el frontend.
+
+### 2.3. Responsabilidades por Capa
+
+#### **🎨 Frontend**
+-   **Renderizado:** Es responsable de "pintar" la interfaz de usuario basándose en los datos que recibe del backend.
+-   **Gestión de Eventos:** Captura las interacciones del usuario (clics, envíos de formulario) y las traduce en llamadas a la capa de API.
+-   **Gestión de Estado de UI:** Controla estados puramente visuales (ej. si un modal está abierto o cerrado).
+-   **Estilos:** Aplica todo el diseño visual a través de hojas de estilo CSS.
+-   **Regla de Oro:** NO contiene ninguna lógica de negocio (validación de datos, cálculos, ordenamiento).
+
+#### **🗂️ Backend**
+-   **Lógica de Negocio:** Es el cerebro de la aplicación. Contiene toda la lógica para validar, procesar y gestionar los datos.
+-   **Validaciones:** Asegura que todos los datos recibidos del frontend sean correctos y seguros antes de escribirlos.
+-   **Normalización y Ordenamiento:** Prepara los datos (ej. ordena los cortes por utilidad, formatea fechas) antes de enviarlos al frontend.
+-   **Seguridad:** Gestiona la autenticación, las sesiones y los permisos de usuario. Es la única capa que puede decidir si un usuario está autorizado para realizar una acción.
+-   **Acceso a Datos:** Es la única capa que tiene acceso directo a Google Sheets (la base de datos) y a Google Drive (el almacén de archivos).
+
+### 2.4. Justificación Técnica de la Arquitectura
+
+Esta arquitectura modular y desacoplada fue elegida para resolver problemas históricos y estructurales del sistema.
+
+-   **Por qué `index.html` ya no debe ser monolítico:** El enfoque anterior de tener todo el HTML, CSS y JavaScript en un solo archivo (`index.html`) creaba un "código espagueti" difícil de mantener, depurar y escalar. Cualquier pequeño cambio tenía el potencial de romper funcionalidades no relacionadas.
+-   **Por qué se separa la lógica en módulos JS:** Separar el JavaScript en módulos con responsabilidades únicas (API, estado, UI) permite:
+    -   **Reutilización de Código:** Funciones comunes pueden ser compartidas.
+    -   **Facilidad de Depuración:** Los errores se aíslan en módulos específicos.
+    -   **Mantenimiento Sencillo:** Es más fácil encontrar y modificar la lógica relevante sin afectar otras partes del sistema.
+-   **Por qué se introduce `image-service`:** El `image-service` es una capa de seguridad crítica. Exponer directamente las URLs de Google Drive es un riesgo de seguridad y crea una dependencia frágil. Al usar un proxy, el backend controla el acceso a los archivos, previene el hotlinking no autorizado y centraliza la lógica de obtención de imágenes, lo que permite futuras optimizaciones como el caching.
+-   **Problemas históricos que soluciona esta arquitectura:**
+    -   **Imágenes Inconsistentes y Rotas:** Centraliza la lógica de acceso a imágenes, eliminando errores de conversión de URL en el frontend.
+    -   **Bugs Intermitentes:** La separación clara de responsabilidades reduce las interacciones complejas e inesperadas entre diferentes partes del código.
+    -   **Código Duplicado:** La modularización permite reutilizar funciones de API, UI y utilidades.
+    -   **Cambios "Fantasma":** Un sistema modular hace que el impacto de cada cambio sea más predecible y fácil de verificar.
+
+## 3. Plan Estratégico y Tareas Pendientes
+
+Para consultar la hoja de ruta detallada, el plan de implementación técnica y la lista de tareas pendientes, por favor, refiérase al archivo `Instrucciones.txt`.
+
+## 4. Componentes del Backend (Microservicios)
+
+El backend consta de los siguientes servicios de Google Apps Script:
+
+### `GPSpedia-Auth` (`services/auth/auth.js`)
+- **Responsabilidad:** Autenticación y sesiones de usuario.
+
+### `GPSpedia-Users` (`services/users/users.js`)
+- **Responsabilidad:** Gestión CRUD de usuarios con jerarquía de roles.
+
+### `GPSpedia-Feedback` (`services/feedback/feedback.js`)
+- **Responsabilidad:** Retroalimentación de usuarios (likes y reportes).
+
+### `GPSpedia-Catalog` (`services/catalog/catalog.js`)
+- **Responsabilidad:** Acceso de solo lectura y preparación de datos del catálogo.
+
+### `GPSpedia-Write` (`services/write/write.js`)
+- **Responsabilidad:** Escritura de datos y subida de archivos.
+
+### `GPSpedia-Image` (Nuevo)
+- **Responsabilidad:** Servir de proxy seguro para las imágenes de Google Drive.
+
+### `GPSpedia-Utilities` (Opcional)
+- **Responsabilidad:** Funciones de utilidad compartidas.
+
+## 5. Arquitectura de la Base de Datos
+
+La base de datos del sistema es una hoja de cálculo de Google Sheets (`ID: 1M6zAVch_EGKGGRXIo74Nbn_ihH1APZ7cdr2kNdWfiDs`). Para una descripción detallada de la estructura de cada tabla (hoja) y columna, por favor, refiérase a la sección "Arquitectura de la Base de Datos v2.0" más adelante en este documento.
 
 ---
-#### **✅ RESULTADO FINAL**
-- **Código auditable y escalable:** Cada pieza tiene una única responsabilidad.
-- **Estable y fácil de mantener:** Los cambios en un módulo no rompen otros.
-- **Backend manda, frontend pinta:** Separación clara de responsabilidades que elimina bugs intermitentes y regresiones visuales.
-
-## 3. Plan Estratégico v4 (Final y Optimizado)
-
-Esta sección define la hoja de ruta para la siguiente gran versión de GPSpedia, centrada en una re-arquitectura de datos y la implementación de funcionalidades de alta eficiencia.
-
-### Fase 1: Migración y Lógica de Datos Fundamental
-- **Objetivo:** Migrar a la nueva base de datos (DB v2.0) y establecer la lógica de negocio principal para la gestión de datos.
-- **Tareas Clave:**
-    - [x] **Diseñar Nuevo Esquema:** Implementar la estructura granular detallada en la sección "Diseño Detallado de `GPSpedia_DB_v2.0`".
-    - [X] **Script de Migración:** Desarrollar un endpoint para migrar y transformar los datos de la base de datos antigua a la nueva.
-    - [ ] **Lógica de Gestión de Años Simplificada:**
-        - El formulario de entrada solo solicitará un único año.
-        - Este año se guardará en la columna `anoDesde` al crear un nuevo registro. `anoHasta` quedará vacío.
-    - [X] **Lógica de Gestión de Logos Automatizada:**
-        - Al agregar un nuevo vehículo, el sistema buscará una coincidencia en la hoja `LogosMarcas` por el campo `marca`.
-        - Si se encuentra, se asociará automáticamente. Si no, se usará un logo temporal de GPSpedia. El usuario no seleccionará el logo.
-
-### Fase 2: Sistema de Feedback Avanzado y Calidad de Datos
-- **Objetivo:** Mejorar la calidad de los datos a través de la interacción del usuario.
-- **Tareas Clave:**
-    - [ ] **Feedback Granular:** Implementar "likes" y colaborador por cada corte individual.
-    - [ ] **Ordenamiento por Utilidad:** El backend ordenará los cortes de un vehículo según su popularidad antes de enviarlos al frontend.
-    - [X] **Campos Obligatorios:** Forzar el llenado de `tipo`, `ubicación`, `color` e `imagen` para cada nuevo corte.
-    - [ ] **Expansión de Rango de Años por Feedback:**
-        - Implementar una nueva función de feedback que permita a los usuarios sugerir que un corte aplica a un año diferente.
-        - El backend recibirá el nuevo año y actualizará `anoDesde` (si el nuevo año es menor) o `anoHasta` (si el nuevo año es mayor), expandiendo dinámicamente el rango de aplicabilidad.
-
-### Fase 3: Funcionalidades de Gestión y Experiencia de Usuario
-- **Objetivo:** Introducir herramientas de gestión y mejorar la experiencia visual y de usuario.
-- **Tareas Clave:**
-    - [ ] **Dashboard de Desempeño:** Crear una vista para Supervisores con métricas de contribución de técnicos.
-    - [ ] **Edición "In-Modal":** Permitir la edición de datos directamente desde el modal de detalles, con permisos por rol.
-    - [ ] **Enlaces de un solo uso:** Generar enlaces temporales (24h) y de un solo uso para compartir información.
-    - [ ] **Notificaciones Inteligentes:** Reemplazar el banner de instalación con notificaciones "toast" sobre nuevos cortes.
-    - [X] **Visualización de Logos:**
-        - Mostrar el logo de la marca (formato PNG/WEBP sin fondo) al final del nombre del modelo de vehículo. (`altura: 50px`, `anchura: auto`).
-        - En la vista de listado de marcas, mostrar el logo correspondiente si existe al menos un vehículo de esa marca.
-
-### Fase 4: Mejoras Adicionales
-- **Objetivo:** Añadir funcionalidades de alto valor para el trabajo en campo.
-- **Tareas Clave:**
-    - [ ] **Modo Offline Robusto:** Implementar caching avanzado.
-    - [X] **Modal de Relay Anidado:** Mostrar detalles de configuraciones de Relay en un modal secundario, con la imagen de referencia limitada a `250px` de altura.
-
+*El resto del contenido del README.md (Plan de Implementación, Estructura de la Base de Datos v1.5 y v2.0, Sistema de Versionamiento, etc.) se mantiene sin cambios y sigue a continuación.*
 ---
 
 ### **Plan de Implementación Técnica Detallado: Fase 1**
@@ -399,40 +358,6 @@ Esta sección documenta el estado actual de las tareas de desarrollo, bugs, regr
 16. **Dashboard de Desempeño:** `[ ] Falta Implementar` - Crear la nueva sección para Supervisores.
 17. **Edición "In-Modal":** `[ ] Falta Implementar` - Permitir la edición de datos desde el modal de detalles.
 
-## 4. Componentes del Backend (Microservicios)
-
-El backend consta de cinco servicios de Google Apps Script, cada uno con una responsabilidad única.
-
-### `GPSpedia-Auth` (`services/auth/auth.js`)
-- **Responsabilidad:** Autenticación y sesiones de usuario.
-- **Hojas Accedidas:** `Users` (Lectura), `ActiveSessions` (Lectura/Escritura).
-- **Nota Crítica:** Utiliza un mapeo de columnas **fijo y codificado**. Cambios en la estructura de la hoja `Users` romperán el login.
-
-### `GPSpedia-Catalog` (`services/catalog/catalog.js`)
-- **Responsabilidad:** Acceso de solo lectura a los datos del catálogo.
-- **Hojas Accedidas:** `Cortes`, `Tutoriales`, `Relay` (Solo Lectura).
-
-### `GPSpedia-Write` (`services/write/write.js`)
-- **Responsabilidad:** Escritura de datos y subida de archivos, siguiendo un flujo de trabajo de 3 etapas.
-- **Hojas Accedidas:** `Cortes` (Escritura).
-- **Recursos Adicionales:** Google Drive (`ID: 1-8QqhS-wtEFFwyBG8CmnEOp5i8rxSM-2`).
-
-### `GPSpedia-Feedback` (`services/feedback/feedback.js`)
-- **Responsabilidad:** Retroalimentación de usuarios (likes y reportes).
-- **Hojas Accedidas:** `Cortes` (L/E en columna "Util"), `Feedbacks` (Escritura).
-
-### `GPSpedia-Users` (`services/users/users.js`)
-- **Responsabilidad:** Gestión CRUD de usuarios con jerarquía de roles.
-- **Hojas Accedidas:** `Users` (Lectura/Escritura).
-
-## 5. Componentes del Frontend (Cliente)
-
-- **`api-manager.js`:** Enrutador central que dirige las solicitudes al microservicio correcto.
-- **`index.html`:** Página principal, catálogo y vista de detalles.
-- **`add_cortes.html`:** Formulario para agregar/actualizar cortes.
-- **`users.html`:** Interfaz para gestión de perfiles y usuarios.
-- **`manifest.json` y `service-worker.js`:** Habilitan la funcionalidad PWA y el caching offline.
-
 ## 6. Arquitectura de la Base de Datos
 
 La documentación de la base de datos se divide en dos secciones principales: la arquitectura heredada (v1.5) y la nueva arquitectura propuesta (v2.0).
@@ -495,7 +420,7 @@ A continuación se detalla la estructura de cada hoja en la nueva base de datos.
 | `Privilegios` |
 | `Telefono` |
 | `Correo_Electronico`|
-| `SessionToken`|
+| `SessionToken` |
 
 ##### 2. Hoja: `Cortes`
 - **Propósito:** Catálogo principal con estructura granular para datos de alta calidad.

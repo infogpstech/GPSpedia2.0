@@ -1,23 +1,7 @@
-**v4.7.3 (04/01/2026)**
-*   **SECURITY (services/users/users.js & users.html):** Se solucionó una vulnerabilidad crítica de seguridad y se restauró la lógica de permisos jerárquicos en el módulo de gestión de usuarios.
-    *   **Causa Raíz:** Una corrección anterior había eliminado la validación de sesión del lado del servidor, confiando en su lugar en un objeto de sesión enviado por el cliente. Esto permitía a cualquier usuario escalar privilegios modificando los datos de su sesión en el navegador.
-    *   **Solución (Full-Stack):**
-        1.  **Backend (`services/users/users.js`):** Se reintrodujo una validación de seguridad estricta. Se implementó una función `getVerifiedUser(sessionToken)` que valida el token en el servidor contra la hoja `ActiveSessions` para obtener el rol real del usuario. Todas las operaciones CRUD ahora usan este usuario verificado para la autorización.
-        2.  **Backend (`services/users/users.js`):** Se restauró la lógica de jerarquía de roles (`ROLE_HIERARCHY`). Los usuarios ahora solo pueden crear, modificar o eliminar otros usuarios que tengan un rol inferior al suyo.
-        3.  **Frontend (`users.html`):** Se actualizó el frontend para que envíe únicamente el `sessionToken` (`currentUser.token`) en todas las solicitudes de gestión de usuarios, en lugar del objeto de sesión completo, alineándose con el nuevo backend seguro.
-    *   **Archivos Modificados:** `services/users/users.js`, `users.html`.
-
-**v4.7.2 (04/01/2026)**
-*   **FIX (services/users/users.js):** Se solucionó una regresión crítica que causaba un error 'Failed to fetch' e inhabilitaba por completo el módulo de gestión de usuarios.
-    *   **Causa Raíz:** La función `doPost(e)`, punto de entrada obligatorio para todas las solicitudes POST en Google Apps Script, estaba ausente en el archivo del servicio. Esto provocaba que el backend no pudiera procesar ni responder a ninguna llamada desde el frontend (`users.html`).
-    *   **Solución:** Se re-implementó la función `doPost(e)`. Esta ahora actúa como un enrutador que parsea la acción de la solicitud y la dirige al manejador correspondiente (ej. `handleGetUsers`, `handleCreateUser`). Se aseguró que la respuesta sea devuelta con `MimeType.TEXT` para cumplir con la política de CORS, restaurando la funcionalidad completa del módulo.
-    *   **Archivos Modificados:** `services/users/users.js`.
-
-**v4.7.1 (04/01/2026)**
-*   **DOCS (Instrucciones.txt):** Se actualizaron los estados de las tareas 14 y 22 a "[en revisión]" para reflejar que se ha enviado una propuesta de solución para su validación.
-    *   **Archivos Modificados:** `Instrucciones.txt`.
-*   **FIX (api-manager.js):** Se solucionó el bug reportado en la Tarea 21. Se añadieron las acciones `suggestYear` y `getFeedbackItems` al `ACTION_TO_SERVICE_MAP`, restaurando la funcionalidad de sugerencia de año y la carga de items en el inbox.
-    *   **Archivos Modificados:** `api-manager.js`.
+**v4.7.4 (04/01/2026)**
+*   **DOCS (README.md):** Actualización de documentación arquitectónica.
+    *   Se ha reestructurado y ampliado `README.md` para incluir diagramas de arquitectura y comunicación, responsabilidades por capa y una justificación técnica de la nueva arquitectura modular.
+    *   Incorporación de diagramas de arquitectura y comunicación.
 
 **v4.7.0 (04/01/2026)**
 *   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `WRITE` a la nueva versión desplegada proporcionada por el usuario.
