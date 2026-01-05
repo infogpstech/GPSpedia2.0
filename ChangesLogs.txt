@@ -1,8 +1,7 @@
-**v4.7.1 (04/01/2026)**
-*   **DOCS (Instrucciones.txt):** Se actualizaron los estados de las tareas 14 y 22 a "[en revisión]" para reflejar que se ha enviado una propuesta de solución para su validación.
-    *   **Archivos Modificados:** `Instrucciones.txt`.
-*   **FIX (api-manager.js):** Se solucionó el bug reportado en la Tarea 21. Se añadieron las acciones `suggestYear` y `getFeedbackItems` al `ACTION_TO_SERVICE_MAP`, restaurando la funcionalidad de sugerencia de año y la carga de items en el inbox.
-    *   **Archivos Modificados:** `api-manager.js`.
+**v4.7.4 (04/01/2026)**
+*   **DOCS (README.md):** Actualización de documentación arquitectónica.
+    *   Se ha reestructurado y ampliado `README.md` para incluir diagramas de arquitectura y comunicación, responsabilidades por capa y una justificación técnica de la nueva arquitectura modular.
+    *   Incorporación de diagramas de arquitectura y comunicación.
 
 **v4.7.0 (04/01/2026)**
 *   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `WRITE` a la nueva versión desplegada proporcionada por el usuario.
@@ -77,7 +76,7 @@ considerar esta ultima version como fallida y no se debe trabajar desde esta ver
 
 
 **v4.5.9 (31-12-2025)**
-*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `GPSpedia-Write` a la nueva versión desplegada proporcionada por el usuario, asegurando que el frontend se comunique con el endpoint más reciente y corregido para todas las operaciones de escritura.
+*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `GPSpedia-Write` a la nueva versión desplegada proporcionada por el usuario, asegurando que el frontend apunte a el endpoint más reciente y corregido para todas las operaciones de escritura.
     *   **Archivos Modificados:** `api-manager.js`.
 *   **CHORE (versioning):** Se actualizó la versión del componente `api-manager.js` a `3.9.2`.
 
