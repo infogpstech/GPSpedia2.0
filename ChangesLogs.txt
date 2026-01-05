@@ -1,3 +1,19 @@
+**V5.8.0 - (CRITICAL FIX) - 05/01/2026**
+**A. FIX CRÍTICO DE CORS Y ESTABILIDAD EN `feedback-service`:** Se solucionó un bug crítico que impedía el funcionamiento de toda la funcionalidad de feedback y contacto (ej. Inbox, reportar problema) debido a un error de CORS, y se resolvió una inestabilidad severa causada por código duplicado.
+
+**B. Causa Raíz:**
+    1.  **Error de `MimeType`:** La función `doGet` del servicio `services/feedback/feedback.js` devolvía `ContentService.MimeType.JSON`, violando el requisito de la arquitectura de usar `ContentService.MimeType.TEXT` para todas las respuestas y causando fallos de CORS en el frontend.
+    2.  **Código Duplicado:** Durante la auditoría se encontraron dos implementaciones completas de las funciones `handleRecordLike` y `handleSuggestYear`, creando un riesgo alto de comportamiento inconsistente y errores de mantenimiento.
+
+**C. Cambios Implementados:**
+    1.  **`services/feedback/feedback.js` (Línea 85):** Se corrigió el `MimeType` en la función `doGet`, alineándolo a `ContentService.MimeType.TEXT`.
+    2.  **`services/feedback/feedback.js` (Líneas 141-174 y 332-348 eliminadas):** Se eliminaron las implementaciones duplicadas y obsoletas de `handleRecordLike` y `handleSuggestYear`, conservando las versiones más robustas que incluyen el registro de actividad del usuario.
+
+**D. Impacto:**
+    -   Se restaura la funcionalidad completa del sistema de feedback, reportes y contacto.
+    -   Se elimina una fuente crítica de inestabilidad y bugs futuros al resolver la duplicación de código.
+    -   El servicio `feedback-service` es ahora más estable, predecible y cumple con los estándares de la arquitectura.
+
 **V5.7.0 - (CRITICAL ALIGNMENT) - 04/01/2026**
 **A. FIX CRÍTICO DE INCONSISTENCIA ARQUITECTÓNICA (FRONTEND-BACKEND):** Se solucionó una ruptura crítica en la arquitectura que impedía el funcionamiento de la carga progresiva del catálogo.
 
