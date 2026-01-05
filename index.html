@@ -1,4 +1,4 @@
-<!-- GPSpedia Frontend Component | Version: 4.3.6 -->
+<!-- GPSpedia Frontend Component | Version: 4.7.2 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -792,8 +792,9 @@ body.search-active .app-logo {
 /* --- ESTILOS PARA LA SECCIÓN DE FEEDBACK EN MODAL --- */
 .image-container-with-feedback {
     position: relative;
-    display: inline-block;
-    margin: 10px auto; /* Reducido para economizar espacio */
+    display: block; /* Change to block for more predictable layout */
+    margin: 10px auto;
+    width: fit-content; /* Ensure the container wraps the image */
 }
 .feedback-overlay {
     position: absolute;
@@ -2045,7 +2046,8 @@ function mostrarDetalleTutorial(item) {
     });
 
     crearImagenDetalle("Imagen", item.Imagen, cont);
-    crearVideoDetalle("Video Guía", item.Video, cont);
+    // FIX: Add fallback to another possible video property to fix regression
+    crearVideoDetalle("Video Guía", item.Video || item.videoGuia, cont);
     document.getElementById("modalDetalle").classList.add("visible");
 }
 
@@ -2087,7 +2089,8 @@ function mostrarDetalleRelay(item) {
         cont.appendChild(crearElementoDetalle(c.label, c.value, item.id, c.field));
     });
     crearImagenDetalle("Diagrama", item.imagen, cont);
-    const relayImg = cont.querySelector('img[alt="Imagen"]');
+    // FIX: The selector was wrong. It should be 'Diagrama', not 'Imagen'.
+    const relayImg = cont.querySelector('img[alt="Diagrama"]');
     if (relayImg) {
         relayImg.style.maxHeight = '250px';
     }
@@ -2257,20 +2260,21 @@ function mostrarDetalleModal(item) {
 
     // 2.1 Título Principal (Nombre del Modelo y Logo)
     const mainHeaderDiv = document.createElement('div');
-    mainHeaderDiv.style.cssText = "display: flex; justify-content: flex-start; align-items: center; gap: 15px;";
+    // FIX: Changed flex properties to position logo to the right of the title.
+    mainHeaderDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; gap: 15px;";
+
+    const title = document.createElement("h2");
+    title.textContent = item.modelo;
+    title.style.cssText = "color:#007bff; margin: 0; padding: 0; flex-grow: 1;"; // Title takes available space
+    mainHeaderDiv.appendChild(title); // Add title FIRST
 
     const logoUrl = getLogoUrlForMarca(item.marca, item.categoria);
     if (logoUrl) {
         const logoImg = document.createElement("img");
         logoImg.src = convertirAGoogleThumbnail(logoUrl);
         logoImg.style.cssText = "height: 40px; width: auto; max-width: 100px; object-fit: contain; background: transparent; border: none; box-shadow: none; flex-shrink: 0;";
-        mainHeaderDiv.appendChild(logoImg);
+        mainHeaderDiv.appendChild(logoImg); // Add logo SECOND
     }
-
-    const title = document.createElement("h2");
-    title.textContent = item.modelo;
-    title.style.cssText = "color:#007bff; margin: 0; padding: 0;";
-    mainHeaderDiv.appendChild(title);
 
     titleContainer.appendChild(mainHeaderDiv);
 
@@ -2626,63 +2630,77 @@ function mostrarCategorias() {
     const cont = document.getElementById("contenido");
     cont.innerHTML = ""; // Limpiar contenido
 
-    // 1. Mostrar "Últimos Agregados"
-    mostrarUltimosAgregados();
+    // FIX: Wrap each section in a try-catch to prevent one error from stopping all rendering.
+    try {
+        mostrarUltimosAgregados();
+    } catch (error) {
+        console.error("Error rendering 'Últimos Agregados':", error);
+        debugLog('RENDER_ERROR', "Falló 'Últimos Agregados'", { message: error.message });
+    }
 
-    // --- ORDEN CORRECTO DE RENDERIZADO ---
-    // 1. Carrusel de Categorías
-    const categorias = sortedCategoriesList;
-    crearCarrusel('Búsqueda por Categoría', categorias, cat => {
-        const ejemplo = datosOriginales.find(item => item.categoria === cat && item.imagenVehiculo);
-        const card = document.createElement("div");
-        card.className = "card";
-        card.onclick = () => mostrarMarcas(cat);
-        const img = document.createElement("img");
-        img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
-        img.alt = `Categoría ${cat}`;
-        card.appendChild(img);
-        const overlay = document.createElement("div");
-        overlay.className = "overlay";
-        overlay.innerHTML = cat;
-        card.appendChild(overlay);
-        return card;
-    });
+    try {
+        const categorias = sortedCategoriesList;
+        crearCarrusel('Búsqueda por Categoría', categorias, cat => {
+            const ejemplo = datosOriginales.find(item => item.categoria === cat && item.imagenVehiculo);
+            const card = document.createElement("div");
+            card.className = "card";
+            card.onclick = () => mostrarMarcas(cat);
+            const img = document.createElement("img");
+            img.src = convertirAGoogleThumbnail(ejemplo?.imagenVehiculo);
+            img.alt = `Categoría ${cat}`;
+            card.appendChild(img);
+            const overlay = document.createElement("div");
+            overlay.className = "overlay";
+            overlay.innerHTML = cat;
+            card.appendChild(overlay);
+            return card;
+        });
+    } catch (error) {
+        console.error("Error rendering 'Búsqueda por Categoría':", error);
+        debugLog('RENDER_ERROR', "Falló 'Búsqueda por Categoría'", { message: error.message });
+    }
 
-    // 2. Carrusel de Marcas de Vehículos (Excluyendo Motocicletas)
-    const marcasVehiculos = [...new Set(datosOriginales
-        .filter(item => item.categoria && !['motocicletas', 'motos'].includes(item.categoria.toLowerCase()))
-        .map(item => item.marca))]
-        .filter(Boolean).sort();
+    try {
+        const marcasVehiculos = [...new Set(datosOriginales
+            .filter(item => item.categoria && !['motocicletas', 'motos'].includes(item.categoria.toLowerCase()))
+            .map(item => item.marca))]
+            .filter(Boolean).sort();
+        crearCarrusel('Marcas de Vehículos', marcasVehiculos, marca => {
+            const logoUrl = getLogoUrlForMarca(marca, null);
+            const card = document.createElement("div");
+            card.className = "card brand-logo-item";
+            card.onclick = () => mostrarCategoriasPorMarca(marca);
+            const img = document.createElement("img");
+            img.src = convertirAGoogleThumbnail(logoUrl);
+            img.alt = `Marca ${marca}`;
+            card.appendChild(img);
+            return card;
+        });
+    } catch (error) {
+        console.error("Error rendering 'Marcas de Vehículos':", error);
+        debugLog('RENDER_ERROR', "Falló 'Marcas de Vehículos'", { message: error.message });
+    }
 
-    crearCarrusel('Marcas de Vehículos', marcasVehiculos, marca => {
-        const logoUrl = getLogoUrlForMarca(marca, null);
-        const card = document.createElement("div");
-        card.className = "card brand-logo-item";
-        card.onclick = () => mostrarCategoriasPorMarca(marca);
-        const img = document.createElement("img");
-        img.src = convertirAGoogleThumbnail(logoUrl);
-        img.alt = `Marca ${marca}`;
-        card.appendChild(img);
-        return card;
-    });
-
-    // 3. Carrusel de Marcas de Motocicletas
-    const marcasMotos = [...new Set(datosOriginales
-        .filter(item => item.categoria && ['motocicletas', 'motos'].includes(item.categoria.toLowerCase()))
-        .map(item => item.marca))]
-        .filter(Boolean).sort();
-
-    crearCarrusel('Marcas de Motocicletas', marcasMotos, marca => {
-        const logoUrl = getLogoUrlForMarca(marca, 'Motocicletas');
-        const card = document.createElement("div");
-        card.className = "card brand-logo-item";
-        card.onclick = () => mostrarModelos('Motocicletas', marca);
-        const img = document.createElement("img");
-        img.src = convertirAGoogleThumbnail(logoUrl);
-        img.alt = `Marca ${marca}`;
-        card.appendChild(img);
-        return card;
-    });
+    try {
+        const marcasMotos = [...new Set(datosOriginales
+            .filter(item => item.categoria && ['motocicletas', 'motos'].includes(item.categoria.toLowerCase()))
+            .map(item => item.marca))]
+            .filter(Boolean).sort();
+        crearCarrusel('Marcas de Motocicletas', marcasMotos, marca => {
+            const logoUrl = getLogoUrlForMarca(marca, 'Motocicletas');
+            const card = document.createElement("div");
+            card.className = "card brand-logo-item";
+            card.onclick = () => mostrarModelos('Motocicletas', marca);
+            const img = document.createElement("img");
+            img.src = convertirAGoogleThumbnail(logoUrl);
+            img.alt = `Marca ${marca}`;
+            card.appendChild(img);
+            return card;
+        });
+    } catch (error) {
+        console.error("Error rendering 'Marcas de Motocicletas':", error);
+        debugLog('RENDER_ERROR', "Falló 'Marcas de Motocicletas'", { message: error.message });
+    }
 }
 
 function mostrarUltimosAgregados() {
@@ -3569,7 +3587,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <footer class="footer" style="display: none;">
-  Gpspedia v4.3.6 © 2025 todos los derechos reservados.
+  Gpspedia v4.7.2 © 2025 todos los derechos reservados.
   <div class="footer-links">
       <a id="footer-about-link">Sobre Nosotros</a>
       <a id="footer-contact-link">Contáctanos</a>

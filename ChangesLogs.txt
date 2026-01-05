@@ -1,3 +1,12 @@
+**v4.7.2 (04/01/2026)**
+*   **FIX (index.html):** Se solucionaron múltiples regresiones críticas en la interfaz de usuario principal para restaurar la funcionalidad y la consistencia visual, de acuerdo con las especificaciones del `README.md`.
+    *   **Navegación del Catálogo:** Se restauró la visibilidad de las cuatro secciones principales ("Últimos agregados", "Categoría", "Marcas de vehículos", "Marcas de motocicletas") envolviendo la lógica de renderizado de cada una en bloques `try...catch` para prevenir que un error en una sección detenga la ejecución de las demás.
+    *   **Modal de Tutoriales:** Se corrigió la regresión que impedía la visualización de videos. La lógica ahora busca el video en `item.Video` y, si no lo encuentra, utiliza `item.videoGuia` como fallback.
+    *   **Modal de Relay:** Se reparó la visualización de la imagen del diagrama corrigiendo el selector de imágenes en la función `mostrarDetalleRelay`.
+    *   **Layout del Modal de Vehículo:** Se ajustó el DOM y el CSS en `mostrarDetalleModal` para posicionar correctamente el logo de la marca a la derecha del título del modelo.
+    *   **Layout de Botones de Feedback:** Se ajustó el CSS del contenedor `.image-container-with-feedback` y del overlay `.feedback-overlay` para asegurar que los botones de "Útil" y "Reportar" se posicionen correctamente en la esquina inferior derecha de la imagen del corte.
+    *   **Archivos Modificados:** `index.html`.
+
 **v4.7.1 (04/01/2026)**
 *   **DOCS (Instrucciones.txt):** Se actualizaron los estados de las tareas 14 y 22 a "[en revisión]" para reflejar que se ha enviado una propuesta de solución para su validación.
     *   **Archivos Modificados:** `Instrucciones.txt`.
