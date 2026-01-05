@@ -248,6 +248,16 @@ NUEVAS TAREAS CRÍTICAS (AÑADIDO 2026-01-04)
         *   En un contenedor separado a la derecha, mostrar las imágenes de los cortes verticalmente, sin exceder los 300px de ancho total, mientras la información del modal permanece a la izquierda.
   - **Impacto Potencial:** Mejora significativamente la presentación visual y la experiencia de usuario en una de las vistas más importantes de la aplicación.
 
+- **Tarea 28: Endurecer `catalog-service` para Manejo de Imágenes**
+  - **Urgencia:** Crítica
+  - **Tipo:** Violación de Arquitectura / Bug
+  - **Descripción:** Durante la auditoría final, se detectó que `services/catalog/catalog.js` todavía contiene lógica para transformar URLs de Google Drive (`convertirAGoogleThumbnail`). Esto viola la arquitectura final, que estipula que solo el `image-service` debe manejar interacciones con Drive y que el `catalog-service` solo debe pasar `fileId`s crudos. Esta transformación incorrecta es la causa raíz de los fallos de carga de imágenes.
+  - **Requerimiento Técnico:**
+    1.  **Eliminar `convertirAGoogleThumbnail` de `catalog.js`:** El servicio debe dejar de transformar los IDs.
+    2.  **Implementar Normalización en `catalog.js`:** Añadir una nueva función `normalizeAndValidateImageId` que reciba el valor de la celda de imagen. Esta función debe ser capaz de manejar tanto un `fileId` limpio como una URL completa de Drive, extrayendo el ID en el segundo caso. Si el dato es inválido, debe devolver `null`.
+    3.  **Aplicar Normalización:** La función `mapRowToObject` debe usar `normalizeAndValidateImageId` para limpiar todos los campos de imagen antes de enviar los datos al frontend.
+  - **Impacto Potencial:** Resuelve definitivamente el bug de carga de imágenes, alinea el servicio con la arquitectura final y lo hace más robusto ante datos inconsistentes en la hoja de cálculo.
+
 ### MÓDULO: FLUJO DE USUARIO
 
 - **Tarea 27: Implementación de Fase 3 en `add_cortes.html`**

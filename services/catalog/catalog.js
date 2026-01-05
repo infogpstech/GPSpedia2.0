@@ -139,21 +139,36 @@ function doPost(e) {
 // ============================================================================
 // MANEJADORES DE ACCIONES (HANDLERS)
 // ============================================================================
+
+// Definir qué campos de cada mapa de columnas contienen IDs de imagen.
+const IMAGE_FIELDS_CORTES = new Set(['imagenVehiculo', 'imgCorte1', 'imgCorte2', 'imgCorte3', 'imgApertura', 'imgCableAlimen']);
+const IMAGE_FIELDS_LOGOS = new Set(['urlLogo']);
+const IMAGE_FIELDS_TUTORIALES = new Set(['Imagen']);
+// Nota: Se asume que el campo 'imagen' en Relay también es un fileId y se normaliza.
+const IMAGE_FIELDS_RELAY = new Set(['imagen']);
+
 /**
  * Convierte una fila de hoja de cálculo (array) en un objeto utilizando un mapa de columnas.
  * @param {Array} row - La fila de datos.
  * @param {object} colMap - El objeto que mapea nombres de clave a índices de columna (basado en 1).
+ * @param {Set<string>} imageFields - Un Set con los nombres de las claves que deben ser normalizadas como IDs de imagen.
  * @returns {object|null} - El objeto mapeado o null si la fila está vacía.
  */
-function mapRowToObject(row, colMap) {
+function mapRowToObject(row, colMap, imageFields = new Set()) {
   if (!row || row.length === 0) {
     return null;
   }
   const obj = {};
   for (const key in colMap) {
     const colIndex = colMap[key] - 1;
-    // Asegurarse de que el valor no es undefined; de lo contrario, asignar null.
-    obj[key] = row[colIndex] !== undefined && row[colIndex] !== '' ? row[colIndex] : null;
+    let value = row[colIndex] !== undefined && row[colIndex] !== '' ? row[colIndex] : null;
+
+    // Si el campo es un campo de imagen, normalizar y validar su valor.
+    if (imageFields.has(key)) {
+      value = normalizeAndValidateImageId(value);
+    }
+
+    obj[key] = value;
   }
   return obj;
 }
@@ -183,7 +198,7 @@ function handleGetCatalogData() {
         cortesData = data
           .filter(row => row && row[0])
           .map(row => {
-            const vehicle = mapRowToObject(row, COLS_CORTES);
+            const vehicle = mapRowToObject(row, COLS_CORTES, IMAGE_FIELDS_CORTES);
             if (!vehicle) return null;
 
             // Contar vehículos por categoría
@@ -242,7 +257,7 @@ function handleGetCatalogData() {
     if (logosSheet) {
         const data = logosSheet.getDataRange().getValues();
         data.shift();
-        logosData = data.map(row => mapRowToObject(row, COLS_LOGOS_MARCA));
+        logosData = data.map(row => mapRowToObject(row, COLS_LOGOS_MARCA, IMAGE_FIELDS_LOGOS));
     }
     allData.logos = logosData;
 
@@ -252,7 +267,7 @@ function handleGetCatalogData() {
     if (tutorialesSheet) {
         const data = tutorialesSheet.getDataRange().getValues();
         data.shift();
-        tutorialesData = data.map(row => mapRowToObject(row, COLS_TUTORIALES));
+        tutorialesData = data.map(row => mapRowToObject(row, COLS_TUTORIALES, IMAGE_FIELDS_TUTORIALES));
     }
     allData.tutoriales = tutorialesData;
 
@@ -262,7 +277,7 @@ function handleGetCatalogData() {
     if (relaySheet) {
         const data = relaySheet.getDataRange().getValues();
         data.shift();
-        relayData = data.map(row => mapRowToObject(row, COLS_RELAY));
+        relayData = data.map(row => mapRowToObject(row, COLS_RELAY, IMAGE_FIELDS_RELAY));
     }
     allData.relay = relayData;
 
@@ -362,7 +377,7 @@ function handleCheckVehicle(payload) {
         const tipoEncendidoMatch = sheetTipoEncendido === paramTipoEncendido;
 
         if (marcaMatch && modeloMatch && anioMatch && tipoEncendidoMatch) {
-            const matchData = mapRowToObject(row, COLS_CORTES);
+            const matchData = mapRowToObject(row, COLS_CORTES, IMAGE_FIELDS_CORTES);
             matches.push(matchData);
         }
     }
@@ -428,6 +443,42 @@ function handleGetSuggestion(payload) {
 // ============================================================================
 // FUNCIONES AUXILIARES
 // ============================================================================
+
+/**
+ * Normaliza y valida un valor que se espera sea un ID de imagen de Google Drive.
+ * Puede manejar un fileId limpio o una URL completa, extrayendo el ID.
+ * Devuelve null si el valor es inválido.
+ * @param {string} value - El valor de la celda de la hoja de cálculo.
+ * @returns {string|null} - El fileId limpio o null.
+ */
+function normalizeAndValidateImageId(value) {
+    if (!value || typeof value !== 'string' || value.trim() === '') {
+        return null;
+    }
+
+    const trimmedValue = value.trim();
+
+    // Expresión regular para extraer el ID de varias URLs de Google Drive.
+    const idMatch = trimmedValue.match(/file\/d\/([a-zA-Z0-9_-]+)|id=([a-zA-Z0-9_-]+)|\/d\/([a-zA-Z0-9_-]+)/);
+
+    if (idMatch) {
+        // Si es una URL, se extrae el ID. El ID válido es el primer grupo de captura no nulo.
+        const fileId = idMatch[1] || idMatch[2] || idMatch[3];
+        // Una validación simple para un fileId (longitud razonable, sin caracteres extraños).
+        if (fileId && fileId.length > 20) {
+            return fileId;
+        }
+    } else if (trimmedValue.length > 20 && !trimmedValue.includes('/') && !trimmedValue.includes(':')) {
+        // Si no es una URL pero tiene la longitud de un ID y no contiene caracteres de URL,
+        // se asume que ya es un fileId limpio.
+        return trimmedValue;
+    }
+
+    // Si no coincide con ninguno de los formatos esperados, se considera inválido.
+    // Opcional: Registrar el valor inválido para depuración.
+    // console.log(`ID de imagen inválido o no normalizable detectado: ${value}`);
+    return null;
+}
 
 function levenshteinDistance(a, b) {
     if (a.length === 0) return b.length;

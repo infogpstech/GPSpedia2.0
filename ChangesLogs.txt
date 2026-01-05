@@ -1,3 +1,10 @@
+**v5.3.0 (05/01/2026)**
+*   **HARDENING (services/catalog/catalog.js):** Se finalizó el robustecimiento del servicio de catálogo para asegurar la integridad de los datos de imágenes y el cumplimiento estricto de la arquitectura.
+    *   **Causa Raíz:** El servicio no validaba ni normalizaba los datos de imágenes provenientes de la hoja de cálculo. Esto permitía que URLs completas o datos malformados se propagaran al frontend, causando inestabilidad y violando la regla de que solo el `image-service` debe manejar URLs.
+    *   **Solución:** Se implementó una nueva función `normalizeAndValidateImageId`. Esta función centraliza la lógica de validación: toma cualquier valor (URL completa, ID limpio, o `null`), extrae y devuelve un `fileId` válido o `null`. Se refactorizó la función `mapRowToObject` para que *todos* los campos de imagen (`imagenDelVehiculo`, `imgCorte`, `logoUrl`, etc.) pasen obligatoriamente por esta validación antes de ser enviados al frontend.
+    *   **Resultado:** El `catalog-service` ahora garantiza que solo enviará `fileId` limpios, eliminando la causa raíz de los bugs de renderización de imágenes desde el backend y cumpliendo con su rol arquitectónico.
+    *   **Archivos Modificados:** `services/catalog/catalog.js`.
+
 **v5.2.0 (04/01/2026)**
 *   **FIX (Arquitectura):** Se solucionó la causa raíz del bug que impedía la carga de imágenes del catálogo.
     *   **Causa Raíz:** Se descubrió una violación arquitectónica en `services/catalog/catalog.js`. Este servicio estaba transformando incorrectamente los `fileId` de las imágenes a URLs completas de Google Drive, en lugar de enviar solo los IDs al frontend.
