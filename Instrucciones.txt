@@ -1,3 +1,53 @@
+**Versión del Documento:** 1.1 (Post-Auditoría de Catalog-Service)
+**Fecha de Generación:** 2026-01-05
+=================================================
+
+NUEVOS HALLAZGOS DE AUDITORÍA (services/catalog/catalog.js)
+-------------------------------------------------
+
+### Auditoría Realizada: 05/01/2026
+
+- **Propósito:** Análisis final del `catalog-service` antes de su formalización para producción.
+- **Estado General:** El servicio es robusto, cumple con la arquitectura definida y está funcionalmente completo. Los siguientes puntos se registran para futuras mejoras y para tener un conocimiento claro de los riesgos operativos.
+
+#### **Riesgos Identificados**
+
+1.  **Dependencia Estricta de Mapas de Columnas (Hardcoding):**
+    *   **Observación:** El servicio depende de constantes (`COLS_CORTES`, `COLS_LOGOS_MARCA`, etc.) que mapean nombres de campos a posiciones de columna fijas.
+    *   **Riesgo:** Si un administrador modifica la estructura de la hoja de cálculo (ej. inserta, elimina o mueve una columna) sin actualizar simultáneamente y de forma precisa estos mapas en el código, el servicio fallará de manera silenciosa. Servirá datos incorrectos (ej. asignando un `modelo` a el campo `marca`) sin generar un error explícito. Este es el principal riesgo operativo del servicio.
+
+2.  **Rendimiento de Sugerencias a Gran Escala:**
+    *   **Observación:** La función `handleGetSuggestion` utiliza el algoritmo de `levenshteinDistance` contra una lista de todos los valores únicos de una columna.
+    *   **Riesgo:** A medida que la base de datos crezca a miles de entradas, el cálculo de la distancia para cada sugerencia podría volverse lento y exceder los límites de tiempo de ejecución de Google Apps Script, haciendo que la función falle.
+
+#### **Deuda Técnica Registrada**
+
+1.  **Función `handleGetCatalogData` Monolítica:**
+    *   **Observación:** Esta función es responsable de obtener, procesar y mapear los datos de cuatro hojas de cálculo diferentes (`Cortes`, `LogosMarca`, `Tutorial`, `Relay`).
+    *   **Deuda:** Su gran tamaño y múltiples responsabilidades la hacen difícil de leer y mantener.
+    *   **Recomendación (Tarea Futura):** Refactorizar esta función dividiéndola en sub-funciones más pequeñas y enfocadas (ej. `fetchCortesData`, `fetchLogosData`, etc.) para mejorar la claridad.
+
+2.  **Lógica Compleja de Ordenamiento de Cortes:**
+    *   **Observación:** La lógica para reordenar los cortes de un vehículo según su popularidad (`utilCorteX`) dentro de `handleGetCatalogData` es funcional pero compleja de seguir. Implica crear un objeto temporal, ordenar un array de índices y luego reconstruir el objeto del vehículo.
+    *   **Deuda:** Dificulta el mantenimiento futuro de esta funcionalidad.
+    *   **Recomendación (Tarea Futura):** Añadir comentarios detallados a este bloque de código o refactorizarlo a una función auxiliar (`sortVehicleCuts`) para aislar su complejidad.
+
+#### **Observaciones Adicionales**
+
+1.  **Cumplimiento Arquitectónico (Positivo):**
+    *   **Observación:** El servicio cumple de manera excelente con la regla arquitectónica de manejar solo `fileId`s para las imágenes, gracias a la robusta función `normalizeAndValidateImageId`. Esto es un pilar de la estabilidad del sistema.
+
+2.  **Uso de Caché (Positivo):**
+    *   **Observación:** La implementación de `CacheService` es correcta y vital para el rendimiento de la aplicación, evitando lecturas innecesarias a la base de datos.
+
+3.  **Ineficiencia en `handleGetDropdownData`:**
+    *   **Observación:** Esta función lee todos los datos de la hoja `Cortes` varias veces (una por cada campo de dropdown) para obtener listas de valores únicos.
+    *   **Recomendación (Tarea Futura):** Optimizar esta función para que lea el `dataRange` una sola vez en memoria y luego genere todos los conjuntos de valores únicos a partir de ese array.
+
+---
+(El resto del contenido de Instrucciones.txt permanece sin cambios)
+---
+
 **Versión del Documento:** 1.0 (Post-Auditoría)
 **Fecha de Generación:** 2024-08-20
 =================================================

@@ -69,34 +69,39 @@ Frontend               catalog-service           Spreadsheet
 Este diagrama documenta el flujo de datos correcto y final para la carga de imágenes, asegurando la separación de responsabilidades y la seguridad.
 
 1.  **Petición de Datos:** El **Frontend** solicita el catálogo al `catalog-service`.
-2.  **Respuesta de Datos:** `catalog-service` lee la **Spreadsheet** y devuelve los datos del vehículo, incluyendo los campos de imagen que contienen **únicamente el `fileId` de Google Drive** (ej: `"1-t2Gz_D0s-BAA4c3zE-s4nJ0sY9z_ABC"`). **No realiza ninguna transformación de URL.**
-3.  **Construcción de URL de Imagen:** Al renderizar la UI, el **Frontend** (`main.js`) toma el `fileId` y utiliza la función `getImageUrl(fileId)` para construir una URL que apunta al `image-service`.
-4.  **Petición de Imagen (Proxy):** El `<img>` en el HTML del navegador realiza una petición `GET` a la URL generada (ej: `.../exec?fileId=1-t2Gz...`).
-5.  **Obtención del Archivo:** El `image-service` recibe la petición, extrae el `fileId`, y usa `DriveApp.getFileById()` para obtener el `blob` del archivo directamente desde **Google Drive**.
-6.  **Respuesta de Imagen:** El `image-service` devuelve el `blob` de la imagen con el `Content-Type` correcto. El navegador lo renderiza.
+2.  **Validación y Normalización (Backend):** `catalog-service` lee la **Spreadsheet**. Para cada campo de imagen, la función `normalizeAndValidateImageId` se encarga de:
+    *   Extraer el `fileId` si el dato es una URL completa de Google Drive.
+    *   Verificar si el dato ya es un `fileId` limpio.
+    *   Devolver `null` si el dato está vacío o es inválido.
+3.  **Respuesta de Datos (Contrato de Imagen):** `catalog-service` devuelve los datos del vehículo, garantizando que cada campo de imagen contenga **únicamente un `fileId` válido o `null`**. Esta es la garantía fundamental del servicio.
+4.  **Construcción de URL de Imagen:** Al renderizar la UI, el **Frontend** (`main.js`) recibe el `fileId`. Si no es `null`, utiliza la función `getImageUrl(fileId)` para construir una URL que apunta al `image-service`.
+5.  **Petición de Imagen (Proxy):** El `<img>` en el HTML del navegador realiza una petición `GET` a la URL generada.
+6.  **Obtención del Archivo:** El `image-service` recibe la petición, extrae el `fileId`, y usa `DriveApp.getFileById()` para obtener el `blob` del archivo directamente desde **Google Drive**.
+7.  **Respuesta de Imagen:** El `image-service` devuelve el `blob` de la imagen.
 
 ```
-┌──────────┐   ┌───────────────────┐   ┌───────────────┐   ┌───────────────┐   ┌──────────────┐
-│ Frontend │   │   API Manager     │   │ catalog-service │   │ image-service │   │ Google Drive │
-└────┬─────┘   └─────────┬─────────┘   └───────┬─────────┘   └───────┬─────────┘   └──────┬───────┘
-     │                   │                     │                     │                     │
-     ├─ getCatalogData() ─>───────────────────> │                     │                     │
-     │                   │                     ├─ getSheetData() ────> (Spreadsheet)      │
-     │                   │ <───────────────────┼─ { ..., imagenVehiculo: "fileId", ... } │
-     │ <─────────────────┴─ { data }            │                     │                     │
-     │                                         │                     │                     │
-     │ UI Render:                              │                     │                     │
-     │ getImageUrl(fileId)                     │                     │                     │
-     │ src="/image?fileId=..."                 │                     │                     │
-     ├─ GET /image?fileId=... ──────────────────────────────────────> │                     │
-     │                   │                     │                     ├─ getFileById(fileId)─>
-     │                   │                     │                     │ <─── Image Blob ────┤
-     │ <───────────────────────────────────────┴─ Image Blob          │                     │
-     │                                         │                     │                     │
+┌──────────┐   ┌───────────────────┐   ┌──────────────────────────┐   ┌───────────────┐   ┌──────────────┐
+│ Frontend │   │   API Manager     │   │      catalog-service     │   │ image-service │   │ Google Drive │
+└────┬─────┘   └─────────┬─────────┘   └────────────┬─────────────┘   └───────┬─────────┘   └──────┬───────┘
+     │                   │                          │                         │                     │
+     ├─ getCatalogData() ─>────────────────────────> │                         │                     │
+     │                   │                          ├─ getSheetData() ───────> (Spreadsheet)      │
+     │                   │                          │ 1. normalizeAndValidate() │                     │
+     │                   │ <────────────────────────┼─ 2. { ..., img: "fileId" | null }            │
+     │ <─────────────────┴─ { data }                 │                         │                     │
+     │                                              │                         │                     │
+     │ UI Render:                                   │                         │                     │
+     │ if (fileId) getImageUrl(fileId)              │                         │                     │
+     │ src="/image?fileId=..."                      │                         │                     │
+     ├─ GET /image?fileId=... ───────────────────────────────────────────────> │                     │
+     │                   │                          │                         ├─ getFileById(fileId)─>
+     │                   │                          │                         │ <─── Image Blob ────┤
+     │ <────────────────────────────────────────────┴─ Image Blob             │                     │
+     │                                              │                         │                     │
 ```
-⚠️ **Responsabilidades Clave (Final):**
--   **`catalog-service`:** Su única responsabilidad es leer y servir los datos crudos. **No debe transformar URLs ni IDs.**
--   **`main.js` (`getImageUrl`)**: Su única responsabilidad es tomar un `fileId` y construir la URL del proxy. **No debe parsear URLs complejas.**
+⚠️ **Responsabilidades Clave (Final y Endurecido):**
+-   **`catalog-service`:** Es el **guardián de la integridad de los datos**. Su responsabilidad es leer, **validar, normalizar** y servir los datos. Garantiza el **Contrato de Imagen**: todos los campos de imagen serán un `fileId` limpio o `null`.
+-   **`main.js` (`getImageUrl`)**: Confía ciegamente en el Contrato de Imagen. Su única responsabilidad es tomar un `fileId` (si no es `null`) y construir la URL del proxy. No realiza ninguna validación.
 -   **`image-service`**: Es el único punto de contacto con Google Drive. Abstrae y protege el sistema de archivos.
 
 ### 2.3. Responsabilidades por Capa
@@ -149,7 +154,11 @@ El backend consta de los siguientes servicios de Google Apps Script:
 - **Responsabilidad:** Retroalimentación de usuarios (likes y reportes).
 
 ### `GPSpedia-Catalog` (`services/catalog/catalog.js`)
-- **Responsabilidad:** Acceso de solo lectura y preparación de datos del catálogo.
+- **Responsabilidad:** Acceso de solo lectura, validación, normalización y preparación de los datos del catálogo. Es el guardián de la integridad de los datos leídos desde la hoja de cálculo.
+- **Características Clave:**
+    - **Contrato de Imagen:** Garantiza que todos los campos de imagen devueltos al frontend contendrán únicamente un `fileId` de Google Drive válido o `null`.
+    - **Caché:** Utiliza un sistema de caché para minimizar las lecturas a la hoja de cálculo y mejorar el rendimiento.
+    - **Modo Diagnóstico:** Incluye un modo `?diagnostics=true` que proporciona metadatos sobre la ejecución y una lista de los IDs de imagen inválidos encontrados en los datos de origen.
 
 ### `GPSpedia-Write` (`services/write/write.js`)
 - **Responsabilidad:** Escritura de datos y subida de archivos.

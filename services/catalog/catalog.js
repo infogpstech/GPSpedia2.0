@@ -1,13 +1,15 @@
 // ============================================================================
 // GPSPEDIA-CATALOG SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 2.3.0
+// COMPONENT VERSION: 2.4.0
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
 // ============================================================================
-const SPREADSHEET_ID = "1M6zAVch_EGKGGRXIo74Nbn_ihH1APZ7cdr2kNdWfiDs"; // <-- ACTUALIZADO A DB V2.0
+const SPREADSHEET_ID = "1M6zAVch_EGKGGRXIo74Nbn_ihH1APZ7cdr2kNdWfiDs";
+const LOG_INVALID_IDS = false; // Cambiar a true para registrar IDs de imagen inválidos en la consola.
 let spreadsheet = null;
+let invalidImageIdsFound = []; // Almacena IDs inválidos para el modo diagnóstico.
 
 function getSpreadsheet() {
   if (spreadsheet === null) {
@@ -77,7 +79,7 @@ function doGet(e) {
 
         const serviceState = {
             service: 'GPSpedia-Catalog',
-            version: '2.3.0',
+            version: '2.4.0',
             spreadsheetId: SPREADSHEET_ID,
             sheetsAccessed: [SHEET_NAMES.CORTES, SHEET_NAMES.TUTORIALES, SHEET_NAMES.RELAY, SHEET_NAMES.LOGOS_MARCA],
             cacheStatus: {
@@ -90,12 +92,17 @@ function doGet(e) {
     }
     const defaultResponse = {
         status: 'success',
-        message: 'GPSpedia Catalog-SERVICE v2.3.0 is active.' // <-- CORREGIDO
+        message: 'GPSpedia Catalog-SERVICE v2.4.0 is active.'
     };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
         .setMimeType(ContentService.MimeType.JSON);
 }
+
 function doPost(e) {
+  invalidImageIdsFound = []; // Resetear para cada nueva solicitud.
+  const isDiagnosticMode = e.parameter.diagnostics === 'true';
+  const startTime = new Date();
+
   try {
     const request = JSON.parse(e.postData.contents);
     const action = request.action;
@@ -119,6 +126,22 @@ function doPost(e) {
         throw new Error(`Acción desconocida: ${action}`);
     }
 
+    // Si el modo diagnóstico está activado, envolver la respuesta.
+    if (isDiagnosticMode) {
+      const executionTime = new Date() - startTime;
+      const diagnosticResult = {
+        diagnostics: {
+          executionTimeMs: executionTime,
+          invalidImageIdsCount: invalidImageIdsFound.length,
+          invalidImageIds: invalidImageIdsFound,
+        },
+        payload: result
+      };
+      return ContentService.createTextOutput(JSON.stringify(diagnosticResult))
+        .setMimeType(ContentService.MimeType.TEXT);
+    }
+
+    // Respuesta estándar
     return ContentService.createTextOutput(JSON.stringify(result))
       .setMimeType(ContentService.MimeType.TEXT);
 
@@ -140,11 +163,31 @@ function doPost(e) {
 // MANEJADORES DE ACCIONES (HANDLERS)
 // ============================================================================
 
-// Definir qué campos de cada mapa de columnas contienen IDs de imagen.
+/**
+ * @const {Set<string>}
+ * @description CONTRATO DE IMÁGENES (Cortes): Define los campos dentro de la hoja 'Cortes'
+ * que deben ser tratados como IDs de imagen. El servicio garantiza que los valores
+ * en estos campos serán siempre un fileId de Google Drive válido (string) o null.
+ * El frontend NUNCA recibirá una URL completa.
+ */
 const IMAGE_FIELDS_CORTES = new Set(['imagenVehiculo', 'imgCorte1', 'imgCorte2', 'imgCorte3', 'imgApertura', 'imgCableAlimen']);
+
+/**
+ * @const {Set<string>}
+ * @description CONTRATO DE IMÁGENES (Logos): Define los campos de imagen para la hoja 'LogosMarca'.
+ */
 const IMAGE_FIELDS_LOGOS = new Set(['urlLogo']);
+
+/**
+ * @const {Set<string>}
+ * @description CONTRATO DE IMÁGENES (Tutoriales): Define los campos de imagen para la hoja 'Tutorial'.
+ */
 const IMAGE_FIELDS_TUTORIALES = new Set(['Imagen']);
-// Nota: Se asume que el campo 'imagen' en Relay también es un fileId y se normaliza.
+
+/**
+ * @const {Set<string>}
+ * @description CONTRATO DE IMÁGENES (Relay): Define los campos de imagen para la hoja 'Relay'.
+ */
 const IMAGE_FIELDS_RELAY = new Set(['imagen']);
 
 /**
@@ -446,37 +489,41 @@ function handleGetSuggestion(payload) {
 
 /**
  * Normaliza y valida un valor que se espera sea un ID de imagen de Google Drive.
- * Puede manejar un fileId limpio o una URL completa, extrayendo el ID.
- * Devuelve null si el valor es inválido.
- * @param {string} value - El valor de la celda de la hoja de cálculo.
- * @returns {string|null} - El fileId limpio o null.
+ * Esta función es el GOBERNADOR del contrato de imágenes.
+ * - Puede manejar un fileId limpio o una URL completa de Drive, extrayendo el ID.
+ * - Devuelve null si el valor es inválido, está vacío o no es un string.
+ * - Si LOG_INVALID_IDS es true, registra los valores inválidos en la consola de Apps Script.
+ * - Agrega los valores inválidos a la lista `invalidImageIdsFound` para el modo diagnóstico.
+ * @param {string} value - El valor original de la celda de la hoja de cálculo.
+ * @returns {string|null} - El fileId limpio y validado, o null si es inválido.
  */
 function normalizeAndValidateImageId(value) {
     if (!value || typeof value !== 'string' || value.trim() === '') {
         return null;
     }
 
+    const originalValue = value;
     const trimmedValue = value.trim();
 
     // Expresión regular para extraer el ID de varias URLs de Google Drive.
     const idMatch = trimmedValue.match(/file\/d\/([a-zA-Z0-9_-]+)|id=([a-zA-Z0-9_-]+)|\/d\/([a-zA-Z0-9_-]+)/);
 
     if (idMatch) {
-        // Si es una URL, se extrae el ID. El ID válido es el primer grupo de captura no nulo.
         const fileId = idMatch[1] || idMatch[2] || idMatch[3];
-        // Una validación simple para un fileId (longitud razonable, sin caracteres extraños).
         if (fileId && fileId.length > 20) {
-            return fileId;
+            return fileId; // ID extraído de URL es válido.
         }
     } else if (trimmedValue.length > 20 && !trimmedValue.includes('/') && !trimmedValue.includes(':')) {
-        // Si no es una URL pero tiene la longitud de un ID y no contiene caracteres de URL,
-        // se asume que ya es un fileId limpio.
+        // Si no es una URL pero parece un ID, se asume que es un fileId limpio.
         return trimmedValue;
     }
 
-    // Si no coincide con ninguno de los formatos esperados, se considera inválido.
-    // Opcional: Registrar el valor inválido para depuración.
-    // console.log(`ID de imagen inválido o no normalizable detectado: ${value}`);
+    // Si no se pudo normalizar o validar, se considera inválido.
+    if (LOG_INVALID_IDS) {
+        console.log(`ID de imagen inválido o no normalizable detectado: "${originalValue}"`);
+    }
+    invalidImageIdsFound.push(originalValue);
+
     return null;
 }
 
