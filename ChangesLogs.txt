@@ -1,3 +1,21 @@
+**V5.7.0 - (CRITICAL ALIGNMENT) - 04/01/2026**
+**A. FIX CRÍTICO DE INCONSISTENCIA ARQUITECTÓNICA (FRONTEND-BACKEND):** Se solucionó una ruptura crítica en la arquitectura que impedía el funcionamiento de la carga progresiva del catálogo.
+
+**B. Causa Raíz:**
+    -   Un commit anterior había actualizado el frontend (`api-manager.js`, `main.js`) para que llamara a una nueva acción `getNavigationData` con el objetivo de optimizar el rendimiento.
+    -   Sin embargo, esta acción nunca fue implementada en el backend (`services/catalog/catalog.js`), resultando en un error fatal que impedía la carga de la aplicación.
+
+**C. Cambios Implementados:**
+    1.  **`services/catalog/catalog.js`:**
+        -   **Implementación Faltante:** Se implementó la acción `getNavigationData` en el backend.
+        -   **Router:** Se añadió el `case 'getNavigationData'` al router `doPost` para manejar la nueva acción.
+        -   **Handler:** Se creó la función `handleGetNavigationData`, que ahora devuelve un payload ligero con los datos esenciales para el render inicial (`categoryCounts`, `sortedCategories`, `marcas`, `logos`), cumpliendo con lo que el frontend esperaba.
+
+**D. Impacto:**
+    -   Se restaura la funcionalidad de la aplicación, que estaba completamente rota debido a esta inconsistencia.
+    -   El backend ahora cumple con el contrato esperado por el frontend, habilitando la carga progresiva y mejorando significativamente el tiempo de carga percibido por el usuario.
+    -   Se resuelve la discrepancia entre el historial de commits y el estado real del código.
+
 **V5.6.0 - (CRITICAL HOTFIX) - 05/01/2026**
 **A. FIX CRÍTICO DE ESTABILIDAD (BACKEND):** Se solucionó un error fatal en producción ("Argumento demasiado grande") que causaba la caída total del `catalog-service` e impedía la carga del catálogo en la aplicación.
 

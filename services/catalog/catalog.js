@@ -122,6 +122,9 @@ function doPost(e) {
       case 'getSuggestion':
         result = handleGetSuggestion(payload);
         break;
+      case 'getNavigationData':
+        result = handleGetNavigationData();
+        break;
       default:
         throw new Error(`Acción desconocida: ${action}`);
     }
@@ -447,6 +450,55 @@ function handleCheckVehicle(payload) {
 
     return { status: 'success', matches: matches };
 }
+
+/**
+ * Obtiene los datos mínimos necesarios para la navegación y la carga inicial.
+ * Devuelve los conteos de categorías, las categorías ordenadas, la lista de marcas y los logos.
+ * Esta acción es LIGERA y está diseñada para ser la primera llamada que hace el frontend.
+ */
+function handleGetNavigationData() {
+    const responseData = {};
+    const cortesSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
+    const logosSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.LOGOS_MARCA);
+
+    // 1. Contar vehículos por categoría y obtener lista de marcas únicas
+    const categoryCounts = {};
+    const marcas = new Set();
+    if (cortesSheet) {
+        const data = cortesSheet.getDataRange().getValues();
+        data.shift(); // Quitar encabezados
+        data.forEach(row => {
+            if (row && row[0]) {
+                const categoria = row[COLS_CORTES.categoria - 1];
+                const marca = row[COLS_CORTES.marca - 1];
+                if (categoria) {
+                    categoryCounts[categoria] = (categoryCounts[categoria] || 0) + 1;
+                }
+                if (marca) {
+                    marcas.add(marca);
+                }
+            }
+        });
+    }
+    responseData.categoryCounts = categoryCounts;
+    responseData.marcas = Array.from(marcas).sort();
+
+    // 2. Crear y añadir la lista de categorías ordenada por popularidad
+    const sortedCategories = Object.keys(categoryCounts).sort((a, b) => categoryCounts[b] - categoryCounts[a]);
+    responseData.sortedCategories = sortedCategories;
+
+    // 3. Fetch de todos los logos (respetando el contrato de imágenes)
+    let logosData = [];
+    if (logosSheet) {
+        const data = logosSheet.getDataRange().getValues();
+        data.shift();
+        logosData = data.map(row => mapRowToObject(row, COLS_LOGOS_MARCA, IMAGE_FIELDS_LOGOS));
+    }
+    responseData.logos = logosData;
+
+    return { status: 'success', data: responseData, source: 'spreadsheet' };
+}
+
 
 // ============================================================================
 // MANEJADOR DE SUGERENCIAS (PARA "QUIZÁS QUISISTE DECIR...")
