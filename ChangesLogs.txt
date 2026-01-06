@@ -1,3 +1,15 @@
+**V6.2.0 - (INFRA) - 05/01/2026**
+**A. ACTUALIZACIÓN DE ENDPOINT DE SERVICIO:** Se actualizó la URL del microservicio `CATALOG` en la configuración del frontend.
+
+**B. Causa Raíz:**
+    - El `CATALOG` service fue redesplegado en una nueva URL de Google Apps Script, y el frontend (`api.js`) aún apuntaba al endpoint antiguo.
+
+**C. Cambios Implementados:**
+    1.  **`api.js` (Línea 9):** Se reemplazó la URL obsoleta del servicio `CATALOG` por el nuevo endpoint proporcionado.
+
+**D. Impacto:**
+    - Se asegura que el frontend se comunique con la versión más reciente del `catalog-service`, permitiendo que las correcciones de bugs y nuevas funcionalidades (como el fix de Tarea 30) tengan efecto en la aplicación.
+
 **V6.1.0 - (CRITICAL FIX) - 05/01/2026**
 **A. FIX CRÍTICO DE ARRANQUE (FULL-STACK):** Se solucionó el error crítico que impedía la inicialización de la aplicación, cumpliendo con la TAREA 30.
 
