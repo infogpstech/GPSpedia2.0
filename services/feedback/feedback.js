@@ -79,14 +79,14 @@ function doGet(e) {
             sheetsAccessed: [SHEET_NAMES.CORTES, SHEET_NAMES.FEEDBACKS]
         };
         return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
-            .setMimeType(ContentService.MimeType.JSON);
+            .setMimeType(ContentService.MimeType.TEXT);
     }
     const defaultResponse = {
         status: 'success',
         message: 'GPSpedia Feedback-SERVICE v1.2.1 is active.'
     };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
-        .setMimeType(ContentService.MimeType.JSON);
+        .setMimeType(ContentService.MimeType.TEXT);
 }
 
 function doPost(e) {
@@ -138,34 +138,6 @@ function doPost(e) {
 // MANEJADORES DE ACCIONES (HANDLERS)
 // ============================================================================
 
-function handleRecordLike(payload) {
-    const { vehicleId, corteIndex, userName } = payload;
-    if (!vehicleId || !corteIndex || !userName) {
-        throw new Error("Faltan datos para registrar el 'like'.");
-    }
-
-    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
-    const data = sheet.getRange(2, COLS_CORTES.id, sheet.getLastRow() - 1, 1).getValues();
-
-    for (let i = 0; i < data.length; i++) {
-        if (data[i][0] == vehicleId) {
-            const rowIndex = i + 2;
-            const utilColName = `utilCorte${corteIndex}`;
-            const utilCol = COLS_CORTES[utilColName];
-
-            if (!utilCol) throw new Error("Índice de corte inválido.");
-
-            const cell = sheet.getRange(rowIndex, utilCol);
-            let currentValue = cell.getValue();
-            if (typeof currentValue !== 'number') currentValue = 0;
-
-            cell.setValue(currentValue + 1);
-
-            return { status: 'success', message: 'Like registrado.' };
-        }
-    }
-    throw new Error("No se encontró el vehículo con el ID proporcionado.");
-}
 
 function handleAssignCollaborator(payload) {
     const { vehicleId, corteIndex, userName } = payload;
@@ -358,20 +330,6 @@ function handleReportProblem(payload) {
 
     logUserActivity(userId, userName, 'report_problem', vehicleId, problemText);
     return { status: 'success', message: 'Problema reportado.' };
-}
-
-function handleSuggestYear(payload) {
-    const { vehicleId, newYear, userId, userName } = payload;
-    // ... (validation) ...
-
-    // ... (logic for updating year range) ...
-
-    if (updated) {
-        logUserActivity(userId, userName, 'suggest_year', vehicleId, `Año sugerido: ${newYear}. Rango actualizado a ${anoDesde}-${anoHasta}.`);
-        return { status: 'success', message: `Rango de años actualizado a ${anoDesde}-${anoHasta}.` };
-    } else {
-        return { status: 'info', message: 'El año sugerido ya está dentro del rango existente.' };
-    }
 }
 
 function handleSendContactForm(payload) {
