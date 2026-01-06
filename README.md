@@ -1,204 +1,88 @@
-### 5.4. Reglas Críticas de Uso de `CacheService`
-
-El `CacheService` de Google Apps Script es una herramienta potente para mejorar el rendimiento, pero su uso indebido puede causar fallos críticos y caídas totales del servicio. Es **mandatorio** seguir las siguientes reglas en toda la arquitectura backend:
-
-1.  **Límite de Tamaño Estricto (100 KB):**
-    *   `CacheService` tiene un límite máximo de **100 KB por objeto**.
-    *   **PROHIBIDO** intentar cachear objetos grandes, como el catálogo completo de vehículos o respuestas JSON complejas. Intentarlo resultará en un error `Argumento demasiado grande` que detendrá la ejecución del script.
-
-2.  **Manejo de Errores Obligatorio:**
-    *   Toda interacción con la caché (`cache.get`, `cache.put`, `cache.remove`) **DEBE** estar envuelta en un bloque `try...catch`.
-    *   Un fallo en la caché **NUNCA** debe impedir que el servicio siga funcionando. El servicio debe ser capaz de continuar su ejecución (ej. obteniendo los datos desde la fuente original) si la caché falla.
-
-3.  **Casos de Uso Aceptables:**
-    *   **Datos Pequeños y Ligeros:** Ideal para cachear metadatos, listas de IDs, resultados de búsquedas frecuentes y pequeñas, o flags de configuración.
-    *   **Imágenes Pequeñas:** Se pueden cachear imágenes solo si se ha verificado explícitamente que su tamaño (en base64) es inferior al límite (ej. < 90 KB como margen de seguridad).
-
-4.  **Estrategia de Remediación Aplicada:**
-    *   **`catalog-service`:** Se ha **deshabilitado permanentemente** el cacheo del catálogo completo. Cualquier futura implementación de caché en este servicio deberá ser granular (ej. cachear solo la lista de marcas o modelos).
-    *   **`image-service`:** Mantiene el cacheo, pero solo para imágenes < 90 KB y con manejo de errores robusto.
-
-El incumplimiento de estas reglas se considera una violación arquitectónica crítica que introduce un riesgo inaceptable de inestabilidad en producción.
-
-# GPSpedia - Documentación Arquitectónica v4
+# GPSpedia - Sistema de Gestión de Cortes Vehiculares (v2.0 - Arquitectura Modular)
 
 ## 1. Descripción General
 
 GPSpedia es una Aplicación Web Progresiva (PWA) interna diseñada para técnicos e instaladores de GPS. Su objetivo principal es centralizar y estandarizar el conocimiento sobre los puntos de corte de corriente e ignición en una amplia variedad de vehículos, mejorando la eficiencia y reduciendo errores en las instalaciones.
 
-Esta documentación describe la **arquitectura final propuesta** para el sistema, migrando de un modelo monolítico a una arquitectura desacoplada basada en microservicios y un frontend modular.
+La versión 2.0 representa una refactorización completa del sistema original, migrando de una arquitectura monolítica a una basada en **microservicios**. Este cambio mejora drásticamente el rendimiento, la escalabilidad y la facilidad de mantenimiento del proyecto.
 
 ## 2. Arquitectura del Sistema
 
-La arquitectura de GPSpedia se compone de tres capas principales, cada una con responsabilidades claramente definidas para asegurar la mantenibilidad, escalabilidad y seguridad del sistema.
+La arquitectura de GPSpedia 2.0 se compone de tres capas principales:
 
-### 2.1. Diagrama de Arquitectura General
+1.  **Frontend (Cliente):** Una PWA construida con HTML, CSS y JavaScript puro. Se encarga de toda la interfaz de usuario y la interacción.
+2.  **Backend (Servidor):** Compuesto por cinco microservicios independientes, cada uno desplegado como un proyecto de Google Apps Script.
+3.  **Base de Datos:** Una única hoja de cálculo de Google Sheets que actúa como base de datos central para todos los servicios.
 
-El sistema está diseñado con una separación estricta entre el frontend (la interfaz de usuario en el navegador) y el backend (la lógica de negocio en Google Apps Script). Google Drive actúa como el sistema de almacenamiento de archivos, pero su acceso está mediado exclusivamente por el backend.
-
+### Diagrama de Comunicación
 ```
-┌───────────────────────────┐
-│     Frontend (Cliente)    │
-│  (HTML + CSS + JS Modular)│
-└─────────────┬─────────────┘
-              │
-              │ HTTP Requests
-              ▼
-┌───────────────────────────┐
-│   Backend (Apps Script)   │
-│     (Microservicios)      │
-├───────────────────────────┤
-│ 🔹 auth-service           │
-│ 🔹 users-service          │
-│ 🔹 feedback-service      │
-│ 🔹 catalog-service       │
-│ 🔹 write-service         │
-│ 🔹 image-service (Nuevo)  │
-└─────────────┬─────────────┘
-              │
-              │ Lectura/Escritura
-              ▼
-┌───────────────────────────┐   ┌───────────────────────────┐
-│     Google Sheets         │   │      Google Drive         │
-│   (Base de Datos)         │   │ (Almacén de Imágenes)     │
-└───────────────────────────┘   └───────────────────────────┘
+                         ┌──────────────────┐
+                         │   API_MANAGER.JS │ (Enrutador Lógico en Frontend)
+                         └──────────────────┘
+                                   │
+           ┌───────────────────────┼───────────────────────┐
+           ▼                       ▼                       ▼
+┌───────────────────┐   ┌────────────────────┐   ┌──────────────────┐
+│ GPSpedia-Auth     │   │ GPSpedia-Catalog   │   │ GPSpedia-Write   │
+│ (auth.js)         │   │ (catalog.js)       │   │ (write.js)       │
+└───────────────────┘   └────────────────────┘   └──────────────────┘
+           ▲                       ▲                       ▲
+           │                       │                       │
+┌───────────────────┐   ┌────────────────────┐             │
+│ GPSpedia-Users    │   │ GPSpedia-Feedback  │             │
+│ (users.js)        │   │ (feedback.js)      │             │
+└───────────────────┘   └────────────────────┘             │
+           │                       │                       │
+           └───────────────────────▼───────────────────────┘
+                                   │
+                         ┌──────────────────┐
+                         │  GOOGLE SHEETS   │ (Base de Datos Central)
+                         └──────────────────┘
 ```
 
-### 2.2. Diagrama de Comunicación (Flujo de Datos)
+## 3. Plan Estratégico v4 (Final y Optimizado)
 
-La comunicación entre las capas sigue flujos estrictos para garantizar la integridad y seguridad de los datos.
+Esta sección define la hoja de ruta para la siguiente gran versión de GPSpedia, centrada en una re-arquitectura de datos y la implementación de funcionalidades de alta eficiencia.
 
-#### **🔹 Flujo de Datos del Catálogo**
-Este flujo describe cómo el frontend solicita y recibe información del catálogo.
+### Fase 1: Migración y Lógica de Datos Fundamental
+- **Objetivo:** Migrar a la nueva base de datos (DB v2.0) y establecer la lógica de negocio principal para la gestión de datos.
+- **Tareas Clave:**
+    - [x] **Diseñar Nuevo Esquema:** Implementar la estructura granular detallada en la sección "Diseño Detallado de `GPSpedia_DB_v2.0`".
+    - [X] **Script de Migración:** Desarrollar un endpoint para migrar y transformar los datos de la base de datos antigua a la nueva.
+    - [ ] **Lógica de Gestión de Años Simplificada:**
+        - El formulario de entrada solo solicitará un único año.
+        - Este año se guardará en la columna `anoDesde` al crear un nuevo registro. `anoHasta` quedará vacío.
+    - [X] **Lógica de Gestión de Logos Automatizada:**
+        - Al agregar un nuevo vehículo, el sistema buscará una coincidencia en la hoja `LogosMarcas` por el campo `marca`.
+        - Si se encuentra, se asociará automáticamente. Si no, se usará un logo temporal de GPSpedia. El usuario no seleccionará el logo.
 
-1.  **Petición:** El **Frontend** (ej. `catalogApi.js`) realiza una llamada `fetch` al microservicio `catalog-service`.
-2.  **Procesamiento:** `catalog-service` recibe la petición, accede a la **Spreadsheet** de Google Sheets, lee los datos, los normaliza, ordena y prepara la respuesta.
-3.  **Respuesta:** `catalog-service` devuelve al **Frontend** un objeto JSON con los datos listos para ser renderizados.
+### Fase 2: Sistema de Feedback Avanzado y Calidad de Datos
+- **Objetivo:** Mejorar la calidad de los datos a través de la interacción del usuario.
+- **Tareas Clave:**
+    - [ ] **Feedback Granular:** Implementar "likes" y colaborador por cada corte individual.
+    - [ ] **Ordenamiento por Utilidad:** El backend ordenará los cortes de un vehículo según su popularidad antes de enviarlos al frontend.
+    - [X] **Campos Obligatorios:** Forzar el llenado de `tipo`, `ubicación`, `color` e `imagen` para cada nuevo corte.
+    - [ ] **Expansión de Rango de Años por Feedback:**
+        - Implementar una nueva función de feedback que permita a los usuarios sugerir que un corte aplica a un año diferente.
+        - El backend recibirá el nuevo año y actualizará `anoDesde` (si el nuevo año es menor) o `anoHasta` (si el nuevo año es mayor), expandiendo dinámicamente el rango de aplicabilidad.
 
-```
-Frontend               catalog-service           Spreadsheet
-   │                        │                        │
-   ├─ GET /catalogData ───> │                        │
-   │                        ├─ getDataRange() ─────> │
-   │                        │ <─── Raw Data ─────────┤
-   │                        │                        │
-   │                        │ normalize() & sort()   │
-   │ <─── JSON (Datos) ──── │                        │
-   │                        │                        │
-```
+### Fase 3: Funcionalidades de Gestión y Experiencia de Usuario
+- **Objetivo:** Introducir herramientas de gestión y mejorar la experiencia visual y de usuario.
+- **Tareas Clave:**
+    - [ ] **Dashboard de Desempeño:** Crear una vista para Supervisores con métricas de contribución de técnicos.
+    - [ ] **Edición "In-Modal":** Permitir la edición de datos directamente desde el modal de detalles, con permisos por rol.
+    - [ ] **Enlaces de un solo uso:** Generar enlaces temporales (24h) y de un solo uso para compartir información.
+    - [ ] **Notificaciones Inteligentes:** Reemplazar el banner de instalación con notificaciones "toast" sobre nuevos cortes.
+    - [X] **Visualización de Logos:**
+        - Mostrar el logo de la marca (formato PNG/WEBP sin fondo) al final del nombre del modelo de vehículo. (`altura: 50px`, `anchura: auto`).
+        - En la vista de listado de marcas, mostrar el logo correspondiente si existe al menos un vehículo de esa marca.
 
-#### **🔹 Flujo de Imágenes Final y Verificado (Proxy Seguro)**
-Este diagrama documenta el flujo de datos final y auditado para la carga de imágenes.
+### Fase 4: Mejoras Adicionales
+- **Objetivo:** Añadir funcionalidades de alto valor para el trabajo en campo.
+- **Tareas Clave:**
+    - [ ] **Modo Offline Robusto:** Implementar caching avanzado.
+    - [X] **Modal de Relay Anidado:** Mostrar detalles de configuraciones de Relay en un modal secundario, con la imagen de referencia limitada a `250px` de altura.
 
-1.  **Petición de Datos:** El **Frontend** solicita el catálogo al `catalog-service`.
-2.  **Normalización en `catalog-service`:** `catalog-service` lee la Spreadsheet. Para cada campo de imagen, la función `normalizeAndValidateImageId` asegura que el valor sea un `fileId` válido o `null`, descartando URLs malformadas.
-3.  **Respuesta con Contrato de Imagen:** `catalog-service` devuelve los datos, garantizando que todos los campos de imagen contienen **únicamente un `fileId` válido o `null`**.
-4.  **Construcción de URL en `main.js`:** Al renderizar la UI, la función `getImageUrl(fileId)` toma el `fileId` y lo **codifica correctamente** (`encodeURIComponent`) para construir una URL segura que apunta al `image-service`.
-5.  **Petición de Imagen (Proxy):** El navegador realiza una petición `GET` a la URL del `image-service`.
-6.  **Resolución en `image-service`:** El `image-service` recibe la petición.
-    *   **Intento de Caché:** Primero busca la imagen en `CacheService`. Si la encuentra (y es menor de 90KB), la devuelve inmediatamente.
-    *   **Acceso a Drive:** Si no está en caché, usa `DriveApp.getFileById()` para obtener el blob de Google Drive, determina su `Content-Type` real, y lo guarda en caché (si es seguro) antes de devolverlo.
-7.  **Respuesta de Imagen:** El `image-service` devuelve el blob de la imagen con el `Content-Type` correcto, que el navegador renderiza.
-
-```
-┌──────────┐   ┌───────────────────┐   ┌──────────────────────────┐   ┌──────────────────┐   ┌──────────────┐
-│ Frontend │   │   API Manager     │   │      catalog-service     │   │  image-service   │   │ Google Drive │
-└────┬─────┘   └─────────┬─────────┘   └────────────┬─────────────┘   └────────┬─────────┘   └──────┬───────┘
-     │                   │                          │                        │                     │
-     ├─ getCatalogData() ─>────────────────────────> │                        │                     │
-     │                   │                          ├─ getSheetData() ──────> (Spreadsheet)      │
-     │                   │                          │ 1. normalizeAndValidate()│                        │                     │
-     │                   │ <────────────────────────┼─ 2. { img: "fileId" }   │                        │                     │
-     │ <─────────────────┴─ { data }                 │                        │                     │
-     │                                              │                        │                     │
-     │ UI Render:                                   │                        │                     │
-     │ getImageUrl(fileId)                          │                        │                     │
-     │ (encodeURIComponent)                         │                        │                     │
-     │ src="/image?fileId=..."                      │                        │                     │
-     ├─ GET /image?fileId=... ──────────────────────────────────────────────> │                     │
-     │                   │                          │                        ├─ 1. cache.get()    │
-     │                   │                          │                        ├─ 2. getFileById()──>
-     │                   │                          │                        │ <── Image Blob ────┤
-     │                   │                          │                        ├─ 3. cache.put()    │
-     │ <────────────────────────────────────────────┴─ Image Blob            │                     │
-     │                                              │                        │                     │
-```
-⚠️ **Responsabilidades Clave (Auditado y Final):**
--   **`catalog-service`:** **Guardián de la integridad de datos.** Lee, valida y normaliza. Garantiza el **Contrato de Imagen**: solo envía `fileId` limpios o `null`.
--   **`main.js` (`getImageUrl`)**: **Constructor de URLs seguras.** Codifica el `fileId` usando `encodeURIComponent` y construye la URL del proxy. Confía en el contrato del `catalog-service`.
--   **`image-service`**: **Proxy seguro y optimizado.** Resuelve el `fileId`, maneja el `MimeType` real, y utiliza una caché para acelerar las respuestas. Es el único punto de contacto con Google Drive.
-
-### 2.3. Responsabilidades por Capa
-
-#### **🎨 Frontend**
--   **Renderizado:** Es responsable de "pintar" la interfaz de usuario basándose en los datos que recibe del backend.
--   **Gestión de Eventos:** Captura las interacciones del usuario (clics, envíos de formulario) y las traduce en llamadas a la capa de API.
--   **Gestión de Estado de UI:** Controla estados puramente visuales (ej. si un modal está abierto o cerrado).
--   **Estilos:** Aplica todo el diseño visual a través de hojas de estilo CSS.
--   **Regla de Oro:** NO contiene ninguna lógica de negocio (validación de datos, cálculos, ordenamiento).
-
-#### **🗂️ Backend**
--   **Lógica de Negocio:** Es el cerebro de la aplicación. Contiene toda la lógica para validar, procesar y gestionar los datos.
--   **Validaciones:** Asegura que todos los datos recibidos del frontend sean correctos y seguros antes de escribirlos.
--   **Normalización y Ordenamiento:** Prepara los datos (ej. ordena los cortes por utilidad, formatea fechas) antes de enviarlos al frontend.
--   **Seguridad:** Gestiona la autenticación, las sesiones y los permisos de usuario. Es la única capa que puede decidir si un usuario está autorizado para realizar una acción.
--   **Acceso a Datos:** Es la única capa que tiene acceso directo a Google Sheets (la base de datos) y a Google Drive (el almacén de archivos).
-
-### 2.4. Justificación Técnica de la Arquitectura
-
-Esta arquitectura modular y desacoplada fue elegida para resolver problemas históricos y estructurales del sistema.
-
--   **Por qué `index.html` ya no debe ser monolítico:** El enfoque anterior de tener todo el HTML, CSS y JavaScript en un solo archivo (`index.html`) creaba un "código espagueti" difícil de mantener, depurar y escalar. Cualquier pequeño cambio tenía el potencial de romper funcionalidades no relacionadas.
--   **Por qué se separa la lógica en módulos JS:** Separar el JavaScript en módulos con responsabilidades únicas (API, estado, UI) permite:
-    -   **Reutilización de Código:** Funciones comunes pueden ser compartidas.
-    -   **Facilidad de Depuración:** Los errores se aíslan en módulos específicos.
-    -   **Mantenimiento Sencillo:** Es más fácil encontrar y modificar la lógica relevante sin afectar otras partes del sistema.
--   **Por qué se introduce `image-service`:** El `image-service` es una capa de seguridad crítica. Exponer directamente las URLs de Google Drive es un riesgo de seguridad y crea una dependencia frágil. Al usar un proxy, el backend controla el acceso a los archivos, previene el hotlinking no autorizado y centraliza la lógica de obtención de imágenes, lo que permite futuras optimizaciones como el caching.
--   **Problemas históricos que soluciona esta arquitectura:**
-    -   **Imágenes Inconsistentes y Rotas:** Centraliza la lógica de acceso a imágenes, eliminando errores de conversión de URL en el frontend.
-    -   **Bugs Intermitentes:** La separación clara de responsabilidades reduce las interacciones complejas e inesperadas entre diferentes partes del código.
-    -   **Código Duplicado:** La modularización permite reutilizar funciones de API, UI y utilidades.
-    -   **Cambios "Fantasma":** Un sistema modular hace que el impacto de cada cambio sea más predecible y fácil de verificar.
-
-## 3. Plan Estratégico y Tareas Pendientes
-
-Para consultar la hoja de ruta detallada, el plan de implementación técnica y la lista de tareas pendientes, por favor, refiérase al archivo `Instrucciones.txt`.
-
-## 4. Componentes del Backend (Microservicios)
-
-El backend consta de los siguientes servicios de Google Apps Script:
-
-### `GPSpedia-Auth` (`services/auth/auth.js`)
-- **Responsabilidad:** Autenticación y sesiones de usuario.
-
-### `GPSpedia-Users` (`services/users/users.js`)
-- **Responsabilidad:** Gestión CRUD de usuarios con jerarquía de roles.
-
-### `GPSpedia-Feedback` (`services/feedback/feedback.js`)
-- **Responsabilidad:** Retroalimentación de usuarios (likes y reportes).
-
-### `GPSpedia-Catalog` (`services/catalog/catalog.js`)
-- **Responsabilidad:** Acceso de solo lectura, validación, normalización y preparación de los datos del catálogo. Es el guardián de la integridad de los datos leídos desde la hoja de cálculo.
-- **Características Clave:**
-    - **Contrato de Imagen:** Garantiza que todos los campos de imagen devueltos al frontend contendrán únicamente un `fileId` de Google Drive válido o `null`.
-    - **Caché:** Utiliza un sistema de caché para minimizar las lecturas a la hoja de cálculo y mejorar el rendimiento.
-    - **Modo Diagnóstico:** Incluye un modo `?diagnostics=true` que proporciona metadatos sobre la ejecución y una lista de los IDs de imagen inválidos encontrados en los datos de origen.
-
-### `GPSpedia-Write` (`services/write/write.js`)
-- **Responsabilidad:** Escritura de datos y subida de archivos.
-
-### `GPSpedia-Image` (Nuevo)
-- **Responsabilidad:** Servir de proxy seguro para las imágenes de Google Drive.
-
-### `GPSpedia-Utilities` (Opcional)
-- **Responsabilidad:** Funciones de utilidad compartidas.
-
-## 5. Arquitectura de la Base de Datos
-
-La base de datos del sistema es una hoja de cálculo de Google Sheets (`ID: 1M6zAVch_EGKGGRXIo74Nbn_ihH1APZ7cdr2kNdWfiDs`). Para una descripción detallada de la estructura de cada tabla (hoja) y columna, por favor, refiérase a la sección "Arquitectura de la Base de Datos v2.0" más adelante en este documento.
-
----
-*El resto del contenido del README.md (Plan de Implementación, Estructura de la Base de Datos v1.5 y v2.0, Sistema de Versionamiento, etc.) se mantiene sin cambios y sigue a continuación.*
 ---
 
 ### **Plan de Implementación Técnica Detallado: Fase 1**
@@ -254,7 +138,7 @@ Esta sección describe los pasos técnicos específicos requeridos para ejecutar
 
     - **Etapa 2: Registro de Nuevo Corte y Gestión de Archivos.**
         1.  Cuando se añade un nuevo corte o un nuevo vehículo, el sistema gestiona las imágenes de la siguiente manera:
-            *   **Creación de Directorios:** El backend crea automáticamente una estructura de carpetas jerárquica en Google Drive siguiendo la ruta: `GPSpedia/Categoria/Marca/Modelo/Año`.
+            *   **Creación de Directorios:** El backend crea automáticamente una estructura de carpetas en Google Drive siguiendo la ruta: `GPSpedia/Categoria/Marca/Modelo/Año`.
             *   **Nomenclatura de Archivos Estandarizada:** Las imágenes subidas se renombran automáticamente para seguir un formato predecible y consistente:
                 *   `Marca_Modelo_TipoEncendido_Año_Vehiculo.jpg`
                 *   `Marca_Modelo_TipoEncendido_Año_Corte1.jpg`
@@ -402,6 +286,40 @@ Esta sección documenta el estado actual de las tareas de desarrollo, bugs, regr
 16. **Dashboard de Desempeño:** `[ ] Falta Implementar` - Crear la nueva sección para Supervisores.
 17. **Edición "In-Modal":** `[ ] Falta Implementar` - Permitir la edición de datos desde el modal de detalles.
 
+## 4. Componentes del Backend (Microservicios)
+
+El backend consta de cinco servicios de Google Apps Script, cada uno con una responsabilidad única.
+
+### `GPSpedia-Auth` (`services/auth/auth.js`)
+- **Responsabilidad:** Autenticación y sesiones de usuario.
+- **Hojas Accedidas:** `Users` (Lectura), `ActiveSessions` (Lectura/Escritura).
+- **Nota Crítica:** Utiliza un mapeo de columnas **fijo y codificado**. Cambios en la estructura de la hoja `Users` romperán el login.
+
+### `GPSpedia-Catalog` (`services/catalog/catalog.js`)
+- **Responsabilidad:** Acceso de solo lectura a los datos del catálogo.
+- **Hojas Accedidas:** `Cortes`, `Tutoriales`, `Relay` (Solo Lectura).
+
+### `GPSpedia-Write` (`services/write/write.js`)
+- **Responsabilidad:** Escritura de datos y subida de archivos, siguiendo un flujo de trabajo de 3 etapas.
+- **Hojas Accedidas:** `Cortes` (Escritura).
+- **Recursos Adicionales:** Google Drive (`ID: 1-8QqhS-wtEFFwyBG8CmnEOp5i8rxSM-2`).
+
+### `GPSpedia-Feedback` (`services/feedback/feedback.js`)
+- **Responsabilidad:** Retroalimentación de usuarios (likes y reportes).
+- **Hojas Accedidas:** `Cortes` (L/E en columna "Util"), `Feedbacks` (Escritura).
+
+### `GPSpedia-Users` (`services/users/users.js`)
+- **Responsabilidad:** Gestión CRUD de usuarios con jerarquía de roles.
+- **Hojas Accedidas:** `Users` (Lectura/Escritura).
+
+## 5. Componentes del Frontend (Cliente)
+
+- **`api-manager.js`:** Enrutador central que dirige las solicitudes al microservicio correcto.
+- **`index.html`:** Página principal, catálogo y vista de detalles.
+- **`add_cortes.html`:** Formulario para agregar/actualizar cortes.
+- **`users.html`:** Interfaz para gestión de perfiles y usuarios.
+- **`manifest.json` y `service-worker.js`:** Habilitan la funcionalidad PWA y el caching offline.
+
 ## 6. Arquitectura de la Base de Datos
 
 La documentación de la base de datos se divide en dos secciones principales: la arquitectura heredada (v1.5) y la nueva arquitectura propuesta (v2.0).
@@ -464,7 +382,7 @@ A continuación se detalla la estructura de cada hoja en la nueva base de datos.
 | `Privilegios` |
 | `Telefono` |
 | `Correo_Electronico`|
-| `SessionToken` |
+| `SessionToken`|
 
 ##### 2. Hoja: `Cortes`
 - **Propósito:** Catálogo principal con estructura granular para datos de alta calidad.

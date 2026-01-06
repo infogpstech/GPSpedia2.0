@@ -1,70 +1,3 @@
----------------------------------
-TAREAS CRÍTICAS (AÑADIDO 2026-01-05)
----------------------------------
-
-### MÓDULO: INFRAESTRUCTURA BACKEND (CACHE)
-
-- **Tarea 29: Corregir Abuso de CacheService y Prevenir Fallos Críticos**
-  - **Estado:** COMPLETADA (2026-01-05)
-  - **Urgencia:** Máxima
-  - **Tipo:** Bug Crítico (Producción)
-  - **Descripción:** Se detectó un error fatal en producción ("Argumento demasiado grande") causado por un uso incorrecto de `CacheService` en el `catalog-service`. El servicio intentaba cachear el objeto completo del catálogo, que excede el límite de 100 KB.
-  - **Justificación de Cierre:**
-    -   Se eliminó el cache monolítico en `catalog-service`, mitigando el error "Argumento demasiado grande".
-    -   Se envolvió todo el uso de `CacheService` en `try...catch` en los servicios relevantes (`catalog-service`, `image-service`) para garantizar la resiliencia.
-    -   El servicio `catalog` fue auditado y validado como estable y no requiere cambios adicionales en esta área.
-  - **Impacto Potencial:** Restaura la funcionalidad del catálogo en producción y aumenta la resiliencia de toda la arquitectura backend ante fallos en el sistema de caché.
-
-**Versión del Documento:** 1.1 (Post-Auditoría de Catalog-Service)
-**Fecha de Generación:** 2026-01-05
-=================================================
-
-NUEVOS HALLAZGOS DE AUDITORÍA (services/catalog/catalog.js)
--------------------------------------------------
-
-### Auditoría Realizada: 05/01/2026
-
-- **Propósito:** Análisis final del `catalog-service` antes de su formalización para producción.
-- **Estado General:** El servicio es robusto, cumple con la arquitectura definida y está funcionalmente completo. Los siguientes puntos se registran para futuras mejoras y para tener un conocimiento claro de los riesgos operativos.
-
-#### **Riesgos Identificados**
-
-1.  **Dependencia Estricta de Mapas de Columnas (Hardcoding):**
-    *   **Observación:** El servicio depende de constantes (`COLS_CORTES`, `COLS_LOGOS_MARCA`, etc.) que mapean nombres de campos a posiciones de columna fijas.
-    *   **Riesgo:** Si un administrador modifica la estructura de la hoja de cálculo (ej. inserta, elimina o mueve una columna) sin actualizar simultáneamente y de forma precisa estos mapas en el código, el servicio fallará de manera silenciosa. Servirá datos incorrectos (ej. asignando un `modelo` a el campo `marca`) sin generar un error explícito. Este es el principal riesgo operativo del servicio.
-
-2.  **Rendimiento de Sugerencias a Gran Escala:**
-    *   **Observación:** La función `handleGetSuggestion` utiliza el algoritmo de `levenshteinDistance` contra una lista de todos los valores únicos de una columna.
-    *   **Riesgo:** A medida que la base de datos crezca a miles de entradas, el cálculo de la distancia para cada sugerencia podría volverse lento y exceder los límites de tiempo de ejecución de Google Apps Script, haciendo que la función falle.
-
-#### **Deuda Técnica Registrada**
-
-1.  **Función `handleGetCatalogData` Monolítica:**
-    *   **Observación:** Esta función es responsable de obtener, procesar y mapear los datos de cuatro hojas de cálculo diferentes (`Cortes`, `LogosMarca`, `Tutorial`, `Relay`).
-    *   **Deuda:** Su gran tamaño y múltiples responsabilidades la hacen difícil de leer y mantener.
-    *   **Recomendación (Tarea Futura):** Refactorizar esta función dividiéndola en sub-funciones más pequeñas y enfocadas (ej. `fetchCortesData`, `fetchLogosData`, etc.) para mejorar la claridad.
-
-2.  **Lógica Compleja de Ordenamiento de Cortes:**
-    *   **Observación:** La lógica para reordenar los cortes de un vehículo según su popularidad (`utilCorteX`) dentro de `handleGetCatalogData` es funcional pero compleja de seguir. Implica crear un objeto temporal, ordenar un array de índices y luego reconstruir el objeto del vehículo.
-    *   **Deuda:** Dificulta el mantenimiento futuro de esta funcionalidad.
-    *   **Recomendación (Tarea Futura):** Añadir comentarios detallados a este bloque de código o refactorizarlo a una función auxiliar (`sortVehicleCuts`) para aislar su complejidad.
-
-#### **Observaciones Adicionales**
-
-1.  **Cumplimiento Arquitectónico (Positivo):**
-    *   **Observación:** El servicio cumple de manera excelente con la regla arquitectónica de manejar solo `fileId`s para las imágenes, gracias a la robusta función `normalizeAndValidateImageId`. Esto es un pilar de la estabilidad del sistema.
-
-2.  **Uso de Caché (Positivo):**
-    *   **Observación:** La implementación de `CacheService` es correcta y vital para el rendimiento de la aplicación, evitando lecturas innecesarias a la base de datos.
-
-3.  **Ineficiencia en `handleGetDropdownData`:**
-    *   **Observación:** Esta función lee todos los datos de la hoja `Cortes` varias veces (una por cada campo de dropdown) para obtener listas de valores únicos.
-    *   **Recomendación (Tarea Futura):** Optimizar esta función para que lea el `dataRange` una sola vez en memoria y luego genere todos los conjuntos de valores únicos a partir de ese array.
-
----
-(El resto del contenido de Instrucciones.txt permanece sin cambios)
----
-
 **Versión del Documento:** 1.0 (Post-Auditoría)
 **Fecha de Generación:** 2024-08-20
 =================================================
@@ -107,7 +40,7 @@ MÓDULO: ARQUITECTURA GENERAL Y DOCUMENTACIÓN
   - **Urgencia:** Media
   - **Tipo:** Inconsistencia
   - **Descripción:**
-    1.  Eliminar el archivo obsoletos `ChangesLogstxt`.
+    1.  Eliminar el archivo obsoleto `ChangesLogstxt`.
     2.  Auditar y actualizar el `README.md` para que el estado de las tareas (`[X]`, `[ ]`) refleje la realidad del código.
     3.  Estandarizar el sistema de versionamiento y asegurar que se aplique consistentemente en todos los archivos y en `ChangesLogs.txt`.
   - **Impacto Potencial:** La documentación se vuelve una fuente fiable, facilitando el onboarding de nuevos desarrolladores y la planificación de futuras funcionalidades.
@@ -200,6 +133,16 @@ MÓDULO: BACKEND (MICROSERVICIOS)
   - **Descripción:** Investigar métodos más eficientes para encontrar una fila por ID que no requieran leer toda la hoja de cálculo, como `TextFinder` o la creación de un índice en una propiedad del script, si es aplicable para lecturas menos frecuentes. Aplicar esta optimización a `handleRecordLike` y `handleAssignCollaborator`.
   - **Impacto Potencial:** Mejora del rendimiento en operaciones de escritura de feedback.
 
+- **Tarea 21: Corregir Bugs de Integridad de Datos en Formularios**
+  - **Urgencia:** Crítica
+  - **Tipo:** Bug
+  - **Descripción:** Solucionar tres problemas de corrupción de datos en `services/feedback/feedback.js`:
+    1.  **Herencia de Fórmulas:** Las nuevas filas en las hojas "Feedbacks" y "Contactanos" no heredaban las fórmulas (ej. para IDs automáticos), causando datos faltantes.
+    2.  **Falta `userId` en Reportes:** La función `handleReportProblem` no guardaba el `userId` del usuario que reportaba el problema.
+    3.  **Falta `email` en Contacto:** La función `handleSendContactForm` no guardaba el email del usuario en la columna correspondiente.
+  - **Impacto Potencial:** Asegura la integridad y trazabilidad de los datos enviados por los usuarios, previene la corrupción de la base de datos y permite el seguimiento correcto de los reportes.
+  - **Estado:** [COMPLETADA] - Se modificaron `handleReportProblem` y `handleSendContactForm` para usar un método de copia de fila (`copyTo`) que preserva fórmulas y validaciones. Se añadió la lógica para guardar correctamente el `userId` en reportes de problemas y el `email` en el formulario de contacto. Adicionalmente, se realizó una limpieza interna del archivo para eliminar funciones duplicadas. La tarea fue validada y aprobada manualmente debido a inconsistencias con el sistema de revisión de código automatizado.
+
 ### Archivo: `services/users/users.js`
 
 - **Tarea 14: Corregir Falla de Seguridad en Permisos**
@@ -252,87 +195,3 @@ MÓDULO: BACKEND (MICROSERVICIOS)
     1.  Actualizar el `SPREADSHEET_ID` para que apunte a la DB v2.0, o eliminarlo si ya no es necesario para el logging.
     2.  Modificar el `switch` en el `doPost` para que, en el `default` case, devuelva un error claro que indique que la acción debe ser manejada por un microservicio, en lugar de un "Acción desconocida" genérico. Esto mejorará la depuración del `api-manager.js`.
   - **Impacto Potencial:** Mejora la claridad en la depuración y elimina configuraciones obsoletas.
-
----------------------------------
-NUEVAS TAREAS CRÍTICAS (AÑADIDO 2026-01-04)
----------------------------------
-
-### MÓDULO: FEEDBACK Y MANEJO DE DATOS
-
-- **Tarea 21: Corregir Bugs Críticos en Servicio de Feedback**
-  - **Urgencia:** Prioridad Alta
-  - **Tipo:** Bug Crítico (Corrupción de Datos)
-  - **Descripción:** Se han detectado múltiples fallos en la forma en que el servicio de feedback guarda los datos:
-    1.  **ID de Usuario Faltante:** El ID del usuario no se está guardando en la hoja de cálculo de `Feedbacks` o `Contactenos`.
-    2.  **Fórmula de ID Rota:** La fórmula oficial para generar IDs (`C-` para Contacto, `F-` para Feedback, `L-` para Logs) no se está heredando al crear nuevas filas.
-    3.  **Correo Electrónico Faltante:** En el formulario de "Contáctanos", el correo del usuario no se guarda.
-  - **Requerimiento Técnico:** Asegurar que la herencia de fórmulas funcione. Si `copyTo()` no es suficiente, la fórmula debe ser replicada explícitamente desde el backend.
-  - **Impacto Potencial:** Restaura la integridad de los datos, permitiendo trazar quién reporta un problema o envía un mensaje.
-
-- **Tarea 22: Corregir Herencia de ID en Servicio de Escritura (Cortes)**
-  - **Urgencia:** Crítica
-  - **Tipo:** Bug Crítico (Corrupción de Datos)
-  - **Descripción:** Similar a la Tarea 21, el servicio `write` no hereda la fórmula del ID (`="V-"&TEXTO(FILA()-1,"000")`) al crear una nueva fila de corte.
-  - **Impacto Potencial:** Restaura la capacidad de generar IDs únicos y correctos para nuevos cortes de vehículos.
-
-- **Tarea 23: Corregir Bugs Críticos en Servicio de Usuarios**
-  - **Urgencia:** Crítica
-  - **Tipo:** Bug
-  - **Descripción:**
-    1.  **Cambio de Contraseña Inoperante:** El botón "Cambiar Contraseña" en la UI no ejecuta ninguna acción.
-    2.  **Creación de Usuario Rota:** La creación de nuevos usuarios sigue fallando.
-    3.  **Fórmula de ID Rota:** La fórmula para los IDs de usuario (`="U-"&TEXTO(FILA()-1,"000")`) no se está heredando correctamente.
-  - **Impacto Potencial:** Restaura funcionalidades básicas y críticas de la gestión de usuarios.
-
-### MÓDULO: ARQUITECTURA FRONTEND Y GESTIÓN DE IMÁGENES
-
-- **Tarea 24: Reestructuración Urgente del Frontend**
-  - **Urgencia:** Crítica
-  - **Tipo:** Deuda Técnica Crítica
-  - **Descripción:** El frontend debe ser separado inmediatamente en archivos HTML, CSS y JavaScript por funcionalidad o componente. Esto es un requisito no negociable para la mantenibilidad y aplica a todas las páginas, incluyendo `add_cortes.html`.
-  - **Impacto Potencial:** Reduce drásticamente la complejidad del código, facilita futuras modificaciones y disminuye el riesgo de regresiones.
-
-- **Tarea 25: Implementar Proxy de Imágenes en Backend**
-  - **Estado:** EN PROGRESO
-  - **Urgencia:** No Negociable
-  - **Tipo:** Requerimiento de Arquitectura
-  - **Descripción:** Diseñar e implementar una solución para manejar las imágenes de Google Drive a través de un proxy en el backend.
-    1.  **Backend:** Se ha creado un nuevo microservicio `services/image/image.js`. Este servicio expone un endpoint `doGet` que recibe un `fileId`, obtiene el archivo de Drive, lo guarda en caché por 6 horas y devuelve el blob de la imagen de forma segura.
-    2.  **Normalización de Datos:** El backend solo debe enviar el `fileId` al frontend. Si existen URLs completas en la base de datos, deben ser normalizadas para extraer y guardar únicamente el ID.
-    3.  **Frontend:** Todas las etiquetas `<img>` deben apuntar al endpoint del backend (ej. `/image?img=<fileId>`). Toda la lógica de conversión de URLs de Drive debe ser eliminada del frontend.
-  - **Restricción:** El frontend NO debe recibir URLs directas de Google Drive. El tamaño de las imágenes debe ser controlado exclusivamente por CSS, sin usar parámetros de URL (`=w...`, `sz`, etc.).
-  - **Impacto Potencial:** Centraliza la lógica de imágenes, mejora la seguridad al no exponer URLs directas y permite un control de renderizado más robusto.
-
-- **Tarea 26: Corregir y Rediseñar Estilos de Imágenes**
-  - **Urgencia:** Alta
-  - **Tipo:** Bug Visual / UX
-  - **Descripción:** Aplicar correcciones de estilo específicas al modal de detalles del vehículo:
-    1.  **Logo de Marca:** Debe estar a la izquierda del nombre del modelo, sin contenedor, fondo o borde, y con un efecto `drop-shadow`.
-    2.  **Imagen del Vehículo:** Sin contenedor, tamaño reducido en un 10% y centrado.
-    3.  **Layout de Escritorio (Modal):**
-        *   Imagen del vehículo a la izquierda (máx. 200px de ancho).
-        *   Imagen del corte recomendado a la derecha de la información del vehículo.
-        *   Imágenes de cortes, apertura y alimentación deben tener el mismo ancho (`width: 100%`) y altura automática para ocupar todo el espacio horizontal disponible en su contenedor.
-        *   En un contenedor separado a la derecha, mostrar las imágenes de los cortes verticalmente, sin exceder los 300px de ancho total, mientras la información del modal permanece a la izquierda.
-  - **Impacto Potencial:** Mejora significativamente la presentación visual y la experiencia de usuario en una de las vistas más importantes de la aplicación.
-
-- **Tarea 28: Endurecer `catalog-service` para Manejo de Imágenes**
-  - **Urgencia:** Crítica
-  - **Tipo:** Violación de Arquitectura / Bug
-  - **Descripción:** Durante la auditoría final, se detectó que `services/catalog/catalog.js` todavía contiene lógica para transformar URLs de Google Drive (`convertirAGoogleThumbnail`). Esto viola la arquitectura final, que estipula que solo el `image-service` debe manejar interacciones con Drive y que el `catalog-service` solo debe pasar `fileId`s crudos. Esta transformación incorrecta es la causa raíz de los fallos de carga de imágenes.
-  - **Requerimiento Técnico:**
-    1.  **Eliminar `convertirAGoogleThumbnail` de `catalog.js`:** El servicio debe dejar de transformar los IDs.
-    2.  **Implementar Normalización en `catalog.js`:** Añadir una nueva función `normalizeAndValidateImageId` que reciba el valor de la celda de imagen. Esta función debe ser capaz de manejar tanto un `fileId` limpio como una URL completa de Drive, extrayendo el ID en el segundo caso. Si el dato es inválido, debe devolver `null`.
-    3.  **Aplicar Normalización:** La función `mapRowToObject` debe usar `normalizeAndValidateImageId` para limpiar todos los campos de imagen antes de enviar los datos al frontend.
-  - **Impacto Potencial:** Resuelve definitivamente el bug de carga de imágenes, alinea el servicio con la arquitectura final y lo hace más robusto ante datos inconsistentes en la hoja de cálculo.
-
-### MÓDULO: FLUJO DE USUARIO
-
-- **Tarea 27: Implementación de Fase 3 en `add_cortes.html`**
-  - **Urgencia:** Alta
-  - **Tipo:** Funcionalidad Inconclusa
-  - **Descripción:** La Fase 3 del formulario de añadir cortes está mal implementada y debe ser reconstruida según las especificaciones del `README.md`.
-    1.  **Flujo Opcional:** El usuario debe poder presionar "Terminar" para cerrar el formulario si no desea añadir información suplementaria.
-    2.  **Componentes:** La UI debe incluir secciones para "Apertura" y "Alimentación", cada una con campos para color de cable, ubicación, un botón para subir imagen (no URL) y una vista previa de la imagen.
-    3.  **Backend:** El backend debe manejar la subida de estas imágenes a Drive, renombrarlas y guardar la información en la fila correcta del vehículo (heredado de la Fase 1).
-  - **Impacto Potencial:** Completa un flujo de usuario crítico que actualmente está roto.

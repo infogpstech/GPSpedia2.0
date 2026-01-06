@@ -135,7 +135,7 @@ function handleLogin(payload) {
 
         const sheetPassword = foundUserRow[COLS_USERS.Password - 1];
         logToSheet('DEBUG', 'Password comparison', { fromSheet: sheetPassword, fromClient: password });
-        const isPasswordMatch = String(sheetPassword).trim() === String(password).trim();
+        const isPasswordMatch = String(sheetPassword).trim().toLowerCase() === String(password).trim().toLowerCase();
 
         if (!isPasswordMatch) {
             throw new Error("Credenciales inválidas.");

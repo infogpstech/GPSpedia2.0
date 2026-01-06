@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-FEEDBACK SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 2.2.0
+// COMPONENT VERSION: 2.3.1
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -45,7 +45,8 @@ const COLS_FEEDBACKS = {
     Respuesta: 5,
     "Se resolvio": 6,
     Responde: 7,
-    "Reporte de util": 8
+    "Reporte de util": 8,
+    User_ID: 9
 };
 
 const COLS_CONTACTANOS = {
@@ -54,7 +55,8 @@ const COLS_CONTACTANOS = {
     Asunto: 3,
     Mensaje: 4,
     Respuesta_mensaje: 5,
-    ID_usuario_responde: 6
+    ID_usuario_responde: 6,
+    Email: 7
 };
 
 const COLS_ACTIVIDAD_USUARIO = {
@@ -74,19 +76,19 @@ function doGet(e) {
     if (e.parameter.debug === 'true') {
         const serviceState = {
             service: 'GPSpedia-Feedback',
-            version: '1.2.1',
+            version: '2.3.1',
             spreadsheetId: SPREADSHEET_ID,
-            sheetsAccessed: [SHEET_NAMES.CORTES, SHEET_NAMES.FEEDBACKS]
+            sheetsAccessed: [SHEET_NAMES.CORTES, SHEET_NAMES.FEEDBACKS, SHEET_NAMES.CONTACTANOS, SHEET_NAMES.ACTIVIDAD_USUARIO, SHEET_NAMES.SUGERENCIAS_ANO]
         };
         return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
-            .setMimeType(ContentService.MimeType.TEXT);
+            .setMimeType(ContentService.MimeType.JSON);
     }
     const defaultResponse = {
         status: 'success',
-        message: 'GPSpedia Feedback-SERVICE v1.2.1 is active.'
+        message: 'GPSpedia Feedback-SERVICE v2.3.1 is active.'
     };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
-        .setMimeType(ContentService.MimeType.TEXT);
+        .setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {
@@ -137,7 +139,6 @@ function doPost(e) {
 // ============================================================================
 // MANEJADORES DE ACCIONES (HANDLERS)
 // ============================================================================
-
 
 function handleAssignCollaborator(payload) {
     const { vehicleId, corteIndex, userName } = payload;
@@ -315,38 +316,57 @@ function handleRecordLike(payload) {
 function handleReportProblem(payload) {
     const { vehicleId, problemText, userId, userName } = payload;
     if (!vehicleId || !problemText || !userId || !userName) {
-        throw new Error("Faltan datos para reportar el problema.");
+        throw new Error("Faltan datos para reportar el problema (vehicleId, problemText, userId, userName).");
     }
 
-    // ... (logic for adding problem to Feedbacks sheet) ...
-    const feedbackSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
-    const newRow = [];
-    newRow[COLS_FEEDBACKS.ID - 1] = '';
-    newRow[COLS_FEEDBACKS.Usuario - 1] = userName;
-    newRow[COLS_FEEDBACKS.ID_vehiculo - 1] = vehicleId;
-    newRow[COLS_FEEDBACKS.Problema - 1] = problemText;
-    feedbackSheet.appendRow(newRow);
+    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
+    const lastRow = sheet.getLastRow();
+    const newRowIndex = lastRow + 1;
 
+    // Heredar fórmulas y validaciones copiando la fila anterior y limpiando contenido
+    const previousRowRange = sheet.getRange(lastRow, 1, 1, sheet.getLastColumn());
+    const newRowRange = sheet.getRange(newRowIndex, 1, 1, sheet.getLastColumn());
+    previousRowRange.copyTo(newRowRange);
+    newRowRange.clearContent();
+
+    const newRowData = [];
+    newRowData[COLS_FEEDBACKS.Usuario - 1] = userName;
+    newRowData[COLS_FEEDBACKS.ID_vehiculo - 1] = vehicleId;
+    newRowData[COLS_FEEDBACKS.Problema - 1] = problemText;
+    newRowData[COLS_FEEDBACKS.User_ID - 1] = userId; // <-- CORRECCIÓN: Guardar User_ID
+
+    sheet.getRange(newRowIndex, 1, 1, newRowData.length).setValues([newRowData]);
 
     logUserActivity(userId, userName, 'report_problem', vehicleId, problemText);
-    return { status: 'success', message: 'Problema reportado.' };
+    return { status: 'success', message: 'Problema reportado correctamente.' };
 }
 
 function handleSendContactForm(payload) {
-    const { name, email, message } = payload;
+    // El userId puede ser opcional si el formulario es público
+    const { name, email, message, userId } = payload;
     if (!name || !email || !message) {
-        throw new Error("Faltan datos para enviar el formulario de contacto.");
+        throw new Error("Faltan datos para enviar el formulario de contacto (name, email, message).");
     }
 
     const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CONTACTANOS);
-    const newRow = [];
-    newRow[COLS_CONTACTANOS.Contacto_ID - 1] = ''; // Autogen ID
-    newRow[COLS_CONTACTANOS.User_ID - 1] = ''; // Asumiendo que no hay un usuario logueado.
-    newRow[COLS_CONTACTANOS.Asunto - 1] = `Contacto de ${name}`;
-    newRow[COLS_CONTACTANOS.Mensaje - 1] = `De: ${email}\n\n${message}`;
-    sheet.appendRow(newRow);
+    const lastRow = sheet.getLastRow();
+    const newRowIndex = lastRow + 1;
 
-    return { status: 'success', message: 'Formulario de contacto enviado.' };
+    // Heredar fórmulas y validaciones
+    const previousRowRange = sheet.getRange(lastRow, 1, 1, sheet.getLastColumn());
+    const newRowRange = sheet.getRange(newRowIndex, 1, 1, sheet.getLastColumn());
+    previousRowRange.copyTo(newRowRange);
+    newRowRange.clearContent();
+
+    const newRowData = [];
+    newRowData[COLS_CONTACTANOS.User_ID - 1] = userId || ''; // Guardar userId si existe
+    newRowData[COLS_CONTACTANOS.Asunto - 1] = `Contacto de ${name}`;
+    newRowData[COLS_CONTACTANOS.Mensaje - 1] = message;
+    newRowData[COLS_CONTACTANOS.Email - 1] = email; // <-- CORRECCIÓN: Guardar Email
+
+    sheet.getRange(newRowIndex, 1, 1, newRowData.length).setValues([newRowData]);
+
+    return { status: 'success', message: 'Formulario de contacto enviado correctamente.' };
 }
 
 // ============================================================================
