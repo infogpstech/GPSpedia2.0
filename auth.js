@@ -37,6 +37,7 @@ async function handleLoginSuccess(user) {
 
         showApp(user);
     } catch (error) {
+        console.error("Error detallado al cargar datos:", error); // Log para depuración
         showGlobalError("Error al cargar los datos de la aplicación. Por favor, intente de nuevo.");
         showLoginScreen(); // Revert to login screen on data load failure
     }

@@ -5,7 +5,7 @@ TAREAS CRÍTICAS (AÑADIDO 2026-01-05)
 ### MÓDULO: ARRANQUE DE APLICACIÓN (FULL-STACK)
 
 - **Tarea 30: Corregir Error Crítico de Arranque por Falta de Validación de Datos**
-  - **Estado:** PENDIENTE DE REPARACIÓN
+  - **Estado:** COMPLETADA
   - **Urgencia:** Crítica
   - **Tipo:** Bug Crítico (Bloqueante)
   - **Descripción:** La aplicación no puede iniciarse y muestra un error genérico ("Error al cargar los datos...") sin detalles en la consola del navegador.

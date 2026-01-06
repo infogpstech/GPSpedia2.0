@@ -1,3 +1,19 @@
+**V6.1.0 - (CRITICAL FIX) - 05/01/2026**
+**A. FIX CRÍTICO DE ARRANQUE (FULL-STACK):** Se solucionó el error crítico que impedía la inicialización de la aplicación, cumpliendo con la TAREA 30.
+
+**B. Causa Raíz:**
+    1.  **Backend (`services/catalog/catalog.js`):** La función `handleGetDropdownData` no verificaba si una regla de validación de datos existía antes de intentar usarla, causando un `TypeError` fatal si la regla faltaba en la hoja de cálculo.
+    2.  **Frontend (`auth.js`):** El manejador de errores en `handleLoginSuccess` capturaba el error controlado del backend pero no lo registraba en la consola del navegador, mostrando solo un mensaje genérico y ocultando la causa raíz.
+
+**C. Cambios Implementados:**
+    1.  **`services/catalog/catalog.js` (Línea 365):** Se añadió una verificación de nulidad (`null check`) para asegurar que el código no falle si la regla de validación de datos no existe, devolviendo un array vacío como fallback seguro.
+    2.  **`auth.js` (Línea 38):** Se añadió `console.error(error)` al bloque `catch` para asegurar que cualquier error futuro durante la carga de datos sea visible en la consola del navegador, facilitando la depuración.
+
+**D. Impacto:**
+    - Se restaura la capacidad de la aplicación para arrancar correctamente, incluso si la configuración de la hoja de cálculo es imperfecta.
+    - Se mejora la robustez del backend ante datos de configuración inesperados.
+    - Se mejora la capacidad de depuración del frontend al hacer visibles los errores controlados del backend.
+
 **V5.8.0 - (CRITICAL FIX) - 05/01/2026**
 **A. FIX CRÍTICO DE CORS Y ESTABILIDAD EN `feedback-service`:** Se solucionó un bug crítico que impedía el funcionamiento de toda la funcionalidad de feedback y contacto (ej. Inbox, reportar problema) debido a un error de CORS, y se resolvió una inestabilidad severa causada por código duplicado.
 
