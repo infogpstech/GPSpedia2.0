@@ -2,6 +2,18 @@
 TAREAS CRÍTICAS (AÑADIDO 2026-01-05)
 ---------------------------------
 
+### MÓDULO: ARRANQUE DE APLICACIÓN (FULL-STACK)
+
+- **Tarea 30: Corregir Error Crítico de Arranque por Falta de Validación de Datos**
+  - **Estado:** PENDIENTE DE REPARACIÓN
+  - **Urgencia:** Crítica
+  - **Tipo:** Bug Crítico (Bloqueante)
+  - **Descripción:** La aplicación no puede iniciarse y muestra un error genérico ("Error al cargar los datos...") sin detalles en la consola del navegador.
+  - **Causa Raíz (Auditada):**
+    1.  **Backend (`services/catalog/catalog.js`):** La función `handleGetDropdownData` asume que siempre existe una regla de validación de datos en la celda de "Categoría". Si esta regla se elimina de la hoja de cálculo, la función `getDataValidation()` devuelve `null`, causando un `TypeError` no controlado cuando se intenta acceder a sus métodos.
+    2.  **Frontend (`auth.js`):** El error del backend es capturado y enviado al frontend como una respuesta `{status: 'error'}`. Sin embargo, el código del frontend en el `catch` block solo muestra el mensaje genérico al usuario y no registra los detalles del error en la consola, ocultando la causa raíz del problema.
+  - **Impacto Potencial:** Bloqueo total del acceso a la aplicación para todos los usuarios, ya que la carga de datos inicial no puede completarse.
+
 ### MÓDULO: INFRAESTRUCTURA BACKEND (CACHE)
 
 - **Tarea 29: Corregir Abuso de CacheService y Prevenir Fallos Críticos**
@@ -42,7 +54,7 @@ NUEVOS HALLAZGOS DE AUDITORÍA (services/catalog/catalog.js)
 1.  **Función `handleGetCatalogData` Monolítica:**
     *   **Observación:** Esta función es responsable de obtener, procesar y mapear los datos de cuatro hojas de cálculo diferentes (`Cortes`, `LogosMarca`, `Tutorial`, `Relay`).
     *   **Deuda:** Su gran tamaño y múltiples responsabilidades la hacen difícil de leer y mantener.
-    *   **Recomendación (Tarea Futura):** Refactorizar esta función dividiéndola en sub-funciones más pequeñas y enfocadas (ej. `fetchCortesData`, `fetchLogosData`, etc.) para mejorar la claridad.
+    -   **Recomendación (Tarea Futura):** Refactorizar esta función dividiéndola en sub-funciones más pequeñas y enfocadas (ej. `fetchCortesData`, `fetchLogosData`, etc.) para mejorar la claridad.
 
 2.  **Lógica Compleja de Ordenamiento de Cortes:**
     *   **Observación:** La lógica para reordenar los cortes de un vehículo según su popularidad (`utilCorteX`) dentro de `handleGetCatalogData` es funcional pero compleja de seguir. Implica crear un objeto temporal, ordenar un array de índices y luego reconstruir el objeto del vehículo.
@@ -323,7 +335,7 @@ NUEVAS TAREAS CRÍTICAS (AÑADIDO 2026-01-04)
   - **Descripción:** Durante la auditoría final, se detectó que `services/catalog/catalog.js` todavía contiene lógica para transformar URLs de Google Drive (`convertirAGoogleThumbnail`). Esto viola la arquitectura final, que estipula que solo el `image-service` debe manejar interacciones con Drive y que el `catalog-service` solo debe pasar `fileId`s crudos. Esta transformación incorrecta es la causa raíz de los fallos de carga de imágenes.
   - **Requerimiento Técnico:**
     1.  **Eliminar `convertirAGoogleThumbnail` de `catalog.js`:** El servicio debe dejar de transformar los IDs.
-    2.  **Implementar Normalización en `catalog.js`:** Añadir una nueva función `normalizeAndValidateImageId` que reciba el valor de la celda de imagen. Esta función debe ser capaz de manejar tanto un `fileId` limpio como una URL completa de Drive, extrayendo el ID en el segundo caso. Si el dato es inválido, debe devolver `null`.
+    2.  **Implementar Normalización en `catalog.js`:** Añadir una nueva función `normalizeAndValidateImageId` que reciba el valor de la celda de imagen. Esta función debe ser capaz de manejar tanto un `fileId` limpio como una URL completa de Drive, extrayyéndolo en el segundo caso. Si el dato es inválido, debe devolver `null`.
     3.  **Aplicar Normalización:** La función `mapRowToObject` debe usar `normalizeAndValidateImageId` para limpiar todos los campos de imagen antes de enviar los datos al frontend.
   - **Impacto Potencial:** Resuelve definitivamente el bug de carga de imágenes, alinea el servicio con la arquitectura final y lo hace más robusto ante datos inconsistentes en la hoja de cálculo.
 

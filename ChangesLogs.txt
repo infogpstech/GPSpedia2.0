@@ -1,41 +1,3 @@
-**V6.0.0 - (FIX) - 05/01/2026**
-**A. CORRECCIÓN DE VISIBILIDAD DE LA CONSOLA DE DEPURACIÓN:** Se solucionó un bug en la UI que provocaba que la consola de depuración para desarrolladores se mostrara por defecto al cargar la página.
-
-**B. Causa Raíz:**
-    - El elemento `div` de la consola de depuración en `index.html` tenía dos propiedades `display` conflictivas en su atributo `style` en línea (`display: none;` y `display: flex;`). El navegador aplicaba la última, forzando la visibilidad del elemento.
-
-**C. Cambios Implementados:**
-    1.  **`index.html`:** Se eliminó la propiedad `display: flex;` duplicada del estilo en línea del `div#debug-console`, asegurando que el `display: none;` inicial sea el que se aplique por defecto.
-
-**D. Archivo y Líneas Modificadas:**
-    - `index.html`: Línea 18.
-
-**E. Impacto:**
-    - La consola de depuración ahora está correctamente oculta por defecto al cargar la aplicación, como se esperaba.
-    - Se mejora la experiencia de usuario al no mostrar herramientas de desarrollo innecesarias.
-
-**V5.9.0 (FIX REVISADO) - 05/01/2026**
-**A. ALINEACIÓN DE ESQUEMA FRONTEND-BACKEND (users.html):** Se corrigió de forma integral la inconsistencia en el acceso y manejo de propiedades del objeto de usuario en la página de gestión de usuarios, cumpliendo con la TAREA 7.
-
-**B. Causa Raíz:**
-    1.  **`PascalCase` vs `camelCase`:** El JavaScript de `users.html` intentaba acceder a propiedades del objeto de usuario usando `camelCase` (ej. `user.id`), mientras que el backend devuelve propiedades en `PascalCase_With_Underscores` (ej. `user.ID`).
-    2.  **Mapeo Incorrecto de Nombre Completo:** Una corrección inicial mapeó erróneamente `Nombre_Usuario` al campo "Nombre Completo" en la UI, causando la visualización incorrecta de datos y la pérdida del `Nombre_Completo` durante la creación o actualización de usuarios.
-
-**C. Cambios Implementados:**
-    1.  **Corrección de `PascalCase`:** Se refactorizó todo el JavaScript en `users.html` para utilizar consistentemente los nombres de propiedad correctos (`ID`, `Nombre_Usuario`, `Privilegios`, `Nombre_Completo`) al leer del objeto `user`.
-    2.  **Corrección de Mapeo de `Nombre_Completo`:**
-        - Se corrigió la lógica en `displayProfile`, `renderUserTable` y `openUserModal` para usar la propiedad `Nombre_Completo` en todos los campos de "Nombre Completo".
-        - Se ajustó `handleUserFormSubmit` para enviar el campo `Nombre_Completo` al backend durante las operaciones de creación y actualización, evitando la pérdida de datos.
-
-**D. Archivo y Líneas Modificadas:**
-    - `users.html`: Líneas 241, 274, 317, 346.
-
-**E. Impacto:**
-    - Se restaura completamente la funcionalidad de la página de gestión de usuarios (`users.html`).
-    - Los datos de los usuarios, incluyendo el nombre completo, ahora se muestran correctamente.
-    - Se previene la pérdida de datos al crear o actualizar usuarios.
-    - Se eliminan los errores de JavaScript relacionados con el desajuste de propiedades.
-
 **V5.8.0 - (CRITICAL FIX) - 05/01/2026**
 **A. FIX CRÍTICO DE CORS Y ESTABILIDAD EN `feedback-service`:** Se solucionó un bug crítico que impedía el funcionamiento de toda la funcionalidad de feedback y contacto (ej. Inbox, reportar problema) debido a un error de CORS, y se resolvió una inestabilidad severa causada por código duplicado.
 
@@ -105,7 +67,7 @@
     -   : Línea 112.
 
 **C. Impacto:**
-    -   La arquitectura de imágenes es ahora robusta, seguro y funcional en todo el stack.
+    -   La arquitectura de imágenes es ahora robusta, segura y funcional en todo el stack.
     -   Se garantiza la carga fiable de todas las imágenes de Google Drive a través del proxy.
     -   El sistema de caché del  es ahora seguro y no causará fallos inesperados.
 
