@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-USERS SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 2.2.1
+// COMPONENT VERSION: 2.3.0
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -30,6 +30,42 @@ const COLS_USERS = {
     Correo_Electronico: 6,
     SessionToken: 7
 };
+
+// ============================================================================
+// HELPERS DE AUTORIZACIÓN
+// ============================================================================
+
+function getRoleFromSession(sessionToken) {
+    if (!sessionToken) {
+        throw new Error("Se requiere un token de sesión para la autorización.");
+    }
+
+    const ss = getSpreadsheet();
+    const activeSessionsSheet = ss.getSheetByName("ActiveSessions");
+    const usersSheet = ss.getSheetByName(SHEET_NAMES.USERS);
+
+    if (!activeSessionsSheet || !usersSheet) {
+        throw new Error("No se encontraron las hojas de sesión o de usuarios.");
+    }
+
+    const sessionsData = activeSessionsSheet.getDataRange().getValues();
+    const session = sessionsData.find(row => row[2] === sessionToken);
+
+    if (!session) {
+        throw new Error("Sesión inválida o expirada.");
+    }
+
+    const userId = session[0];
+    const usersData = usersSheet.getDataRange().getValues();
+    const user = usersData.find(row => row[COLS_USERS.ID - 1] == userId);
+
+    if (!user) {
+        throw new Error("No se encontró el usuario asociado a la sesión.");
+    }
+
+    return user[COLS_USERS.Privilegios - 1];
+}
+
 
 // ============================================================================
 // ROUTER PRINCIPAL (doGet y doPost)
@@ -93,8 +129,9 @@ function doPost(e) {
             }
         };
     }
+    // FIX TAREA 12 (Observado durante auditoría): Usar MimeType.TEXT para compatibilidad con CORS
     return ContentService.createTextOutput(JSON.stringify(response))
-        .setMimeType(ContentService.MimeType.JSON);
+        .setMimeType(ContentService.MimeType.TEXT);
 }
 
 // ============================================================================
@@ -133,9 +170,10 @@ function handleGetUsers(payload) {
 }
 
 function handleCreateUser(payload) {
-    const { newUser, creatorRole } = payload;
-    if (!newUser || !creatorRole) throw new Error("Datos insuficientes para crear el usuario.");
+    const { newUser, sessionToken } = payload;
+    if (!newUser || !sessionToken) throw new Error("Datos insuficientes para crear el usuario. Se requiere sessionToken.");
 
+    const creatorRole = getRoleFromSession(sessionToken); // <-- REFACTOR DE SEGURIDAD
     const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
 
     const allowedRoles = {
@@ -143,8 +181,8 @@ function handleCreateUser(payload) {
         'Gefe': ['Gefe', 'Supervisor', 'Tecnico'],
         'Supervisor': ['Tecnico']
     };
-    if (!allowedRoles[creatorRole] || !allowedRoles[creatorRole].includes(newUser.privilegios)) {
-        throw new Error(`El rol '${creatorRole}' no tiene permisos para crear usuarios de tipo '${newUser.privilegios}'.`);
+    if (!allowedRoles[creatorRole] || !allowedRoles[creatorRole].includes(newUser.Privilegios)) {
+        throw new Error(`El rol '${creatorRole}' no tiene permisos para crear usuarios de tipo '${newUser.Privilegios}'.`);
     }
 
     if (!newUser.Nombre_Usuario) {
@@ -171,9 +209,10 @@ function handleCreateUser(payload) {
 }
 
 function handleUpdateUser(payload) {
-    const { userId, updates, updaterRole } = payload;
-    if (!userId || !updates || !updaterRole) throw new Error("Datos insuficientes para actualizar.");
+    const { userId, updates, sessionToken } = payload;
+    if (!userId || !updates || !sessionToken) throw new Error("Datos insuficientes para actualizar. Se requiere sessionToken.");
 
+    const updaterRole = getRoleFromSession(sessionToken); // <-- REFACTOR DE SEGURIDAD
     const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
     const data = userSheet.getDataRange().getValues();
     data.shift();
@@ -207,9 +246,10 @@ function handleUpdateUser(payload) {
 }
 
 function handleDeleteUser(payload) {
-    const { userId, deleterRole } = payload;
-    if (!userId || !deleterRole) throw new Error("Datos insuficientes para eliminar.");
+    const { userId, sessionToken } = payload;
+    if (!userId || !sessionToken) throw new Error("Datos insuficientes para eliminar. Se requiere sessionToken.");
 
+    const deleterRole = getRoleFromSession(sessionToken); // <-- REFACTOR DE SEGURIDAD
     const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
     const lastRow = userSheet.getLastRow();
     if (lastRow < 2) return { status: 'success', message: 'No hay usuarios para eliminar.' }; // Hoja vacía

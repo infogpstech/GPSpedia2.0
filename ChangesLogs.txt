@@ -1,3 +1,15 @@
+**v4.6.6 (04/01/2026)**
+*   **SECURITY (services/users/users.js):** Se solucionó una vulnerabilidad crítica de escalamiento de privilegios en el servicio de gestión de usuarios (**Tarea 14**).
+    *   **Causa Raíz:** Las funciones `handleCreateUser`, `handleUpdateUser`, y `handleDeleteUser` confiaban en un parámetro de rol (`creatorRole`, `updaterRole`, `deleterRole`) enviado desde el cliente para realizar las validaciones de permisos.
+    *   **Solución:** Se refactorizó por completo la lógica de autorización.
+        1.  Se creó una nueva función `getRoleFromSession(sessionToken)` que valida el token de sesión en el backend contra la hoja `ActiveSessions` y obtiene el rol real del usuario desde la hoja `Users`.
+        2.  Las funciones CRUD ahora requieren un `sessionToken` en el payload.
+        3.  Toda la lógica de permisos ahora se basa en el rol verificado en el servidor, ignorando cualquier dato enviado por el cliente y eliminando la vulnerabilidad.
+    *   **Archivos Modificados:** `services/users/users.js`: Líneas 35-71 (nueva función), 171-184 (`handleCreateUser`), 210-214 (`handleUpdateUser`), 247-251 (`handleDeleteUser`).
+*   **FIX (services/users/users.js):** Se corrigió el `MimeType` de la respuesta del `doPost` a `TEXT` para asegurar la compatibilidad con CORS, previniendo futuros errores de `Failed to fetch`.
+    *   **Archivos Modificados:** `services/users/users.js`: Línea 131.
+*   **CHORE (versioning):** Se actualizó la versión del componente `services/users/users.js` a `2.3.0`.
+
 **v4.6.5 (31-12-2025)**
 *   **FIX CRÍTICO (services/feedback/feedback.js):** Se solucionaron tres bugs de integridad de datos en los formularios de feedback y contacto, correspondientes a la **Tarea 21**.
     *   **Causa Raíz:**

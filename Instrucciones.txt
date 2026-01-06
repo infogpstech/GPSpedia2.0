@@ -82,8 +82,10 @@ MÓDULO: FRONTEND
 - **Tarea 7: Corregir Mapeo de Datos de Usuario**
   - **Urgencia:** Crítica
   - **Tipo:** Bug
-  - **Descripción:** Modificar el JavaScript de `users.html` para que acceda a las propiedades del objeto de usuario utilizando los nombres correctos devueltos por el backend (`PascalCase_With_Underscores`, ej. `user.Nombre_Usuario`), en lugar de `camelCase`.
-  - **Impacto Potencial:** Soluciona el bug crítico que impide mostrar los datos de los usuarios en la tabla de gestión y en los modales de edición.
+  - **Descripción:** Verificar que el frontend accede a las propiedades del objeto de usuario utilizando los nombres correctos devueltos por el backend (`PascalCase_With_Underscores`).
+  - **Estado:** [NO APLICA / YA RESUELTA]
+  - **Resultado de Auditoría:** Se realizó una auditoría línea por línea del archivo `users.html`. El código ya utiliza correctamente propiedades como `Nombre_Usuario`, `Privilegios`, etc. El bug descrito originalmente no está presente en la versión actual del archivo.
+  - **Acción:** No se requieren cambios.
 
 ---------------------------------
 MÓDULO: BACKEND (MICROSERVICIOS)
@@ -150,6 +152,7 @@ MÓDULO: BACKEND (MICROSERVICIOS)
   - **Tipo:** Riesgo de Seguridad
   - **Descripción:** Refactorizar TODAS las funciones de CRUD (`handleCreateUser`, `handleUpdateUser`, `handleDeleteUser`) para que la validación de permisos se base en una sesión verificada del *solicitante* en el backend, no en un parámetro (`creatorRole`, `updaterRole`) enviado desde el cliente. Se debe requerir un `sessionToken` en el payload y validarlo antes de proceder.
   - **Impacto Potencial:** Cierra una vulnerabilidad crítica que permite la escalada de privilegios.
+  - **Estado:** [EN REVISIÓN]
 
 - **Tarea 15: Corregir Inconsistencia en Cambio de Contraseña**
   - **Urgencia:** Media

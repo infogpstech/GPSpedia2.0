@@ -238,9 +238,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function displayProfile() {
-    // FIX: Corrected to display Nombre_Usuario in both fields as there's no separate fullname field in the session object
+    const userProfile = allUsers.find(u => u.ID === currentUser.ID);
     document.getElementById('profile-username').textContent = currentUser.Nombre_Usuario;
-    document.getElementById('profile-fullname').textContent = currentUser.Nombre_Usuario;
+    document.getElementById('profile-fullname').textContent = userProfile ? userProfile.Nombre_Usuario : currentUser.Nombre_Usuario;
     document.getElementById('profile-role').textContent = currentUser.Privilegios;
 }
 
