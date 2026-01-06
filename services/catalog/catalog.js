@@ -98,6 +98,9 @@ function doPost(e) {
       case 'getCatalogData':
         result = handleGetCatalogData();
         break;
+      case 'search':
+        result = handleSearch(payload);
+        break;
       case 'getDropdownData':
         result = handleGetDropdownData();
         break;
@@ -131,129 +134,140 @@ function doPost(e) {
 // ============================================================================
 // MANEJADORES DE ACCIONES (HANDLERS)
 // ============================================================================
+
 /**
- * Convierte una fila de hoja de cálculo (array) en un objeto utilizando un mapa de columnas.
- * @param {Array} row - La fila de datos.
- * @param {object} colMap - El objeto que mapea nombres de clave a índices de columna (basado en 1).
- * @returns {object|null} - El objeto mapeado o null si la fila está vacía.
+ * Función central para obtener y procesar todos los vehículos de la hoja "Cortes".
+ * Realiza la conversión a un formato de objeto estructurado y ordena los cortes internamente.
+ * @returns {Array} Un array de objetos de vehículo, cada uno con sus cortes ordenados.
  */
-function mapRowToObject(row, colMap) {
-  if (!row || row.length === 0) {
-    return null;
-  }
-  const obj = {};
-  for (const key in colMap) {
-    const colIndex = colMap[key] - 1;
-    // Asegurarse de que el valor no es undefined; de lo contrario, asignar null.
-    obj[key] = row[colIndex] !== undefined && row[colIndex] !== '' ? row[colIndex] : null;
-  }
-  return obj;
-}
-
-function handleGetCatalogData() {
-    const allData = {};
-
-    // Fetch Cortes
+function _getAllVehicles() {
     const cortesSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
-    let cortesData = [];
-    const categoryCounts = {};
+    if (!cortesSheet) {
+        return [];
+    }
+    const data = cortesSheet.getDataRange().getValues();
+    data.shift(); // Eliminar encabezados
 
-    if (cortesSheet) {
-        const data = cortesSheet.getDataRange().getValues();
-        data.shift();
-        cortesData = data
-          .filter(row => row && row[0])
-          .map(row => {
-            const vehicle = mapRowToObject(row, COLS_CORTES);
-            if (!vehicle) return null;
+    const allVehicles = data.filter(row => row && row[0]).map(row => {
+        const vehicle = mapRowToObject(row, COLS_CORTES);
+        if (!vehicle) return null;
 
-            // Contar vehículos por categoría
-            if (vehicle.categoria) {
-                categoryCounts[vehicle.categoria] = (categoryCounts[vehicle.categoria] || 0) + 1;
-            }
-
-            // Convertir todas las URLs de imágenes a thumbnails
-            vehicle.imagenVehiculo = convertirAGoogleThumbnail(vehicle.imagenVehiculo);
-            vehicle.imgCorte1 = convertirAGoogleThumbnail(vehicle.imgCorte1);
-            vehicle.imgCorte2 = convertirAGoogleThumbnail(vehicle.imgCorte2);
-            vehicle.imgCorte3 = convertirAGoogleThumbnail(vehicle.imgCorte3);
-            vehicle.imgApertura = convertirAGoogleThumbnail(vehicle.imgApertura);
-            vehicle.imgCableAlimen = convertirAGoogleThumbnail(vehicle.imgCableAlimen);
-
-            const cortes = [
-                { index: 1, util: parseInt(vehicle.utilCorte1, 10) || 0 },
-                { index: 2, util: parseInt(vehicle.utilCorte2, 10) || 0 },
-                { index: 3, util: parseInt(vehicle.utilCorte3, 10) || 0 }
-            ].sort((a, b) => b.util - a.util);
-
-            const orderedVehicle = { ...vehicle };
-            const tempCortes = {};
-
-            for (let i = 1; i <= 3; i++) {
-                tempCortes[i] = {
+        // Estructurar los cortes en un array anidado
+        const cortes = [];
+        for (let i = 1; i <= 3; i++) {
+            if (vehicle[`tipoCorte${i}`]) {
+                cortes.push({
+                    id: `${vehicle.id}-corte${i}`,
                     tipo: vehicle[`tipoCorte${i}`],
                     ubicacion: vehicle[`ubicacionCorte${i}`],
-                    color: vehicle[`colorCableCorte${i}`],
-                    config: vehicle[`configRelay${i}`],
-                    img: vehicle[`imgCorte${i}`],
-                    util: vehicle[`utilCorte${i}`],
+                    colorCable: vehicle[`colorCableCorte${i}`],
+                    configRelay: vehicle[`configRelay${i}`],
+                    imagen: convertirAGoogleThumbnail(vehicle[`imgCorte${i}`]),
+                    util: parseInt(vehicle[`utilCorte${i}`], 10) || 0,
                     colaborador: vehicle[`colaboradorCorte${i}`]
-                };
+                });
             }
+        }
 
-            cortes.forEach((corte, i) => {
-                const newIndex = i + 1;
-                const oldIndex = corte.index;
-                orderedVehicle[`tipoCorte${newIndex}`] = tempCortes[oldIndex].tipo;
-                orderedVehicle[`ubicacionCorte${newIndex}`] = tempCortes[oldIndex].ubicacion;
-                orderedVehicle[`colorCableCorte${newIndex}`] = tempCortes[oldIndex].color;
-                orderedVehicle[`configRelay${newIndex}`] = tempCortes[oldIndex].config;
-                orderedVehicle[`imgCorte${newIndex}`] = tempCortes[oldIndex].img;
-                orderedVehicle[`utilCorte${newIndex}`] = tempCortes[oldIndex].util;
-                orderedVehicle[`colaboradorCorte${newIndex}`] = tempCortes[oldIndex].colaborador;
-            });
+        // Ordenar el array de cortes por popularidad (campo 'util')
+        cortes.sort((a, b) => b.util - a.util);
 
-            return orderedVehicle;
-        }).filter(Boolean);
+        // Limpiar el objeto principal y añadir el array ordenado
+        const cleanVehicle = {
+            id: vehicle.id,
+            categoria: vehicle.categoria,
+            marca: vehicle.marca,
+            modelo: vehicle.modelo,
+            versionesAplicables: vehicle.versionesAplicables,
+            anoDesde: vehicle.anoDesde,
+            anoHasta: vehicle.anoHasta,
+            tipoEncendido: vehicle.tipoEncendido,
+            imagenPrincipal: convertirAGoogleThumbnail(vehicle.imagenVehiculo),
+            videoGuia: vehicle.videoGuiaDesarmeUrl,
+            timestamp: vehicle.timestamp,
+            // ... (añadir otros campos principales si es necesario)
+            cortes: cortes // Array de cortes ya ordenado
+        };
+
+        return cleanVehicle;
+    }).filter(Boolean); // Filtrar cualquier nulo que haya resultado del mapeo
+
+    return allVehicles;
+}
+
+
+function handleGetCatalogData() {
+    const allVehicles = _getAllVehicles();
+
+    // Procesar datos adicionales para la carga inicial
+    const categoryCounts = {};
+    const brandSet = { vehiculos: new Set(), motos: new Set() };
+    const logosData = getLogos();
+
+    allVehicles.forEach(vehicle => {
+        if (vehicle.categoria) {
+            categoryCounts[vehicle.categoria] = (categoryCounts[vehicle.categoria] || 0) + 1;
+        }
+        if (vehicle.marca) {
+             const categoryType = vehicle.categoria && vehicle.categoria.toLowerCase().includes('moto') ? 'motos' : 'vehiculos';
+             brandSet[categoryType].add(vehicle.marca);
+        }
+    });
+
+    const sortedCategories = Object.keys(categoryCounts)
+        .sort((a, b) => categoryCounts[b] - categoryCounts[a])
+        .map(name => ({ nombre: name, imagen: 'URL_PLACEHOLDER' })); // Placeholder para imagen
+
+    const getBrandsWithLogos = (type) => {
+        return Array.from(brandSet[type]).sort().map(name => {
+            const logoEntry = logosData.find(logo => logo.nombreMarca === name);
+            return { nombre: name, logoUrl: logoEntry ? logoEntry.urlLogo : null };
+        });
+    };
+
+    // Ordenar vehículos por timestamp para la sección "Últimos Agregados"
+    const latestVehicles = [...allVehicles].sort((a, b) => {
+        const dateA = a.timestamp ? new Date(a.timestamp) : new Date(0);
+        const dateB = b.timestamp ? new Date(b.timestamp) : new Date(0);
+        return dateB - dateA;
+    }).slice(0, 10); // Limitar a los 10 más recientes
+
+
+    const responseData = {
+        latest: latestVehicles,
+        categories: sortedCategories,
+        brands: {
+            vehiculos: getBrandsWithLogos('vehiculos'),
+            motos: getBrandsWithLogos('motos')
+        }
+        // No enviamos 'allVehicles' completos para optimizar la carga inicial
+    };
+
+    return { status: 'success', data: responseData };
+}
+
+function handleSearch(payload) {
+    const { query } = payload;
+    if (!query || query.trim().length < 3) {
+        return { status: 'success', results: [] };
     }
-    allData.cortes = cortesData;
-    allData.categoryCounts = categoryCounts;
 
-    // Crear y añadir la lista de categorías ordenada por popularidad
-    const sortedCategories = Object.keys(categoryCounts).sort((a, b) => categoryCounts[b] - categoryCounts[a]);
-    allData.sortedCategories = sortedCategories;
+    const lowerCaseQuery = query.toLowerCase().trim();
+    const allVehicles = _getAllVehicles();
 
-    // Fetch Logos
-    const logosSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.LOGOS_MARCA);
-    let logosData = [];
-    if (logosSheet) {
-        const data = logosSheet.getDataRange().getValues();
-        data.shift();
-        logosData = data.map(row => mapRowToObject(row, COLS_LOGOS_MARCA));
-    }
-    allData.logos = logosData;
+    const results = allVehicles.filter(item => {
+        const brand = item.marca ? item.marca.toLowerCase() : '';
+        const model = item.modelo ? item.modelo.toLowerCase() : '';
+        const year = `${item.anoDesde}-${item.anoHasta || ''}`;
+        const versiones = item.versionesAplicables ? item.versionesAplicables.toLowerCase() : '';
 
-    // Fetch Tutoriales
-    const tutorialesSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.TUTORIALES);
-    let tutorialesData = [];
-    if (tutorialesSheet) {
-        const data = tutorialesSheet.getDataRange().getValues();
-        data.shift();
-        tutorialesData = data.map(row => mapRowToObject(row, COLS_TUTORIALES));
-    }
-    allData.tutoriales = tutorialesData;
+        return brand.includes(lowerCaseQuery) ||
+               model.includes(lowerCaseQuery) ||
+               year.includes(lowerCaseQuery) ||
+               versiones.includes(lowerCaseQuery);
+    });
 
-    // Fetch Relay
-    const relaySheet = getSpreadsheet().getSheetByName(SHEET_NAMES.RELAY);
-    let relayData = [];
-    if (relaySheet) {
-        const data = relaySheet.getDataRange().getValues();
-        data.shift();
-        relayData = data.map(row => mapRowToObject(row, COLS_RELAY));
-    }
-    allData.relay = relayData;
-
-    return { status: 'success', data: allData };
+    return { status: 'success', results: results };
 }
 
 function handleGetDropdownData() {

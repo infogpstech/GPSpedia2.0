@@ -1,4 +1,4 @@
-// GPSpedia Frontend Component | Version: 3.9.2
+// GPSpedia Frontend Component | Version: 3.9.1
 // ============================================================================
 // API MANAGER for GPSpedia Modular Architecture
 // ============================================================================
@@ -8,11 +8,11 @@ const API_ENDPOINTS = {
     LEGACY: "https://script.google.com/macros/s/AKfycbwpIFH1nX2BZEjAKbpq9HJpEGNlo_0LqD1CwxWsWFo5J0AJDdbfMrKpcsAV4ZFJzFWd/exec",
 
     // URLs para los nuevos microservicios.
-    AUTH:     "https://script.google.com/macros/s/AKfycbyUR4HicG-jwmoSDe2bKP1Uta0kbRkFG_ZF6Ryj-1hrrZcEFLWKX2v3vuH2AF7wehxH/exec",
-    CATALOG:  "https://script.google.com/macros/s/AKfycbz_Ue5dUU3xz3PqTl2fIloF5G1-y1Du9tP8bzNUSb_MG7bl62jEnvP6gU9pv-LHb9BJrA/exec",
-    WRITE:    "https://script.google.com/macros/s/AKfycbyP3br6EeORY9_dPsxFkfrHlHCf_e56s1mDHLzNFUGLrR7EYpruDJAqh_w54Y7VcM8xrg/exec",
-    USERS:    "https://script.google.com/macros/s/AKfycbzGRC7P18PS6hBPXNezsfTi6Rz2UqgOpVrXeyLjtP10oolf6kFTj_02HqpJDW8T70UP/exec",
-    FEEDBACK: "https://script.google.com/macros/s/AKfycby2PbDJ5oeYvMkR6PYUaPCbLICIy0VkuVejxere8X4fXH3M3w6ntypL-TW2Xng0uodG/exec",
+    AUTH:     "https://script.google.com/macros/s/AKfycbwl6yNrsE0vwmNzvDJcUpnSABqxVGS7XOPurAMfeHQsBGb5TiePKWDThM7_XCIqeK-7/exec", // URL Corregida
+    CATALOG:  "https://script.google.com/macros/s/AKfycbzUdYI2MpBcXvXsNZvfBTbsDmBBzFgsqONemSd6vjwGEP2jls_eIVjXylU-nXgWa7-m7A/exec",
+    WRITE:    "https://script.google.com/macros/s/AKfycbwzJoDsnGCb00m8tpTPCL3FH8IaHcq4Zy9WNbVhSgSQMjoEZY03dqxH6-50kff5WLbK/exec",
+    USERS:    "https://script.google.com/macros/s/AKfycbwi-W0LqFG-LnldnSLIZE4gmHjVqTXlY2mCKHUrewhuahW1Mfpw2x2El9T47IH1TvDk/exec",
+    FEEDBACK: "https://script.google.com/macros/s/AKfycbwm5WBosW3FRbRhN7hPgP0QS2BuwxoRN0m2IZ8GMfpbfLHO5Xy6lmaK9ItHb_8wO-6n/exec",
     UTILITIES: "https://script.google.com/macros/s/AKfycbzkGXk_kSm3rN7K5PM0RntiPAn7DlH78RkH66a2vuwZwU8KgwDufkOiPjXoUKzuHAgG/exec"
 };
 
@@ -42,7 +42,9 @@ const ACTION_TO_SERVICE_MAP = {
     // Feedback Service
     'recordLike': 'FEEDBACK',
     'reportProblem': 'FEEDBACK',
-    'sendContactForm': 'FEEDBACK', // <-- Corregido/Añadido
+    'sendContactForm': 'FEEDBACK',
+    'suggestYear': 'FEEDBACK',
+    'getFeedbackItems': 'FEEDBACK',
 
     // Utilities Service (NUEVO)
     'migrateYearRanges': 'UTILITIES',
