@@ -1,3 +1,23 @@
+**V5.9.0 - (FIX) - 05/01/2026**
+**A. ALINEACIÓN DE ESQUEMA FRONTEND-BACKEND (users.html):** Se corrigió la inconsistencia en el acceso a propiedades del objeto de usuario en la página de gestión de usuarios, cumpliendo con la TAREA 7.
+
+**B. Causa Raíz:**
+    - El JavaScript de `users.html` intentaba acceder a las propiedades del objeto de usuario usando `camelCase` (ej. `user.id`, `user.username`), mientras que los servicios de backend (`auth-service`, `users-service`) devuelven consistentemente las propiedades en `PascalCase_With_Underscores` (ej. `user.ID`, `user.Nombre_Usuario`).
+    - Este desajuste impedía que los datos de los usuarios se renderizaran correctamente en la tabla y en los modales de edición, causando errores de JavaScript por acceso a propiedades indefinidas.
+
+**C. Cambios Implementados:**
+    1.  **`users.html`:** Se refactorizó todo el código JavaScript dentro del archivo para utilizar los nombres de propiedad correctos (`ID`, `Nombre_Usuario`, `Privilegios`) al leer del objeto `user`.
+    2.  **Limpieza de Código:** Se eliminaron comentarios `// FIX:` que habían quedado obsoletos una vez que el código fue correctamente alineado con el esquema del backend.
+
+**D. Archivo y Líneas Modificadas:**
+    - `users.html`: Líneas 242, 273-281, 317-319, 337, 347-349.
+
+**E. Impacto:**
+    - Se restaura completamente la funcionalidad de la página de gestión de usuarios (`users.html`).
+    - La tabla ahora muestra la lista de usuarios y sus roles correctamente.
+    - Los modales para editar usuarios se pueblan con los datos existentes de forma fiable.
+    - Se eliminan los errores de JavaScript en la consola del navegador relacionados con este desajuste de propiedades.
+
 **V5.8.0 - (CRITICAL FIX) - 05/01/2026**
 **A. FIX CRÍTICO DE CORS Y ESTABILIDAD EN `feedback-service`:** Se solucionó un bug crítico que impedía el funcionamiento de toda la funcionalidad de feedback y contacto (ej. Inbox, reportar problema) debido a un error de CORS, y se resolvió una inestabilidad severa causada por código duplicado.
 

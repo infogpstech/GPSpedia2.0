@@ -239,7 +239,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function displayProfile() {
-    // FIX: Corrected to display Nombre_Usuario in both fields as there's no separate fullname field in the session object
     document.getElementById('profile-username').textContent = currentUser.Nombre_Usuario;
     document.getElementById('profile-fullname').textContent = currentUser.Nombre_Usuario;
     document.getElementById('profile-role').textContent = currentUser.Privilegios;
@@ -272,7 +271,6 @@ function renderUserTable() {
     tbody.innerHTML = '';
     allUsers.forEach(user => {
         const row = document.createElement('tr');
-        // FIX: Corrected property access to match backend schema (PascalCase_With_Underscores)
         row.innerHTML = `
             <td>${user.Nombre_Usuario}</td>
             <td>${user.Nombre_Usuario}</td>
@@ -317,9 +315,8 @@ function openUserModal(user = null) {
 
     if (user) {
         title.textContent = 'Editar Usuario';
-        // FIX: Corrected property access to match backend schema
         document.getElementById('user-id').value = user.ID;
-        document.getElementById('fullname').value = user.Nombre_Usuario; // Assuming Nombre_Usuario is the full name
+        document.getElementById('fullname').value = user.Nombre_Usuario;
         document.getElementById('username-modal').value = user.Nombre_Usuario;
     } else {
         title.textContent = 'Crear Nuevo Usuario';
@@ -339,7 +336,6 @@ function openUserModal(user = null) {
         option.textContent = role;
         roleSelect.appendChild(option);
     });
-    // FIX: Corrected property access to match backend schema
     if(user) roleSelect.value = user.Privilegios;
 
     modal.style.display = 'block';
@@ -348,7 +344,6 @@ function openUserModal(user = null) {
 async function handleUserFormSubmit(e) {
     e.preventDefault();
     const userId = document.getElementById('user-id').value;
-    // FIX: Corrected property names to match backend schema
     const userData = {
         Nombre_Usuario: document.getElementById('username-modal').value,
         Privilegios: document.getElementById('role').value,
