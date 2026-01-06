@@ -1,3 +1,8 @@
+**v4.6.7 (05/01/2026)**
+*   **INFRA (api-manager.js):** Se actualizaron las URLs de los microservicios `AUTH`, `CATALOG`, `FEEDBACK`, `USERS` y `WRITE` a las nuevas versiones desplegadas proporcionadas por el usuario.
+    *   **Archivos Modificados:** `api-manager.js`: Líneas 10-14.
+*   **CHORE (versioning):** Se actualizó la versión del componente `api-manager.js` a `3.9.2`.
+
 **v4.6.6 (04/01/2026)**
 *   **SECURITY (services/users/users.js):** Se solucionó una vulnerabilidad crítica de escalamiento de privilegios en el servicio de gestión de usuarios (**Tarea 14**).
     *   **Causa Raíz:** Las funciones `handleCreateUser`, `handleUpdateUser`, y `handleDeleteUser` confiaban en un parámetro de rol (`creatorRole`, `updaterRole`, `deleterRole`) enviado desde el cliente para realizar las validaciones de permisos.
