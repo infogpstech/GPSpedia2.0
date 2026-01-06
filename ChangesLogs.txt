@@ -1,3 +1,19 @@
+**V6.0.0 - (FIX) - 05/01/2026**
+**A. CORRECCIÓN DE VISIBILIDAD DE LA CONSOLA DE DEPURACIÓN:** Se solucionó un bug en la UI que provocaba que la consola de depuración para desarrolladores se mostrara por defecto al cargar la página.
+
+**B. Causa Raíz:**
+    - El elemento `div` de la consola de depuración en `index.html` tenía dos propiedades `display` conflictivas en su atributo `style` en línea (`display: none;` y `display: flex;`). El navegador aplicaba la última, forzando la visibilidad del elemento.
+
+**C. Cambios Implementados:**
+    1.  **`index.html`:** Se eliminó la propiedad `display: flex;` duplicada del estilo en línea del `div#debug-console`, asegurando que el `display: none;` inicial sea el que se aplique por defecto.
+
+**D. Archivo y Líneas Modificadas:**
+    - `index.html`: Línea 18.
+
+**E. Impacto:**
+    - La consola de depuración ahora está correctamente oculta por defecto al cargar la aplicación, como se esperaba.
+    - Se mejora la experiencia de usuario al no mostrar herramientas de desarrollo innecesarias.
+
 **V5.9.0 (FIX REVISADO) - 05/01/2026**
 **A. ALINEACIÓN DE ESQUEMA FRONTEND-BACKEND (users.html):** Se corrigió de forma integral la inconsistencia en el acceso y manejo de propiedades del objeto de usuario en la página de gestión de usuarios, cumpliendo con la TAREA 7.
 

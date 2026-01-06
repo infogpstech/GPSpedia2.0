@@ -147,6 +147,7 @@ MÓDULO: FRONTEND
 ### Archivo: `users.html`
 
 - **Tarea 7: Corregir Mapeo de Datos de Usuario**
+  - **Estado:** COMPLETADA
   - **Urgencia:** Crítica
   - **Tipo:** Bug
   - **Descripción:** Modificar el JavaScript de `users.html` para que acceda a las propiedades del objeto de usuario utilizando los nombres correctos devueltos por el backend (`PascalCase_With_Underscores`, ej. `user.Nombre_Usuario`), en lugar de `camelCase`.
