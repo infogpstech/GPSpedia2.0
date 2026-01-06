@@ -1,0 +1,172 @@
+=====================================================
+DELIVERABLE 1 — ARCHITECTURE TARGET DEFINITION
+=====================================================
+
+This document defines the canonical target architecture for the GPSpedia frontend refactor (Tarea 30). All implementation must adhere strictly to this specification.
+
+### 1. Final Module Structure
+
+The frontend will be reorganized into the following vanilla JavaScript modules:
+
+-   **`main.js` (Entry Point):**
+    -   Orchestrates the application lifecycle.
+    -   Initializes the service worker.
+    -   Calls `auth.checkSession()` to start the application flow.
+    -   Wires up initial, top-level DOM event listeners (e.g., login form submission) to functions in other modules.
+    -   Acts as the lean central coordinator; contains no business logic itself.
+
+-   **`state.js` (State Management):**
+    -   Contains a single, exportable `state` object that holds all application data (e.g., `currentUser`, `catalogData`, `navigationState`).
+    -   Exports simple getter and setter functions (e.g., `setState`, `getState`) to manage state mutations.
+    -   Acts as the single source of truth for the application's data.
+
+-   **`api.js` (API Communication Layer):**
+    -   Replaces `api-manager.js`.
+    -   Manages all `fetch` calls to the backend microservices.
+    -   Contains the map of API endpoints.
+    -   Exports a dedicated function for each backend action (e.g., `login(username, password)`, `getCatalogData()`, `reportProblem(payload)`).
+    -   Handles response parsing and standardizes error handling for all network requests.
+
+-   **`auth.js` (Authentication Logic):**
+    -   Manages the entire user authentication lifecycle.
+    -   Contains `checkSession`, `login`, and `logout` functions.
+    -   Interacts with `api.js` for validation and `state.js` to update the `currentUser`.
+    -   Controls the visibility of login vs. main application containers by calling functions in `ui.js`.
+
+-   **`ui.js` (UI Rendering & DOM Manipulation):**
+    -   Contains all functions that interact with or modify the DOM.
+    -   Exports functions that render components based on data from the `state` object (e.g., `renderCatalogGrid(items)`, `renderDetailModal(item)`).
+    -   These functions will create and return DOM elements directly (e.g., using `document.createElement`), NOT HTML strings.
+    -   Also contains functions for controlling UI visibility, like `showApp()` and `showLoginScreen()`.
+
+-   **`navigation.js` (Navigation & Routing Logic):**
+    -   Manages the application's view state, particularly the catalog navigation flow.
+    -   Contains functions that respond to user navigation actions (e.g., `selectCategory(categoryName)`, `selectBrand(brandName)`).
+    -   Updates the `navigationState` in `state.js` and calls the appropriate rendering functions from `ui.js` to display the correct view.
+
+### 2. Separation of Concerns
+
+-   **Logic that MUST live in the Frontend:**
+    -   Rendering of data exactly as it is received from the backend.
+    -   Capturing user input and events.
+    -   Managing purely visual UI state (e.g., which modal is open, which tab is active).
+    -   Client-side session management (storing and clearing the session token in `localStorage`).
+    -   Constructing API requests based on user actions.
+
+-   **Logic that MUST be moved to Backend Services:**
+    -   **All data filtering, sorting, and searching:** The frontend search bar must trigger a backend search query. The frontend must NOT filter a local copy of the entire catalog.
+    -   **All business rules:** The logic to determine the "Corte Recomendado" (by sorting cuts based on 'likes') must be done in the `catalog-service` before the data is sent.
+    -   **Data Validation and Normalization:** The backend is solely responsible for ensuring data integrity.
+    -   **Image URL Resolution:** The `catalog-service` MUST provide the correct Google Drive `fileId` for every image. The `image-service` resolves this ID into a displayable image.
+
+### 3. Forbidden Frontend Logic
+
+-   **NO** filtering of data arrays (e.g., `datosOriginales.filter(...)`). This must be a backend call.
+-   **NO** sorting of data arrays (e.g., `datosOriginales.sort(...)`). This must be a backend call.
+-   **NO** complex conditional logic to determine what to display based on data properties. The backend should provide data in a ready-to-render format.
+-   **NO** construction of the DOM via HTML string concatenation (e.g., `element.innerHTML = \`<div>...\``). Use `document.createElement` exclusively.
+-   **NO** direct image URL manipulation or resolution (e.g., `convertirAGoogleThumbnail`).
+
+### 4. External Frameworks
+
+-   No external frontend frameworks (React, Vue, Svelte, etc.) will be introduced. The refactoring will be performed using **vanilla JavaScript with ES6 Modules**.
+
+=====================================================
+DELIVERABLE 2 — TAREA 30 EXECUTION PLAN
+=====================================================
+
+This is a precise, ordered plan to execute the architectural refactor of Tarea 30. All subtasks must be completed and verified before the single commit is made.
+
+**Subtask 1: File Structure Scaffolding**
+-   **Objective:** Create the new modular JavaScript file structure and update the HTML to support it.
+-   **Files involved:** `index.html`.
+-   **What is removed:** The `<script>` tags for `api-manager.js` and `main.js` at the end of `index.html`.
+-   **What is created:**
+    -   New empty files: `api.js`, `ui.js`, `navigation.js`, `state.js`, `auth.js`.
+    -   A new `<script type="module" src="main.js"></script>` tag in `index.html`.
+-   **Verification:** The application loads without errors. The new JS files are present in the directory. `main.js` can successfully import from the other (currently empty) modules.
+
+**Subtask 2: Relocate API Layer**
+-   **Objective:** Centralize all backend communication into the `api.js` module.
+-   **Files involved:** `main.js`, `api-manager.js`, `api.js`.
+-   **What is removed:** All `fetch` logic, `postToAction`, `SCRIPT_URL`, and `API_ENDPOINTS` from `main.js`. The `api-manager.js` file will be deleted.
+-   **What is created:** Move all API-related constants and logic into `api.js`. Export a dedicated function for each backend action (e.g., `export async function login(...)`).
+-   **Verification:** Manually trigger a login attempt. Verify in the browser's Network tab that the request is sent and processed correctly through the new `api.js` module.
+
+**Subtask 3: Isolate Authentication Logic**
+-   **Objective:** Move the user session lifecycle management to `auth.js`.
+-   **Files involved:** `main.js`, `auth.js`.
+-   **What is removed:** The `login`, `logout`, `checkSession`, `showLoginHideApp`, and `hideLoginShowApp` functions from `main.js`.
+-   **What is created:** Move this logic into `auth.js`. The functions in `auth.js` will import from `api.js` to communicate with the backend.
+-   **Verification:** The full authentication lifecycle works:
+    1. Page load triggers `checkSession` and shows the login screen.
+    2. A valid login hides the login screen and shows the main app.
+    3. A page refresh maintains the session.
+    4. The logout button clears the session and returns to the login screen.
+
+**Subtask 4: Centralize State Management**
+-   **Objective:** Remove global variables and establish `state.js` as the single source of truth.
+-   **Files involved:** `main.js`, `state.js`.
+-   **What is removed:** Global variables (`datosOriginales`, `datosFiltrados`, `estado`, etc.) from `main.js`.
+-   **What is created:** An exported `state` object in `state.js` with initial values. Export `setState` and `getState` functions. Refactor the data fetching logic in `auth.js` to store the catalog data in `state.js` upon successful login.
+-   **Verification:** After login, log `state.getState()` to the console and confirm it contains the complete catalog data.
+
+**Subtask 5: Refactor Rendering Logic**
+-   **Objective:** Eliminate HTML string building and create declarative rendering functions in `ui.js`.
+-   **Files involved:** `main.js`, `ui.js`.
+-   **What is removed:** All functions that use `innerHTML` or string concatenation to build the UI (e.g., `mostrarCategorias`, `mostrarDetalleModal`).
+-   **What is created:** In `ui.js`, create functions that accept data and return DOM nodes (e.g., `createCatalogCard(item)`). The main application logic will call these functions and use `element.append()` or `element.replaceChildren()` to update the DOM.
+-   **Verification:** The main catalog grid renders correctly with data from the `state` object, using the new DOM-based functions. The page contains no evidence of string-to-HTML conversion for its main content.
+
+**Subtask 6: Isolate Navigation Logic**
+-   **Objective:** Move the complex catalog navigation flow to `navigation.js`.
+-   **Files involved:** `main.js`, `navigation.js`.
+-   **What is removed:** All `mostrar...` functions that manage the view based on user clicks in the catalog.
+-   **What is created:** In `navigation.js`, create a state machine or simple router that handles the navigation state (e.g., `{ level: 'brands', category: 'Automóvil' }`). Event listeners will call functions in `navigation.js`, which will update the state and call the appropriate rendering functions from `ui.js`.
+-   **Verification:** The entire catalog navigation flow is fully functional, from the main category view down to the final list of vehicle cuts. The back buttons at each level work correctly.
+
+**Subtask 7: Final Orchestration**
+-   **Objective:** Ensure `main.js` is a lean entry point that only connects modules and initializes the app.
+-   **Files involved:** `main.js`.
+-   **What is removed:** Any remaining logic that has been relocated to other modules.
+-   **What is created:** `main.js` should be reduced to: imports, the main `init` function call, and top-level event listeners that delegate to other modules.
+-   **Verification:** The entire application is fully functional, and the `main.js` file is minimal and serves only as an orchestrator.
+
+=====================================================
+DELIVERABLE 3 — ANTI-REGRESSION CHECKLIST (COMMIT GATE)
+=====================================================
+
+This checklist must be fully validated before the refactoring commit is submitted. Any "FAIL" result requires immediate correction.
+
+### Functional Checks
+-   [ ] **Login:** User can successfully log in with valid credentials.
+-   [ ] **Session Persistence:** A page refresh does not log the user out.
+-   [ ] **Logout:** The logout button successfully terminates the session and returns to the login screen.
+-   [ ] **Main View:** The main catalog view loads correctly and displays all four main carousels in the correct order: "Últimos Agregados", "Categorías", "Marcas de Vehículos", "Marcas de Motocicletas".
+-   [ ] **Navigation Flow:** The entire navigation hierarchy (Category -> Brand -> Model -> etc.) is functional, linear, and predictable. Back buttons work at every level.
+-   [ ] **Search:** The search bar correctly filters results (by triggering a backend call).
+-   [ ] **Detail Modal:** The vehicle detail modal opens and correctly displays all information:
+    -   [ ] Title, logo, and sub-headers.
+    -   [ ] Vehicle image.
+    -   [ ] "Corte Recomendado" is correctly identified and displayed first.
+    -   [ ] All other cuts, supplementary info (apertura, etc.) are present in collapsible sections.
+    -   [ ] Collaborator name is correctly positioned.
+    -   [ ] Feedback buttons are correctly positioned as overlays on the images.
+-   [ ] **Image Loading:** All images (logos, vehicle photos, cut photos) load successfully via the `image-service` proxy.
+-   [ ] **Video Playback:** Videos in the Tutorial modal load and play correctly.
+-   [ ] **Diagram Display:** Relay diagrams in the Relay modal display correctly.
+
+### Architectural Checks
+-   [ ] **No Inline Logic/Styles:** A search of `index.html` (and other HTML files) confirms the absence of `<script>` tags containing application logic and the absence of inline `style` attributes used for layout.
+-   [ ] **No HTML String Building:** A codebase search for `.innerHTML = ` confirms it is not used for rendering primary application components.
+-   [ ] **Lean Entry Point:** `main.js` is reviewed and confirmed to be a small file acting only as an orchestrator.
+-   [ ] **No Frontend Business Logic:** A review of the frontend code confirms the absence of data filtering (`.filter()`), sorting (`.sort()`), or other business logic identified for backend migration.
+-   [ ] **API Abstraction:** `api.js` is confirmed to be the ONLY module containing `fetch` calls.
+
+### Backend Interaction Checks
+-   [ ] **Endpoint Validation:** Network tab in browser dev tools is monitored to confirm the frontend only calls documented and expected backend endpoints/actions.
+-   [f] **Search Offloading:** Using the search bar triggers a network request to the backend; it does not perform a client-side filter.
+
+### Cache / Service-Worker Checks
+-   [ ] **Cache Busting:** After making a minor change (e.g., changing a button label), a hard refresh (Ctrl+F5) correctly displays the change, confirming the service worker is not serving a stale version.
+-   [ ] **Offline Capability:** (If applicable) Basic application shell and previously viewed data are available when the network connection is disabled.
