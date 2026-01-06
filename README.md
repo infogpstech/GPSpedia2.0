@@ -1,3 +1,25 @@
+### 5.4. Reglas Críticas de Uso de `CacheService`
+
+El `CacheService` de Google Apps Script es una herramienta potente para mejorar el rendimiento, pero su uso indebido puede causar fallos críticos y caídas totales del servicio. Es **mandatorio** seguir las siguientes reglas en toda la arquitectura backend:
+
+1.  **Límite de Tamaño Estricto (100 KB):**
+    *   `CacheService` tiene un límite máximo de **100 KB por objeto**.
+    *   **PROHIBIDO** intentar cachear objetos grandes, como el catálogo completo de vehículos o respuestas JSON complejas. Intentarlo resultará en un error `Argumento demasiado grande` que detendrá la ejecución del script.
+
+2.  **Manejo de Errores Obligatorio:**
+    *   Toda interacción con la caché (`cache.get`, `cache.put`, `cache.remove`) **DEBE** estar envuelta en un bloque `try...catch`.
+    *   Un fallo en la caché **NUNCA** debe impedir que el servicio siga funcionando. El servicio debe ser capaz de continuar su ejecución (ej. obteniendo los datos desde la fuente original) si la caché falla.
+
+3.  **Casos de Uso Aceptables:**
+    *   **Datos Pequeños y Ligeros:** Ideal para cachear metadatos, listas de IDs, resultados de búsquedas frecuentes y pequeñas, o flags de configuración.
+    *   **Imágenes Pequeñas:** Se pueden cachear imágenes solo si se ha verificado explícitamente que su tamaño (en base64) es inferior al límite (ej. < 90 KB como margen de seguridad).
+
+4.  **Estrategia de Remediación Aplicada:**
+    *   **`catalog-service`:** Se ha **deshabilitado permanentemente** el cacheo del catálogo completo. Cualquier futura implementación de caché en este servicio deberá ser granular (ej. cachear solo la lista de marcas o modelos).
+    *   **`image-service`:** Mantiene el cacheo, pero solo para imágenes < 90 KB y con manejo de errores robusto.
+
+El incumplimiento de estas reglas se considera una violación arquitectónica crítica que introduce un riesgo inaceptable de inestabilidad en producción.
+
 # GPSpedia - Documentación Arquitectónica v4
 
 ## 1. Descripción General
@@ -65,28 +87,46 @@ Frontend               catalog-service           Spreadsheet
    │                        │                        │
 ```
 
-#### **🔹 Flujo de Imágenes (Proxy Seguro - NO NEGOCIABLE)**
-Este flujo es crítico para la seguridad. El frontend **nunca** accede directamente a Google Drive.
+#### **🔹 Flujo de Imágenes Final y Verificado (Proxy Seguro)**
+Este diagrama documenta el flujo de datos final y auditado para la carga de imágenes.
 
-1.  **Petición:** El **Frontend** (ej. `imageApi.js`) necesita mostrar una imagen. Construye una URL que apunta al `image-service` del backend, pasando el `fileId` como parámetro (ej. `/image?fileId=xxxx`).
-2.  **Proxy:** `image-service` recibe la petición, extrae el `fileId` y utiliza `DriveApp` para obtener el `blob` (los datos binarios) del archivo desde **Google Drive**.
-3.  **Respuesta:** `image-service` devuelve el `blob` de la imagen directamente al **Frontend** con el `Content-Type` adecuado (ej. `image/jpeg`). El navegador renderiza la imagen.
+1.  **Petición de Datos:** El **Frontend** solicita el catálogo al `catalog-service`.
+2.  **Normalización en `catalog-service`:** `catalog-service` lee la Spreadsheet. Para cada campo de imagen, la función `normalizeAndValidateImageId` asegura que el valor sea un `fileId` válido o `null`, descartando URLs malformadas.
+3.  **Respuesta con Contrato de Imagen:** `catalog-service` devuelve los datos, garantizando que todos los campos de imagen contienen **únicamente un `fileId` válido o `null`**.
+4.  **Construcción de URL en `main.js`:** Al renderizar la UI, la función `getImageUrl(fileId)` toma el `fileId` y lo **codifica correctamente** (`encodeURIComponent`) para construir una URL segura que apunta al `image-service`.
+5.  **Petición de Imagen (Proxy):** El navegador realiza una petición `GET` a la URL del `image-service`.
+6.  **Resolución en `image-service`:** El `image-service` recibe la petición.
+    *   **Intento de Caché:** Primero busca la imagen en `CacheService`. Si la encuentra (y es menor de 90KB), la devuelve inmediatamente.
+    *   **Acceso a Drive:** Si no está en caché, usa `DriveApp.getFileById()` para obtener el blob de Google Drive, determina su `Content-Type` real, y lo guarda en caché (si es seguro) antes de devolverlo.
+7.  **Respuesta de Imagen:** El `image-service` devuelve el blob de la imagen con el `Content-Type` correcto, que el navegador renderiza.
 
 ```
-Frontend                image-service              Google Drive
-   │                         │                         │
-   ├─ GET /image?fileId=xxx ─>│                         │
-   │                         ├─ DriveApp.getFileById()──> │
-   │                         │ <─── File Blob ───────────┤
-   │                         │                         │
-   │ <─── Image Blob ──────── │                         │
-   │                         │                         │
+┌──────────┐   ┌───────────────────┐   ┌──────────────────────────┐   ┌──────────────────┐   ┌──────────────┐
+│ Frontend │   │   API Manager     │   │      catalog-service     │   │  image-service   │   │ Google Drive │
+└────┬─────┘   └─────────┬─────────┘   └────────────┬─────────────┘   └────────┬─────────┘   └──────┬───────┘
+     │                   │                          │                        │                     │
+     ├─ getCatalogData() ─>────────────────────────> │                        │                     │
+     │                   │                          ├─ getSheetData() ──────> (Spreadsheet)      │
+     │                   │                          │ 1. normalizeAndValidate()│                        │                     │
+     │                   │ <────────────────────────┼─ 2. { img: "fileId" }   │                        │                     │
+     │ <─────────────────┴─ { data }                 │                        │                     │
+     │                                              │                        │                     │
+     │ UI Render:                                   │                        │                     │
+     │ getImageUrl(fileId)                          │                        │                     │
+     │ (encodeURIComponent)                         │                        │                     │
+     │ src="/image?fileId=..."                      │                        │                     │
+     ├─ GET /image?fileId=... ──────────────────────────────────────────────> │                     │
+     │                   │                          │                        ├─ 1. cache.get()    │
+     │                   │                          │                        ├─ 2. getFileById()──>
+     │                   │                          │                        │ <── Image Blob ────┤
+     │                   │                          │                        ├─ 3. cache.put()    │
+     │ <────────────────────────────────────────────┴─ Image Blob            │                     │
+     │                                              │                        │                     │
 ```
-⚠️ **Aclaraciones Explícitas:**
--   El frontend **NO** recibe URLs de Google Drive.
--   El frontend **NO** transforma enlaces de `lh3.googleusercontent.com`.
--   El backend **NO** devuelve URLs públicas.
--   El tamaño de las imágenes se controla **SOLO por CSS** en el frontend.
+⚠️ **Responsabilidades Clave (Auditado y Final):**
+-   **`catalog-service`:** **Guardián de la integridad de datos.** Lee, valida y normaliza. Garantiza el **Contrato de Imagen**: solo envía `fileId` limpios o `null`.
+-   **`main.js` (`getImageUrl`)**: **Constructor de URLs seguras.** Codifica el `fileId` usando `encodeURIComponent` y construye la URL del proxy. Confía en el contrato del `catalog-service`.
+-   **`image-service`**: **Proxy seguro y optimizado.** Resuelve el `fileId`, maneja el `MimeType` real, y utiliza una caché para acelerar las respuestas. Es el único punto de contacto con Google Drive.
 
 ### 2.3. Responsabilidades por Capa
 
@@ -138,7 +178,11 @@ El backend consta de los siguientes servicios de Google Apps Script:
 - **Responsabilidad:** Retroalimentación de usuarios (likes y reportes).
 
 ### `GPSpedia-Catalog` (`services/catalog/catalog.js`)
-- **Responsabilidad:** Acceso de solo lectura y preparación de datos del catálogo.
+- **Responsabilidad:** Acceso de solo lectura, validación, normalización y preparación de los datos del catálogo. Es el guardián de la integridad de los datos leídos desde la hoja de cálculo.
+- **Características Clave:**
+    - **Contrato de Imagen:** Garantiza que todos los campos de imagen devueltos al frontend contendrán únicamente un `fileId` de Google Drive válido o `null`.
+    - **Caché:** Utiliza un sistema de caché para minimizar las lecturas a la hoja de cálculo y mejorar el rendimiento.
+    - **Modo Diagnóstico:** Incluye un modo `?diagnostics=true` que proporciona metadatos sobre la ejecución y una lista de los IDs de imagen inválidos encontrados en los datos de origen.
 
 ### `GPSpedia-Write` (`services/write/write.js`)
 - **Responsabilidad:** Escritura de datos y subida de archivos.

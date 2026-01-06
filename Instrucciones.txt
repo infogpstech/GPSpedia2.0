@@ -1,3 +1,70 @@
+---------------------------------
+TAREAS CRÍTICAS (AÑADIDO 2026-01-05)
+---------------------------------
+
+### MÓDULO: INFRAESTRUCTURA BACKEND (CACHE)
+
+- **Tarea 29: Corregir Abuso de CacheService y Prevenir Fallos Críticos**
+  - **Estado:** COMPLETADA (2026-01-05)
+  - **Urgencia:** Máxima
+  - **Tipo:** Bug Crítico (Producción)
+  - **Descripción:** Se detectó un error fatal en producción ("Argumento demasiado grande") causado por un uso incorrecto de `CacheService` en el `catalog-service`. El servicio intentaba cachear el objeto completo del catálogo, que excede el límite de 100 KB.
+  - **Justificación de Cierre:**
+    -   Se eliminó el cache monolítico en `catalog-service`, mitigando el error "Argumento demasiado grande".
+    -   Se envolvió todo el uso de `CacheService` en `try...catch` en los servicios relevantes (`catalog-service`, `image-service`) para garantizar la resiliencia.
+    -   El servicio `catalog` fue auditado y validado como estable y no requiere cambios adicionales en esta área.
+  - **Impacto Potencial:** Restaura la funcionalidad del catálogo en producción y aumenta la resiliencia de toda la arquitectura backend ante fallos en el sistema de caché.
+
+**Versión del Documento:** 1.1 (Post-Auditoría de Catalog-Service)
+**Fecha de Generación:** 2026-01-05
+=================================================
+
+NUEVOS HALLAZGOS DE AUDITORÍA (services/catalog/catalog.js)
+-------------------------------------------------
+
+### Auditoría Realizada: 05/01/2026
+
+- **Propósito:** Análisis final del `catalog-service` antes de su formalización para producción.
+- **Estado General:** El servicio es robusto, cumple con la arquitectura definida y está funcionalmente completo. Los siguientes puntos se registran para futuras mejoras y para tener un conocimiento claro de los riesgos operativos.
+
+#### **Riesgos Identificados**
+
+1.  **Dependencia Estricta de Mapas de Columnas (Hardcoding):**
+    *   **Observación:** El servicio depende de constantes (`COLS_CORTES`, `COLS_LOGOS_MARCA`, etc.) que mapean nombres de campos a posiciones de columna fijas.
+    *   **Riesgo:** Si un administrador modifica la estructura de la hoja de cálculo (ej. inserta, elimina o mueve una columna) sin actualizar simultáneamente y de forma precisa estos mapas en el código, el servicio fallará de manera silenciosa. Servirá datos incorrectos (ej. asignando un `modelo` a el campo `marca`) sin generar un error explícito. Este es el principal riesgo operativo del servicio.
+
+2.  **Rendimiento de Sugerencias a Gran Escala:**
+    *   **Observación:** La función `handleGetSuggestion` utiliza el algoritmo de `levenshteinDistance` contra una lista de todos los valores únicos de una columna.
+    *   **Riesgo:** A medida que la base de datos crezca a miles de entradas, el cálculo de la distancia para cada sugerencia podría volverse lento y exceder los límites de tiempo de ejecución de Google Apps Script, haciendo que la función falle.
+
+#### **Deuda Técnica Registrada**
+
+1.  **Función `handleGetCatalogData` Monolítica:**
+    *   **Observación:** Esta función es responsable de obtener, procesar y mapear los datos de cuatro hojas de cálculo diferentes (`Cortes`, `LogosMarca`, `Tutorial`, `Relay`).
+    *   **Deuda:** Su gran tamaño y múltiples responsabilidades la hacen difícil de leer y mantener.
+    *   **Recomendación (Tarea Futura):** Refactorizar esta función dividiéndola en sub-funciones más pequeñas y enfocadas (ej. `fetchCortesData`, `fetchLogosData`, etc.) para mejorar la claridad.
+
+2.  **Lógica Compleja de Ordenamiento de Cortes:**
+    *   **Observación:** La lógica para reordenar los cortes de un vehículo según su popularidad (`utilCorteX`) dentro de `handleGetCatalogData` es funcional pero compleja de seguir. Implica crear un objeto temporal, ordenar un array de índices y luego reconstruir el objeto del vehículo.
+    *   **Deuda:** Dificulta el mantenimiento futuro de esta funcionalidad.
+    *   **Recomendación (Tarea Futura):** Añadir comentarios detallados a este bloque de código o refactorizarlo a una función auxiliar (`sortVehicleCuts`) para aislar su complejidad.
+
+#### **Observaciones Adicionales**
+
+1.  **Cumplimiento Arquitectónico (Positivo):**
+    *   **Observación:** El servicio cumple de manera excelente con la regla arquitectónica de manejar solo `fileId`s para las imágenes, gracias a la robusta función `normalizeAndValidateImageId`. Esto es un pilar de la estabilidad del sistema.
+
+2.  **Uso de Caché (Positivo):**
+    *   **Observación:** La implementación de `CacheService` es correcta y vital para el rendimiento de la aplicación, evitando lecturas innecesarias a la base de datos.
+
+3.  **Ineficiencia en `handleGetDropdownData`:**
+    *   **Observación:** Esta función lee todos los datos de la hoja `Cortes` varias veces (una por cada campo de dropdown) para obtener listas de valores únicos.
+    *   **Recomendación (Tarea Futura):** Optimizar esta función para que lea el `dataRange` una sola vez en memoria y luego genere todos los conjuntos de valores únicos a partir de ese array.
+
+---
+(El resto del contenido de Instrucciones.txt permanece sin cambios)
+---
+
 **Versión del Documento:** 1.0 (Post-Auditoría)
 **Fecha de Generación:** 2024-08-20
 =================================================
@@ -226,10 +293,11 @@ NUEVAS TAREAS CRÍTICAS (AÑADIDO 2026-01-04)
   - **Impacto Potencial:** Reduce drásticamente la complejidad del código, facilita futuras modificaciones y disminuye el riesgo de regresiones.
 
 - **Tarea 25: Implementar Proxy de Imágenes en Backend**
+  - **Estado:** EN PROGRESO
   - **Urgencia:** No Negociable
   - **Tipo:** Requerimiento de Arquitectura
   - **Descripción:** Diseñar e implementar una solución para manejar las imágenes de Google Drive a través de un proxy en el backend.
-    1.  **Backend:** Crear una ruta que reciba un `fileId`, obtenga el archivo de Drive y devuelva el `blob` con su `Content-Type` correcto.
+    1.  **Backend:** Se ha creado un nuevo microservicio `services/image/image.js`. Este servicio expone un endpoint `doGet` que recibe un `fileId`, obtiene el archivo de Drive, lo guarda en caché por 6 horas y devuelve el blob de la imagen de forma segura.
     2.  **Normalización de Datos:** El backend solo debe enviar el `fileId` al frontend. Si existen URLs completas en la base de datos, deben ser normalizadas para extraer y guardar únicamente el ID.
     3.  **Frontend:** Todas las etiquetas `<img>` deben apuntar al endpoint del backend (ej. `/image?img=<fileId>`). Toda la lógica de conversión de URLs de Drive debe ser eliminada del frontend.
   - **Restricción:** El frontend NO debe recibir URLs directas de Google Drive. El tamaño de las imágenes debe ser controlado exclusivamente por CSS, sin usar parámetros de URL (`=w...`, `sz`, etc.).
@@ -247,6 +315,16 @@ NUEVAS TAREAS CRÍTICAS (AÑADIDO 2026-01-04)
         *   Imágenes de cortes, apertura y alimentación deben tener el mismo ancho (`width: 100%`) y altura automática para ocupar todo el espacio horizontal disponible en su contenedor.
         *   En un contenedor separado a la derecha, mostrar las imágenes de los cortes verticalmente, sin exceder los 300px de ancho total, mientras la información del modal permanece a la izquierda.
   - **Impacto Potencial:** Mejora significativamente la presentación visual y la experiencia de usuario en una de las vistas más importantes de la aplicación.
+
+- **Tarea 28: Endurecer `catalog-service` para Manejo de Imágenes**
+  - **Urgencia:** Crítica
+  - **Tipo:** Violación de Arquitectura / Bug
+  - **Descripción:** Durante la auditoría final, se detectó que `services/catalog/catalog.js` todavía contiene lógica para transformar URLs de Google Drive (`convertirAGoogleThumbnail`). Esto viola la arquitectura final, que estipula que solo el `image-service` debe manejar interacciones con Drive y que el `catalog-service` solo debe pasar `fileId`s crudos. Esta transformación incorrecta es la causa raíz de los fallos de carga de imágenes.
+  - **Requerimiento Técnico:**
+    1.  **Eliminar `convertirAGoogleThumbnail` de `catalog.js`:** El servicio debe dejar de transformar los IDs.
+    2.  **Implementar Normalización en `catalog.js`:** Añadir una nueva función `normalizeAndValidateImageId` que reciba el valor de la celda de imagen. Esta función debe ser capaz de manejar tanto un `fileId` limpio como una URL completa de Drive, extrayendo el ID en el segundo caso. Si el dato es inválido, debe devolver `null`.
+    3.  **Aplicar Normalización:** La función `mapRowToObject` debe usar `normalizeAndValidateImageId` para limpiar todos los campos de imagen antes de enviar los datos al frontend.
+  - **Impacto Potencial:** Resuelve definitivamente el bug de carga de imágenes, alinea el servicio con la arquitectura final y lo hace más robusto ante datos inconsistentes en la hoja de cálculo.
 
 ### MÓDULO: FLUJO DE USUARIO
 
