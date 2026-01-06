@@ -1,379 +1,114 @@
-**v4.6.4 (04/01/2026)**
-*   **FIX (services/feedback/feedback.js):** Se solucionó un bug crítico que impedía el funcionamiento de la bandeja de entrada (Inbox).
-    *
-**Causa Raíz:** El servicio devolvía una respuesta con `MimeType.JSON`, lo cual es incompatible con la política de CORS de Google Apps Script y provocaba un error `Failed to fetch` en el frontend.
-    *   **Solución:** Se cambió el `MimeType` de la respuesta a `ContentService.MimeType.TEXT` en la función `doPost`, restaurando la comunicación entre el frontend y el servicio de feedback.
-    *   **Archivos Modificados:** `services/feedback/feedback.js`: Líneas 128, 132.
+**V5.8.0 - (CRITICAL FIX) - 05/01/2026**
+**A. FIX CRÍTICO DE CORS Y ESTABILIDAD EN `feedback-service`:** Se solucionó un bug crítico que impedía el funcionamiento de toda la funcionalidad de feedback y contacto (ej. Inbox, reportar problema) debido a un error de CORS, y se resolvió una inestabilidad severa causada por código duplicado.
 
-**v4.6.3 (31-12-2025)**
-*   **FIX CRÍTICO (service-worker.js):** Se solucionó la causa raíz de múltiples regresiones visuales y funcionales al invalidar la caché del PWA.
-    *   **Causa Raíz:** Cambios previos en el frontend no se reflejaban porque el service worker servía una versión obsoleta de la aplicación desde la caché.
-    *   **Solución:** Se incrementó la `CACHE_NAME` de `v5` a `v6`, forzando a todos los clientes a descargar la última versión de la aplicación.
-*   **FEAT & UX (index.html):** Se implementaron las mejoras de UI/UX solicitadas, corrigiendo la visualización del carrusel de motocicletas y optimizando el modal de detalles.
-    *   **Carrusel de Motocicletas:** Se robusteció la lógica de filtrado en `mostrarCategorias` para reconocer tanto "Motocicletas" como "motos" como categorías válidas, asegurando que el carrusel se renderice incluso con datos inconsistentes.
-    *   **Modal de Detalles (Logo):** El logo de la marca ahora se muestra correctamente a la izquierda del título del modelo y se ha añadido `flex-shrink: 0` para prevenir que se deforme con títulos largos.
-    *   **Modal de Detalles (Economía de Espacio):** Se redujeron los márgenes y paddings en `#detalleCompleto`, `h4`, y `p` para un diseño más compacto.
-*   **REFACTOR (index.html):** Se refactorizó el CSS y el JavaScript del modal de detalles para utilizar clases específicas para las imágenes, como fue solicitado en la revisión de código.
-    *   Se añadieron las clases `.img-vehiculo-modal` y `.img-corte` al CSS.
-    *   La función `mostrarDetalleModal` fue actualizada para aplicar estas nuevas clases a las imágenes correspondientes, mejorando la mantenibilidad y especificidad de los estilos.
+**B. Causa Raíz:**
+    1.  **Error de `MimeType`:** La función `doGet` del servicio `services/feedback/feedback.js` devolvía `ContentService.MimeType.JSON`, violando el requisito de la arquitectura de usar `ContentService.MimeType.TEXT` para todas las respuestas y causando fallos de CORS en el frontend.
+    2.  **Código Duplicado:** Durante la auditoría se encontraron dos implementaciones completas de las funciones `handleRecordLike` y `handleSuggestYear`, creando un riesgo alto de comportamiento inconsistente y errores de mantenimiento.
 
-**v4.6.2 (03/01/2026)**
-*   **DOCS (Instrucciones.txt):** Se ha reestructurado completamente el archivo `Instrucciones.txt` para agrupar todas las tareas pendientes en módulos funcionales y auditables.
-    *   **Migración de Tareas:** Todos los hallazgos pendientes de `Auditoria.txt` y las tareas del `Instrucciones.txt` anterior han sido migradas a esta nueva estructura.
-    *   **Nuevo Formato:** Cada tarea ahora sigue un formato estricto que incluye descripción, impacto esperado, riesgos conocidos, dependencias y un estado `PENDIENTE`.
-    *   **Archivos Modificados:** `Instrucciones.txt`.
+**C. Cambios Implementados:**
+    1.  **`services/feedback/feedback.js` (Línea 85):** Se corrigió el `MimeType` en la función `doGet`, alineándolo a `ContentService.MimeType.TEXT`.
+    2.  **`services/feedback/feedback.js` (Líneas 141-174 y 332-348 eliminadas):** Se eliminaron las implementaciones duplicadas y obsoletas de `handleRecordLike` y `handleSuggestYear`, conservando las versiones más robustas que incluyen el registro de actividad del usuario.
 
-**v4.6.1 (02/01/2026)**
-*   **FIX (services/write/write.js):** Se agrego una "solucion" a un defecto crítico en la creación de nuevos vehículos (Stage 2). Las nuevas filas deberian de heredan correctamente todas las validaciones de datos, fórmulas (especialmente la de ID) y formatos de la fila.
-    *   **Causa Raíz:** El método anterior de creación de filas no copiaba la estructura completa de la fila anterior, lo que resultaba en la pérdida de validaciones y fórmulas esenciales.
-    *   **Solución:** Se refactorizó la lógica de creación de nuevas filas en `handleAddOrUpdateCut`. El nuevo método utiliza `previousRowRange.copyTo(newRowRange)` para duplicar la fila anterior en su totalidad, y luego ejecuta `newRowRange.clearContent()` para vaciar los valores de las celdas sin eliminar las fórmulas y validaciones subyacentes.
-*   **CHORE (versioning):** Se actualizó la versión del componente a `2.3.0`.
-    *   **Archivos Modificados:** `services/write/write.js`. **Nota para el auditor:** este ultimo fix causo una regresion grave que deshabilitaba la captura de validacion de datos de la sheet en el formulario de add_cortes.html, se recuperó manualmente el repositorio a su estado anterior (con el bug de la renderizacion de las imagenes en catalogo)
-considerar esta ultima version como fallida y no se debe trabajar desde esta version (4.6.1) un usar el estado del la version anterior (4.5.9)
+**D. Impacto:**
+    -   Se restaura la funcionalidad completa del sistema de feedback, reportes y contacto.
+    -   Se elimina una fuente crítica de inestabilidad y bugs futuros al resolver la duplicación de código.
+    -   El servicio `feedback-service` es ahora más estable, predecible y cumple con los estándares de la arquitectura.
+
+**V5.7.0 - (CRITICAL ALIGNMENT) - 04/01/2026**
+**A. FIX CRÍTICO DE INCONSISTENCIA ARQUITECTÓNICA (FRONTEND-BACKEND):** Se solucionó una ruptura crítica en la arquitectura que impedía el funcionamiento de la carga progresiva del catálogo.
+
+**B. Causa Raíz:**
+    -   Un commit anterior había actualizado el frontend (`api-manager.js`, `main.js`) para que llamara a una nueva acción `getNavigationData` con el objetivo de optimizar el rendimiento.
+    -   Sin embargo, esta acción nunca fue implementada en el backend (`services/catalog/catalog.js`), resultando en un error fatal que impedía la carga de la aplicación.
+
+**C. Cambios Implementados:**
+    1.  **`services/catalog/catalog.js`:**
+        -   **Implementación Faltante:** Se implementó la acción `getNavigationData` en el backend.
+        -   **Router:** Se añadió el `case 'getNavigationData'` al router `doPost` para manejar la nueva acción.
+        -   **Handler:** Se creó la función `handleGetNavigationData`, que ahora devuelve un payload ligero con los datos esenciales para el render inicial (`categoryCounts`, `sortedCategories`, `marcas`, `logos`), cumpliendo con lo que el frontend esperaba.
+
+**D. Impacto:**
+    -   Se restaura la funcionalidad de la aplicación, que estaba completamente rota debido a esta inconsistencia.
+    -   El backend ahora cumple con el contrato esperado por el frontend, habilitando la carga progresiva y mejorando significativamente el tiempo de carga percibido por el usuario.
+    -   Se resuelve la discrepancia entre el historial de commits y el estado real del código.
+
+**V5.6.0 - (CRITICAL HOTFIX) - 05/01/2026**
+**A. FIX CRÍTICO DE ESTABILIDAD (BACKEND):** Se solucionó un error fatal en producción ("Argumento demasiado grande") que causaba la caída total del `catalog-service` e impedía la carga del catálogo en la aplicación.
+
+**B. Causa Raíz:**
+    -   El `catalog-service` intentaba guardar en `CacheService` el objeto JSON completo del catálogo, el cual excedía el límite de 100 KB por objeto, provocando un error no capturado que detenía la ejecución.
+
+**C. Cambios Implementados:**
+    1.  **`services/catalog/catalog.js`:**
+        -   **Remediación:** Se deshabilitó por completo la escritura del catálogo en la caché (`cache.put`) para resolver inmediatamente el error.
+        -   **Endurecimiento:** Se envolvió la operación de lectura de caché (`cache.get`) en un bloque `try...catch` para que cualquier futuro error de caché no interrumpa el servicio.
+    2.  **`services/image/image.js`:**
+        -   **Endurecimiento Preventivo:** Aunque no era la causa del error, se envolvió toda la lógica de `cache.get` y `cache.put` en bloques `try...catch` para aumentar la resiliencia del servicio de imágenes ante posibles fallos de la caché.
+
+**D. Actualización de Documentación:**
+    -   Se añadió una nueva sección en `README.md` (`5.4. Reglas Críticas de Uso de CacheService`) para documentar las limitaciones y el uso correcto del servicio de caché.
+    -   Se registró esta tarea crítica en `Instrucciones.txt` como "Tarea 29".
+
+**E. Impacto:**
+    -   Se restaura la funcionalidad del catálogo en producción.
+    -   La arquitectura backend es ahora más resiliente a fallos de `CacheService`, previniendo futuras caídas por esta causa.
 
 
-**v4.5.9 (31-12-2025)**
-*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `GPSpedia-Write` a la nueva versión desplegada proporcionada por el usuario, asegurando que el frontend se comunique con el endpoint más reciente y corregido para todas las operaciones de escritura.
-    *   **Archivos Modificados:** `api-manager.js`.
-*   **CHORE (versioning):** Se actualizó la versión del componente `api-manager.js` a `3.9.2`.
+**V5.5.0 - (CRITICAL FIX) - 05/01/2026**
+**A. FIX CRÍTICO DE ARQUITECTURA (FULL-STACK):** Se solucionó de manera definitiva el bug que impedía la carga intermitente de imágenes en producción. El problema residía en dos puntos de la nueva arquitectura:
+    1.  **Backend ():**
+        -   **Error de MimeType:** Se eliminó la función  que fallaba al inferir el tipo de contenido, causando que el servicio devolviera un MimeType incorrecto y el navegador rechazara la imagen. Se reemplazó por una llamada directa a , que es 100% fiable.
+        -   **Error de Caché:** Se añadió un control para evitar guardar en caché imágenes de más de 90KB, previniendo exceder los límites de Google Apps Script y asegurando la estabilidad del servicio.
+    2.  **Frontend ():**
+        -   **Error de Codificación de URL:** La función  no codificaba correctamente el  antes de añadirlo como parámetro en la URL. Caracteres especiales en los IDs (como guiones bajos) podían ser malinterpretados, rompiendo la llamada al . Se solucionó aplicando  al .
 
-**v4.5.8 (02/01/2026)**
-*   **FIX (services/write/write.js):** Se corrigió la lógica de backend para el registro de nuevos cortes (Etapa 2), asegurando que todos los datos se guarden correctamente.
-    *   **Solución:** Se refactorizó `handleAddOrUpdateCut` para procesar y guardar correctamente: año (individual o rango), tipo de corte, ubicación, color de cable, configuración de relay, imagen del corte (subida a Drive) y el timestamp en formato `dd/mm/aaaa`. También se aseguró que la fórmula del ID se copie al crear una nueva fila.
-    *   **Archivos Modificados:** `services/write/write.js`.
-*   **FIX (add_cortes.html):** Se cambió el campo de año a `type="text"` para permitir el ingreso de rangos.
-    *   **Archivos Modificados:** `add_cortes.html`.
-*   **CHORE (versioning):** Se actualizaron las versiones de los componentes.
-    *   `services/write/write.js`: `2.2.1`
-    *   `add_cortes.html`: `2.1.8`
+**B. Archivos Modificados:**
+    -   : Líneas 45-55, 65-75.
+    -   : Línea 112.
 
-**v4.5.7 (02-01-2026)**
-*   **FIX (api-manager.js):** Se corrigió el error "Acción no definida: addOrUpdateCut" al agregar las acciones `addOrUpdateCut` y `addSupplementaryInfo` al mapa de enrutamiento (`ACTION_TO_SERVICE_MAP`), dirigiéndolas correctamente al servicio `WRITE`.
-    *   **Archivos Modificados:** `api-manager.js`.
-*   **STYLE (add_cortes.html):** Se mejoró el estilo de los nuevos campos de subida de archivos y las vistas previas de imágenes para que sean más coherentes con el diseño general de la aplicación.
-    *   **Archivos Modificados:** `add_cortes.html`.
-*   **CHORE (versioning):** Se actualizaron las versiones de los componentes.
-    *   `api-manager.js`: `3.9.1`
-    *   `add_cortes.html`: `2.1.7`
+**C. Impacto:**
+    -   La arquitectura de imágenes es ahora robusta, segura y funcional en todo el stack.
+    -   Se garantiza la carga fiable de todas las imágenes de Google Drive a través del proxy.
+    -   El sistema de caché del  es ahora seguro y no causará fallos inesperados.
 
-**v4.5.6 (02-01-2026)**
-*   **REFACTOR (add_cortes.html):** Se refactorizó por completo el formulario de la Etapa 2 para reemplazar los campos de URL de imagen por un sistema de subida de archivos con vista previa, cumpliendo con los requisitos estrictos del `README.md`.
-    *   **Causa Raíz:** La implementación anterior solicitaba URLs de imágenes, lo cual era incorrecto y en contra de las especificaciones.
-    *   **Solución:**
-        *   Se reemplazaron los `input[type="text"]` para imágenes por `input[type="file"]`.
-        *   Se añadió lógica JavaScript con `FileReader` para mostrar una vista previa inmediata de la imagen seleccionada por el usuario.
-        *   Se actualizó la lógica de envío del formulario para convertir las imágenes a formato `base64` antes de enviarlas al backend.
-        *   El campo de imagen del corte (`imgCorte1`) ahora es `required`.
-        *   El campo de "Configuración de Relay" ahora tiene "Corte a ignición" como valor por defecto.
-    *   **Archivos Modificados:** `add_cortes.html`.
-*   **CHORE (versioning):** Se actualizó la versión del componente a `2.1.6`.
-    *   **Archivos Modificados:** `add_cortes.html`.
+**v5.4.0 (05/01/2026)**
+*   **FINALIZE (services/catalog/catalog.js):** Se completó el endurecimiento y la formalización final del `catalog-service` para su puesta en producción.
+    *   **Contrato de Datos Formalizado:** Se añadieron comentarios JSDoc explícitos (`@const`) para los `IMAGE_FIELDS_*`, documentando formalmente el "Contrato de Imagen". Esto garantiza que cualquier mantenedor futuro entienda la regla de que el servicio solo debe devolver `fileId` o `null` para estos campos.
+    *   **Logging Controlado:** Se introdujo una bandera global `LOG_INVALID_IDS`. Cuando se establece en `true`, la función `normalizeAndValidateImageId` registrará en la consola de Apps Script cualquier valor de imagen que no pueda ser validado, permitiendo una depuración de la calidad de los datos sin contaminar los logs de producción.
+    *   **Modo Diagnóstico:** Se implementó un modo de diagnóstico no invasivo activado con el parámetro `?diagnostics=true` en la URL de la solicitud. En este modo, la respuesta JSON se envuelve en un objeto `diagnostics` que incluye metadatos de ejecución (tiempo de respuesta) y una lista de todos los IDs de imagen inválidos encontrados durante la solicitud, facilitando la monitorización y el mantenimiento proactivo.
+    *   **Archivos Modificados:** `services/catalog/catalog.js`.
 
-**v4.5.5 (02-01-2026)**
-*   **FIX (add_cortes.html):** Se corrigió la lógica de navegación de los botones en el paso de "Coincidencias". El botón "Agregar información adicional" ahora navega correctamente a la Etapa 3 del formulario.
-    *   **Archivos Modificados:** `add_cortes.html`.
-*   **REFACTOR (add_cortes.html):** Se refactorizó el formulario de la Etapa 2 ("Agregar Información del Corte") para cumplir con las especificaciones del `README.md`.
-    *   **Nueva Lógica:** El campo "Imagen del Vehículo" ahora solo se muestra si se está creando un vehículo completamente nuevo.
-    *   **Nuevos Campos:** Se añadió el campo "Configuración de Relay" al formulario de la Etapa 2.
-    *   **Archivos Modificados:** `add_cortes.html`.
-*   **CHORE (versioning):** Se actualizó la versión del componente a `2.1.5`.
-    *   **Archivos Modificados:** `add_cortes.html`.
+**v5.3.0 (05/01/2026)**
+*   **HARDENING (services/catalog/catalog.js):** Se finalizó el robustecimiento del servicio de catálogo para asegurar la integridad de los datos de imágenes y el cumplimiento estricto de la arquitectura.
+    *   **Causa Raíz:** El servicio no validaba ni normalizaba los datos de imágenes provenientes de la hoja de cálculo. Esto permitía que URLs completas o datos malformados se propagaran al frontend, causando inestabilidad y violando la regla de que solo el `image-service` debe manejar URLs.
+    *   **Solución:** Se implementó una nueva función `normalizeAndValidateImageId`. Esta función centraliza la lógica de validación: toma cualquier valor (URL completa, ID limpio, o `null`), extrae y devuelve un `fileId` válido o `null`. Se refactorizó la función `mapRowToObject` para que *todos* los campos de imagen (`imagenDelVehiculo`, `imgCorte`, `logoUrl`, etc.) pasen obligatoriamente por esta validación antes de ser enviados al frontend.
+    *   **Resultado:** El `catalog-service` ahora garantiza que solo enviará `fileId` limpios, eliminando la causa raíz de los bugs de renderización de imágenes desde el backend y cumpliendo con su rol arquitectónico.
+    *   **Archivos Modificados:** `services/catalog/catalog.js`.
 
-**v4.5.4 (02-01-2026)**
-*   **REFACTOR (add_cortes.html):** Se refactorizó por completo la funcionalidad del lightbox para corregir un bug crítico de navegación externa.
-    *   **Causa Raíz:** El uso de etiquetas `<a>` con `href` a Google Drive forzaba la navegación a una nueva pestaña y requería autenticación. La librería `SimpleLightbox` era inadecuada para este flujo.
-    *   **Solución Arquitectónica:** Se eliminó `SimpleLightbox` y se reemplazaron las etiquetas `<a>` por `<img>` con `onclick`. Se implementó un lightbox interno basado en la arquitectura de `index.html`, que muestra la imagen en un `<div>` modal sin navegar fuera de la página.
-    *   **Archivos Modificados:** `add_cortes.html`.
-*   **FIX (add_cortes.html):** Se implementó un manejo de errores robusto para la función `handleSuggestion`.
-    *   **Solución:** Se envolvió la llamada a `routeAction('getSuggestion', ...)` en un bloque `try...catch` para que cualquier fallo en esta API no implementada sea capturado silenciosamente en la consola, sin bloquear la renderización de la UI.
-    *   **Archivos Modificados:** `add_cortes.html`.
-*   **CHORE (versioning):** Se actualizó la versión del componente a `2.1.4`.
-    *   **Archivos Modificados:** `add_cortes.html`.
+**v5.2.0 (04/01/2026)**
+*   **FIX (Arquitectura):** Se solucionó la causa raíz del bug que impedía la carga de imágenes del catálogo.
+    *   **Causa Raíz:** Se descubrió una violación arquitectónica en `services/catalog/catalog.js`. Este servicio estaba transformando incorrectamente los `fileId` de las imágenes a URLs completas de Google Drive, en lugar de enviar solo los IDs al frontend.
+    *   **Solución (Backend):** Se eliminó por completo la función `convertirAGoogleThumbnail` y todas sus llamadas dentro de `services/catalog/catalog.js`. El servicio ahora cumple estrictamente con su responsabilidad de servir datos crudos, enviando únicamente los `fileId`.
+    *   **Solución (Frontend):** Se robusteció la función `getImageUrl` en `main.js`. Se eliminó la lógica de parsing de URLs, ya que ahora solo recibe `fileId` limpios, haciendo el código más simple y eficiente.
+    *   **Archivos Modificados:** `services/catalog/catalog.js`, `main.js`.
+*   **DOCS (README.md):** Se actualizó la documentación con un diagrama y una explicación detallada del flujo de carga de imágenes final y correcto, reflejando la arquitectura verificada.
+    *   **Archivos Modificados:** `README.md`.
 
-**v4.5.3 (02-01-2026)**
-*   **fix(render):** Se resolvió un error de JavaScript que bloqueaba la ejecución y prevenía que la UI de resultados de búsqueda (`#stage-1-5`) se renderizara.
-    *   **Causa Raíz:** La función `handleSuggestion` intentaba llamar a la acción `getSuggestion`, la cual no está definida en el `api-manager.js`, causando un error fatal que detenía toda la ejecución de scripts en la página.
-    *   **Solución:** Se comentó la llamada a `routeAction` dentro de `handleSuggestion`, convirtiendo la función en un stub seguro. Esto previene el error, permite que el resto del código se ejecute y desbloquea la renderización de la UI.
-    *   **Archivos Modificados:** `add_cortes.html`: Líneas 207-215.
-*   **CHORE (versioning):** Se actualizó la versión del componente a `2.1.3` para reflejar el cambio.
-    *   **Archivos Modificados:** `add_cortes.html`: Línea 1.
+**v5.1.0 (05/01/2026)**
+*   **PERF (services/catalog/catalog.js):** Se implementó un mecanismo de caché en el backend para mejorar radicalmente el rendimiento de la aplicación.
+    *   **Causa Raíz:** La carga inicial de datos (`getCatalogData`) era lenta debido a que leía y procesaba toda la información de la hoja de cálculo en cada solicitud.
+    *   **Solución:** Se utilizó `CacheService` de Google Apps Script para almacenar en caché el objeto de datos del catálogo completo durante 1 hora. Las solicitudes posteriores ahora leen directamente de la caché, evitando accesos innecesarios a la hoja de cálculo y reduciendo los tiempos de carga de segundos a milisegundos.
+    *   **Verificación:** Se añadió un nuevo endpoint de depuración (`?debug=true`) que muestra el estado actual de la caché, permitiendo verificar si los datos se están sirviendo desde la caché o desde una lectura nueva.
+    *   **Archivos Modificados:** `services/catalog/catalog.js`.
 
-**v4.5.2 (02-01-2026)**
-*   **FIX (add_cortes.html):** Se implementó un manejo de errores robusto en la función `handleSuggestion` para prevenir que fallos en la API de sugerencias detengan la ejecución del JavaScript y bloqueen la renderización de la UI.
-    *   **Causa Raíz:** Una llamada a la acción `getSuggestion` fallaba en el entorno de pruebas, lanzando un error no capturado que impedía la ejecución de la lógica subsiguiente para mostrar los resultados de la búsqueda.
-    *   **Solución:** Se envolvió la llamada a `routeAction('getSuggestion', ...)` dentro de un bloque `try...catch`. Ahora, si la llamada falla, el error se registra en la consola para depuración, pero no se relanza, permitiendo que el resto del script continúe su ejecución sin interrupciones. Esto resuelve el bug que impedía mostrar los resultados y, por consiguiente, arregla el problema del lightbox.
-    *   **Archivos Modificados:** `add_cortes.html`: Líneas 207-213.
-*   **CHORE (versioning):** Se actualizó la versión del componente a `2.1.2` para reflejar el cambio.
-    *   **Archivos Modificados:** `add_cortes.html`: Línea 1.
-
-**v4.5.1 (1-01-2026)**
-*   **UX (add_cortes.html):** Se implementaron múltiples mejoras de compactación en la UI para reducir el espacio vertical y horizontal, siguiendo los requisitos del usuario.
-    *   Se redujeron los márgenes y paddings en los contenedores principales, secciones y tarjetas.
-    *   Se disminuyó el tamaño de la fuente para los títulos `h2`, `h3` y `h4`.
-    *   Se ajustó el ancho de las tarjetas de resultados para que sean más compactas.
-    *   **Archivos Modificados:** `add_cortes.html`: Líneas 23-28, 38-41 (CSS).
-*   **FIX (add_cortes.html):** Se solucionó un bug crítico que impedía el funcionamiento de la galería de imágenes `SimpleLightbox` en los resultados de búsqueda.
-    *   **Causa Raíz:** La biblioteca se inicializaba una sola vez al cargar la página. No se volvía a inicializar después de que el contenido de los resultados de búsqueda se añadiera dinámicamente al DOM, por lo que los nuevos elementos no tenían los listeners de eventos necesarios.
-    *   **Solución:** Se movió la inicialización de `SimpleLightbox` (`new SimpleLightbox(...)`) dentro de la función `mostrarResultadosBusqueda`, asegurando que se ejecute cada vez que se generan nuevos resultados. Se añadió una lógica para destruir cualquier instancia previa (`if (lightbox) lightbox.destroy();`) para evitar fugas de memoria.
-    *   **Archivos Modificados:** `add_cortes.html`: Líneas 203-207, 303-308.
-*   **CHORE (.gitignore):** Se creó un archivo `.gitignore` para excluir los archivos de log del servidor (`*.log`) y otros artefactos de desarrollo del control de versiones.
-    *   **Archivos Modificados:** `.gitignore` (nuevo archivo).
-*   **CHORE (versioning):** Se actualizaron las versiones de los componentes en los archivos modificados para reflejar los cambios recientes.
-    *   `index.html`: Versión de componente actualizada a `2.4.1`.
-    *   `add_cortes.html`: Versión de componente actualizada a `2.1.0`.
-    *   **Archivos Modificados:** `index.html`: Línea 2; `add_cortes.html`: Línea 2.
-
-**v4.5.0 (1-01-2026)**
-*   **HOTFIX & REFACTOR (add_cortes.html):** Se implementó una corrección crítica y final al flujo de trabajo de anti-duplicados para alinearlo con los requisitos exactos del usuario, eliminando la implementación incorrecta de un modal.
-    *   **Flujo de Trabajo Inline:** Se eliminó por completo el modal de elección. En su lugar, cuando se encuentra una coincidencia de vehículo, la interfaz de usuario ahora muestra los resultados y presenta **botones de acción inline** directamente en la página, como se solicitó.
-    *   **Nuevos Botones de Acción:** Los botones ahora son: "Sí, es el mismo corte (cancelar)", "Es uno nuevo", y "Agregar información adicional", cada uno con la funcionalidad correcta (cancelar, ir al Paso 2, o ir al Paso 3).
-    *   **Tarjetas Informativas:** Las tarjetas de resultados ya no son clickeables, sirviendo únicamente como un display informativo para que el usuario tome una decisión usando los botones. Se eliminó el estilo `cursor: pointer` para evitar confusiones.
-    *   **Archivos Modificados:** `add_cortes.html`: Líneas 48-61 (eliminación de CSS), 63-75 (eliminación de HTML), 86-97 (HTML), 281-291 (JS), 354-386 (eliminación de JS).
-*   **DOCS (README.md):** Se actualizó la documentación para describir con precisión el flujo de trabajo final y correcto, detallando el uso de los botones inline y las tarjetas informativas no interactivas.
-    *   **Archivos Modificados:** `README.md`: Líneas 131-140.
-
-**v4.4.9 (31-12-2025)**
-*   **HOTFIX (add_cortes.html):** Se implementó una corrección crítica al flujo de trabajo de anti-duplicados para alinearlo con los requisitos del usuario. La navegación ya no es directa, sino que presenta al usuario opciones claras.
-    *   **Modal de Elección:** Al hacer clic en una tarjeta de vehículo coincidente, ahora se muestra un modal que permite al usuario elegir entre "Agregar Nuevo Corte" (ir al Paso 2), "Agregar Información Suplementaria" (ir al Paso 3), o "Cancelar". Esto evita la navegación no deseada y asegura que el usuario tome una decisión informada.
-    *   **Archivos Modificados:** `add_cortes.html`: Líneas 55-68 (CSS y HTML del modal), 304 (JS), 375-420 (JS).
-*   **DOCS (README.md):** Se actualizó la documentación para describir con precisión el nuevo flujo de navegación basado en el modal de elección.
-    *   **Archivos Modificados:** `README.md`: Líneas 131-140.
-
-**v4.4.8 (31-12-2025)**
-*   **HOTFIX (add_cortes.html):** Se implementaron correcciones críticas en la página de adición de cortes, basadas en el feedback del usuario para resolver una mala interpretación de los requisitos de la función anti-duplicados y un bug severo en la visualización de imágenes.
-    *   **Navegación Intuitiva por Tarjeta:** Se eliminó el botón "Seleccionar este Vehículo", que era redundante. En su lugar, toda la tarjeta de resultados de búsqueda es ahora clickeable, lo cual alinea el comportamiento con el objetivo real: permitir al usuario seleccionar un vehículo existente para añadirle nuevos cortes y evitar duplicados.
-    *   **Corrección de Lightbox:** Se solucionó un bug crítico que requería iniciar sesión en Google para ver las imágenes de los cortes en el lightbox. Se modificó la lógica para que el `href` del enlace del lightbox también utilice la función `convertirAGoogleThumbnail`, asegurando que se genere una URL pública y accesible para la imagen en alta resolución.
-    *   **Archivos Modificados:** `add_cortes.html`: Líneas 285-300, 318.
-*   **DOCS (README.md):** Se actualizó la documentación para reflejar con precisión el flujo de trabajo anti-duplicados corregido, explicando que el objetivo es mostrar al usuario los cortes existentes y que la navegación se realiza haciendo clic en la tarjeta del vehículo.
-    *   **Archivos Modificados:** `README.md`: Líneas 131-144.
-
-**v4.4.7 (31-12-2025)**
-*   **FEAT & UX (add_cortes.html):** Se implementó una segunda ronda de mejoras significativas en la UI/UX de los resultados de búsqueda de vehículos, enfocadas en la usabilidad y la navegación.
-    *   **Selección Explícita de Vehículo:** Se añadió un botón "Seleccionar este Vehículo" a cada tarjeta de resultados. Esta es ahora la única acción que permite avanzar al siguiente paso, eliminando la navegación accidental que ocurría al hacer clic en las imágenes o en el texto de la tarjeta.
-    *   **Gestión del Historial del Navegador:** Se integró la API de Historial del navegador (`history.pushState`, `window.onpopstate`) para crear una experiencia de formulario multi-paso fluida. El botón "Atrás" del navegador ahora navega correctamente del paso de resultados al paso de búsqueda, en lugar de sacar al usuario de la página.
-    *   **Archivos Modificados:** `add_cortes.html`: Líneas 205-224 (JS), 241-259 (JS), 304 (HTML).
-*   **DOCS (README.md):** Se actualizó la documentación técnica para reflejar estas nuevas mejoras, detallando el flujo de selección explícito y la gestión del historial del navegador.
-    *   **Archivos Modificados:** `README.md`: Líneas 131-149.
-
-**v4.4.6 (31-12-2025)**
-*   **FEAT & UX (add_cortes.html):** Se implementaron mejoras significativas en la visualización de las tarjetas de coincidencias de vehículos para proporcionar una experiencia de usuario más rica e informativa.
-    *   **Imágenes Detalladas y Lightbox:** Se integró la biblioteca `simple-lightbox-gallery` para permitir que las imágenes de los cortes se abran en una galería a pantalla completa con capacidad de zoom. La imagen del vehículo se muestra en un tamaño reducido (100px), mientras que las imágenes de los cortes son más grandes (180x120px) para facilitar su visualización.
-    *   **Renderizado de Imágenes de Drive:** Se añadió la función `convertirAGoogleThumbnail` para procesar correctamente las URLs de Google Drive y asegurar que todas las imágenes se rendericen correctamente.
-    *   **Información Adicional:** A la derecha de cada imagen de corte, ahora se muestran los detalles de "Ubicación" y "Color de Cable", proporcionando información crucial de un vistazo.
-    *   **Archivos Modificados:** `add_cortes.html`: Líneas 7 (CDN CSS), 35-43 (CSS), 200-212 (JS), 261-344 (JS), 438 (CDN JS).
-
-**v4.4.5 (31-12-2025)**
-*   **INFRA (api-manager.js):** Se actualizaron las URLs de los microservicios `GPSpedia-Catalog` y `GPSpedia-Write` a las nuevas versiones desplegadas, asegurando que el frontend apunte a los endpoints más recientes.
-    *   **Archivos Modificados:** `api-manager.js`: Líneas 11-12.
-
-**v4.4.4 (31-12-2025)**
-*   **FEAT & REFACTOR (Full-Stack):** Se implementó un flujo de trabajo de adición de cortes completamente nuevo y mejorado, abarcando desde la búsqueda inteligente hasta la gestión de archivos y la documentación.
-    *   **Frontend - Visualización de Coincidencias (`add_cortes.html`):**
-        *   Se rediseñó la sección de resultados de búsqueda para mostrar tarjetas de coincidencias detalladas.
-        *   Cada tarjeta ahora incluye la imagen del vehículo (150px), información clave y miniaturas de los cortes ya existentes, proporcionando al usuario un contexto visual completo para evitar duplicados.
-        *   **Archivos Modificados:** `add_cortes.html`: Líneas 30-38 (CSS), 205-247 (JavaScript).
-    *   **Backend - Gestión de Archivos (`services/write/write.js`):**
-        *   Se refactorizó por completo la lógica de subida de imágenes.
-        *   El sistema ahora crea una estructura de carpetas jerárquica en Google Drive (`Categoria/Marca/Modelo/Año`).
-        *   Las imágenes se renombran automáticamente a un formato estandarizado (`Marca_Modelo_TipoEncendido_Año_Informacion.jpg`), mejorando drásticamente la organización de los archivos.
-        *   **Archivos Modificados:** `services/write/write.js`: Líneas 46-50 (helper), 211-255, 404-416 (lógica de nombrado).
-    *   **Full-Stack - Sugerencia "Quizás quisiste decir...":**
-        *   **Backend (`services/catalog/catalog.js`):** Se creó una nueva acción `getSuggestion` que utiliza el algoritmo de distancia de Levenshtein para encontrar y sugerir la corrección más probable para errores tipográficos en los campos `marca` y `modelo`.
-        *   **Frontend (`add_cortes.html`):** Se añadieron listeners de eventos `onblur` a los campos de marca y modelo. Cuando el usuario termina de escribir, se llama al backend para obtener una sugerencia, que se muestra discretamente debajo del campo.
-        *   **Archivos Modificados:** `services/catalog/catalog.js`: Líneas 107-110 (router), 369-453 (lógica); `add_cortes.html`: Líneas 39-42 (CSS), 57-67 (HTML), 171-199 (JavaScript).
-    *   **DOCS (README.md):**
-        *   Se actualizó la documentación técnica para reflejar con máximo detalle el funcionamiento de estas nuevas características, incluyendo la lógica de búsqueda flexible, el asistente de sugerencias y el nuevo sistema de gestión de archivos.
-        *   **Archivos Modificados:** `README.md`: Líneas 112-149.
-
-**v4.4.3 (31-12-2025)**
-*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `GPSpedia-Catalog` a la nueva versión desplegada, asegurando que el frontend apunte al endpoint más reciente tras la implementación de la búsqueda flexible.
-    *   **Archivos Modificados:** `api-manager.js`: Línea 11.
-
-**v4.4.2 (31-12-2025)**
-*   **FIX & FEAT (services/catalog/catalog.js):** Se solucionó el error "Parámetros de búsqueda incompletos" y se implementó una lógica de búsqueda flexible.
-    *   **Corrección:** Se alineó el parámetro `anoDesde` en la función `handleCheckVehicle` con los datos enviados desde el frontend, eliminando el error.
-    *   **Nueva Funcionalidad:** Se refactorizó la búsqueda para que `marca` y `modelo` utilicen coincidencias parciales e insensibles a mayúsculas/minúsculas, mientras que `año` y `tipo de encendido` siguen siendo exactos. La función ahora devuelve una lista de todas las coincidencias.
-    *   **Archivos Modificados:** `services/catalog/catalog.js`: Líneas 330-366.
-
-**v4.4.1 (31-12-2025)**
-*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `GPSpedia-Catalog` a la nueva versión desplegada, asegurando que el frontend apunte al endpoint más reciente tras la corrección del bug de carga de formularios.
-    *   **Archivos Modificados:** `api-manager.js`: Línea 11.
-
-**v4.4.0 (31-12-2025)**
-*   **HOTFIX (services/catalog/catalog.js):** Se solucionó un error crítico de `TypeError: Cannot read properties of undefined (reading 'categoria')` que impedía la carga de los datos del formulario.
-    *   **Causa Raíz:** Existía una discrepancia en la estructura del JSON esperado por el frontend y el JSON devuelto por el backend. La función `handleGetDropdownData` devolvía los datos bajo una clave `data` con nombres de campo en plural (ej. `categorias`), mientras que el frontend esperaba una clave `dropdowns` con nombres en singular (ej. `categoria`).
-    *   **Solución:** Se modificó la estructura del objeto de respuesta en `handleGetDropdownData` para que coincida exactamente con la esperada por el frontend, resolviendo el `TypeError`.
-    *   **Archivos Modificados:** `services/catalog/catalog.js`: Líneas 286-298.
-
-**v4.3.9 (31-12-2025)**
-*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `GPSpedia-Catalog` a la nueva versión desplegada, asegurando que el frontend se comunique con el endpoint más reciente y corregido.
-    *   **Archivos Modificados:** `api-manager.js`: Línea 11.
-
-**v4.3.8 (31-12-2025)**
-*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `GPSpedia-Write` a la nueva versión desplegada, asegurando que el frontend se comunique con el endpoint más reciente para las operaciones de escritura.
-    *   **Archivos Modificados:** `api-manager.js`: Línea 12.
-
-**v4.3.7 (31-12-2025)**
-*   **HOTFIX (services/catalog/catalog.js):** Se solucionó un error crítico que impedía la carga de los datos del formulario en `add_cortes.html`.
-    *   **Causa Raíz:** Se producía un error de `TypeError: ... .getValues is not a function` en la función `handleGetDropdownData`. El código intentaba llamar a `.getValues()` sobre un array simple devuelto por `getCriteriaValues()`, lo cual es incorrecto.
-    *   **Solución:** Se eliminó la llamada errónea a `.getValues()`, permitiendo que el array de valores de la lista de validación de datos se procese correctamente.
-    *   **Archivos Modificados:** `services/catalog/catalog.js`: Línea 290.
-
-**v4.3.6 (31-12-2025)**
-*   **HOTFIX (index.html):** Se solucionó la causa raíz de la regresión crítica que impedía la carga del catálogo.
-    *   **Causa Raíz:** Un error de `ReferenceError: crearCarrusel is not defined` detenía la ejecución de todo el JavaScript. La función `crearCarrusel` fue definida dentro del scope de `mostrarCategorias`, pero era llamada por `mostrarUltimosAgregados`, que se ejecutaba antes.
-    *   **Solución:** Se movió la definición de la función `crearCarrusel` al ámbito global del script. Esto asegura que la función esté definida antes de cualquier llamada, resolviendo el error de referencia y permitiendo que la aplicación se inicialice correctamente.
-    *   **Archivos Modificados:** `index.html`: Líneas 1699-1773, 2635-2709.
-
-**v4.3.5 (31-12-2025)**
-*   **HOTFIX (service-worker.js):** Se solucionó una regresión crítica introducida en la v4.3.4 que impedía la carga del catálogo y causaba la pérdida de sesión en cada recarga.
-    *   **Causa Raíz:** El commit anterior introdujo cambios significativos en el frontend (`index.html`) pero no incrementó la versión de la caché en el service worker. Esto provocó que los clientes siguieran usando una versión de JavaScript en caché, incompatible con la nueva lógica, causando un error fatal durante la inicialización.
-    *   **Solución:** Se incrementó la versión de la caché de `v4` a `v5` en `service-worker.js`. Esto invalida la caché obsoleta y fuerza a todos los clientes a descargar la última versión de la aplicación, restaurando la funcionalidad completa.
-    *   **Archivos Modificados:** `service-worker.js`: Línea 1.
-
-**v4.3.4 (31-12-2025)**
-*   **UX (index.html):** Se implementaron múltiples mejoras en la interfaz de usuario para aumentar la compacidad y corregir funcionalidades.
-
-    *   **Logo en Modal:** Se corrigió la lógica de `mostrarDetalleModal` para asegurar que el logo de la marca siempre se cargue y muestre.
-
-    *   **Carruseles:** Se refactorizó la lógica de navegación, generalizándola en la función `crearCarrusel` para que todos los carruseles (Últimos Agregados, Categorías, Marcas) tengan botones de navegación funcionales.
-
-    *  **Botones de Feedback:** Se redujo el tamaño de los botones "Útil" y "Reportar" en un 10% mediante CSS.
-
-NOTA SIBRE ESTA ENTEADA, algunos cambios solicitados no se realizaron y se ignoraron instrucciones.
-    *   **Archivos Modificados:** `index.html`: Líneas 814-855, 1282-1288, 1983-2225, 2561-2835, 3331-3351.
-
-**v4.3.3 (31-12-2025)**
-*   **REFACTOR & FIX (index.html):** Se ha rediseñado por completo el modal de detalles del vehículo para alinearlo con la nueva especificación de 12 puntos y corregir múltiples regresiones críticas.
-    *   **Especificación del Modal:**
-        1.  **Restaurada Navegación Principal:** Se corrigió la función `mostrarCategorias` para renderizar correctamente los carruseles de Categorías y Marcas.
-        2.  **Reparado Video en Tutoriales:** Se corrigió la función `mostrarDetalleTutorial` para usar `item.Video` en lugar de `item.videoGuia`, restaurando la visualización de videos.
-        3.  **Reparada Imagen en Relay:** Se corrigió la función `mostrarDetalleRelay` para usar la variable de contenedor correcta, restaurando la visualización de imágenes.
-        4.  **Nuevo Encabezado Detallado:** El encabezado del modal ahora muestra el Título, Logo de Marca, Versión, Rango de Años y Categoría en el formato especificado.
-        5.  **Orden de Contenido:** El cuerpo del modal ahora sigue el orden estricto: Corte Recomendado, Otros Cortes (acordeón), Apertura (acordeón), Alimentación (acordeón) y Video Guía (acordeón).
-        6.  **Corte Recomendado Fijo:** La sección del corte con más "likes" siempre está visible y expandida.
-        7.  **Estilo de Imagen de Vehículo:** La imagen principal del vehículo ahora tiene una altura máxima de 150px y un efecto `drop-shadow`.
-        8.  **Estilo de Imagen de Corte Recomendado:** La imagen dentro del corte recomendado ahora ocupa el 100% del ancho del panel.
-        9.  **Posición del Link de Relay:** El enlace "Ver Configuración de Relay" ahora aparece correctamente *antes* del nombre del colaborador.
-        10. **Alineación del Colaborador:** El nombre del colaborador ahora se alinea a la izquierda.
-        11. **Emoji en Nota Importante:** Se añadió el emoji `⚠️` a la nota importante.
-        12. **Eliminación de Notas Personales:** La sección de notas personales fue eliminada por completo.
-    *   **Archivos Modificados:**
-        *   `index.html`: Líneas 1714-1888, 2125-2405.
-
-**v4.3.2 (31-12-2025)**
-*   **INFRA (api-manager.js):** Se actualizaron las URLs de los microservicios `CATALOG` y `FEEDBACK` a las nuevas versiones desplegadas, asegurando la comunicación con los endpoints correctos.
-    *   `api-manager.js`: Líneas 10-14
-
-**v4.3.1 (31-12-2025)**
-*   **REFACTOR (services/feedback/feedback.js):** Se mejoró y robusteció la lógica de `handleSuggestYear`. La función ahora solo considera votos de usuarios únicos para aplicar un cambio en el rango de años, preveniendo que un solo usuario fuerce una actualización. Adicionalmente, se corrigió el `MimeType` de la respuesta del servicio a `TEXT` para garantizar la compatibilidad con CORS y prevenir errores de `Failed to fetch`. Se eliminó también una declaración duplicada de la función `handleRecordLike`.
-    *   **services/feedback/feedback.js`: Líneas 128-140, 210-218
-*   **FIX (index.html):** Se corrigió un bug crítico en la función `handleLike` que impedía el correcto funcionamiento del feedback de usuario y la sugerencia de años. La nueva implementación asegura que la UI se actualice correctamente, previene envíos duplicados y pasa el `userId` requerido al backend.
-    *   `index.html`: Líneas 3200-3250
-*   **REFACTOR (services/catalog/catalog.js):** Se extendió la funcionalidad de conversión de thumbnails. La función `convertirAGoogleThumbnail` ahora se aplica también a los datos de las secciones "Tutoriales" y "Relay", centralizando completamente la lógica de formateo de imágenes en el backend.
-    *   `services/catalog/catalog.js`: Líneas 240-258
-
-**v4.3.0 (15/01/2026)**
-*   **FIX CRÍTICO (index.html, catalog.js, utilities.js):** Se solucionó la causa raíz final y persistente del fallo de renderización de imágenes de Google Drive en todo el sistema.
-    *   **Causa Raíz:** Las funciones auxiliares que convertían URLs de Google Drive a formatos de thumbnail (`convertirAGoogleThumbnail` en el frontend y backend, y `getImageCreationDate` en utilities) utilizaban una expresión regular que no era capaz de parsear todos los formatos de URL existentes en la base de datos (ej. URLs con `/view` o `/file/d/`).
-    *   **Solución:** Se refactorizaron todas las instancias de esta lógica con una expresión regular mucho más robusta que ahora captura correctamente el ID del archivo desde múltiples formatos de URL (`.../file/d/ID...`, `...id=ID...`, y `.../d/ID...`). Esto asegura una conversión de URLs consistente y correcta en toda la aplicación.
-        *   `index.html`: Líneas 1943-1961
-        *   `services/catalog/catalog.js`: Líneas 346-362
-        *   `services/utilities/utilities.js`: Líneas 127-145, 192-210
-
-**v4.2.9 (14/01/2026)**
-*   **FIX (index.html):** Se solucionó un bug visual crítico que impedía la renderización de los logos de las marcas en la vista de selección de marcas.
-    *   **Causa Raíz:** La función `mostrarMarcas` asignaba directamente la URL de Google Drive (`logoUrl`) al atributo `src` de la imagen, sin convertirla al formato de thumbnail requerido por el navegador para su correcta visualización.
-    *   **Solución:** Se envolvió la variable `logoUrl` dentro de la función auxiliar `convertirAGoogleThumbnail` antes de asignarla al `src`. Esto asegura que la URL se formatee correctamente y que la imagen del logo se renderice como es debido. (Línea 2567).
-
-**v4.2.8 (13/01/2026)**
-*   **FIX (index.html):** Se solucionó la causa raíz del fallo en la renderización de logos de marcas.
-    *   **Causa Raíz:** La lógica anterior para encontrar logos (`getLogoUrlForMarca`) era demasiado rígida y se basaba en la concatenación de strings (ej. 'marca' + 'motocicletas'), lo que no coincidía con los nombres reales en la base de datos (ej. 'Honda Motocicletas').
-    *   **Solución:** Se revirtió el fallback a texto y se refactorizó `getLogoUrlForMarca` con un algoritmo de búsqueda flexible. La nueva función normaliza los nombres, busca todas las coincidencias parciales que contienen el nombre de la marca y luego usa la categoría para desambiguiar de forma inteligente entre variantes (ej. prioriza "motocicletas" si la categoría es "Motos"). Esto asegura que el logo correcto se encuentre siempre. (Líneas 1901-1941, 2535-2565).
-*   **FEAT (index.html):** Se implementó la lógica de frontend para la sugerencia de año, completando el flujo de feedback del usuario.
-    *   **Funcionalidad:** Después de que un usuario presiona el botón "Útil" para registrar un "like", ahora se le presenta un `prompt` que le pregunta si el corte aplica a otro año.
-    *   **Implementación:** Si el usuario ingresa un año válido, la función `handleLike` invoca la acción `suggestYear` en el backend para registrar la sugerencia. Se añadió manejo de errores y validación de entrada para asegurar que solo se envíen años numéricos válidos. (Líneas 2933-2980).
-
-**v4.2.7 (12/01/2026)**
-*   **FIX (index.html):** Se implementó un mecanismo de fallback para la visualización de marcas. Si los datos de los logos no están disponibles en el backend (la variable `datosLogos` está vacía), la función `mostrarMarcas` ahora renderizará tarjetas de solo texto con los nombres de las marcas en lugar de mostrar imágenes rotas. Esto asegura que la navegación siga siendo funcional y la experiencia de usuario sea fluida incluso con datos incompletos. (Líneas 2535-2588).
-
-**v4.2.6 (11/01/2026)**
-*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `CATALOG` a la nueva versión desplegada proporcionada por el usuario. (Línea 10).
-
-**v4.2.5 (10/01/2026)**
-*   **FIX (index.html & services/catalog/catalog.js):** Se implementó una solución integral para el fallo persistente en la renderización de logos de marcas.
-    1.  **Backend (`services/catalog/catalog.js`):** Se corrigió una inconsistencia crítica en la función `doGet`. Se actualizó el número de versión reportado de `1.2.1` a `2.3.0` y se añadió `LogosMarca` a la lista de hojas de cálculo accedidas en el modo debug. Esto asegura que la metadata del servicio refleje su funcionalidad real. (Líneas 77, 79).
-    2.  **Frontend (`index.html`):** Se robusteció la función `mostrarMarcas`. Ahora incluye una comprobación defensiva que emite un `debugLog` si `datosLogos` está vacío, alertando sobre problemas de datos. Además, se añadió un manejador de eventos `onerror` a las imágenes de los logos, que muestra una imagen de "Error" y registra un `debugLog` if la carga falla. (Líneas 2535-2565).
-*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `FEEDBACK` a la newa versión desplegada y proporcionada por el usuario, restaurando la funcionalidad del sistema de Inbox y reportes. (Línea 12).
-
-**v4.2.4 (09/01/2026)**
-*   **FIX CRÍTICO (index.html):** Se solucionó una regresión crítica que impedía la carga del catálogo y causaba la pérdida de sesión en cada recarga.
-    *   **Causa Raíz:** Un error de `ReferenceError: updateCarousel is not defined` detenía la ejecución de JavaScript. La función `updateCarousel` se definía dentro de un bloque `if` en la lógica del carrusel, pero era llamada por un `setTimeout` que se encontraba fuera de dicho bloque. Si la condición del `if` no se cumplía (p.ej., si había menos de 6 elementos en el carrusel), la función no se declaraba, provocando el error fatal.
-    *   **Solución:** Se movió la llamada `setTimeout(updateCarousel, 100)` dentro del bloque `if` para asegurar que solo se ejecute si la función `updateCarousel` ha sido definida. Esto previene el error y permite que la aplicación se inicialice correctamente. (Línea 2525).
-
-**v4.2.3 (08/01/2026)**
-*   **FIX (index.html):** Se corrigió una regresión crítica introducida en la v4.2.0 que rompía la funcionalidad de la barra de búsqueda.
-    *   **Causa Raíz:** La función `mostrarResultadosBusquedaMarca` intentaba obtener la URL del logo de la marca usando `estado.categoria`, que es nulo o incorrecto en el contexto de una búsqueda global. Esto provocaba un fallo en la renderización de los resultados.
-    *   **Solución:** Se modificó la llamada a `getLogoUrlForMarca` para pasar `null` como categoría, forzando a la función a usar su lógica de fallback para encontrar el logo genérico de la marca, restaurando así la funcionalidad. (Línea 2282).
-
-**v4.2.2 (08/01/2026)**
-*   **INFRA (api-manager.js):** Se actualizaron las URLs de los microservicios `CATALOG` y `UTILITIES` a las newas versiones desplegadas y proporcionadas por el usuario, asegurando que el frontend se comunique con los endpoints más recientes. (Líneas 10, 14).
-
-**v4.2.1 (07/01/2026)**
-*   **FIX (catalog.js & index.html):** Se corrigió un bug funcional en el ordenamiento de categorías. La versión anterior calculaba la popularidad pero no la aplicaba.
-    1.  **Backend (`services/catalog/catalog.js`):** Se añadió la lógica para ordenar la lista de categorías por `vehicleCount` (descendente) antes de enviarla al frontend. (Líneas 220-221).
-    2.  **Frontend (`index.html`):** Se eliminó el ordenamiento alfabético (`.sort()`) que se aplicaba en el cliente, asegurando que el orden del backend sea respetado. Se modificó la función `mostrarCategorias` para usar la nueva lista `sortedCategoriesList` recibida. (Líneas 1611, 1458, 2326-2332).
-*   **FEAT (services/utilities/utilities.js):** Se añadió una nueva funcionalidad al servicio de utilidades para obtener la fecha de creación de una imagen a partir de su URL de Google Drive.
-    1.  **Helper Function:** Se creó una nueva función auxiliar `getImageCreationDate(url)` que extrae el ID del archivo de la URL, accede al archivo mediante `DriveApp` y devuelve su fecha de creación en formato ISO. (Líneas 105-128).
-    2.  **API Endpoint:** Se expuso esta funcionalidad a través de una nueva acción `getImageCreationDateFromUrl` en el `doPost`, permitiendo que sea invocada de forma segura desde el frontend (requiere rol 'Desarrollador'). (Líneas 66-72).
-
-**v4.2.0 (06/01/2026)**
-*   **FEAT (feedback.js):** Se refactorizó completamente la lógica de `handleSuggestYear` para cumplir con los nuevos requisitos de negocio. La función ahora requiere 3 votos de usuarios para aplicar un cambio y ejecuta una comprobación anti-colisión para prevenir el solapamiento de rangos de años entre diferentes generaciones de un mismo modelo.
-*   **REFACTOR (catalog.js):** Se centralizó la lógica de conversión de URLs de Google Drive a thumbnails en el backend. La nueva función `convertirAGoogleThumbnail` ahora procesa todas las URLs de imágenes antes de enviarlas al frontend, mejorando el rendimiento y la consistencia.
-*   **UX (index.html):** Se implementaron múltiples mejoras en la interfaz de usuario:
-    *   **Layout Principal:** Se reorganizó la página principal para mostrar primero la sección "Últimos Agregados" y luego las "Categorías".
-    *   **Carrusel:** La sección "Últimos Agregados" es ahora un carrusel que muestra 6 tarjetas.
-    *   **Navegación por Marca:** La vista de selección de marca ahora muestra los logos en lugar de texto.
-    *   **Modal de Detalles:** Se unificó la funcionalidad de "like" y "sugerir año" en el botón "Útil" (👍). Se añadieron placeholders de edición "in-modal" para campos sin datos.
-*   **CHORE:** Las modificaciones se realizaron de forma segura, sin alterar la lógica crítica protegida de `auth.js` (sesiones) ni `catalog.js` (carga de datos y caché).
-
-**v4.1.1 (05/01/2026)**
-*   **FIX (index.html):** Se restauró la lógica para el botón de instalación de la PWA (`beforeinstallprompt` listener y el handler del click), que fue eliminada accidentalmente en una refactorización previa. Esto soluciona una regresión crítica que impedía a los usuarios instalar la aplicación. (Líneas 2315-2346).
-*   **INFRA (api-manager.js):** Se actualizó la URL del microservicio `GPSpedia-Utilities` a la nueva versión desplegada y funcional, eliminando el endpoint placeholder. (Línea 14).
-
-**v4.1.0 (04/01/2026)**
-*   **FEAT (services/utilities/utilities.js & index.html):** Se implementó un nuevo microservicio `GPSpedia-Utilities` y la interfaz de frontend correspondiente para herramientas de administrador.
-    1.  **Backend (`services/utilities/utilities.js`):** Creado el nuevo servicio con acciones protegidas (`migrateYearRanges`, `migrateTimestamps`) para migraciones de datos. (Archivo nuevo).
-    2.  **Frontend (`index.html`):** Añadido un modal "Herramientas de Desarrollador", accesible mediante un nuevo botón en el menú lateral (visible solo para rol 'Desarrollador'). El modal incluye botones para ejecutar las migraciones y muestra la consola de depuración. (Líneas 923-950, 2593-2625, 2772-2808).
-    3.  **Infra (`api-manager.js`):** Registrado el nuevo endpoint `UTILITIES` y mapeadas las nuevas acciones. (Líneas 14, 46-47).
-*   **FEAT (services/feedback/feedback.js & index.html):** Se implementó un sistema de "Inbox" para la gestión de feedback de usuarios.
-    1.  **Backend (`services/feedback/feedback.js`):** Añadidas nuevas acciones (`getFeedbackItems`, `replyToFeedback`, `markAsResolved`) para leer y gestionar los reportes de problemas y mensajes de contacto. (Líneas 114-123, 342-423).
-    2.  **Frontend (`index.html`):** Añadido un modal de "Inbox", accesible mediante un nuevo botón en el menú lateral (visible para roles 'Supervisor', 'Gefe', 'Desarrollador'). La UI permite ver, responder y resolver items de feedback. (Líneas 907-921, 2582-2591, 2665-2770).
-*   **FIX (users.html):** Solucionado un bug crítico que causaba que los datos de los usuarios se mostrasen como "undefined" en la tabla de gestión y en el modal de edición. El problema se debía a un desfase de mayúsculas y minúsculas (`camelCase` en el frontend vs. `PascalCase_With_Underscores` en el backend). Se corrigió el acceso a las propiedades en todo el archivo. (Líneas 239-241, 273-291, 318-322, 339, 349-354).
-*   **UX (index.html):** Se implementaron mejoras en la interfaz de usuario del modal de detalles del vehículo.
-    1.  **Botones de Feedback:** Se rediseñaron los botones "Útil" y "Reportar" para que sean más compactos, mostrando un ícono y texto sin un contenedor de botón grande. (Líneas 1769-1782).
-    2.  **Video Guía:** La sección "Video Guía de Desarme" ahora se muestra dentro de un acordeón colapsable, igual que el resto de la información suplementaria. (Líneas 1844-1853).
-*   **CHORE:** No se introdujeron regresiones en las funcionalidades estables (login, sesión, carga de catálogo, caché).
-
-**v4.0.2 (03/01/2026)**
-*   **DOCS (Auditoria.txt & README.md):** Se realizó una auditoría completa del sistema y se sincronizó la documentación para reflejar el estado real del código.
-    1.  **Auditoría (`Auditoria.txt`):** Se sobrescribió el archivo con un nuevo reporte confirmando que el código fuente es funcional y no presenta los bugs críticos listados en la documentación. Se identificó el `README.md` como la fuente de la inconsistencia.
-    2.  **Sincronización (`README.md`):** Se actualizaron los checklists en la sección "Bugs y Regresiones Críticas" para marcar como completados `[X]` los siguientes puntos, que ya estaban resueltos en el código: "Lógica del Modal de Detalle", "Carga de Imágenes en Modal" y "Carga de Logos en Modal". (Líneas 231-233).
-
-**v4.0.1 (02/01/2026)**
-*   **FIX CRÍTICO (api-manager.js & services/catalog/catalog.js):** Solucionado un error de "Fallo de conexión" (Failed to fetch) con el servicio de catálogo. El fix integral incluyó:
-    1.  **Backend (`services/catalog/catalog.js`):** Se cambió el `MimeType` de la respuesta de `JSON` a `TEXT` para cumplir con la política de CORS del entorno de Google Apps Script. (Líneas 112, 124).
-    2.  **Frontend (`api-manager.js`):** Se actualizó la lógica de `routeAction` para procesar la respuesta como texto (`.text()`) y luego parsearla (`JSON.parse()`), en lugar de usar directamente `.json()`. (Líneas 83-84).
-*   **INFRA (api-manager.js):** Se ha actualizado la URL del microservicio `GPSpedia-Catalog` a la nueva versión desplegada proporcionada por el usuario. (Línea 12).
-*   **FIX (index.html):** Se corrigió la lógica del modal de detalles (`mostrarDetalleModal`). Ahora, el corte recomendado se muestra de forma visible por defecto, mientras que los cortes adicionales se presentan en secciones desplegables (acordeón), cumpliendo con los requisitos de la auditoría. (Líneas 1709-1811).
-*   **FIX (index.html):** Solucionado un bug que impedía la visualización de imágenes suplementarias en el modal de detalles. Se añadió la lógica para renderizar las imágenes de apertura, cable de alimentación y diagramas de relay en sus correspondientes secciones. (Líneas 1750-1768, 1829-1875).
-
-**v4.0.0 (02-01/2026)**
-*   **FIX CRÍTICO (services/catalog/catalog.js):** Se ha solucionado el error `cannot read properties of undefined (reading 'categoria')` que impedía la carga de datos del catálogo y de los formularios. Se implementó la función `mapRowToObject` que faltaba y se corrigió `handleGetDropdownData` para leer dinámicamente las opciones de "Categoría" desde las reglas de validación de la hoja de cálculo.
-*   **FIX CRÍTICO (services/users/users.js):** Se ha reparado el servicio de gestión de usuarios, que fallaba en todas sus operaciones (`Failed to fetch`). El error se debía a que la función `doPost` no retornaba ninguna respuesta. Se corrigió la función para asegurar que todas las acciones devuelvan un resultado al frontend.
-*   **REFACTOR & FEAT (index.html):** Se ha eliminado la página `info.html` y su contenido se ha integrado directamente en `index.html` como modales.
-    *   Las secciones "Sobre Nosotros", "Contáctanos" y "Preguntas Frecuentes" ahora se abren como pop-ups sin necesidad de recargar la página.
-    *   Se ha añadido el nuevo contenido extendido a estas secciones.
-    *   Se añadió un pequeño margen al CSS del pie de página para mejorar la separación visual de los enlaces.
-*   **FIX (index.html):** Se ha corregido el envío del formulario de contacto, que fallaba por un error tipográfico en el nombre de la acción (`sendContacForm` -> `sendContactForm`).
-*   **CHORE (project):** Se han actualizado los números de versión en todos los archivos modificados a `4.0.0` (global) y a las versiones de componente correspondientes.
+**v5.0.0 (05/01/2026)**
+*   **REFACTOR (Arquitectura):** Se completó una reestructuración arquitectónica mayor para alinear el proyecto con la especificación `v4` del `README.md`.
+    *   **Modularización del Frontend:** Se desacopló el archivo monolítico `index.html`. El CSS y el JavaScript fueron extraídos a archivos externos (`style.css` y `main.js`), mejorando la mantenibilidad y claridad del código.
+        *   **Archivos Creados:** `style.css`, `main.js`.
+        *   **Archivos Modificados:** `index.html`.
+    *   **Nuevo Microservicio de Imágenes:** Se creó el nuevo `GPSpedia-Image` (`services/image/image.js`), que actúa como un proxy seguro para servir imágenes desde Google Drive. Esto elimina la exposición directa de URLs de Drive en el frontend, mejorando la seguridad y centralizando la lógica de acceso a imágenes.
+        *   **Archivos Creados:** `services/image/image.js`.
+    *   **Refactorización del Frontend para el Servicio de Imágenes:** Se refactorizó todo el código JavaScript del frontend (`main.js`) para eliminar la lógica de conversión de URLs de Google Drive (`convertirAGoogleThumbnail`). Todas las solicitudes de imágenes ahora se enrutan a través del nuevo `GPSpedia-Image`.
+        *   **Archivos Modificados:** `main.js`.
+    *   **Actualización del API Manager:** Se registró el endpoint del nuevo servicio `IMAGE` en `api-manager.js` para hacerlo accesible al frontend. Se actualizó la URL con el endpoint desplegado proporcionado por el usuario.
+        *   **Archivos Modificados:** `api-manager.js`.
