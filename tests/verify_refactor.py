@@ -66,7 +66,14 @@ def test_refactor_verification(page: Page):
     """
     Tests the core user flows after the major refactoring.
     """
-    page.route("**/exec", handle_api_route)
+    # Intercept all new API endpoints
+    page.route("https://script.google.com/macros/s/AKfycbz5pShcFTft6Xz8EiBpEmqMbes611ROqkcoxJ1hwvwvh3JBZfdqm3zklTwuXqBTSN35/exec", handle_api_route)
+    page.route("https://script.google.com/macros/s/AKfycbyVaj-tvzwnADcGec3un7m0k_MyMwiBF4RdYFwIDdf3dZjUTCSEuEKquq9Qfoyv_5x1pg/exec", handle_api_route)
+    page.route("https://script.google.com/macros/s/AKfycbwBvtcf_jayP2Lxdk3PQUz3szRNFePzr9WQ5QbGSiDqgM92v2ugr4BmP7DJhYXgRmq7/exec", handle_api_route)
+    page.route("https://script.google.com/macros/s/AKfycbzOxB-rC35E9vN0v08kPnATfgnJ2Va9rDtRvl1JKeBay8hnLB9Xpn-z5bQ8ylaskxjY/exec", handle_api_route)
+    page.route("https://script.google.com/macros/s/AKfycbwTiMFM8-wTd1zqRH8V9aKQlNPullt8IFNdzd9o6CeAjv6lfcVAX1YLEFjU9sOvEQ_T/exec", handle_api_route)
+    page.route("https://script.google.com/macros/s/AKfycbwtfAsH0UytR23ZP0fRm1mH0V8ZT_EUdAMvWXUY8bfnITZTBNVhnuS4my6MMWJVj3KONw/exec", handle_api_route)
+
 
     page.goto("http://localhost:8000")
 
