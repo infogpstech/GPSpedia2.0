@@ -1,13 +1,15 @@
 // ============================================================================
 // GPSPEDIA-CATALOG SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 2.3.0
+// COMPONENT VERSION: 2.4.0
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
 // ============================================================================
-const SPREADSHEET_ID = "1M6zAVch_EGKGGRXIo74Nbn_ihH1APZ7cdr2kNdWfiDs"; // <-- ACTUALIZADO A DB V2.0
+const SPREADSHEET_ID = "1M6zAVch_EGKGGRXIo74Nbn_ihH1APZ7cdr2kNdWfiDs";
+const LOG_INVALID_IDS = false; // Cambiar a true para registrar IDs de imagen inválidos en la consola.
 let spreadsheet = null;
+let invalidImageIdsFound = []; // Almacena IDs inválidos para el modo diagnóstico.
 
 function getSpreadsheet() {
   if (spreadsheet === null) {
@@ -71,23 +73,36 @@ const COLS_RELAY = {
 // ============================================================================
 function doGet(e) {
     if (e.parameter.debug === 'true') {
+        const cache = CacheService.getScriptCache();
+        const cacheKey = 'catalog_data_v2';
+        const cachedData = cache.get(cacheKey);
+
         const serviceState = {
             service: 'GPSpedia-Catalog',
-            version: '2.3.0', // <-- CORREGIDO
+            version: '2.4.0',
             spreadsheetId: SPREADSHEET_ID,
-            sheetsAccessed: [SHEET_NAMES.CORTES, SHEET_NAMES.TUTORIALES, SHEET_NAMES.RELAY, SHEET_NAMES.LOGOS_MARCA] // <-- CORREGIDO
+            sheetsAccessed: [SHEET_NAMES.CORTES, SHEET_NAMES.TUTORIALES, SHEET_NAMES.RELAY, SHEET_NAMES.LOGOS_MARCA],
+            cacheStatus: {
+                isCached: cachedData !== null,
+                cacheKey: cacheKey
+            }
         };
         return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
             .setMimeType(ContentService.MimeType.JSON);
     }
     const defaultResponse = {
         status: 'success',
-        message: 'GPSpedia Catalog-SERVICE v2.3.0 is active.' // <-- CORREGIDO
+        message: 'GPSpedia Catalog-SERVICE v2.4.0 is active.'
     };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
         .setMimeType(ContentService.MimeType.JSON);
 }
+
 function doPost(e) {
+  invalidImageIdsFound = []; // Resetear para cada nueva solicitud.
+  const isDiagnosticMode = e.parameter.diagnostics === 'true';
+  const startTime = new Date();
+
   try {
     const request = JSON.parse(e.postData.contents);
     const action = request.action;
@@ -107,10 +122,29 @@ function doPost(e) {
       case 'getSuggestion':
         result = handleGetSuggestion(payload);
         break;
+      case 'getNavigationData':
+        result = handleGetNavigationData();
+        break;
       default:
         throw new Error(`Acción desconocida: ${action}`);
     }
 
+    // Si el modo diagnóstico está activado, envolver la respuesta.
+    if (isDiagnosticMode) {
+      const executionTime = new Date() - startTime;
+      const diagnosticResult = {
+        diagnostics: {
+          executionTimeMs: executionTime,
+          invalidImageIdsCount: invalidImageIdsFound.length,
+          invalidImageIds: invalidImageIdsFound,
+        },
+        payload: result
+      };
+      return ContentService.createTextOutput(JSON.stringify(diagnosticResult))
+        .setMimeType(ContentService.MimeType.TEXT);
+    }
+
+    // Respuesta estándar
     return ContentService.createTextOutput(JSON.stringify(result))
       .setMimeType(ContentService.MimeType.TEXT);
 
@@ -131,26 +165,85 @@ function doPost(e) {
 // ============================================================================
 // MANEJADORES DE ACCIONES (HANDLERS)
 // ============================================================================
+
+/**
+ * @const {Set<string>}
+ * @description CONTRATO DE IMÁGENES (Cortes): Define los campos dentro de la hoja 'Cortes'
+ * que deben ser tratados como IDs de imagen. El servicio garantiza que los valores
+ * en estos campos serán siempre un fileId de Google Drive válido (string) o null.
+ * El frontend NUNCA recibirá una URL completa.
+ */
+const IMAGE_FIELDS_CORTES = new Set(['imagenVehiculo', 'imgCorte1', 'imgCorte2', 'imgCorte3', 'imgApertura', 'imgCableAlimen']);
+
+/**
+ * @const {Set<string>}
+ * @description CONTRATO DE IMÁGENES (Logos): Define los campos de imagen para la hoja 'LogosMarca'.
+ */
+const IMAGE_FIELDS_LOGOS = new Set(['urlLogo']);
+
+/**
+ * @const {Set<string>}
+ * @description CONTRATO DE IMÁGENES (Tutoriales): Define los campos de imagen para la hoja 'Tutorial'.
+ */
+const IMAGE_FIELDS_TUTORIALES = new Set(['Imagen']);
+
+/**
+ * @const {Set<string>}
+ * @description CONTRATO DE IMÁGENES (Relay): Define los campos de imagen para la hoja 'Relay'.
+ */
+const IMAGE_FIELDS_RELAY = new Set(['imagen']);
+
 /**
  * Convierte una fila de hoja de cálculo (array) en un objeto utilizando un mapa de columnas.
  * @param {Array} row - La fila de datos.
  * @param {object} colMap - El objeto que mapea nombres de clave a índices de columna (basado en 1).
+ * @param {Set<string>} imageFields - Un Set con los nombres de las claves que deben ser normalizadas como IDs de imagen.
  * @returns {object|null} - El objeto mapeado o null si la fila está vacía.
  */
-function mapRowToObject(row, colMap) {
+function mapRowToObject(row, colMap, imageFields = new Set()) {
   if (!row || row.length === 0) {
     return null;
   }
   const obj = {};
   for (const key in colMap) {
     const colIndex = colMap[key] - 1;
-    // Asegurarse de que el valor no es undefined; de lo contrario, asignar null.
-    obj[key] = row[colIndex] !== undefined && row[colIndex] !== '' ? row[colIndex] : null;
+    let value = row[colIndex] !== undefined && row[colIndex] !== '' ? row[colIndex] : null;
+
+    // Si el campo es un campo de imagen, normalizar y validar su valor.
+    if (imageFields.has(key)) {
+      value = normalizeAndValidateImageId(value);
+    }
+
+    obj[key] = value;
   }
   return obj;
 }
 
 function handleGetCatalogData() {
+    const cache = CacheService.getScriptCache();
+    const cacheKey = 'catalog_data_v2';
+    let cachedData = null;
+
+    // 1. Intento de lectura de caché con manejo de errores
+    try {
+        cachedData = cache.get(cacheKey);
+    } catch (e) {
+        console.error("CATALOG-SERVICE: Error al leer la caché (get). Se procederá sin caché. Error: " + e.message);
+        cachedData = null; // Asegurarse de que cachedData es null si falla
+    }
+
+    if (cachedData) {
+        try {
+            // 2. Intento de parseo de datos cacheados con manejo de errores
+            const parsedData = JSON.parse(cachedData);
+            return { status: 'success', data: parsedData, source: 'cache' };
+        } catch (e) {
+            console.error("CATALOG-SERVICE: Datos de caché corruptos. Se procederá a leer de la hoja. Error: " + e.message);
+            // Si el parseo falla, los datos están corruptos, así que se procede a leer de la fuente.
+        }
+    }
+
+    // Si no hay datos en caché (o están corruptos), procedemos a leer de la hoja de cálculo.
     const allData = {};
 
     // Fetch Cortes
@@ -164,7 +257,7 @@ function handleGetCatalogData() {
         cortesData = data
           .filter(row => row && row[0])
           .map(row => {
-            const vehicle = mapRowToObject(row, COLS_CORTES);
+            const vehicle = mapRowToObject(row, COLS_CORTES, IMAGE_FIELDS_CORTES);
             if (!vehicle) return null;
 
             // Contar vehículos por categoría
@@ -172,13 +265,7 @@ function handleGetCatalogData() {
                 categoryCounts[vehicle.categoria] = (categoryCounts[vehicle.categoria] || 0) + 1;
             }
 
-            // Convertir todas las URLs de imágenes a thumbnails
-            vehicle.imagenVehiculo = convertirAGoogleThumbnail(vehicle.imagenVehiculo);
-            vehicle.imgCorte1 = convertirAGoogleThumbnail(vehicle.imgCorte1);
-            vehicle.imgCorte2 = convertirAGoogleThumbnail(vehicle.imgCorte2);
-            vehicle.imgCorte3 = convertirAGoogleThumbnail(vehicle.imgCorte3);
-            vehicle.imgApertura = convertirAGoogleThumbnail(vehicle.imgApertura);
-            vehicle.imgCableAlimen = convertirAGoogleThumbnail(vehicle.imgCableAlimen);
+            // Se elimina la conversión de URLs. El backend ahora envía solo los IDs.
 
             const cortes = [
                 { index: 1, util: parseInt(vehicle.utilCorte1, 10) || 0 },
@@ -229,7 +316,7 @@ function handleGetCatalogData() {
     if (logosSheet) {
         const data = logosSheet.getDataRange().getValues();
         data.shift();
-        logosData = data.map(row => mapRowToObject(row, COLS_LOGOS_MARCA));
+        logosData = data.map(row => mapRowToObject(row, COLS_LOGOS_MARCA, IMAGE_FIELDS_LOGOS));
     }
     allData.logos = logosData;
 
@@ -239,7 +326,7 @@ function handleGetCatalogData() {
     if (tutorialesSheet) {
         const data = tutorialesSheet.getDataRange().getValues();
         data.shift();
-        tutorialesData = data.map(row => mapRowToObject(row, COLS_TUTORIALES));
+        tutorialesData = data.map(row => mapRowToObject(row, COLS_TUTORIALES, IMAGE_FIELDS_TUTORIALES));
     }
     allData.tutoriales = tutorialesData;
 
@@ -249,11 +336,21 @@ function handleGetCatalogData() {
     if (relaySheet) {
         const data = relaySheet.getDataRange().getValues();
         data.shift();
-        relayData = data.map(row => mapRowToObject(row, COLS_RELAY));
+        relayData = data.map(row => mapRowToObject(row, COLS_RELAY, IMAGE_FIELDS_RELAY));
     }
     allData.relay = relayData;
 
-    return { status: 'success', data: allData };
+    // --- ESCRITURA EN CACHÉ DESHABILITADA ---
+    // La siguiente línea se deshabilita para prevenir el error "Argumento demasiado grande".
+    // El objeto `allData` excede el límite de 100 KB de CacheService.
+    // Una futura estrategia de caché deberá ser más granular (ej. cachear solo metadatos).
+    // try {
+    //     cache.put(cacheKey, JSON.stringify(allData), 3600);
+    // } catch (e) {
+    //     console.error("CATALOG-SERVICE: Error al escribir en la caché (put). La operación continuará. Error: " + e.message);
+    // }
+
+    return { status: 'success', data: allData, source: 'spreadsheet' };
 }
 
 function handleGetDropdownData() {
@@ -346,13 +443,62 @@ function handleCheckVehicle(payload) {
         const tipoEncendidoMatch = sheetTipoEncendido === paramTipoEncendido;
 
         if (marcaMatch && modeloMatch && anioMatch && tipoEncendidoMatch) {
-            const matchData = mapRowToObject(row, COLS_CORTES);
+            const matchData = mapRowToObject(row, COLS_CORTES, IMAGE_FIELDS_CORTES);
             matches.push(matchData);
         }
     }
 
     return { status: 'success', matches: matches };
 }
+
+/**
+ * Obtiene los datos mínimos necesarios para la navegación y la carga inicial.
+ * Devuelve los conteos de categorías, las categorías ordenadas, la lista de marcas y los logos.
+ * Esta acción es LIGERA y está diseñada para ser la primera llamada que hace el frontend.
+ */
+function handleGetNavigationData() {
+    const responseData = {};
+    const cortesSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
+    const logosSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.LOGOS_MARCA);
+
+    // 1. Contar vehículos por categoría y obtener lista de marcas únicas
+    const categoryCounts = {};
+    const marcas = new Set();
+    if (cortesSheet) {
+        const data = cortesSheet.getDataRange().getValues();
+        data.shift(); // Quitar encabezados
+        data.forEach(row => {
+            if (row && row[0]) {
+                const categoria = row[COLS_CORTES.categoria - 1];
+                const marca = row[COLS_CORTES.marca - 1];
+                if (categoria) {
+                    categoryCounts[categoria] = (categoryCounts[categoria] || 0) + 1;
+                }
+                if (marca) {
+                    marcas.add(marca);
+                }
+            }
+        });
+    }
+    responseData.categoryCounts = categoryCounts;
+    responseData.marcas = Array.from(marcas).sort();
+
+    // 2. Crear y añadir la lista de categorías ordenada por popularidad
+    const sortedCategories = Object.keys(categoryCounts).sort((a, b) => categoryCounts[b] - categoryCounts[a]);
+    responseData.sortedCategories = sortedCategories;
+
+    // 3. Fetch de todos los logos (respetando el contrato de imágenes)
+    let logosData = [];
+    if (logosSheet) {
+        const data = logosSheet.getDataRange().getValues();
+        data.shift();
+        logosData = data.map(row => mapRowToObject(row, COLS_LOGOS_MARCA, IMAGE_FIELDS_LOGOS));
+    }
+    responseData.logos = logosData;
+
+    return { status: 'success', data: responseData, source: 'spreadsheet' };
+}
+
 
 // ============================================================================
 // MANEJADOR DE SUGERENCIAS (PARA "QUIZÁS QUISISTE DECIR...")
@@ -413,6 +559,46 @@ function handleGetSuggestion(payload) {
 // FUNCIONES AUXILIARES
 // ============================================================================
 
+/**
+ * Normaliza y valida un valor que se espera sea un ID de imagen de Google Drive.
+ * Esta función es el GOBERNADOR del contrato de imágenes.
+ * - Puede manejar un fileId limpio o una URL completa de Drive, extrayendo el ID.
+ * - Devuelve null si el valor es inválido, está vacío o no es un string.
+ * - Si LOG_INVALID_IDS es true, registra los valores inválidos en la consola de Apps Script.
+ * - Agrega los valores inválidos a la lista `invalidImageIdsFound` para el modo diagnóstico.
+ * @param {string} value - El valor original de la celda de la hoja de cálculo.
+ * @returns {string|null} - El fileId limpio y validado, o null si es inválido.
+ */
+function normalizeAndValidateImageId(value) {
+    if (!value || typeof value !== 'string' || value.trim() === '') {
+        return null;
+    }
+
+    const originalValue = value;
+    const trimmedValue = value.trim();
+
+    // Expresión regular para extraer el ID de varias URLs de Google Drive.
+    const idMatch = trimmedValue.match(/file\/d\/([a-zA-Z0-9_-]+)|id=([a-zA-Z0-9_-]+)|\/d\/([a-zA-Z0-9_-]+)/);
+
+    if (idMatch) {
+        const fileId = idMatch[1] || idMatch[2] || idMatch[3];
+        if (fileId && fileId.length > 20) {
+            return fileId; // ID extraído de URL es válido.
+        }
+    } else if (trimmedValue.length > 20 && !trimmedValue.includes('/') && !trimmedValue.includes(':')) {
+        // Si no es una URL pero parece un ID, se asume que es un fileId limpio.
+        return trimmedValue;
+    }
+
+    // Si no se pudo normalizar o validar, se considera inválido.
+    if (LOG_INVALID_IDS) {
+        console.log(`ID de imagen inválido o no normalizable detectado: "${originalValue}"`);
+    }
+    invalidImageIdsFound.push(originalValue);
+
+    return null;
+}
+
 function levenshteinDistance(a, b) {
     if (a.length === 0) return b.length;
     if (b.length === 0) return a.length;
@@ -438,27 +624,6 @@ function levenshteinDistance(a, b) {
     }
 
     return matrix[b.length][a.length];
-}
-
-
-function convertirAGoogleThumbnail(url) {
-    if (!url || typeof url !== 'string') return null;
-
-    // Expresión regular mejorada para capturar el ID de varias URLs de Google Drive:
-    // 1. /file/d/ID
-    // 2. id=ID
-    // 3. /d/ID (para formatos más cortos)
-    const idMatch = url.match(/file\/d\/([a-zA-Z0-9_-]+)|id=([a-zA-Z0-9_-]+)|\/d\/([a-zA-Z0-9_-]+)/);
-
-    // Si se encuentra una coincidencia, construye la URL del thumbnail.
-    // Los grupos de captura pueden estar en idMatch[1], idMatch[2], o idMatch[3].
-    if (idMatch) {
-        const fileId = idMatch[1] || idMatch[2] || idMatch[3];
-        return `https://drive.google.com/thumbnail?sz=w1000&id=${fileId}`;
-    }
-
-    // Si no es una URL de Google Drive reconocible, devolver la URL original.
-    return url;
 }
 
 
