@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function displayProfile() {
     document.getElementById('profile-username').textContent = currentUser.Nombre_Usuario;
-    document.getElementById('profile-fullname').textContent = currentUser.Nombre_Usuario;
+    document.getElementById('profile-fullname').textContent = currentUser.Nombre_Completo;
     document.getElementById('profile-role').textContent = currentUser.Privilegios;
 }
 
@@ -273,7 +273,7 @@ function renderUserTable() {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${user.Nombre_Usuario}</td>
-            <td>${user.Nombre_Usuario}</td>
+            <td>${user.Nombre_Completo}</td>
             <td>${user.Privilegios}</td>
             <td class="actions-cell">
                 <button class="btn btn-warning btn-sm" onclick='openUserModal(${JSON.stringify(user)})'>Editar</button>
@@ -316,7 +316,7 @@ function openUserModal(user = null) {
     if (user) {
         title.textContent = 'Editar Usuario';
         document.getElementById('user-id').value = user.ID;
-        document.getElementById('fullname').value = user.Nombre_Usuario;
+        document.getElementById('fullname').value = user.Nombre_Completo;
         document.getElementById('username-modal').value = user.Nombre_Usuario;
     } else {
         title.textContent = 'Crear Nuevo Usuario';
@@ -345,6 +345,7 @@ async function handleUserFormSubmit(e) {
     e.preventDefault();
     const userId = document.getElementById('user-id').value;
     const userData = {
+        Nombre_Completo: document.getElementById('fullname').value,
         Nombre_Usuario: document.getElementById('username-modal').value,
         Privilegios: document.getElementById('role').value,
         Password: document.getElementById('password-modal').value,

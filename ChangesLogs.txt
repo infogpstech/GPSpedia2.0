@@ -1,22 +1,24 @@
-**V5.9.0 - (FIX) - 05/01/2026**
-**A. ALINEACIÓN DE ESQUEMA FRONTEND-BACKEND (users.html):** Se corrigió la inconsistencia en el acceso a propiedades del objeto de usuario en la página de gestión de usuarios, cumpliendo con la TAREA 7.
+**V5.9.0 (FIX REVISADO) - 05/01/2026**
+**A. ALINEACIÓN DE ESQUEMA FRONTEND-BACKEND (users.html):** Se corrigió de forma integral la inconsistencia en el acceso y manejo de propiedades del objeto de usuario en la página de gestión de usuarios, cumpliendo con la TAREA 7.
 
 **B. Causa Raíz:**
-    - El JavaScript de `users.html` intentaba acceder a las propiedades del objeto de usuario usando `camelCase` (ej. `user.id`, `user.username`), mientras que los servicios de backend (`auth-service`, `users-service`) devuelven consistentemente las propiedades en `PascalCase_With_Underscores` (ej. `user.ID`, `user.Nombre_Usuario`).
-    - Este desajuste impedía que los datos de los usuarios se renderizaran correctamente en la tabla y en los modales de edición, causando errores de JavaScript por acceso a propiedades indefinidas.
+    1.  **`PascalCase` vs `camelCase`:** El JavaScript de `users.html` intentaba acceder a propiedades del objeto de usuario usando `camelCase` (ej. `user.id`), mientras que el backend devuelve propiedades en `PascalCase_With_Underscores` (ej. `user.ID`).
+    2.  **Mapeo Incorrecto de Nombre Completo:** Una corrección inicial mapeó erróneamente `Nombre_Usuario` al campo "Nombre Completo" en la UI, causando la visualización incorrecta de datos y la pérdida del `Nombre_Completo` durante la creación o actualización de usuarios.
 
 **C. Cambios Implementados:**
-    1.  **`users.html`:** Se refactorizó todo el código JavaScript dentro del archivo para utilizar los nombres de propiedad correctos (`ID`, `Nombre_Usuario`, `Privilegios`) al leer del objeto `user`.
-    2.  **Limpieza de Código:** Se eliminaron comentarios `// FIX:` que habían quedado obsoletos una vez que el código fue correctamente alineado con el esquema del backend.
+    1.  **Corrección de `PascalCase`:** Se refactorizó todo el JavaScript en `users.html` para utilizar consistentemente los nombres de propiedad correctos (`ID`, `Nombre_Usuario`, `Privilegios`, `Nombre_Completo`) al leer del objeto `user`.
+    2.  **Corrección de Mapeo de `Nombre_Completo`:**
+        - Se corrigió la lógica en `displayProfile`, `renderUserTable` y `openUserModal` para usar la propiedad `Nombre_Completo` en todos los campos de "Nombre Completo".
+        - Se ajustó `handleUserFormSubmit` para enviar el campo `Nombre_Completo` al backend durante las operaciones de creación y actualización, evitando la pérdida de datos.
 
 **D. Archivo y Líneas Modificadas:**
-    - `users.html`: Líneas 242, 273-281, 317-319, 337, 347-349.
+    - `users.html`: Líneas 241, 274, 317, 346.
 
 **E. Impacto:**
     - Se restaura completamente la funcionalidad de la página de gestión de usuarios (`users.html`).
-    - La tabla ahora muestra la lista de usuarios y sus roles correctamente.
-    - Los modales para editar usuarios se pueblan con los datos existentes de forma fiable.
-    - Se eliminan los errores de JavaScript en la consola del navegador relacionados con este desajuste de propiedades.
+    - Los datos de los usuarios, incluyendo el nombre completo, ahora se muestran correctamente.
+    - Se previene la pérdida de datos al crear o actualizar usuarios.
+    - Se eliminan los errores de JavaScript relacionados con el desajuste de propiedades.
 
 **V5.8.0 - (CRITICAL FIX) - 05/01/2026**
 **A. FIX CRÍTICO DE CORS Y ESTABILIDAD EN `feedback-service`:** Se solucionó un bug crítico que impedía el funcionamiento de toda la funcionalidad de feedback y contacto (ej. Inbox, reportar problema) debido a un error de CORS, y se resolvió una inestabilidad severa causada por código duplicado.
@@ -87,7 +89,7 @@
     -   : Línea 112.
 
 **C. Impacto:**
-    -   La arquitectura de imágenes es ahora robusta, segura y funcional en todo el stack.
+    -   La arquitectura de imágenes es ahora robusta, seguro y funcional en todo el stack.
     -   Se garantiza la carga fiable de todas las imágenes de Google Drive a través del proxy.
     -   El sistema de caché del  es ahora seguro y no causará fallos inesperados.
 
