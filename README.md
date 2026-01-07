@@ -1206,7 +1206,7 @@ Esta sección documenta exactamente qué se rompió y cómo debe corregirse, sin
 
 ---
 
-1. Regresión en las secciones de navegación visibles
+1. Regresión en las secciones de navegación visibles `[Falta Revisión]`
 
 Estado actual (incorrecto)
 
@@ -1269,7 +1269,7 @@ Pérdida de contexto para el usuario
 
 ---
 
-3. Regresión en modales de detalle – Tutoriales
+3. Regresión en modales de detalle – Tutoriales `[Falta Revisión]`
 
 Problema
 
@@ -1294,7 +1294,7 @@ Corregir sin afectar otros tipos de modal.
 
 ---
 
-4. Regresión en modales de detalle – Relay
+4. Regresión en modales de detalle – Relay `[Falta Revisión]`
 
 Problema
 
@@ -1321,7 +1321,7 @@ Confirmar que el diagrama se muestre correctamente como antes del último commit
 
 ---
 
-5. Error de posicionamiento – Botones de feedback (vehículos)
+5. Error de posicionamiento – Botones de feedback (vehículos) `[Falta Revisión]`
 
 Estado actual (incorrecto)
 
@@ -1382,7 +1382,7 @@ Botones de feedback
 
 ---
 
-7. Regresión – Posición del logo de marca en el modal de detalle
+7. Regresión – Posición del logo de marca en el modal de detalle `[Falta Revisión]`
 
 Estado actual (incorrecto)
 

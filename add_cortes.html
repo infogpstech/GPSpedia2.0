@@ -1,4 +1,4 @@
-<!-- GPSpedia Frontend Component | Version: 2.1.8 -->
+<!-- GPSpedia Frontend Component | Version: 3.0.0 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -8,164 +8,154 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="manifest" href="manifest.json">
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 700px; margin: 0 auto; background-color: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h1, h2 { text-align: center; color: #007bff; margin-bottom: 15px; font-size: 1.5em; }
-        h2 { font-size: 1.3em; color: #333; }
-        p { margin-top: 0; margin-bottom: 10px; font-size: 0.9em; }
-        .container { padding: 20px; }
-        .form-phase { display: none; }
-        .form-phase.active { display: block; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
-        .form-group { display: flex; flex-direction: column; }
-        label { margin-bottom: 5px; font-weight: bold; font-size: 0.85em; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 0.9em; }
-        input[type="file"] { padding: 10px; background-color: #f8f9fa; border: 1px dashed #ccc; cursor: pointer; }
-        input[type="file"]:hover { border-color: #007bff; }
-        .image-preview { width: 100%; max-width: 200px; height: auto; border: 2px dashed #ccc; border-radius: 6px; margin-top: 10px; display: block; object-fit: cover; padding: 5px; }
-        .image-preview:not([src]) { display: none; } /* Ocultar si no hay imagen */
-        .image-preview[src] { display: block; } /* Mostrar si hay imagen */
-        input:focus, select:focus, textarea:focus { border-color: #007bff; box-shadow: 0 0 0 3px rgba(0,123,255,0.2); outline: none; }
-        .btn-container { text-align: right; margin-top: 20px; }
-        .btn { padding: 8px 18px; border: none; border-radius: 6px; background-color: #007bff; color: white; font-size: 0.9em; cursor: pointer; transition: background-color 0.3s; }
-        .btn:hover { background-color: #0056b3; }
-        .btn-secondary { background-color: #6c757d; }
-        .btn-secondary:hover { background-color: #5a6268; }
-        .back-link { display: inline-block; margin-bottom: 15px; color: #007bff; text-decoration: none; font-weight: bold; font-size: 0.9em; }
+        /* General Styles */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 15px; color: #343a40; }
+        .container { max-width: 800px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+        h1, h2 { text-align: center; color: #007bff; margin-bottom: 20px; font-weight: 600; }
+        h2 { font-size: 1.4em; color: #495057; }
+        p { margin-top: 0; margin-bottom: 15px; font-size: 0.95em; color: #6c757d; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none; font-weight: 500; font-size: 0.9em; }
         .back-link:hover { text-decoration: underline; }
-        #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 1000; display: none; align-items: center; justify-content: center; }
-        .spinner { border: 5px solid #f3f3f3; border-top: 5px solid #007bff; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .match-card { border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin-bottom: 12px; transition: box-shadow 0.2s, border-color 0.2s; display: flex; align-items: flex-start; gap: 12px; }
-        .match-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); border-color: #007bff; }
-        .match-card-img { width: 150px; height: auto; border-radius: 6px; object-fit: cover; }
-        .match-card-info { flex-grow: 1; }
-        .match-card-info p { margin: 0 0 4px 0; font-size: 0.9em; }
-        .match-card-info h4 { margin: 0 0 8px 0; color: #0056b3; }
-        .match-vehicle-img { width: 120px; height: auto; border-radius: 6px; object-fit: cover; align-self: center; }
-        .match-cuts-section { margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; }
-        .match-cut-item { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 10px; }
-        .match-cut-img { width: 216px; height: 144px; border-radius: 6px; object-fit: cover; border: 1px solid #ccc; cursor: pointer; }
-        .match-cut-details { font-size: 0.85em; }
-        .match-cut-details p { margin-bottom: 4px; }
-        .suggestion { font-size: 0.85em; color: #666; margin-top: 5px; }
-        .suggestion a { color: #007bff; text-decoration: none; cursor: pointer; }
-        .suggestion a:hover { text-decoration: underline; }
 
-        /* Lightbox Styles */
-        .lightbox { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); display: flex; align-items: center; justify-content: center; z-index: 1700; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.3s ease, visibility 0.3s ease; }
-        .lightbox.visible { opacity: 1; visibility: visible; pointer-events: all; }
-        .lightbox img { max-width: 95%; max-height: 95%; border-radius: 8px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); transform: scale(0.95); transition: transform 0.3s ease; }
-        .lightbox.visible img { transform: scale(1); }
+        /* Form & Layout */
+        .form-phase { display: none; }
+        .form-phase.active { display: block; animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .form-group { display: flex; flex-direction: column; }
+        .full-width { grid-column: 1 / -1; }
+        label { margin-bottom: 6px; font-weight: 500; font-size: 0.8em; color: #495057; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box; font-size: 0.95em; transition: border-color 0.2s, box-shadow 0.2s; }
+        input:focus, select:focus, textarea:focus { border-color: #80bdff; box-shadow: 0 0 0 3px rgba(0,123,255,0.25); outline: none; }
+        .btn-container { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
+        .btn { padding: 12px 22px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-primary:hover { background-color: #0069d9; }
+        .btn-secondary { background-color: #6c757d; color: white; }
+        .btn-secondary:hover { background-color: #5a6268; }
+
+        /* Stage 1.5 - Matches */
+        #matches-container .match-card { border: 1px solid #e9ecef; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
+        .match-card h4 { margin: 0 0 10px; }
+        .inline-actions { margin-top: 15px; padding: 15px; background-color: #f8f9fa; border-radius: 8px; text-align: center; }
+        .inline-actions p { font-weight: 500; }
+        .inline-actions .btn { margin: 0 5px; }
+
+        /* Stage 3 - Accordion */
+        .accordion-item { border: 1px solid #dee2e6; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
+        .accordion-header { background-color: #f8f9fa; padding: 15px; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .accordion-header i { transition: transform 0.3s; }
+        .accordion-content { padding: 15px; border-top: 1px solid #dee2e6; display: none; }
+        .accordion-item.active .accordion-header i { transform: rotate(180deg); }
+
+        /* Image Handling */
+        .image-upload-group { display: flex; align-items: center; gap: 15px; }
+        .image-preview { width: 100px; height: 75px; border: 2px dashed #ced4da; border-radius: 8px; object-fit: cover; cursor: pointer; }
+        .image-preview:not([src]), .image-preview[src=""] { display: none; }
+        .image-preview[src] { display: block; }
+        .upload-label { cursor: pointer; }
+
+        /* Utilities */
+        #loading-overlay { /* ... */ }
+        .spinner { /* ... */ }
+        .suggestion { /* ... */ }
     </style>
 </head>
 <body>
     <div id="loading-overlay"><div class="spinner"></div></div>
     <div class="container">
         <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Volver al Catálogo</a>
-        <h1>Agregar Nuevo Corte</h1>
+        <h1>Agregar Nuevo Registro</h1>
 
-        <!-- Fase 1: Verificación de Duplicados -->
+        <!-- STAGE 1: VEHICLE VERIFICATION -->
         <div id="stage-1" class="form-phase active">
             <h2>Paso 1: Verificar Vehículo</h2>
-            <p>Introduce los datos básicos para comprobar si ya existe un registro similar.</p>
-            <form id="form-phase-1">
+            <p>Introduce los datos para comprobar si el vehículo ya existe.</p>
+            <form id="form-stage-1">
                 <div class="form-grid">
-                    <div class="form-group"><label for="categoria">Categoría</label><select id="categoria" name="categoria" required></select></div>
-                    <div class="form-group">
-                        <label for="marca">Marca</label>
-                        <input type="text" id="marca" name="marca" required>
-                        <div class="suggestion" id="marca-suggestion"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="modelo">Modelo</label>
-                        <input type="text" id="modelo" name="modelo" required>
-                        <div class="suggestion" id="modelo-suggestion"></div>
-                    </div>
-                    <div class="form-group"><label for="anoDesde">Año (Ej: 2023 o 2021-2024)</label><input type="text" id="anoDesde" name="anoDesde" required></div>
-                    <div class="form-group"><label for="tipoEncendido">Tipo de Encendido</label><select id="tipoEncendido" name="tipoEncendido" required></select></div>
-                    <div class="form-group"><label for="versionesAplicables">Versión de Equipamiento (Opcional)</label><input type="text" id="versionesAplicables" name="versionesAplicables" placeholder="Ej: Frontier, NP300"></div>
+                    <div class="form-group"><label for="marca">Marca</label><input type="text" id="marca" required><div class="suggestion" id="marca-suggestion"></div></div>
+                    <div class="form-group"><label for="modelo">Modelo</label><input type="text" id="modelo" required><div class="suggestion" id="modelo-suggestion"></div></div>
+                    <div class="form-group"><label for="anoDesde">Año</label><input type="text" id="anoDesde" required placeholder="Ej: 2023 o 2021-2024"></div>
+                    <div class="form-group"><label for="tipoEncendido">Tipo de Encendido</label><select id="tipoEncendido" required></select></div>
+                    <div class="form-group full-width"><label for="categoria">Categoría</label><select id="categoria" required></select></div>
+                    <div class="form-group full-width"><label for="versionesAplicables">Versión de Equipamiento (Opcional)</label><input type="text" id="versionesAplicables" placeholder="Ej: Frontier, NP300"></div>
                 </div>
-                <div class="btn-container">
-                    <button type="submit" class="btn">Verificar</button>
-                </div>
+                <div class="btn-container"><button type="submit" class="btn btn-primary">Verificar</button></div>
             </form>
         </div>
 
-        <!-- Fase 1.5: Mostrar Coincidencias -->
+        <!-- STAGE 1.5: DISPLAY MATCHES -->
         <div id="stage-1-5" class="form-phase">
-            <h2>Paso 1.5: Se Encontraron Coincidencias</h2>
-            <p>Este modelo ya tiene estos cortes, ¿quieres agregar uno nuevo?</p>
             <div id="matches-container"></div>
-            <div class="btn-container" style="display: flex; justify-content: space-between; margin-top: 20px;">
-                <button onclick="window.location.href='index.html'" class="btn btn-secondary">Sí, es el mismo corte (cancelar)</button>
-                <div>
-                    <button id="add-new-cut-btn" class="btn">Es uno nuevo</button>
-                    <button id="add-supplementary-btn" class="btn">Agregar información adicional</button>
-                </div>
-            </div>
         </div>
 
-        <!-- Fase 2: Agregar Información del Corte -->
+        <!-- STAGE 2: ADD NEW CUT -->
         <div id="stage-2" class="form-phase">
-            <h2 id="stage-2-title">Paso 2: Agregar Información del Corte</h2>
-            <form id="form-phase-2">
-                <div id="new-vehicle-image-group" class="form-group" style="display: none; grid-column: 1 / -1;">
-                    <label for="imagenVehiculoNew">Imagen del Vehículo</label>
-                    <input type="file" id="imagenVehiculoNew" name="imagenVehiculo" accept="image/*">
-                    <img id="imagenVehiculoNew_preview" class="image-preview" alt="Vista previa de la imagen del vehículo">
-                </div>
-                <div class="form-grid">
-                    <div class="form-group"><label for="tipoCorte1">Tipo de Corte</label><select id="tipoCorte1" name="tipoCorte1" required></select></div>
-                    <div class="form-group"><label for="ubicacionCorte1">Ubicación del Corte</label><input type="text" id="ubicacionCorte1" name="ubicacionCorte1"></div>
-                    <div class="form-group"><label for="colorCableCorte1">Color(es) de Cable</label><input type="text" id="colorCableCorte1" name="colorCableCorte1"></div>
-                    <div class="form-group"><label for="configRelayStage2">Configuración de Relay</label><select id="configRelayStage2" name="configRelay1"></select></div>
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <label for="imgCorte1">Imagen del Corte</label>
-                        <input type="file" id="imgCorte1" name="imgCorte1" accept="image/*" required>
-                        <img id="imgCorte1_preview" class="image-preview" alt="Vista previa de la imagen del corte">
+            <h2 id="stage-2-title"></h2>
+            <form id="form-stage-2">
+                <div id="new-vehicle-fields">
+                    <div class="form-group full-width">
+                        <label>Imagen del Vehículo</label>
+                        <div class="image-upload-group">
+                             <img id="imagenVehiculo_preview" class="image-preview" onclick="this.nextElementSibling.click()">
+                             <label for="imagenVehiculo" class="upload-label btn btn-secondary">Subir Imagen</label>
+                             <input type="file" id="imagenVehiculo" style="display:none;" accept="image/*">
+                        </div>
                     </div>
                 </div>
-                <div class="btn-container">
-                    <button onclick="history.back()" class="btn btn-secondary" type="button">Atrás</button>
-                    <button type="submit" class="btn">Guardar y Continuar</button>
+                <div class="form-grid">
+                    <div class="form-group"><label for="tipoCorte1">Tipo de Corte</label><select id="tipoCorte1" required></select></div>
+                    <div class="form-group"><label for="configRelay1">Configuración de Relay</label><select id="configRelay1" required></select></div>
+                    <div class="form-group full-width"><label for="ubicacionCorte1">Ubicación del Corte</label><textarea id="ubicacionCorte1" rows="3"></textarea></div>
+                    <div class="form-group full-width"><label for="colorCableCorte1">Color(es) de Cable</label><input type="text" id="colorCableCorte1"></div>
+                    <div class="form-group full-width">
+                        <label>Imagen del Corte</label>
+                        <div class="image-upload-group">
+                           <img id="imgCorte1_preview" class="image-preview" onclick="this.nextElementSibling.click()">
+                           <label for="imgCorte1" class="upload-label btn btn-secondary">Subir Imagen</label>
+                           <input type="file" id="imgCorte1" style="display:none;" accept="image/*" required>
+                        </div>
+                    </div>
                 </div>
+                <div class="btn-container"><button type="submit" class="btn btn-primary">Continuar</button></div>
             </form>
         </div>
 
-        <!-- Fase 3: Agregar Información Suplementaria -->
+        <!-- STAGE 3: ADD SUPPLEMENTARY INFO -->
         <div id="stage-3" class="form-phase">
             <h2>Paso 3: Información Suplementaria (Opcional)</h2>
-            <p>Registro guardado con éxito. Ahora puedes añadir imágenes y notas adicionales.</p>
-            <form id="form-phase-3">
-                 <div class="form-grid">
-                    <div class="form-group"><label for="imagenVehiculo_stage3">URL de Imagen del Vehículo</label><input type="text" id="imagenVehiculo_stage3" name="imagenVehiculo"></div>
-                    <div class="form-group"><label for="configRelay1_stage3">Configuración de Relay</label><select id="configRelay1_stage3" name="configRelay1"></select></div>
-                    <div class="form-group"><label for="videoGuiaDesarmeUrl">URL de Video Guía de Desarme</label><input type="text" id="videoGuiaDesarmeUrl" name="videoGuiaDesarmeUrl"></div>
+            <p>El corte ha sido guardado. Puedes añadir detalles adicionales o finalizar.</p>
+            <form id="form-stage-3">
+                <div class="accordion">
+                    <div class="accordion-item" id="apertura-accordion">
+                        <div class="accordion-header"><span>Agregar Apertura</span><i class="fas fa-chevron-down"></i></div>
+                        <div class="accordion-content form-grid">
+                            <div class="form-group full-width"><label for="apertura">Detalle de Apertura</label><textarea id="apertura" rows="3"></textarea></div>
+                            <div class="form-group full-width"><label>Imagen de Apertura</label><div class="image-upload-group"><img id="imgApertura_preview" class="image-preview" onclick="this.nextElementSibling.click()"><label for="imgApertura" class="btn btn-secondary">Subir</label><input type="file" id="imgApertura" style="display:none;" accept="image/*"></div></div>
+                        </div>
+                    </div>
+                    <div class="accordion-item" id="alimentacion-accordion">
+                        <div class="accordion-header"><span>Cable de Alimentación</span><i class="fas fa-chevron-down"></i></div>
+                        <div class="accordion-content form-grid">
+                            <div class="form-group full-width"><label for="cableAlimen">Detalle de Alimentación</label><textarea id="cableAlimen" rows="3"></textarea></div>
+                            <div class="form-group full-width"><label>Imagen de Alimentación</label><div class="image-upload-group"><img id="imgCableAlimen_preview" class="image-preview" onclick="this.nextElementSibling.click()"><label for="imgCableAlimen" class="btn btn-secondary">Subir</label><input type="file" id="imgCableAlimen" style="display:none;" accept="image/*"></div></div>
+                        </div>
+                    </div>
+                    <div class="accordion-item" id="nota-accordion">
+                        <div class="accordion-header"><span>Agregar Nota Importante</span><i class="fas fa-chevron-down"></i></div>
+                        <div class="accordion-content form-grid">
+                            <div class="form-group full-width"><label for="notaImportante">Nota</label><textarea id="notaImportante" rows="3"></textarea></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group" style="margin-top: 20px;">
-                    <label for="notaImportante">Nota Importante</label>
-                    <textarea id="notaImportante" name="notaImportante" rows="4"></textarea>
-                </div>
-                <div class="btn-container">
-                     <button type="submit" class="btn">Finalizar y Guardar</button>
-                </div>
+                <div class="btn-container"><button type="submit" class="btn btn-primary">Guardar y Finalizar</button></div>
             </form>
-            <div class="btn-container" style="text-align: center; margin-top: 20px;">
-                <a href="add_cortes.html" class="btn btn-secondary">Agregar Otro Vehículo</a>
-            </div>
         </div>
-
-    </div>
-
-    <!-- Lightbox HTML Structure -->
-    <div id="lightbox" class="lightbox" onclick="cerrarLightbox()">
-      <img id="lightboxImg" src="">
     </div>
 
     <script src="api-manager.js"></script>
     <script>
+        // COMPONENT VERSION: 3.0.0
         const SESSION_KEY = 'gpsepedia_session';
         const state = {
             vehicleInfo: {},
@@ -174,93 +164,104 @@
             colaborador: ''
         };
 
+        // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', init);
 
         async function init() {
-            // Session and User setup
             const sessionData = localStorage.getItem(SESSION_KEY);
             if (!sessionData) {
-                alert("Tu sesión ha expirado.");
+                alert("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
                 window.location.href = 'index.html';
                 return;
             }
-            const user = JSON.parse(sessionData);
-            state.colaborador = user.Nombre_Usuario;
+            state.colaborador = JSON.parse(sessionData).Nombre_Usuario;
 
-            // Populate dropdowns
+            await populateAllDropdowns();
+            setupEventListeners();
+        }
+
+        async function populateAllDropdowns() {
             toggleLoading(true);
             try {
-                const data = await routeAction('getDropdownData');
-                populateSelect('categoria', data.dropdowns.categoria);
-                populateSelect('tipoEncendido', data.dropdowns.tipoDeEncendido);
-                populateSelect('tipoCorte1', data.dropdowns.tipoDeCorte);
-                const relaySelect = document.getElementById('configRelayStage2');
-                populateSelect('configRelayStage2', data.dropdowns.configRelay);
-                if (relaySelect) relaySelect.value = "Corte a ignición"; // Set default value
-                populateSelect('configRelay1_stage3', data.dropdowns.configRelay);
-
+                const { dropdowns } = await routeAction('getDropdownData');
+                populateSelect('categoria', dropdowns.categoria);
+                populateSelect('tipoEncendido', dropdowns.tipoDeEncendido);
+                populateSelect('tipoCorte1', dropdowns.tipoDeCorte);
+                populateSelect('configRelay1', dropdowns.configRelay, "Corte a ignición");
             } catch (error) {
-                alert(`No se pudieron cargar las opciones del formulario: ${error.message}`);
+                alert(`Error al cargar datos del formulario: ${error.message}`);
             } finally {
                 toggleLoading(false);
             }
+        }
 
-            // Form listeners
-            document.getElementById('form-phase-1').addEventListener('submit', handlePhase1Submit);
-            document.getElementById('form-phase-2').addEventListener('submit', handleAddOrUpdateCut);
-            document.getElementById('form-phase-3').addEventListener('submit', handlePhase3Submit);
+        function setupEventListeners() {
+            // Form submissions
+            document.getElementById('form-stage-1').addEventListener('submit', handleStage1Submit);
+            document.getElementById('form-stage-2').addEventListener('submit', handleStage2Submit);
+            document.getElementById('form-stage-3').addEventListener('submit', handleStage3Submit);
 
-            // Suggestion listeners
+            // Suggestions
             document.getElementById('marca').addEventListener('blur', (e) => handleSuggestion(e.target, 'marca'));
             document.getElementById('modelo').addEventListener('blur', (e) => handleSuggestion(e.target, 'modelo'));
 
-            // Image preview listeners
-            document.getElementById('imagenVehiculoNew').addEventListener('change', (e) => handleImagePreview(e.target, 'imagenVehiculoNew_preview'));
-            document.getElementById('imgCorte1').addEventListener('change', (e) => handleImagePreview(e.target, 'imgCorte1_preview'));
+            // Image previews
+            setupImagePreview('imagenVehiculo', 'imagenVehiculo_preview');
+            setupImagePreview('imgCorte1', 'imgCorte1_preview');
+            setupImagePreview('imgApertura', 'imgApertura_preview');
+            setupImagePreview('imgCableAlimen', 'imgCableAlimen_preview');
 
-
-            // History and state management
-            window.addEventListener('popstate', (event) => {
-                if (event.state && event.state.phase) {
-                    showPhase(event.state.phase, true);
-                } else {
-                    showPhase(1, true);
-                }
+            // Accordion
+            document.querySelectorAll('.accordion-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const item = header.parentElement;
+                    item.classList.toggle('active');
+                    const content = header.nextElementSibling;
+                    content.style.display = content.style.display === 'block' ? 'none' : 'block';
+                });
             });
-            if (!history.state) {
-                history.replaceState({ phase: 1 }, "Paso 1", "#phase1");
-            }
         }
 
-        function handleImagePreview(inputElement, previewId) {
-            const preview = document.getElementById(previewId);
-            if (inputElement.files && inputElement.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                };
-                reader.readAsDataURL(inputElement.files[0]);
-            } else {
-                preview.style.display = 'none';
-            }
-        }
+        // --- STAGE 1: VEHICLE VERIFICATION ---
+        async function handleStage1Submit(e) {
+            e.preventDefault();
+            const form = e.target;
+            state.vehicleInfo = {
+                marca: form.querySelector('#marca').value,
+                modelo: form.querySelector('#modelo').value,
+                anoDesde: form.querySelector('#anoDesde').value,
+                tipoEncendido: form.querySelector('#tipoEncendido').value,
+                categoria: form.querySelector('#categoria').value,
+                versionesAplicables: form.querySelector('#versionesAplicables').value,
+            };
 
-        async function handleSuggestion(inputElement, field) {
-            const term = inputElement.value.trim();
-            const suggestionContainer = document.getElementById(`${field}-suggestion`);
-            suggestionContainer.innerHTML = '';
-
-            if (term.length < 3) return;
-
+            toggleLoading(true);
             try {
-                const result = await routeAction('getSuggestion', { term, field });
-                if (result.suggestion) {
-                    suggestionContainer.innerHTML = `Quizás quisiste decir: <a onclick="applySuggestion('${field}', '${result.suggestion}')">${result.suggestion}</a>`;
+                const { matches } = await routeAction('checkVehicle', state.vehicleInfo);
+                state.matches = matches;
+                if (matches.length > 0) {
+                    displayMatches(matches);
+                    showPhase('1-5');
+                } else {
+                    proceedToStage2(null); // No matches, proceed to create new vehicle
                 }
             } catch (error) {
-                console.error(`Error al obtener sugerencia para ${field}:`, error);
+                alert(`Error al verificar: ${error.message}`);
+            } finally {
+                toggleLoading(false);
             }
+        }
+
+        async function handleSuggestion(input, field) {
+            const container = document.getElementById(`${field}-suggestion`);
+            container.innerHTML = '';
+            if (input.value.length < 3) return;
+            try {
+                const { suggestion } = await routeAction('getSuggestion', { term: input.value, field });
+                if (suggestion) {
+                    container.innerHTML = `Quizás quisiste decir: <a onclick="applySuggestion('${field}', '${suggestion}')">${suggestion}</a>`;
+                }
+            } catch (e) { console.error(e); }
         }
 
         function applySuggestion(field, suggestion) {
@@ -268,244 +269,169 @@
             document.getElementById(`${field}-suggestion`).innerHTML = '';
         }
 
-        function convertirAGoogleThumbnail(url, size = 1000) {
-            if (!url) return `https://placehold.co/${size/2}x${size/3}/cccccc/333333?text=Sin+Imagen`;
-            const idMatch = String(url).match(/file\/d\/([a-zA-Z0-9_-]+)|id=([a-zA-Z0-9_-]+)|\/d\/([a-zA-Z0-9_-]+)/);
-            if (idMatch) {
-                const fileId = idMatch[1] || idMatch[2] || idMatch[3];
-                return `https://drive.google.com/thumbnail?sz=w${size}&id=${fileId}`;
+        // --- STAGE 1.5: DISPLAY MATCHES ---
+        function displayMatches(matches) {
+            const container = document.getElementById('matches-container');
+            container.innerHTML = '<h2>Se Encontraron Coincidencias</h2>';
+            matches.forEach(match => {
+                const yearRange = match.anoHasta ? `${match.anoDesde} - ${match.anoHasta}` : match.anoDesde;
+                const card = document.createElement('div');
+                card.className = 'match-card';
+                card.innerHTML = `
+                    <h4>${match.marca} ${match.modelo} (${yearRange})</h4>
+                    <p><strong>Encendido:</strong> ${match.tipoEncendido}</p>
+                    <div class="inline-actions">
+                        <p>Este modelo ya existe, ¿qué deseas hacer?</p>
+                        <button class="btn btn-secondary" onclick="window.location.href='index.html'">Cancelar</button>
+                        <button class="btn btn-primary" onclick="proceedToStage2('${match.id}')">Agregar Nuevo Corte</button>
+                        <button class="btn btn-primary" onclick="proceedToStage3('${match.id}')">Info. Adicional</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            const newVehicleOption = document.createElement('div');
+            newVehicleOption.className = 'inline-actions';
+            newVehicleOption.innerHTML = `<p>¿No es ninguno de estos?</p><button class="btn btn-primary" onclick="proceedToStage2(null)">Crear Vehículo Nuevo</button>`;
+            container.appendChild(newVehicleOption);
+        }
+
+        // --- STAGE 2: ADD NEW CUT ---
+        function proceedToStage2(vehicleId) {
+            state.selectedVehicleId = vehicleId;
+            const form = document.getElementById('form-stage-2');
+            form.reset();
+            resetImagePreviews();
+
+            const title = document.getElementById('stage-2-title');
+            const newVehicleFields = document.getElementById('new-vehicle-fields');
+            const newVehicleImageInput = document.getElementById('imagenVehiculo');
+
+            if (vehicleId) {
+                const match = state.matches.find(m => m.id === vehicleId);
+                title.textContent = `Paso 2: Agregar Corte a ${match.marca} ${match.modelo}`;
+                newVehicleFields.style.display = 'none';
+                newVehicleImageInput.required = false;
+            } else {
+                title.textContent = 'Paso 2: Agregar Vehículo y Corte';
+                newVehicleFields.style.display = 'block';
+                newVehicleImageInput.required = true;
             }
-            return url;
+            showPhase(2);
         }
 
-        function abrirLightbox(imgElement) {
-            const lightbox = document.getElementById('lightbox');
-            const lightboxImg = document.getElementById('lightboxImg');
-            const highResSrc = imgElement.getAttribute('data-high-res-src');
-            if (!highResSrc) return;
-            lightboxImg.src = highResSrc;
-            lightbox.classList.add('visible');
-        }
-
-        function cerrarLightbox() {
-            const lightbox = document.getElementById('lightbox');
-            lightbox.classList.remove('visible');
-            document.getElementById('lightboxImg').src = '';
-        }
-
-        function toggleLoading(isLoading) {
-            document.getElementById('loading-overlay').style.display = isLoading ? 'flex' : 'none';
-        }
-
-        function populateSelect(id, options) {
-            const select = document.getElementById(id);
-            if (!select) return;
-            select.innerHTML = '<option value="">Selecciona una opción</option>';
-            if (options) {
-                options.forEach(option => {
-                    if (option) select.innerHTML += `<option value="${option}">${option}</option>`;
-                });
-            }
-        }
-
-        function showPhase(phaseNumber, isPoppingState = false) {
-            document.querySelectorAll('.form-phase').forEach(p => p.classList.remove('active'));
-            const stageId = `stage-${String(phaseNumber).replace('.', '-')}`;
-            const element = document.getElementById(stageId);
-            if(element) element.classList.add('active');
-            if (!isPoppingState) {
-                const url = `#phase${phaseNumber}`;
-                history.pushState({ phase: phaseNumber }, `Paso ${phaseNumber}`, url);
-            }
-        }
-
-        async function handlePhase1Submit(e) {
+        async function handleStage2Submit(e) {
             e.preventDefault();
-            const formData = new FormData(e.target);
-            state.vehicleInfo = Object.fromEntries(formData.entries());
             toggleLoading(true);
+
+            const cutData = {
+                tipoCorte1: document.getElementById('tipoCorte1').value,
+                configRelay1: document.getElementById('configRelay1').value,
+                ubicacionCorte1: document.getElementById('ubicacionCorte1').value,
+                colorCableCorte1: document.getElementById('colorCableCorte1').value,
+                imgCorte1: await fileToBase64(document.getElementById('imgCorte1').files[0]),
+            };
+
+            const vehicleData = state.selectedVehicleId ? null : {
+                ...state.vehicleInfo,
+                imagenVehiculo: await fileToBase64(document.getElementById('imagenVehiculo').files[0]),
+            };
+
             try {
-                const result = await routeAction('checkVehicle', state.vehicleInfo);
-                state.matches = result.matches;
-                if (result.matches.length > 0) {
-                    displayMatches(result.matches);
-                    showPhase(1.5);
-                } else {
-                    proceedToPhase2(null);
-                }
-            } catch (error) {
-                alert(`Error al verificar el vehículo: ${error.message}`);
+                const result = await routeAction('addOrUpdateCut', {
+                    vehicleId: state.selectedVehicleId,
+                    vehicleData,
+                    cutData,
+                    colaborador: state.colaborador
+                });
+                state.selectedVehicleId = result.vehicleId;
+                alert("Corte guardado exitosamente.");
+                proceedToStage3(result.vehicleId);
+            } catch(error) {
+                alert(`Error al guardar el corte: ${error.message}`);
             } finally {
                 toggleLoading(false);
             }
         }
 
-        function displayMatches(matches) {
-            const container = document.getElementById('matches-container');
-            container.innerHTML = '';
-            const primaryMatchId = matches.length > 0 ? matches[0].id : null;
-            if (primaryMatchId) {
-                document.getElementById('add-new-cut-btn').onclick = () => proceedToPhase2(primaryMatchId);
-                document.getElementById('add-supplementary-btn').onclick = () => proceedToPhase3(primaryMatchId);
-            }
-            matches.forEach(match => {
-                const card = document.createElement('div');
-                card.className = 'match-card';
-                const yearRange = match.anoHasta ? `${match.anoDesde} - ${match.anoHasta}` : match.anoDesde;
-                const mainInfoContainer = document.createElement('div');
-                mainInfoContainer.style.cssText = "display: flex; gap: 15px; width: 100%;";
-                const vehicleImgHtml = `<img src="${convertirAGoogleThumbnail(match.imagenVehiculo, 120)}" alt="Imagen del Vehículo" class="match-vehicle-img" onerror="this.src='https://via.placeholder.com/120?text=Vehículo';">`;
-                const infoHtml = `<div class="match-card-info"><h4>${match.marca} ${match.modelo}</h4><p><strong>Año:</strong> ${yearRange}</p><p><strong>Encendido:</strong> ${match.tipoEncendido || 'N/A'}</p><p><strong>Versiones:</strong> ${match.versionesAplicables || 'N/A'}</p></div>`;
-                mainInfoContainer.innerHTML = infoHtml + vehicleImgHtml;
-                const cutsSection = document.createElement('div');
-                cutsSection.className = 'match-cuts-section';
-                let hasCuts = false;
-                for (let i = 1; i <= 3; i++) {
-                    const imgUrl = match['imgCorte' + i];
-                    if (imgUrl) {
-                        hasCuts = true;
-                        const cutItem = document.createElement('div');
-                        cutItem.className = 'match-cut-item';
-                        const thumbnailUrl = convertirAGoogleThumbnail(imgUrl, 400);
-                        const fullImageUrl = convertirAGoogleThumbnail(imgUrl, 2000);
-                        const img = document.createElement('img');
-                        img.src = thumbnailUrl;
-                        img.alt = `Corte ${i}`;
-                        img.className = 'match-cut-img';
-                        img.setAttribute('data-high-res-src', fullImageUrl);
-                        img.setAttribute('onclick', 'abrirLightbox(this)');
-                        img.onerror = function() { this.src='https://via.placeholder.com/216x144?text=Corte'; };
-                        const details = document.createElement('div');
-                        details.className = 'match-cut-details';
-                        details.innerHTML = `<p><strong>Tipo:</strong> ${match['tipoCorte' + i] || 'N/A'}</p><p><strong>Ubicación:</strong> ${match['ubicacionCorte' + i] || 'N/A'}</p><p><strong>Color de Cable:</strong> ${match['colorCableCorte' + i] || 'N/A'}</p>`;
-                        cutItem.appendChild(img);
-                        cutItem.appendChild(details);
-                        cutsSection.appendChild(cutItem);
-                    }
-                }
-                if (!hasCuts) cutsSection.innerHTML = '<p style="font-size: 0.9em; text-align: center; margin: 10px 0;">No hay cortes registrados.</p>';
-                const cardContent = document.createElement('div');
-                cardContent.style.width = '100%';
-                cardContent.appendChild(mainInfoContainer);
-                cardContent.appendChild(cutsSection);
-                card.appendChild(cardContent);
-                container.appendChild(card);
-            });
-        }
-
-        function proceedToPhase2(vehicleId) {
+        // --- STAGE 3: SUPPLEMENTARY INFO ---
+        function proceedToStage3(vehicleId) {
             state.selectedVehicleId = vehicleId;
-            const title = document.getElementById('stage-2-title');
-            const newVehicleImageGroup = document.getElementById('new-vehicle-image-group');
-            const newVehicleImageInput = document.getElementById('imagenVehiculoNew');
-            if (vehicleId) {
-                const match = state.matches.find(m => m.id === vehicleId);
-                title.textContent = `Paso 2: Agregar nuevo corte a ${match.marca} ${match.modelo}`;
-                newVehicleImageGroup.style.display = 'none';
-                newVehicleImageInput.required = false;
-            } else {
-                title.textContent = "Paso 2: Agregar Información del Corte";
-                newVehicleImageGroup.style.display = 'block';
-                newVehicleImageInput.required = true;
-            }
-            document.getElementById('form-phase-2').reset();
-            document.getElementById('imagenVehiculoNew_preview').style.display = 'none';
-            document.getElementById('imgCorte1_preview').style.display = 'none';
-            document.getElementById('configRelayStage2').value = "Corte a ignición";
-            showPhase(2);
-        }
-
-        function proceedToPhase3(vehicleId) {
-            state.selectedVehicleId = vehicleId;
-            const titleElement = document.querySelector('#stage-3 h2');
-            if (vehicleId) {
-                const match = state.matches.find(m => m.id === vehicleId);
-                if(titleElement) titleElement.textContent = `Paso 3: Agregar info a ${match.marca} ${match.modelo}`;
-            } else {
-                if(titleElement) titleElement.textContent = "Paso 3: Información Suplementaria";
-            }
-            document.getElementById('form-phase-3').reset();
+            document.getElementById('form-stage-3').reset();
+            resetImagePreviews();
             showPhase(3);
         }
 
-        function fileToBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
-            });
-        }
-
-        async function handleAddOrUpdateCut(e) {
+        async function handleStage3Submit(e) {
             e.preventDefault();
             toggleLoading(true);
-            const form = e.target;
-            const formData = new FormData(form);
-            const formInfo = Object.fromEntries(formData.entries());
-
-            const vehicleImageFile = document.getElementById('imagenVehiculoNew').files[0];
-            const cutImageFile = document.getElementById('imgCorte1').files[0];
-
-            let vehicleImageBase64 = null;
-            if (vehicleImageFile) {
-                vehicleImageBase64 = await fileToBase64(vehicleImageFile);
-            }
-
-            let cutImageBase64 = null;
-            if (cutImageFile) {
-                cutImageBase64 = await fileToBase64(cutImageFile);
-            }
-
-            // Integrate images into the correct objects
-            state.vehicleInfo.imagenVehiculo = vehicleImageBase64;
-            formInfo.imgCorte1 = cutImageBase64;
 
             const payload = {
-                vehicleData: state.vehicleInfo, // Contains phase 1 data + vehicle image
-                cutData: formInfo, // Contains all phase 2 fields including cut image
                 vehicleId: state.selectedVehicleId,
-                colaborador: state.colaborador
+                apertura: document.getElementById('apertura').value,
+                cableAlimen: document.getElementById('cableAlimen').value,
+                notaImportante: document.getElementById('notaImportante').value,
+                imgApertura: await fileToBase64(document.getElementById('imgApertura').files[0]),
+                imgCableAlimen: await fileToBase64(document.getElementById('imgCableAlimen').files[0]),
             };
 
             try {
-                const result = await routeAction('addOrUpdateCut', payload);
-                if (result.status === 'success') {
-                    state.selectedVehicleId = result.vehicleId;
-                    alert('Corte guardado con éxito.');
-                    proceedToPhase3(result.vehicleId);
-                } else {
-                    throw new Error(result.message || 'Error desconocido.');
-                }
-            } catch (error) {
+                await routeAction('addSupplementaryInfo', payload);
+                alert("Información guardada. Serás redirigido.");
+                window.location.href = 'index.html';
+            } catch(error) {
                 alert(`Error al guardar: ${error.message}`);
             } finally {
                 toggleLoading(false);
             }
         }
 
-        async function handlePhase3Submit(e) {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const supplementaryInfo = Object.fromEntries(formData.entries());
-            const payload = {
-                vehicleId: state.selectedVehicleId,
-                infoData: supplementaryInfo
-            };
-            toggleLoading(true);
-            try {
-                const result = await routeAction('addSupplementaryInfo', payload);
-                if (result.status === 'success') {
-                    alert('Información adicional guardada con éxito.');
-                    window.location.href = 'add_cortes.html';
-                } else {
-                    throw new Error(result.message || 'Error desconocido.');
-                }
-            } catch (error) {
-                alert(`Error al guardar la información: ${error.message}`);
-            } finally {
-                toggleLoading(false);
+        // --- UI & UTILITY HELPERS ---
+        function showPhase(phaseId) {
+            document.querySelectorAll('.form-phase').forEach(p => p.classList.remove('active'));
+            document.getElementById(`stage-${phaseId}`).classList.add('active');
+        }
+
+        function toggleLoading(isLoading) {
+            document.getElementById('loading-overlay').style.display = isLoading ? 'flex' : 'none';
+        }
+
+        function populateSelect(id, options, defaultValue = "") {
+            const select = document.getElementById(id);
+            if (!select) return;
+            select.innerHTML = '<option value="">Selecciona...</option>';
+            if (options) {
+                options.forEach(opt => select.innerHTML += `<option value="${opt}">${opt}</option>`);
             }
+            if (defaultValue) select.value = defaultValue;
+        }
+
+        function setupImagePreview(inputId, previewId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            input.addEventListener('change', () => {
+                const file = input.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => { preview.src = e.target.result; };
+                    reader.readAsDataURL(file);
+                } else {
+                    preview.src = '';
+                }
+            });
+        }
+
+        function resetImagePreviews() {
+            document.querySelectorAll('.image-preview').forEach(img => img.src = '');
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                if (!file) resolve(null);
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
         }
     </script>
 </body>

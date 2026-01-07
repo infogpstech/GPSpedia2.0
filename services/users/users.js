@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-USERS SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 2.3.0
+// COMPONENT VERSION: 2.4.1
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -18,7 +18,7 @@ function getSpreadsheet() {
 
 const SHEET_NAMES = {
     USERS: "Users",
-    ACTIVE_SESSIONS: "ActiveSessions" // Hoja añadida para verificación
+    ACTIVE_SESSIONS: "ActiveSessions"
 };
 
 const COLS_USERS = {
@@ -31,7 +31,6 @@ const COLS_USERS = {
     SessionToken: 7
 };
 
-// Definición de columnas añadida para la nueva función de verificación
 const COLS_ACTIVE_SESSIONS = {
     ID_Usuario: 1,
     Usuario: 2,
@@ -45,31 +44,54 @@ const COLS_ACTIVE_SESSIONS = {
 // ============================================================================
 
 function doGet(e) {
-    // ... (sin cambios)
+    const defaultResponse = { status: 'success', message: 'GPSpedia Users-SERVICE v2.4.1 is active.' };
+    return ContentService.createTextOutput(JSON.stringify(defaultResponse))
+        .setMimeType(ContentService.MimeType.TEXT);
 }
 
 function doPost(e) {
-    // ... (sin cambios)
+    let response;
+    try {
+        const request = JSON.parse(e.postData.contents);
+        switch (request.action) {
+            case 'getUsers':
+                response = handleGetUsers(request.payload);
+                break;
+            case 'createUser':
+                response = handleCreateUser(request.payload);
+                break;
+            case 'updateUser':
+                response = handleUpdateUser(request.payload);
+                break;
+            case 'deleteUser':
+                response = handleDeleteUser(request.payload);
+                break;
+            case 'changePassword':
+                response = handleChangePassword(request.payload);
+                break;
+            default:
+                throw new Error(`La acción '${request.action}' es desconocida.`);
+        }
+    } catch (error) {
+        response = { status: 'error', message: 'Ocurrió un error en el servicio.', details: { errorMessage: error.message } };
+    }
+    return ContentService.createTextOutput(JSON.stringify(response))
+        .setMimeType(ContentService.MimeType.TEXT);
 }
 
 // ============================================================================
-// NUEVA FUNCIÓN DE VERIFICACIÓN DE ROL
+// VERIFICACIÓN DE ROL
 // ============================================================================
 
-/**
- * Verifica un token de sesión y devuelve el rol del usuario correspondiente.
- * @param {string} sessionToken - El token de sesión a verificar.
- * @returns {string} El rol del usuario verificado.
- * @throws {Error} Si el token es inválido o no se encuentra.
- */
 function getVerifiedRole(sessionToken) {
     if (!sessionToken) {
         throw new Error("Acceso no autorizado: Se requiere token de sesión.");
     }
 
     const sessionsSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.ACTIVE_SESSIONS);
+    if (!sessionsSheet) throw new Error("Hoja de sesiones no encontrada.");
     const sessionsData = sessionsSheet.getDataRange().getValues();
-    sessionsData.shift(); // Remove headers
+    sessionsData.shift();
 
     let userId = null;
     for (const row of sessionsData) {
@@ -84,8 +106,9 @@ function getVerifiedRole(sessionToken) {
     }
 
     const usersSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
+    if (!usersSheet) throw new Error("Hoja de usuarios no encontrada.");
     const usersData = usersSheet.getDataRange().getValues();
-    usersData.shift(); // Remove headers
+    usersData.shift();
 
     for (const row of usersData) {
         if (row[COLS_USERS.ID - 1] == userId) {
@@ -96,26 +119,39 @@ function getVerifiedRole(sessionToken) {
     throw new Error("Acceso no autorizado: Usuario asociado a la sesión no encontrado.");
 }
 
-
 // ============================================================================
-// MANEJADORES DE ACCIONES (ACTUALIZADOS)
+// MANEJADORES DE ACCIONES
 // ============================================================================
 
 function handleGetUsers(payload) {
-    // El rol para esta función se obtiene de una fuente confiable (el objeto currentUser del propio usuario),
-    // por lo que no necesita el cambio a sessionToken. Se mantiene como está.
     const { privilegios } = payload;
     if (!privilegios) throw new Error("Se requiere el rol del solicitante.");
 
-    // ... (resto de la función sin cambios)
+    if (privilegios !== 'Desarrollador' && privilegios !== 'Gefe' && privilegios !== 'Supervisor') {
+        throw new Error('Acceso denegado. Permisos insuficientes.');
+    }
+
+    const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
+    const data = userSheet.getDataRange().getValues();
+    const headers = data.shift();
+    const users = data.map(row => {
+        const user = {};
+        headers.forEach((header, index) => {
+            if (header !== 'Password' && header !== 'SessionToken') { // Excluir datos sensibles
+                user[header] = row[index];
+            }
+        });
+        return user;
+    });
+
+    return { status: 'success', users: users };
 }
 
 function handleCreateUser(payload) {
-    const { newUser, sessionToken } = payload; // Cambiado de creatorRole a sessionToken
+    const { newUser, sessionToken } = payload;
     if (!newUser || !sessionToken) throw new Error("Datos insuficientes para crear el usuario. Se requiere sessionToken.");
 
-    const creatorRole = getVerifiedRole(sessionToken); // Se obtiene el rol de forma segura
-
+    const creatorRole = getVerifiedRole(sessionToken);
     const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
 
     const allowedRoles = {
@@ -127,15 +163,31 @@ function handleCreateUser(payload) {
         throw new Error(`El rol '${creatorRole}' no tiene permisos para crear usuarios de tipo '${newUser.Privilegios}'.`);
     }
 
-    // ... (resto de la función sin cambios)
+    const newUsername = generateUniqueUsername(userSheet, newUser.Nombre_Usuario);
+    const lastRow = userSheet.getLastRow();
+    const newRowRange = userSheet.getRange(lastRow + 1, 1, 1, userSheet.getLastColumn());
+
+    if (lastRow > 0) {
+        userSheet.getRange(lastRow, 1, 1, userSheet.getLastColumn()).copyTo(newRowRange, { contentsOnly: false });
+    }
+    newRowRange.clearContent();
+
+    const newRowData = new Array(userSheet.getLastColumn()).fill('');
+    newRowData[COLS_USERS.Nombre_Usuario - 1] = newUsername;
+    newRowData[COLS_USERS.Password - 1] = newUser.Password;
+    newRowData[COLS_USERS.Privilegios - 1] = newUser.Privilegios;
+    newRowData[COLS_USERS.Telefono - 1] = newUser.Telefono || '';
+    newRowData[COLS_USERS.Correo_Electronico - 1] = newUser.Correo_Electronico || '';
+    newRowRange.setValues([newRowData]);
+
+    return { status: 'success', message: `Usuario '${newUsername}' creado.` };
 }
 
 function handleUpdateUser(payload) {
-    const { userId, updates, sessionToken } = payload; // Cambiado de updaterRole a sessionToken
+    const { userId, updates, sessionToken } = payload;
     if (!userId || !updates || !sessionToken) throw new Error("Datos insuficientes para actualizar. Se requiere sessionToken.");
 
-    const updaterRole = getVerifiedRole(sessionToken); // Se obtiene el rol de forma segura
-
+    const updaterRole = getVerifiedRole(sessionToken);
     const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
     const data = userSheet.getDataRange().getValues();
     data.shift();
@@ -143,7 +195,6 @@ function handleUpdateUser(payload) {
     for (let i = 0; i < data.length; i++) {
         if (data[i][COLS_USERS.ID - 1] == userId) {
             const userToUpdateRole = data[i][COLS_USERS.Privilegios - 1];
-
             const canUpdate = {
                 'Desarrollador': () => true,
                 'Gefe': (targetRole) => !['Desarrollador', 'Tecnico_Exterior'].includes(targetRole),
@@ -157,7 +208,7 @@ function handleUpdateUser(payload) {
             Object.keys(updates).forEach(key => {
                 const colIndex = COLS_USERS[key];
                 if (colIndex && key !== 'id') {
-                    if (key === 'password' && !updates.password) return;
+                    if (key === 'password' && !updates.password) return; // No actualizar contraseña si está vacía
                     userSheet.getRange(i + 2, colIndex).setValue(updates[key]);
                 }
             });
@@ -169,23 +220,18 @@ function handleUpdateUser(payload) {
 }
 
 function handleDeleteUser(payload) {
-    const { userId, sessionToken } = payload; // Cambiado de deleterRole a sessionToken
+    const { userId, sessionToken } = payload;
     if (!userId || !sessionToken) throw new Error("Datos insuficientes para eliminar. Se requiere sessionToken.");
 
-    const deleterRole = getVerifiedRole(sessionToken); // Se obtiene el rol de forma segura
-
+    const deleterRole = getVerifiedRole(sessionToken);
     const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
-    const lastRow = userSheet.getLastRow();
-    if (lastRow < 2) return { status: 'success', message: 'No hay usuarios para eliminar.' };
-    const data = userSheet.getRange(2, 1, lastRow - 1, COLS_USERS.Privilegios).getValues();
+    const data = userSheet.getRange(2, 1, userSheet.getLastRow() - 1, COLS_USERS.Privilegios).getValues();
 
     for (let i = 0; i < data.length; i++) {
-        const row = data[i];
-        if (row[COLS_USERS.ID - 1] == userId) {
-            const userToDeleteRole = row[COLS_USERS.Privilegios - 1];
-
+        if (data[i][COLS_USERS.ID - 1] == userId) {
+            const userToDeleteRole = data[i][COLS_USERS.Privilegios - 1];
             const canDelete = {
-                 'Desarrollador': (targetRole) => true,
+                 'Desarrollador': () => true,
                  'Gefe': (targetRole) => !['Desarrollador', 'Gefe', 'Tecnico_Exterior'].includes(targetRole),
                  'Supervisor': (targetRole) => targetRole === 'Tecnico'
             };
@@ -193,7 +239,6 @@ function handleDeleteUser(payload) {
             if (!canDelete[deleterRole] || !canDelete[deleterRole](userToDeleteRole)) {
                 throw new Error(`Rol '${deleterRole}' no puede eliminar a '${userToDeleteRole}'.`);
             }
-
             userSheet.deleteRow(i + 2);
             return { status: 'success', message: 'Usuario eliminado.' };
         }
@@ -202,7 +247,26 @@ function handleDeleteUser(payload) {
 }
 
 function handleChangePassword(payload) {
-    // ... (sin cambios)
+    const { userId, currentPassword, newPassword } = payload;
+    if (!userId || !currentPassword || !newPassword) {
+        throw new Error("Datos insuficientes para cambiar la contraseña.");
+    }
+
+    const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
+    const data = userSheet.getDataRange().getValues();
+    data.shift();
+
+    for (let i = 0; i < data.length; i++) {
+        if (data[i][COLS_USERS.ID - 1] == userId) {
+            const storedPassword = String(data[i][COLS_USERS.Password - 1]);
+            if (storedPassword.toLowerCase() !== currentPassword.toLowerCase()) {
+                throw new Error("La contraseña actual es incorrecta.");
+            }
+            userSheet.getRange(i + 2, COLS_USERS.Password).setValue(newPassword);
+            return { status: 'success', message: 'Contraseña actualizada correctamente.' };
+        }
+    }
+    throw new Error("Usuario no encontrado.");
 }
 
 // ============================================================================
@@ -210,5 +274,14 @@ function handleChangePassword(payload) {
 // ============================================================================
 
 function generateUniqueUsername(sheet, fullname) {
-    // ... (sin cambios)
+    let username = String(fullname).trim().toLowerCase().replace(/\s+/g, '.');
+    let finalUsername = username;
+    let counter = 1;
+    const usernames = sheet.getRange(2, COLS_USERS.Nombre_Usuario, sheet.getLastRow() -1, 1).getValues().flat();
+
+    while (usernames.includes(finalUsername)) {
+        finalUsername = `${username}${counter}`;
+        counter++;
+    }
+    return finalUsername;
 }

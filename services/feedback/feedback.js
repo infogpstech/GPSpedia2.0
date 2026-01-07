@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-FEEDBACK SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 2.2.0
+// COMPONENT VERSION: 2.3.0
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -315,17 +315,24 @@ function handleRecordLike(payload) {
 function handleReportProblem(payload) {
     const { vehicleId, problemText, userId, userName } = payload;
     if (!vehicleId || !problemText || !userId || !userName) {
-        throw new Error("Faltan datos para reportar el problema.");
+        throw new Error("Faltan datos para reportar el problema (vehicleId, problemText, userId, userName).");
     }
 
-    // ... (logic for adding problem to Feedbacks sheet) ...
-    const feedbackSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
-    const newRow = [];
-    newRow[COLS_FEEDBACKS.ID - 1] = '';
-    newRow[COLS_FEEDBACKS.Usuario - 1] = userName;
-    newRow[COLS_FEEDBACKS.ID_vehiculo - 1] = vehicleId;
-    newRow[COLS_FEEDBACKS.Problema - 1] = problemText;
-    feedbackSheet.appendRow(newRow);
+    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
+    const lastRow = sheet.getLastRow();
+    const newRowRange = sheet.getRange(lastRow + 1, 1, 1, sheet.getLastColumn());
+
+    // Copy formatting and formulas from the previous row
+    if (lastRow > 0) {
+        sheet.getRange(lastRow, 1, 1, sheet.getLastColumn()).copyTo(newRowRange, {contentsOnly: false});
+        newRowRange.clearContent();
+    }
+
+    // Set new values
+    newRowRange.getCell(1, COLS_FEEDBACKS.Usuario).setValue(userName); // Correctly store userName
+    newRowRange.getCell(1, COLS_FEEDBACKS.ID_vehiculo).setValue(vehicleId);
+    newRowRange.getCell(1, COLS_FEEDBACKS.Problema).setValue(problemText);
+    // The userId is captured in the user activity log, not stored in this sheet.
 
 
     logUserActivity(userId, userName, 'report_problem', vehicleId, problemText);
@@ -333,18 +340,23 @@ function handleReportProblem(payload) {
 }
 
 function handleSendContactForm(payload) {
-    const { name, email, message } = payload;
+    const { name, email, message, userId } = payload; // Added userId
     if (!name || !email || !message) {
-        throw new Error("Faltan datos para enviar el formulario de contacto.");
+        throw new Error("Faltan datos para enviar el formulario de contacto (name, email, message).");
     }
 
     const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CONTACTANOS);
-    const newRow = [];
-    newRow[COLS_CONTACTANOS.Contacto_ID - 1] = ''; // Autogen ID
-    newRow[COLS_CONTACTANOS.User_ID - 1] = ''; // Asumiendo que no hay un usuario logueado.
-    newRow[COLS_CONTACTANOS.Asunto - 1] = `Contacto de ${name}`;
-    newRow[COLS_CONTACTANOS.Mensaje - 1] = `De: ${email}\n\n${message}`;
-    sheet.appendRow(newRow);
+    const lastRow = sheet.getLastRow();
+    const newRowRange = sheet.getRange(lastRow + 1, 1, 1, sheet.getLastColumn());
+
+    if (lastRow > 0) {
+        sheet.getRange(lastRow, 1, 1, sheet.getLastColumn()).copyTo(newRowRange, {contentsOnly: false});
+        newRowRange.clearContent();
+    }
+
+    newRowRange.getCell(1, COLS_CONTACTANOS.User_ID).setValue(userId || 'N/A'); // Save userId
+    newRowRange.getCell(1, COLS_CONTACTANOS.Asunto).setValue(`Contacto de ${name}`);
+    newRowRange.getCell(1, COLS_CONTACTANOS.Mensaje).setValue(`De: ${email}\n\n${message}`);
 
     return { status: 'success', message: 'Formulario de contacto enviado.' };
 }

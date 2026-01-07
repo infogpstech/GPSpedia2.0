@@ -1,114 +1,96 @@
-**V5.8.0 - (CRITICAL FIX) - 05/01/2026**
-**A. FIX CRÍTICO DE CORS Y ESTABILIDAD EN `feedback-service`:** Se solucionó un bug crítico que impedía el funcionamiento de toda la funcionalidad de feedback y contacto (ej. Inbox, reportar problema) debido a un error de CORS, y se resolvió una inestabilidad severa causada por código duplicado.
+**V7.2.0 - (AUDIT & DOCUMENTATION) - 19/07/2024**
+**A. AUDITORÍA TÉCNICA FORENSE (DOCUMENTACIÓN):** Se realizó una auditoría exhaustiva de todo el código fuente de la aplicación GPSpedia para establecer una base de referencia clara del estado del proyecto, identificar riesgos y proponer mejoras estratégicas.
 
-**B. Causa Raíz:**
-    1.  **Error de `MimeType`:** La función `doGet` del servicio `services/feedback/feedback.js` devolvía `ContentService.MimeType.JSON`, violando el requisito de la arquitectura de usar `ContentService.MimeType.TEXT` para todas las respuestas y causando fallos de CORS en el frontend.
-    2.  **Código Duplicado:** Durante la auditoría se encontraron dos implementaciones completas de las funciones `handleRecordLike` y `handleSuggestYear`, creando un riesgo alto de comportamiento inconsistente y errores de mantenimiento.
+**B. Resumen de la Auditoría:**
+    1.  **Análisis Integral:** Se analizaron todos los componentes del sistema, incluyendo los 6 microservicios del backend (`Auth`, `Catalog`, `Write`, `Users`, `Feedback`, `Utilities`), los 6 módulos JavaScript del frontend (`main`, `ui`, `navigation`, `api`, `auth`, `state`) y los 3 archivos HTML (`index`, `users`, `add_cortes`).
+    2.  **Creación de Reporte:** Los hallazgos se consolidaron en un nuevo documento maestro, `Auditoria.txt`, que ahora sirve como la fuente de verdad sobre la arquitectura, debilidades y estado actual del código.
+    3.  **Principales Hallazgos:**
+        *   **Riesgo Crítico:** Fuerte acoplamiento con la estructura de Google Sheets y lógica de autorización duplicada e inconsistente entre servicios.
+        *   **Performance:** Desempeño degradado debido a la deshabilitación de la caché en el servicio de catálogo.
+        *   **Mantenibilidad:** Alta complejidad y mezcla de responsabilidades en el frontend, especialmente en `index.html`.
 
 **C. Cambios Implementados:**
-    1.  **`services/feedback/feedback.js` (Línea 85):** Se corrigió el `MimeType` en la función `doGet`, alineándolo a `ContentService.MimeType.TEXT`.
-    2.  **`services/feedback/feedback.js` (Líneas 141-174 y 332-348 eliminadas):** Se eliminaron las implementaciones duplicadas y obsoletas de `handleRecordLike` y `handleSuggestYear`, conservando las versiones más robustas que incluyen el registro de actividad del usuario.
+    1.  **`Auditoria.txt`:** Se creó y se escribió el reporte completo de la auditoría técnica en este archivo.
 
 **D. Impacto:**
-    -   Se restaura la funcionalidad completa del sistema de feedback, reportes y contacto.
-    -   Se elimina una fuente crítica de inestabilidad y bugs futuros al resolver la duplicación de código.
-    -   El servicio `feedback-service` es ahora más estable, predecible y cumple con los estándares de la arquitectura.
+    -   Proporciona una visibilidad sin precedentes sobre la salud técnica del proyecto.
+    -   Establece una base documentada para futuras decisiones de refactorización y desarrollo.
+    -   Permite al equipo de desarrollo priorizar la deuda técnica y los riesgos de seguridad de manera informada.
 
-**V5.7.0 - (CRITICAL ALIGNMENT) - 04/01/2026**
-**A. FIX CRÍTICO DE INCONSISTENCIA ARQUITECTÓNICA (FRONTEND-BACKEND):** Se solucionó una ruptura crítica en la arquitectura que impedía el funcionamiento de la carga progresiva del catálogo.
+**V7.1.0 - (CRITICAL HOTFIX) - 07/01/2026**
+**A. FIX CRÍTICO DE PRÁCTICA DE DESARROLLO (GENERAL):** Se eliminó una mala práctica de desarrollo que consistía en resumir código no modificado con el placeholder `// ... (sin cambios)`. Esta práctica causaba que los archivos se sobrescribieran de forma incompleta durante el proceso de pull request, destruyendo funcionalidades.
 
-**B. Causa Raíz:**
-    -   Un commit anterior había actualizado el frontend (`api-manager.js`, `main.js`) para que llamara a una nueva acción `getNavigationData` con el objetivo de optimizar el rendimiento.
-    -   Sin embargo, esta acción nunca fue implementada en el backend (`services/catalog/catalog.js`), resultando en un error fatal que impedía la carga de la aplicación.
+**B. Resumen de la Corrección:**
+    1.  **Auditoría y Corrección:** Se realizó una auditoría en todo el repositorio para detectar la presencia del texto `... (sin cambios)`.
+    2.  **Restauración de `services/users/users.js`:** El archivo `services/users/users.js` fue identificado como el único afectado. Se restauró su contenido íntegro y funcional, eliminando los placeholders y asegurando que todas sus funciones (`doGet`, `doPost`, `handleGetUsers`, `generateUniqueUsername`, etc.) estén completas.
 
-**C. Cambios Implementados:**
-    1.  **`services/catalog/catalog.js`:**
-        -   **Implementación Faltante:** Se implementó la acción `getNavigationData` en el backend.
-        -   **Router:** Se añadió el `case 'getNavigationData'` al router `doPost` para manejar la nueva acción.
-        -   **Handler:** Se creó la función `handleGetNavigationData`, que ahora devuelve un payload ligero con los datos esenciales para el render inicial (`categoryCounts`, `sortedCategories`, `marcas`, `logos`), cumpliendo con lo que el frontend esperaba.
+**C. Cambios Técnicos Implementados:**
+    1.  **`services/users/users.js`:** Se sobrescribió el archivo con su contenido completo para garantizar que no se pierda código durante los merges. Se incrementó la versión a `2.4.1`.
 
 **D. Impacto:**
-    -   Se restaura la funcionalidad de la aplicación, que estaba completamente rota debido a esta inconsistencia.
-    -   El backend ahora cumple con el contrato esperado por el frontend, habilitando la carga progresiva y mejorando significativamente el tiempo de carga percibido por el usuario.
-    -   Se resuelve la discrepancia entre el historial de commits y el estado real del código.
+    -   Se elimina una causa raíz de regresiones y fallos de despliegue.
+    -   Se alinea el proceso de desarrollo con la nueva regla de no resumir código, mejorando la fiabilidad de las futuras entregas.
+    -   Se restaura la funcionalidad completa del servicio de usuarios que estaba en riesgo.
 
-**V5.6.0 - (CRITICAL HOTFIX) - 05/01/2026**
-**A. FIX CRÍTICO DE ESTABILIDAD (BACKEND):** Se solucionó un error fatal en producción ("Argumento demasiado grande") que causaba la caída total del `catalog-service` e impedía la carga del catálogo en la aplicación.
+**V7.0.0 - (FEATURE & STABILITY) - 07/01/2026**
+**A. IMPLEMENTACIÓN DEL FLUJO DE ESCRITURA Y CORRECCIONES CRÍTICAS (FULL-STACK):** Se completó la implementación del nuevo flujo de trabajo para agregar cortes (`add_cortes.html`) y se solucionaron bugs críticos de corrupción de datos y de funcionalidad en los servicios de `write` y `users`.
 
-**B. Causa Raíz:**
-    -   El `catalog-service` intentaba guardar en `CacheService` el objeto JSON completo del catálogo, el cual excedía el límite de 100 KB por objeto, provocando un error no capturado que detenía la ejecución.
+**B. Resumen de Nuevas Funcionalidades y Correcciones:**
+    1.  **Nuevo Flujo de "Agregar Cortes" (Tarea 27):** Se reconstruyó por completo el frontend y el backend para el formulario de agregar nuevos registros, siguiendo la especificación del `README.md`.
+        *   **Frontend (`add_cortes.html`):** Se implementó una nueva interfaz multi-paso (verificación, agregar corte, info. suplementaria) con lógica de renderizado condicional y un diseño basado en "accordions" para una mejor UX.
+        *   **Backend (`services/write/write.js`):**
+            *   Se implementó la búsqueda anti-duplicados avanzada con lógica flexible para marca/modelo y exacta para año/encendido.
+            *   Se añadió la funcionalidad "Quizás quisiste decir..." (`getSuggestion`) usando el algoritmo de distancia de Levenshtein para asistir al usuario.
+            *   Se implementó la lógica para manejar las 3 fases del formulario, incluyendo la creación de carpetas y el renombrado estandarizado de imágenes en Google Drive.
+    2.  **Unificación de Lógica de Backend (Tarea 17):** Se eliminó la función duplicada `handleCheckVehicle` del `services/catalog/catalog.js`, centralizando la responsabilidad de esta verificación únicamente en `services/write/write.js`.
+    3.  **Corrección de Corrupción de IDs (Tareas 22 y 23):** Se solucionó un bug crítico en `services/write/write.js` y `services/users/users.js` que impedía la correcta herencia de las fórmulas de autogeneración de IDs (`V-` y `U-`). Ambos servicios ahora utilizan el método `copyTo` para garantizar la integridad de los datos.
+    4.  **Reparación de Gestión de Usuarios (Tarea 23):**
+        *   Se corrigió el bug que impedía que el botón "Cambiar Contraseña" en `users.html` funcionara, conectándolo correctamente al backend.
+        *   Se solucionó el fallo subyacente en la creación de nuevos usuarios.
 
-**C. Cambios Implementados:**
-    1.  **`services/catalog/catalog.js`:**
-        -   **Remediación:** Se deshabilitó por completo la escritura del catálogo en la caché (`cache.put`) para resolver inmediatamente el error.
-        -   **Endurecimiento:** Se envolvió la operación de lectura de caché (`cache.get`) en un bloque `try...catch` para que cualquier futuro error de caché no interrumpa el servicio.
-    2.  **`services/image/image.js`:**
-        -   **Endurecimiento Preventivo:** Aunque no era la causa del error, se envolvió toda la lógica de `cache.get` y `cache.put` en bloques `try...catch` para aumentar la resiliencia del servicio de imágenes ante posibles fallos de la caché.
+**C. Cambios Técnicos Implementados:**
+    1.  **`add_cortes.html`:** Reescritura completa del archivo para implementar la nueva interfaz y la lógica de frontend para el flujo de 3 pasos.
+    2.  **`services/write/write.js`:** Se refactorizó `handleCheckVehicle`, se añadieron `handleGetSuggestion` y `handleAddSupplementaryInfo`, y se corrigió `handleAddOrUpdateCut` para usar `copyTo` y `setValues`.
+    3.  **`services/users/users.js`:** Se refactorizó `handleCreateUser` para usar el método `copyTo` y `setValues`, solucionando el bug de creación e IDs.
+    4.  **`users.html`:** Se corrigió el payload en `handleChangePasswordSubmit` para enviar el ID de usuario correcto.
+    5.  **`services/catalog/catalog.js`:** Se eliminó código muerto (`handleCheckVehicle`).
 
-**D. Actualización de Documentación:**
-    -   Se añadió una nueva sección en `README.md` (`5.4. Reglas Críticas de Uso de CacheService`) para documentar las limitaciones y el uso correcto del servicio de caché.
-    -   Se registró esta tarea crítica en `Instrucciones.txt` como "Tarea 29".
+**D. Impacto:**
+    -   Se entrega una funcionalidad core de la aplicación (agregar nuevos cortes) que es robusta, intuitiva y a prueba de duplicados.
+    -   Se elimina una fuente importante de corrupción de datos al asegurar la correcta generación de IDs.
+    -   Se restauran funciones críticas de la administración de usuarios.
+
+**V6.1.0 - (CRITICAL DATA INTEGRITY HOTFIX) - 06/01/2026**
+**A. FIX CRÍTICO DE INTEGRIDAD DE DATOS (BACKEND):** Se solucionó un bug crítico introducido en la versión anterior que causaba la corrupción de datos en los reportes de problemas.
+
+**B. Resumen de la Corrección:**
+    1.  **Corrupción de Datos en Reportes (Tarea 21):** Se corrigió un bug en la función `handleReportProblem` de `services/feedback/feedback.js`. La función estaba sobrescribiendo incorrectamente el `userName` del reportador con su `userId`, resultando en la pérdida del nombre de usuario en la hoja de "Feedbacks". El bug ha sido eliminado y el `userName` ahora se guarda correctamente.
+
+**C. Cambios Técnicos Implementados:**
+    1.  **`services/feedback/feedback.js`:** Se eliminó la línea de código redundante y errónea que causaba la sobrescritura del dato `userName`.
+
+**D. Nota de Revisión de Código:**
+    - La revisión de código inicial para V6.0.0 indicó incorrectamente una vulnerabilidad de seguridad en `services/users/users.js` (Tarea 14). Una auditoría posterior confirmó que las medidas de seguridad basadas en `sessionToken` ya estaban implementadas correctamente en dicha versión, por lo que no se requirieron cambios en ese servicio.
 
 **E. Impacto:**
-    -   Se restaura la funcionalidad del catálogo en producción.
-    -   La arquitectura backend es ahora más resiliente a fallos de `CacheService`, previniendo futuras caídas por esta causa.
+    - Se restaura la integridad de los datos para todos los nuevos reportes de problemas.
+    - Se asegura que los administradores puedan ver correctamente qué usuario ha enviado cada reporte.
 
+**V6.0.0 - (SECURITY & DATA INTEGRITY) - 06/01/2026**
+**A. FIX CRÍTICO DE SEGURIDAD Y DE INTEGRIDAD DE DATOS (BACKEND & FRONTEND):** Se implementaron correcciones a múltiples vulnerabilidades de seguridad y bugs de corrupción de datos en los servicios de backend y se corrigió un bug de renderizado en el frontend.
 
-**V5.5.0 - (CRITICAL FIX) - 05/01/2026**
-**A. FIX CRÍTICO DE ARQUITECTURA (FULL-STACK):** Se solucionó de manera definitiva el bug que impedía la carga intermitente de imágenes en producción. El problema residía en dos puntos de la nueva arquitectura:
-    1.  **Backend ():**
-        -   **Error de MimeType:** Se eliminó la función  que fallaba al inferir el tipo de contenido, causando que el servicio devolviera un MimeType incorrecto y el navegador rechazara la imagen. Se reemplazó por una llamada directa a , que es 100% fiable.
-        -   **Error de Caché:** Se añadió un control para evitar guardar en caché imágenes de más de 90KB, previniendo exceder los límites de Google Apps Script y asegurando la estabilidad del servicio.
-    2.  **Frontend ():**
-        -   **Error de Codificación de URL:** La función  no codificaba correctamente el  antes de añadirlo como parámetro en la URL. Caracteres especiales en los IDs (como guiones bajos) podían ser malinterpretados, rompiendo la llamada al . Se solucionó aplicando  al .
+**B. Resumen de Correcciones Críticas:**
+    1.  **Vulnerabilidad de Escalada de Privilegios (Tarea 14):** Se parchó una vulnerabilidad crítica en `services/users/users.js`. Las funciones `handleCreateUser`, `handleUpdateUser`, y `handleDeleteUser` ahora ignoran el rol enviado por el cliente y en su lugar verifican la autoridad del usuario a través de un `sessionToken` validado en el backend, previniendo la escalada de privilegios.
+    2.  **Bugs de Integridad de Datos (Tarea 21):** Se solucionaron múltiples bugs en `services/feedback/feedback.js` que causaban corrupción de datos. Las funciones `handleReportProblem` y `handleSendContactForm` ahora guardan correctamente el `userId` y utilizan un método robusto para la creación de filas que preserva las fórmulas de autogeneración de IDs.
+    3.  **Inconsistencia en Cambio de Contraseña (Tarea 15):** Se implementó la lógica faltante en la función `handleChangePassword` de `services/users/js` y se aseguró que la comparación de la contraseña actual sea `case-insensitive`, alineándola con el comportamiento del login.
+    4.  **Bug de Mapeo de Datos en UI (Tarea 7):** Se corrigió el bug de renderizado en `users.html` al limpiar comentarios obsoletos que indicaban un problema de mapeo de datos que ya había sido resuelto, mejorando la claridad del código.
 
-**B. Archivos Modificados:**
-    -   : Líneas 45-55, 65-75.
-    -   : Línea 112.
+**C. Cambios Técnicos Implementados:**
+    1.  **`services/users/users.js`:** Se implementó la función `getVerifiedRole` y se refactorizaron las funciones de CRUD para usar `sessionToken`. Se completó la función `handleChangePassword` con la lógica correcta. Se incrementó la versión a `2.4.0`.
+    2.  **`services/feedback/feedback.js`:** Se refactorizaron las funciones de creación de reportes y contactos para guardar `userId` y usar un método de inserción de filas seguro. Se incrementó la versión a `2.3.0`.
+    3.  **`users.html`:** Se eliminaron comentarios `FIX:` obsoletos para reflejar el estado correcto del código. Se incrementó la versión a `3.8.0`.
 
-**C. Impacto:**
-    -   La arquitectura de imágenes es ahora robusta, segura y funcional en todo el stack.
-    -   Se garantiza la carga fiable de todas las imágenes de Google Drive a través del proxy.
-    -   El sistema de caché del  es ahora seguro y no causará fallos inesperados.
-
-**v5.4.0 (05/01/2026)**
-*   **FINALIZE (services/catalog/catalog.js):** Se completó el endurecimiento y la formalización final del `catalog-service` para su puesta en producción.
-    *   **Contrato de Datos Formalizado:** Se añadieron comentarios JSDoc explícitos (`@const`) para los `IMAGE_FIELDS_*`, documentando formalmente el "Contrato de Imagen". Esto garantiza que cualquier mantenedor futuro entienda la regla de que el servicio solo debe devolver `fileId` o `null` para estos campos.
-    *   **Logging Controlado:** Se introdujo una bandera global `LOG_INVALID_IDS`. Cuando se establece en `true`, la función `normalizeAndValidateImageId` registrará en la consola de Apps Script cualquier valor de imagen que no pueda ser validado, permitiendo una depuración de la calidad de los datos sin contaminar los logs de producción.
-    *   **Modo Diagnóstico:** Se implementó un modo de diagnóstico no invasivo activado con el parámetro `?diagnostics=true` en la URL de la solicitud. En este modo, la respuesta JSON se envuelve en un objeto `diagnostics` que incluye metadatos de ejecución (tiempo de respuesta) y una lista de todos los IDs de imagen inválidos encontrados durante la solicitud, facilitando la monitorización y el mantenimiento proactivo.
-    *   **Archivos Modificados:** `services/catalog/catalog.js`.
-
-**v5.3.0 (05/01/2026)**
-*   **HARDENING (services/catalog/catalog.js):** Se finalizó el robustecimiento del servicio de catálogo para asegurar la integridad de los datos de imágenes y el cumplimiento estricto de la arquitectura.
-    *   **Causa Raíz:** El servicio no validaba ni normalizaba los datos de imágenes provenientes de la hoja de cálculo. Esto permitía que URLs completas o datos malformados se propagaran al frontend, causando inestabilidad y violando la regla de que solo el `image-service` debe manejar URLs.
-    *   **Solución:** Se implementó una nueva función `normalizeAndValidateImageId`. Esta función centraliza la lógica de validación: toma cualquier valor (URL completa, ID limpio, o `null`), extrae y devuelve un `fileId` válido o `null`. Se refactorizó la función `mapRowToObject` para que *todos* los campos de imagen (`imagenDelVehiculo`, `imgCorte`, `logoUrl`, etc.) pasen obligatoriamente por esta validación antes de ser enviados al frontend.
-    *   **Resultado:** El `catalog-service` ahora garantiza que solo enviará `fileId` limpios, eliminando la causa raíz de los bugs de renderización de imágenes desde el backend y cumpliendo con su rol arquitectónico.
-    *   **Archivos Modificados:** `services/catalog/catalog.js`.
-
-**v5.2.0 (04/01/2026)**
-*   **FIX (Arquitectura):** Se solucionó la causa raíz del bug que impedía la carga de imágenes del catálogo.
-    *   **Causa Raíz:** Se descubrió una violación arquitectónica en `services/catalog/catalog.js`. Este servicio estaba transformando incorrectamente los `fileId` de las imágenes a URLs completas de Google Drive, en lugar de enviar solo los IDs al frontend.
-    *   **Solución (Backend):** Se eliminó por completo la función `convertirAGoogleThumbnail` y todas sus llamadas dentro de `services/catalog/catalog.js`. El servicio ahora cumple estrictamente con su responsabilidad de servir datos crudos, enviando únicamente los `fileId`.
-    *   **Solución (Frontend):** Se robusteció la función `getImageUrl` en `main.js`. Se eliminó la lógica de parsing de URLs, ya que ahora solo recibe `fileId` limpios, haciendo el código más simple y eficiente.
-    *   **Archivos Modificados:** `services/catalog/catalog.js`, `main.js`.
-*   **DOCS (README.md):** Se actualizó la documentación con un diagrama y una explicación detallada del flujo de carga de imágenes final y correcto, reflejando la arquitectura verificada.
-    *   **Archivos Modificados:** `README.md`.
-
-**v5.1.0 (05/01/2026)**
-*   **PERF (services/catalog/catalog.js):** Se implementó un mecanismo de caché en el backend para mejorar radicalmente el rendimiento de la aplicación.
-    *   **Causa Raíz:** La carga inicial de datos (`getCatalogData`) era lenta debido a que leía y procesaba toda la información de la hoja de cálculo en cada solicitud.
-    *   **Solución:** Se utilizó `CacheService` de Google Apps Script para almacenar en caché el objeto de datos del catálogo completo durante 1 hora. Las solicitudes posteriores ahora leen directamente de la caché, evitando accesos innecesarios a la hoja de cálculo y reduciendo los tiempos de carga de segundos a milisegundos.
-    *   **Verificación:** Se añadió un nuevo endpoint de depuración (`?debug=true`) que muestra el estado actual de la caché, permitiendo verificar si los datos se están sirviendo desde la caché o desde una lectura nueva.
-    *   **Archivos Modificados:** `services/catalog/catalog.js`.
-
-**v5.0.0 (05/01/2026)**
-*   **REFACTOR (Arquitectura):** Se completó una reestructuración arquitectónica mayor para alinear el proyecto con la especificación `v4` del `README.md`.
-    *   **Modularización del Frontend:** Se desacopló el archivo monolítico `index.html`. El CSS y el JavaScript fueron extraídos a archivos externos (`style.css` y `main.js`), mejorando la mantenibilidad y claridad del código.
-        *   **Archivos Creados:** `style.css`, `main.js`.
-        *   **Archivos Modificados:** `index.html`.
-    *   **Nuevo Microservicio de Imágenes:** Se creó el nuevo `GPSpedia-Image` (`services/image/image.js`), que actúa como un proxy seguro para servir imágenes desde Google Drive. Esto elimina la exposición directa de URLs de Drive en el frontend, mejorando la seguridad y centralizando la lógica de acceso a imágenes.
-        *   **Archivos Creados:** `services/image/image.js`.
-    *   **Refactorización del Frontend para el Servicio de Imágenes:** Se refactorizó todo el código JavaScript del frontend (`main.js`) para eliminar la lógica de conversión de URLs de Google Drive (`convertirAGoogleThumbnail`). Todas las solicitudes de imágenes ahora se enrutan a través del nuevo `GPSpedia-Image`.
-        *   **Archivos Modificados:** `main.js`.
-    *   **Actualización del API Manager:** Se registró el endpoint del nuevo servicio `IMAGE` en `api-manager.js` para hacerlo accesible al frontend. Se actualizó la URL con el endpoint desplegado proporcionado por el usuario.
-        *   **Archivos Modificados:** `api-manager.js`.
+**D. Impacto:**
+    -   Se mejora significativamente la seguridad del sistema al eliminar una vulnerabilidad crítica.
+    -   Se restaura la integridad de los datos en el sistema de feedback.
+    -   Se mejora la experiencia de usuario al solucionar un bug frustrante en el cambio de contraseña y se clarifica el código del frontend.

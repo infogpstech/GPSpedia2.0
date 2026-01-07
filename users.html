@@ -198,7 +198,7 @@
         </div>
     </div>
 <script>
-// COMPONENT VERSION: 3.7.0
+// COMPONENT VERSION: 3.8.0
 // --- LÓGICA DE DEPURACIÓN REMOTA ---
 function remoteLog(level, message, data = {}) {
     fetch(SCRIPT_URL, {
@@ -239,9 +239,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function displayProfile() {
-    // FIX: Corrected to display Nombre_Usuario in both fields as there's no separate fullname field in the session object
     document.getElementById('profile-username').textContent = currentUser.Nombre_Usuario;
-    document.getElementById('profile-fullname').textContent = currentUser.Nombre_Usuario;
+    document.getElementById('profile-fullname').textContent = currentUser.Nombre_Completo; // Corregido
     document.getElementById('profile-role').textContent = currentUser.Privilegios;
 }
 
@@ -272,7 +271,6 @@ function renderUserTable() {
     tbody.innerHTML = '';
     allUsers.forEach(user => {
         const row = document.createElement('tr');
-        // FIX: Corrected property access to match backend schema (PascalCase_With_Underscores)
         row.innerHTML = `
             <td>${user.Nombre_Usuario}</td>
             <td>${user.Nombre_Usuario}</td>
@@ -306,6 +304,7 @@ function setupEventListeners() {
     });
 
     document.getElementById('user-form').addEventListener('submit', handleUserFormSubmit);
+    // FIX Tarea 23: Se añade el event listener faltante para el formulario de cambio de contraseña.
     document.getElementById('password-form').addEventListener('submit', handleChangePasswordSubmit);
 }
 
@@ -317,7 +316,6 @@ function openUserModal(user = null) {
 
     if (user) {
         title.textContent = 'Editar Usuario';
-        // FIX: Corrected property access to match backend schema
         document.getElementById('user-id').value = user.ID;
         document.getElementById('fullname').value = user.Nombre_Usuario; // Assuming Nombre_Usuario is the full name
         document.getElementById('username-modal').value = user.Nombre_Usuario;
@@ -339,7 +337,6 @@ function openUserModal(user = null) {
         option.textContent = role;
         roleSelect.appendChild(option);
     });
-    // FIX: Corrected property access to match backend schema
     if(user) roleSelect.value = user.Privilegios;
 
     modal.style.display = 'block';
@@ -348,7 +345,6 @@ function openUserModal(user = null) {
 async function handleUserFormSubmit(e) {
     e.preventDefault();
     const userId = document.getElementById('user-id').value;
-    // FIX: Corrected property names to match backend schema
     const userData = {
         Nombre_Usuario: document.getElementById('username-modal').value,
         Privilegios: document.getElementById('role').value,
@@ -403,7 +399,7 @@ async function handleChangePasswordSubmit(e) {
 
     try {
         await postToAction('changePassword', {
-            userId: currentUser.ID, // Assuming currentUser has an ID
+            userId: currentUser.Id_Usuario, // FIX Tarea 23: Corregido el nombre de la propiedad del ID de usuario.
             currentPassword,
             newPassword
         });
