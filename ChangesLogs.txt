@@ -1,3 +1,15 @@
+**V6.3.0 - (UI FIX) - 05/01/2026**
+**A. CORRECCIÓN DEFINITIVA DE VISIBILIDAD DE CONSOLA DE DEPURACIÓN:** Se solucionó de forma permanente el bug que causaba que la consola de depuración fuera visible por defecto al cargar la aplicación.
+
+**B. Causa Raíz:**
+    - Un error en el `index.html` incluía dos propiedades `display` conflictivas (`display: none` y `display: flex`) en el estilo en línea del `div#debug-console`. Aunque se había corregido previamente, el error reapareció, indicando un problema de persistencia en el flujo de trabajo.
+
+**C. Cambios Implementados:**
+    1.  **`index.html` (Línea 18):** Se eliminó una vez más la propiedad `display: flex;` conflictiva, dejando únicamente `display: none;` para asegurar que la consola esté oculta por defecto.
+
+**D. Impacto:**
+    - Se garantiza que la consola de depuración permanezca oculta al iniciar la aplicación, mejorando la experiencia de usuario y evitando la exposición de herramientas de desarrollo.
+
 **V6.2.0 - (INFRA) - 05/01/2026**
 **A. ACTUALIZACIÓN DE ENDPOINT DE SERVICIO:** Se actualizó la URL del microservicio `CATALOG` en la configuración del frontend.
 
@@ -103,7 +115,7 @@
 *   **FINALIZE (services/catalog/catalog.js):** Se completó el endurecimiento y la formalización final del `catalog-service` para su puesta en producción.
     *   **Contrato de Datos Formalizado:** Se añadieron comentarios JSDoc explícitos (`@const`) para los `IMAGE_FIELDS_*`, documentando formalmente el "Contrato de Imagen". Esto garantiza que cualquier mantenedor futuro entienda la regla de que el servicio solo debe devolver `fileId` o `null` para estos campos.
     *   **Logging Controlado:** Se introdujo una bandera global `LOG_INVALID_IDS`. Cuando se establece en `true`, la función `normalizeAndValidateImageId` registrará en la consola de Apps Script cualquier valor de imagen que no pueda ser validado, permitiendo una depuración de la calidad de los datos sin contaminar los logs de producción.
-    *   **Modo Diagnóstico:** Se implementó un modo de diagnóstico no invasivo activado con el parámetro `?diagnostics=true` en la URL de la solicitud. En este modo, la respuesta JSON se envuelve en un objeto `diagnostics` que incluye metadatos de ejecución (tiempo de respuesta) y una lista de todos los IDs de imagen inválidos encontrados durante la solicitud, facilitando la monitorización y el mantenimiento proactivo.
+    -   **Modo Diagnóstico:** Se implementó un modo de diagnóstico no invasivo activado con el parámetro `?diagnostics=true` en la URL de la solicitud. En este modo, la respuesta JSON se envuelve en un objeto `diagnostics` que incluye metadatos de ejecución (tiempo de respuesta) y una lista de todos los IDs de imagen inválidos encontrados durante la solicitud, facilitando la monitorización y el mantenimiento proactivo.
     *   **Archivos Modificados:** `services/catalog/catalog.js`.
 
 **v5.3.0 (05/01/2026)**
