@@ -18,7 +18,7 @@ async function handleLoginSuccess(user) {
         const catalogData = await fetchCatalogData();
 
         // Process and sort categories
-        const categoryCounts = catalogData.cortes.reduce((acc, item) => {
+        const categoryCounts = catalogData.data.cortes.reduce((acc, item) => {
             if (item.categoria) {
                 acc[item.categoria] = (acc[item.categoria] || 0) + 1;
             }
@@ -30,13 +30,14 @@ async function handleLoginSuccess(user) {
         // Update state with processed data
         setState({
             catalogData: {
-                ...catalogData,
+                ...catalogData.data,
                 sortedCategories: sortedCategories
             }
         });
 
         showApp(user);
     } catch (error) {
+        console.error("Error detallado al cargar datos:", error); // Log para depuración
         showGlobalError("Error al cargar los datos de la aplicación. Por favor, intente de nuevo.");
         showLoginScreen(); // Revert to login screen on data load failure
     }
