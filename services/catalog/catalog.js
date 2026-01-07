@@ -116,9 +116,6 @@ function doPost(e) {
       case 'getDropdownData':
         result = handleGetDropdownData();
         break;
-      case 'checkVehicle':
-        result = handleCheckVehicle(payload);
-        break;
       case 'getSuggestion':
         result = handleGetSuggestion(payload);
         break;
@@ -401,54 +398,6 @@ function handleGetDropdownData() {
             details: { errorMessage: error.message }
         };
     }
-}
-
-function handleCheckVehicle(payload) {
-    const { marca, modelo, anoDesde, tipoEncendido } = payload;
-    if (!marca || !modelo || !anoDesde || !tipoEncendido) {
-        throw new Error("Parámetros de búsqueda incompletos.");
-    }
-
-    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
-    if (!sheet) {
-        return { status: 'success', matches: [] }; // Si no hay hoja, no hay coincidencias
-    }
-    const data = sheet.getDataRange().getValues();
-    data.shift(); // Quitar encabezados
-
-    const paramMarca = marca.trim().toLowerCase();
-    const paramModelo = modelo.trim().toLowerCase();
-    const paramAnio = parseInt(anoDesde.trim(), 10);
-    const paramTipoEncendido = tipoEncendido.trim().toLowerCase();
-
-    const matches = [];
-
-    for (let i = 0; i < data.length; i++) {
-        const row = data[i];
-        if (!row[0]) continue; // Omitir filas vacías
-
-        const sheetMarca = (row[COLS_CORTES.marca - 1] || "").toString().trim().toLowerCase();
-        const sheetModelo = (row[COLS_CORTES.modelo - 1] || "").toString().trim().toLowerCase();
-        const sheetVersiones = (row[COLS_CORTES.versionesAplicables - 1] || "").toString().toLowerCase();
-        const sheetTipoEncendido = (row[COLS_CORTES.tipoEncendido - 1] || "").toString().trim().toLowerCase();
-        const sheetAnoDesde = row[COLS_CORTES.anoDesde - 1];
-        const sheetAnoHasta = row[COLS_CORTES.anoHasta - 1];
-
-        // Búsqueda flexible para marca y modelo
-        const marcaMatch = sheetMarca.includes(paramMarca) || paramMarca.includes(sheetMarca);
-        const modeloMatch = sheetModelo.includes(paramModelo) || paramModelo.includes(sheetModelo) || sheetVersiones.includes(paramModelo);
-
-        // Búsqueda exacta para año y tipo de encendido
-        const anioMatch = isYearInRangeV2(paramAnio, sheetAnoDesde, sheetAnoHasta);
-        const tipoEncendidoMatch = sheetTipoEncendido === paramTipoEncendido;
-
-        if (marcaMatch && modeloMatch && anioMatch && tipoEncendidoMatch) {
-            const matchData = mapRowToObject(row, COLS_CORTES, IMAGE_FIELDS_CORTES);
-            matches.push(matchData);
-        }
-    }
-
-    return { status: 'success', matches: matches };
 }
 
 /**

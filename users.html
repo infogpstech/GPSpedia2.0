@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function displayProfile() {
     document.getElementById('profile-username').textContent = currentUser.Nombre_Usuario;
-    document.getElementById('profile-fullname').textContent = currentUser.Nombre_Usuario;
+    document.getElementById('profile-fullname').textContent = currentUser.Nombre_Completo; // Corregido
     document.getElementById('profile-role').textContent = currentUser.Privilegios;
 }
 
@@ -304,6 +304,7 @@ function setupEventListeners() {
     });
 
     document.getElementById('user-form').addEventListener('submit', handleUserFormSubmit);
+    // FIX Tarea 23: Se añade el event listener faltante para el formulario de cambio de contraseña.
     document.getElementById('password-form').addEventListener('submit', handleChangePasswordSubmit);
 }
 
@@ -398,7 +399,7 @@ async function handleChangePasswordSubmit(e) {
 
     try {
         await postToAction('changePassword', {
-            userId: currentUser.ID, // Assuming currentUser has an ID
+            userId: currentUser.Id_Usuario, // FIX Tarea 23: Corregido el nombre de la propiedad del ID de usuario.
             currentPassword,
             newPassword
         });

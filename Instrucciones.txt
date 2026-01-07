@@ -223,7 +223,7 @@ MÓDULO: BACKEND (MICROSERVICIOS)
   - **Descripción:** Refactorizar `handleAddOrUpdateCut` para simular una transacción. Primero, intentar todas las operaciones propensas a fallos (creación de carpetas, subida de archivos) y solo si TODAS tienen éxito, proceder con la escritura en la hoja de cálculo. Implementar `try...catch` robustos en cada paso y una lógica de `rollback` manual (ej. eliminar el archivo subido si la escritura en la hoja falla).
   - **Impacto Potencial:** Reduce drásticamente el riesgo de corrupción y datos inconsistentes.
 
-- **Tarea 17: Unificar Lógica de `handleCheckVehicle`**
+- **Tarea 17: Unificar Lógica de `handleCheckVehicle`** `[Falta Revisión]`
   - **Urgencia:** Media
   - **Tipo:** Inconsistencia
   - **Descripción:** Eliminar la implementación de `handleCheckVehicle` de uno de los servicios (`catalog.js` o `write.js`) y asegurar que el `api-manager.js` siempre enrute esta acción al servicio correcto que la contiene.
@@ -269,13 +269,13 @@ NUEVAS TAREAS CRÍTICAS (AÑADIDO 2026-01-04)
   - **Requerimiento Técnico:** Asegurar que la herencia de fórmulas funcione. Si `copyTo()` no es suficiente, la fórmula debe ser replicada explícitamente desde el backend.
   - **Impacto Potencial:** Restaura la integridad de los datos, permitiendo trazar quién reporta un problema o envía un mensaje.
 
-- **Tarea 22: Corregir Herencia de ID en Servicio de Escritura (Cortes)**
+- **Tarea 22: Corregir Herencia de ID en Servicio de Escritura (Cortes)** `[Falta Revisión]`
   - **Urgencia:** Crítica
   - **Tipo:** Bug Crítico (Corrupción de Datos)
   - **Descripción:** Similar a la Tarea 21, el servicio `write` no hereda la fórmula del ID (`="V-"&TEXTO(FILA()-1,"000")`) al crear una nueva fila de corte.
   - **Impacto Potencial:** Restaura la capacidad de generar IDs únicos y correctos para nuevos cortes de vehículos.
 
-- **Tarea 23: Corregir Bugs Críticos en Servicio de Usuarios**
+- **Tarea 23: Corregir Bugs Críticos en Servicio de Usuarios** `[Falta Revisión]`
   - **Urgencia:** Crítica
   - **Tipo:** Bug
   - **Descripción:**
@@ -328,7 +328,7 @@ NUEVAS TAREAS CRÍTICAS (AÑADIDO 2026-01-04)
 
 ### MÓDULO: FLUJO DE USUARIO
 
-- **Tarea 27: Implementación de Fase 3 en `add_cortes.html`**
+- **Tarea 27: Implementación de Fase 3 en `add_cortes.html`** `[Falta Revisión]`
   - **Urgencia:** Alta
   - **Tipo:** Funcionalidad Inconclusa
   - **Descripción:** La Fase 3 del formulario de añadir cortes está mal implementada y debe ser reconstruida según las especificaciones del `README.md`.

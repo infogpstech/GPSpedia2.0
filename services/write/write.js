@@ -62,6 +62,9 @@ function doPost(e) {
             case 'checkVehicle':
                 response = handleCheckVehicle(request.payload);
                 break;
+            case 'getSuggestion': // Acción nueva para sugerencias
+                response = handleGetSuggestion(request.payload);
+                break;
             case 'addOrUpdateCut':
                 response = handleAddOrUpdateCut(request.payload);
                 break;
@@ -130,69 +133,76 @@ function handleAddOrUpdateCut(payload) {
 
         newId = vehicleId;
 
-    } else { // --- Lógica para vehículo NUEVO ---
+    } else { // --- Lógica para vehículo NUEVO (REFACTORIZADO) ---
         if (!vehicleData) throw new Error("Los datos del vehículo son requeridos para un nuevo registro.");
 
         const lastRow = sheet.getLastRow();
         rowIndex = lastRow + 1;
 
-        // Copiar la fila anterior para heredar TODAS las validaciones, formatos y fórmulas.
+        // 1. Copiar la fila anterior para heredar TODAS las validaciones, formatos y FÓRMULAS.
         const previousRowRange = sheet.getRange(lastRow, 1, 1, sheet.getLastColumn());
         const newRowRange = sheet.getRange(rowIndex, 1, 1, sheet.getLastColumn());
         previousRowRange.copyTo(newRowRange);
 
-        // Limpiar SOLO el contenido de la fila nueva, preservando fórmulas y validaciones.
+        // 2. Limpiar SOLO el contenido de la fila nueva, preservando las fórmulas.
         newRowRange.clearContent();
 
-        // REFACTOR: Usar setValue para no sobrescribir la fórmula de la columna ID
+        // 3. Preparar todos los datos en un array para una única operación de escritura.
+        const newRowData = new Array(sheet.getLastColumn()).fill(''); // Array vacío del tamaño de la fila
 
-        // Parsear año según las reglas estrictas
+        // Parsear año según la especificación (si es un solo año, se copia a anoHasta)
         const yearInput = vehicleData.anoDesde.trim();
-        let anoDesde, anioParaFolder;
+        let anoDesde, anoHasta, anioParaFolder;
         if (yearInput.includes('-')) {
             const [start, end] = yearInput.split('-').map(y => parseInt(y.trim(), 10));
             anoDesde = Math.min(start, end);
-            sheet.getRange(rowIndex, COLS_CORTES.anoHasta).setValue(Math.max(start, end));
+            anoHasta = Math.max(start, end);
         } else {
             anoDesde = parseInt(yearInput, 10);
-            sheet.getRange(rowIndex, COLS_CORTES.anoHasta).setValue('');
+            anoHasta = anoDesde; // Lógica corregida para un solo año
         }
-        sheet.getRange(rowIndex, COLS_CORTES.anoDesde).setValue(anoDesde);
         anioParaFolder = anoDesde;
 
-        sheet.getRange(rowIndex, COLS_CORTES.marca).setValue(vehicleData.marca);
-        sheet.getRange(rowIndex, COLS_CORTES.modelo).setValue(vehicleData.modelo);
-        sheet.getRange(rowIndex, COLS_CORTES.tipoEncendido).setValue(vehicleData.tipoEncendido);
-        sheet.getRange(rowIndex, COLS_CORTES.categoria).setValue(vehicleData.categoria || '');
-        sheet.getRange(rowIndex, COLS_CORTES.versionesAplicables).setValue(vehicleData.versionesAplicables || '');
-
+        // Subir imágenes y obtener URLs
+        let vehiculoImageUrl = '';
         if (vehicleData.imagenVehiculo) {
             const folder = getOrCreateFolder(vehicleData.categoria, vehicleData.marca, vehicleData.modelo, anioParaFolder);
             const filename = `${sanitizeForFilename(vehicleData.marca)}_${sanitizeForFilename(vehicleData.modelo)}_${sanitizeForFilename(vehicleData.tipoEncendido)}_${yearInput}_Vehiculo.jpg`;
-            const imageUrl = uploadImageToDrive(vehicleData.imagenVehiculo, filename, folder);
-            sheet.getRange(rowIndex, COLS_CORTES.imagenVehiculo).setValue(imageUrl);
+            vehiculoImageUrl = uploadImageToDrive(vehicleData.imagenVehiculo, filename, folder);
         }
-
-        // Para un vehículo nuevo, el corte siempre va en el slot 1
-        const cutSlotIndex = 1;
-        let imageUrl = '';
+        let corteImageUrl = '';
         if (cutData.imgCorte1) {
             const folder = getOrCreateFolder(vehicleData.categoria, vehicleData.marca, vehicleData.modelo, anioParaFolder);
-            const filename = `${sanitizeForFilename(vehicleData.marca)}_${sanitizeForFilename(vehicleData.modelo)}_${sanitizeForFilename(vehicleData.tipoEncendido)}_${anioParaFolder}_Corte${cutSlotIndex}.jpg`;
-            imageUrl = uploadImageToDrive(cutData.imgCorte1, filename, folder);
+            const filename = `${sanitizeForFilename(vehicleData.marca)}_${sanitizeForFilename(vehicleData.modelo)}_${sanitizeForFilename(vehicleData.tipoEncendido)}_${anioParaFolder}_Corte1.jpg`;
+            corteImageUrl = uploadImageToDrive(cutData.imgCorte1, filename, folder);
         }
 
-        sheet.getRange(rowIndex, COLS_CORTES.tipoCorte1).setValue(cutData.tipoCorte1);
-        sheet.getRange(rowIndex, COLS_CORTES.ubicacionCorte1).setValue(cutData.ubicacionCorte1);
-        sheet.getRange(rowIndex, COLS_CORTES.colorCableCorte1).setValue(cutData.colorCableCorte1);
-        sheet.getRange(rowIndex, COLS_CORTES.configRelay1).setValue(cutData.configRelay1);
-        sheet.getRange(rowIndex, COLS_CORTES.imgCorte1).setValue(imageUrl);
-        sheet.getRange(rowIndex, COLS_CORTES.colaboradorCorte1).setValue(colaborador);
-        sheet.getRange(rowIndex, COLS_CORTES.timestamp).setValue(formattedDate);
+        // Poblar el array con los datos. El índice 0 (ID) se deja vacío para no sobrescribir la fórmula.
+        newRowData[COLS_CORTES.categoria - 1] = vehicleData.categoria || '';
+        newRowData[COLS_CORTES.marca - 1] = vehicleData.marca;
+        newRowData[COLS_CORTES.modelo - 1] = vehicleData.modelo;
+        newRowData[COLS_CORTES.versionesAplicables - 1] = vehicleData.versionesAplicables || '';
+        newRowData[COLS_CORTES.anoDesde - 1] = anoDesde;
+        newRowData[COLS_CORTES.anoHasta - 1] = anoHasta;
+        newRowData[COLS_CORTES.tipoEncendido - 1] = vehicleData.tipoEncendido;
+        newRowData[COLS_CORTES.imagenVehiculo - 1] = vehiculoImageUrl;
+        newRowData[COLS_CORTES.timestamp - 1] = formattedDate;
 
-        SpreadsheetApp.flush(); // Asegura que los cambios se escriban antes de leer el ID
-        Utilities.sleep(1500); // Espera extendida para que la fórmula del ID se calcule
-        newId = sheet.getRange(rowIndex, COLS_CORTES.id).getValue();
+        // Datos del primer corte
+        newRowData[COLS_CORTES.tipoCorte1 - 1] = cutData.tipoCorte1;
+        newRowData[COLS_CORTES.ubicacionCorte1 - 1] = cutData.ubicacionCorte1;
+        newRowData[COLS_CORTES.colorCableCorte1 - 1] = cutData.colorCableCorte1;
+        newRowData[COLS_CORTES.configRelay1 - 1] = cutData.configRelay1;
+        newRowData[COLS_CORTES.imgCorte1 - 1] = corteImageUrl;
+        newRowData[COLS_CORTES.colaboradorCorte1 - 1] = colaborador;
+
+        // 4. Escribir todos los datos en la hoja de cálculo con una sola llamada.
+        newRowRange.setValues([newRowData]);
+
+        // 5. Esperar a que la hoja calcule el valor del ID generado por la fórmula.
+        SpreadsheetApp.flush();
+        Utilities.sleep(1500); // Espera para asegurar que la fórmula se calcule.
+        newId = newRowRange.getCell(1, COLS_CORTES.id).getValue();
     }
 
     return { status: 'success', message: `Corte agregado exitosamente.`, vehicleId: newId };
@@ -206,38 +216,152 @@ function handleCheckVehicle(payload) {
     }
     const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
     const data = sheet.getDataRange().getValues();
-    const headers = data.shift();
-    const colMap = COLS_CORTES;
+    data.shift(); // Quitar encabezados
 
     const paramMarca = marca.trim().toLowerCase();
+    const paramModelo = modelo.trim().toLowerCase();
     const paramAnio = parseInt(anoDesde.trim(), 10);
     const paramTipoEncendido = tipoEncendido.trim().toLowerCase();
 
     const matches = data.filter(row => {
-        const sheetMarca = (row[colMap.marca - 1] || "").toString().trim().toLowerCase();
-        const sheetModelo = (row[colMap.modelo - 1] || "").toString();
-        const sheetVersiones = (row[colMap.versionesAplicables - 1] || "").toString();
-        const sheetTipoEncendido = (row[colMap.tipoEncendido - 1] || "").toString().trim().toLowerCase();
-        const sheetAnoDesde = row[colMap.anoDesde - 1];
-        const sheetAnoHasta = row[colMap.anoHasta - 1];
+        if (!row[0]) return false; // Omitir filas vacías
 
-        return sheetMarca.includes(paramMarca) &&
-            sheetTipoEncendido === paramTipoEncendido &&
-            isYearInRange(paramAnio, sheetAnoDesde, sheetAnoHasta) &&
-            isFlexibleModelMatch(modelo, sheetModelo, sheetVersiones);
-    }).map(row => mapRowToObject(row, colMap));
+        const sheetMarca = (row[COLS_CORTES.marca - 1] || "").toString().trim().toLowerCase();
+        const sheetModelo = (row[COLS_CORTES.modelo - 1] || "").toString().trim().toLowerCase();
+        const sheetVersiones = (row[COLS_CORTES.versionesAplicables - 1] || "").toString().toLowerCase();
+        const sheetTipoEncendido = (row[COLS_CORTES.tipoEncendido - 1] || "").toString().trim().toLowerCase();
+        const sheetAnoDesde = row[COLS_CORTES.anoDesde - 1];
+        const sheetAnoHasta = row[COLS_CORTES.anoHasta - 1];
+
+        // Búsqueda flexible (parcial) para marca y modelo
+        const marcaMatch = sheetMarca.includes(paramMarca) || paramMarca.includes(sheetMarca);
+        const modeloMatch = sheetModelo.includes(paramModelo) || paramModelo.includes(sheetModelo) || sheetVersiones.includes(paramModelo);
+
+        // Búsqueda exacta para año y tipo de encendido
+        const anioMatch = isYearInRange(paramAnio, sheetAnoDesde, sheetAnoHasta);
+        const tipoEncendidoMatch = sheetTipoEncendido === paramTipoEncendido;
+
+        return marcaMatch && modeloMatch && anioMatch && tipoEncendidoMatch;
+    }).map(row => mapRowToObject(row, COLS_CORTES));
 
     return { status: 'success', matches: matches };
 }
 
 function handleAddSupplementaryInfo(payload) {
-    // ... (existing implementation)
+    const { vehicleId, apertura, imgApertura, cableAlimen, imgCableAlimen, notaImportante } = payload;
+    if (!vehicleId) {
+        throw new Error("El ID del vehículo es requerido para agregar información suplementaria.");
+    }
+
+    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
+    const ids = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues().flat();
+    const rowIndex = ids.findIndex(id => id.toString() == vehicleId.toString());
+
+    if (rowIndex === -1) {
+        throw new Error("El ID del vehículo proporcionado no fue encontrado para actualizar.");
+    }
+    const actualRow = rowIndex + 2;
+
+    const rowValues = sheet.getRange(actualRow, 1, 1, sheet.getLastColumn()).getValues()[0];
+    const vehicleInfo = mapRowToObject(rowValues, COLS_CORTES);
+
+    const folder = getOrCreateFolder(vehicleInfo.categoria, vehicleInfo.marca, vehicleInfo.modelo, vehicleInfo.anoDesde);
+
+    // Actualizar campos de texto si se proporcionaron
+    if (apertura) sheet.getRange(actualRow, COLS_CORTES.apertura).setValue(apertura);
+    if (cableAlimen) sheet.getRange(actualRow, COLS_CORTES.cableAlimen).setValue(cableAlimen);
+    if (notaImportante) sheet.getRange(actualRow, COLS_CORTES.notaImportante).setValue(notaImportante);
+
+    // Subir imágenes si se proporcionaron
+    if (imgApertura) {
+        const filename = `${sanitizeForFilename(vehicleInfo.marca)}_${sanitizeForFilename(vehicleInfo.modelo)}_${sanitizeForFilename(vehicleInfo.tipoEncendido)}_${vehicleInfo.anoDesde}_Apertura.jpg`;
+        const imageUrl = uploadImageToDrive(imgApertura, filename, folder);
+        sheet.getRange(actualRow, COLS_CORTES.imgApertura).setValue(imageUrl);
+    }
+    if (imgCableAlimen) {
+        const filename = `${sanitizeForFilename(vehicleInfo.marca)}_${sanitizeForFilename(vehicleInfo.modelo)}_${sanitizeForFilename(vehicleInfo.tipoEncendido)}_${vehicleInfo.anoDesde}_Alimentacion.jpg`;
+        const imageUrl = uploadImageToDrive(imgCableAlimen, filename, folder);
+        sheet.getRange(actualRow, COLS_CORTES.imgCableAlimen).setValue(imageUrl);
+    }
+
+    // Actualizar siempre el timestamp al añadir información
+    const formattedDate = Utilities.formatDate(new Date(), "GMT-6", "dd/MM/yyyy");
+    sheet.getRange(actualRow, COLS_CORTES.timestamp).setValue(formattedDate);
+
+    return { status: 'success', message: 'Información suplementaria agregada exitosamente.' };
+}
+
+function handleGetSuggestion(payload) {
+    const { term, field } = payload;
+    if (!term || !field) {
+        throw new Error("El término y el campo son requeridos para obtener una sugerencia.");
+    }
+
+    let columnIndex;
+    if (field.toLowerCase() === 'marca') {
+        columnIndex = COLS_CORTES.marca - 1;
+    } else if (field.toLowerCase() === 'modelo') {
+        columnIndex = COLS_CORTES.modelo - 1;
+    } else {
+        throw new Error(`El campo '${field}' no es válido para sugerencias.`);
+    }
+
+    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
+    if (!sheet) return { status: 'success', suggestion: null };
+
+    const data = sheet.getDataRange().getValues();
+    data.shift();
+
+    const uniqueValues = Array.from(new Set(data.map(row => row[columnIndex]).filter(String)));
+
+    let bestMatch = null;
+    let minDistance = Infinity;
+    const searchTerm = term.toLowerCase();
+
+    for (const value of uniqueValues) {
+        const valueLower = value.toLowerCase();
+        if (valueLower === searchTerm) {
+            return { status: 'success', suggestion: null }; // Coincidencia exacta
+        }
+
+        const distance = levenshteinDistance(searchTerm, valueLower);
+        if (distance < minDistance) {
+            minDistance = distance;
+            bestMatch = value;
+        }
+    }
+
+    // Umbral: solo sugerir si la distancia es <= 3 y no es un substring obvio
+    if (minDistance <= 3 && bestMatch.toLowerCase().indexOf(searchTerm) === -1) {
+        return { status: 'success', suggestion: bestMatch };
+    }
+
+    return { status: 'success', suggestion: null };
 }
 
 
 // ============================================================================
 // HELPERS
 // ============================================================================
+
+function levenshteinDistance(a, b) {
+    if (a.length === 0) return b.length;
+    if (b.length === 0) return a.length;
+    const matrix = Array(b.length + 1).fill(null).map(() => Array(a.length + 1).fill(null));
+    for (let i = 0; i <= a.length; i++) { matrix[0][i] = i; }
+    for (let j = 0; j <= b.length; j++) { matrix[j][0] = j; }
+    for (let j = 1; j <= b.length; j++) {
+        for (let i = 1; i <= a.length; i++) {
+            const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+            matrix[j][i] = Math.min(
+                matrix[j][i - 1] + 1,      // deletion
+                matrix[j - 1][i] + 1,      // insertion
+                matrix[j - 1][i - 1] + cost // substitution
+            );
+        }
+    }
+    return matrix[b.length][a.length];
+}
 function sanitizeForFilename(text) {
     if (text === null || text === undefined) return '';
     return String(text).replace(/[^a-zA-Z0-9.-]/g, '_').replace(/\s+/g, '_');

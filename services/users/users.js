@@ -127,7 +127,33 @@ function handleCreateUser(payload) {
         throw new Error(`El rol '${creatorRole}' no tiene permisos para crear usuarios de tipo '${newUser.Privilegios}'.`);
     }
 
-    // ... (resto de la función sin cambios)
+    // Lógica de creación de usuario REFACTORIZADA para heredar fórmulas
+    const newUsername = generateUniqueUsername(userSheet, newUser.Nombre_Usuario);
+
+    const lastRow = userSheet.getLastRow();
+    const newRowRange = userSheet.getRange(lastRow + 1, 1, 1, userSheet.getLastColumn());
+
+    // Copiar fila anterior para heredar formato y fórmulas
+    if (lastRow > 0) {
+        const previousRowRange = userSheet.getRange(lastRow, 1, 1, userSheet.getLastColumn());
+        previousRowRange.copyTo(newRowRange, { contentsOnly: false });
+    }
+    // Limpiar el contenido, manteniendo las fórmulas
+    newRowRange.clearContent();
+
+    // Preparar los datos del nuevo usuario en un array
+    const newRowData = new Array(userSheet.getLastColumn()).fill('');
+    newRowData[COLS_USERS.Nombre_Usuario - 1] = newUsername;
+    newRowData[COLS_USERS.Password - 1] = newUser.Password;
+    newRowData[COLS_USERS.Privilegios - 1] = newUser.Privilegios;
+    newRowData[COLS_USERS.Telefono - 1] = newUser.Telefono || '';
+    newRowData[COLS_USERS.Correo_Electronico - 1] = newUser.Correo_Electronico || '';
+    // La columna ID (0) y SessionToken (6) se dejan en blanco a propósito.
+
+    // Escribir los datos en la nueva fila con una sola operación
+    newRowRange.setValues([newRowData]);
+
+    return { status: 'success', message: `Usuario '${newUsername}' creado.` };
 }
 
 function handleUpdateUser(payload) {
