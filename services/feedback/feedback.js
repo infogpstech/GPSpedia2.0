@@ -125,13 +125,11 @@ function doPost(e) {
             default:
                 throw new Error(`Acción desconocida en Feedback Service: ${action}`);
         }
-        return ContentService.createTextOutput(JSON.stringify(response))
-            .setMimeType(ContentService.MimeType.TEXT);
     } catch (error) {
         response = { status: 'error', message: error.message };
-        return ContentService.createTextOutput(JSON.stringify(response))
-            .setMimeType(ContentService.MimeType.TEXT);
     }
+    return ContentService.createTextOutput(JSON.stringify(response))
+        .setMimeType(ContentService.MimeType.TEXT);
 }
 
 // ============================================================================
