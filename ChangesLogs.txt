@@ -1,3 +1,18 @@
+**V6.6.0 - (ROBUSTNESS) - 05/01/2026**
+**A. ROBUSTECIMIENTO DEL SERVICIO DE IMÁGENES:** Se solucionó un bug arquitectónico en el `image-service` que causaba que las imágenes no se mostraran cuando ocurría un error en el backend.
+
+**B. Causa Raíz:**
+    - El `doGet` del servicio `services/image/image.js` devolvía una respuesta con `Content-Type: application/json` cuando no encontraba un `fileId` o si ocurría un error al buscar el archivo en Google Drive.
+    - Un tag `<img>` en HTML no puede renderizar una respuesta JSON, lo que resultaba en un ícono de imagen rota en la interfaz sin un mensaje de error claro.
+
+**C. Cambios Implementados:**
+    1.  **`services/image/image.js` (Líneas 108-119):** Se refactorizó la función `createErrorResponse`. En lugar de devolver JSON, ahora la función genera una pequeña página HTML que redirige al navegador a una URL de una imagen placeholder (`placehold.co`).
+
+**D. Impacto:**
+    - El `image-service` ahora siempre devuelve una respuesta que el tag `<img>` puede renderizar.
+    - En caso de error (ej. imagen eliminada del Drive), el usuario verá una imagen placeholder de "No Disponible" en lugar de un ícono roto, mejorando la experiencia de usuario.
+    - Se cumple el contrato arquitectónico donde el servicio de imágenes garantiza una respuesta visualmente coherente en todos los escenarios.
+
 **V6.5.0 - (FIX & CHORE) - 05/01/2026**
 **A. FIX DE CARGA DE IMÁGENES Y RESTAURACIÓN DE SERVICIO:** Se solucionó un bug crítico que impedía la carga de todas las imágenes de la aplicación y se restauró el código fuente faltante del `image-service`.
 

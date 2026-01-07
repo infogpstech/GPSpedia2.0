@@ -91,17 +91,25 @@ function doGet(e) {
 // ============================================================================
 
 /**
- * Crea una respuesta de error estandarizada en formato JSON.
- * @param {string} message - El mensaje de error.
+ * @summary Maneja los errores de forma robusta para el consumo desde <img>.
+ * @description En lugar de devolver un JSON que rompería el tag <img>, esta función
+ * redirige a una URL de un placeholder estándar. Esto asegura que el frontend
+ * siempre reciba una respuesta de imagen válida, mejorando la experiencia
+ * de usuario y facilitando la depuración visual.
+ * @param {string} message - El mensaje de error (se loguea para depuración).
  * @param {number} statusCode - Un código de estado similar a HTTP.
- * @returns {ContentService} - Una respuesta de texto JSON.
+ * @returns {ContentService} - Una salida HTML que ejecuta una redirección.
  */
 function createErrorResponse(message, statusCode) {
-  const error = {
-    status: 'error',
-    statusCode: statusCode,
-    message: message
-  };
-  return ContentService.createTextOutput(JSON.stringify(error))
-    .setMimeType(ContentService.MimeType.JSON);
+  // Loguear el error real en el servidor para depuración.
+  console.error(`IMAGE-SERVICE: Error ${statusCode} - ${message}`);
+
+  // URL de un placeholder estándar y neutral.
+  const placeholderUrl = "https://placehold.co/280x200/cccccc/333333?text=No+Disponible";
+
+  // Se devuelve un pequeño fragmento de HTML que instruye al navegador a redirigir.
+  // Es una técnica estándar para manejar redirecciones desde un servicio como este.
+  const htmlOutput = `<script>window.location.href = "${placeholderUrl}";</script>`;
+
+  return ContentService.createHtmlOutput(htmlOutput);
 }

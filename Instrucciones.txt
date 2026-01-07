@@ -306,7 +306,7 @@ NUEVAS TAREAS CRÍTICAS (AÑADIDO 2026-01-04)
   - **Impacto Potencial:** Reduce drásticamente la complejidad del código, facilita futuras modificaciones y disminuye el riesgo de regresiones.
 
 - **Tarea 25: Implementar Proxy de Imágenes en Backend**
-  - **Estado:** EN PROGRESO
+  - **Estado:** EN REVISIÓN
   - **Urgencia:** No Negociable
   - **Tipo:** Requerimiento de Arquitectura
   - **Descripción:** Diseñar e implementar una solución para manejar las imágenes de Google Drive a través de un proxy en el backend.
