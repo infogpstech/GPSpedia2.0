@@ -50,8 +50,7 @@ async function initializeApp() {
     document.querySelectorAll('.section-btn').forEach(button => {
         button.addEventListener('click', () => {
             const section = button.id.replace('btn-', '');
-            // This is a placeholder for a more robust section handling logic
-            console.log(`Switching to section: ${section}`);
+            ui.mostrarSeccion(section);
         });
     });
 

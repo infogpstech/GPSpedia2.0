@@ -97,7 +97,7 @@ MÓDULO: ARQUITECTURA GENERAL Y DOCUMENTACIÓN
 
 ### Archivo: N/A (Proyecto General)
 
-- **Tarea 1: Refactorizar Arquitectura Frontend**
+- **Tarea 1: Refactorizar Arquitectura Frontend** `[Falta Revisión]`
   - **Urgencia:** Alta
   - **Tipo:** Deuda Técnica Crítica
   - **Descripción:** Rediseñar la arquitectura de `index.html`, `add_cortes.html` y `users.html` para separar HTML, CSS y JavaScript en archivos independientes. Implementar un framework ligero o un patrón modular para gestionar el estado de la aplicación de forma estructurada, eliminando la dependencia de variables globales y la manipulación directa del DOM.
@@ -286,7 +286,7 @@ NUEVAS TAREAS CRÍTICAS (AÑADIDO 2026-01-04)
 
 ### MÓDULO: ARQUITECTURA FRONTEND Y GESTIÓN DE IMÁGENES
 
-- **Tarea 24: Reestructuración Urgente del Frontend**
+- **Tarea 24: Reestructuración Urgente del Frontend** `[Falta Revisión]`
   - **Urgencia:** Crítica
   - **Tipo:** Deuda Técnica Crítica
   - **Descripción:** El frontend debe ser separado inmediatamente en archivos HTML, CSS y JavaScript por funcionalidad o componente. Esto es un requisito no negociable para la mantenibilidad y aplica a todas las páginas, incluyendo `add_cortes.html`.
