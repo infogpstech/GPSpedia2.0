@@ -1,3 +1,38 @@
+**V6.1.0 - (CRITICAL DATA INTEGRITY HOTFIX) - 06/01/2026**
+**A. FIX CRÍTICO DE INTEGRIDAD DE DATOS (BACKEND):** Se solucionó un bug crítico introducido en la versión anterior que causaba la corrupción de datos en los reportes de problemas.
+
+**B. Resumen de la Corrección:**
+    1.  **Corrupción de Datos en Reportes (Tarea 21):** Se corrigió un bug en la función `handleReportProblem` de `services/feedback/feedback.js`. La función estaba sobrescribiendo incorrectamente el `userName` del reportador con su `userId`, resultando en la pérdida del nombre de usuario en la hoja de "Feedbacks". El bug ha sido eliminado y el `userName` ahora se guarda correctamente.
+
+**C. Cambios Técnicos Implementados:**
+    1.  **`services/feedback/feedback.js`:** Se eliminó la línea de código redundante y errónea que causaba la sobrescritura del dato `userName`.
+
+**D. Nota de Revisión de Código:**
+    - La revisión de código inicial para V6.0.0 indicó incorrectamente una vulnerabilidad de seguridad en `services/users/users.js` (Tarea 14). Una auditoría posterior confirmó que las medidas de seguridad basadas en `sessionToken` ya estaban implementadas correctamente en dicha versión, por lo que no se requirieron cambios en ese servicio.
+
+**E. Impacto:**
+    - Se restaura la integridad de los datos para todos los nuevos reportes de problemas.
+    - Se asegura que los administradores puedan ver correctamente qué usuario ha enviado cada reporte.
+
+**V6.0.0 - (SECURITY & DATA INTEGRITY) - 06/01/2026**
+**A. FIX CRÍTICO DE SEGURIDAD Y DE INTEGRIDAD DE DATOS (BACKEND & FRONTEND):** Se implementaron correcciones a múltiples vulnerabilidades de seguridad y bugs de corrupción de datos en los servicios de backend y se corrigió un bug de renderizado en el frontend.
+
+**B. Resumen de Correcciones Críticas:**
+    1.  **Vulnerabilidad de Escalada de Privilegios (Tarea 14):** Se parchó una vulnerabilidad crítica en `services/users/users.js`. Las funciones `handleCreateUser`, `handleUpdateUser`, y `handleDeleteUser` ahora ignoran el rol enviado por el cliente y en su lugar verifican la autoridad del usuario a través de un `sessionToken` validado en el backend, previniendo la escalada de privilegios.
+    2.  **Bugs de Integridad de Datos (Tarea 21):** Se solucionaron múltiples bugs en `services/feedback/feedback.js` que causaban corrupción de datos. Las funciones `handleReportProblem` y `handleSendContactForm` ahora guardan correctamente el `userId` y utilizan un método robusto para la creación de filas que preserva las fórmulas de autogeneración de IDs.
+    3.  **Inconsistencia en Cambio de Contraseña (Tarea 15):** Se implementó la lógica faltante en la función `handleChangePassword` de `services/users/users.js` y se aseguró que la comparación de la contraseña actual sea `case-insensitive`, alineándola con el comportamiento del login.
+    4.  **Bug de Mapeo de Datos en UI (Tarea 7):** Se corrigió el bug de renderizado en `users.html` al limpiar comentarios obsoletos que indicaban un problema de mapeo de datos que ya había sido resuelto, mejorando la claridad del código.
+
+**C. Cambios Técnicos Implementados:**
+    1.  **`services/users/users.js`:** Se implementó la función `getVerifiedRole` y se refactorizaron las funciones de CRUD para usar `sessionToken`. Se completó la función `handleChangePassword` con la lógica correcta. Se incrementó la versión a `2.4.0`.
+    2.  **`services/feedback/feedback.js`:** Se refactorizaron las funciones de creación de reportes y contactos para guardar `userId` y usar un método de inserción de filas seguro. Se incrementó la versión a `2.3.0`.
+    3.  **`users.html`:** Se eliminaron comentarios `FIX:` obsoletos para reflejar el estado correcto del código. Se incrementó la versión a `3.8.0`.
+
+**D. Impacto:**
+    -   Se mejora significativamente la seguridad del sistema al eliminar una vulnerabilidad crítica.
+    -   Se restaura la integridad de los datos en el sistema de feedback.
+    -   Se mejora la experiencia de usuario al solucionar un bug frustrante en el cambio de contraseña y se clarifica el código del frontend.
+
 **V5.9.0 - (CRITICAL REGRESSION FIX) - 05/01/2026**
 **A. FIX INTEGRAL DE REGRESIONES CRÍTICAS EN UI (FRONTEND):** Se realizó una corrección masiva de la interfaz de usuario para restaurar funcionalidades y layouts que se rompieron o eliminaron durante la refactorización a una arquitectura modular.
 

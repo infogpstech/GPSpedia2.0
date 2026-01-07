@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-USERS SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 2.3.0
+// COMPONENT VERSION: 2.4.0
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -202,7 +202,31 @@ function handleDeleteUser(payload) {
 }
 
 function handleChangePassword(payload) {
-    // ... (sin cambios)
+    const { userId, currentPassword, newPassword } = payload;
+    if (!userId || !currentPassword || !newPassword) {
+        throw new Error("Datos insuficientes para cambiar la contraseña.");
+    }
+
+    const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
+    const data = userSheet.getDataRange().getValues();
+    data.shift(); // Remove headers
+
+    for (let i = 0; i < data.length; i++) {
+        if (data[i][COLS_USERS.ID - 1] == userId) {
+            const storedPassword = String(data[i][COLS_USERS.Password - 1]); // Ensure it's a string
+
+            // FIX: Case-insensitive comparison to match login behavior
+            if (storedPassword.toLowerCase() !== currentPassword.toLowerCase()) {
+                throw new Error("La contraseña actual es incorrecta.");
+            }
+
+            // Update to the new password
+            userSheet.getRange(i + 2, COLS_USERS.Password).setValue(newPassword);
+            return { status: 'success', message: 'Contraseña actualizada correctamente.' };
+        }
+    }
+
+    throw new Error("Usuario no encontrado.");
 }
 
 // ============================================================================

@@ -146,7 +146,7 @@ MÓDULO: FRONTEND
 
 ### Archivo: `users.html`
 
-- **Tarea 7: Corregir Mapeo de Datos de Usuario**
+- **Tarea 7: Corregir Mapeo de Datos de Usuario** `[Falta Revisión]`
   - **Urgencia:** Crítica
   - **Tipo:** Bug
   - **Descripción:** Modificar el JavaScript de `users.html` para que acceda a las propiedades del objeto de usuario utilizando los nombres correctos devueltos por el backend (`PascalCase_With_Underscores`, ej. `user.Nombre_Usuario`), en lugar de `camelCase`.
@@ -202,13 +202,13 @@ MÓDULO: BACKEND (MICROSERVICIOS)
 
 ### Archivo: `services/users/users.js`
 
-- **Tarea 14: Corregir Falla de Seguridad en Permisos**
+- **Tarea 14: Corregir Falla de Seguridad en Permisos** `[Falta Revisión]`
   - **Urgencia:** Crítica
   - **Tipo:** Riesgo de Seguridad
   - **Descripción:** Refactorizar TODAS las funciones de CRUD (`handleCreateUser`, `handleUpdateUser`, `handleDeleteUser`) para que la validación de permisos se base en una sesión verificada del *solicitante* en el backend, no en un parámetro (`creatorRole`, `updaterRole`) enviado desde el cliente. Se debe requerir un `sessionToken` en el payload y validarlo antes de proceder.
   - **Impacto Potencial:** Cierra una vulnerabilidad crítica que permite la escalada de privilegios.
 
-- **Tarea 15: Corregir Inconsistencia en Cambio de Contraseña**
+- **Tarea 15: Corregir Inconsistencia en Cambio de Contraseña** `[Falta Revisión]`
   - **Urgencia:** Media
   - **Tipo:** Bug
   - **Descripción:** Modificar la comparación de la `currentPassword` en `handleChangePassword` para que sea `case-insensitive` (`.toLowerCase()`), haciéndola consistente con la lógica de `login`.
@@ -259,7 +259,7 @@ NUEVAS TAREAS CRÍTICAS (AÑADIDO 2026-01-04)
 
 ### MÓDULO: FEEDBACK Y MANEJO DE DATOS
 
-- **Tarea 21: Corregir Bugs Críticos en Servicio de Feedback**
+- **Tarea 21: Corregir Bugs Críticos en Servicio de Feedback** `[Falta Revisión]`
   - **Urgencia:** Prioridad Alta
   - **Tipo:** Bug Crítico (Corrupción de Datos)
   - **Descripción:** Se han detectado múltiples fallos en la forma en que el servicio de feedback guarda los datos:
