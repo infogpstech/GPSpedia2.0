@@ -35,6 +35,8 @@ const ACTION_TO_SERVICE_MAP = {
     'sendContactForm': 'FEEDBACK',
     'suggestYear': 'FEEDBACK',
     'getFeedbackItems': 'FEEDBACK',
+    'replyToFeedback': 'FEEDBACK',
+    'markAsResolved': 'FEEDBACK',
     'migrateYearRanges': 'UTILITIES',
     'migrateTimestamps': 'UTILITIES',
     'logFrontend': 'LEGACY'
@@ -87,6 +89,18 @@ export async function validateSession(userId, sessionToken) {
 
 export async function fetchCatalogData() {
     return await routeAction('getCatalogData');
+}
+
+export async function getFeedbackItems() {
+    return await routeAction('getFeedbackItems');
+}
+
+export async function replyToFeedback(itemId, itemType, replyText, responderName) {
+    return await routeAction('replyToFeedback', { itemId, itemType, replyText, responderName });
+}
+
+export async function markAsResolved(itemId) {
+    return await routeAction('markAsResolved', { itemId });
 }
 
 export function getImageUrl(fileId) {
