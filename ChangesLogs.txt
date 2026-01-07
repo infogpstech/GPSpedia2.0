@@ -1,3 +1,16 @@
+**V8.1.1 - (CONFIG) - 09/01/2024**
+**A. RESUMEN GENERAL:** Se actualizó la URL del endpoint del microservicio de catálogo (`GPSpedia-Catalog`) en la configuración del frontend para apuntar a la última versión desplegada.
+
+**B. Cambio de Configuración (Frontend):**
+    1.  **Actualización de Endpoint:** Se modificó la constante `API_ENDPOINTS.CATALOG` en `api.js` para reemplazar la URL de despliegue antigua por la nueva proporcionada por el equipo de backend.
+
+**C. Cambios Técnicos Implementados:**
+    - **`api.js`:** Se actualizó la URL del servicio `CATALOG`.
+
+**D. Impacto:**
+    -   Asegura que el frontend se comunique con la versión más reciente y corregida del servicio de catálogo, previniendo errores de datos obsoletos o de lógica de negocio antigua.
+    -   Completa el ciclo de despliegue del hotfix `V8.1.0`.
+
 **V8.1.0 - (CRITICAL HOTFIX) - 09/01/2024**
 **A. RESUMEN GENERAL:** Se corrigió un error crítico en el servicio de catálogo (`services/catalog/catalog.js`) que impedía la carga inicial de datos de la aplicación y bloqueaba el inicio de sesión de los usuarios.
 
@@ -15,7 +28,7 @@
     -   **Restaura la funcionalidad completa para todos los usuarios.**
 
 **V8.0.0 - (FEATURE & CONSOLIDATED FIXES) - 09/01/2024**
-**A. RESUMEN GENERAL:** Se implementaron nuevas funcionalidades críticas para administradores (Inbox y Herramientas de Desarrollador) y se consolidaron correcciones a regresiones de frontend y vulnerabilidades de backend en un solo despliegue para asegurar la estabilidad, seguridad y funcionalidad del sistema.
+**A. RESUMEN GENERAL:** Se implementaron nuevas functionalities críticas para administradores (Inbox y Herramientas de Desarrollador) y se consolidaron correcciones a regresiones de frontend y vulnerabilidades de backend en un solo despliegue para asegurar la estabilidad, seguridad y funcionalidad del sistema.
 
 **B. Nuevas Funcionalidades (Frontend):**
     1.  **Sistema de Inbox Completo (Tarea 18):** Se implementó un modal de "Inbox" completamente funcional para la gestión centralizada del feedback de usuarios. Esto incluyó la UI, la integración con la API del backend (`getFeedbackItems`, `replyToFeedback`, `markAsResolved`) y la lógica de visibilidad por roles.
