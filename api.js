@@ -93,6 +93,8 @@ export function getImageUrl(fileId) {
     if (!fileId || typeof fileId !== 'string' || fileId.trim() === '') {
         return "https://placehold.co/280x200/cccccc/333333?text=Sin+Imagen";
     }
-    const encodedFileId = encodeURIComponent(fileId.trim());
+    // FIX: Sanitize fileId by removing any surrounding quotes before encoding
+    const sanitizedFileId = fileId.replace(/^"|"$/g, '').trim();
+    const encodedFileId = encodeURIComponent(sanitizedFileId);
     return `${API_ENDPOINTS.IMAGE}?fileId=${encodedFileId}`;
 }
