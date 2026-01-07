@@ -54,6 +54,26 @@ async function initializeApp() {
         });
     });
 
+    // Inbox button listener
+    const inboxBtn = document.getElementById('inbox-btn');
+    if (inboxBtn) {
+        inboxBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            ui.openInbox();
+            ui.closeSideMenu();
+        });
+    }
+
+    // Dev Tools button listener
+    const devToolsBtn = document.getElementById('dev-tools-btn');
+    if (devToolsBtn) {
+        devToolsBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            ui.openDevTools();
+            ui.closeSideMenu();
+        });
+    }
+
 
     // 3. PWA installation prompt handler
     const installButton = document.getElementById('install-button');

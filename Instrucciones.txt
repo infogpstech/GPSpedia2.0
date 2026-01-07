@@ -10,7 +10,7 @@ NORMAS OBLIGATORIAS DE DESARROLLO
 1.  **Comentarios:** Todo código nuevo o modificado debe tener un comentario explicando su propósito.
 2. **prohibido eliminar el bloque que describe mas reglas en Instrucciones.txt
 3.**prohibido resumir o utilizar sumarizacion "(Sin Cambios)" EN NINGUN ARCHIVO DE CODIGO, DOCUMENTACIÓN O DE REGLAMENTO. 
-4. PROHIBIDO REVERTIR COMMITS SIN LA SOLUCITUD DEL PM. 
+4. PROHIBIDO REVERTIR COMMITS SIN LA SOLICITUD DEL PM.
 5. PROHIBIDO USAR HERRAMIENTAS BUSQUEDA, EDICION RAPIDA, TODA BUSQUESA, REVISION DEBE SER LINEA POR LINEA DE ARCHIVO POR ARCHIVO. 
 6. OBLIGATORIO AUDITAR CADA ARCHIVO DE CODIGO ANTES DE CUALQUIER MODIFICACION POR MUY PEQUEÑA QUE SEA CADA HALLAZGO NO DEBE SER REPARADO EN EL MOMENTO DE AUDITORIA, DEBE DE REGISTRARSE EN Auditoria.txt Y DESPUES PLANTEARSE COMO UNA NUEVA TAREA EN Instrucciones.txt. 
 7. PROHIBIDO DUPLICAR BLOQUES DE CODIGO, POR ELLO ES LA AUDITORIA INICIAL. 
@@ -27,8 +27,32 @@ NORMAS OBLIGATORIAS DE DESARROLLO
 6. si una tarea se realizo no marcarla como COMPLETADA, marcarla como PENDIENTE REVISION POR EL MP. 
 -Tareas Pendientes- 
 
+[PENDIENTE REVISION POR EL MP] Implementar Sistema de Inbox (Tarea 18)
 
-GPSpedia
+Origen: Requerimiento de Funcionalidad
+Prioridad: ALTA
+Área: Frontend | UI/UX
+Descripción:
+Implementar un modal de "Inbox" completamente funcional para la gestión de feedback de usuarios (reportes de problemas y formularios de contacto).
+Alcance:
+- Creación de la UI para listar y detallar mensajes.
+- Integración con el `services/feedback/feedback.js` para obtener, responder y resolver items.
+- Lógica de visibilidad basada en roles de usuario (`Supervisor`, `Gefe`, `Desarrollador`).
+
+---
+
+[PENDIENTE REVISION POR EL MP] Implementar Modal de Herramientas de Desarrollador (Tarea 19)
+
+Origen: Requerimiento de Mantenimiento
+Prioridad: MEDIA
+Área: Frontend | Herramientas
+Descripción:
+Implementar la estructura base para un modal de "Herramientas de Desarrollador" para facilitar futuras tareas de migración y mantenimiento.
+Alcance:
+- Creación del modal y la UI base.
+- Lógica de visibilidad restringida al rol `Desarrollador`.
+
+---
 
 [TAREA] Centralizar la Lógica de Autorización de Backend
 

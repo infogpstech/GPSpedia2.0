@@ -103,5 +103,5 @@ function createErrorResponse(message, statusCode) {
     message: message
   };
   return ContentService.createTextOutput(JSON.stringify(error))
-    .setMimeType(ContentService.MimeType.JSON);
+    .setMimeType(ContentService.MimeType.TEXT);
 }

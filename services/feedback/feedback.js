@@ -125,13 +125,11 @@ function doPost(e) {
             default:
                 throw new Error(`Acción desconocida en Feedback Service: ${action}`);
         }
-        return ContentService.createTextOutput(JSON.stringify(response))
-            .setMimeType(ContentService.MimeType.TEXT);
     } catch (error) {
         response = { status: 'error', message: error.message };
-        return ContentService.createTextOutput(JSON.stringify(response))
-            .setMimeType(ContentService.MimeType.TEXT);
     }
+    return ContentService.createTextOutput(JSON.stringify(response))
+        .setMimeType(ContentService.MimeType.TEXT);
 }
 
 // ============================================================================
@@ -275,41 +273,40 @@ function handleRecordLike(payload) {
         throw new Error("Faltan datos para registrar el 'like' (vehicleId, corteIndex, userId, userName).");
     }
 
-    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
-    // Fetch all IDs from the 'id' column to find the row index
-    const ids = sheet.getRange(2, COLS_CORTES.id, sheet.getLastRow() - 1, 1).getValues().flat();
-    const rowIndex = ids.findIndex(id => id == vehicleId);
+    const lock = LockService.getScriptLock();
+    lock.waitLock(15000); // Wait up to 15 seconds for the lock
 
-    if (rowIndex === -1) {
-        throw new Error("No se encontró el vehículo con el ID proporcionado.");
+    try {
+        const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
+        const ids = sheet.getRange(2, COLS_CORTES.id, sheet.getLastRow() - 1, 1).getValues().flat();
+        const rowIndex = ids.findIndex(id => id == vehicleId);
+
+        if (rowIndex === -1) {
+            throw new Error("No se encontró el vehículo con el ID proporcionado.");
+        }
+
+        const actualRow = rowIndex + 2;
+        const utilColName = `utilCorte${corteIndex}`;
+        const utilCol = COLS_CORTES[utilColName];
+
+        if (!utilCol) {
+            throw new Error(`Índice de corte inválido: ${corteIndex}`);
+        }
+
+        const cell = sheet.getRange(actualRow, utilCol);
+        let currentValue = cell.getValue();
+        if (typeof currentValue !== 'number' || isNaN(currentValue)) {
+            currentValue = 0;
+        }
+
+        cell.setValue(currentValue + 1);
+
+        logUserActivity(userId, userName, 'like', vehicleId, `Like en corte ${corteIndex}. Nuevo total: ${currentValue + 1}`);
+
+        return { status: 'success', message: 'Like registrado correctamente.' };
+    } finally {
+        lock.releaseLock();
     }
-
-    // rowIndex is 0-based, but sheet rows are 1-based and we have a header, so add 2
-    const actualRow = rowIndex + 2;
-
-    // Determine the correct column for the like count
-    const utilColName = `utilCorte${corteIndex}`;
-    const utilCol = COLS_CORTES[utilColName];
-
-    if (!utilCol) {
-        throw new Error(`Índice de corte inválido: ${corteIndex}`);
-    }
-
-    // Get the cell, read the value, increment, and write back
-    const cell = sheet.getRange(actualRow, utilCol);
-    let currentValue = cell.getValue();
-
-    // Ensure the current value is a number, default to 0 if empty or not a number
-    if (typeof currentValue !== 'number' || isNaN(currentValue)) {
-        currentValue = 0;
-    }
-
-    cell.setValue(currentValue + 1);
-
-    // Log this action
-    logUserActivity(userId, userName, 'like', vehicleId, `Like en corte ${corteIndex}. Nuevo total: ${currentValue + 1}`);
-
-    return { status: 'success', message: 'Like registrado correctamente.' };
 }
 
 function handleReportProblem(payload) {

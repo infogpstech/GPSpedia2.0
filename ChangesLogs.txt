@@ -1,3 +1,33 @@
+**V8.0.0 - (FEATURE & CONSOLIDATED FIXES) - 09/01/2024**
+**A. RESUMEN GENERAL:** Se implementaron nuevas funcionalidades críticas para administradores (Inbox y Herramientas de Desarrollador) y se consolidaron correcciones a regresiones de frontend y vulnerabilidades de backend en un solo despliegue para asegurar la estabilidad, seguridad y funcionalidad del sistema.
+
+**B. Nuevas Funcionalidades (Frontend):**
+    1.  **Sistema de Inbox Completo (Tarea 18):** Se implementó un modal de "Inbox" completamente funcional para la gestión centralizada del feedback de usuarios. Esto incluyó la UI, la integración con la API del backend (`getFeedbackItems`, `replyToFeedback`, `markAsResolved`) y la lógica de visibilidad por roles.
+    2.  **Modal de Herramientas de Desarrollador (Tarea 19):** Se implementó la estructura inicial del modal, accesible solo para el rol `Desarrollador`, como base para futuras herramientas de mantenimiento.
+    3.  **Corrección de Ruteo de API:** Se corrigió un bug crítico en `api.js` donde faltaban las acciones `replyToFeedback` y `markAsResolved` en el `ACTION_TO_SERVICE_MAP`.
+
+**C. Consolidación de Correcciones Críticas (Full-Stack):**
+    1.  **Restauración de Frontend:** Se corrigió la lógica de renderizado para restaurar las secciones "Últimos Agregados" y "Marcas de Motocicletas", se repararon los modales de detalle para mostrar correctamente videos/imágenes y se ajustó el layout del modal de vehículo.
+    2.  **Parchado de Vulnerabilidades de Sesión:** Se corrigió una vulnerabilidad de seguridad crítica en `auth.js` y `utilities.js` para que la validación de sesiones consulte la hoja `ActiveSessions`.
+    3.  **Prevención de Condición de Carrera:** Se implementó `LockService` en la función `handleRecordLike` de `feedback.js` para prevenir la pérdida de datos por concurrencia.
+    4.  **Alineación Arquitectónica:** Se estandarizó el `Content-Type` de las respuestas de error a `text/plain` en los servicios `auth`, `feedback`, y `imagen`.
+    5.  **Limpieza de Código:** Se eliminaron funciones de migración obsoletas y código muerto de `utilities.js`.
+
+**D. Cambios Técnicos Implementados:**
+    - **`main.js`:** Añadidos `event listeners` para los nuevos modales.
+    - **`ui.js`:** Implementadas funciones para gestionar los modales (`openInbox`, `openDevTools`), renderizar su contenido y reestructurar los modales de detalle.
+    - **`api.js`:** Añadidas funciones para el inbox y corregido el `ACTION_TO_SERVICE_MAP`.
+    - **`style.css`:** Ajustados los estilos del overlay de feedback.
+    - **`services/auth/auth.js` & `services/utilities/utilities.js`:** Refactorizada la lógica de autorización y sesión.
+    - **`services/feedback/feedback.js`:** Añadido `LockService` y corregido `Content-Type`.
+    - **`services/imagen/image.js`:** Corregido `Content-Type`.
+    - **`services/catalog/catalog.js`:** Ajustada la lógica de `handleGetCatalogData`.
+
+**E. Impacto:**
+    - Entrega nuevas funcionalidades críticas para la administración del sistema.
+    - Restaura la funcionalidad completa de la UI y mejora significativamente la seguridad y fiabilidad de la plataforma.
+    - Alinea múltiples componentes con los estándares arquitectónicos del proyecto.
+
 **V7.2.0 - (AUDIT & DOCUMENTATION) - 19/07/2024**
 **A. AUDITORÍA TÉCNICA FORENSE (DOCUMENTACIÓN):** Se realizó una auditoría exhaustiva de todo el código fuente de la aplicación GPSpedia para establecer una base de referencia clara del estado del proyecto, identificar riesgos y proponer mejoras estratégicas.
 

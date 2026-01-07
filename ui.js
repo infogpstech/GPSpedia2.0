@@ -4,7 +4,7 @@
 // - Contain all functions that directly manipulate the DOM.
 // - Use document.createElement, not HTML strings.
 
-import { getImageUrl } from './api.js';
+import { getImageUrl, getFeedbackItems, replyToFeedback, markAsResolved } from './api.js';
 import { getState } from './state.js';
 import { mostrarMarcas, mostrarCategoriasPorMarca, mostrarModelos, getLogoUrlForMarca } from './navigation.js';
 
@@ -257,6 +257,148 @@ export function mostrarDetalleModal(item) {
     document.getElementById("modalDetalle").classList.add("visible");
 }
 
+// --- Inbox and Dev Tools Modal Logic ---
+
+function setupModal(modalId, openFn) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    const closeBtn = modal.querySelector('.info-close-btn');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => modal.style.display = 'none');
+    }
+    return openFn;
+}
+
+export const openInbox = setupModal('inbox-modal', async () => {
+    console.log("Inbox: Opening inbox modal...");
+    const modal = document.getElementById('inbox-modal');
+    modal.style.display = 'flex';
+    const listContainer = document.getElementById('inbox-list');
+    const detailContainer = document.getElementById('inbox-detail');
+    listContainer.innerHTML = '<p>Cargando mensajes...</p>';
+    detailContainer.innerHTML = '<p>Selecciona un item para ver los detalles.</p>';
+
+    try {
+        console.log("Inbox: Fetching feedback items...");
+        const result = await getFeedbackItems();
+        console.log("Inbox: API response received:", result);
+
+        if (result.status === 'success' && result.data) {
+            console.log("Inbox: API call successful. Data received:", result.data);
+            if (Array.isArray(result.data)) {
+                renderInboxList(result.data);
+            } else {
+                console.error("Inbox Error: result.data is not an array!", result.data);
+                listContainer.innerHTML = `<p style="color:red;">Error: El formato de los datos es incorrecto.</p>`;
+            }
+        } else {
+            console.error("Inbox Error: API call failed or data missing.", result);
+            listContainer.innerHTML = `<p style="color:red;">Error: ${result.message || 'No se pudieron cargar los mensajes.'}</p>`;
+        }
+    } catch (error) {
+        listContainer.innerHTML = `<p style="color:red;">Error de conexión al cargar mensajes.</p>`;
+        console.error("Error fetching feedback items:", error);
+    }
+});
+
+export const openDevTools = setupModal('dev-tools-modal', () => {
+    document.getElementById('dev-tools-modal').style.display = 'flex';
+    // Logic to move debug console if needed can be added here
+});
+
+function renderInboxList(items) {
+    const listContainer = document.getElementById('inbox-list');
+    listContainer.innerHTML = '';
+    if (items.length === 0) {
+        listContainer.innerHTML = '<p>No hay mensajes.</p>';
+        return;
+    }
+
+    items.forEach(item => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'inbox-item';
+        if (item.isResolved) {
+            itemDiv.classList.add('resolved');
+        }
+        if (item.reply) {
+             itemDiv.classList.add('replied');
+        }
+
+        const iconClass = item.type === 'problem_report' ? 'fa-triangle-exclamation' : 'fa-envelope';
+        const title = item.subject || `ID: ${item.id}`;
+
+        itemDiv.innerHTML = `
+            <i class="fa-solid ${iconClass}"></i>
+            <div class="inbox-item-content">
+                <strong>${title}</strong>
+                <p>${item.content.substring(0, 50)}...</p>
+            </div>
+        `;
+        itemDiv.addEventListener('click', () => {
+            document.querySelectorAll('.inbox-item.active').forEach(el => el.classList.remove('active'));
+            itemDiv.classList.add('active');
+            renderInboxDetail(item);
+        });
+        listContainer.appendChild(itemDiv);
+    });
+}
+
+function renderInboxDetail(item) {
+    const detailContainer = document.getElementById('inbox-detail');
+    const { currentUser } = getState();
+    const userName = currentUser ? currentUser.Nombre_Usuario : 'Usuario';
+
+    detailContainer.innerHTML = `
+        <h3>${item.subject}</h3>
+        <p><strong>De:</strong> ${item.user}</p>
+        ${item.vehicleId ? `<p><strong>ID Vehículo:</strong> ${item.vehicleId}</p>` : ''}
+        <div class="inbox-message-content">
+            <pre>${item.content}</pre>
+        </div>
+        ${item.reply ? `
+            <div class="inbox-reply-content">
+                <strong>Respuesta de ${item.responder || 'Admin'}:</strong>
+                <pre>${item.reply}</pre>
+            </div>` : ''
+        }
+        <div class="inbox-actions">
+            <textarea id="inbox-reply-textarea" placeholder="Escribe tu respuesta aquí..."></textarea>
+            <button id="inbox-reply-btn">Enviar Respuesta</button>
+            ${item.type === 'problem_report' && !item.isResolved ?
+                `<button id="inbox-resolve-btn" class="resolve-btn">Marcar como Resuelto</button>` : ''
+            }
+        </div>
+    `;
+
+    const replyBtn = document.getElementById('inbox-reply-btn');
+    replyBtn.addEventListener('click', async () => {
+        const replyText = document.getElementById('inbox-reply-textarea').value;
+        if (!replyText.trim()) {
+            showGlobalError("La respuesta no puede estar vacía.");
+            return;
+        }
+        try {
+            await replyToFeedback(item.id, item.type, replyText, userName);
+            // Refresh inbox to show changes
+            openInbox();
+        } catch (error) {
+            showGlobalError(`Error al enviar respuesta: ${error.message}`);
+        }
+    });
+
+    const resolveBtn = document.getElementById('inbox-resolve-btn');
+    if (resolveBtn) {
+        resolveBtn.addEventListener('click', async () => {
+             try {
+                await markAsResolved(item.id);
+                openInbox(); // Refresh
+            } catch (error) {
+                showGlobalError(`Error al resolver: ${error.message}`);
+            }
+        });
+    }
+}
+
 function createAccordionSection(container, title, sec, isOpen = false) {
     const btn = document.createElement("button");
     btn.className = "accordion-btn";
@@ -264,6 +406,12 @@ function createAccordionSection(container, title, sec, isOpen = false) {
 
     const panel = document.createElement("div");
     panel.className = "panel-desplegable";
+
+    if (sec.content) {
+        const contentP = document.createElement('p');
+        contentP.innerHTML = sec.content;
+        panel.appendChild(contentP);
+    }
 
     if (sec.img) {
         const imgContainer = document.createElement('div');
@@ -301,17 +449,13 @@ function createAccordionSection(container, title, sec, isOpen = false) {
         panel.appendChild(imgContainer);
     }
 
-    if (sec.content) {
-        const contentP = document.createElement('p');
-        contentP.innerHTML = sec.content;
-        panel.appendChild(contentP);
-    }
-
     if (sec.colaborador) {
+        const colabDiv = document.createElement('div');
         const colabP = document.createElement('p');
-        colabP.style.cssText = "font-style: italic; color: #888; margin-top: 10px; text-align: right;";
+        colabP.style.cssText = "font-style: italic; color: #888; margin-top: 10px; text-align: left;";
         colabP.innerHTML = `Aportado por: <strong>${sec.colaborador}</strong>`;
-        panel.appendChild(colabP);
+        colabDiv.appendChild(colabP);
+        panel.appendChild(colabDiv);
     }
 
     if (sec.videoUrl) {
