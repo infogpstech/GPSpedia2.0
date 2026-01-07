@@ -6,13 +6,13 @@
 
 const API_ENDPOINTS = {
     LEGACY: "https://script.google.com/macros/s/AKfycbwpIFH1nX2BZEjAKbpq9HJpEGNlo_0LqD1CwxWsWFo5J0AJDdbfMrKpcsAV4ZFJzFWd/exec",
-    AUTH:     "https://script.google.com/macros/s/AKfycbz5pShcFTft6Xz8EiBpEmqMbes611ROqkcoxJ1hwvwvh3JBZfdqm3zklTwuXqBTSN35/exec",
-    CATALOG:  "https://script.google.com/macros/s/AKfycbxMcwKh7xjYDHElHzZgNzwfhAvg6nPiSgAfDc3zErNc37CRd0DGLsRIF5O3Fj2eUAM/exec",
-    WRITE:    "https://script.google.com/macros/s/AKfycbwtfAsH0UytR23ZP0fRm1mH0V8ZT_EUdAMvWXUY8bfnITZTBNVhnuS4my6MMWJVj3KONw/exec",
-    USERS:    "https://script.google.com/macros/s/AKfycbzOxB-rC35E9vN0v08kPnATfgnJ2Va9rDtRvl1JKeBay8hnLB9Xpn-z5bQ8ylaskxjY/exec",
-    FEEDBACK: "https://script.google.com/macros/s/AKfycbwBvtcf_jayP2Lxdk3PQUz3szRNFePzr9WQ5QbGSiDqgM92v2ugr4BmP7DJhYXgRmq7/exec",
+    AUTH:     "https://script.google.com/macros/s/AKfycbz5H3VsOvzTjBGWoZ-sD5b-25pBbNpaBo9YIH5trgWOxgGC_n7aDAaLGGq45w3wgvqp/exec",
+    CATALOG:  "https://script.google.com/macros/s/AKfycbym2wvWcbrJSPJJpZYtAS-fDYe-x4_zM49RAebyaopudARTNudF9Asdp8ac2TUC2iQngQ/exec",
+    WRITE:    "https://script.google.com/macros/s/AKfycbwx51C9UQPRis2hIExIT2d1lGoTFZdCFyzMVVvQseHg41pztX86H16n88D8npO5__o_cQ/exec",
+    USERS:    "https://script.google.com/macros/s/AKfycbzReGv4d2Aapl5-YhRW5x2QmxZJFEAhskzZRqwT39sw_8fQhUr7IXEP7nHRfHxkDdx7/exec",
+    FEEDBACK: "https://script.google.com/macros/s/AKfycbxFd_uHND1B7qaiBm-aHck3FzcU7tCl-a3gUgOdDxoD25A6-jSCAN2ylXQG8-85ALsX/exec",
     UTILITIES: "https://script.google.com/macros/s/AKfycbzkGXk_kSm3rN7K5PM0RntiPAn7DlH78RkH66a2vuwZwU8KgwDufkOiPjXoUKzuHAgG/exec",
-    IMAGE: "https://script.google.com/macros/s/AKfycbwFzPvx7URRA2cGfXxXsV4HUsPgF27ur8EdkdFAP1Ix_hYjNVi5nnIDtzLJ_Xd2jdIH/exec"
+    IMAGE: "https://script.google.com/macros/s/AKfycbwkDA5XmBodGUAoq4nvqk6UXbk4-HyGWbQ56Wj8-t-WEFavB74Bvi_8qo1Sq4LRj7Nm/exec"
 };
 
 const ACTION_TO_SERVICE_MAP = {
