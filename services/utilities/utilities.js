@@ -53,16 +53,10 @@ function doPost(e) {
         const { action, payload, session } = request;
 
         // Authorize the user
-        authorize(session, ['Desarrollador']);
+        authorize(session.sessionToken, ['Desarrollador']);
 
         let result;
         switch (action) {
-            case 'migrateYearRanges':
-                result = handleMigrateYearRanges();
-                break;
-            case 'migrateTimestamps':
-                result = handleMigrateTimestamps();
-                break;
             case 'getImageCreationDateFromUrl':
                 if (!payload || !payload.url) {
                     throw new Error("La URL es requerida en el payload para esta acción.");
@@ -88,19 +82,37 @@ function doPost(e) {
 // ============================================================================
 // LÓGICA DE AUTORIZACIÓN
 // ============================================================================
-function authorize(session, requiredRoles) {
-    if (!session || !session.userId) {
-        throw new Error("Autenticación requerida. Sesión no proporcionada.");
+function authorize(sessionToken, requiredRoles) {
+    if (!sessionToken) {
+        throw new Error("Autenticación requerida. Token de sesión no proporcionado.");
     }
 
-    const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
-    const data = userSheet.getDataRange().getValues();
-    data.shift();
+    const sessionsSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.ACTIVE_SESSIONS);
+    if (!sessionsSheet) throw new Error("Hoja de sesiones no encontrada.");
+    const sessionsData = sessionsSheet.getDataRange().getValues();
+    sessionsData.shift();
 
-    const userRow = data.find(row => row[COLS_USERS.ID - 1] == session.userId);
+    let userId = null;
+    for (const row of sessionsData) {
+        if (row[COLS_ACTIVE_SESSIONS.ActiveSessions - 1] === sessionToken) {
+            userId = row[COLS_ACTIVE_SESSIONS.ID_Usuario - 1];
+            break;
+        }
+    }
+
+    if (!userId) {
+        throw new Error("Acceso no autorizado: Sesión inválida o expirada.");
+    }
+
+    const usersSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
+    if (!usersSheet) throw new Error("Hoja de usuarios no encontrada.");
+    const usersData = usersSheet.getDataRange().getValues();
+    usersData.shift();
+
+    const userRow = usersData.find(row => row[COLS_USERS.ID - 1] == userId);
 
     if (!userRow) {
-        throw new Error("Usuario no encontrado.");
+        throw new Error("Usuario asociado a la sesión no encontrado.");
     }
 
     const userRole = userRow[COLS_USERS.Privilegios - 1];
@@ -146,67 +158,3 @@ function getImageCreationDate(url) {
 // ============================================================================
 // MANEJADORES DE ACCIONES (HANDLERS)
 // ============================================================================
-
-function handleMigrateYearRanges() {
-    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
-    const range = sheet.getRange(2, 1, sheet.getLastRow() - 1, COLS_CORTES.anoHasta);
-    const values = range.getValues();
-    let updatedCount = 0;
-
-    const newValues = values.map(row => {
-        let anoDesde = row[COLS_CORTES.anoDesde - 1];
-        let anoHasta = row[COLS_CORTES.anoHasta - 1];
-
-        if (anoDesde && typeof anoDesde === 'string' && anoDesde.includes('-')) {
-            const parts = anoDesde.split('-').map(p => parseInt(p.trim(), 10));
-            const year1 = parts[0];
-            const year2 = parts[1];
-
-            if (!isNaN(year1) && !isNaN(year2)) {
-                row[COLS_CORTES.anoDesde - 1] = Math.min(year1, year2);
-                row[COLS_CORTES.anoHasta - 1] = Math.max(year1, year2);
-                updatedCount++;
-            }
-        } else if (anoDesde && !isNaN(parseInt(anoDesde, 10)) && !anoHasta) {
-             row[COLS_CORTES.anoHasta - 1] = anoDesde;
-             updatedCount++;
-        }
-        return row;
-    });
-
-    range.setValues(newValues);
-    return { status: 'success', message: `Migración de rangos de años completada. Se actualizaron ${updatedCount} registros.` };
-}
-
-
-function handleMigrateTimestamps() {
-    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
-    const range = sheet.getRange(2, COLS_CORTES.imagenVehiculo, sheet.getLastRow() - 1, 1);
-    const urls = range.getValues();
-    let updatedCount = 0;
-
-    urls.forEach((row, index) => {
-        const url = row[0];
-        if (url && typeof url === 'string') {
-            try {
-                const idMatch = url.match(/file\/d\/([a-zA-Z0-9_-]+)|id=([a-zA-Z0-9_-]+)|\/d\/([a-zA-Z0-9_-]+)/);
-                if (idMatch) {
-                    const fileId = idMatch[1] || idMatch[2] || idMatch[3];
-                    const file = DriveApp.getFileById(fileId);
-                    const dateCreated = file.getDateCreated();
-
-                    // Formatear a DD/MM/AAAA
-                    const formattedDate = Utilities.formatDate(dateCreated, Session.getScriptTimeZone(), "dd/MM/yyyy");
-
-                    sheet.getRange(index + 2, COLS_CORTES.timestamp).setValue(formattedDate);
-                    updatedCount++;
-                }
-            } catch (e) {
-                // Log error but continue
-                console.error(`Error procesando URL en fila ${index + 2}: ${e.message}`);
-            }
-        }
-    });
-
-    return { status: 'success', message: `Migración de timestamps completada. Se procesaron e intentaron actualizar ${updatedCount} registros.` };
-}

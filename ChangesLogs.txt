@@ -1,24 +1,22 @@
-**V7.3.0 - (CRITICAL REGRESSION FIX) - 08/01/2026**
-**A. FIX DE REGRESIONES CRÍTICAS (FULL-STACK):** Se solucionaron múltiples regresiones críticas introducidas en commits anteriores que afectaban la visualización de datos en el frontend y la integridad de la información proveniente del backend.
+**V7.4.0 - (BACKEND SECURITY & STABILITY) - 09/01/2024**
+**A. FIX DE VULNERABILIDADES CRÍTICAS Y ESTABILIDAD DEL BACKEND:** Se implementaron correcciones para varias vulnerabilidades de seguridad, condiciones de carrera y violaciones arquitectónicas identificadas durante una auditoría completa de los servicios de backend.
 
 **B. Resumen de Correcciones:**
-    1.  **Restauración de Secciones de Inicio:** Se corrigió la lógica de renderizado para asegurar que las secciones "Últimos Agregados" y "Marcas de Motocicletas" se muestren siempre en la página principal, restaurando la navegación completa.
-    2.  **Reparación de Modales de Detalle (Tutoriales y Relay):** Se solucionó un bug en el backend (`services/catalog/catalog.js`) que impedía que los videos de tutoriales y las imágenes de configuraciones de relay se mostraran en sus respectivos modales.
-    3.  **Corrección de Layout en Modal de Vehículo:**
-        *   Se reordenó el contenido del modal de detalle del vehículo para seguir estrictamente el layout definido en la documentación (`README.md`).
-        *   Se corrigió el posicionamiento de los botones de feedback (Útil/Reportar) para que aparezcan correctamente como un overlay en la esquina inferior derecha de la imagen.
-        *   Se ajustó el layout para que el nombre del colaborador aparezca fuera de la imagen del corte, con su propio espacio vertical dedicado.
-    4.  **Corrección de Videos en Modal Principal:** Se aseguró que los videos guía de desarme en el modal principal se carguen y muestren correctamente.
+    1.  **Vulnerabilidad de Sesión en `auth.js` y `utilities.js`:** Se corrigieron vulnerabilidades críticas en `handleValidateSession` (`auth.js`) y `authorize` (`utilities.js`). Ambas funciones ahora validan los tokens de sesión contra la hoja `ActiveSessions`, previniendo que tokens expirados sean aceptados.
+    2.  **Condición de Carrera en `feedback.js`:** Se implementó `LockService` en la función `handleRecordLike` para asegurar que la operación de incremento de "likes" sea atómica y prevenir la pérdida de datos.
+    3.  **Violaciones de `Content-Type`:** Se corrigió el `Content-Type` de las respuestas de error en los servicios `auth`, `feedback`, y `imagen`, alineándolos con el estándar `text/plain` del proyecto para prevenir errores de CORS.
+    4.  **Eliminación de Código Muerto en `utilities.js`:** Se eliminaron las funciones de migración de datos obsoletas para reducir la complejidad del código.
 
 **C. Cambios Técnicos Implementados:**
-    1.  **`services/catalog/catalog.js`:** Se ajustó la lógica de `handleGetCatalogData` para procesar y filtrar correctamente los datos de todas las secciones, y se corrigió el mapeo de las columnas de video e imagen.
-    2.  **`ui.js`:** Se reestructuró la función `mostrarDetalleModal` y `createAccordionSection` para generar el HTML en el orden correcto y con la estructura de contenedores adecuada.
-    3.  **`style.css`:** Se eliminaron reglas de CSS duplicadas y se aumentó la especificidad de los selectores para el `feedback-overlay` para corregir su posicionamiento.
+    1.  **`services/auth/auth.js`:** Refactorizada `handleValidateSession` y corregido el `Content-Type`.
+    2.  **`services/utilities/utilities.js`:** Refactorizada la función `authorize` para validar contra `ActiveSessions` y eliminadas las funciones de migración obsoletas.
+    3.  **`services/feedback/feedback.js`:** Se añadió `LockService` a `handleRecordLike` y se corrigió el `Content-Type` en las rutas de error.
+    4.  **`services/imagen/image.js`:** Corregido el `Content-Type` en `createErrorResponse`.
 
 **D. Impacto:**
-    -   Se restaura la funcionalidad completa y la experiencia de usuario de la página principal y los modales de detalle.
-    -   Se asegura la integridad de los datos presentados al usuario, eliminando inconsistencias entre el backend y el frontend.
-    -   Se alinea la implementación actual con la documentación oficial del proyecto.
+    -   Se mejora significativamente la seguridad y la fiabilidad del sistema de autenticación.
+    -   Se garantiza la integridad de los datos para las interacciones de los usuarios.
+    -   Se mejora la estabilidad general del backend y se facilita la depuración al adherirse a los estándares arquitectónicos del proyecto.
 
 **V7.2.0 - (AUDIT & DOCUMENTATION) - 19/07/2024**
 **A. AUDITORÍA TÉCNICA FORENSE (DOCUMENTACIÓN):** Se realizó una auditoría exhaustiva de todo el código fuente de la aplicación GPSpedia para establecer una base de referencia clara del estado del proyecto, identificar riesgos y proponer mejoras estratégicas.

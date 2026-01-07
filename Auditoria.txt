@@ -1,123 +1,89 @@
-# Auditoría Técnica Forense - GPSpedia v2.0
+# Auditoría de Salud de Servicios Backend - GPSpedia
 
-**Fecha de Auditoría:** 2024-07-19
+**Fecha de Auditoría:** 2026-01-08
 **Auditor:** Jules
-**Versión Global del Proyecto Analizada:** 2.0+
+**Versión Global del Proyecto Analizada:** 7.3.0
 
 ## 1. Resumen Ejecutivo
 
-Esta auditoría presenta un análisis exhaustivo del estado actual del código fuente de la aplicación GPSpedia. El sistema exhibe una arquitectura de microservicios funcionales que utilizan Google Apps Script, con un frontend de cliente pesado (`vanilla JS`) que gestiona la lógica de la interfaz de usuario.
+Esta auditoría presenta un análisis funcional de cada microservicio del backend de GPSpedia. El objetivo es verificar la salud de cada servicio, identificar errores funcionales, y detectar violaciones de las reglas arquitectónicas definidas en la documentación del proyecto (`README.md`).
 
-Se identifican varios riesgos críticos y áreas de mejora significativas:
+**Hallazgos Clave:**
 
-1.  **Fragilidad de la Capa de Datos:** La dependencia directa y estricta de la estructura de una hoja de Google Sheet (hardcodeo de índices de columnas) es el mayor riesgo para la mantenibilidad y estabilidad del sistema.
-2.  **Inconsistencias en Seguridad:** La lógica de autorización y validación de roles está duplicada y es inconsistente entre los diferentes microservicios, creando potenciales brechas de seguridad.
-3.  **Performance No Optimizada:** La deshabilitación de la caché para el catálogo principal de datos (`catalog.js`) impacta directamente en los tiempos de carga y la experiencia del usuario.
-4.  **Complejidad en el Frontend:** El código del lado del cliente, particularmente en `index.html`, mezcla responsabilidades de UI, manejo de estado y lógica de negocio, lo que dificulta su mantenimiento.
-5.  **Proceso de Despliegue Manual:** La arquitectura de microservicios en Google Apps Script requiere despliegues manuales para cada servicio, un proceso inherentemente propenso a errores que puede causar desincronización entre el código y la versión en producción.
+1.  **Violación Crítica de `Content-Type`:** Múltiples servicios (`auth`, `feedback`) devuelven respuestas de error con `Content-Type: application/json` en lugar del `text/plain` requerido. Esto es una violación arquitectónica crítica que puede causar que el frontend falle silenciosamente debido a errores de CORS, haciendo que la depuración sea extremadamente difícil.
+2.  **Vulnerabilidad de Sesión en `auth` Service:** El servicio de autenticación (`auth`) valida las sesiones de usuario contra la hoja `Users` en lugar de la hoja `ActiveSessions`. Esto crea una grave vulnerabilidad de seguridad donde un token de sesión, aunque ya no esté activo, podría ser considerado válido.
+3.  **Condición de Carrera en `feedback` Service:** La función `handleRecordLike` en el servicio `feedback` no es atómica. Es susceptible a una condición de carrera que puede llevar a la pérdida de datos (likes) si dos usuarios realizan la acción simultáneamente.
+4.  **Lógica de Autorización Duplicada y Deficiente:** La lógica para verificar los permisos de un usuario está duplicada en múltiples servicios (`users`, `utilities`). La implementación en `utilities` es particularmente deficiente, ya que no valida la sesión contra la hoja `ActiveSessions`, creando otra posible vulnerabilidad.
+5.  **Código Muerto en `utilities` Service:** El servicio de utilidades contiene funciones de migración de datos (`handleMigrateYearRanges`, `handleMigrateTimestamps`) que ya han sido ejecutadas y ahora representan código muerto, aumentando la complejidad innecesaria del codebase.
 
-A continuación, se detalla el análisis de cada componente del sistema.
+A continuación se detalla el análisis de cada servicio.
 
-## 2. Análisis Arquitectónico
+---
 
-La aplicación sigue un patrón de microservicios con un frontend desacoplado:
+## 2. Auditoría por Servicio
 
--   **Backend:** Una serie de servicios independientes de Google Apps Script (`.js`), cada uno desplegado como una aplicación web individual.
-    -   `Auth`: Gestión de inicio de sesión y sesiones.
-    -   `Catalog`: Lógica de solo lectura para todos los datos principales (vehículos, tutoriales, etc.).
-    -   `Write`: Lógica de escritura, incluyendo la subida de imágenes a Google Drive.
-    -   `Users`: Gestión de usuarios (CRUD).
-    -   `Feedback`: Manejo de reportes de problemas, likes y formularios de contacto.
-    -   `Utilities`: Scripts de migración de datos y funciones de apoyo.
--   **Frontend:** Una aplicación de una sola página (SPA) implementada con HTML, CSS y JavaScript vainilla.
-    -   `api-manager.js`: Actúa como una capa de enrutamiento centralizada para todas las llamadas al backend, un punto clave de la arquitectura.
-    -   El estado se gestiona principalmente a través del `localStorage` del navegador.
--   **Base de Datos:** Una única hoja de cálculo de Google Sheets con múltiples hojas (`Cortes`, `Users`, `ActiveSessions`, etc.).
--   **Almacenamiento de Archivos:** Una carpeta designada en Google Drive para las imágenes subidas.
+### 🔹 `auth` (`services/auth/auth.js`) - 🔴 **CRÍTICO**
 
-**Contrato de API no Estándar:** Todos los servicios de backend deben devolver respuestas con `ContentService.MimeType.TEXT` para evitar problemas de CORS, y el frontend es responsable de parsear este texto como JSON. Este es un patrón crítico y una fuente potencial de errores si no se respeta en todos los endpoints.
+-   **`doGet` (Debug Endpoint):** **FALLA.** Devuelve `Content-Type: application/json`, violando la regla arquitectónica de `text/plain`.
+-   **`doPost` (Router Principal):** **FALLA.** En caso de error, devuelve `Content-Type: application/json`.
+-   **`handleLogin`:** **PASA.** La lógica es robusta y maneja correctamente la creación de sesiones y los límites por rol.
+-   **`handleValidateSession`:** 🔴 **FALLA CRÍTICA.** La función valida el token de sesión contra la hoja `Users`, pero la lógica de gestión de sesiones (incluyendo la eliminación de sesiones antiguas) opera sobre la hoja `ActiveSessions`. Esto crea una desincronización peligrosa: un usuario podría haber sido desconectado por el gestor de sesiones, pero `handleValidateSession` seguiría reportando la sesión como válida. **Esto es una vulnerabilidad de seguridad.**
 
-## 3. Auditoría del Frontend
+### 🔹 `catalog` (`services/catalog/catalog.js`) - ✅ **SALUDABLE**
 
-### 3.1. Módulos JavaScript (Capa Lógica)
+-   **`doGet` (Debug Endpoint):** **FALLA.** Devuelve `Content-Type: application/json`, una inconsistencia menor.
+-   **`doPost` (Router Principal):** **PASA.** Devuelve `Content-Type: text/plain` y maneja errores correctamente.
+-   **`handleGetCatalogData`:** **PASA.** La lógica para buscar, procesar, y dar forma a los datos de múltiples hojas es compleja pero funciona correctamente. El ordenamiento de cortes por "likes" y de categorías por popularidad está bien implementado.
+-   **Performance:** **PASA.** El servicio deshabilita intencionadamente el cacheo con una explicación clara, lo cual es un trade-off aceptado.
+-   **Otras Acciones:** **PASA.** `handleGetDropdownData`, `handleGetSuggestion`, y `handleGetNavigationData` están bien implementadas.
 
--   **`main.js`**: Orquesta la inicialización de la aplicación. Su dependencia principal es `ui.js` y `navigation.js`. Gestiona la carga inicial de datos y el renderizado de los componentes principales.
--   **`ui.js`**: Contiene la mayor parte de la lógica de renderizado del DOM (modales, carruseles, tarjetas de vehículos). Es un módulo extenso con alta complejidad y múltiples responsabilidades, lo que lo hace difícil de mantener. La lógica para renderizar el modal de detalles (`mostrarDetalleModal`) es particularmente compleja.
--   **`navigation.js`**: Maneja el flujo de navegación jerárquica (Categoría -> Marca -> Modelo, etc.). Su lógica es condicional y compleja, dependiendo del estado de la selección del usuario.
--   **`api.js` (`api-manager.js`)**: Componente crítico y bien diseñado. Centraliza todas las llamadas a la API a través de la función `routeAction`. Proporciona un único punto para gestionar las URLs de los servicios y el manejo básico de errores.
--   **`auth.js`**: Gestiona la lógica de autenticación del lado del cliente, incluyendo el manejo del `localStorage` y la redirección.
--   **`state.js`**: Módulo simple pero crucial que centraliza el estado global de la aplicación en un único objeto, una buena práctica para evitar la dispersión del estado.
+### 🔹 `feedback` (`services/feedback/feedback.js`) - ⚠️ **REQUIERE ATENCIÓN**
 
-### 3.2. Componentes HTML (Capa de Presentación)
+-   **`doGet` (Debug Endpoint):** **PASA.** Funciona correctamente y devuelve `Content-Type: text/plain`.
+-   **`doPost` (Router Principal):** **FALLA.** Al recibir una acción desconocida, devuelve un error con `Content-Type: application/json`.
+-   **`handleRecordLike`:** ⚠️ **FALLA (Condición de Carrera).** La operación de leer, incrementar y escribir el contador de "likes" no es atómica. Se debe usar `LockService` de Google Apps Script para prevenir la pérdida de datos bajo carga concurrente.
+-   **Otras Acciones:** **PASA.** `handleReportProblem`, `handleSendContactForm`, y `handleSuggestYear` (incluida su compleja lógica anti-colisión) están bien implementadas. Las funciones del sistema de "Inbox" también son correctas.
 
--   **`index.html`**: Es el corazón de la aplicación. Contiene una cantidad masiva de código JavaScript inline (`<script>`). Esta práctica es perjudicial para la mantenibilidad, la legibilidad y la separación de conceptos. La lógica de renderizado, el manejo de eventos y las llamadas a la API están estrechamente acoplados al HTML.
-    -   **Hallazgo:** Fuerte acoplamiento entre la estructura del DOM y la lógica de la aplicación. Cualquier cambio en un ID o una clase de CSS puede romper la funcionalidad de JavaScript.
--   **`users.html`**: Página para la gestión de perfiles y usuarios. A diferencia de `index.html`, utiliza un enfoque más limpio al separar mejor el HTML del JavaScript en su propio bloque `<script>`.
-    -   **Hallazgo:** La lógica de permisos para determinar qué roles puede crear/editar un usuario está implementada correctamente en el frontend, pero depende de una validación equivalente en el backend (`users.js`) para ser segura.
--   **`add_cortes.html`**: Formulario de varios pasos para agregar nuevos vehículos y cortes.
-    -   **Hallazgo:** Implementa un flujo de usuario complejo (`state machine`) gestionado a través de diferentes "fases" (`stage-1`, `stage-2`, etc.). La lógica está bien contenida, pero es compleja. El manejo de imágenes (previsualización y conversión a base64) se realiza completamente en el cliente antes del envío.
+### 🔹 `imagen` (`services/imagen/image.js`) - ✅ **SALUDABLE**
 
-## 4. Auditoría del Backend
+-   **`doGet`:** **PASA.** El servicio funciona como un proxy seguro y eficiente. La estrategia de cacheo es robusta, con un manejo de errores excelente que no interrumpe la funcionalidad principal si la caché falla.
+-   **Manejo de Errores:** **FALLA (Menor).** La función `createErrorResponse` devuelve errores con `Content-Type: application/json`, una violación menor de la arquitectura.
 
-### 4.1. `services/auth/auth.js` (Servicio de Autenticación)
+### 🔹 `users` (`services/users/users.js`) - ✅ **SALUDABLE**
 
--   **Responsabilidad:** Manejar el login y la validación de sesiones.
--   **Fortalezas:**
-    -   Implementa un sistema de límite de sesiones por rol de usuario, eliminando las sesiones más antiguas para hacer espacio a las nuevas.
--   **Debilidades y Riesgos:**
-    -   **Inconsistencia en comparación de contraseñas:** Compara contraseñas en texto plano. Mientras que el login (`handleLogin`) es case-insensitive para el nombre de usuario, el servicio `users.js` (`handleChangePassword`) realiza una comparación case-sensitive para la contraseña actual, lo que puede llevar a inconsistencias.
-    -   La gestión de la tabla `ActiveSessions` es compleja y puede ser un punto de fallo.
+-   **`doGet` y `doPost`:** **PASA.** Ambos endpoints están bien estructurados y devuelven `Content-Type: text/plain`.
+-   **Lógica de Autorización (`getVerifiedRole`):** **PASA.** Esta función es un ejemplo de buena implementación. Valida correctamente el token de sesión contra la hoja `ActiveSessions`, previniendo la vulnerabilidad presente en el servicio `auth`.
+-   **Acciones CRUD:** **PASA.** Todas las acciones (`handleCreateUser`, `handleUpdateUser`, `handleDeleteUser`) implementan de forma segura una jerarquía de roles estricta, previniendo la escalada de privilegios.
+-   **Observación:** La lógica de `getVerifiedRole` es excelente, pero está duplicada. Debería ser centralizada.
 
-### 4.2. `services/catalog/catalog.js` (Servicio de Catálogo)
+### 🔹 `utilities` (`services/utilities/utilities.js`) - ⚠️ **REQUIERE ATENCIÓN**
 
--   **Responsabilidad:** Proveer todos los datos de solo lectura necesarios para la aplicación.
--   **Hallazgos Críticos:**
-    -   **Performance:** El servicio ha deshabilitado explícitamente el almacenamiento en caché (`CacheService.put`) porque el conjunto de datos completo excede el límite de 100 KB de Google Apps Script. Esto significa que cada carga de la aplicación realiza una lectura y procesamiento intensivo de la hoja de cálculo, resultando en un rendimiento deficiente.
-    -   **Contrato de Imágenes:** El servicio implementa una lógica robusta (`normalizeAndValidateImageId`) para limpiar y validar los IDs de las imágenes de Google Drive, enviando solo el ID al frontend. Este es un buen patrón de diseño, pero debe ser mantenido rigurosamente.
--   **Mejoras:**
-    -   El endpoint `handleGetNavigationData` es una buena optimización, ya que permite al frontend cargar solo los datos necesarios para el arranque inicial.
+-   **`doGet` y `doPost`:** **PASA.** Ambos endpoints están correctamente implementados.
+-   **Lógica de Autorización (`authorize`):** ⚠️ **FALLA (Vulnerabilidad).** Al igual que el servicio `auth`, esta función valida al usuario basándose únicamente en su rol en la hoja `Users`, sin verificar el token de sesión contra `ActiveSessions`. Esto significa que un usuario con un token de sesión expirado podría ejecutar estas funciones de utilidad si su rol no ha sido revocado.
+-   **Código Muerto:** **FALLA.** Las funciones `handleMigrateYearRanges` y `handleMigrateTimestamps` son scripts de migración que ya no se necesitan. Deben ser eliminadas para reducir la complejidad del código.
 
-### 4.3. `services/write/write.js` (Servicio de Escritura)
+### 🔹 `write` (`services/write/write.js`) - ✅ **SALUDABLE**
 
--   **Responsabilidad:** Manejar la creación y actualización de registros, incluyendo la subida de imágenes.
--   **Fortalezas:**
-    -   **Herencia de Fórmulas y Formatos:** Al crear una nueva fila, el script copia la fila anterior y luego limpia su contenido. Este es el método correcto en Google Sheets para asegurar que todas las validaciones de datos, formatos condicionales y, crucialmente, las fórmulas (como la de auto-generación de ID) se hereden correctamente.
--   **Debilidades y Riesgos:**
-    -   **Gestión de Archivos Compleja:** La lógica para crear una estructura de carpetas jerárquica en Google Drive (`getOrCreateFolder`) es compleja y puede ser propensa a errores si los nombres contienen caracteres inesperados.
-    -   **Operación de Escritura Lenta:** El proceso de añadir un nuevo vehículo requiere múltiples llamadas a la API de la hoja de cálculo y a Drive, además de un `Utilities.sleep()` para esperar que la fórmula del ID se calcule. Esto puede resultar en una experiencia de usuario lenta y tiempos de espera.
+-   **`doGet` y `doPost`:** **PASA.** Todos los endpoints están bien implementados y siguen los estándares arquitectónicos.
+-   **Lógica de Escritura (`handleAddOrUpdateCut`):** **PASA.** La lógica para manejar vehículos nuevos y existentes es robusta. Usa `copyTo` para heredar fórmulas y `setValues` para escrituras eficientes, lo cual es una best practice. El uso de `Utilities.sleep()` es un workaround necesario y aceptado.
+-   **Manejo de Archivos:** **PASA.** La creación de carpetas jerárquicas en Google Drive y el manejo de subidas de imágenes (tanto base64 como URL) son robustos.
+-   **Otras Acciones:** **PASA.** `handleCheckVehicle` (anti-duplicación) y `handleAddSupplementaryInfo` están bien implementadas.
 
-### 4.4. `services/users/users.js` (Servicio de Usuarios)
+---
 
--   **Responsabilidad:** CRUD de usuarios.
--   **Hallazgos Críticos:**
-    -   **Lógica de Autorización Duplicada:** Este servicio implementa su propia lógica para verificar el rol del usuario que realiza una acción (`getVerifiedRole`). Esta lógica es similar pero no idéntica a la de otros servicios (ej. `utilities.js`), lo cual viola el principio DRY (Don't Repeat Yourself) y es un riesgo de seguridad. Si se actualiza una política de permisos, debe hacerse en múltiples lugares.
--   **Fortalezas:**
-    -   Implementa una jerarquía de permisos detallada que previene que un rol (ej. `Supervisor`) modifique a un rol superior (ej. `Gefe`).
+## 3. Conclusiones y Plan de Acción Recomendado
 
-### 4.5. `services/feedback/feedback.js` (Servicio de Retroalimentación)
+La auditoría revela que, si bien la mayoría de los servicios son funcionalmente robustos, existen serias inconsistencias arquitectónicas y vulnerabilidades de seguridad que deben ser abordadas con alta prioridad.
 
--   **Responsabilidad:** Gestionar likes, reportes de problemas, y el sistema de "bandeja de entrada" para administradores.
--   **Hallazgos:**
-    -   **Operaciones Atómicas Incorrectas:** La función `handleRecordLike` lee el valor de una celda, lo incrementa y lo vuelve a escribir. Esto no es una operación atómica. Si dos usuarios dan "like" casi al mismo tiempo, uno de los likes podría perderse (condición de carrera). Se debería utilizar `LockService` para operaciones críticas.
-    -   La lógica para la sugerencia y actualización automática de rangos de años (`handleSuggestYear`) es una característica de negocio compleja y potente, pero también un riesgo si la "lógica anti-colisión" no es perfecta.
+**Plan de Acción Sugerido:**
 
-### 4.6. `services/utilities/utilities.js` (Servicio de Utilidades)
+1.  **Hotfix Inmediato (Prioridad CRÍTICA):**
+    *   **Corregir `Content-Type`:** Modificar todos los servicios (`auth`, `feedback`, `imagen`) para que devuelvan `Content-Type: text/plain` en TODAS sus respuestas, especialmente en los casos de error.
+    *   **Corregir `handleValidateSession`:** Refactorizar la función en `services/auth/auth.js` para que valide los tokens de sesión exclusivamente contra la hoja `ActiveSessions`.
 
--   **Responsabilidad:** Contener scripts de un solo uso o de apoyo, como las migraciones de datos.
--   **Hallazgos:**
-    -   **Autorización Inconsistente:** Este servicio contiene su propia función `authorize`, que es otra instancia de lógica de permisos duplicada.
-    -   Los scripts de migración (`handleMigrateYearRanges`, `handleMigrateTimestamps`) son un indicativo de que el esquema de la base de datos ha evolucionado, pero estos scripts quedan como código muerto después de su ejecución, aumentando el desorden en el código base.
+2.  **Mejoras de Estabilidad (Prioridad ALTA):**
+    *   **Implementar `LockService`:** Envolver la lógica de `handleRecordLike` en `services/feedback/feedback.js` con un `LockService` para prevenir condiciones de carrera.
+    *   **Centralizar Autorización:** Crear una librería de Google Apps Script compartida que contenga una única y robusta función de `getVerifiedRole`. Refactorizar los servicios `users` y `utilities` para que usen esta librería, y eliminar sus implementaciones duplicadas.
 
-## 5. Conclusiones y Recomendaciones Estratégicas
-
-1.  **Centralizar la Lógica de Autorización:** Crear un único servicio o una librería compartida de Apps Script para manejar la validación de sesiones y la verificación de roles. Todos los demás servicios deberían llamar a esta librería en lugar de implementar su propia lógica. **Prioridad: CRÍTICA**.
-
-2.  **Refactorizar el Frontend:** Separar el JavaScript del archivo `index.html` en módulos cohesivos (`ui.js`, `events.js`, etc.). Reducir la dependencia de IDs y clases de CSS para la funcionalidad, utilizando en su lugar atributos `data-*`. **Prioridad: ALTA**.
-
-3.  **Implementar una Estrategia de Caché Granular:** Dado que el catálogo completo es demasiado grande para la caché, se debe implementar una estrategia de caché más inteligente. Cachear elementos individuales o categorías más pequeñas, y reconstruir el catálogo en el frontend. Esto mejoraría drásticamente el rendimiento. **Prioridad: ALTA**.
-
-4.  **Abstraer la Capa de Datos:** El acoplamiento directo con la estructura de la hoja de cálculo es insostenible. Se debe crear una "capa de acceso a datos" que mapee los nombres de las columnas a los objetos, en lugar de usar índices numéricos hardcodeados en toda la lógica de negocio. Esto permitiría que los cambios en la hoja de cálculo solo requieran actualizaciones en un único lugar. **Prioridad: MEDIA**.
-
-5.  **Utilizar `LockService` para Operaciones Críticas:** Para evitar condiciones de carrera en operaciones como `handleRecordLike`, se debe utilizar `LockService` de Google Apps Script para asegurar que solo una instancia del script pueda modificar un recurso a la vez. **Prioridad: MEDIA**.
-
-6.  **Documentar la API:** Formalizar y documentar todos los endpoints de los microservicios, incluyendo las estructuras de `payload` esperadas y las respuestas. Esto es crucial para el mantenimiento a largo plazo. **Prioridad: BAJA**.
+3.  **Limpieza de Código (Prioridad MEDIA):**
+    *   **Eliminar Código Muerto:** Remover las funciones de migración (`handleMigrateYearRanges`, `handleMigrateTimestamps`) del servicio `utilities`.

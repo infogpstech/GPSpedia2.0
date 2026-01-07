@@ -263,9 +263,6 @@ function handleGetCatalogData() {
             }
 
             // Se elimina la conversión de URLs. El backend ahora envía solo los IDs.
-            if (vehicle.videoGuiaDesarmeUrl && !vehicle.videoGuiaDesarmeUrl.includes('embed')) {
-                vehicle.videoGuiaDesarmeUrl = `https://www.youtube.com/embed/${vehicle.videoGuiaDesarmeUrl}`;
-            }
 
             const cortes = [
                 { index: 1, util: parseInt(vehicle.utilCorte1, 10) || 0 },
@@ -326,7 +323,7 @@ function handleGetCatalogData() {
     if (tutorialesSheet) {
         const data = tutorialesSheet.getDataRange().getValues();
         data.shift();
-        tutorialesData = data.map(row => mapRowToObject(row, COLS_TUTORIALES, IMAGE_FIELDS_TUTORIALES)).filter(Boolean);
+        tutorialesData = data.map(row => mapRowToObject(row, COLS_TUTORIALES, IMAGE_FIELDS_TUTORIALES));
     }
     allData.tutoriales = tutorialesData;
 
@@ -336,7 +333,7 @@ function handleGetCatalogData() {
     if (relaySheet) {
         const data = relaySheet.getDataRange().getValues();
         data.shift();
-        relayData = data.map(row => mapRowToObject(row, COLS_RELAY, IMAGE_FIELDS_RELAY)).filter(Boolean);
+        relayData = data.map(row => mapRowToObject(row, COLS_RELAY, IMAGE_FIELDS_RELAY));
     }
     allData.relay = relayData;
 
