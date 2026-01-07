@@ -1,3 +1,25 @@
+**V7.3.0 - (CRITICAL REGRESSION FIX) - 08/01/2026**
+**A. FIX DE REGRESIONES CRÍTICAS (FULL-STACK):** Se solucionaron múltiples regresiones críticas introducidas en commits anteriores que afectaban la visualización de datos en el frontend y la integridad de la información proveniente del backend.
+
+**B. Resumen de Correcciones:**
+    1.  **Restauración de Secciones de Inicio:** Se corrigió la lógica de renderizado para asegurar que las secciones "Últimos Agregados" y "Marcas de Motocicletas" se muestren siempre en la página principal, restaurando la navegación completa.
+    2.  **Reparación de Modales de Detalle (Tutoriales y Relay):** Se solucionó un bug en el backend (`services/catalog/catalog.js`) que impedía que los videos de tutoriales y las imágenes de configuraciones de relay se mostraran en sus respectivos modales.
+    3.  **Corrección de Layout en Modal de Vehículo:**
+        *   Se reordenó el contenido del modal de detalle del vehículo para seguir estrictamente el layout definido en la documentación (`README.md`).
+        *   Se corrigió el posicionamiento de los botones de feedback (Útil/Reportar) para que aparezcan correctamente como un overlay en la esquina inferior derecha de la imagen.
+        *   Se ajustó el layout para que el nombre del colaborador aparezca fuera de la imagen del corte, con su propio espacio vertical dedicado.
+    4.  **Corrección de Videos en Modal Principal:** Se aseguró que los videos guía de desarme en el modal principal se carguen y muestren correctamente.
+
+**C. Cambios Técnicos Implementados:**
+    1.  **`services/catalog/catalog.js`:** Se ajustó la lógica de `handleGetCatalogData` para procesar y filtrar correctamente los datos de todas las secciones, y se corrigió el mapeo de las columnas de video e imagen.
+    2.  **`ui.js`:** Se reestructuró la función `mostrarDetalleModal` y `createAccordionSection` para generar el HTML en el orden correcto y con la estructura de contenedores adecuada.
+    3.  **`style.css`:** Se eliminaron reglas de CSS duplicadas y se aumentó la especificidad de los selectores para el `feedback-overlay` para corregir su posicionamiento.
+
+**D. Impacto:**
+    -   Se restaura la funcionalidad completa y la experiencia de usuario de la página principal y los modales de detalle.
+    -   Se asegura la integridad de los datos presentados al usuario, eliminando inconsistencias entre el backend y el frontend.
+    -   Se alinea la implementación actual con la documentación oficial del proyecto.
+
 **V7.2.0 - (AUDIT & DOCUMENTATION) - 19/07/2024**
 **A. AUDITORÍA TÉCNICA FORENSE (DOCUMENTACIÓN):** Se realizó una auditoría exhaustiva de todo el código fuente de la aplicación GPSpedia para establecer una base de referencia clara del estado del proyecto, identificar riesgos y proponer mejoras estratégicas.
 

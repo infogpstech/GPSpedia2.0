@@ -265,6 +265,12 @@ function createAccordionSection(container, title, sec, isOpen = false) {
     const panel = document.createElement("div");
     panel.className = "panel-desplegable";
 
+    if (sec.content) {
+        const contentP = document.createElement('p');
+        contentP.innerHTML = sec.content;
+        panel.appendChild(contentP);
+    }
+
     if (sec.img) {
         const imgContainer = document.createElement('div');
         imgContainer.className = 'image-container-with-feedback';
@@ -301,17 +307,13 @@ function createAccordionSection(container, title, sec, isOpen = false) {
         panel.appendChild(imgContainer);
     }
 
-    if (sec.content) {
-        const contentP = document.createElement('p');
-        contentP.innerHTML = sec.content;
-        panel.appendChild(contentP);
-    }
-
     if (sec.colaborador) {
+        const colabDiv = document.createElement('div');
         const colabP = document.createElement('p');
-        colabP.style.cssText = "font-style: italic; color: #888; margin-top: 10px; text-align: right;";
+        colabP.style.cssText = "font-style: italic; color: #888; margin-top: 10px; text-align: left;";
         colabP.innerHTML = `Aportado por: <strong>${sec.colaborador}</strong>`;
-        panel.appendChild(colabP);
+        colabDiv.appendChild(colabP);
+        panel.appendChild(colabDiv);
     }
 
     if (sec.videoUrl) {
