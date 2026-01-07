@@ -1,3 +1,18 @@
+**V7.1.0 - (CRITICAL HOTFIX) - 07/01/2026**
+**A. FIX CRÍTICO DE PRÁCTICA DE DESARROLLO (GENERAL):** Se eliminó una mala práctica de desarrollo que consistía en resumir código no modificado con el placeholder `// ... (sin cambios)`. Esta práctica causaba que los archivos se sobrescribieran de forma incompleta durante el proceso de pull request, destruyendo funcionalidades.
+
+**B. Resumen de la Corrección:**
+    1.  **Auditoría y Corrección:** Se realizó una auditoría en todo el repositorio para detectar la presencia del texto `... (sin cambios)`.
+    2.  **Restauración de `services/users/users.js`:** El archivo `services/users/users.js` fue identificado como el único afectado. Se restauró su contenido íntegro y funcional, eliminando los placeholders y asegurando que todas sus funciones (`doGet`, `doPost`, `handleGetUsers`, `generateUniqueUsername`, etc.) estén completas.
+
+**C. Cambios Técnicos Implementados:**
+    1.  **`services/users/users.js`:** Se sobrescribió el archivo con su contenido completo para garantizar que no se pierda código durante los merges. Se incrementó la versión a `2.4.1`.
+
+**D. Impacto:**
+    -   Se elimina una causa raíz de regresiones y fallos de despliegue.
+    -   Se alinea el proceso de desarrollo con la nueva regla de no resumir código, mejorando la fiabilidad de las futuras entregas.
+    -   Se restaura la funcionalidad completa del servicio de usuarios que estaba en riesgo.
+
 **V7.0.0 - (FEATURE & STABILITY) - 07/01/2026**
 **A. IMPLEMENTACIÓN DEL FLUJO DE ESCRITURA Y CORRECCIONES CRÍTICAS (FULL-STACK):** Se completó la implementación del nuevo flujo de trabajo para agregar cortes (`add_cortes.html`) y se solucionaron bugs críticos de corrupción de datos y de funcionalidad en los servicios de `write` y `users`.
 
@@ -60,29 +75,3 @@
     -   Se mejora significativamente la seguridad del sistema al eliminar una vulnerabilidad crítica.
     -   Se restaura la integridad de los datos en el sistema de feedback.
     -   Se mejora la experiencia de usuario al solucionar un bug frustrante en el cambio de contraseña y se clarifica el código del frontend.
-
-**V5.9.0 - (CRITICAL REGRESSION FIX) - 05/01/2026**
-**A. FIX INTEGRAL DE REGRESIONES CRÍTICAS EN UI (FRONTEND):** Se realizó una corrección masiva de la interfaz de usuario para restaurar funcionalidades y layouts que se rompieron o eliminaron durante la refactorización a una arquitectura modular.
-
-**B. Resumen de Regresiones Corregidas:**
-    1.  **Sección "Últimos Agregados" Restaurada:** Se reincorporó esta sección crítica a la página principal, que había desaparecido por completo.
-    2.  **Modal de Detalle de Vehículo Reconstruido:** El modal se reconstruyó desde cero para cumplir con las especificaciones del `README.md`, corrigiendo el orden del contenido, la disposición de los logos, y la lógica de renderizado de los "cortes".
-    3.  **Ordenamiento de Cortes por Utilidad:** Se implementó la lógica para ordenar los cortes de un vehículo por su número de votos "útil", mostrando el más votado como "Corte Recomendado".
-    4.  **Botones de Feedback (UI):** Se implementó la estructura y los estilos para que los botones "Útil" y "Reportar" aparezcan como un overlay en la esquina inferior derecha de las imágenes de corte.
-    5.  **Modales de Tutorial y Relay Reparados:** Se corrigió la lógica de navegación y renderizado que impedía mostrar el contenido (videos e imágenes) en los modales de detalle de las secciones "Tutoriales" y "Relay".
-
-**C. Cambios Técnicos Implementados:**
-    1.  **`ui.js`:**
-        -   Se modificó `mostrarCategorias()` para asegurar que `mostrarUltimosAgregados()` sea llamado primero.
-        -   Se reescribió por completo `mostrarDetalleModal()` para generar la estructura HTML correcta y ordenada.
-        -   Se añadió la lógica de ordenamiento de cortes y la creación de secciones de acordeón.
-        -   Se implementó la función `createAccordionSection()` para renderizar el contenido dinámico del modal, incluyendo el overlay de los botones de feedback.
-        -   Se crearon las funciones `mostrarSeccion`, `mostrarTutorialesGrid`, `mostrarRelayGrid`, `mostrarDetalleTutorialModal`, y `mostrarDetalleRelayModal` para manejar la navegación y renderizado de las secciones secundarias.
-    2.  **`style.css`:** Se añadieron los estilos para `.feedback-overlay` y `.feedback-btn-overlay` para posicionar y dar formato a los botones de feedback.
-    3.  **`main.js`:** Se actualizó el event listener de los botones de sección para que utilice la nueva función `ui.mostrarSeccion`, reemplazando la lógica de placeholder.
-    4.  **`index.html`:** Se eliminaron los atributos `onclick` obsoletos de los botones de sección.
-
-**D. Impacto:**
-    -   Se restaura la experiencia de usuario a la funcionalidad esperada, solucionando múltiples regresiones críticas.
-    -   La aplicación vuelve a ser funcional en sus flujos de navegación y visualización de detalles más importantes.
-    -   El frontend ahora está alineado con las especificaciones funcionales y de diseño del `README.md`.
