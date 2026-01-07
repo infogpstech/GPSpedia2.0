@@ -362,7 +362,18 @@ function handleGetDropdownData() {
 
         // Obtener la regla de validación de la columna "Categoría"
         const categoriaRule = sheet.getRange(2, COLS_CORTES.categoria).getDataValidation();
-        const categorias = categoriaRule ? categoriaRule.getCriteriaValues()[0].flat().filter(String).sort() : [];
+        let categorias = [];
+        if (categoriaRule) {
+            const criteriaValues = categoriaRule.getCriteriaValues()[0];
+            // Comprobar si criteriaValues es un objeto Range (tiene getValues) o un array.
+            if (criteriaValues && typeof criteriaValues.getValues === 'function') {
+                // Es un Range, obtener los valores.
+                categorias = criteriaValues.getValues().flat().filter(String).sort();
+            } else if (criteriaValues && Array.isArray(criteriaValues)) {
+                // Es un array, usarlo directamente.
+                categorias = criteriaValues.flat().filter(String).sort();
+            }
+        }
 
         const data = sheet.getDataRange().getValues();
         data.shift(); // Remove headers

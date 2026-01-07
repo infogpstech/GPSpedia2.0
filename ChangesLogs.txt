@@ -1,3 +1,19 @@
+**V8.1.0 - (CRITICAL HOTFIX) - 09/01/2024**
+**A. RESUMEN GENERAL:** Se corrigió un error crítico en el servicio de catálogo (`services/catalog/catalog.js`) que impedía la carga inicial de datos de la aplicación y bloqueaba el inicio de sesión de los usuarios.
+
+**B. Corrección Crítica (Backend):**
+    1.  **`TypeError` en `handleGetDropdownData`:** Se solucionó un `TypeError` fatal que ocurría al procesar reglas de validación de datos de tipo "Lista de un intervalo" en Google Sheets. La función `getCriteriaValues()` devolvía un objeto `Range` en lugar de un array, causando un error al llamar a `.flat()`.
+    2.  **Impacto del Error:** Este error, aunque estaba en una función no llamada directamente al iniciar sesión (`handleGetDropdownData`), desestabilizaba todo el servicio de catálogo, provocando que la llamada principal para obtener los datos de la aplicación (`handleGetCatalogData`) fallara y, en consecuencia, impidiendo que los usuarios pudieran pasar de la pantalla de login.
+    3.  **Solución:** Se implementó una lógica robusta que verifica si el valor devuelto es un objeto `Range` (y llama a `.getValues()` si es necesario) o un array, asegurando un manejo correcto de ambos casos y restaurando la estabilidad del servicio.
+
+**C. Cambios Técnicos Implementados:**
+    - **`services/catalog/catalog.js`:** Se modificó la función `handleGetDropdownData` para manejar correctamente los diferentes tipos de retorno de `getCriteriaValues()`, eliminando la causa raíz del `TypeError`. Se incrementó la versión del componente a `2.4.1`.
+
+**D. Impacto:**
+    -   **Desbloquea completamente la aplicación:** Los usuarios ahora pueden iniciar sesión y cargar los datos de la aplicación sin errores.
+    -   **Mejora la robustez del backend:** El servicio de catálogo ahora es más resistente a diferentes configuraciones de validación de datos en la hoja de cálculo.
+    -   **Restaura la funcionalidad completa para todos los usuarios.**
+
 **V8.0.0 - (FEATURE & CONSOLIDATED FIXES) - 09/01/2024**
 **A. RESUMEN GENERAL:** Se implementaron nuevas funcionalidades críticas para administradores (Inbox y Herramientas de Desarrollador) y se consolidaron correcciones a regresiones de frontend y vulnerabilidades de backend en un solo despliegue para asegurar la estabilidad, seguridad y funcionalidad del sistema.
 
