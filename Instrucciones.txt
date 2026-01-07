@@ -1,3 +1,35 @@
+NORMAS OBLIGATORIAS DE DESARROLLO
+---------------------------------
+
+**A. Control de Versiones y Documentación:**
+1.  **Actualización de Versión:** Cualquier cambio debe reflejarse en el número de versión visible en `index.html` y en los servicios de Apps Script.
+2.  **Consulta y Actualización de Documentación:** Antes y después de cualquier desarrollo, se deben consultar y actualizar `README.md`, `Instrucciones.txt` y `ChangesLogs.txt`.
+3.  **Detalle en `ChangesLogs.txt`:** Cada entrada debe especificar el archivo y número de línea modificado.
+
+**B. Calidad del Código:**
+1.  **Comentarios:** Todo código nuevo o modificado debe tener un comentario explicando su propósito.
+2. **prohibido eliminar el bloque que describe mas reglas en Instrucciones.txt
+3.**prohibido resumir o utilizar sumarizacion "(Sin Cambios)" EN NINGUN ARCHIVO DE CODIGO, DOCUMENTACIÓN O DE REGLAMENTO. 
+4. PROHIBIDO REVERTIR COMMITS SIN LA SOLUCITUD DEL PM. 
+5. PROHIBIDO USAR HERRAMIENTAS BUSQUEDA, EDICION RAPIDA, TODA BUSQUESA, REVISION DEBE SER LINEA POR LINEA DE ARCHIVO POR ARCHIVO. 
+6. OBLIGATORIO AUDITAR CADA ARCHIVO DE CODIGO ANTES DE CUALQUIER MODIFICACION POR MUY PEQUEÑA QUE SEA CADA HALLAZGO NO DEBE SER REPARADO EN EL MOMENTO DE AUDITORIA, DEBE DE REGISTRARSE EN Auditoria.txt Y DESPUES PLANTEARSE COMO UNA NUEVA TAREA EN Instrucciones.txt. 
+7. PROHIBIDO DUPLICAR BLOQUES DE CODIGO, POR ELLO ES LA AUDITORIA INICIAL. 
+8. PROHIBIDO INVENTARSE LA FECHA EN ChangesLogs.txt USAR DE REFERENCIA LA FECHA DE LA ULTIMA ENTRADA DE ChangesLogs.txt 
+9. No asumir que cualquier fix registrado en ChangesLogs.txt fue exitoso. 
+10. NO registrar como EXITO Cualquier Fix aplicado en el codigo, toda entrada debe evitar asumir arreglar fallas y evitar utilizar terminos como "Se corrigio, se arreglo,..etc" 
+
+**C. Proceso de Aprobación:**
+1.  **PROHIBIDO marcar tareas como “completadas” sin revisión del Project Manager.**
+2.  **PROHIBIDO asumir que un cambio resolvió un problema.**
+3.  **SOLO describir qué se cambió o qué se debe cambiar.**
+4.  Si una tarea introduce nuevos errores: Marcar como **EN REVISIÓN**.
+5.  Si la tarea no funciona o no cumple: Marcar como **REQUIERE NUEVA REVISIÓN**.
+6. si una tarea se realizo no marcarla como COMPLETADA, marcarla como PENDIENTE REVISION POR EL MP. 
+-Tareas Pendientes- 
+
+
+GPSpedia
+
 [TAREA] Centralizar la Lógica de Autorización de Backend
 
 Origen: Auditoría Técnica Forense v2.0
