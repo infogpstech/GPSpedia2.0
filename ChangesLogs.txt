@@ -1,3 +1,22 @@
+**V7.2.0 - (AUDIT & DOCUMENTATION) - 19/07/2024**
+**A. AUDITORÍA TÉCNICA FORENSE (DOCUMENTACIÓN):** Se realizó una auditoría exhaustiva de todo el código fuente de la aplicación GPSpedia para establecer una base de referencia clara del estado del proyecto, identificar riesgos y proponer mejoras estratégicas.
+
+**B. Resumen de la Auditoría:**
+    1.  **Análisis Integral:** Se analizaron todos los componentes del sistema, incluyendo los 6 microservicios del backend (`Auth`, `Catalog`, `Write`, `Users`, `Feedback`, `Utilities`), los 6 módulos JavaScript del frontend (`main`, `ui`, `navigation`, `api`, `auth`, `state`) y los 3 archivos HTML (`index`, `users`, `add_cortes`).
+    2.  **Creación de Reporte:** Los hallazgos se consolidaron en un nuevo documento maestro, `Auditoria.txt`, que ahora sirve como la fuente de verdad sobre la arquitectura, debilidades y estado actual del código.
+    3.  **Principales Hallazgos:**
+        *   **Riesgo Crítico:** Fuerte acoplamiento con la estructura de Google Sheets y lógica de autorización duplicada e inconsistente entre servicios.
+        *   **Performance:** Desempeño degradado debido a la deshabilitación de la caché en el servicio de catálogo.
+        *   **Mantenibilidad:** Alta complejidad y mezcla de responsabilidades en el frontend, especialmente en `index.html`.
+
+**C. Cambios Implementados:**
+    1.  **`Auditoria.txt`:** Se creó y se escribió el reporte completo de la auditoría técnica en este archivo.
+
+**D. Impacto:**
+    -   Proporciona una visibilidad sin precedentes sobre la salud técnica del proyecto.
+    -   Establece una base documentada para futuras decisiones de refactorización y desarrollo.
+    -   Permite al equipo de desarrollo priorizar la deuda técnica y los riesgos de seguridad de manera informada.
+
 **V7.1.0 - (CRITICAL HOTFIX) - 07/01/2026**
 **A. FIX CRÍTICO DE PRÁCTICA DE DESARROLLO (GENERAL):** Se eliminó una mala práctica de desarrollo que consistía en resumir código no modificado con el placeholder `// ... (sin cambios)`. Esta práctica causaba que los archivos se sobrescribieran de forma incompleta durante el proceso de pull request, destruyendo funcionalidades.
 
@@ -63,7 +82,7 @@
 **B. Resumen de Correcciones Críticas:**
     1.  **Vulnerabilidad de Escalada de Privilegios (Tarea 14):** Se parchó una vulnerabilidad crítica en `services/users/users.js`. Las funciones `handleCreateUser`, `handleUpdateUser`, y `handleDeleteUser` ahora ignoran el rol enviado por el cliente y en su lugar verifican la autoridad del usuario a través de un `sessionToken` validado en el backend, previniendo la escalada de privilegios.
     2.  **Bugs de Integridad de Datos (Tarea 21):** Se solucionaron múltiples bugs en `services/feedback/feedback.js` que causaban corrupción de datos. Las funciones `handleReportProblem` y `handleSendContactForm` ahora guardan correctamente el `userId` y utilizan un método robusto para la creación de filas que preserva las fórmulas de autogeneración de IDs.
-    3.  **Inconsistencia en Cambio de Contraseña (Tarea 15):** Se implementó la lógica faltante en la función `handleChangePassword` de `services/users/users.js` y se aseguró que la comparación de la contraseña actual sea `case-insensitive`, alineándola con el comportamiento del login.
+    3.  **Inconsistencia en Cambio de Contraseña (Tarea 15):** Se implementó la lógica faltante en la función `handleChangePassword` de `services/users/js` y se aseguró que la comparación de la contraseña actual sea `case-insensitive`, alineándola con el comportamiento del login.
     4.  **Bug de Mapeo de Datos en UI (Tarea 7):** Se corrigió el bug de renderizado en `users.html` al limpiar comentarios obsoletos que indicaban un problema de mapeo de datos que ya había sido resuelto, mejorando la claridad del código.
 
 **C. Cambios Técnicos Implementados:**

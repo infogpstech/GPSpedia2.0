@@ -1,150 +1,123 @@
-=================================================
- INFORME DE AUDITORÍA TÉCNICA PROFUNDA - GPSpedia
-=================================================
-**Versión de Auditoría:** 1.0
-**Fecha de Ejecución:** 2024-08-20
-**Analista:** Jules
+# Auditoría Técnica Forense - GPSpedia v2.0
 
----------------------------------
-RESUMEN EJECUTIVO
----------------------------------
+**Fecha de Auditoría:** 2024-07-19
+**Auditor:** Jules
+**Versión Global del Proyecto Analizada:** 2.0+
 
-Esta auditoría revela una arquitectura con una visión clara pero con una ejecución deficiente, resultando en una base de código frágil, inconsistente y con significativa deuda técnica. El proyecto sufre de una discrepancia crítica entre los objetivos documentados (`README.md`, `ChangesLogs.txt`) y la implementación real del código.
+## 1. Resumen Ejecutivo
 
-**Hallazgos Clave:**
-1.  **Arquitectura Frontend Monolítica:** Todos los archivos frontend (`index.html`, `add_cortes.html`, `users.html`) son aplicaciones de un solo archivo que mezclan HTML, CSS y JavaScript complejo. Esta estructura es difícil de mantener, depurar y escalar.
-2.  **Inconsistencia Sistémica en Backend:** Los microservicios, aunque conceptualmente separados, presentan patrones de codificación inconsistentes, especialmente en el manejo de errores, la lógica de acceso a datos y la implementación de la seguridad.
-3.  **Seguridad Deficiente:** Se identificaron múltiples fallos de seguridad, incluyendo la comparación de contraseñas en texto plano e insensible a mayúsculas/minúsculas, lógica de autorización defectuosa y una falta general de validación de entradas.
-4.  **Acceso a Datos Ineficiente:** La mayoría de los servicios leen rangos completos de la hoja de cálculo (`getDataRange().getValues()`) para realizar búsquedas simples, lo que es extremadamente ineficiente y no escalará con el crecimiento de los datos.
-5.  **Documentación Desactualizada y Contradictoria:** El `README.md` describe funcionalidades que no existen o funcionan de manera diferente. Los `ChangesLogs.txt` a menudo documentan regresiones o correcciones que introducen nuevos problemas, y existe un archivo de log duplicado (`ChangesLogstxt`).
+Esta auditoría presenta un análisis exhaustivo del estado actual del código fuente de la aplicación GPSpedia. El sistema exhibe una arquitectura de microservicios funcionales que utilizan Google Apps Script, con un frontend de cliente pesado (`vanilla JS`) que gestiona la lógica de la interfaz de usuario.
 
-A continuación, se presenta el desglose detallado por componente.
+Se identifican varios riesgos críticos y áreas de mejora significativas:
 
----------------------------------
-1. ANÁLISIS DEL FRONTEND
----------------------------------
+1.  **Fragilidad de la Capa de Datos:** La dependencia directa y estricta de la estructura de una hoja de Google Sheet (hardcodeo de índices de columnas) es el mayor riesgo para la mantenibilidad y estabilidad del sistema.
+2.  **Inconsistencias en Seguridad:** La lógica de autorización y validación de roles está duplicada y es inconsistente entre los diferentes microservicios, creando potenciales brechas de seguridad.
+3.  **Performance No Optimizada:** La deshabilitación de la caché para el catálogo principal de datos (`catalog.js`) impacta directamente en los tiempos de carga y la experiencia del usuario.
+4.  **Complejidad en el Frontend:** El código del lado del cliente, particularmente en `index.html`, mezcla responsabilidades de UI, manejo de estado y lógica de negocio, lo que dificulta su mantenimiento.
+5.  **Proceso de Despliegue Manual:** La arquitectura de microservicios en Google Apps Script requiere despliegues manuales para cada servicio, un proceso inherentemente propenso a errores que puede causar desincronización entre el código y la versión en producción.
 
-### 1.1. Arquitectura General del Frontend
+A continuación, se detalla el análisis de cada componente del sistema.
 
-- **Hallazgo (Deuda Técnica Crítica):** La arquitectura de todos los archivos HTML principales es monolítica. `index.html` contiene más de 3500 líneas de código, mezclando la estructura de la página, más de 800 líneas de CSS y más de 2000 líneas de JavaScript. Este patrón se repite en `add_cortes.html` y `users.html`.
-  - **Impacto:** Mantenimiento casi imposible, alta propensión a regresiones, dificultad extrema para la depuración y reutilización de código nula. Un pequeño cambio puede tener efectos imprevistos en toda la aplicación.
+## 2. Análisis Arquitectónico
 
-- **Hallazgo (Riesgo Alto):** Existe una dependencia masiva de variables globales y manipulación directa del DOM (`document.getElementById`, `innerHTML`). No hay un manejo de estado estructurado.
-  - **Impacto:** El estado de la aplicación es impredecible. Las funciones modifican directamente el DOM y las variables globales, lo que lleva a comportamientos inesperados y errores difíciles de rastrear, como los `ReferenceError` documentados en el `ChangesLogs.txt`.
+La aplicación sigue un patrón de microservicios con un frontend desacoplado:
 
-### 1.2. `api-manager.js` (Enrutador de Frontend)
+-   **Backend:** Una serie de servicios independientes de Google Apps Script (`.js`), cada uno desplegado como una aplicación web individual.
+    -   `Auth`: Gestión de inicio de sesión y sesiones.
+    -   `Catalog`: Lógica de solo lectura para todos los datos principales (vehículos, tutoriales, etc.).
+    -   `Write`: Lógica de escritura, incluyendo la subida de imágenes a Google Drive.
+    -   `Users`: Gestión de usuarios (CRUD).
+    -   `Feedback`: Manejo de reportes de problemas, likes y formularios de contacto.
+    -   `Utilities`: Scripts de migración de datos y funciones de apoyo.
+-   **Frontend:** Una aplicación de una sola página (SPA) implementada con HTML, CSS y JavaScript vainilla.
+    -   `api-manager.js`: Actúa como una capa de enrutamiento centralizada para todas las llamadas al backend, un punto clave de la arquitectura.
+    -   El estado se gestiona principalmente a través del `localStorage` del navegador.
+-   **Base de Datos:** Una única hoja de cálculo de Google Sheets con múltiples hojas (`Cortes`, `Users`, `ActiveSessions`, etc.).
+-   **Almacenamiento de Archivos:** Una carpeta designada en Google Drive para las imágenes subidas.
 
-- **Hallazgo (Deuda Técnica Media):** El archivo centraliza correctamente el enrutamiento de la API, pero utiliza un mapa estático (`ACTION_TO_SERVICE_MAP`) y URLs de producción codificadas.
-  - **Impacto:** Cada nueva acción de backend requiere una modificación manual de este archivo. No hay un mecanismo dinámico para descubrir servicios o acciones. Las URLs codificadas dificultan la transición entre entornos de desarrollo y producción.
+**Contrato de API no Estándar:** Todos los servicios de backend deben devolver respuestas con `ContentService.MimeType.TEXT` para evitar problemas de CORS, y el frontend es responsable de parsear este texto como JSON. Este es un patrón crítico y una fuente potencial de errores si no se respeta en todos los endpoints.
 
-### 1.3. `index.html`
+## 3. Auditoría del Frontend
 
-- **Hallazgo (Inconsistencia Funcional):** La lógica de `checkSession` es frágil. Valida una sesión contra el backend, pero el resto de la aplicación depende de la copia local en `localStorage`, que puede no estar sincronizada.
-  - **Impacto:** Potencial para condiciones de carrera donde la UI cree que el usuario está autenticado cuando su sesión ya ha sido invalidada en el backend.
+### 3.1. Módulos JavaScript (Capa Lógica)
 
-- **Hallazgo (Error de Lógica):** La función `sanitizeInput` fue identificada en logs (`ChangesLogstxt`) como una fuente de errores de autenticación al alterar contraseñas. Aunque se ha eliminado su uso en el campo de contraseña, la función aún existe, representando un riesgo si se reutiliza incorrectamente.
+-   **`main.js`**: Orquesta la inicialización de la aplicación. Su dependencia principal es `ui.js` y `navigation.js`. Gestiona la carga inicial de datos y el renderizado de los componentes principales.
+-   **`ui.js`**: Contiene la mayor parte de la lógica de renderizado del DOM (modales, carruseles, tarjetas de vehículos). Es un módulo extenso con alta complejidad y múltiples responsabilidades, lo que lo hace difícil de mantener. La lógica para renderizar el modal de detalles (`mostrarDetalleModal`) es particularmente compleja.
+-   **`navigation.js`**: Maneja el flujo de navegación jerárquica (Categoría -> Marca -> Modelo, etc.). Su lógica es condicional y compleja, dependiendo del estado de la selección del usuario.
+-   **`api.js` (`api-manager.js`)**: Componente crítico y bien diseñado. Centraliza todas las llamadas a la API a través de la función `routeAction`. Proporciona un único punto para gestionar las URLs de los servicios y el manejo básico de errores.
+-   **`auth.js`**: Gestiona la lógica de autenticación del lado del cliente, incluyendo el manejo del `localStorage` y la redirección.
+-   **`state.js`**: Módulo simple pero crucial que centraliza el estado global de la aplicación en un único objeto, una buena práctica para evitar la dispersión del estado.
 
-- **Hallazgo (Código Muerto):** La lógica de IndexedDB existe pero no se utiliza activamente, ya que la aplicación prioriza las llamadas directas al backend.
-  - **Impacto:** Código obsoleto que añade complejidad sin aportar funcionalidad.
+### 3.2. Componentes HTML (Capa de Presentación)
 
-- **Hallazgo (Error de Lógica):** La función `crearCarrusel` se definió originalmente dentro de otro scope, causando un `ReferenceError` (documentado en `ChangesLogs.txt v4.3.6`). Aunque fue movida al ámbito global, esto evidencia la fragilidad de la estructura del código.
+-   **`index.html`**: Es el corazón de la aplicación. Contiene una cantidad masiva de código JavaScript inline (`<script>`). Esta práctica es perjudicial para la mantenibilidad, la legibilidad y la separación de conceptos. La lógica de renderizado, el manejo de eventos y las llamadas a la API están estrechamente acoplados al HTML.
+    -   **Hallazgo:** Fuerte acoplamiento entre la estructura del DOM y la lógica de la aplicación. Cualquier cambio en un ID o una clase de CSS puede romper la funcionalidad de JavaScript.
+-   **`users.html`**: Página para la gestión de perfiles y usuarios. A diferencia de `index.html`, utiliza un enfoque más limpio al separar mejor el HTML del JavaScript en su propio bloque `<script>`.
+    -   **Hallazgo:** La lógica de permisos para determinar qué roles puede crear/editar un usuario está implementada correctamente en el frontend, pero depende de una validación equivalente en el backend (`users.js`) para ser segura.
+-   **`add_cortes.html`**: Formulario de varios pasos para agregar nuevos vehículos y cortes.
+    -   **Hallazgo:** Implementa un flujo de usuario complejo (`state machine`) gestionado a través de diferentes "fases" (`stage-1`, `stage-2`, etc.). La lógica está bien contenida, pero es compleja. El manejo de imágenes (previsualización y conversión a base64) se realiza completamente en el cliente antes del envío.
 
-### 1.4. `add_cortes.html`
+## 4. Auditoría del Backend
 
-- **Hallazgo (Deuda Técnica Alta):** Repite la arquitectura monolítica de `index.html`, con más de 400 líneas de JavaScript para gestionar un flujo de múltiples pasos. La lógica de estado (en qué paso se encuentra el usuario) se gestiona con variables globales y manipulación de clases CSS.
-  - **Impacto:** Flujo de usuario frágil y difícil de seguir. Errores en la gestión del estado pueden llevar a que el usuario quede "atascado" en un paso del formulario.
+### 4.1. `services/auth/auth.js` (Servicio de Autenticación)
 
-- **Hallazgo (Inconsistencia):** La funcionalidad "Quizás quisiste decir..." (`handleSuggestion`) realiza una llamada a una acción `getSuggestion` que, según el `ChangesLogs.txt` (`v4.5.3`), no estaba implementada o definida, causando errores fatales que bloqueaban la renderización. Aunque el código actual maneja el error con `try...catch`, la dependencia en una funcionalidad históricamente inestable es un riesgo.
+-   **Responsabilidad:** Manejar el login y la validación de sesiones.
+-   **Fortalezas:**
+    -   Implementa un sistema de límite de sesiones por rol de usuario, eliminando las sesiones más antiguas para hacer espacio a las nuevas.
+-   **Debilidades y Riesgos:**
+    -   **Inconsistencia en comparación de contraseñas:** Compara contraseñas en texto plano. Mientras que el login (`handleLogin`) es case-insensitive para el nombre de usuario, el servicio `users.js` (`handleChangePassword`) realiza una comparación case-sensitive para la contraseña actual, lo que puede llevar a inconsistencias.
+    -   La gestión de la tabla `ActiveSessions` es compleja y puede ser un punto de fallo.
 
-### 1.5. `users.html`
+### 4.2. `services/catalog/catalog.js` (Servicio de Catálogo)
 
-- **Hallazgo (Error de Lógica Crítico):** El código del frontend accede a las propiedades del objeto de usuario usando `camelCase` (ej. `user.Nombre_Usuario`), pero la respuesta del backend (y el `ChangesLogs.txt v4.1.0`) indica que los nombres de las columnas en la base de datos usan `PascalCase_With_Underscores` (ej. `Nombre_Usuario`). Múltiples `FIX` en el código actual confirman esta discrepancia, que ha sido una fuente recurrente de bugs de "undefined".
-  - **Impacto:** La UI no puede mostrar datos del usuario, causando que la tabla y los modales de edición aparezcan vacíos o con errores.
+-   **Responsabilidad:** Proveer todos los datos de solo lectura necesarios para la aplicación.
+-   **Hallazgos Críticos:**
+    -   **Performance:** El servicio ha deshabilitado explícitamente el almacenamiento en caché (`CacheService.put`) porque el conjunto de datos completo excede el límite de 100 KB de Google Apps Script. Esto significa que cada carga de la aplicación realiza una lectura y procesamiento intensivo de la hoja de cálculo, resultando en un rendimiento deficiente.
+    -   **Contrato de Imágenes:** El servicio implementa una lógica robusta (`normalizeAndValidateImageId`) para limpiar y validar los IDs de las imágenes de Google Drive, enviando solo el ID al frontend. Este es un buen patrón de diseño, pero debe ser mantenido rigurosamente.
+-   **Mejoras:**
+    -   El endpoint `handleGetNavigationData` es una buena optimización, ya que permite al frontend cargar solo los datos necesarios para el arranque inicial.
 
----------------------------------
-2. ANÁLISIS DEL BACKEND (MICROSERVICIOS)
----------------------------------
+### 4.3. `services/write/write.js` (Servicio de Escritura)
 
-### 2.1. `services/auth/auth.js`
+-   **Responsabilidad:** Manejar la creación y actualización de registros, incluyendo la subida de imágenes.
+-   **Fortalezas:**
+    -   **Herencia de Fórmulas y Formatos:** Al crear una nueva fila, el script copia la fila anterior y luego limpia su contenido. Este es el método correcto en Google Sheets para asegurar que todas las validaciones de datos, formatos condicionales y, crucialmente, las fórmulas (como la de auto-generación de ID) se hereden correctamente.
+-   **Debilidades y Riesgos:**
+    -   **Gestión de Archivos Compleja:** La lógica para crear una estructura de carpetas jerárquica en Google Drive (`getOrCreateFolder`) es compleja y puede ser propensa a errores si los nombres contienen caracteres inesperados.
+    -   **Operación de Escritura Lenta:** El proceso de añadir un nuevo vehículo requiere múltiples llamadas a la API de la hoja de cálculo y a Drive, además de un `Utilities.sleep()` para esperar que la fórmula del ID se calcule. Esto puede resultar en una experiencia de usuario lenta y tiempos de espera.
 
-- **Hallazgo (Error de Lógica de Seguridad Crítico):** La comparación de contraseñas (`handleLogin`) es insensible a mayúsculas y minúsculas (`.toLowerCase()`). Esto significa que "Password123", "password123" y "PASSWORD123" son consideradas contraseñas idénticas.
-  - **Impacto:** Reduce drásticamente la seguridad de las contraseñas.
+### 4.4. `services/users/users.js` (Servicio de Usuarios)
 
-- **Hallazgo (Inconsistencia de Seguridad):** Mientras que el login es `case-insensitive`, el servicio de `users.js` (`handleChangePassword`) realiza una comparación `case-sensitive` (`===`).
-  - **Impacto:** Un usuario podría no poder cambiar su contraseña si la ingresa con una capitalización diferente a la que está almacenada, aunque podría iniciar sesión con ella.
+-   **Responsabilidad:** CRUD de usuarios.
+-   **Hallazgos Críticos:**
+    -   **Lógica de Autorización Duplicada:** Este servicio implementa su propia lógica para verificar el rol del usuario que realiza una acción (`getVerifiedRole`). Esta lógica es similar pero no idéntica a la de otros servicios (ej. `utilities.js`), lo cual viola el principio DRY (Don't Repeat Yourself) y es un riesgo de seguridad. Si se actualiza una política de permisos, debe hacerse en múltiples lugares.
+-   **Fortalezas:**
+    -   Implementa una jerarquía de permisos detallada que previene que un rol (ej. `Supervisor`) modifique a un rol superior (ej. `Gefe`).
 
-- **Hallazgo (Deuda Técnica):** La lógica de límite de sesiones es compleja y propensa a errores. Elimina sesiones activas basándose en el orden de las filas en la hoja de cálculo, lo cual no garantiza que se elimine la sesión más antigua si las filas han sido reordenadas.
-  - **Impacto:** Comportamiento de sesión impredecible para usuarios con múltiples dispositivos.
+### 4.5. `services/feedback/feedback.js` (Servicio de Retroalimentación)
 
-- **Hallazgo (Ineficiencia):** La función `handleValidateSession` lee toda la tabla de usuarios para validar un token, en lugar de consultar la tabla `ActiveSessions`. Esto contradice el propósito de dicha tabla.
+-   **Responsabilidad:** Gestionar likes, reportes de problemas, y el sistema de "bandeja de entrada" para administradores.
+-   **Hallazgos:**
+    -   **Operaciones Atómicas Incorrectas:** La función `handleRecordLike` lee el valor de una celda, lo incrementa y lo vuelve a escribir. Esto no es una operación atómica. Si dos usuarios dan "like" casi al mismo tiempo, uno de los likes podría perderse (condición de carrera). Se debería utilizar `LockService` para operaciones críticas.
+    -   La lógica para la sugerencia y actualización automática de rangos de años (`handleSuggestYear`) es una característica de negocio compleja y potente, pero también un riesgo si la "lógica anti-colisión" no es perfecta.
 
-### 2.2. `services/catalog/catalog.js`
+### 4.6. `services/utilities/utilities.js` (Servicio de Utilidades)
 
-- **Hallazgo (Deuda Técnica Alta):** El servicio tiene una responsabilidad excesiva. No solo sirve datos, sino que también realiza lógica de negocio como el ordenamiento de cortes por popularidad y la transformación de datos (ej. `convertirAGoogleThumbnail`).
-  - **Impacto:** Viola el principio de responsabilidad única, haciendo el servicio más complejo y difícil de mantener.
+-   **Responsabilidad:** Contener scripts de un solo uso o de apoyo, como las migraciones de datos.
+-   **Hallazgos:**
+    -   **Autorización Inconsistente:** Este servicio contiene su propia función `authorize`, que es otra instancia de lógica de permisos duplicada.
+    -   Los scripts de migración (`handleMigrateYearRanges`, `handleMigrateTimestamps`) son un indicativo de que el esquema de la base de datos ha evolucionado, pero estos scripts quedan como código muerto después de su ejecución, aumentando el desorden en el código base.
 
-- **Hallazgo (Ineficiencia Crítica):** La función `handleGetCatalogData` lee y procesa CADA fila de las hojas `Cortes`, `LogosMarca`, `Tutoriales` y `Relay` en cada solicitud. No hay ningún tipo de caché.
-  - **Impacto:** Rendimiento extremadamente bajo que se degradará rápidamente a medida que crezcan los datos. La aplicación será cada vez más lenta.
+## 5. Conclusiones y Recomendaciones Estratégicas
 
-- **Hallazgo (Error de Lógica):** La función `mapRowToObject` asigna `null` a los campos vacíos. Sin embargo, en otras partes del código, se espera un string vacío, lo que puede causar errores de `null pointer` en el frontend si no se maneja adecuadamente.
+1.  **Centralizar la Lógica de Autorización:** Crear un único servicio o una librería compartida de Apps Script para manejar la validación de sesiones y la verificación de roles. Todos los demás servicios deberían llamar a esta librería en lugar de implementar su propia lógica. **Prioridad: CRÍTICA**.
 
-### 2.3. `services/feedback/feedback.js`
+2.  **Refactorizar el Frontend:** Separar el JavaScript del archivo `index.html` en módulos cohesivos (`ui.js`, `events.js`, etc.). Reducir la dependencia de IDs y clases de CSS para la funcionalidad, utilizando en su lugar atributos `data-*`. **Prioridad: ALTA**.
 
-- **Hallazgo (Código Duplicado):** Existen dos funciones `handleRecordLike` con implementaciones ligeramente diferentes.
-  - **Impacto:** Confusión para el mantenimiento y riesgo de que una sea corregida y la otra no.
+3.  **Implementar una Estrategia de Caché Granular:** Dado que el catálogo completo es demasiado grande para la caché, se debe implementar una estrategia de caché más inteligente. Cachear elementos individuales o categorías más pequeñas, y reconstruir el catálogo en el frontend. Esto mejoraría drásticamente el rendimiento. **Prioridad: ALTA**.
 
-- **Hallazgo (Ineficiencia):** Al igual que otros servicios, `handleRecordLike` y `handleAssignCollaborator` iteran sobre todos los IDs de la hoja de `Cortes` para encontrar la fila correcta en lugar de usar una búsqueda más directa si la API de Google Sheets lo permitiera.
+4.  **Abstraer la Capa de Datos:** El acoplamiento directo con la estructura de la hoja de cálculo es insostenible. Se debe crear una "capa de acceso a datos" que mapee los nombres de las columnas a los objetos, en lugar de usar índices numéricos hardcodeados en toda la lógica de negocio. Esto permitiría que los cambios en la hoja de cálculo solo requieran actualizaciones en un único lugar. **Prioridad: MEDIA**.
 
-- **Hallazgo (Complejidad Excesiva):** La lógica de `handleSuggestYear` (votación, anti-colisión) es extremadamente compleja para ser ejecutada en un entorno sin transacciones como Google Apps Script.
-  - **Impacto:** Es propensa a condiciones de carrera y a dejar los datos en un estado inconsistente si la ejecución falla a mitad de camino.
+5.  **Utilizar `LockService` para Operaciones Críticas:** Para evitar condiciones de carrera en operaciones como `handleRecordLike`, se debe utilizar `LockService` de Google Apps Script para asegurar que solo una instancia del script pueda modificar un recurso a la vez. **Prioridad: MEDIA**.
 
-- **Hallazgo (Error de Lógica):** El `doPost` de este servicio (y otros) devolvía `MimeType.JSON`, lo cual es incorrecto para Google Apps Script y causa errores de CORS. El `ChangesLogs.txt` confirma que esto fue un bug recurrente. Aunque el código actual parece haberlo corregido a `MimeType.TEXT` en la mayoría de los casos, la inconsistencia histórica es un hallazgo. **CORRECCIÓN:** El `doPost` de este servicio aún devuelve `MimeType.JSON`, lo que significa que el bug de "Failed to fetch" para el inbox persiste.
-
-### 2.4. `services/users/users.js`
-
-- **Hallazgo (Error de Lógica de Seguridad):** La lógica de permisos de CRUD está codificada de forma rígida y es compleja. El rol de un usuario se obtiene de la hoja en tiempo real, pero el rol del *solicitante* se pasa desde el frontend (`creatorRole`, `updaterRole`).
-  - **Impacto:** Un atacante podría falsificar el `payload` desde el cliente y escalar sus privilegios para crear o modificar usuarios que no debería poder. La validación de permisos debe basarse en una sesión de backend verificada, no en un parámetro enviado por el cliente.
-
-- **Hallazgo (Error de Lógica):** La función `handleChangePassword` realiza una comparación de contraseñas `case-sensitive` (`===`), lo cual es inconsistente con el `login` `case-insensitive` del servicio de autenticación.
-  - **Impacto:** Causa una UX confusa y fallos al intentar cambiar la contraseña.
-
-### 2.5. `services/write/write.js`
-
-- **Hallazgo (Riesgo Crítico):** El servicio carece de manejo de transacciones. Una operación como `handleAddOrUpdateCut` implica múltiples pasos (crear carpetas en Drive, subir archivos, escribir en la hoja de cálculo). Si un paso intermedio falla (ej. la subida del archivo), la hoja de cálculo puede quedar en un estado inconsistente.
-  - **Impacto:** Alto riesgo de corrupción de datos, como registros de vehículos que apuntan a imágenes que no existen.
-
-- **Hallazgo (Error de Lógica):** La función `uploadImageToDrive` maneja URLs y datos base64, pero su manejo de errores es insuficiente. Un fallo en la subida de una imagen no revierte la creación de la fila en la hoja de cálculo.
-  - **Impacto:** Contribuye al riesgo de datos inconsistentes.
-
-- **Hallazgo (Inconsistencia):** La función de `handleCheckVehicle` está duplicada entre `catalog.js` y `write.js`, con implementaciones ligeramente diferentes.
-  - **Impacto:** Riesgo de que la lógica de anti-duplicados se comporte de manera diferente dependiendo de qué servicio la ejecute.
-
-### 2.6. `services/utilities/utilities.js`
-
-- **Hallazgo (Riesgo Alto):** Las funciones de migración (`handleMigrateYearRanges`, `handleMigrateTimestamps`) no son idempotentes. Si se ejecutan varias veces, podrían corromper los datos (ej. intentando parsear un rango de años que ya fue parseado).
-  - **Impacto:** Riesgo de destrucción de datos si el script se ejecuta más de una vez.
-
-- **Hallazgo (Error de Lógica de Seguridad):** La función `authorize` es fundamentalmente insegura. Recibe el objeto `session` completo desde el frontend. Un atacante puede fabricar un objeto `session` con cualquier `userId` y rol para obtener acceso no autorizado.
-  - **Impacto:** La protección de estas funciones críticas es inexistente.
-
-### 2.7. `Code.gs` (Legacy)
-
-- **Hallazgo (Deuda Técnica):** El archivo apunta a un `SPREADSHEET_ID` obsoleto (`1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo`), correspondiente a la DB v1.5.
-  - **Impacto:** Aunque solo se use para logging, es una pieza de configuración desactualizada que puede causar confusión.
-
-- **Hallazgo (Inconsistencia):** Su única función restante es `logFrontend`, pero el `api-manager.js` también enruta otras acciones (`validateSession`, etc.) al endpoint `LEGACY` como fallback, lo cual causará un error de "Acción desconocida" si un microservicio falla.
-  - **Impacto:** El mecanismo de fallback es defectuoso.
-
----------------------------------
-3. ANÁLISIS DE DOCUMENTACIÓN
----------------------------------
-
-- **Hallazgo (Inconsistencia Crítica):** Existe un conflicto directo entre `README.md` y la realidad del código. Por ejemplo, el `README.md` describe un "Plan Estratégico v4" con tareas marcadas como completadas (`[X]`) que, según la auditoría del código, no están implementadas o son incorrectas.
-  - **Ejemplo:** La tarea "[X] Visualización de Logos" está marcada como completa, pero el `ChangesLogs.txt` documenta numerosos bugs y regresiones relacionados con esta funcionalidad.
-  - **Impacto:** La documentación no es una fuente fiable del estado del proyecto.
-
-- **Hallazgo (Deuda Técnica):** Existen dos archivos de log de cambios: `ChangesLogs.txt` y `ChangesLogstxt`. Este último parece ser una versión más antigua y descontinuada.
-  - **Impacto:** Confusión y dificultad para rastrear el historial real de cambios.
-
-- **Hallazgo (Inconsistencia):** El sistema de versionamiento híbrido descrito en `README.md` no se sigue consistentemente. Las versiones de los componentes en los encabezados de los archivos no siempre se actualizan y a menudo no coinciden con la versión global declarada en `ChangesLogs.txt`.
-  - **Impacto:** Imposibilidad de saber qué versión de un componente está desplegada, dificultando la depuración.
+6.  **Documentar la API:** Formalizar y documentar todos los endpoints de los microservicios, incluyendo las estructuras de `payload` esperadas y las respuestas. Esto es crucial para el mantenimiento a largo plazo. **Prioridad: BAJA**.
