@@ -1,3 +1,15 @@
+**V8.1.3 - (CONFIG) - 09/01/2024**
+**A. RESUMEN GENERAL:** Se actualizó la URL del endpoint del microservicio de catálogo (`GPSpedia-Catalog`) en la configuración del frontend para apuntar a la más reciente versión desplegada por el usuario.
+
+**B. Cambio de Configuración (Frontend):**
+    1.  **Actualización de Endpoint:** Se modificó la constante `API_ENDPOINTS.CATALOG` en `api.js` para reemplazar la URL de despliegue por la nueva proporcionada, asegurando que el frontend utilice la última implementación del backend.
+
+**C. Cambios Técnicos Implementados:**
+    - **`api.js`:** Se actualizó la URL del servicio `CATALOG`.
+
+**D. Impacto:**
+    -   Asegura que el frontend se comunique con la versión más reciente y corregida del servicio de catálogo, garantizando que los últimos fixes y mejoras estén activos en producción.
+
 **V8.1.2 - (CRITICAL HOTFIX) - 09/01/2024**
 **A. RESUMEN GENERAL:** Se corrigió un error de configuración de despliegue en el servicio de catálogo (`services/catalog/catalog.js`) que era la causa raíz de la falla persistente en las solicitudes `POST`, lo que impedía la carga de datos de la aplicación después del inicio de sesión.
 
