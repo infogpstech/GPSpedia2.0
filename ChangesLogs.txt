@@ -1,3 +1,19 @@
+**V8.1.2 - (CRITICAL HOTFIX) - 09/01/2024**
+**A. RESUMEN GENERAL:** Se corrigió un error de configuración de despliegue en el servicio de catálogo (`services/catalog/catalog.js`) que era la causa raíz de la falla persistente en las solicitudes `POST`, lo que impedía la carga de datos de la aplicación después del inicio de sesión.
+
+**B. Corrección Crítica (Backend):**
+    1.  **Inconsistencia de `Content-Type`:** Se identificó y corrigió una inconsistencia crítica donde la función `doGet` del servicio devolvía respuestas con `ContentService.MimeType.JSON`, mientras que la función `doPost` devolvía `ContentService.MimeType.TEXT`.
+    2.  **Impacto del Error:** En Google Apps Script, mezclar los `Content-Type` en un mismo servicio provoca un comportamiento indefinido en el entorno de despliegue, resultando comúnmente en el fallo silencioso de todas las solicitudes `POST`, aunque las `GET` (como las pruebas con `curl`) funcionen correctamente. Este fue el motivo por el cual el error de inicio de sesión persistió a pesar de correcciones de lógica anteriores.
+    3.  **Solución:** Se estandarizaron todas las rutas de respuesta en la función `doGet` para que devuelvan `ContentService.MimeType.TEXT`, alineándola con el comportamiento de `doPost` y garantizando una configuración de despliegue consistente y funcional.
+
+**C. Cambios Técnicos Implementados:**
+    - **`services/catalog/catalog.js`:** Se modificó la función `doGet` para que todas sus respuestas utilicen `ContentService.MimeType.TEXT`, eliminando el conflicto de `Content-Type`. Se incrementó la versión del componente a `2.4.2`.
+
+**D. Impacto:**
+    -   **Resuelve la Causa Raíz:** Esta corrección aborda el problema de fondo a nivel de despliegue que impedía que el frontend se comunicara correctamente con el backend a través de `POST`.
+    -   **Desbloquea la Aplicación:** Con esta corrección, se espera que el flujo de inicio de sesión y carga de datos funcione según lo previsto.
+    -   **Mejora la Estabilidad del Backend:** Asegura que el servicio de catálogo se comporte de manera predecible y estable en el entorno de producción de Google Apps Script.
+
 **V8.1.1 - (CONFIG) - 09/01/2024**
 **A. RESUMEN GENERAL:** Se actualizó la URL del endpoint del microservicio de catálogo (`GPSpedia-Catalog`) en la configuración del frontend para apuntar a la última versión desplegada.
 

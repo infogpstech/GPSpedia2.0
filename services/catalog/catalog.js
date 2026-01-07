@@ -88,14 +88,14 @@ function doGet(e) {
             }
         };
         return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
-            .setMimeType(ContentService.MimeType.JSON);
+            .setMimeType(ContentService.MimeType.TEXT);
     }
     const defaultResponse = {
         status: 'success',
         message: 'GPSpedia Catalog-SERVICE v2.4.0 is active.'
     };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
-        .setMimeType(ContentService.MimeType.JSON);
+        .setMimeType(ContentService.MimeType.TEXT);
 }
 
 function doPost(e) {
