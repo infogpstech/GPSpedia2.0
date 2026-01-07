@@ -1,3 +1,19 @@
+**V6.4.0 - (FIX) - 05/01/2026**
+**A. FIX DE INICIALIZACIÓN DE DATOS (FRONTEND):** Se solucionó un `TypeError` que ocurría durante la carga inicial de datos, impidiendo que la aplicación se renderizara después de un login exitoso.
+
+**B. Causa Raíz:**
+    - La función `handleLoginSuccess` en `auth.js` intentaba acceder a `catalogData.cortes`, pero la respuesta del backend (`catalog-service`) anida los datos dentro de una propiedad `data`. La estructura correcta de la respuesta es `{ status: 'success', data: { cortes: [...] } }`.
+    - Este desajuste en el acceso a la estructura de datos provocaba el error `TypeError: Cannot read properties of undefined (reading 'reduce')`.
+
+**C. Cambios Implementados:**
+    1.  **`auth.js` (Líneas 21, 31):** Se corrigió el acceso a los datos para que apunte a la propiedad `data` anidada.
+        - Se cambió `catalogData.cortes.reduce` a `catalogData.data.cortes.reduce`.
+        - Se actualizó el `setState` para que utilice el spread operator sobre `catalogData.data` en lugar de `catalogData`.
+
+**D. Impacto:**
+    - Se restaura el flujo de inicio de sesión y la carga de datos de la aplicación.
+    - El frontend ahora maneja correctamente la estructura de respuesta anidada del `catalog-service`, eliminando el error de `TypeError` y permitiendo que la UI se renderice como se esperaba.
+
 **V6.3.0 - (UI FIX) - 05/01/2026**
 **A. CORRECCIÓN DEFINITIVA DE VISIBILIDAD DE CONSOLA DE DEPURACIÓN:** Se solucionó de forma permanente el bug que causaba que la consola de depuración fuera visible por defecto al cargar la aplicación.
 

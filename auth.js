@@ -18,7 +18,7 @@ async function handleLoginSuccess(user) {
         const catalogData = await fetchCatalogData();
 
         // Process and sort categories
-        const categoryCounts = catalogData.cortes.reduce((acc, item) => {
+        const categoryCounts = catalogData.data.cortes.reduce((acc, item) => {
             if (item.categoria) {
                 acc[item.categoria] = (acc[item.categoria] || 0) + 1;
             }
@@ -30,7 +30,7 @@ async function handleLoginSuccess(user) {
         // Update state with processed data
         setState({
             catalogData: {
-                ...catalogData,
+                ...catalogData.data,
                 sortedCategories: sortedCategories
             }
         });
