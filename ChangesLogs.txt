@@ -1,3 +1,20 @@
+**V8.2.8 - (CRITICAL HOTFIX) - 10/01/2024**
+**A. RESUMEN GENERAL:** Se corrigió un error crítico de enrutamiento en la configuración de la API (`api.js`) que causaba que el formulario de "Agregar Vehículo" fallara con el error "Acción desconocida: checkVehicle".
+
+**B. Corrección Crítica (API Frontend):**
+    1.  **Error de Enrutamiento en `api.js`:** Se identificó que la acción `checkVehicle` estaba incorrectamente mapeada al microservicio `CATALOG` en el `ACTION_TO_SERVICE_MAP`.
+    2.  **Causa Raíz:** La lógica para verificar si un vehículo existe es una operación de pre-escritura y pertenece al servicio `WRITE`, no al servicio de solo lectura `CATALOG`. El enrutamiento incorrecto hacía que la llamada llegara a un servicio que no reconocía la acción.
+    3.  **Solución:** Se corrigió el mapa de enrutamiento en `api.js`, reasignando la acción `checkVehicle` (y la acción relacionada `getSuggestion`) al servicio correcto: `WRITE`.
+
+**C. Cambios Técnicos Implementados:**
+    - **`api.js`:**
+        - Se corrigió la entrada para `checkVehicle` en `ACTION_TO_SERVICE_MAP` para que apunte a `'WRITE'`.
+        - Se corrigió la entrada para `getSuggestion` para que apunte a `'WRITE'`.
+
+**D. Impacto:**
+    -   **Restaura la Funcionalidad de Verificación de Vehículos:** Esta corrección es fundamental para el flujo de agregar nuevos registros, ya que permite que el primer paso de verificación funcione correctamente.
+    -   **Alineación Arquitectónica:** Asegura que las acciones de la API se enruten a los microservicios correctos según su responsabilidad lógica (lectura vs. escritura).
+
 **V8.2.7 - (CRITICAL HOTFIX) - 10/01/2024**
 **A. RESUMEN GENERAL:** Se corrigió un error fatal en el formulario para agregar vehículos (`add_cortes.html`) que impedía su funcionamiento. Este error es idéntico al que se solucionó previamente en la página de gestión de usuarios.
 
@@ -276,7 +293,7 @@
 
 **B. Resumen de la Auditoría:**
     1.  **Análisis Integral:** Se analizaron todos los componentes del sistema, incluyendo los 6 microservicios del backend (`Auth`, `Catalog`, `Write`, `Users`, `Feedback`, `Utilities`), los 6 módulos JavaScript del frontend (`main`, `ui`, `navigation`, `api`, `auth`, `state`) y los 3 archivos HTML (`index`, `users`, `add_cortes`).
-    2.  **Creación de Reporte:** Los hallazgos se consolidaron en un nuevo documento maestro, `Auditoria.txt`, que ahora sirve como la fuente de verdad sobre la arquitectura, debilidades y estado actual del código.
+    2.  **Creación de Reporte:** Los hallazgos se consolidaron en un nuevo documento maestro, `Auditoria.txt`, que ahora sirve como la fuente de verdad sobre la arquitectura, debilidad y estado actual del código.
     3.  **Principales Hallazgos:**
         *   **Riesgo Crítico:** Fuerte acoplamiento con la estructura de Google Sheets y lógica de autorización duplicada e inconsistente entre servicios.
         *   **Performance:** Desempeño degradado debido a la deshabilitación de la caché en el servicio de catálogo.
