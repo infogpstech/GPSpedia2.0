@@ -260,7 +260,7 @@ export function mostrarDetalleModal(item) {
     otherSections.forEach(sec => {
         const hasContent = sec.isCorte || sec.content || sec.img || sec.videoUrl;
         if (hasContent && sec.title) {
-            createAccordionSection(accordionContainer, sec.title, sec, false); // Todos colapsados por defecto
+            createAccordionSection(accordionContainer, sec.title, sec, false, datosRelay); // Pasar datosRelay
         }
     });
 
@@ -296,11 +296,12 @@ function renderCutContent(container, cutData, datosRelay) {
     container.appendChild(relayContainer);
 
     if (cutData.img) {
+        const highResImgUrl = getImageUrl(cutData.img, 1000); // Usar tamaño 1000
         const img = document.createElement("img");
-        img.src = getImageUrl(cutData.img);
-        img.className = 'img-corte image-with-container'; // Añadida clase de contenedor
+        img.src = highResImgUrl; // Usar URL de alta resolución
+        img.className = 'img-corte image-with-container';
         img.onclick = () => {
-            document.getElementById('lightboxImg').src = img.src;
+            document.getElementById('lightboxImg').src = highResImgUrl; // Asegurar que el lightbox también usa alta resolución
             document.getElementById('lightbox').classList.add('visible');
         };
         container.appendChild(img);
@@ -489,7 +490,7 @@ function renderInboxDetail(item) {
     }
 }
 
-function createAccordionSection(container, title, sec, isOpen = false) {
+function createAccordionSection(container, title, sec, isOpen = false, datosRelay = []) {
     const btn = document.createElement("button");
     btn.className = "accordion-btn";
     btn.innerHTML = `${title} <span class="accordion-arrow">▼</span>`;
@@ -497,46 +498,32 @@ function createAccordionSection(container, title, sec, isOpen = false) {
     const panel = document.createElement("div");
     panel.className = "panel-desplegable";
 
-    if (sec.content) {
-        const contentP = document.createElement('p');
-        contentP.innerHTML = sec.content;
-        panel.appendChild(contentP);
-    }
-
-    if (sec.img) {
-        const imgContainer = document.createElement('div');
-        imgContainer.className = 'image-container-with-feedback';
-
-        const img = document.createElement("img");
-        img.src = getImageUrl(sec.img);
-        img.className = 'img-corte image-with-container';
-        img.onclick = () => {
-            document.getElementById('lightboxImg').src = img.src;
-            document.getElementById('lightbox').classList.add('visible');
-        };
-        imgContainer.appendChild(img);
-
-        // --- 7. Implementar Overlay de Feedback ---
-        if (title.toLowerCase().includes('corte')) {
-             const overlay = document.createElement('div');
-             overlay.className = 'feedback-overlay';
-
-             const utilBtn = document.createElement('button');
-             utilBtn.className = 'feedback-btn-overlay util-btn';
-             utilBtn.innerHTML = '<i class="fa-solid fa-thumbs-up"></i>';
-             // TODO: Add onclick handler for utilBtn
-             overlay.appendChild(utilBtn);
-
-             const reportBtn = document.createElement('button');
-             reportBtn.className = 'feedback-btn-overlay report-btn';
-             reportBtn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
-             // TODO: Add onclick handler for reportBtn
-             overlay.appendChild(reportBtn);
-
-             imgContainer.appendChild(overlay);
+    // --- Lógica Refactorizada ---
+    if (sec.isCorte) {
+        // Si es un corte, reutilizar la lógica de renderizado de cortes
+        renderCutContent(panel, sec.data, datosRelay);
+    } else {
+        // Lógica anterior para otras secciones
+        if (sec.content) {
+            const contentP = document.createElement('p');
+            contentP.innerHTML = sec.content;
+            panel.appendChild(contentP);
         }
 
-        panel.appendChild(imgContainer);
+        if (sec.img) {
+            const highResImgUrl = getImageUrl(sec.img, 1000);
+            const imgContainer = document.createElement('div');
+            imgContainer.className = 'image-container-with-feedback';
+            const img = document.createElement("img");
+            img.src = highResImgUrl;
+            img.className = 'img-corte image-with-container';
+            img.onclick = () => {
+                document.getElementById('lightboxImg').src = highResImgUrl;
+                document.getElementById('lightbox').classList.add('visible');
+            };
+            imgContainer.appendChild(img);
+            panel.appendChild(imgContainer);
+        }
     }
 
     if (sec.colaborador) {

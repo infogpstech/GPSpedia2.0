@@ -103,10 +103,11 @@ export async function markAsResolved(itemId) {
     return await routeAction('markAsResolved', { itemId });
 }
 
-export function getImageUrl(fileId, size = 'w280-h200') {
+export function getImageUrl(fileId, size = 280) {
     if (!fileId || typeof fileId !== 'string' || fileId.trim() === '') {
         return "https://placehold.co/280x200/cccccc/333333?text=Sin+Imagen";
     }
-    // Nueva lógica: Construir la URL de thumbnail de Google Drive directamente
-    return `https://drive.google.com/thumbnail?id=${fileId.trim()}&sz=${size}`;
+    // Si el tamaño es un número, se asume que es el ancho (ej. sz=w1000)
+    const sizeParam = typeof size === 'number' ? `w${size}` : size;
+    return `https://drive.google.com/thumbnail?id=${fileId.trim()}&sz=${sizeParam}`;
 }

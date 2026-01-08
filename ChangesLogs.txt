@@ -1,3 +1,26 @@
+**V8.3.5 - (FEATURE) - 11/01/2024**
+**A. RESUMEN GENERAL:** Se implementó una mejora significativa en la calidad de las imágenes mostradas en el modal de detalles del vehículo y se corrigió un error que impedía la visualización de los "Cortes Alternativos".
+
+**B. Mejoras y Correcciones Implementadas:**
+1.  **Carga de Imágenes en Alta Resolución (`api.js` y `ui.js`):**
+    *   **Problema:** Las imágenes de los cortes se cargaban en baja resolución, dificultando la visualización de detalles técnicos importantes.
+    *   **Solución:**
+        *   Se modificó la función `getImageUrl` en `api.js` para aceptar un parámetro numérico de tamaño y construir una URL de Google Drive con el formato `sz=w<numero>` (ej. `sz=w1000`).
+        *   Se actualizó la función `renderCutContent` en `ui.js` para que solicite explícitamente las imágenes de los cortes con un tamaño de `1000`, asegurando la máxima resolución disponible.
+        *   Se extendió esta lógica a todas las imágenes dentro del modal, incluyendo las de secciones de "Apertura" y "Cables de Alimentación".
+
+2.  **Corrección de Renderizado de Cortes Alternativos (`ui.js`):**
+    *   **Problema:** Un error en la lógica de la función `createAccordionSection` provocaba que el contenido de los cortes alternativos no se renderizara, ocultando información valiosa al usuario.
+    *   **Solución:** Se refactorizó `createAccordionSection` para que, cuando detecte que una sección es un corte, reutilice la función `renderCutContent`. Esto soluciona el error de renderizado y, al mismo tiempo, aplica la nueva lógica de carga de imágenes en alta resolución de manera consistente.
+
+**C. Cambios Técnicos Implementados:**
+- **`api.js`:** Se mejoró la función `getImageUrl` para manejar de forma más robusta el parámetro de tamaño.
+- **`ui.js`:** Se actualizó `renderCutContent` para llamar a `getImageUrl` con `size=1000`. Se refactorizó `createAccordionSection` para llamar a `renderCutContent`, corrigiendo así un bug y aplicando la mejora de resolución de manera uniforme.
+
+**D. Impacto:**
+-   **Mejora Crítica de UX:** Los usuarios ahora pueden ver imágenes de alta calidad y hacer zoom en detalles técnicos finos, lo cual es esencial para la funcionalidad principal de la aplicación.
+-   **Funcionalidad Restaurada:** Se ha corregido un bug que impedía a los usuarios ver los cortes alternativos, asegurando que toda la información disponible para un vehículo sea accesible.
+
 **V8.3.4 - (REGRESSION FIX) - 11/01/2024**
 **A. RESUMEN GENERAL:** Se corrigieron múltiples regresiones visuales en el modal de detalles del vehículo, restaurando el diseño y la alineación correctos de sus componentes, especialmente en la cabecera y en la visualización de imágenes.
 
