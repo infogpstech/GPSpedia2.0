@@ -117,6 +117,7 @@
 </head>
 <body>
     <div class="container">
+        <a href="index.html" style="text-decoration: none; color: var(--primary-color); margin-bottom: 20px; display: inline-block;">&larr; Volver al Catálogo</a>
         <div id="profile-section" class="profile-section">
             <h1>Mi Perfil</h1>
             <p><strong>Nombre de Usuario:</strong> <span id="profile-username"></span></p>
@@ -147,7 +148,6 @@
     </div>
 
     <!-- User Modal (for Create/Edit) -->
-    <script src="api-manager.js"></script>
     <div id="user-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
@@ -197,7 +197,9 @@
             </form>
         </div>
     </div>
-<script>
+<script type="module">
+import { routeAction } from './api.js';
+// COMPONENT VERSION: 3.8.0
 // --- LÓGICA DE DEPURACIÓN REMOTA ---
 function remoteLog(level, message, data = {}) {
     fetch(SCRIPT_URL, {
@@ -238,9 +240,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function displayProfile() {
-    // FIX: Corrected to display Nombre_Usuario in both fields as there's no separate fullname field in the session object
     document.getElementById('profile-username').textContent = currentUser.Nombre_Usuario;
-    document.getElementById('profile-fullname').textContent = currentUser.Nombre_Usuario;
+    document.getElementById('profile-fullname').textContent = currentUser.Nombre_Completo; // Corregido
     document.getElementById('profile-role').textContent = currentUser.Privilegios;
 }
 
@@ -271,16 +272,35 @@ function renderUserTable() {
     tbody.innerHTML = '';
     allUsers.forEach(user => {
         const row = document.createElement('tr');
-        // FIX: Corrected property access to match backend schema (PascalCase_With_Underscores)
-        row.innerHTML = `
-            <td>${user.Nombre_Usuario}</td>
-            <td>${user.Nombre_Usuario}</td>
-            <td>${user.Privilegios}</td>
-            <td class="actions-cell">
-                <button class="btn btn-warning btn-sm" onclick='openUserModal(${JSON.stringify(user)})'>Editar</button>
-                <button class="btn btn-danger btn-sm" onclick="deleteUser('${user.ID}')">Eliminar</button>
-            </td>
-        `;
+
+        const userCell = document.createElement('td');
+        userCell.textContent = user.Nombre_Usuario;
+        row.appendChild(userCell);
+
+        const nameCell = document.createElement('td');
+        nameCell.textContent = user.Nombre_Completo;
+        row.appendChild(nameCell);
+
+        const roleCell = document.createElement('td');
+        roleCell.textContent = user.Privilegios;
+        row.appendChild(roleCell);
+
+        const actionsCell = document.createElement('td');
+        actionsCell.className = 'actions-cell';
+
+        const editButton = document.createElement('button');
+        editButton.className = 'btn btn-warning btn-sm';
+        editButton.textContent = 'Editar';
+        editButton.addEventListener('click', () => openUserModal(user));
+        actionsCell.appendChild(editButton);
+
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'btn btn-danger btn-sm';
+        deleteButton.textContent = 'Eliminar';
+        deleteButton.addEventListener('click', () => deleteUser(user.ID));
+        actionsCell.appendChild(deleteButton);
+
+        row.appendChild(actionsCell);
         tbody.appendChild(row);
     });
 }
@@ -305,25 +325,25 @@ function setupEventListeners() {
     });
 
     document.getElementById('user-form').addEventListener('submit', handleUserFormSubmit);
+    // FIX Tarea 23: Se añade el event listener faltante para el formulario de cambio de contraseña.
     document.getElementById('password-form').addEventListener('submit', handleChangePasswordSubmit);
 }
 
 function openUserModal(user = null) {
     const modal = document.getElementById('user-modal');
     const title = document.getElementById('user-modal-title');
-    const form = document.getElementById('user-form');
-    form.reset();
+        const form = document.getElementById('user-form');
+        form.reset();
 
-    if (user) {
-        title.textContent = 'Editar Usuario';
-        // FIX: Corrected property access to match backend schema
-        document.getElementById('user-id').value = user.ID;
-        document.getElementById('fullname').value = user.Nombre_Usuario; // Assuming Nombre_Usuario is the full name
-        document.getElementById('username-modal').value = user.Nombre_Usuario;
-    } else {
-        title.textContent = 'Crear Nuevo Usuario';
-        document.getElementById('user-id').value = '';
-    }
+        if (user) {
+            title.textContent = 'Editar Usuario';
+            document.getElementById('user-id').value = user.ID;
+            document.getElementById('fullname').value = user.Nombre_Completo;
+            document.getElementById('username-modal').value = user.Nombre_Usuario;
+        } else {
+            title.textContent = 'Crear Nuevo Usuario';
+            document.getElementById('user-id').value = '';
+        }
 
     const roleSelect = document.getElementById('role');
     roleSelect.innerHTML = '';
@@ -338,7 +358,6 @@ function openUserModal(user = null) {
         option.textContent = role;
         roleSelect.appendChild(option);
     });
-    // FIX: Corrected property access to match backend schema
     if(user) roleSelect.value = user.Privilegios;
 
     modal.style.display = 'block';
@@ -347,7 +366,6 @@ function openUserModal(user = null) {
 async function handleUserFormSubmit(e) {
     e.preventDefault();
     const userId = document.getElementById('user-id').value;
-    // FIX: Corrected property names to match backend schema
     const userData = {
         Nombre_Usuario: document.getElementById('username-modal').value,
         Privilegios: document.getElementById('role').value,
@@ -356,10 +374,12 @@ async function handleUserFormSubmit(e) {
 
     try {
         if (userId) {
-            await postToAction('updateUser', { userId, updates: userData, updaterRole: currentUser.Privilegios });
+            // SECURITY PATCH: Send sessionToken instead of role for backend verification
+            await postToAction('updateUser', { userId, updates: userData, sessionToken: currentUser.SessionToken });
             alert('Usuario actualizado');
         } else {
-            await postToAction('createUser', { newUser: userData, creatorRole: currentUser.Privilegios });
+            // SECURITY PATCH: Send sessionToken instead of role for backend verification
+            await postToAction('createUser', { newUser: userData, sessionToken: currentUser.SessionToken });
             alert('Usuario creado');
         }
         document.getElementById('user-modal').style.display = 'none';
@@ -372,7 +392,8 @@ async function handleUserFormSubmit(e) {
 async function deleteUser(userId) {
     if (confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
         try {
-            await postToAction('deleteUser', { userId, deleterRole: currentUser.Privilegios });
+            // SECURITY PATCH: Send sessionToken for backend verification
+            await postToAction('deleteUser', { userId, sessionToken: currentUser.SessionToken });
             alert('Usuario eliminado');
             fetchUsers();
         } catch (error) {
@@ -399,9 +420,10 @@ async function handleChangePasswordSubmit(e) {
 
     try {
         await postToAction('changePassword', {
-            userId: currentUser.ID, // Assuming currentUser has an ID
+            userId: currentUser.Id_Usuario,
             currentPassword,
-            newPassword
+            newPassword,
+            sessionToken: currentUser.SessionToken
         });
         alert('Contraseña actualizada correctamente.');
         document.getElementById('password-modal').style.display = 'none';

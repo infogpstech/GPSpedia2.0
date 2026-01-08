@@ -1,114 +1,105 @@
-**V5.8.0 - (CRITICAL FIX) - 05/01/2026**
-**A. FIX CRÍTICO DE CORS Y ESTABILIDAD EN `feedback-service`:** Se solucionó un bug crítico que impedía el funcionamiento de toda la funcionalidad de feedback y contacto (ej. Inbox, reportar problema) debido a un error de CORS, y se resolvió una inestabilidad severa causada por código duplicado.
+**V8.3.5 - (FEATURE) - 11/01/2024**
+**A. RESUMEN GENERAL:** Se implementó una mejora significativa en la calidad de las imágenes mostradas en el modal de detalles del vehículo y se corrigió un error que impedía la visualización de los "Cortes Alternativos".
 
-**B. Causa Raíz:**
-    1.  **Error de `MimeType`:** La función `doGet` del servicio `services/feedback/feedback.js` devolvía `ContentService.MimeType.JSON`, violando el requisito de la arquitectura de usar `ContentService.MimeType.TEXT` para todas las respuestas y causando fallos de CORS en el frontend.
-    2.  **Código Duplicado:** Durante la auditoría se encontraron dos implementaciones completas de las funciones `handleRecordLike` y `handleSuggestYear`, creando un riesgo alto de comportamiento inconsistente y errores de mantenimiento.
+**B. Mejoras y Correcciones Implementadas:**
+1.  **Carga de Imágenes en Alta Resolución (`api.js` y `ui.js`):**
+    *   **Problema:** Las imágenes de los cortes se cargaban en baja resolución, dificultando la visualización de detalles técnicos importantes.
+    *   **Solución:**
+        *   Se modificó la función `getImageUrl` en `api.js` para aceptar un parámetro numérico de tamaño y construir una URL de Google Drive con el formato `sz=w<numero>` (ej. `sz=w1000`).
+        *   Se actualizó la función `renderCutContent` en `ui.js` para que solicite explícitamente las imágenes de los cortes con un tamaño de `1000`, asegurando la máxima resolución disponible.
+        *   Se extendió esta lógica a todas las imágenes dentro del modal, incluyendo las de secciones de "Apertura" y "Cables de Alimentación".
 
-**C. Cambios Implementados:**
-    1.  **`services/feedback/feedback.js` (Línea 85):** Se corrigió el `MimeType` en la función `doGet`, alineándolo a `ContentService.MimeType.TEXT`.
-    2.  **`services/feedback/feedback.js` (Líneas 141-174 y 332-348 eliminadas):** Se eliminaron las implementaciones duplicadas y obsoletas de `handleRecordLike` y `handleSuggestYear`, conservando las versiones más robustas que incluyen el registro de actividad del usuario.
+2.  **Corrección de Renderizado de Cortes Alternativos (`ui.js`):**
+    *   **Problema:** Un error en la lógica de la función `createAccordionSection` provocaba que el contenido de los cortes alternativos no se renderizara, ocultando información valiosa al usuario.
+    *   **Solución:** Se refactorizó `createAccordionSection` para que, cuando detecte que una sección es un corte, reutilice la función `renderCutContent`. Esto soluciona el error de renderizado y, al mismo tiempo, aplica la nueva lógica de carga de imágenes en alta resolución de manera consistente.
 
-**D. Impacto:**
-    -   Se restaura la funcionalidad completa del sistema de feedback, reportes y contacto.
-    -   Se elimina una fuente crítica de inestabilidad y bugs futuros al resolver la duplicación de código.
-    -   El servicio `feedback-service` es ahora más estable, predecible y cumple con los estándares de la arquitectura.
-
-**V5.7.0 - (CRITICAL ALIGNMENT) - 04/01/2026**
-**A. FIX CRÍTICO DE INCONSISTENCIA ARQUITECTÓNICA (FRONTEND-BACKEND):** Se solucionó una ruptura crítica en la arquitectura que impedía el funcionamiento de la carga progresiva del catálogo.
-
-**B. Causa Raíz:**
-    -   Un commit anterior había actualizado el frontend (`api-manager.js`, `main.js`) para que llamara a una nueva acción `getNavigationData` con el objetivo de optimizar el rendimiento.
-    -   Sin embargo, esta acción nunca fue implementada en el backend (`services/catalog/catalog.js`), resultando en un error fatal que impedía la carga de la aplicación.
-
-**C. Cambios Implementados:**
-    1.  **`services/catalog/catalog.js`:**
-        -   **Implementación Faltante:** Se implementó la acción `getNavigationData` en el backend.
-        -   **Router:** Se añadió el `case 'getNavigationData'` al router `doPost` para manejar la nueva acción.
-        -   **Handler:** Se creó la función `handleGetNavigationData`, que ahora devuelve un payload ligero con los datos esenciales para el render inicial (`categoryCounts`, `sortedCategories`, `marcas`, `logos`), cumpliendo con lo que el frontend esperaba.
+**C. Cambios Técnicos Implementados:**
+- **`api.js`:** Se mejoró la función `getImageUrl` para manejar de forma más robusta el parámetro de tamaño.
+- **`ui.js`:** Se actualizó `renderCutContent` para llamar a `getImageUrl` con `size=1000`. Se refactorizó `createAccordionSection` para llamar a `renderCutContent`, corrigiendo así un bug y aplicando la mejora de resolución de manera uniforme.
 
 **D. Impacto:**
-    -   Se restaura la funcionalidad de la aplicación, que estaba completamente rota debido a esta inconsistencia.
-    -   El backend ahora cumple con el contrato esperado por el frontend, habilitando la carga progresiva y mejorando significativamente el tiempo de carga percibido por el usuario.
-    -   Se resuelve la discrepancia entre el historial de commits y el estado real del código.
+-   **Mejora Crítica de UX:** Los usuarios ahora pueden ver imágenes de alta calidad y hacer zoom en detalles técnicos finos, lo cual es esencial para la funcionalidad principal de la aplicación.
+-   **Funcionalidad Restaurada:** Se ha corregido un bug que impedía a los usuarios ver los cortes alternativos, asegurando que toda la información disponible para un vehículo sea accesible.
 
-**V5.6.0 - (CRITICAL HOTFIX) - 05/01/2026**
-**A. FIX CRÍTICO DE ESTABILIDAD (BACKEND):** Se solucionó un error fatal en producción ("Argumento demasiado grande") que causaba la caída total del `catalog-service` e impedía la carga del catálogo en la aplicación.
+**V8.3.4 - (REGRESSION FIX) - 11/01/2024**
+**A. RESUMEN GENERAL:** Se corrigieron múltiples regresiones visuales en el modal de detalles del vehículo, restaurando el diseño y la alineación correctos de sus componentes, especialmente en la cabecera y en la visualización de imágenes.
 
-**B. Causa Raíz:**
-    -   El `catalog-service` intentaba guardar en `CacheService` el objeto JSON completo del catálogo, el cual excedía el límite de 100 KB por objeto, provocando un error no capturado que detenía la ejecución.
+**B. Correcciones Implementadas:**
+1.  **Alineación de Cabecera del Modal (`ui.js`):**
+    *   **Problema:** El logo de la marca y el título del vehículo en la cabecera del modal estaban centrados en lugar de alineados a la izquierda.
+    *   **Solución:** Se añadió la propiedad `justifyContent: 'flex-start'` al contenedor flex de la cabecera, asegurando que los elementos se alineen correctamente al inicio del contenedor.
 
-**C. Cambios Implementados:**
-    1.  **`services/catalog/catalog.js`:**
-        -   **Remediación:** Se deshabilitó por completo la escritura del catálogo en la caché (`cache.put`) para resolver inmediatamente el error.
-        -   **Endurecimiento:** Se envolvió la operación de lectura de caché (`cache.get`) en un bloque `try...catch` para que cualquier futuro error de caché no interrumpa el servicio.
-    2.  **`services/image/image.js`:**
-        -   **Endurecimiento Preventivo:** Aunque no era la causa del error, se envolvió toda la lógica de `cache.get` y `cache.put` en bloques `try...catch` para aumentar la resiliencia del servicio de imágenes ante posibles fallos de la caché.
+2.  **Refactorización de Estilos de Imagen (`style.css`):**
+    *   **Problema:** Una regla de CSS genérica (`#detalleCompleto img`) estaba aplicando estilos de "contenedor" (`box-shadow`, `border-radius`) y una altura máxima (`max-height: 300px`) a *todas* las imágenes del modal, causando que el logo y la imagen del vehículo se vieran incorrectamente y que las imágenes de los cortes no se escalaran adecuadamente.
+    *   **Solución:** Se eliminó la propiedad `max-height` de la regla genérica para permitir que las imágenes se escalen proporcionalmente a su ancho. Los estilos de contenedor (`box-shadow`, `border-radius`) fueron movidos de la regla genérica a la clase más específica `.image-with-container`, que solo se aplica a las imágenes de los cortes.
 
-**D. Actualización de Documentación:**
-    -   Se añadió una nueva sección en `README.md` (`5.4. Reglas Críticas de Uso de CacheService`) para documentar las limitaciones y el uso correcto del servicio de caché.
-    -   Se registró esta tarea crítica en `Instrucciones.txt` como "Tarea 29".
+3.  **Especificidad en Estilos Móviles (`style.css`):**
+    *   **Problema:** La regla que definía el ancho de la imagen del corte al 80% en dispositivos móviles no se estaba aplicando debido a baja especificidad.
+    *   **Solución:** Se aumentó la especificidad del selector a `#modalDetalle #detalleCompleto .img-corte` para garantizar que la regla de ancho del 80% anule cualquier otra regla conflictiva en vistas móviles.
 
-**E. Impacto:**
-    -   Se restaura la funcionalidad del catálogo en producción.
-    -   La arquitectura backend es ahora más resiliente a fallos de `CacheService`, previniendo futuras caídas por esta causa.
+**C. Cambios Técnicos Implementados:**
+- **`ui.js`:** Se ajustó el estilo flex del `modalHeader` para incluir `justifyContent: 'flex-start'`.
+- **`style.css`:** Se refactorizó la regla `#detalleCompleto img` eliminando `max-height` y se aumentó la especificidad del selector para `.img-corte` en la media query de móviles.
 
+**D. Impacto:**
+-   **Consistencia Visual Restaurada:** El modal de detalles del vehículo ahora se renderiza de manera consistente y correcta en todos los tamaños de pantalla, alineándose con las especificaciones de diseño y eliminando las regresiones visuales introducidas previamente.
 
-**V5.5.0 - (CRITICAL FIX) - 05/01/2026**
-**A. FIX CRÍTICO DE ARQUITECTURA (FULL-STACK):** Se solucionó de manera definitiva el bug que impedía la carga intermitente de imágenes en producción. El problema residía en dos puntos de la nueva arquitectura:
-    1.  **Backend ():**
-        -   **Error de MimeType:** Se eliminó la función  que fallaba al inferir el tipo de contenido, causando que el servicio devolviera un MimeType incorrecto y el navegador rechazara la imagen. Se reemplazó por una llamada directa a , que es 100% fiable.
-        -   **Error de Caché:** Se añadió un control para evitar guardar en caché imágenes de más de 90KB, previniendo exceder los límites de Google Apps Script y asegurando la estabilidad del servicio.
-    2.  **Frontend ():**
-        -   **Error de Codificación de URL:** La función  no codificaba correctamente el  antes de añadirlo como parámetro en la URL. Caracteres especiales en los IDs (como guiones bajos) podían ser malinterpretados, rompiendo la llamada al . Se solucionó aplicando  al .
+**V8.3.3 - (REGRESSION FIX) - 11/01/2024**
+**A. RESUMEN GENERAL:** Se implementó la corrección definitiva para la regresión de estilos en el modal de detalles, asegurando que las imágenes se muestren según las especificaciones exactas, y se reparó una regresión crítica en la página de gestión de usuarios.
 
-**B. Archivos Modificados:**
-    -   : Líneas 45-55, 65-75.
-    -   : Línea 112.
+**B. Correcciones Implementadas:**
+1.  **Refactorización de Estilos (`style.css` y `ui.js`):**
+    *   **Problema:** Una regla de estilo genérica (`#detalleCompleto img`) aplicaba un `box-shadow` y `border-radius` a todas las imágenes del modal, creando un efecto de "contenedor" no deseado.
+    *   **Solución:** Se refactorizó el CSS. Se eliminaron las propiedades `box-shadow` y `border-radius` de la regla genérica. Se creó una nueva clase, `.image-with-container`, para contener estos estilos. Dicha clase se aplicó explícitamente en `ui.js` solo a las imágenes que la requieren (imágenes de cortes, etc.), dejando las imágenes del logo y del vehículo sin estos estilos.
+    *   **Resultado:** Las imágenes del logo y del vehículo ahora se muestran correctamente solo con el `filter: drop-shadow(...)` aplicado, sin ningún contenedor visual.
 
-**C. Impacto:**
-    -   La arquitectura de imágenes es ahora robusta, segura y funcional en todo el stack.
-    -   Se garantiza la carga fiable de todas las imágenes de Google Drive a través del proxy.
-    -   El sistema de caché del  es ahora seguro y no causará fallos inesperados.
+2.  **Reparación de Funcionalidad en `users.html`:**
+    *   **Problema:** Los botones "Eliminar Usuario" y "Cambiar Contraseña" fallaban debido a la falta de autorización.
+    *   **Causa Raíz:** Las llamadas a la API para estas acciones no incluían el `sessionToken` del usuario.
+    *   **Solución:** Se actualizaron las funciones `deleteUser` y `handleChangePasswordSubmit` para incluir el `sessionToken` en el payload de la solicitud, restaurando completamente la funcionalidad.
 
-**v5.4.0 (05/01/2026)**
-*   **FINALIZE (services/catalog/catalog.js):** Se completó el endurecimiento y la formalización final del `catalog-service` para su puesta en producción.
-    *   **Contrato de Datos Formalizado:** Se añadieron comentarios JSDoc explícitos (`@const`) para los `IMAGE_FIELDS_*`, documentando formalmente el "Contrato de Imagen". Esto garantiza que cualquier mantenedor futuro entienda la regla de que el servicio solo debe devolver `fileId` o `null` para estos campos.
-    *   **Logging Controlado:** Se introdujo una bandera global `LOG_INVALID_IDS`. Cuando se establece en `true`, la función `normalizeAndValidateImageId` registrará en la consola de Apps Script cualquier valor de imagen que no pueda ser validado, permitiendo una depuración de la calidad de los datos sin contaminar los logs de producción.
-    *   **Modo Diagnóstico:** Se implementó un modo de diagnóstico no invasivo activado con el parámetro `?diagnostics=true` en la URL de la solicitud. En este modo, la respuesta JSON se envuelve en un objeto `diagnostics` que incluye metadatos de ejecución (tiempo de respuesta) y una lista de todos los IDs de imagen inválidos encontrados durante la solicitud, facilitando la monitorización y el mantenimiento proactivo.
-    *   **Archivos Modificados:** `services/catalog/catalog.js`.
+**C. Cambios Técnicos Implementados:**
+- **`style.css`:** Se refactorizó la regla `#detalleCompleto img`, se creó la clase `.image-with-container`, y se ajustaron las reglas para `.img-vehiculo-modal` y `.brand-logo-modal`.
+- **`ui.js`:** Se añadió la clase `.image-with-container` a los elementos `img` que lo necesitaban.
+- **`users.html`:** Se añadió el `sessionToken` a las llamadas a `deleteUser` y `handleChangePasswordSubmit`.
 
-**v5.3.0 (05/01/2026)**
-*   **HARDENING (services/catalog/catalog.js):** Se finalizó el robustecimiento del servicio de catálogo para asegurar la integridad de los datos de imágenes y el cumplimiento estricto de la arquitectura.
-    *   **Causa Raíz:** El servicio no validaba ni normalizaba los datos de imágenes provenientes de la hoja de cálculo. Esto permitía que URLs completas o datos malformados se propagaran al frontend, causando inestabilidad y violando la regla de que solo el `image-service` debe manejar URLs.
-    *   **Solución:** Se implementó una nueva función `normalizeAndValidateImageId`. Esta función centraliza la lógica de validación: toma cualquier valor (URL completa, ID limpio, o `null`), extrae y devuelve un `fileId` válido o `null`. Se refactorizó la función `mapRowToObject` para que *todos* los campos de imagen (`imagenDelVehiculo`, `imgCorte`, `logoUrl`, etc.) pasen obligatoriamente por esta validación antes de ser enviados al frontend.
-    *   **Resultado:** El `catalog-service` ahora garantiza que solo enviará `fileId` limpios, eliminando la causa raíz de los bugs de renderización de imágenes desde el backend y cumpliendo con su rol arquitectónico.
-    *   **Archivos Modificados:** `services/catalog/catalog.js`.
+**D. Impacto:**
+-   **Alineación Visual Definitiva:** La apariencia del modal de detalles ahora coincide exactamente con las especificaciones de diseño.
+-   **Funcionalidad Restaurada:** La página de gestión de usuarios es de nuevo completamente funcional.
 
-**v5.2.0 (04/01/2026)**
-*   **FIX (Arquitectura):** Se solucionó la causa raíz del bug que impedía la carga de imágenes del catálogo.
-    *   **Causa Raíz:** Se descubrió una violación arquitectónica en `services/catalog/catalog.js`. Este servicio estaba transformando incorrectamente los `fileId` de las imágenes a URLs completas de Google Drive, en lugar de enviar solo los IDs al frontend.
-    *   **Solución (Backend):** Se eliminó por completo la función `convertirAGoogleThumbnail` y todas sus llamadas dentro de `services/catalog/catalog.js`. El servicio ahora cumple estrictamente con su responsabilidad de servir datos crudos, enviando únicamente los `fileId`.
-    *   **Solución (Frontend):** Se robusteció la función `getImageUrl` en `main.js`. Se eliminó la lógica de parsing de URLs, ya que ahora solo recibe `fileId` limpios, haciendo el código más simple y eficiente.
-    *   **Archivos Modificados:** `services/catalog/catalog.js`, `main.js`.
-*   **DOCS (README.md):** Se actualizó la documentación con un diagrama y una explicación detallada del flujo de carga de imágenes final y correcto, reflejando la arquitectura verificada.
-    *   **Archivos Modificados:** `README.md`.
+**V8.3.2 - (REGRESSION FIX) - 11/01/2024**
+**A. RESUMEN GENERAL:** Se corrigió la regresión de estilos en el modal de detalles del vehículo, que provocaba que las imágenes del logo y del modelo se mostraran con un "contenedor" no deseado.
 
-**v5.1.0 (05/01/2026)**
-*   **PERF (services/catalog/catalog.js):** Se implementó un mecanismo de caché en el backend para mejorar radicalmente el rendimiento de la aplicación.
-    *   **Causa Raíz:** La carga inicial de datos (`getCatalogData`) era lenta debido a que leía y procesaba toda la información de la hoja de cálculo en cada solicitud.
-    *   **Solución:** Se utilizó `CacheService` de Google Apps Script para almacenar en caché el objeto de datos del catálogo completo durante 1 hora. Las solicitudes posteriores ahora leen directamente de la caché, evitando accesos innecesarios a la hoja de cálculo y reduciendo los tiempos de carga de segundos a milisegundos.
-    *   **Verificación:** Se añadió un nuevo endpoint de depuración (`?debug=true`) que muestra el estado actual de la caché, permitiendo verificar si los datos se están sirviendo desde la caché o desde una lectura nueva.
-    *   **Archivos Modificados:** `services/catalog/catalog.js`.
+**B. Corrección de Estilos (`style.css` y `ui.js`):**
+1.  **Diagnóstico:** Se identificó que una regla de estilo genérica para `#detalleCompleto img` estaba aplicando `box-shadow` y `border-radius` a todas las imágenes dentro del modal.
+2.  **Solución:**
+    *   **`ui.js`:** Se añadió una clase específica, `.brand-logo-modal`, a la imagen del logo de la marca para permitir un estilo independiente.
+    *   **`style.css`:** Se crearon nuevas reglas de alta especificidad (`#detalleCompleto .img-vehiculo-modal`, `#detalleCompleto .brand-logo-modal`) que anulan (`!important`) las propiedades `background`, `border`, `border-radius` y `box-shadow`. En su lugar, se aplica la propiedad `filter: drop-shadow(...)` para lograr el efecto visual solicitado sin un contenedor.
 
-**v5.0.0 (05/01/2026)**
-*   **REFACTOR (Arquitectura):** Se completó una reestructuración arquitectónica mayor para alinear el proyecto con la especificación `v4` del `README.md`.
-    *   **Modularización del Frontend:** Se desacopló el archivo monolítico `index.html`. El CSS y el JavaScript fueron extraídos a archivos externos (`style.css` y `main.js`), mejorando la mantenibilidad y claridad del código.
-        *   **Archivos Creados:** `style.css`, `main.js`.
-        *   **Archivos Modificados:** `index.html`.
-    *   **Nuevo Microservicio de Imágenes:** Se creó el nuevo `GPSpedia-Image` (`services/image/image.js`), que actúa como un proxy seguro para servir imágenes desde Google Drive. Esto elimina la exposición directa de URLs de Drive en el frontend, mejorando la seguridad y centralizando la lógica de acceso a imágenes.
-        *   **Archivos Creados:** `services/image/image.js`.
-    *   **Refactorización del Frontend para el Servicio de Imágenes:** Se refactorizó todo el código JavaScript del frontend (`main.js`) para eliminar la lógica de conversión de URLs de Google Drive (`convertirAGoogleThumbnail`). Todas las solicitudes de imágenes ahora se enrutan a través del nuevo `GPSpedia-Image`.
-        *   **Archivos Modificados:** `main.js`.
-    *   **Actualización del API Manager:** Se registró el endpoint del nuevo servicio `IMAGE` en `api-manager.js` para hacerlo accesible al frontend. Se actualizó la URL con el endpoint desplegado proporcionado por el usuario.
-        *   **Archivos Modificados:** `api-manager.js`.
+**C. Cambios Técnicos Implementados:**
+- **`ui.js`:** Se añadió `className = 'brand-logo-modal'` al elemento de imagen del logo.
+- **`style.css`:** Se añadieron reglas de anulación con `!important` para las clases `.img-vehiculo-modal` y `.brand-logo-modal` para eliminar los estilos de contenedor y aplicar `filter`.
+
+**D. Impacto:**
+-   **Alineación Visual Completa:** La apariencia de las imágenes en el modal de detalles ahora coincide exactamente con las especificaciones de diseño, mostrando solo la imagen con una sombra, sin ningún tipo de borde o fondo.
+
+**V8.3.1 - (REGRESSION FIX) - 11/01/2024**
+**A. RESUMEN GENERAL:** Se corrigieron las regresiones funcionales críticas en la página de gestión de usuarios (`users.html`) y se finalizaron los ajustes de estilo en el modal de detalles del vehículo para que coincidan con las especificaciones.
+
+**B. Correcciones Críticas y de Estilo:**
+1.  **Reparación de Regresión Funcional en `users.html`:**
+    *   **Problema:** Los botones "Eliminar Usuario" y "Cambiar Contraseña" no funcionaban y devolvían un error de "Datos insuficientes".
+    *   **Causa Raíz:** Las llamadas a la API para estas acciones no incluían el `sessionToken` del usuario, que es requerido por el backend para la autorización.
+    *   **Solución:** Se modificaron las funciones `deleteUser` y `handleChangePasswordSubmit` para incluir el `sessionToken` en el payload enviado al backend, restaurando la funcionalidad completa.
+
+2.  **Ajustes Finales de Estilo (`style.css`):**
+    *   **Imágenes de Logo y Modelo:** Se ajustó la regla `.img-vehiculo-modal` para eliminar la propiedad `box-shadow` y asegurar que no haya estilos de contenedor, cumpliendo con el requisito de mostrar solo la imagen con `drop-shadow`.
+    *   **Lightbox:** Se restauraron las propiedades `max-width: 95%` y `max-height: 95%` a la regla `.lightbox img` para asegurar que las imágenes grandes sean completamente visibles en la pantalla sin necesidad de hacer scroll, al tiempo que se permite que las imágenes más pequeñas se muestren a su tamaño real sin ser estiradas.
+
+**C. Cambios Técnicos Implementados:**
+- **`users.html`:** Se añadió la propiedad `sessionToken` a los payloads de las llamadas a `postToAction` en las funciones `deleteUser` y `handleChangePasswordSubmit`.
+- **`style.css`:** Se eliminó `box-shadow` de `.img-vehiculo-modal` y se reintrodujeron los límites de tamaño en `.lightbox img`.
+
+**D. Impacto:**
+-   **Restaura Funcionalidad Crítica:** La página de gestión de usuarios es ahora completamente funcional, incluyendo la eliminación de usuarios y el cambio de contraseñas.
+-   **Calidad Visual Mejorada:** La apariencia del modal de detalles se alinea finalmente con todas las especificaciones de diseño, y el lightbox ahora maneja imágenes grandes de manera más usable.
