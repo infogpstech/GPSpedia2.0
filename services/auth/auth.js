@@ -61,7 +61,7 @@ function doGet(e) {
     if (e.parameter.debug === 'true') {
         const serviceState = {
             service: 'GPSpedia-Auth',
-            version: '1.2.1', // Mantener sincronizado con la versión del componente
+            version: '2.2.2', // Mantener sincronizado con la versión del componente
             spreadsheetId: SPREADSHEET_ID,
             sheetsAccessed: [SHEET_NAMES.USERS, SHEET_NAMES.ACTIVE_SESSIONS, SHEET_NAMES.LOGS]
         };
@@ -71,7 +71,7 @@ function doGet(e) {
     // Comportamiento por defecto si no está en modo de depuración
     const defaultResponse = {
         status: 'success',
-        message: 'GPSpedia Auth-SERVICE v1.2.1 is active.'
+        message: 'GPSpedia Auth-SERVICE v2.2.2 is active.'
     };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
         .setMimeType(ContentService.MimeType.TEXT);
@@ -105,13 +105,12 @@ function doPost(e) {
 // LÓGICA DE AUTENTICACIÓN
 // ============================================================================
 function handleLogin(payload) {
-    try {
-        const { username, password } = payload;
-        logToSheet('INFO', 'handleLogin started.', { username: username });
+    const { username, password } = payload;
+    logToSheet('INFO', 'handleLogin started.', { username: username });
 
-        if (!username || !password) {
-            throw new Error("Usuario y contraseña son requeridos.");
-        }
+    if (!username || !password) {
+        throw new Error("Usuario y contraseña son requeridos.");
+    }
 
         const userSheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAMES.USERS);
         const data = userSheet.getDataRange().getValues();

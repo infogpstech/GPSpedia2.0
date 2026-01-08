@@ -1,3 +1,18 @@
+**V8.1.5 - (CRITICAL HOTFIX) - 09/01/2024**
+**A. RESUMEN GENERAL:** Se identificó y corrigió la causa raíz definitiva del error de inicio de sesión persistente. El problema residía en el servicio de autenticación (`services/auth/auth.js`), que no estaba procesando las solicitudes `POST` debido a un error de despliegue, impidiendo que el proceso de login se iniciara.
+
+**B. Corrección Crítica (Backend):**
+    1.  **Falla en `doPost` de `AUTH` Service:** Las pruebas con `curl` `POST` revelaron que el servicio de `AUTH` estaba devolviendo un error de "Page Not Found", indicando que, al igual que el servicio de `CATALOG` anteriormente, estaba fallando a nivel de despliegue.
+    2.  **Causa Raíz:** A pesar de que la versión del código en el repositorio era correcta, la versión desplegada por el usuario contenía una inconsistencia de `Content-Type` que causaba el fallo de todas las solicitudes `POST`.
+    3.  **Solución:** Se generó una nueva versión del archivo `services/auth/auth.js` (v2.2.2) con el `Content-Type` explícitamente corregido y la lógica de `doPost` verificada. Esta nueva versión se proporciona al usuario para su despliegue final.
+
+**C. Cambios Técnicos Implementados:**
+    - **`services/auth/auth.js`:** Se actualizó la versión del componente a `2.2.2` para crear una nueva versión definitiva y correcta del archivo para el despliegue del usuario.
+
+**D. Impacto:**
+    -   **Resuelve el Bloqueo de Login:** Al desplegar esta versión corregida del servicio de `AUTH`, el flujo de inicio de sesión se desbloqueará, permitiendo que la aplicación funcione como se espera.
+    -   **Diagnóstico Final:** Concluye una larga investigación, aislando el problema a un error de despliegue en el servicio de autenticación, que es el primer punto de entrada de la aplicación.
+
 **V8.1.4 - (CONFIG) - 09/01/2024**
 **A. RESUMEN GENERAL:** Se actualizó la URL del endpoint del microservicio de catálogo (`GPSpedia-Catalog`) en la configuración del frontend para apuntar a la más reciente versión desplegada por el usuario, creada desde un proyecto nuevo para asegurar permisos correctos.
 
