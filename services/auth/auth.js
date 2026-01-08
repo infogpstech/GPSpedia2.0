@@ -61,20 +61,20 @@ function doGet(e) {
     if (e.parameter.debug === 'true') {
         const serviceState = {
             service: 'GPSpedia-Auth',
-            version: '1.2.1', // Mantener sincronizado con la versión del componente
+            version: '2.2.2', // Mantener sincronizado con la versión del componente
             spreadsheetId: SPREADSHEET_ID,
             sheetsAccessed: [SHEET_NAMES.USERS, SHEET_NAMES.ACTIVE_SESSIONS, SHEET_NAMES.LOGS]
         };
         return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
-            .setMimeType(ContentService.MimeType.JSON);
+            .setMimeType(ContentService.MimeType.TEXT);
     }
     // Comportamiento por defecto si no está en modo de depuración
     const defaultResponse = {
         status: 'success',
-        message: 'GPSpedia Auth-SERVICE v1.2.1 is active.'
+        message: 'GPSpedia Auth-SERVICE v2.2.2 is active.'
     };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
-        .setMimeType(ContentService.MimeType.JSON);
+        .setMimeType(ContentService.MimeType.TEXT);
 }
 
 function doPost(e) {
@@ -98,7 +98,7 @@ function doPost(e) {
         logToSheet('ERROR', `Error in doPost: ${error.message}`, { stack: error.stack });
         response = { status: 'error', message: error.message };
     }
-    return ContentService.createTextOutput(JSON.stringify(response)).setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify(response)).setMimeType(ContentService.MimeType.TEXT);
 }
 
 // ============================================================================
@@ -135,7 +135,7 @@ function handleLogin(payload) {
 
         const sheetPassword = foundUserRow[COLS_USERS.Password - 1];
         logToSheet('DEBUG', 'Password comparison', { fromSheet: sheetPassword, fromClient: password });
-        const isPasswordMatch = String(sheetPassword).trim().toLowerCase() === String(password).trim().toLowerCase();
+        const isPasswordMatch = String(sheetPassword).trim() === String(password).trim();
 
         if (!isPasswordMatch) {
             throw new Error("Credenciales inválidas.");
@@ -215,12 +215,13 @@ function handleValidateSession(payload) {
             return { valid: false };
         }
 
-        const userSheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAMES.USERS);
-        const data = userSheet.getDataRange().getValues();
-        data.shift();
+        const activeSessionsSheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAMES.ACTIVE_SESSIONS);
+        const data = activeSessionsSheet.getDataRange().getValues();
+        data.shift(); // Remove headers
 
         for (const row of data) {
-            if (row[COLS_USERS.ID - 1] == userId && row[COLS_USERS.SessionToken - 1] === sessionToken) {
+            // Compare userId and sessionToken from the ActiveSessions sheet
+            if (row[COLS_ACTIVE_SESSIONS.ID_Usuario - 1] == userId && row[COLS_ACTIVE_SESSIONS.ActiveSessions - 1] === sessionToken) {
                 return { valid: true };
             }
         }
