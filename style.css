@@ -775,6 +775,7 @@ body.search-active .app-logo {
     filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.4));
     background: none;
     border: none;
+    box-shadow: none;
     margin: 10px auto; /* Centrado */
 }
 
@@ -918,6 +919,8 @@ body.search-active .app-logo {
 }
 
 .lightbox img {
+    max-width: 95%;
+    max-height: 95%;
     width: auto;
     height: auto;
     border-radius: 8px; /* Bordes redondeados sutiles */

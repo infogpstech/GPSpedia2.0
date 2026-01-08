@@ -1,3 +1,24 @@
+**V8.3.1 - (REGRESSION FIX) - 11/01/2024**
+**A. RESUMEN GENERAL:** Se corrigieron las regresiones funcionales críticas en la página de gestión de usuarios (`users.html`) y se finalizaron los ajustes de estilo en el modal de detalles del vehículo para que coincidan con las especificaciones.
+
+**B. Correcciones Críticas y de Estilo:**
+1.  **Reparación de Regresión Funcional en `users.html`:**
+    *   **Problema:** Los botones "Eliminar Usuario" y "Cambiar Contraseña" no funcionaban y devolvían un error de "Datos insuficientes".
+    *   **Causa Raíz:** Las llamadas a la API para estas acciones no incluían el `sessionToken` del usuario, que es requerido por el backend para la autorización.
+    *   **Solución:** Se modificaron las funciones `deleteUser` y `handleChangePasswordSubmit` para incluir el `sessionToken` en el payload enviado al backend, restaurando la funcionalidad completa.
+
+2.  **Ajustes Finales de Estilo (`style.css`):**
+    *   **Imágenes de Logo y Modelo:** Se ajustó la regla `.img-vehiculo-modal` para eliminar la propiedad `box-shadow` y asegurar que no haya estilos de contenedor, cumpliendo con el requisito de mostrar solo la imagen con `drop-shadow`.
+    *   **Lightbox:** Se restauraron las propiedades `max-width: 95%` y `max-height: 95%` a la regla `.lightbox img` para asegurar que las imágenes grandes sean completamente visibles en la pantalla sin necesidad de hacer scroll, al tiempo que se permite que las imágenes más pequeñas se muestren a su tamaño real sin ser estiradas.
+
+**C. Cambios Técnicos Implementados:**
+- **`users.html`:** Se añadió la propiedad `sessionToken` a los payloads de las llamadas a `postToAction` en las funciones `deleteUser` y `handleChangePasswordSubmit`.
+- **`style.css`:** Se eliminó `box-shadow` de `.img-vehiculo-modal` y se reintrodujeron los límites de tamaño en `.lightbox img`.
+
+**D. Impacto:**
+-   **Restaura Funcionalidad Crítica:** La página de gestión de usuarios es ahora completamente funcional, incluyendo la eliminación de usuarios y el cambio de contraseñas.
+-   **Calidad Visual Mejorada:** La apariencia del modal de detalles se alinea finalmente con todas las especificaciones de diseño, y el lightbox ahora maneja imágenes grandes de manera más usable.
+
 **V8.3.0 - (REGRESSION FIX) - 11/01/2024**
 **A. RESUMEN GENERAL:** Se corrigieron múltiples regresiones severas introducidas en el commit anterior, restaurando la funcionalidad de la página de gestión de usuarios y ajustando los estilos del modal de detalles para que coincidan con las especificaciones exactas del `README.md`.
 
@@ -47,38 +68,3 @@
 **D. Impacto:**
 -   **Restaura Funcionalidad Crítica:** La gestión de usuarios vuelve a ser completamente funcional.
 -   **Mejora la Experiencia de Usuario:** El modal de detalles es ahora más intuitivo, se alinea con las especificaciones de diseño y proporciona una nueva funcionalidad interactiva para los diagramas de relay.
-
-**V8.2.8 - (CRITICAL HOTFIX) - 10/01/2024**
-**A. RESUMEN GENERAL:** Se corrigió un error crítico de enrutamiento en la configuración de la API (`api.js`) que causaba que el formulario de "Agregar Vehículo" fallara con el error "Acción desconocida: checkVehicle".
-
-**B. Corrección Crítica (API Frontend):**
-    1.  **Error de Enrutamiento en `api.js`:** Se identificó que la acción `checkVehicle` estaba incorrectamente mapeada al microservicio `CATALOG` en el `ACTION_TO_SERVICE_MAP`.
-    2.  **Causa Raíz:** La lógica para verificar si un vehículo existe es una operación de pre-escritura y pertenece al servicio `WRITE`, no al servicio de solo lectura `CATALOG`. El enrutamiento incorrecto hacía que la llamada llegara a un servicio que no reconocía la acción.
-    3.  **Solución:** Se corrigió el mapa de enrutamiento en `api.js`, reasignando la acción `checkVehicle` (y la acción relacionada `getSuggestion`) al servicio correcto: `WRITE`.
-
-**C. Cambios Técnicos Implementados:**
-    - **`api.js`:**
-        - Se corrigió la entrada para `checkVehicle` en `ACTION_TO_SERVICE_MAP` para que apunte a `'WRITE'`.
-        - Se corrigió la entrada para `getSuggestion` para que apunte a `'WRITE'`.
-
-**D. Impacto:**
-    -   **Restaura la Funcionalidad de Verificación de Vehículos:** Esta corrección es fundamental para el flujo de agregar nuevos registros, ya que permite que el primer paso de verificación funcione correctamente.
-    -   **Alineación Arquitectónica:** Asegura que las acciones de la API se enruten a los microservicios correctos según su responsabilidad lógica (lectura vs. escritura).
-
-**V8.2.7 - (CRITICAL HOTFIX) - 10/01/2024**
-**A. RESUMEN GENERAL:** Se corrigió un error fatal en el formulario para agregar vehículos (`add_cortes.html`) que impedía su funcionamiento. Este error es idéntico al que se solucionó previamente en la página de gestión de usuarios.
-
-**B. Corrección Crítica (Frontend):**
-    1.  **Error de Ámbito (Scope) en `add_cortes.html`:** Al igual que en `users.html`, se identificó que el script de la página no estaba configurado como un módulo (`type="module"`), lo que impedía la importación de la función `routeAction`.
-    2.  **Causa Raíz:** El script intentaba llamar a `routeAction` sin haberla importado desde `api.js`, causando un `ReferenceError` que bloqueaba toda la funcionalidad del formulario.
-    3.  **Solución:** Se modernizó el script de `add_cortes.html` convirtiéndolo en un módulo. Se añadió `type="module"` a la etiqueta `<script>` y se incluyó `import { routeAction } from './api.js';`, solucionando el error.
-
-**C. Cambios Técnicos Implementados:**
-    - **`add_cortes.html`:**
-        - Se añadió `type="module"` a la etiqueta `<script>`.
-        - Se importó la función `routeAction` desde `api.js`.
-        - Se eliminó la referencia al script obsoleto `api-manager.js`.
-
-**D. Impacto:**
-    -   **Restaura la Funcionalidad de Agregar Vehículos:** Esta corrección es crítica para restaurar una de las funcionalidades principales de la aplicación, permitiendo a los usuarios agregar nuevos vehículos y cortes al catálogo.
-    -   **Consistencia Arquitectónica:** Se completa la alineación de todas las páginas con la arquitectura de módulos de JavaScript, mejorando la mantenibilidad y consistencia general del frontend.
