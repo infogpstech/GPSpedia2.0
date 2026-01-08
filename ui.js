@@ -298,7 +298,7 @@ function renderCutContent(container, cutData, datosRelay) {
     if (cutData.img) {
         const img = document.createElement("img");
         img.src = getImageUrl(cutData.img);
-        img.className = 'img-corte';
+        img.className = 'img-corte image-with-container'; // Añadida clase de contenedor
         img.onclick = () => {
             document.getElementById('lightboxImg').src = img.src;
             document.getElementById('lightbox').classList.add('visible');
@@ -509,7 +509,7 @@ function createAccordionSection(container, title, sec, isOpen = false) {
 
         const img = document.createElement("img");
         img.src = getImageUrl(sec.img);
-        img.className = 'img-corte';
+        img.className = 'img-corte image-with-container';
         img.onclick = () => {
             document.getElementById('lightboxImg').src = img.src;
             document.getElementById('lightbox').classList.add('visible');

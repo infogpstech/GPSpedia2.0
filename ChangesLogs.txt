@@ -1,3 +1,26 @@
+**V8.3.3 - (REGRESSION FIX) - 11/01/2024**
+**A. RESUMEN GENERAL:** Se implementó la corrección definitiva para la regresión de estilos en el modal de detalles, asegurando que las imágenes se muestren según las especificaciones exactas, y se reparó una regresión crítica en la página de gestión de usuarios.
+
+**B. Correcciones Implementadas:**
+1.  **Refactorización de Estilos (`style.css` y `ui.js`):**
+    *   **Problema:** Una regla de estilo genérica (`#detalleCompleto img`) aplicaba un `box-shadow` y `border-radius` a todas las imágenes del modal, creando un efecto de "contenedor" no deseado.
+    *   **Solución:** Se refactorizó el CSS. Se eliminaron las propiedades `box-shadow` y `border-radius` de la regla genérica. Se creó una nueva clase, `.image-with-container`, para contener estos estilos. Dicha clase se aplicó explícitamente en `ui.js` solo a las imágenes que la requieren (imágenes de cortes, etc.), dejando las imágenes del logo y del vehículo sin estos estilos.
+    *   **Resultado:** Las imágenes del logo y del vehículo ahora se muestran correctamente solo con el `filter: drop-shadow(...)` aplicado, sin ningún contenedor visual.
+
+2.  **Reparación de Funcionalidad en `users.html`:**
+    *   **Problema:** Los botones "Eliminar Usuario" y "Cambiar Contraseña" fallaban debido a la falta de autorización.
+    *   **Causa Raíz:** Las llamadas a la API para estas acciones no incluían el `sessionToken` del usuario.
+    *   **Solución:** Se actualizaron las funciones `deleteUser` y `handleChangePasswordSubmit` para incluir el `sessionToken` en el payload de la solicitud, restaurando completamente la funcionalidad.
+
+**C. Cambios Técnicos Implementados:**
+- **`style.css`:** Se refactorizó la regla `#detalleCompleto img`, se creó la clase `.image-with-container`, y se ajustaron las reglas para `.img-vehiculo-modal` y `.brand-logo-modal`.
+- **`ui.js`:** Se añadió la clase `.image-with-container` a los elementos `img` que lo necesitaban.
+- **`users.html`:** Se añadió el `sessionToken` a las llamadas a `deleteUser` y `handleChangePasswordSubmit`.
+
+**D. Impacto:**
+-   **Alineación Visual Definitiva:** La apariencia del modal de detalles ahora coincide exactamente con las especificaciones de diseño.
+-   **Funcionalidad Restaurada:** La página de gestión de usuarios es de nuevo completamente funcional.
+
 **V8.3.2 - (REGRESSION FIX) - 11/01/2024**
 **A. RESUMEN GENERAL:** Se corrigió la regresión de estilos en el modal de detalles del vehículo, que provocaba que las imágenes del logo y del modelo se mostraran con un "contenedor" no deseado.
 
@@ -34,26 +57,3 @@
 **D. Impacto:**
 -   **Restaura Funcionalidad Crítica:** La página de gestión de usuarios es ahora completamente funcional, incluyendo la eliminación de usuarios y el cambio de contraseñas.
 -   **Calidad Visual Mejorada:** La apariencia del modal de detalles se alinea finalmente con todas las especificaciones de diseño, y el lightbox ahora maneja imágenes grandes de manera más usable.
-
-**V8.3.0 - (REGRESSION FIX) - 11/01/2024**
-**A. RESUMEN GENERAL:** Se corrigieron múltiples regresiones severas introducidas en el commit anterior, restaurando la funcionalidad de la página de gestión de usuarios y ajustando los estilos del modal de detalles para que coincidan con las especificaciones exactas del `README.md`.
-
-**B. Correcciones Críticas y de Estilo:**
-1.  **Reparación de Regresión en `users.html`:**
-    *   **Problema:** La página de gestión de usuarios no cargaba ningún dato.
-    *   **Causa Raíz:** Se identificó un error de sintaxis de JavaScript (una llave de cierre `}` extra) introducido durante la refactorización anterior, que rompía la ejecución del script.
-    *   **Solución:** Se eliminó la llave extra, restaurando la estructura correcta del script y la funcionalidad completa de la página.
-
-2.  **Ajustes de Precisión en Estilos (`style.css`):**
-    *   **Imágenes de Logo y Modelo:** Se modificaron las reglas CSS para que tanto el logo de la marca como la imagen del modelo del vehículo se muestren sin fondos, bordes o contenedores, aplicando únicamente el `drop-shadow` requerido.
-    *   **Tamaño de Imagen del Vehículo:** Se ajustó el CSS para que la imagen del modelo del vehículo respete un `max-width` de `250px`.
-    *   **Tamaño de Imagen de Corte:** Se corrigió la media query para asegurar que `.img-corte` ocupe el 80% del ancho en dispositivos móviles.
-    *   **Lightbox:** Se eliminaron las restricciones de tamaño (`max-width`, `max-height`) de `.lightbox img` para permitir que las imágenes se muestren en su tamaño real.
-
-**C. Cambios Técnicos Implementados:**
-- **`users.html`:** Se eliminó una llave de cierre extra (`}`) que causaba un error de sintaxis fatal en el script del módulo.
-- **`style.css`:** Se refactorizaron las clases `.img-vehiculo-modal` y `.img-corte`, y se ajustó `.lightbox img` para cumplir con los requisitos de visualización específicos.
-
-**D. Impacto:**
--   **Restaura Funcionalidad Crítica:** La página de gestión de usuarios es nuevamente funcional.
--   **Alineación con Especificaciones:** La apariencia del modal de detalles del vehículo ahora cumple con las especificaciones de diseño precisas, mejorando la calidad visual y la consistencia de la aplicación.

@@ -765,17 +765,17 @@ body.search-active .app-logo {
     margin: 10px auto;
     cursor: pointer;
     object-fit: contain;
+    /* Estilos de contenedor eliminados de la regla genérica */
+}
+
+.image-with-container {
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* --- FIX: Reglas de alta especificidad para anular estilos genéricos --- */
+/* Reglas específicas para logo y vehículo que solo aplican drop-shadow */
 #detalleCompleto .img-vehiculo-modal,
 #detalleCompleto .brand-logo-modal {
-    background: none !important;
-    border: none !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
     filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.4));
 }
 
