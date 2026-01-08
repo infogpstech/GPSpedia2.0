@@ -7,7 +7,7 @@
 const API_ENDPOINTS = {
     LEGACY: "https://script.google.com/macros/s/AKfycbwpIFH1nX2BZEjAKbpq9HJpEGNlo_0LqD1CwxWsWFo5J0AJDdbfMrKpcsAV4ZFJzFWd/exec",
     AUTH:     "https://script.google.com/macros/s/AKfycbwoReCKliFdD_Ep8Ivq2WOLwxlMnfsxwKxlM3mgxGocTcmJ8cP5bEF7R6Z8iEui8ynU/exec",
-    CATALOG:  "https://script.google.com/macros/s/AKfycbzAI4pr-0nfKets3Xd7BGb9wN6MBFhWgn2XjUFXMhnFsCIUAWKCAHMwObAn-8KJY3ThSg/exec",
+    CATALOG:  "https://script.google.com/macros/s/AKfycbxI295Wu8KW9Zi_DzgZKr68js2IHyDXYgBRM-TRXk2jwBy5lBrlKHxH--I3cUpdUCS60Q/exec",
     WRITE:    "https://script.google.com/macros/s/AKfycbwx51C9UQPRis2hIExIT2d1lGoTFZdCFyzMVVvQseHg41pztX86H16n88D8npO5__o_cQ/exec",
     USERS:    "https://script.google.com/macros/s/AKfycbzReGv4d2Aapl5-YhRW5x2QmxZJFEAhskzZRqwT39sw_8fQhUr7IXEP7nHRfHxkDdx7/exec",
     FEEDBACK: "https://script.google.com/macros/s/AKfycbxFd_uHND1B7qaiBm-aHck3FzcU7tCl-a3gUgOdDxoD25A6-jSCAN2ylXQG8-85ALsX/exec",

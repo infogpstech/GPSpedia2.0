@@ -1,3 +1,15 @@
+**V8.2.3 - (CONFIG) - 10/01/2024**
+**A. RESUMEN GENERAL:** Se actualizó la URL del endpoint del microservicio de catálogo (`GPSpedia-Catalog`) en la configuración del frontend para apuntar a un servicio completamente nuevo, recreado y desplegado por el usuario para asegurar que todos los permisos y configuraciones del entorno de Google Apps Script estuvieran correctamente aplicados.
+
+**B. Cambio de Configuración (Frontend):**
+    1.  **Actualización de Endpoint:** Se modificó la constante `API_ENDPOINTS.CATALOG` en `api.js` para reemplazar la URL de despliegue anterior por la nueva proporcionada.
+
+**C. Cambios Técnicos Implementados:**
+    - **`api.js`:** Se actualizó la URL del servicio `CATALOG`.
+
+**D. Impacto:**
+    -   Este cambio asegura que la aplicación utilice la implementación más reciente y limpia del servicio de catálogo, eliminando cualquier posible problema residual de configuración o permisos del despliegue anterior. Es un paso crucial para garantizar la estabilidad y el correcto funcionamiento de la carga de datos.
+
 **V8.2.2 - (CRITICAL HOTFIX) - 10/01/2024**
 **A. RESUMEN GENERAL:** Se corrigió la causa raíz definitiva del error de imágenes rotas. El problema no era de permisos de archivo en Google Drive, sino que el servicio de imágenes (`services/imagen/`) carecía del archivo de manifiesto (`appsscript.json`), impidiendo que solicitara los permisos necesarios para acceder a Google Drive en primer lugar.
 
