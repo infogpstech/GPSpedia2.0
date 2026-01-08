@@ -327,11 +327,11 @@ function setupEventListeners() {
     document.getElementById('user-form').addEventListener('submit', handleUserFormSubmit);
     // FIX Tarea 23: Se añade el event listener faltante para el formulario de cambio de contraseña.
     document.getElementById('password-form').addEventListener('submit', handleChangePasswordSubmit);
+}
 
-
-    function openUserModal(user = null) {
-        const modal = document.getElementById('user-modal');
-        const title = document.getElementById('user-modal-title');
+function openUserModal(user = null) {
+    const modal = document.getElementById('user-modal');
+    const title = document.getElementById('user-modal-title');
         const form = document.getElementById('user-form');
         form.reset();
 

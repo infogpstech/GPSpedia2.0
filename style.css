@@ -769,24 +769,27 @@ body.search-active .app-logo {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 .img-vehiculo-modal {
-    max-height: 150px;
-    width: 50%; /* Reducido a la mitad */
-    max-width: 250px; /* Límite máximo */
-    height: auto;
+    max-width: 250px; /* Límite máximo solicitado */
+    width: auto;
+    height: auto; /* Altura automática para mantener proporción */
     filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.4));
     background: none;
     border: none;
+    margin: 10px auto; /* Centrado */
 }
+
 .img-corte {
-    width: 100%; /* Por defecto ocupa el 100% del contenedor */
+    width: 100%; /* Por defecto, ocupa el 100% de su contenedor */
     height: auto;
+    max-width: 100%; /* Asegura que no se desborde */
 }
 
 /* Media query para móviles */
 @media (max-width: 600px) {
-    .img-corte {
-        width: 80%; /* Ocupa el 80% en pantallas pequeñas */
-        margin: auto; /* Centrado */
+    #detalleCompleto .img-corte {
+        width: 80%;
+        margin-left: auto;
+        margin-right: auto;
     }
 }
 
@@ -915,8 +918,8 @@ body.search-active .app-logo {
 }
 
 .lightbox img {
-    max-width: 95%;
-    max-height: 95%;
+    width: auto;
+    height: auto;
     border-radius: 8px; /* Bordes redondeados sutiles */
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     /* Transición para el efecto de zoom */

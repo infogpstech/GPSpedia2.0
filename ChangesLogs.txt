@@ -1,3 +1,26 @@
+**V8.3.0 - (REGRESSION FIX) - 11/01/2024**
+**A. RESUMEN GENERAL:** Se corrigieron múltiples regresiones severas introducidas en el commit anterior, restaurando la funcionalidad de la página de gestión de usuarios y ajustando los estilos del modal de detalles para que coincidan con las especificaciones exactas del `README.md`.
+
+**B. Correcciones Críticas y de Estilo:**
+1.  **Reparación de Regresión en `users.html`:**
+    *   **Problema:** La página de gestión de usuarios no cargaba ningún dato.
+    *   **Causa Raíz:** Se identificó un error de sintaxis de JavaScript (una llave de cierre `}` extra) introducido durante la refactorización anterior, que rompía la ejecución del script.
+    *   **Solución:** Se eliminó la llave extra, restaurando la estructura correcta del script y la funcionalidad completa de la página.
+
+2.  **Ajustes de Precisión en Estilos (`style.css`):**
+    *   **Imágenes de Logo y Modelo:** Se modificaron las reglas CSS para que tanto el logo de la marca como la imagen del modelo del vehículo se muestren sin fondos, bordes o contenedores, aplicando únicamente el `drop-shadow` requerido.
+    *   **Tamaño de Imagen del Vehículo:** Se ajustó el CSS para que la imagen del modelo del vehículo respete un `max-width` de `250px`.
+    *   **Tamaño de Imagen de Corte:** Se corrigió la media query para asegurar que `.img-corte` ocupe el 80% del ancho en dispositivos móviles.
+    *   **Lightbox:** Se eliminaron las restricciones de tamaño (`max-width`, `max-height`) de `.lightbox img` para permitir que las imágenes se muestren en su tamaño real.
+
+**C. Cambios Técnicos Implementados:**
+- **`users.html`:** Se eliminó una llave de cierre extra (`}`) que causaba un error de sintaxis fatal en el script del módulo.
+- **`style.css`:** Se refactorizaron las clases `.img-vehiculo-modal` y `.img-corte`, y se ajustó `.lightbox img` para cumplir con los requisitos de visualización específicos.
+
+**D. Impacto:**
+-   **Restaura Funcionalidad Crítica:** La página de gestión de usuarios es nuevamente funcional.
+-   **Alineación con Especificaciones:** La apariencia del modal de detalles del vehículo ahora cumple con las especificaciones de diseño precisas, mejorando la calidad visual y la consistencia de la aplicación.
+
 **V8.2.9 - (FEATURE & REFACTOR) - 11/01/2024**
 **A. RESUMEN GENERAL:** Se implementaron las correcciones funcionales y de apariencia identificadas en la auditoría del 11/01/2024, restaurando la funcionalidad de la página de gestión de usuarios y mejorando significativamente la UX y la presentación del modal de detalles del vehículo.
 
@@ -59,38 +82,3 @@
 **D. Impacto:**
     -   **Restaura la Funcionalidad de Agregar Vehículos:** Esta corrección es crítica para restaurar una de las funcionalidades principales de la aplicación, permitiendo a los usuarios agregar nuevos vehículos y cortes al catálogo.
     -   **Consistencia Arquitectónica:** Se completa la alineación de todas las páginas con la arquitectura de módulos de JavaScript, mejorando la mantenibilidad y consistencia general del frontend.
-
-**V8.2.6 - (CRITICAL HOTFIX) - 10/01/2024**
-**A. RESUMEN GENERAL:** Se corrigió un error fatal en la página de gestión de usuarios (`users.html`) que impedía la ejecución de cualquier acción (crear, editar, eliminar) debido a un error de JavaScript "routeAction is not defined".
-
-**B. Corrección Crítica (Frontend):**
-    1.  **Error de Ámbito (Scope) en `users.html`:** Se identificó que el script de la página no estaba configurado como un módulo de JavaScript (`type="module"`), lo que impedía que pudiera importar funciones de otros archivos.
-    2.  **Causa Raíz:** El script intentaba llamar a la función `routeAction` sin haberla importado previamente desde `api.js`, causando un error de referencia que detenía toda la funcionalidad.
-    3.  **Solución:** Se modernizó el script de `users.html` convirtiéndolo en un módulo. Se añadió `type="module"` a la etiqueta `<script>` y se incluyó la línea `import { routeAction } from './api.js';` al principio del código, haciendo que la función `routeAction` esté disponible y solucionando el error.
-
-**C. Cambios Técnicos Implementados:**
-    - **`users.html`:**
-        - Se añadió `type="module"` a la etiqueta `<script>`.
-        - Se importó la función `routeAction` desde `api.js`.
-        - Se eliminó una etiqueta `<script>` obsoleta que apuntaba a un archivo inexistente.
-
-**D. Impacto:**
-    -   **Restaura la Funcionalidad de Gestión de Usuarios:** Esta corrección es crítica para restaurar por completo la funcionalidad de la página de gestión de usuarios, permitiendo a los administradores crear, editar, eliminar y cambiar contraseñas de los usuarios.
-    -   **Alineación Arquitectónica:** Alinea la página `users.html` con la arquitectura de módulos de JavaScript utilizada en el resto de la aplicación, mejorando la consistencia y mantenibilidad del código.
-
-**V8.2.5 - (CRITICAL HOTFIX & RE-ARCHITECTURE) - 10/01/2024**
-**A. RESUMEN GENERAL:** Se implementó un cambio de arquitectura fundamental en el manejo de imágenes para solucionar de forma definitiva el problema de las imágenes rotas. Se eliminó la dependencia del servicio intermediario (`IMAGE`) y ahora el frontend construye las URLs de las imágenes de Google Drive directamente.
-
-**B. Cambio de Arquitectura (Frontend):**
-    1.  **Eliminación del Proxy de Imágenes:** Se abandonó el uso del microservicio `IMAGE` como proxy. La depuración demostró que este intermediario, a pesar de las correcciones de permisos y despliegue, seguía siendo un punto de fallo persistente.
-    2.  **Construcción Directa de URLs:** Se reimplementó la función `getImageUrl(fileId)` en `api.js`. Ahora, en lugar de llamar a nuestro servicio, construye una URL pública de Google Drive utilizando el formato `https://drive.google.com/thumbnail?id={ID}`.
-    3.  **Causa Raíz Final:** La directiva del usuario de que el frontend debía ser el encargado de construir la URL fue la clave para resolver el problema, indicando que la estrategia de usar un proxy era incorrecta desde el principio.
-
-**C. Cambios Técnicos Implementados:**
-    - **`api.js`:**
-        - Se reescribió por completo la función `getImageUrl` para generar URLs de miniaturas de Google Drive.
-        - Se eliminó la constante `API_ENDPOINTS.IMAGE`, ya que es obsoleta.
-
-**D. Impacto:**
-    -   **Solución Definitiva a las Imágenes Rotas:** Este cambio elimina el punto de fallo del backend y permite que el navegador cargue las imágenes directamente desde los servidores de Google, lo cual es una solución más robusta y estándar. Se espera que todas las imágenes de la aplicación ahora se carguen correctamente.
-    -   **Simplificación de la Arquitectura:** Se reduce la complejidad del sistema al eliminar un microservicio intermediario innecesario.
