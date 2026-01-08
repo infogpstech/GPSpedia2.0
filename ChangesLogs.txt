@@ -1,3 +1,21 @@
+**V8.2.7 - (CRITICAL HOTFIX) - 10/01/2024**
+**A. RESUMEN GENERAL:** Se corrigió un error fatal en el formulario para agregar vehículos (`add_cortes.html`) que impedía su funcionamiento. Este error es idéntico al que se solucionó previamente en la página de gestión de usuarios.
+
+**B. Corrección Crítica (Frontend):**
+    1.  **Error de Ámbito (Scope) en `add_cortes.html`:** Al igual que en `users.html`, se identificó que el script de la página no estaba configurado como un módulo (`type="module"`), lo que impedía la importación de la función `routeAction`.
+    2.  **Causa Raíz:** El script intentaba llamar a `routeAction` sin haberla importado desde `api.js`, causando un `ReferenceError` que bloqueaba toda la funcionalidad del formulario.
+    3.  **Solución:** Se modernizó el script de `add_cortes.html` convirtiéndolo en un módulo. Se añadió `type="module"` a la etiqueta `<script>` y se incluyó `import { routeAction } from './api.js';`, solucionando el error.
+
+**C. Cambios Técnicos Implementados:**
+    - **`add_cortes.html`:**
+        - Se añadió `type="module"` a la etiqueta `<script>`.
+        - Se importó la función `routeAction` desde `api.js`.
+        - Se eliminó la referencia al script obsoleto `api-manager.js`.
+
+**D. Impacto:**
+    -   **Restaura la Funcionalidad de Agregar Vehículos:** Esta corrección es crítica para restaurar una de las funcionalidades principales de la aplicación, permitiendo a los usuarios agregar nuevos vehículos y cortes al catálogo.
+    -   **Consistencia Arquitectónica:** Se completa la alineación de todas las páginas con la arquitectura de módulos de JavaScript, mejorando la mantenibilidad y consistencia general del frontend.
+
 **V8.2.6 - (CRITICAL HOTFIX) - 10/01/2024**
 **A. RESUMEN GENERAL:** Se corrigió un error fatal en la página de gestión de usuarios (`users.html`) que impedía la ejecución de cualquier acción (crear, editar, eliminar) debido a un error de JavaScript "routeAction is not defined".
 
