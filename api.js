@@ -12,7 +12,7 @@ const API_ENDPOINTS = {
     USERS:    "https://script.google.com/macros/s/AKfycbzReGv4d2Aapl5-YhRW5x2QmxZJFEAhskzZRqwT39sw_8fQhUr7IXEP7nHRfHxkDdx7/exec",
     FEEDBACK: "https://script.google.com/macros/s/AKfycbxFd_uHND1B7qaiBm-aHck3FzcU7tCl-a3gUgOdDxoD25A6-jSCAN2ylXQG8-85ALsX/exec",
     UTILITIES: "https://script.google.com/macros/s/AKfycbzkGXk_kSm3rN7K5PM0RntiPAn7DlH78RkH66a2vuwZwU8KgwDufkOiPjXoUKzuHAgG/exec",
-    IMAGE: "https://script.google.com/macros/s/AKfycbyOi8zp3kl7LnAcK-7ZYPAnCsqn1MkXSBgaSZ_608prD-OwMv7Dz3hHJSXv-gdCxOVUgg/exec"
+    IMAGE: "https://script.google.com/macros/s/AKfycby5U9T8LJcqXYoQCqYTgqjn0Ax3_2TqI1roTL1xtRfRm9Co-UEotegT5SXS1YXtzDNGnQ/exec"
 };
 
 const ACTION_TO_SERVICE_MAP = {
