@@ -11,8 +11,7 @@ const API_ENDPOINTS = {
     WRITE:    "https://script.google.com/macros/s/AKfycbwx51C9UQPRis2hIExIT2d1lGoTFZdCFyzMVVvQseHg41pztX86H16n88D8npO5__o_cQ/exec",
     USERS:    "https://script.google.com/macros/s/AKfycbzReGv4d2Aapl5-YhRW5x2QmxZJFEAhskzZRqwT39sw_8fQhUr7IXEP7nHRfHxkDdx7/exec",
     FEEDBACK: "https://script.google.com/macros/s/AKfycbxFd_uHND1B7qaiBm-aHck3FzcU7tCl-a3gUgOdDxoD25A6-jSCAN2ylXQG8-85ALsX/exec",
-    UTILITIES: "https://script.google.com/macros/s/AKfycbzkGXk_kSm3rN7K5PM0RntiPAn7DlH78RkH66a2vuwZwU8KgwDufkOiPjXoUKzuHAgG/exec",
-    IMAGE: "https://script.google.com/macros/s/AKfycby5U9T8LJcqXYoQCqYTgqjn0Ax3_2TqI1roTL1xtRfRm9Co-UEotegT5SXS1YXtzDNGnQ/exec"
+    UTILITIES: "https://script.google.com/macros/s/AKfycbzkGXk_kSm3rN7K5PM0RntiPAn7DlH78RkH66a2vuwZwU8KgwDufkOiPjXoUKzuHAgG/exec"
 };
 
 const ACTION_TO_SERVICE_MAP = {
@@ -103,10 +102,10 @@ export async function markAsResolved(itemId) {
     return await routeAction('markAsResolved', { itemId });
 }
 
-export function getImageUrl(fileId) {
+export function getImageUrl(fileId, size = 'w280-h200') {
     if (!fileId || typeof fileId !== 'string' || fileId.trim() === '') {
         return "https://placehold.co/280x200/cccccc/333333?text=Sin+Imagen";
     }
-    const encodedFileId = encodeURIComponent(fileId.trim());
-    return `${API_ENDPOINTS.IMAGE}?fileId=${encodedFileId}`;
+    // Nueva lógica: Construir la URL de thumbnail de Google Drive directamente
+    return `https://drive.google.com/thumbnail?id=${fileId.trim()}&sz=${size}`;
 }

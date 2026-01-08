@@ -1,3 +1,20 @@
+**V8.2.5 - (CRITICAL HOTFIX & RE-ARCHITECTURE) - 10/01/2024**
+**A. RESUMEN GENERAL:** Se implementó un cambio de arquitectura fundamental en el manejo de imágenes para solucionar de forma definitiva el problema de las imágenes rotas. Se eliminó la dependencia del servicio intermediario (`IMAGE`) y ahora el frontend construye las URLs de las imágenes de Google Drive directamente.
+
+**B. Cambio de Arquitectura (Frontend):**
+    1.  **Eliminación del Proxy de Imágenes:** Se abandonó el uso del microservicio `IMAGE` como proxy. La depuración demostró que este intermediario, a pesar de las correcciones de permisos y despliegue, seguía siendo un punto de fallo persistente.
+    2.  **Construcción Directa de URLs:** Se reimplementó la función `getImageUrl(fileId)` en `api.js`. Ahora, en lugar de llamar a nuestro servicio, construye una URL pública de Google Drive utilizando el formato `https://drive.google.com/thumbnail?id={ID}`.
+    3.  **Causa Raíz Final:** La directiva del usuario de que el frontend debía ser el encargado de construir la URL fue la clave para resolver el problema, indicando que la estrategia de usar un proxy era incorrecta desde el principio.
+
+**C. Cambios Técnicos Implementados:**
+    - **`api.js`:**
+        - Se reescribió por completo la función `getImageUrl` para generar URLs de miniaturas de Google Drive.
+        - Se eliminó la constante `API_ENDPOINTS.IMAGE`, ya que es obsoleta.
+
+**D. Impacto:**
+    -   **Solución Definitiva a las Imágenes Rotas:** Este cambio elimina el punto de fallo del backend y permite que el navegador cargue las imágenes directamente desde los servidores de Google, lo cual es una solución más robusta y estándar. Se espera que todas las imágenes de la aplicación ahora se carguen correctamente.
+    -   **Simplificación de la Arquitectura:** Se reduce la complejidad del sistema al eliminar un microservicio intermediario innecesario.
+
 **V8.2.4 - (CONFIG) - 10/01/2024**
 **A. RESUMEN GENERAL:** Se actualizó la URL del endpoint del microservicio de imágenes (`GPSpedia-Image`) para apuntar al despliegue final y corregido, que ahora incluye el manifiesto de permisos `appsscript.json`, solucionando definitivamente el problema de las imágenes rotas.
 
