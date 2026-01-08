@@ -1,3 +1,18 @@
+**V8.2.2 - (CRITICAL HOTFIX) - 10/01/2024**
+**A. RESUMEN GENERAL:** Se corrigió la causa raíz definitiva del error de imágenes rotas. El problema no era de permisos de archivo en Google Drive, sino que el servicio de imágenes (`services/imagen/`) carecía del archivo de manifiesto (`appsscript.json`), impidiendo que solicitara los permisos necesarios para acceder a Google Drive en primer lugar.
+
+**B. Corrección Crítica (Backend):**
+    1.  **Archivo `appsscript.json` Ausente:** Se identificó que el directorio `services/imagen/` no contenía el archivo `appsscript.json`. Este archivo es fundamental para declarar los `oauthScopes` (permisos) que un script de Google Apps necesita.
+    2.  **Causa Raíz:** Sin este archivo, el script se desplegaba con permisos por defecto que no incluyen el acceso a Google Drive (`DriveApp`). Como resultado, cualquier llamada a `DriveApp.getFileById()` era bloqueada por la plataforma de Google, generando el error 404 que se observaba.
+    3.  **Solución:** Se creó el archivo `services/imagen/appsscript.json` y se le añadieron los scopes necesarios, incluyendo `https://www.googleapis.com/auth/drive.readonly`.
+
+**C. Cambios Técnicos Implementados:**
+    - **`services/imagen/appsscript.json`:** Se creó este nuevo archivo con la configuración de permisos correcta para permitir el acceso de solo lectura a Google Drive y el uso del servicio de caché.
+
+**D. Impacto:**
+    -   **Resuelve el Problema de las Imágenes:** Al volver a desplegar el servicio de imágenes con este cambio, la plataforma de Google solicitará al usuario que autorice los nuevos permisos. Una vez autorizados, el servicio podrá acceder a los archivos de imagen y servirlos correctamente, solucionando el problema de las imágenes rotas en toda la aplicación.
+    -   **Alineación Arquitectónica:** Asegura que el servicio de imágenes siga las mejores prácticas y los requisitos de la plataforma de Google Apps Script para el manejo de permisos.
+
 **V8.2.1 - (CONFIG) - 10/01/2024**
 **A. RESUMEN GENERAL:** Se actualizó la URL del endpoint del microservicio de imágenes (`GPSpedia-Image`) en la configuración del frontend para apuntar a la más reciente versión desplegada por el usuario, en un esfuerzo por solucionar el problema de las imágenes rotas.
 
@@ -54,7 +69,7 @@
 
 
 **V8.1.6 - (CONFIG) - 09/01/2024**
-**A. RESUMEN GENERAL:** Se actualizó la URL del endpoint del microservicio de autenticación (`GPSpedia-Auth`) en la configuración del frontend para apuntar a la más reciente versión desplegada por el usuario.
+**A. RESUMEN GENERAL:** Se actualizó la URL del endpoint del microservicio de autenticación (`GPSpedia-Auth`) en la configuración del frontend para apuntar a la más recente versión desplegada por el usuario.
 
 **B. Cambio de Configuración (Frontend):**
     1.  **Actualización de Endpoint:** Se modificó la constante `API_ENDPOINTS.AUTH` en `api.js` para reemplazar la URL de despliegue por la nueva proporcionada, asegurando que el frontend utilice la última implementación del backend.
@@ -81,7 +96,7 @@
     -   **Diagnóstico Final:** Concluye una larga investigación, aislando el problema a un error de despliegue en el servicio de autenticación, que es el primer punto de entrada de la aplicación.
 
 **V8.1.4 - (CONFIG) - 09/01/2024**
-**A. RESUMEN GENERAL:** Se actualizó la URL del endpoint del microservicio de catálogo (`GPSpedia-Catalog`) en la configuración del frontend para apuntar a la más reciente versión desplegada por el usuario, creada desde un proyecto nuevo para asegurar permisos correctos.
+**A. RESUMEN GENERAL:** Se actualizó la URL del endpoint del microservicio de catálogo (`GPSpedia-Catalog`) en la configuración del frontend para apuntar a la más recente versión desplegada por el usuario, creada desde un proyecto nuevo para asegurar permisos correctos.
 
 **B. Cambio de Configuración (Frontend):**
     1.  **Actualización de Endpoint:** Se modificó la constante `API_ENDPOINTS.CATALOG` en `api.js` para reemplazar la URL de despliegue por la nueva proporcionada, asegurando que el frontend utilice la última implementación del backend.
@@ -93,7 +108,7 @@
     -   Asegura que el frontend se comunique con la versión más reciente y corregida del servicio de catálogo, garantizando que los últimos fixes y mejoras estén activos en producción.
 
 **V8.1.3 - (CONFIG) - 09/01/2024**
-**A. RESUMEN GENERAL:** Se actualizó la URL del endpoint del microservicio de catálogo (`GPSpedia-Catalog`) en la configuración del frontend para apuntar a la más reciente versión desplegada por el usuario.
+**A. RESUMEN GENERAL:** Se actualizó la URL del endpoint del microservicio de catálogo (`GPSpedia-Catalog`) en la configuración del frontend para apuntar a la más recente versión desplegada por el usuario.
 
 **B. Cambio de Configuración (Frontend):**
     1.  **Actualización de Endpoint:** Se modificó la constante `API_ENDPOINTS.CATALOG` en `api.js` para reemplazar la URL de despliegue por la nueva proporcionada, asegurando que el frontend utilice la última implementación del backend.
