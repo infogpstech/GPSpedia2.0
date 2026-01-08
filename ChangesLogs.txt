@@ -1,3 +1,26 @@
+**V8.3.4 - (REGRESSION FIX) - 11/01/2024**
+**A. RESUMEN GENERAL:** Se corrigieron múltiples regresiones visuales en el modal de detalles del vehículo, restaurando el diseño y la alineación correctos de sus componentes, especialmente en la cabecera y en la visualización de imágenes.
+
+**B. Correcciones Implementadas:**
+1.  **Alineación de Cabecera del Modal (`ui.js`):**
+    *   **Problema:** El logo de la marca y el título del vehículo en la cabecera del modal estaban centrados en lugar de alineados a la izquierda.
+    *   **Solución:** Se añadió la propiedad `justifyContent: 'flex-start'` al contenedor flex de la cabecera, asegurando que los elementos se alineen correctamente al inicio del contenedor.
+
+2.  **Refactorización de Estilos de Imagen (`style.css`):**
+    *   **Problema:** Una regla de CSS genérica (`#detalleCompleto img`) estaba aplicando estilos de "contenedor" (`box-shadow`, `border-radius`) y una altura máxima (`max-height: 300px`) a *todas* las imágenes del modal, causando que el logo y la imagen del vehículo se vieran incorrectamente y que las imágenes de los cortes no se escalaran adecuadamente.
+    *   **Solución:** Se eliminó la propiedad `max-height` de la regla genérica para permitir que las imágenes se escalen proporcionalmente a su ancho. Los estilos de contenedor (`box-shadow`, `border-radius`) fueron movidos de la regla genérica a la clase más específica `.image-with-container`, que solo se aplica a las imágenes de los cortes.
+
+3.  **Especificidad en Estilos Móviles (`style.css`):**
+    *   **Problema:** La regla que definía el ancho de la imagen del corte al 80% en dispositivos móviles no se estaba aplicando debido a baja especificidad.
+    *   **Solución:** Se aumentó la especificidad del selector a `#modalDetalle #detalleCompleto .img-corte` para garantizar que la regla de ancho del 80% anule cualquier otra regla conflictiva en vistas móviles.
+
+**C. Cambios Técnicos Implementados:**
+- **`ui.js`:** Se ajustó el estilo flex del `modalHeader` para incluir `justifyContent: 'flex-start'`.
+- **`style.css`:** Se refactorizó la regla `#detalleCompleto img` eliminando `max-height` y se aumentó la especificidad del selector para `.img-corte` en la media query de móviles.
+
+**D. Impacto:**
+-   **Consistencia Visual Restaurada:** El modal de detalles del vehículo ahora se renderiza de manera consistente y correcta en todos los tamaños de pantalla, alineándose con las especificaciones de diseño y eliminando las regresiones visuales introducidas previamente.
+
 **V8.3.3 - (REGRESSION FIX) - 11/01/2024**
 **A. RESUMEN GENERAL:** Se implementó la corrección definitiva para la regresión de estilos en el modal de detalles, asegurando que las imágenes se muestren según las especificaciones exactas, y se reparó una regresión crítica en la página de gestión de usuarios.
 

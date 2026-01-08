@@ -761,11 +761,10 @@ body.search-active .app-logo {
     display: block;
     width: auto;
     max-width: 100%;
-    max-height: 300px;
+    /* max-height eliminado para permitir que el ancho domine */
     margin: 10px auto;
     cursor: pointer;
     object-fit: contain;
-    /* Estilos de contenedor eliminados de la regla genérica */
 }
 
 .image-with-container {
@@ -794,8 +793,8 @@ body.search-active .app-logo {
 
 /* Media query para móviles */
 @media (max-width: 600px) {
-    #detalleCompleto .img-corte {
-        width: 80%;
+    #modalDetalle #detalleCompleto .img-corte {
+        width: 80% !important; /* Aumentar especificidad */
         margin-left: auto;
         margin-right: auto;
     }
