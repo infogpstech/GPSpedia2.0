@@ -770,12 +770,35 @@ body.search-active .app-logo {
 }
 .img-vehiculo-modal {
     max-height: 150px;
+    width: 50%; /* Reducido a la mitad */
+    max-width: 250px; /* Límite máximo */
+    height: auto;
     filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.4));
     background: none;
     border: none;
 }
 .img-corte {
-    width: 100%;
+    width: 100%; /* Por defecto ocupa el 100% del contenedor */
+    height: auto;
+}
+
+/* Media query para móviles */
+@media (max-width: 600px) {
+    .img-corte {
+        width: 80%; /* Ocupa el 80% en pantallas pequeñas */
+        margin: auto; /* Centrado */
+    }
+}
+
+/* Estilo para el botón de Relay */
+.btn-link {
+    background: none;
+    border: none;
+    color: #007bff;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+    font-size: inherit;
 }
 
 /* --- ESTILOS PARA LA SECCIÓN DE FEEDBACK EN MODAL --- */

@@ -151,23 +151,16 @@ export function mostrarDetalleModal(item) {
     const headerDiv = document.createElement("div");
     headerDiv.style.cssText = "display: flex; justify-content: flex-end; align-items: center; margin-bottom: 10px;";
     const closeBtn = document.createElement("button");
-    closeBtn.innerHTML = "&times;"; // Usar un ícono de 'X'
+    closeBtn.innerHTML = "&times;";
     closeBtn.onclick = () => document.getElementById("modalDetalle").classList.remove("visible");
     closeBtn.className = "info-close-btn";
     closeBtn.style.cssText = "position: static; font-size: 2.5em; padding: 0 10px;";
     headerDiv.appendChild(closeBtn);
     cont.appendChild(headerDiv);
 
-    // --- 2. Encabezado Principal (Título, Logo) ---
+    // --- 2. Encabezado Principal (Logo y Título) ---
     const titleContainer = document.createElement("div");
-    titleContainer.style.cssText = "border-bottom: 3px solid #007bff; padding-bottom: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;";
-
-    const titleDiv = document.createElement('div');
-    const title = document.createElement("h2");
-    title.textContent = `Detalle de ${item.modelo}`;
-    title.style.cssText = "color:#007bff; margin: 0; padding: 0;";
-    titleDiv.appendChild(title);
-    titleContainer.appendChild(titleDiv);
+    titleContainer.style.cssText = "border-bottom: 3px solid #007bff; padding-bottom: 8px; margin-bottom: 15px; display: flex; align-items: center; gap: 15px;";
 
     const logoUrl = getLogoUrlForMarca(item.marca, item.categoria);
     if (logoUrl) {
@@ -178,9 +171,15 @@ export function mostrarDetalleModal(item) {
         titleContainer.appendChild(logoImg);
     }
 
+    const title = document.createElement("h2");
+    title.textContent = `${item.marca} ${item.modelo}`;
+    title.style.cssText = "color:#007bff; margin: 0; padding: 0; font-size: 1.8em;";
+    titleContainer.appendChild(title);
+
     cont.appendChild(titleContainer);
 
     // --- 3. Sub-encabezado (Versión, Años, Categoría) ---
+    // (Esta parte se mantiene igual)
     const subHeaderDiv = document.createElement('div');
     subHeaderDiv.style.marginBottom = '15px';
     const subHeaderText = document.createElement('p');
@@ -194,11 +193,12 @@ export function mostrarDetalleModal(item) {
     subHeaderDiv.appendChild(subHeaderText);
     cont.appendChild(subHeaderDiv);
 
+
     // --- 4. Imagen del Vehículo ---
     if (item.imagenVehiculo) {
         const imgVehiculo = document.createElement("img");
         imgVehiculo.src = getImageUrl(item.imagenVehiculo);
-        imgVehiculo.className = 'img-vehiculo-modal'; // Estilo para hacerla pequeña y centrada
+        imgVehiculo.className = 'img-vehiculo-modal';
         cont.appendChild(imgVehiculo);
     }
 
@@ -210,11 +210,7 @@ export function mostrarDetalleModal(item) {
         cont.appendChild(p);
     }
 
-    // --- Contenedor para secciones desplegables ---
-    const accordionContainer = document.createElement('div');
-    cont.appendChild(accordionContainer);
-
-    // --- Lógica de Ordenamiento y Renderizado de Cortes ---
+    // --- Lógica de Ordenamiento de Cortes ---
     const cortes = [];
     for (let i = 1; i <= 3; i++) {
         if (item[`tipoCorte${i}`]) {
@@ -230,32 +226,125 @@ export function mostrarDetalleModal(item) {
             });
         }
     }
-    // Ordenar por 'util' de mayor a menor
     cortes.sort((a, b) => b.util - a.util);
 
-    // Renderizar cada sección
-    const sections = [
+    // --- 6. Renderizar Corte Recomendado (si existe) ---
+    const recommendedCut = cortes.shift(); // Extrae el primer corte (el mejor)
+    if (recommendedCut) {
+        const recommendedSection = document.createElement('div');
+        const title = document.createElement('h4');
+        title.innerHTML = `Corte Recomendado <span style="font-weight:normal; color:#666;">(Votos: ${recommendedCut.util})</span>`;
+        recommendedSection.appendChild(title);
+        // Usar una función helper para no duplicar código
+        renderCutContent(recommendedSection, recommendedCut, datosRelay);
+        cont.appendChild(recommendedSection);
+    }
+
+    // --- 7. Contenedor para secciones desplegables ---
+    const accordionContainer = document.createElement('div');
+    cont.appendChild(accordionContainer);
+
+    // --- 8. Renderizar el resto de las secciones en acordeones ---
+    const otherSections = [
         ...cortes.map((corte, idx) => ({
-            title: idx === 0 ? `Corte Recomendado (Votos: ${corte.util})` : `Corte ${idx + 1} (Votos: ${corte.util})`,
-            content: `<strong>Ubicación:</strong> ${corte.ubicacion}<br>
-                      <strong>Color de Cable:</strong> ${corte.colorCable}<br>
-                      <strong>Configuración de Relay:</strong> ${corte.configRelay}`,
-            img: corte.img,
-            colaborador: corte.colaborador
+            isCorte: true,
+            title: `Corte Alternativo ${idx + 1} (Votos: ${corte.util})`,
+            data: corte
         })),
-        { title: 'Apertura', content: item.apertura, img: item.imgApertura },
-        { title: 'Cables de Alimentación', content: item.cableAlimen, img: item.imgCableAlimen },
-        { title: 'Vídeo Guía de Desarme', videoUrl: item.videoGuiaDesarmeUrl }
+        { title: 'Apertura', content: item.apertura, img: item.imgApertura, colaborador: item.colaboradorApertura },
+        { title: 'Cables de Alimentación', content: item.cableAlimen, img: item.imgCableAlimen, colaborador: item.colaboradorAlimen },
+        { title: 'Vídeo Guía de Desarme', videoUrl: item.Video }
     ];
 
-    sections.forEach((sec, index) => {
-        if ((sec.content || sec.img || sec.videoUrl) && sec.title) {
-            createAccordionSection(accordionContainer, sec.title, sec, index === 0); // Expandir el primero por defecto
+    otherSections.forEach(sec => {
+        const hasContent = sec.isCorte || sec.content || sec.img || sec.videoUrl;
+        if (hasContent && sec.title) {
+            createAccordionSection(accordionContainer, sec.title, sec, false); // Todos colapsados por defecto
         }
     });
 
     document.getElementById("modalDetalle").classList.add("visible");
 }
+
+function renderCutContent(container, cutData, datosRelay) {
+    const contentP = document.createElement('p');
+    contentP.innerHTML = `<strong>Ubicación:</strong> ${cutData.ubicacion || 'No especificada'}<br>
+                        <strong>Color de Cable:</strong> ${cutData.colorCable || 'No especificado'}`;
+    container.appendChild(contentP);
+
+    const relayContainer = document.createElement('p');
+    const configRelay = cutData.configRelay;
+
+    if (!configRelay || configRelay.toLowerCase() === 'sin relay') {
+        relayContainer.innerHTML = `<strong>Configuración de Relay:</strong> Sin Relay`;
+    } else {
+        relayContainer.innerHTML = `<strong>Configuración de Relay: </strong>`;
+        const relayButton = document.createElement('button');
+        relayButton.textContent = configRelay;
+        relayButton.className = 'btn-link'; // Asignar una clase para estilos
+        relayButton.onclick = () => {
+            const relayInfo = datosRelay.find(r => r.configuracion === configRelay);
+            if (relayInfo) {
+                renderRelayInfoModal(relayInfo);
+            } else {
+                alert('No se encontraron detalles para esta configuración de relay.');
+            }
+        };
+        relayContainer.appendChild(relayButton);
+    }
+    container.appendChild(relayContainer);
+
+    if (cutData.img) {
+        const img = document.createElement("img");
+        img.src = getImageUrl(cutData.img);
+        img.className = 'img-corte';
+        img.onclick = () => {
+            document.getElementById('lightboxImg').src = img.src;
+            document.getElementById('lightbox').classList.add('visible');
+        };
+        container.appendChild(img);
+    }
+    if (cutData.colaborador) {
+        const colabP = document.createElement('p');
+        colabP.style.cssText = "font-style: italic; color: #888; margin-top: 10px; text-align: left;";
+        colabP.innerHTML = `Aportado por: <strong>${cutData.colaborador}</strong>`;
+        container.appendChild(colabP);
+    }
+}
+
+function renderRelayInfoModal(relayInfo) {
+    let modal = document.getElementById('relay-info-modal');
+    if (modal) {
+        modal.remove(); // Eliminar modal anterior si existe para evitar duplicados
+    }
+
+    modal = document.createElement('div');
+    modal.id = 'relay-info-modal';
+    modal.className = 'info-modal'; // Usar la misma clase que otros modales para consistencia
+    modal.style.display = 'flex'; // Hacerlo visible
+
+    const content = document.createElement('div');
+    content.className = 'info-modal-content';
+
+    const closeBtn = document.createElement('span');
+    closeBtn.className = 'info-close-btn';
+    closeBtn.innerHTML = '&times;';
+    closeBtn.onclick = () => modal.style.display = 'none';
+    content.appendChild(closeBtn);
+
+    const title = document.createElement('h3');
+    title.textContent = relayInfo.configuracion;
+    content.appendChild(title);
+
+    const img = document.createElement('img');
+    img.src = getImageUrl(relayInfo.imagen);
+    img.style.width = '100%';
+    content.appendChild(img);
+
+    modal.appendChild(content);
+    document.body.appendChild(modal);
+}
+
 
 // --- Inbox and Dev Tools Modal Logic ---
 
