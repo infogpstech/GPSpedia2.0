@@ -15,7 +15,8 @@ async function handleLoginSuccess(user) {
     setState({ currentUser: user });
 
     try {
-        const catalogData = await fetchCatalogData();
+        const apiResponse = await fetchCatalogData();
+        const catalogData = apiResponse.data; // Extraer el objeto de datos anidado
 
         // Process and sort categories
         const categoryCounts = catalogData.cortes.reduce((acc, item) => {

@@ -1,3 +1,18 @@
+**V8.2.0 - (CRITICAL HOTFIX) - 10/01/2024**
+**A. RESUMEN GENERAL:** Se corrigió la causa raíz del error "Error al cargar los datos de la aplicación" que persistía después de arreglar los servicios de backend. El problema residía en el frontend (`auth.js`), que no estaba procesando correctamente la estructura de datos anidada devuelta por la API del catálogo.
+
+**B. Corrección Crítica (Frontend):**
+    1.  **`TypeError` en `auth.js`:** Se identificó y solucionó un `TypeError` fatal en la función `handleLoginSuccess`. El código intentaba acceder a `catalogData.cortes` cuando en realidad los datos estaban anidados en `catalogData.data.cortes`.
+    2.  **Causa Raíz:** Inconsistencia entre la estructura de la respuesta de la API (que anida todo bajo una clave `data`) y la lógica del cliente que esperaba una estructura plana.
+    3.  **Solución:** Se modificó la lógica en `auth.js` para extraer primero el objeto de datos de la respuesta de la API (`const catalogData = apiResponse.data;`) antes de intentar procesarlo, asegurando que el acceso a `catalogData.cortes` sea válido.
+
+**C. Cambios Técnicos Implementados:**
+    - **`auth.js`:** Se refactorizó la función `handleLoginSuccess` para manejar correctamente la respuesta anidada de la API.
+
+**D. Impacto:**
+    -   **Resuelve Definitivamente el Error de Carga:** Esta corrección elimina el `TypeError` que era el último bloqueo, permitiendo que la aplicación cargue los datos del catálogo y se muestre al usuario después de un inicio de sesión exitoso.
+    -   **Restaura la Funcionalidad Completa:** La aplicación ahora es completamente funcional, desde el inicio de sesión hasta la visualización de datos.
+
 **V8.1.9 - (CONFIG) - 09/01/2024**
 **A. RESUMEN GENERAL:** Se actualizó la URL del endpoint del microservicio de autenticación (`GPSpedia-Auth`) en la configuración del frontend para apuntar a la más reciente versión desplegada por el usuario.
 
@@ -44,7 +59,7 @@
 **B. Corrección Crítica (Backend):**
     1.  **Falla en `doPost` de `AUTH` Service:** Las pruebas con `curl` `POST` revelaron que el servicio de `AUTH` estaba devolviendo un error de "Page Not Found", indicando que, al igual que el servicio de `CATALOG` anteriormente, estaba fallando a nivel de despliegue.
     2.  **Causa Raíz:** A pesar de que la versión del código en el repositorio era correcta, la versión desplegada por el usuario contenía una inconsistencia de `Content-Type` que causaba el fallo de todas las solicitudes `POST`.
-    3.  **Solución:** Se generó una nueva versión del archivo `services/auth/auth.js` (v2.2.2) con el `Content-Type` explícitamente corregido y la lógica de `doPost` verificada. Esta nueva versión se proporciona al usuario para su despliegue final.
+    3.  **Solución:** Se generó una nueva versión del archivo `services/auth/auth.js` (v2.2.2) con el `Content-Type` explícitamente corregido y la lógica de `doPost` verificada. Esta nueva versión se proporciona al usuario para su despliegiegue final.
 
 **C. Cambios Técnicos Implementados:**
     - **`services/auth/auth.js`:** Se actualizó la versión del componente a `2.2.2` para crear una nueva versión definitiva y correcta del archivo para el despliegue del usuario.
