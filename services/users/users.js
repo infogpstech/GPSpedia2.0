@@ -1,12 +1,12 @@
 // ============================================================================
 // GPSPEDIA-USERS SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 2.2.1
+// COMPONENT VERSION: 2.4.1
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
 // ============================================================================
-const SPREADSHEET_ID = "1M6zAVch_EGKGGRXIo74Nbn_ihH1APZ7cdr2kNdWfiDs"; // <-- ACTUALIZADO A DB V2.0
+const SPREADSHEET_ID = "1M6zAVch_EGKGGRXIo74Nbn_ihH1APZ7cdr2kNdWfiDs";
 let spreadsheet = null;
 
 function getSpreadsheet() {
@@ -17,10 +17,10 @@ function getSpreadsheet() {
 }
 
 const SHEET_NAMES = {
-    USERS: "Users"
+    USERS: "Users",
+    ACTIVE_SESSIONS: "ActiveSessions"
 };
 
-// El mapa de columnas ya es compatible con el esquema v2.0
 const COLS_USERS = {
     ID: 1,
     Nombre_Usuario: 2,
@@ -31,111 +31,127 @@ const COLS_USERS = {
     SessionToken: 7
 };
 
+const COLS_ACTIVE_SESSIONS = {
+    ID_Usuario: 1,
+    Usuario: 2,
+    ActiveSessions: 3,
+    date: 4,
+    Logs: 5
+};
+
 // ============================================================================
 // ROUTER PRINCIPAL (doGet y doPost)
 // ============================================================================
 
 function doGet(e) {
-    if (e.parameter.debug === 'true') {
-        const serviceState = {
-            service: 'GPSpedia-Users',
-            version: '1.2.1',
-            spreadsheetId: SPREADSHEET_ID,
-            sheetsAccessed: [SHEET_NAMES.USERS]
-        };
-        return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
-            .setMimeType(ContentService.MimeType.JSON);
-    }
-    const defaultResponse = {
-        status: 'success',
-        message: 'GPSpedia Users-SERVICE v1.2.1 is active.'
-    };
+    const defaultResponse = { status: 'success', message: 'GPSpedia Users-SERVICE v2.4.1 is active.' };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
-        .setMimeType(ContentService.MimeType.JSON);
+        .setMimeType(ContentService.MimeType.TEXT);
 }
 
 function doPost(e) {
     let response;
-    let request;
     try {
-        request = JSON.parse(e.postData.contents);
-        let result;
-
+        const request = JSON.parse(e.postData.contents);
         switch (request.action) {
             case 'getUsers':
-                result = handleGetUsers(request.payload);
+                response = handleGetUsers(request.payload);
                 break;
             case 'createUser':
-                result = handleCreateUser(request.payload);
+                response = handleCreateUser(request.payload);
                 break;
             case 'updateUser':
-                result = handleUpdateUser(request.payload);
+                response = handleUpdateUser(request.payload);
                 break;
             case 'deleteUser':
-                result = handleDeleteUser(request.payload);
+                response = handleDeleteUser(request.payload);
                 break;
             case 'changePassword':
-                result = handleChangePassword(request.payload);
+                response = handleChangePassword(request.payload);
                 break;
             default:
-                throw new Error(`Acción desconocida en Users Service: ${request.action}`);
+                throw new Error(`La acción '${request.action}' es desconocida.`);
         }
-        response = result;
     } catch (error) {
-        Logger.log(`Error CRÍTICO en Users-Service doPost: ${error.stack}`);
-        response = {
-            status: 'error',
-            message: 'Ocurrió un error inesperado en el servicio de usuarios.',
-            details: {
-                errorMessage: error.message,
-                errorStack: error.stack,
-                requestAction: (request && request.action) ? request.action : 'N/A'
-            }
-        };
+        response = { status: 'error', message: 'Ocurrió un error en el servicio.', details: { errorMessage: error.message } };
     }
     return ContentService.createTextOutput(JSON.stringify(response))
-        .setMimeType(ContentService.MimeType.JSON);
+        .setMimeType(ContentService.MimeType.TEXT);
 }
 
 // ============================================================================
-// MANEJADORES DE ACCIONES (HANDLERS)
+// VERIFICACIÓN DE ROL
+// ============================================================================
+
+function getVerifiedRole(sessionToken) {
+    if (!sessionToken) {
+        throw new Error("Acceso no autorizado: Se requiere token de sesión.");
+    }
+
+    const sessionsSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.ACTIVE_SESSIONS);
+    if (!sessionsSheet) throw new Error("Hoja de sesiones no encontrada.");
+    const sessionsData = sessionsSheet.getDataRange().getValues();
+    sessionsData.shift();
+
+    let userId = null;
+    for (const row of sessionsData) {
+        if (row[COLS_ACTIVE_SESSIONS.ActiveSessions - 1] === sessionToken) {
+            userId = row[COLS_ACTIVE_SESSIONS.ID_Usuario - 1];
+            break;
+        }
+    }
+
+    if (!userId) {
+        throw new Error("Acceso no autorizado: Sesión inválida o expirada.");
+    }
+
+    const usersSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
+    if (!usersSheet) throw new Error("Hoja de usuarios no encontrada.");
+    const usersData = usersSheet.getDataRange().getValues();
+    usersData.shift();
+
+    for (const row of usersData) {
+        if (row[COLS_USERS.ID - 1] == userId) {
+            return row[COLS_USERS.Privilegios - 1];
+        }
+    }
+
+    throw new Error("Acceso no autorizado: Usuario asociado a la sesión no encontrado.");
+}
+
+// ============================================================================
+// MANEJADORES DE ACCIONES
 // ============================================================================
 
 function handleGetUsers(payload) {
     const { privilegios } = payload;
     if (!privilegios) throw new Error("Se requiere el rol del solicitante.");
 
+    if (privilegios !== 'Desarrollador' && privilegios !== 'Gefe' && privilegios !== 'Supervisor') {
+        throw new Error('Acceso denegado. Permisos insuficientes.');
+    }
+
     const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
     const data = userSheet.getDataRange().getValues();
-    data.shift(); // Remove headers
-
-    const allUsers = data.map(row => {
-        // Mapeo manual usando el COLS fijo
-        return {
-            ID: row[COLS_USERS.ID - 1],
-            Nombre_Usuario: row[COLS_USERS.Nombre_Usuario - 1],
-            Privilegios: row[COLS_USERS.Privilegios - 1],
-            Telefono: row[COLS_USERS.Telefono - 1],
-            Correo_Electronico: row[COLS_USERS.Correo_Electronico - 1]
-        };
+    const headers = data.shift();
+    const users = data.map(row => {
+        const user = {};
+        headers.forEach((header, index) => {
+            if (header !== 'Password' && header !== 'SessionToken') { // Excluir datos sensibles
+                user[header] = row[index];
+            }
+        });
+        return user;
     });
 
-    const visibleUsers = allUsers.filter(user => {
-        switch (privilegios) {
-            case 'Desarrollador': return true;
-            case 'Gefe': return !['Desarrollador', 'Tecnico_Exterior'].includes(user.privilegios);
-            case 'Supervisor': return user.privilegios === 'Tecnico';
-            default: return false;
-        }
-    });
-
-    return { status: 'success', users: visibleUsers };
+    return { status: 'success', users: users };
 }
 
 function handleCreateUser(payload) {
-    const { newUser, creatorRole } = payload;
-    if (!newUser || !creatorRole) throw new Error("Datos insuficientes para crear el usuario.");
+    const { newUser, sessionToken } = payload;
+    if (!newUser || !sessionToken) throw new Error("Datos insuficientes para crear el usuario. Se requiere sessionToken.");
 
+    const creatorRole = getVerifiedRole(sessionToken);
     const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
 
     const allowedRoles = {
@@ -143,37 +159,35 @@ function handleCreateUser(payload) {
         'Gefe': ['Gefe', 'Supervisor', 'Tecnico'],
         'Supervisor': ['Tecnico']
     };
-    if (!allowedRoles[creatorRole] || !allowedRoles[creatorRole].includes(newUser.privilegios)) {
-        throw new Error(`El rol '${creatorRole}' no tiene permisos para crear usuarios de tipo '${newUser.privilegios}'.`);
+    if (!allowedRoles[creatorRole] || !allowedRoles[creatorRole].includes(newUser.Privilegios)) {
+        throw new Error(`El rol '${creatorRole}' no tiene permisos para crear usuarios de tipo '${newUser.Privilegios}'.`);
     }
 
-    if (!newUser.Nombre_Usuario) {
-        newUser.Nombre_Usuario = generateUniqueUsername(userSheet, newUser.Nombre);
+    const newUsername = generateUniqueUsername(userSheet, newUser.Nombre_Usuario);
+    const lastRow = userSheet.getLastRow();
+    const newRowRange = userSheet.getRange(lastRow + 1, 1, 1, userSheet.getLastColumn());
+
+    if (lastRow > 0) {
+        userSheet.getRange(lastRow, 1, 1, userSheet.getLastColumn()).copyTo(newRowRange, { contentsOnly: false });
     }
+    newRowRange.clearContent();
 
-    const usernames = userSheet.getRange(2, COLS_USERS.Nombre_Usuario, userSheet.getLastRow() - 1, 1).getValues().flat();
-    if (usernames.map(u => u.toLowerCase()).includes(newUser.Nombre_Usuario.toLowerCase())) {
-        throw new Error(`El nombre de usuario '${newUser.Nombre_Usuario}' ya existe.`);
-    }
+    const newRowData = new Array(userSheet.getLastColumn()).fill('');
+    newRowData[COLS_USERS.Nombre_Usuario - 1] = newUsername;
+    newRowData[COLS_USERS.Password - 1] = newUser.Password;
+    newRowData[COLS_USERS.Privilegios - 1] = newUser.Privilegios;
+    newRowData[COLS_USERS.Telefono - 1] = newUser.Telefono || '';
+    newRowData[COLS_USERS.Correo_Electronico - 1] = newUser.Correo_Electronico || '';
+    newRowRange.setValues([newRowData]);
 
-    const newRow = [];
-    newRow[COLS_USERS.ID - 1] = ''; // ID se autogenera
-    newRow[COLS_USERS.Nombre_Usuario - 1] = newUser.Nombre_Usuario;
-    newRow[COLS_USERS.Password - 1] = newUser.Password || '12345678';
-    newRow[COLS_USERS.Privilegios - 1] = newUser.Privilegios;
-    newRow[COLS_USERS.Telefono - 1] = newUser.Telefono || '';
-    newRow[COLS_USERS.Correo_Electronico - 1] = newUser.Correo_Electronico || '';
-    newRow[COLS_USERS.SessionToken - 1] = '';
-
-    userSheet.appendRow(newRow);
-
-    return { status: 'success', message: `Usuario '${newUser.nombreUsuario}' creado exitosamente.` };
+    return { status: 'success', message: `Usuario '${newUsername}' creado.` };
 }
 
 function handleUpdateUser(payload) {
-    const { userId, updates, updaterRole } = payload;
-    if (!userId || !updates || !updaterRole) throw new Error("Datos insuficientes para actualizar.");
+    const { userId, updates, sessionToken } = payload;
+    if (!userId || !updates || !sessionToken) throw new Error("Datos insuficientes para actualizar. Se requiere sessionToken.");
 
+    const updaterRole = getVerifiedRole(sessionToken);
     const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
     const data = userSheet.getDataRange().getValues();
     data.shift();
@@ -181,7 +195,6 @@ function handleUpdateUser(payload) {
     for (let i = 0; i < data.length; i++) {
         if (data[i][COLS_USERS.ID - 1] == userId) {
             const userToUpdateRole = data[i][COLS_USERS.Privilegios - 1];
-
             const canUpdate = {
                 'Desarrollador': () => true,
                 'Gefe': (targetRole) => !['Desarrollador', 'Tecnico_Exterior'].includes(targetRole),
@@ -193,7 +206,7 @@ function handleUpdateUser(payload) {
             }
 
             Object.keys(updates).forEach(key => {
-                const colIndex = COLS_USERS[key]; // Usar el mapa fijo
+                const colIndex = COLS_USERS[key];
                 if (colIndex && key !== 'id') {
                     if (key === 'password' && !updates.password) return; // No actualizar contraseña si está vacía
                     userSheet.getRange(i + 2, colIndex).setValue(updates[key]);
@@ -207,21 +220,18 @@ function handleUpdateUser(payload) {
 }
 
 function handleDeleteUser(payload) {
-    const { userId, deleterRole } = payload;
-    if (!userId || !deleterRole) throw new Error("Datos insuficientes para eliminar.");
+    const { userId, sessionToken } = payload;
+    if (!userId || !sessionToken) throw new Error("Datos insuficientes para eliminar. Se requiere sessionToken.");
 
+    const deleterRole = getVerifiedRole(sessionToken);
     const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
-    const lastRow = userSheet.getLastRow();
-    if (lastRow < 2) return { status: 'success', message: 'No hay usuarios para eliminar.' }; // Hoja vacía
-    const data = userSheet.getRange(2, 1, lastRow - 1, COLS_USERS.Privilegios).getValues();
+    const data = userSheet.getRange(2, 1, userSheet.getLastRow() - 1, COLS_USERS.Privilegios).getValues();
 
     for (let i = 0; i < data.length; i++) {
-        const row = data[i];
-        if (row[COLS_USERS.ID - 1] == userId) {
-            const userToDeleteRole = row[COLS_USERS.Privilegios - 1];
-
+        if (data[i][COLS_USERS.ID - 1] == userId) {
+            const userToDeleteRole = data[i][COLS_USERS.Privilegios - 1];
             const canDelete = {
-                 'Desarrollador': (targetRole) => true,
+                 'Desarrollador': () => true,
                  'Gefe': (targetRole) => !['Desarrollador', 'Gefe', 'Tecnico_Exterior'].includes(targetRole),
                  'Supervisor': (targetRole) => targetRole === 'Tecnico'
             };
@@ -229,7 +239,6 @@ function handleDeleteUser(payload) {
             if (!canDelete[deleterRole] || !canDelete[deleterRole](userToDeleteRole)) {
                 throw new Error(`Rol '${deleterRole}' no puede eliminar a '${userToDeleteRole}'.`);
             }
-
             userSheet.deleteRow(i + 2);
             return { status: 'success', message: 'Usuario eliminado.' };
         }
@@ -239,7 +248,9 @@ function handleDeleteUser(payload) {
 
 function handleChangePassword(payload) {
     const { userId, currentPassword, newPassword } = payload;
-    if(!userId || !currentPassword || !newPassword) throw new Error("Faltan datos para el cambio de contraseña.");
+    if (!userId || !currentPassword || !newPassword) {
+        throw new Error("Datos insuficientes para cambiar la contraseña.");
+    }
 
     const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
     const data = userSheet.getDataRange().getValues();
@@ -247,12 +258,12 @@ function handleChangePassword(payload) {
 
     for (let i = 0; i < data.length; i++) {
         if (data[i][COLS_USERS.ID - 1] == userId) {
-            if (String(data[i][COLS_USERS.Password - 1]) === String(currentPassword)) {
-                userSheet.getRange(i + 2, COLS_USERS.Password).setValue(newPassword);
-                return { status: 'success', message: 'Contraseña actualizada.' };
-            } else {
+            const storedPassword = String(data[i][COLS_USERS.Password - 1]);
+            if (storedPassword.toLowerCase() !== currentPassword.toLowerCase()) {
                 throw new Error("La contraseña actual es incorrecta.");
             }
+            userSheet.getRange(i + 2, COLS_USERS.Password).setValue(newPassword);
+            return { status: 'success', message: 'Contraseña actualizada correctamente.' };
         }
     }
     throw new Error("Usuario no encontrado.");
@@ -263,30 +274,14 @@ function handleChangePassword(payload) {
 // ============================================================================
 
 function generateUniqueUsername(sheet, fullname) {
-    if (!fullname || typeof fullname !== 'string') return '';
-    const parts = fullname.trim().toLowerCase().split(' ');
-    if (parts.length < 2) return '';
+    let username = String(fullname).trim().toLowerCase().replace(/\s+/g, '.');
+    let finalUsername = username;
+    let counter = 1;
+    const usernames = sheet.getRange(2, COLS_USERS.Nombre_Usuario, sheet.getLastRow() -1, 1).getValues().flat();
 
-    const nombre = parts[0];
-    const primerApellido = parts.find((p, i) => i > 0 && p.length > 2);
-    if (!primerApellido) return `${nombre}${Math.floor(Math.random() * 100)}`; // Fallback
-
-    const segundoApellido = parts.find((p, i) => i > 1 && p !== primerApellido && p.length > 2);
-
-    const potentialUsernames = [
-        `${nombre.charAt(0)}_${primerApellido}`,
-        parts.length > 2 && parts[1] !== primerApellido ? `${parts[1].charAt(0)}_${primerApellido}` : null,
-        segundoApellido ? `${nombre.charAt(0)}_${segundoApellido}` : null
-    ].filter(Boolean);
-
-    const lastRow = sheet.getLastRow();
-    if (lastRow < 2) return potentialUsernames[0] || `${nombre.charAt(0)}_${primerApellido}1`; // Hoja vacía, devolver primer username
-    const data = sheet.getRange(2, COLS_USERS.Nombre_Usuario, lastRow - 1, 1).getValues().flat();
-
-    for(const username of potentialUsernames) {
-        if (!data.includes(username)) {
-            return username;
-        }
+    while (usernames.includes(finalUsername)) {
+        finalUsername = `${username}${counter}`;
+        counter++;
     }
-    return `${nombre.charAt(0)}_${primerApellido}${Math.floor(Math.random() * 100)}`;
+    return finalUsername;
 }
