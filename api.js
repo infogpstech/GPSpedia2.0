@@ -6,7 +6,7 @@
 
 const API_ENDPOINTS = {
     LEGACY: "https://script.google.com/macros/s/AKfycbwpIFH1nX2BZEjAKbpq9HJpEGNlo_0LqD1CwxWsWFo5J0AJDdbfMrKpcsAV4ZFJzFWd/exec",
-    AUTH:     "https://script.google.com/macros/s/AKfycbz5H3VsOvzTjBGWoZ-sD5b-25pBbNpaBo9YIH5trgWOxgGC_n7aDAaLGGq45w3wgvqp/exec",
+    AUTH:     "https://script.google.com/macros/s/AKfycbzYQUs_xt_1HsSZP2eM_UQyoz79Logdw1cTDisaulcUOM6p-0VRVgZS6pJJVypsEeqG/exec",
     CATALOG:  "https://script.google.com/macros/s/AKfycbzAI4pr-0nfKets3Xd7BGb9wN6MBFhWgn2XjUFXMhnFsCIUAWKCAHMwObAn-8KJY3ThSg/exec",
     WRITE:    "https://script.google.com/macros/s/AKfycbwx51C9UQPRis2hIExIT2d1lGoTFZdCFyzMVVvQseHg41pztX86H16n88D8npO5__o_cQ/exec",
     USERS:    "https://script.google.com/macros/s/AKfycbzReGv4d2Aapl5-YhRW5x2QmxZJFEAhskzZRqwT39sw_8fQhUr7IXEP7nHRfHxkDdx7/exec",

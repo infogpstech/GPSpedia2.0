@@ -1,3 +1,15 @@
+**V8.1.6 - (CONFIG) - 09/01/2024**
+**A. RESUMEN GENERAL:** Se actualizó la URL del endpoint del microservicio de autenticación (`GPSpedia-Auth`) en la configuración del frontend para apuntar a la más reciente versión desplegada por el usuario.
+
+**B. Cambio de Configuración (Frontend):**
+    1.  **Actualización de Endpoint:** Se modificó la constante `API_ENDPOINTS.AUTH` en `api.js` para reemplazar la URL de despliegue por la nueva proporcionada, asegurando que el frontend utilice la última implementación del backend.
+
+**C. Cambios Técnicos Implementados:**
+    - **`api.js`:** Se actualizó la URL del servicio `AUTH`.
+
+**D. Impacto:**
+    -   Este es el paso final para resolver el error de inicio de sesión. Al apuntar al servicio de autenticación recién desplegado y corregido, se espera que el login y la carga de datos de la aplicación funcionen correctamente.
+
 **V8.1.5 - (CRITICAL HOTFIX) - 09/01/2024**
 **A. RESUMEN GENERAL:** Se identificó y corrigió la causa raíz definitiva del error de inicio de sesión persistente. El problema residía en el servicio de autenticación (`services/auth/auth.js`), que no estaba procesando las solicitudes `POST` debido a un error de despliegue, impidiendo que el proceso de login se iniciara.
 
