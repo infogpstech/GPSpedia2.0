@@ -1,3 +1,33 @@
+**V8.1.8 - (CRITICAL HOTFIX) - 09/01/2024**
+**A. RESUMEN GENERAL:** Se corrigió un error de sintaxis fatal en el servicio de autenticación (`services/auth/auth.js`) que fue introducido en una edición anterior. Este error impedía que el script se ejecutara, causando el fallo del despliegue y bloqueando por completo el inicio de sesión. Esta versión restaura la validez sintáctica del archivo.
+
+**B. Corrección Crítica (Backend):**
+    1.  **`SyntaxError` en `auth.js`:** Se identificó y corrigió un `SyntaxError` causado por un bloque `catch` sin su correspondiente bloque `try` en la función `handleLogin`.
+    2.  **Causa Raíz:** El error fue el resultado de una edición incorrecta en un paso anterior, donde se eliminó un bloque `try` pero se dejó el `catch`, resultando en código inválido.
+    3.  **Solución:** Se restauró la estructura `try...catch` correcta dentro de la función `handleLogin`, asegurando que el archivo sea sintácticamente válido y pueda ser desplegado correctamente por el usuario.
+
+**C. Cambios Técnicos Implementados:**
+    - **`services/auth/auth.js`:** Se corrigió la estructura `try...catch` en la función `handleLogin` para eliminar el `SyntaxError`. Se actualizó la versión del componente a `2.2.3`.
+
+**D. Impacto:**
+    -   **Habilita el Despliegue:** Esta corrección es crítica para que el usuario pueda desplegar una versión funcional del servicio de autenticación.
+    -   **Restaura la Funcionalidad de Login:** Una vez que esta versión corregida sea desplegada, el servicio de `AUTH` debería empezar a procesar las solicitudes `POST` correctamente, eliminando el error de "Page Not Found" y permitiendo que el flujo de inicio de sesión proceda.
+
+**V8.1.7 - (CRITICAL HOTFIX) - 09/01/2024**
+**A. RESUMEN GENERAL:** Se corrigió un error de sintaxis fatal en el servicio de autenticación (`services/auth/auth.js`) que fue introducido en una edición anterior. Este error impedía que el script se ejecutara, causando el fallo del despliegue.
+
+**B. Corrección Crítica (Backend):**
+    1.  **`SyntaxError` en `auth.js`:** Se identificó y corrigió un `SyntaxError` causado por un bloque `catch` sin su correspondiente bloque `try` en la función `handleLogin`.
+    2.  **Causa Raíz:** El error fue el resultado de una edición incorrecta en un paso anterior, donde se eliminó un bloque `try` pero se dejó el `catch`, resultando en código inválido.
+    3.  **Solución:** Se restauró la estructura `try...catch` correcta dentro de la función `handleLogin`, asegurando que el archivo sea sintácticamente válido y pueda ser desplegado correctamente por el usuario.
+
+**C. Cambios Técnicos Implementados:**
+    - **`services/auth/auth.js`:** Se corrigió la estructura `try...catch` en la función `handleLogin` para eliminar el `SyntaxError`. Se actualizó la versión del componente a `2.2.3`.
+
+**D. Impacto:**
+    -   **Habilita el Despliegue:** Esta corrección es crítica para que el usuario pueda desplegar una versión funcional del servicio de autenticación.
+    -   **Restaura la Funcionalidad de Login:** Una vez que esta versión corregida sea desplegada, el servicio de `AUTH` debería empezar a procesar las solicitudes `POST` correctamente, eliminando el error de "Page Not Found" y permitiendo que el flujo de inicio de sesión proceda.
+
 **V8.1.6 - (CONFIG) - 09/01/2024**
 **A. RESUMEN GENERAL:** Se actualizó la URL del endpoint del microservicio de autenticación (`GPSpedia-Auth`) en la configuración del frontend para apuntar a la más reciente versión desplegada por el usuario.
 

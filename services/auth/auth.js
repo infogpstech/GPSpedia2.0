@@ -105,12 +105,13 @@ function doPost(e) {
 // LÓGICA DE AUTENTICACIÓN
 // ============================================================================
 function handleLogin(payload) {
-    const { username, password } = payload;
-    logToSheet('INFO', 'handleLogin started.', { username: username });
+    try {
+        const { username, password } = payload;
+        logToSheet('INFO', 'handleLogin started.', { username: username });
 
-    if (!username || !password) {
-        throw new Error("Usuario y contraseña son requeridos.");
-    }
+        if (!username || !password) {
+            throw new Error("Usuario y contraseña son requeridos.");
+        }
 
         const userSheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAMES.USERS);
         const data = userSheet.getDataRange().getValues();
