@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-FEEDBACK SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 2.2.0
+// COMPONENT VERSION: 2.3.0
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -79,14 +79,14 @@ function doGet(e) {
             sheetsAccessed: [SHEET_NAMES.CORTES, SHEET_NAMES.FEEDBACKS]
         };
         return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
-            .setMimeType(ContentService.MimeType.JSON);
+            .setMimeType(ContentService.MimeType.TEXT);
     }
     const defaultResponse = {
         status: 'success',
         message: 'GPSpedia Feedback-SERVICE v1.2.1 is active.'
     };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
-        .setMimeType(ContentService.MimeType.JSON);
+        .setMimeType(ContentService.MimeType.TEXT);
 }
 
 function doPost(e) {
@@ -125,47 +125,17 @@ function doPost(e) {
             default:
                 throw new Error(`Acción desconocida en Feedback Service: ${action}`);
         }
-        return ContentService.createTextOutput(JSON.stringify(response))
-            .setMimeType(ContentService.MimeType.TEXT);
     } catch (error) {
         response = { status: 'error', message: error.message };
-        return ContentService.createTextOutput(JSON.stringify(response))
-            .setMimeType(ContentService.MimeType.TEXT);
     }
+    return ContentService.createTextOutput(JSON.stringify(response))
+        .setMimeType(ContentService.MimeType.TEXT);
 }
 
 // ============================================================================
 // MANEJADORES DE ACCIONES (HANDLERS)
 // ============================================================================
 
-function handleRecordLike(payload) {
-    const { vehicleId, corteIndex, userName } = payload;
-    if (!vehicleId || !corteIndex || !userName) {
-        throw new Error("Faltan datos para registrar el 'like'.");
-    }
-
-    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
-    const data = sheet.getRange(2, COLS_CORTES.id, sheet.getLastRow() - 1, 1).getValues();
-
-    for (let i = 0; i < data.length; i++) {
-        if (data[i][0] == vehicleId) {
-            const rowIndex = i + 2;
-            const utilColName = `utilCorte${corteIndex}`;
-            const utilCol = COLS_CORTES[utilColName];
-
-            if (!utilCol) throw new Error("Índice de corte inválido.");
-
-            const cell = sheet.getRange(rowIndex, utilCol);
-            let currentValue = cell.getValue();
-            if (typeof currentValue !== 'number') currentValue = 0;
-
-            cell.setValue(currentValue + 1);
-
-            return { status: 'success', message: 'Like registrado.' };
-        }
-    }
-    throw new Error("No se encontró el vehículo con el ID proporcionado.");
-}
 
 function handleAssignCollaborator(payload) {
     const { vehicleId, corteIndex, userName } = payload;
@@ -303,90 +273,87 @@ function handleRecordLike(payload) {
         throw new Error("Faltan datos para registrar el 'like' (vehicleId, corteIndex, userId, userName).");
     }
 
-    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
-    // Fetch all IDs from the 'id' column to find the row index
-    const ids = sheet.getRange(2, COLS_CORTES.id, sheet.getLastRow() - 1, 1).getValues().flat();
-    const rowIndex = ids.findIndex(id => id == vehicleId);
+    const lock = LockService.getScriptLock();
+    lock.waitLock(15000); // Wait up to 15 seconds for the lock
 
-    if (rowIndex === -1) {
-        throw new Error("No se encontró el vehículo con el ID proporcionado.");
+    try {
+        const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CORTES);
+        const ids = sheet.getRange(2, COLS_CORTES.id, sheet.getLastRow() - 1, 1).getValues().flat();
+        const rowIndex = ids.findIndex(id => id == vehicleId);
+
+        if (rowIndex === -1) {
+            throw new Error("No se encontró el vehículo con el ID proporcionado.");
+        }
+
+        const actualRow = rowIndex + 2;
+        const utilColName = `utilCorte${corteIndex}`;
+        const utilCol = COLS_CORTES[utilColName];
+
+        if (!utilCol) {
+            throw new Error(`Índice de corte inválido: ${corteIndex}`);
+        }
+
+        const cell = sheet.getRange(actualRow, utilCol);
+        let currentValue = cell.getValue();
+        if (typeof currentValue !== 'number' || isNaN(currentValue)) {
+            currentValue = 0;
+        }
+
+        cell.setValue(currentValue + 1);
+
+        logUserActivity(userId, userName, 'like', vehicleId, `Like en corte ${corteIndex}. Nuevo total: ${currentValue + 1}`);
+
+        return { status: 'success', message: 'Like registrado correctamente.' };
+    } finally {
+        lock.releaseLock();
     }
-
-    // rowIndex is 0-based, but sheet rows are 1-based and we have a header, so add 2
-    const actualRow = rowIndex + 2;
-
-    // Determine the correct column for the like count
-    const utilColName = `utilCorte${corteIndex}`;
-    const utilCol = COLS_CORTES[utilColName];
-
-    if (!utilCol) {
-        throw new Error(`Índice de corte inválido: ${corteIndex}`);
-    }
-
-    // Get the cell, read the value, increment, and write back
-    const cell = sheet.getRange(actualRow, utilCol);
-    let currentValue = cell.getValue();
-
-    // Ensure the current value is a number, default to 0 if empty or not a number
-    if (typeof currentValue !== 'number' || isNaN(currentValue)) {
-        currentValue = 0;
-    }
-
-    cell.setValue(currentValue + 1);
-
-    // Log this action
-    logUserActivity(userId, userName, 'like', vehicleId, `Like en corte ${corteIndex}. Nuevo total: ${currentValue + 1}`);
-
-    return { status: 'success', message: 'Like registrado correctamente.' };
 }
 
 function handleReportProblem(payload) {
     const { vehicleId, problemText, userId, userName } = payload;
     if (!vehicleId || !problemText || !userId || !userName) {
-        throw new Error("Faltan datos para reportar el problema.");
+        throw new Error("Faltan datos para reportar el problema (vehicleId, problemText, userId, userName).");
     }
 
-    // ... (logic for adding problem to Feedbacks sheet) ...
-    const feedbackSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
-    const newRow = [];
-    newRow[COLS_FEEDBACKS.ID - 1] = '';
-    newRow[COLS_FEEDBACKS.Usuario - 1] = userName;
-    newRow[COLS_FEEDBACKS.ID_vehiculo - 1] = vehicleId;
-    newRow[COLS_FEEDBACKS.Problema - 1] = problemText;
-    feedbackSheet.appendRow(newRow);
+    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.FEEDBACKS);
+    const lastRow = sheet.getLastRow();
+    const newRowRange = sheet.getRange(lastRow + 1, 1, 1, sheet.getLastColumn());
+
+    // Copy formatting and formulas from the previous row
+    if (lastRow > 0) {
+        sheet.getRange(lastRow, 1, 1, sheet.getLastColumn()).copyTo(newRowRange, {contentsOnly: false});
+        newRowRange.clearContent();
+    }
+
+    // Set new values
+    newRowRange.getCell(1, COLS_FEEDBACKS.Usuario).setValue(userName); // Correctly store userName
+    newRowRange.getCell(1, COLS_FEEDBACKS.ID_vehiculo).setValue(vehicleId);
+    newRowRange.getCell(1, COLS_FEEDBACKS.Problema).setValue(problemText);
+    // The userId is captured in the user activity log, not stored in this sheet.
 
 
     logUserActivity(userId, userName, 'report_problem', vehicleId, problemText);
     return { status: 'success', message: 'Problema reportado.' };
 }
 
-function handleSuggestYear(payload) {
-    const { vehicleId, newYear, userId, userName } = payload;
-    // ... (validation) ...
-
-    // ... (logic for updating year range) ...
-
-    if (updated) {
-        logUserActivity(userId, userName, 'suggest_year', vehicleId, `Año sugerido: ${newYear}. Rango actualizado a ${anoDesde}-${anoHasta}.`);
-        return { status: 'success', message: `Rango de años actualizado a ${anoDesde}-${anoHasta}.` };
-    } else {
-        return { status: 'info', message: 'El año sugerido ya está dentro del rango existente.' };
-    }
-}
-
 function handleSendContactForm(payload) {
-    const { name, email, message } = payload;
+    const { name, email, message, userId } = payload; // Added userId
     if (!name || !email || !message) {
-        throw new Error("Faltan datos para enviar el formulario de contacto.");
+        throw new Error("Faltan datos para enviar el formulario de contacto (name, email, message).");
     }
 
     const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.CONTACTANOS);
-    const newRow = [];
-    newRow[COLS_CONTACTANOS.Contacto_ID - 1] = ''; // Autogen ID
-    newRow[COLS_CONTACTANOS.User_ID - 1] = ''; // Asumiendo que no hay un usuario logueado.
-    newRow[COLS_CONTACTANOS.Asunto - 1] = `Contacto de ${name}`;
-    newRow[COLS_CONTACTANOS.Mensaje - 1] = `De: ${email}\n\n${message}`;
-    sheet.appendRow(newRow);
+    const lastRow = sheet.getLastRow();
+    const newRowRange = sheet.getRange(lastRow + 1, 1, 1, sheet.getLastColumn());
+
+    if (lastRow > 0) {
+        sheet.getRange(lastRow, 1, 1, sheet.getLastColumn()).copyTo(newRowRange, {contentsOnly: false});
+        newRowRange.clearContent();
+    }
+
+    newRowRange.getCell(1, COLS_CONTACTANOS.User_ID).setValue(userId || 'N/A'); // Save userId
+    newRowRange.getCell(1, COLS_CONTACTANOS.Asunto).setValue(`Contacto de ${name}`);
+    newRowRange.getCell(1, COLS_CONTACTANOS.Mensaje).setValue(`De: ${email}\n\n${message}`);
 
     return { status: 'success', message: 'Formulario de contacto enviado.' };
 }
