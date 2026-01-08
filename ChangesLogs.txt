@@ -1,3 +1,19 @@
+**V8.3.2 - (REGRESSION FIX) - 11/01/2024**
+**A. RESUMEN GENERAL:** Se corrigió la regresión de estilos en el modal de detalles del vehículo, que provocaba que las imágenes del logo y del modelo se mostraran con un "contenedor" no deseado.
+
+**B. Corrección de Estilos (`style.css` y `ui.js`):**
+1.  **Diagnóstico:** Se identificó que una regla de estilo genérica para `#detalleCompleto img` estaba aplicando `box-shadow` y `border-radius` a todas las imágenes dentro del modal.
+2.  **Solución:**
+    *   **`ui.js`:** Se añadió una clase específica, `.brand-logo-modal`, a la imagen del logo de la marca para permitir un estilo independiente.
+    *   **`style.css`:** Se crearon nuevas reglas de alta especificidad (`#detalleCompleto .img-vehiculo-modal`, `#detalleCompleto .brand-logo-modal`) que anulan (`!important`) las propiedades `background`, `border`, `border-radius` y `box-shadow`. En su lugar, se aplica la propiedad `filter: drop-shadow(...)` para lograr el efecto visual solicitado sin un contenedor.
+
+**C. Cambios Técnicos Implementados:**
+- **`ui.js`:** Se añadió `className = 'brand-logo-modal'` al elemento de imagen del logo.
+- **`style.css`:** Se añadieron reglas de anulación con `!important` para las clases `.img-vehiculo-modal` y `.brand-logo-modal` para eliminar los estilos de contenedor y aplicar `filter`.
+
+**D. Impacto:**
+-   **Alineación Visual Completa:** La apariencia de las imágenes en el modal de detalles ahora coincide exactamente con las especificaciones de diseño, mostrando solo la imagen con una sombra, sin ningún tipo de borde o fondo.
+
 **V8.3.1 - (REGRESSION FIX) - 11/01/2024**
 **A. RESUMEN GENERAL:** Se corrigieron las regresiones funcionales críticas en la página de gestión de usuarios (`users.html`) y se finalizaron los ajustes de estilo en el modal de detalles del vehículo para que coincidan con las especificaciones.
 
@@ -41,30 +57,3 @@
 **D. Impacto:**
 -   **Restaura Funcionalidad Crítica:** La página de gestión de usuarios es nuevamente funcional.
 -   **Alineación con Especificaciones:** La apariencia del modal de detalles del vehículo ahora cumple con las especificaciones de diseño precisas, mejorando la calidad visual y la consistencia de la aplicación.
-
-**V8.2.9 - (FEATURE & REFACTOR) - 11/01/2024**
-**A. RESUMEN GENERAL:** Se implementaron las correcciones funcionales y de apariencia identificadas en la auditoría del 11/01/2024, restaurando la funcionalidad de la página de gestión de usuarios y mejorando significativamente la UX y la presentación del modal de detalles del vehículo.
-
-**B. Correcciones y Mejoras (Full-Stack):**
-1.  **Reparación de Gestión de Usuarios (`users.html`):**
-    *   **Causa Raíz:** Se corrigió un error de ámbito de JavaScript que impedía que los botones "Editar" y "Eliminar" funcionaran.
-    *   **Solución:** Se refactorizó la función `renderUserTable` para adjuntar `event listeners` mediante JavaScript en lugar de usar `onclick` en el HTML, resolviendo el problema de accesibilidad de las funciones del módulo.
-    *   **Mejora de UX:** Se añadió un enlace "Volver al Catálogo" en la parte superior de la página para mejorar la navegación.
-
-2.  **Reestructuración del Modal de Detalles (`ui.js`):**
-    *   **Corte Recomendado:** Se modificó la lógica para que el corte con más votos se muestre siempre visible y fuera de la estructura de acordeón.
-    *   **Encabezado del Modal:** Se reordenó la lógica de renderizado para que el logo de la marca aparezca a la izquierda del título del vehículo, como se especifica.
-    *   **Funcionalidad de Relay:** Se implementó la lógica completa para la configuración de Relay. Ahora, si no hay datos, se muestra "Sin Relay". Si hay una configuración, se muestra un botón con el nombre de la misma, que al ser presionado abre un segundo modal con el diagrama del relay.
-
-3.  **Ajustes de Estilo (`style.css`):**
-    *   **Tamaño de Imágenes:** Se ajustaron las reglas de CSS para reducir el tamaño de la imagen del vehículo en el modal y para asegurar que la imagen del corte ocupe el 80% del ancho en dispositivos móviles.
-    *   **Botón de Relay:** Se añadieron nuevos estilos para dar la apariencia de un enlace al botón de configuración del relay.
-
-**C. Cambios Técnicos Implementados:**
-- **`users.html`:** Se refactorizó la función `renderUserTable` para usar `addEventListener` y se añadió un enlace de retorno.
-- **`ui.js`:** Se refactorizó `mostrarDetalleModal` para separar el corte recomendado, reordenar el encabezado e implementar la lógica del modal de relay. Se añadieron las funciones auxiliares `renderCutContent` y `renderRelayInfoModal`.
-- **`style.css`:** Se modificaron las clases `.img-vehiculo-modal` y `.img-corte` y se añadió la clase `.btn-link`.
-
-**D. Impacto:**
--   **Restaura Funcionalidad Crítica:** La gestión de usuarios vuelve a ser completamente funcional.
--   **Mejora la Experiencia de Usuario:** El modal de detalles es ahora más intuitivo, se alinea con las especificaciones de diseño y proporciona una nueva funcionalidad interactiva para los diagramas de relay.

@@ -167,6 +167,7 @@ export function mostrarDetalleModal(item) {
         const logoImg = document.createElement("img");
         logoImg.src = getImageUrl(logoUrl);
         logoImg.alt = `Logo ${item.marca}`;
+        logoImg.className = 'brand-logo-modal'; // Clase específica para el logo
         logoImg.style.cssText = "height: 50px; width: auto; max-width: 150px; object-fit: contain;";
         titleContainer.appendChild(logoImg);
     }
