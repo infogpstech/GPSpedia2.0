@@ -147,7 +147,6 @@
     </div>
 
     <!-- User Modal (for Create/Edit) -->
-    <script src="api-manager.js"></script>
     <div id="user-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
@@ -197,7 +196,8 @@
             </form>
         </div>
     </div>
-<script>
+<script type="module">
+import { routeAction } from './api.js';
 // COMPONENT VERSION: 3.8.0
 // --- LÓGICA DE DEPURACIÓN REMOTA ---
 function remoteLog(level, message, data = {}) {

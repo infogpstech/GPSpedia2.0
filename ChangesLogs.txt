@@ -1,3 +1,21 @@
+**V8.2.6 - (CRITICAL HOTFIX) - 10/01/2024**
+**A. RESUMEN GENERAL:** Se corrigió un error fatal en la página de gestión de usuarios (`users.html`) que impedía la ejecución de cualquier acción (crear, editar, eliminar) debido a un error de JavaScript "routeAction is not defined".
+
+**B. Corrección Crítica (Frontend):**
+    1.  **Error de Ámbito (Scope) en `users.html`:** Se identificó que el script de la página no estaba configurado como un módulo de JavaScript (`type="module"`), lo que impedía que pudiera importar funciones de otros archivos.
+    2.  **Causa Raíz:** El script intentaba llamar a la función `routeAction` sin haberla importado previamente desde `api.js`, causando un error de referencia que detenía toda la funcionalidad.
+    3.  **Solución:** Se modernizó el script de `users.html` convirtiéndolo en un módulo. Se añadió `type="module"` a la etiqueta `<script>` y se incluyó la línea `import { routeAction } from './api.js';` al principio del código, haciendo que la función `routeAction` esté disponible y solucionando el error.
+
+**C. Cambios Técnicos Implementados:**
+    - **`users.html`:**
+        - Se añadió `type="module"` a la etiqueta `<script>`.
+        - Se importó la función `routeAction` desde `api.js`.
+        - Se eliminó una etiqueta `<script>` obsoleta que apuntaba a un archivo inexistente.
+
+**D. Impacto:**
+    -   **Restaura la Funcionalidad de Gestión de Usuarios:** Esta corrección es crítica para restaurar por completo la funcionalidad de la página de gestión de usuarios, permitiendo a los administradores crear, editar, eliminar y cambiar contraseñas de los usuarios.
+    -   **Alineación Arquitectónica:** Alinea la página `users.html` con la arquitectura de módulos de JavaScript utilizada en el resto de la aplicación, mejorando la consistencia y mantenibilidad del código.
+
 **V8.2.5 - (CRITICAL HOTFIX & RE-ARCHITECTURE) - 10/01/2024**
 **A. RESUMEN GENERAL:** Se implementó un cambio de arquitectura fundamental en el manejo de imágenes para solucionar de forma definitiva el problema de las imágenes rotas. Se eliminó la dependencia del servicio intermediario (`IMAGE`) y ahora el frontend construye las URLs de las imágenes de Google Drive directamente.
 
