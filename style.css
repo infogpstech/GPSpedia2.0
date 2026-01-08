@@ -742,7 +742,7 @@ body.search-active .app-logo {
 
 #detalleCompleto {
     background: #fff;
-    padding: 15px; /* Reducido para economizar espacio */
+    padding: 0; /* Padding eliminado para controlar el espacio interno */
     width: 90%;
     max-width: 800px;
     border-radius: 15px;
@@ -761,7 +761,6 @@ body.search-active .app-logo {
     display: block;
     width: auto;
     max-width: 100%;
-    /* max-height eliminado para permitir que el ancho domine */
     margin: 10px auto;
     cursor: pointer;
     object-fit: contain;
@@ -779,7 +778,7 @@ body.search-active .app-logo {
 }
 
 .img-vehiculo-modal {
-    max-width: 250px;
+    max-width: 225px; /* Reducido un 10% */
     width: auto;
     height: auto;
     margin: 10px auto;

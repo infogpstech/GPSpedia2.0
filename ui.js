@@ -194,13 +194,17 @@ export function mostrarDetalleModal(item) {
     subHeaderDiv.appendChild(subHeaderText);
     cont.appendChild(subHeaderDiv);
 
+    // --- Contenedor para el cuerpo del modal con padding ---
+    const modalBody = document.createElement('div');
+    modalBody.style.padding = '0 15px 15px 15px'; // Añadir padding aquí
+    cont.appendChild(modalBody);
 
     // --- 4. Imagen del Vehículo ---
     if (item.imagenVehiculo) {
         const imgVehiculo = document.createElement("img");
         imgVehiculo.src = getImageUrl(item.imagenVehiculo);
         imgVehiculo.className = 'img-vehiculo-modal';
-        cont.appendChild(imgVehiculo);
+        modalBody.appendChild(imgVehiculo); // Cambiado a modalBody
     }
 
     // --- 5. Nota Importante ---
@@ -208,7 +212,7 @@ export function mostrarDetalleModal(item) {
         const p = document.createElement("p");
         p.style.cssText = "color:#cc0000; font-weight: bold; background: #ffe0e0; padding: 10px; border-radius: 5px; border-left: 4px solid #cc0000; margin: 15px 0;";
         p.textContent = `⚠️ ${item.notaImportante}`;
-        cont.appendChild(p);
+        modalBody.appendChild(p); // Cambiado a modalBody
     }
 
     // --- Lógica de Ordenamiento de Cortes ---
