@@ -165,3 +165,82 @@ Alcance:
 
 Notas:
 - Riesgo si no se ejecuta: El mantenimiento a largo plazo será más lento y costoso debido a la falta de una referencia clara de la API.
+
+---
+**NUEVAS TAREAS (AUDITORÍA 11/01/2024)**
+---
+
+[TAREA] Reparar Funcionalidad de Botones en Gestión de Usuarios
+
+Origen: Auditoría 11/01/2024
+Prioridad: CRÍTICA
+Área: Frontend | `users.html`
+
+Descripción:
+Los botones "Editar", "Eliminar" y "Cambiar Contraseña" no funcionan debido a un conflicto de ámbito de JavaScript. Las funciones son inaccesibles para los atributos `onclick` del HTML porque el script es un módulo.
+
+Acciones:
+1.  **Refactorizar `users.html`:** Modificar la función `renderUserTable` para que los `event listeners` de los botones "Editar" y "Eliminar" se adjunten mediante `button.addEventListener('click', ...)`.
+2.  **Añadir Enlace de Retorno:** Incluir un enlace `<a>` en la parte superior de `users.html` que permita al usuario volver fácilmente al catálogo (`index.html`).
+
+---
+
+[TAREA] Corregir Apariencia del Encabezado en Modal de Detalles
+
+Origen: Auditoría 11/01/2024
+Prioridad: MEDIA
+Área: Frontend | `ui.js`
+
+Descripción:
+El logo de la marca aparece a la derecha del título del vehículo, en lugar de a la izquierda como se especifica.
+
+Acciones:
+1.  **Modificar `ui.js`:** En la función `mostrarDetalleModal`, reordenar la lógica para que el elemento `img` del logo se añada al `titleContainer` antes que el elemento que contiene el `h2` del título.
+
+---
+
+[TAREA] Ajustar Tamaño de Imágenes en Modal de Detalles
+
+Origen: Auditoría 11/01/2024
+Prioridad: BAJA
+Área: Frontend | `style.css`
+
+Descripción:
+Las imágenes dentro del modal de detalles no tienen el tamaño correcto: la del vehículo es muy grande y la del corte no es responsiva.
+
+Acciones:
+1.  **Modificar `style.css`:**
+    *   Ajustar la regla `.img-vehiculo-modal` para reducir su tamaño (ej. `width: 50%; max-width: 200px;`).
+    *   Añadir una `@media query` para que la clase `.img-corte` tenga un `width: 80%` en pantallas con un ancho máximo de `600px`.
+
+---
+
+[TAREA] Implementar Lógica de Visualización para Corte Recomendado
+
+Origen: Auditoría 11/01/2024
+Prioridad: MEDIA
+Área: Frontend | `ui.js`
+
+Descripción:
+El corte con más votos ("Corte Recomendado") se muestra incorrectamente dentro de un acordeón. Debe estar siempre visible y expandido.
+
+Acciones:
+1.  **Modificar `ui.js`:** En `mostrarDetalleModal`, cambiar el bucle de renderizado de secciones. Primero, renderizar el contenido del corte recomendado directamente en el DOM (sin usar `createAccordionSection`). Luego, iterar sobre el resto de los cortes y secciones para crear los acordeones correspondientes.
+
+---
+
+[TAREA] Implementar Funcionalidad Completa para Configuración de Relay
+
+Origen: Auditoría 11/01/2024
+Prioridad: ALTA
+Área: Frontend | `ui.js`
+
+Descripción:
+La sección de "Configuración de Relay" es solo texto estático. Debe ser un componente interactivo que muestre "Sin Relay" si no hay datos o un botón que abra un modal secundario con el diagrama.
+
+Acciones:
+1.  **Modificar `ui.js`:** Dentro de la función que renderiza el contenido de los cortes (actualmente `createAccordionSection`):
+    *   Implementar una lógica condicional para el valor `configRelay`.
+    *   Si el valor es nulo o "Sin Relay", mostrar el texto "Sin Relay".
+    *   Si hay un valor, crear un elemento `<button>` con el nombre de la configuración como texto.
+    *   Añadir un `addEventListener` a ese botón que, al ser presionado, busque los detalles del relay en `catalogData.relay` y llame a una función (ej. `mostrarDetalleRelayModal`) para mostrar la imagen y detalles en un segundo modal sobre el modal actual.
