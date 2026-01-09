@@ -168,13 +168,13 @@ export function mostrarDetalleModal(item) {
         logoImg.src = getImageUrl(logoUrl);
         logoImg.alt = `Logo ${item.marca}`;
         logoImg.className = 'brand-logo-modal'; // Clase específica para el logo
-        logoImg.style.cssText = "height: 50px; width: auto; max-width: 150px; object-fit: contain;";
+        logoImg.style.cssText = "height: 50px; width: auto; max-width: 150px; object-fit: contain; order: 1;"; // Logo primero
         titleContainer.appendChild(logoImg);
     }
 
     const title = document.createElement("h2");
-    title.textContent = `${item.marca} ${item.modelo}`;
-    title.style.cssText = "color:#007bff; margin: 0; padding: 0; font-size: 1.8em;";
+    title.textContent = `${item.modelo}`; // Solo el modelo, la marca ya está en el logo
+    title.style.cssText = "color:#007bff; margin: 0; padding: 0; font-size: 1.8em; order: 2;"; // Título después
     titleContainer.appendChild(title);
 
     cont.appendChild(titleContainer);
@@ -265,6 +265,23 @@ export function mostrarDetalleModal(item) {
     });
 
     document.getElementById("modalDetalle").classList.add("visible");
+}
+
+/**
+ * Cierra el lightbox. Se anexa el listener programáticamente
+ * para evitar problemas de scope con módulos ES6.
+ */
+function cerrarLightbox() {
+    const lightbox = document.getElementById('lightbox');
+    if (lightbox) {
+        lightbox.classList.remove('visible');
+    }
+}
+
+// Añadir el listener al cargar el módulo.
+const lightboxElement = document.getElementById('lightbox');
+if (lightboxElement) {
+    lightboxElement.addEventListener('click', cerrarLightbox);
 }
 
 function renderCutContent(container, cutData, datosRelay) {

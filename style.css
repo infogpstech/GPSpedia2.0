@@ -814,8 +814,9 @@ body.search-active .app-logo {
 /* --- ESTILOS PARA LA SECCIÓN DE FEEDBACK EN MODAL --- */
 .image-container-with-feedback {
     position: relative;
-    display: inline-block;
-    margin: 10px auto; /* Reducido para economizar espacio */
+    display: block; /* Cambiado a block para que ocupe el ancho y permita posicionar overlay */
+    width: 100%;
+    margin: 10px auto;
 }
 .image-container-with-feedback .feedback-overlay {
     position: absolute;
@@ -824,6 +825,7 @@ body.search-active .app-logo {
     display: flex;
     flex-direction: row;
     gap: 8px;
+    z-index: 5; /* Asegurar que esté sobre la imagen */
 }
 .feedback-btn-overlay {
     background-color: rgba(0, 0, 0, 0.6);

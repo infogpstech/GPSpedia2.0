@@ -1,63 +1,60 @@
-**AUDITORÍA TÉCNICA Y DE APARIENCIA (11/01/2024)**
+**AUDITORÍA TÉCNICA Y DE APARIENCIA (FECHA DE HOY)**
 
 **A. RESUMEN EJECUTIVO:**
-Se realizó una auditoría enfocada en el frontend de la aplicación GPSpedia para diagnosticar una serie de problemas funcionales y de apariencia reportados por el usuario. El análisis confirma que todos los problemas se originan en el código del cliente (HTML, CSS y JavaScript) y no requieren modificaciones en el backend.
+Se ha realizado una auditoría exhaustiva de los archivos `index.html`, `ui.js` y `style.css` en respuesta a una solicitud de corrección de errores funcionales y de diseño en el modal de detalles del vehículo. El análisis confirma que todos los problemas son de naturaleza frontend y se pueden resolver mediante modificaciones específicas en estos tres archivos.
 
-Se identificaron tres áreas principales de mejora:
-1.  **Errores de Funcionalidad en `users.html`:** Los botones de acción para la gestión de usuarios están rotos debido a un problema de ámbito de JavaScript (scope), y falta un elemento de navegación clave.
-2.  **Inconsistencias de Apariencia en el Modal de Detalles:** La presentación visual del modal de detalles del vehículo no se alinea con las especificaciones del `README.md` en múltiples aspectos, desde la disposición de los elementos hasta el tamaño de las imágenes.
-3.  **Funcionalidad Incompleta en el Modal de Detalles:** La lógica para manejar y mostrar la configuración del Relay es inexistente o incorrecta, impidiendo la interacción del usuario.
+Los hallazgos clave son:
+1.  **Error Crítico de Funcionalidad del Lightbox:** Un bug impide cerrar la vista ampliada de la imagen, afectando negativamente la experiencia de usuario.
+2.  **Inconsistencias de Diseño en el Modal:** La disposición de elementos clave (logo, título, configuración de Relay) y el tamaño de otros (botón de cierre, fuente del colaborador) no se adhieren a las especificaciones de diseño.
+3.  **Posicionamiento Incorrecto de Elementos Overlay:** Los botones de feedback sobre las imágenes de corte no están posicionados en la esquina inferior derecha como se requiere.
 
-Este informe detalla la causa raíz de cada problema para guiar su futura corrección.
+Este documento detalla la causa raíz de cada hallazgo y servirá de base para el plan de corrección.
 
 ---
 
 **B. ANÁLISIS DETALLADO DE HALLAZGOS:**
 
-**1. MÓDULO DE GESTIÓN DE USUARIOS (`users.html`)**
+**1. MÓDULO `index.html`**
 
-*   **Problema:** Los botones "Editar" y "Eliminar" en la tabla de usuarios no ejecutan ninguna acción. El botón "Cambiar Contraseña" en el perfil del usuario tampoco funciona.
-*   **Archivo Afectado:** `users.html`
+*   **Problema:** El lightbox de imágenes no se puede cerrar.
+*   **Archivo Afectado:** `index.html`
+*   **Línea Relevante:** `128` (aproximadamente)
 *   **Causa Raíz:**
-    *   **Conflicto de Ámbito (Scope):** El script principal de la página se ejecuta como un módulo (`<script type="module">`). Esto encapsula sus funciones, como `openUserModal` y `deleteUser`, impidiendo que sean accesibles desde el ámbito global (`window`).
-    *   **Llamadas Incorrectas:** Los botones se generan dinámicamente con atributos `onclick` en el HTML (`onclick='openUserModal(...)'`). Estos atributos intentan ejecutar funciones en el ámbito global, donde no existen, causando que el clic no tenga efecto. El mismo problema afecta al botón "Cambiar Contraseña".
-    *   **Solución Recomendada:** Refactorizar la creación de la tabla para que los `event listeners` se adjunten mediante JavaScript (`button.addEventListener('click', ...)`), en lugar de usar atributos `onclick` en el HTML. Esto asociará correctamente los botones con las funciones dentro del ámbito del módulo.
+    *   **Conflicto de Ámbito (Scope):** El atributo `onclick="cerrarLightbox()"` en el `div` del lightbox intenta invocar una función en el ámbito global. Sin embargo, como los scripts se cargan como módulos (`type="module"`), la función `cerrarLightbox` definida en `ui.js` no existe en el ámbito global (`window`), provocando que el evento `onclick` falle silenciosamente.
+*   **Solución Recomendada:**
+    1.  Eliminar el atributo `onclick` del `div` del lightbox en `index.html`.
+    2.  En `ui.js`, añadir un `event listener` programáticamente al elemento del lightbox para que llame a la función `cerrarLightbox` desde dentro del ámbito del módulo, donde sí está definida.
 
-*   **Problema:** La página de gestión de usuarios carece de un enlace o botón para regresar a la vista principal del catálogo.
-*   **Archivo Afectado:** `users.html`
-*   **Causa Raíz:** El cuerpo del HTML (`<body>`) no contiene ningún elemento `<a>` o `<button>` que redirija al usuario a `index.html`.
-*   **Solución Recomendada:** Añadir un enlace de navegación claro, como `<a href="index.html">Volver al Catálogo</a>`, en la parte superior de la página para mejorar la usabilidad.
+**2. MÓDULO `ui.js` (LÓGICA DE RENDERIZADO)**
 
-**2. MODAL DE DETALLES DEL VEHÍCULO (APARIENCIA)**
-
-*   **Problema:** El logo de la marca aparece a la derecha del título, en lugar de a la izquierda.
+*   **Problema:** En el encabezado del modal de detalles, el logo de la marca aparece después del nombre del modelo.
 *   **Archivo Afectado:** `ui.js`
-*   **Líneas Relevantes:** `mostrarDetalleModal` function.
-*   **Causa Raíz:** El contenedor del encabezado del modal (`titleContainer`) usa `display: flex` y `justify-content: space-between`. El código añade primero el `div` del título y luego el `img` del logo. Esta combinación fuerza al primer elemento (título) a la izquierda y al segundo (logo) a la derecha.
-*   **Solución Recomendada:** Reordenar el código para que el logo se añada al `titleContainer` antes que el `div` del título, o ajustar el CSS para controlar el orden de los elementos.
+*   **Líneas Relevantes:** Dentro de la función `mostrarDetalleModal`.
+*   **Causa Raíz:** La lógica de renderizado del encabezado (`titleContainer`) primero crea y añade el elemento `<h2>` con el título y, posteriormente, crea y añade el elemento `<img>` del logo. El orden de inserción en el DOM determina el orden visual.
+*   **Solución Recomendada:** Reordenar el código dentro de la función `mostrarDetalleModal` para que el `logoImg` se cree y se añada al `titleContainer` **antes** que el `title`.
 
-*   **Problema:** La imagen del vehículo es demasiado grande.
-*   **Archivos Afectados:** `style.css`
-*   **Causa Raíz:** La clase `.img-vehiculo-modal` en `style.css` solo define un `max-height: 150px` sin especificar un `width`. Esto provoca que la imagen ocupe su ancho original si es menor a la altura máxima, resultando en un tamaño inconsistente y a menudo grande.
-*   **Solución Recomendada:** Modificar la regla CSS para que controle tanto el ancho como la altura, por ejemplo, `width: 50%; max-width: 200px; height: auto;`, para reducir su tamaño a la mitad y mantener la proporción.
+*   **Problema:** La "Configuración de Relay" se muestra antes de la imagen del corte correspondiente.
+*   **Archivo Afectado:** `ui.js`
+*   **Líneas Relevantes:** Dentro de la función `renderCutContent`.
+*   **Causa Raíz:** La función `renderCutContent` primero renderiza la información de ubicación y color, luego la configuración de Relay y, finalmente, la imagen del corte.
+*   **Solución Recomendada:** Reestructurar `renderCutContent` para que la lógica que crea y añade la imagen del corte (`cutData.img`) se ejecute **antes** de la lógica que maneja la `configRelay`.
 
-*   **Problema:** La imagen del corte ocupa todo el ancho horizontal en dispositivos móviles.
+*   **Problema:** El tamaño de la fuente para el nombre del colaborador es demasiado grande.
+*   **Archivo Afectado:** `ui.js`
+*   **Líneas Relevantes:** Dentro de la función `renderCutContent`.
+*   **Causa Raíz:** El estilo aplicado al párrafo del colaborador (`colabP.style.cssText`) no especifica un `font-size`. Por lo tanto, hereda el tamaño de fuente por defecto, que es más grande de lo deseado.
+*   **Solución Recomendada:** Añadir una regla de `font-size` más pequeña (ej. `font-size: 0.8em;`) al `style.cssText` del `colabP` para reducir su tamaño visual.
+
+**3. MÓDULO `style.css` (ESTILOS)**
+
+*   **Problema:** Los botones de feedback no están posicionados en la esquina inferior derecha de la imagen del corte.
 *   **Archivo Afectado:** `style.css`
-*   **Causa Raíz:** La clase `.img-corte` tiene la regla `width: 100%`, la cual se aplica en todas las resoluciones de pantalla. No existe una `@media query` específica para móviles que ajuste este ancho.
-*   **Solución Recomendada:** Añadir una media query como `@media (max-width: 600px) { .img-corte { width: 80%; margin: auto; } }` para limitar el ancho en pantallas pequeñas.
+*   **Líneas Relevantes:** Regla CSS `.image-container-with-feedback .feedback-overlay`.
+*   **Causa Raíz:** El posicionamiento actual usa `bottom: 10px;` y `right: 10px;` sin especificar explícitamente la esquina. Aunque funcional en muchos casos, puede ser inconsistente.
+*   **Solución Recomendada:** La regla actual es funcionalmente correcta para la esquina inferior derecha. No se requiere ningún cambio. (Nota: Si se observan inconsistencias, se podría añadir `justify-content: flex-end; align-items: flex-end;` al contenedor si fuera un flexbox, pero con `position: absolute` la regla actual es la estándar).
 
-*   **Problema:** El "Corte Recomendado" se muestra dentro de un botón de acordeón, en lugar de estar visible por defecto.
-*   **Archivo Afectado:** `ui.js`
-*   **Línea Relevante:** `createAccordionSection` function call.
-*   **Causa Raíz:** La lógica dentro de `mostrarDetalleModal` trata a todos los cortes por igual. Después de ordenarlos, los recorre y llama a la función `createAccordionSection` para cada uno. Esta función, por diseño, siempre crea un acordeón.
-*   **Solución Recomendada:** Modificar el bucle de renderizado de secciones para tratar el primer corte (el recomendado) de manera diferente. Se debería renderizar su contenido directamente en el DOM y luego iterar sobre el resto de los cortes para crear los acordeones.
-
-**3. MODAL DE DETALLES DEL VEHÍCULO (FUNCIONALIDAD DEL RELAY)**
-
-*   **Problema:** La información del Relay no funciona como se espera. No se abre un modal secundario y los valores nulos no se muestran correctamente.
-*   **Archivo Afectado:** `ui.js`
-*   **Causa Raíz:** La funcionalidad es inexistente en el código actual. Dentro de la función `createAccordionSection`, el valor de `configRelay` se imprime como simple texto. No hay ninguna lógica para:
-    1.  Comprobar si `corte.configRelay` es `null` o `undefined` para mostrar el texto "Sin Relay".
-    2.  Crear un elemento `<button>` si existe un valor para `configRelay`.
-    3.  Asignar un `event listener` a dicho botón para que, al hacer clic, se obtenga la información del relay correspondiente y se muestre un segundo modal (`mostrarDetalleRelayModal`).
-*   **Solución Recomendada:** Implementar una lógica condicional dentro de `createAccordionSection`. Si `configRelay` tiene un valor, se debe crear un botón con ese valor como texto. A este botón se le debe añadir un `addEventListener` que busque los detalles del relay en el estado de la aplicación y llame a una función que renderice y muestre un modal secundario (modal-sobre-modal) con la imagen y la información del diagrama.
+*   **Problema:** El botón para cerrar el modal de detalles es demasiado grande.
+*   **Archivo Afectado:** `style.css`
+*   **Líneas Relevantes:** No hay una regla específica. El tamaño se define inline en `ui.js`.
+*   **Causa Raíz:** El tamaño de la fuente y el padding del botón de cierre se establecen inline en `ui.js` (`font-size: 2.5em; padding: 0 10px;`).
+*   **Solución Recomendada:** Reducir estos valores directamente en la línea de código donde se definen en `ui.js` (ej. a `font-size: 1.8em;`) o, preferiblemente, mover los estilos a la clase `.info-close-btn` en `style.css` para una mejor mantenibilidad y reducir su `font-size` y `padding`.
