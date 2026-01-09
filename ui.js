@@ -154,7 +154,7 @@ export function mostrarDetalleModal(item) {
     closeBtn.innerHTML = "&times;";
     closeBtn.onclick = () => document.getElementById("modalDetalle").classList.remove("visible");
     closeBtn.className = "info-close-btn";
-    closeBtn.style.cssText = "position: static; font-size: 2.5em; padding: 0 10px;";
+    closeBtn.style.cssText = "position: static; font-size: 1.8em; padding: 0 10px;";
     headerDiv.appendChild(closeBtn);
     cont.appendChild(headerDiv);
 
@@ -162,19 +162,20 @@ export function mostrarDetalleModal(item) {
     const titleContainer = document.createElement("div");
     titleContainer.style.cssText = "border-bottom: 3px solid #007bff; padding-bottom: 8px; margin-bottom: 15px; display: flex; align-items: center; justify-content: flex-start; gap: 15px;";
 
+    // --- REORDENADO PARA PONER EL LOGO PRIMERO ---
     const logoUrl = getLogoUrlForMarca(item.marca, item.categoria);
     if (logoUrl) {
         const logoImg = document.createElement("img");
         logoImg.src = getImageUrl(logoUrl);
         logoImg.alt = `Logo ${item.marca}`;
-        logoImg.className = 'brand-logo-modal'; // Clase específica para el logo
-        logoImg.style.cssText = "height: 50px; width: auto; max-width: 150px; object-fit: contain;";
+        logoImg.className = 'brand-logo-modal';
+        logoImg.style.cssText = "height: 50px; width: auto; max-width: 150px; object-fit: contain; order: 1;"; // Logo primero
         titleContainer.appendChild(logoImg);
     }
 
     const title = document.createElement("h2");
-    title.textContent = `${item.marca} ${item.modelo}`;
-    title.style.cssText = "color:#007bff; margin: 0; padding: 0; font-size: 1.8em;";
+    title.textContent = `${item.modelo}`; // Quitado ${item.marca} para no duplicar
+    title.style.cssText = "color:#007bff; margin: 0; padding: 0; font-size: 1.8em; order: 2;"; // Título después
     titleContainer.appendChild(title);
 
     cont.appendChild(titleContainer);
@@ -273,6 +274,47 @@ function renderCutContent(container, cutData, datosRelay) {
                         <strong>Color de Cable:</strong> ${cutData.colorCable || 'No especificado'}`;
     container.appendChild(contentP);
 
+    // --- LÓGICA DE IMAGEN Y BOTONES (MODIFICADO) ---
+    if (cutData.img) {
+        const highResImgUrl = getImageUrl(cutData.img, 1000);
+
+        // Contenedor principal para la imagen y el overlay
+        const imgContainer = document.createElement('div');
+        imgContainer.className = 'image-container-with-feedback';
+
+        // Imagen
+        const img = document.createElement("img");
+        img.src = highResImgUrl;
+        img.className = 'img-corte image-with-container';
+        img.onclick = () => {
+            document.getElementById('lightboxImg').src = highResImgUrl;
+            document.getElementById('lightbox').classList.add('visible');
+        };
+        imgContainer.appendChild(img);
+
+        // Overlay de botones de feedback
+        const feedbackOverlay = document.createElement('div');
+        feedbackOverlay.className = 'feedback-overlay';
+
+        const utilBtn = document.createElement('button');
+        utilBtn.className = 'feedback-btn-overlay util-btn';
+        utilBtn.innerHTML = '<i class="fa-solid fa-thumbs-up"></i>';
+        utilBtn.title = 'Marcar como útil';
+        // TODO: Agregar lógica de 'like'
+        feedbackOverlay.appendChild(utilBtn);
+
+        const reportBtn = document.createElement('button');
+        reportBtn.className = 'feedback-btn-overlay report-btn';
+        reportBtn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+        reportBtn.title = 'Reportar un problema';
+        // TODO: Agregar lógica de 'reporte'
+        feedbackOverlay.appendChild(reportBtn);
+
+        imgContainer.appendChild(feedbackOverlay);
+        container.appendChild(imgContainer);
+    }
+
+    // --- CONFIGURACIÓN DE RELAY (REORDENADO) ---
     const relayContainer = document.createElement('p');
     const configRelay = cutData.configRelay;
 
@@ -282,7 +324,7 @@ function renderCutContent(container, cutData, datosRelay) {
         relayContainer.innerHTML = `<strong>Configuración de Relay: </strong>`;
         const relayButton = document.createElement('button');
         relayButton.textContent = configRelay;
-        relayButton.className = 'btn-link'; // Asignar una clase para estilos
+        relayButton.className = 'btn-link';
         relayButton.onclick = () => {
             const relayInfo = datosRelay.find(r => r.configuracion === configRelay);
             if (relayInfo) {
@@ -295,20 +337,11 @@ function renderCutContent(container, cutData, datosRelay) {
     }
     container.appendChild(relayContainer);
 
-    if (cutData.img) {
-        const highResImgUrl = getImageUrl(cutData.img, 1000); // Usar tamaño 1000
-        const img = document.createElement("img");
-        img.src = highResImgUrl; // Usar URL de alta resolución
-        img.className = 'img-corte image-with-container';
-        img.onclick = () => {
-            document.getElementById('lightboxImg').src = highResImgUrl; // Asegurar que el lightbox también usa alta resolución
-            document.getElementById('lightbox').classList.add('visible');
-        };
-        container.appendChild(img);
-    }
+    // --- COLABORADOR (MODIFICADO) ---
     if (cutData.colaborador) {
         const colabP = document.createElement('p');
-        colabP.style.cssText = "font-style: italic; color: #888; margin-top: 10px; text-align: left;";
+        // Se reduce el tamaño de la fuente
+        colabP.style.cssText = "font-style: italic; color: #888; margin-top: 10px; text-align: left; font-size: 0.8em;";
         colabP.innerHTML = `Aportado por: <strong>${cutData.colaborador}</strong>`;
         container.appendChild(colabP);
     }

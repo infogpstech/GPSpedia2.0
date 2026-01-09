@@ -113,7 +113,7 @@ REGLA FINAL
 Si un paso NO fue ejecutado, el proceso se considera INCOMPLETO.
 NO se permiten atajos, omisiones ni reinterpretaciones.
 
--Tareas Pendientes- 
+-Tareas Pendientes-
 
 [PENDIENTE REVISION POR EL MP] Implementar Sistema de Inbox (Tarea 18)
 

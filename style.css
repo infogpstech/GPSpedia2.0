@@ -814,8 +814,8 @@ body.search-active .app-logo {
 /* --- ESTILOS PARA LA SECCIÓN DE FEEDBACK EN MODAL --- */
 .image-container-with-feedback {
     position: relative;
-    display: inline-block;
-    margin: 10px auto; /* Reducido para economizar espacio */
+    display: block; /* Cambiado para permitir que el contenedor se ajuste al 100% */
+    margin: 10px auto;
 }
 .image-container-with-feedback .feedback-overlay {
     position: absolute;

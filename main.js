@@ -9,6 +9,7 @@ import * as auth from './auth.js';
 import * as state from './state.js';
 import * as ui from './ui.js';
 import * as navigation from './navigation.js';
+import './lightbox.js';
 
 let deferredPrompt;
 
