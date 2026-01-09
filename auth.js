@@ -10,15 +10,17 @@ import { showLoginScreen, showApp, showGlobalError } from './ui.js';
 
 const SESSION_KEY = 'gpsepedia_session';
 
-async function handleLoginSuccess(user) {
+function handleLoginSuccess(user) {
     localStorage.setItem(SESSION_KEY, JSON.stringify(user));
     setState({ currentUser: user });
+    showApp(user); // Muestra la UI principal inmediatamente
+}
 
+async function loadInitialData() {
     try {
         const apiResponse = await fetchCatalogData();
-        const catalogData = apiResponse.data; // Extraer el objeto de datos anidado
+        const catalogData = apiResponse.data;
 
-        // Process and sort categories
         const categoryCounts = catalogData.cortes.reduce((acc, item) => {
             if (item.categoria) {
                 acc[item.categoria] = (acc[item.categoria] || 0) + 1;
@@ -28,7 +30,6 @@ async function handleLoginSuccess(user) {
 
         const sortedCategories = Object.keys(categoryCounts).sort((a, b) => categoryCounts[b] - categoryCounts[a]);
 
-        // Update state with processed data
         setState({
             catalogData: {
                 ...catalogData,
@@ -36,12 +37,15 @@ async function handleLoginSuccess(user) {
             }
         });
 
-        showApp(user);
+        // La UI ya está visible, esto solo refrescará el contenido si es necesario
+        // (asumiendo que las funciones de renderizado usan el estado actualizado)
+
     } catch (error) {
-        showGlobalError("Error al cargar los datos de la aplicación. Por favor, intente de nuevo.");
-        showLoginScreen(); // Revert to login screen on data load failure
+        showGlobalError("Error al cargar los datos del catálogo. La funcionalidad puede ser limitada.");
+        // NO se llama a showLoginScreen()
     }
 }
+
 
 export async function checkSession() {
     const sessionData = localStorage.getItem(SESSION_KEY);
@@ -54,7 +58,8 @@ export async function checkSession() {
         const user = JSON.parse(sessionData);
         const { valid } = await apiValidateSession(user.ID, user.SessionToken);
         if (valid) {
-            await handleLoginSuccess(user);
+            handleLoginSuccess(user);
+            await loadInitialData(); // Carga los datos después de mostrar la UI
         } else {
             logout("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
         }
@@ -68,7 +73,8 @@ export async function login(username, password) {
     try {
         const result = await apiLogin(username, password);
         if (result && result.user) {
-            await handleLoginSuccess(result.user);
+            handleLoginSuccess(result.user);
+            await loadInitialData(); // Carga los datos después de mostrar la UI
         } else {
             throw new Error("Respuesta de login inválida.");
         }
