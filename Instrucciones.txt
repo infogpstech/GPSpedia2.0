@@ -44,7 +44,7 @@ FLUJO OBLIGATORIO DE TRABAJO
      - Línea por línea
    - NO modificar código durante esta fase.
 
-2. REGISTRO DE HALLAZGOS
+2. REGISTRO DE HALLAZGO
    - Registrar TODOS los hallazgos en Auditoría.txt.
    - Crear una nueva entrada para el archivo auditado.
    - Si ya existe una auditoría previa del mismo archivo:
@@ -256,6 +256,20 @@ Notas:
 
 ---
 **NUEVAS TAREAS (AUDITORÍA 11/01/2024)**
+---
+
+[TAREA] Mejorar Calidad de Imagen en Modal de Relay
+
+Origen: Reporte de Tareas
+Prioridad: BAJA
+Área: Frontend | UI
+
+Descripción:
+La imagen de la configuración del Relay en el modal de detalle se muestra en baja resolución.
+
+Acciones:
+1.  **Modificar `ui.js`:** En la función `renderRelayInfoModal`, al llamar a `getImageUrl`, añadir el parámetro `size` con un valor de `1000` para solicitar una versión de mayor calidad de la imagen.
+
 ---
 
 [TAREA] Reparar Funcionalidad de Botones en Gestión de Usuarios

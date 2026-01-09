@@ -1,63 +1,48 @@
-**AUDITORÍA TÉCNICA Y DE APARIENCIA (FECHA DE HOY)**
+**AUDITORÍA DE SEGUIMIENTO (SEGUNDA REVISIÓN - FECHA DE HOY)**
 
-**A. RESUMEN EJECUTIVO:**
-Se ha realizado una auditoría del frontend para abordar una solicitud de múltiples ajustes en la interfaz de usuario del modal de detalle del vehículo. El análisis confirma que todos los problemas se localizan en los archivos `index.html`, `ui.js`, y `style.css`, y no requieren cambios en el backend.
+**A. OBJETIVO:**
+Realizar una segunda auditoría, más profunda y específica, para identificar la causa raíz del fallo de alineación en el encabezado del modal de detalle, siguiendo las directrices del usuario de investigar márgenes, paddings y todas las reglas CSS y JS relacionadas.
 
-La auditoría identificó las siguientes discrepancias con los requisitos del usuario:
-1.  **Orden Incorrecto de Elementos:** La configuración del Relay se muestra antes de la imagen del corte, violando el flujo visual especificado.
-2.  **Funcionalidad Faltante:** Los botones de feedback ("Útil" y "Reportar") no están implementados en el modal.
-3.  **Error de Posicionamiento:** El contenedor de la imagen no está configurado correctamente en CSS para permitir el posicionamiento de elementos superpuestos (overlay).
-4.  **Bug Funcional:** El lightbox de imágenes no se puede cerrar porque la función `cerrarLightbox()` es llamada desde el HTML pero no está definida en el ámbito global del JavaScript.
-5.  **Estilos Desajustados:** El botón para cerrar el modal y el texto del colaborador tienen tamaños que necesitan ser reducidos según las especificaciones.
+**B. ALCANCE DE LA AUDITORÍA:**
+La auditoría se centró exclusivamente en las propiedades de layout (`margin`, `padding`, `display`, `justify-content`, `align-items`, `width`, `gap`, `order`, etc.) que afectan a los siguientes elementos:
+1.  Contenedor principal del modal: `#detalleCompleto`.
+2.  Contenedor del encabezado: `titleContainer` (creado dinámicamente).
+3.  El logo de la marca: `logoImg` (creado dinámicamente, con clase `.brand-logo-modal`).
+4.  El título del modelo: `title` (creado dinámicamente).
 
-Este informe proporciona la causa raíz de cada punto para guiar la ejecución de los cambios.
+**C. ANÁLISIS Y HALLAZGOS (CAUSA RAÍZ IDENTIFICADA):**
 
----
+**1. Revisión de `style.css` (Hallazgo Crítico):**
+*   **Resultado:** POSITIVO.
+*   **Causa Raíz Identificada:** Se ha localizado una regla de CSS demasiado genérica que es la causa directa del problema de alineación.
+    ```css
+    #detalleCompleto img, .info-modal-content img {
+        display: block;
+        width: auto;
+        max-width: 100%;
+        margin: 10px auto; /* <<< ESTA ES LA CAUSA DEL PROBLEMA */
+        cursor: pointer;
+        object-fit: contain;
+    }
+    ```
+*   **Análisis del Conflicto:**
+    1.  Este selector se aplica a **TODAS** las etiquetas `<img>` dentro del contenedor `#detalleCompleto`.
+    2.  La propiedad `margin: 10px auto;` instruye al navegador a centrar horizontalmente el elemento dentro de su contenedor.
+    3.  Cuando el `logoImg` (que es una etiqueta `<img>`) se coloca dentro del `titleContainer` (que es un `flex` container), esta regla de `margin: auto` tiene una alta precedencia para el cálculo de la posición del elemento.
+    4.  Efectivamente, el `margin: auto` del logo está "ganando" a la instrucción `justify-content: flex-start` de su contenedor padre, forzando al logo a centrarse y empujando al título hacia la derecha.
 
-**B. ANÁLISIS DETALLADO DE HALLAZGOS:**
+**2. Revisión de `ui.js` (Hallazgo de Confirmación):**
+*   **Resultado:** NEGATIVO (sin errores en el archivo).
+*   **Detalle:** El código JavaScript en la función `mostrarDetalleModal` es correcto. Los estilos inline aplicados al `titleContainer` (`display: flex`, `justify-content: flex-start`) y a los elementos hijos (`order: 1`, `order: 2`) están bien implementados. Esta revisión confirma que el problema no es de lógica JavaScript, sino de un conflicto de estilos originado en el CSS.
 
-**1. MODAL DE DETALLES - ORDEN DE CONTENIDO**
+**D. CONCLUSIÓN DE LA AUDITORÍA:**
 
-*   **Problema:** La configuración del Relay aparece encima de la imagen del corte, cuando debería estar debajo.
-*   **Archivo Afectado:** `ui.js`
-*   **Función Relevante:** `renderCutContent`
-*   **Causa Raíz:** El código dentro de la función `renderCutContent` primero crea y añade el contenedor del Relay (`relayContainer`) al DOM, y después crea y añade la imagen del corte (`img`).
-*   **Solución Recomendada:** Reordenar las líneas de código para que la imagen del corte se cree y se añada al contenedor *antes* que el contenedor del Relay.
+El problema no es un error de lógica, sino un **conflicto de especificidad y de propiedades CSS**. La regla genérica que centra todas las imágenes en el modal está interfiriendo con el layout específico del encabezado.
 
-**2. MODAL DE DETALLES - BOTONES DE FEEDBACK**
-
-*   **Problema:** Los botones "Útil" y "Reportar" no se muestran sobre la imagen del corte.
-*   **Archivo Afectado:** `ui.js`
-*   **Función Relevante:** `renderCutContent`
-*   **Causa Raíz:** La lógica para crear, estilizar y añadir los botones de feedback al contenedor de la imagen es completamente inexistente.
-*   **Solución Recomendada:**
-    1.  Crear una nueva función o bloque de código que genere los dos botones (`<button>`) con sus respectivos iconos.
-    2.  Crear un `div` contenedor para estos botones con la clase `.feedback-overlay`.
-    3.  Dentro de `renderCutContent`, cuando se cree la imagen del corte, envolverla en un `div` con la clase `.image-container-with-feedback`.
-    4.  Añadir el `div` del overlay de botones dentro de este nuevo contenedor, después de la imagen.
-
-*   **Problema:** El posicionamiento overlay de los botones de feedback no funcionará correctamente.
-*   **Archivo Afectado:** `style.css`
-*   **Causa Raíz:** La clase `.image-container-with-feedback` tiene la propiedad `display: inline-block` en lugar de `position: relative`. Un elemento debe tener `position: relative` para que sus hijos con `position: absolute` (como el `.feedback-overlay`) se posicionen con respecto a él.
-*   **Solución Recomendada:** Cambiar la regla en `style.css` para que `.image-container-with-feedback` tenga `position: relative`.
-
-**3. MODAL DE DETALLES - BUG DEL LIGHTBOX**
-
-*   **Problema:** Hacer clic fuera de la imagen en el lightbox no cierra la vista.
-*   **Archivo Afectado:** `index.html`, `main.js` (o un archivo JS global)
-*   **Causa Raíz:** El `div` del lightbox en `index.html` tiene un `onclick="cerrarLightbox()"`. Sin embargo, debido a que el código JavaScript se carga como un módulo (`type="module"`), la función `cerrarLightbox` definida dentro del módulo no está disponible en el ámbito global donde el `onclick` la busca.
-*   **Solución Recomendada:** Crear la función `cerrarLightbox` y asignarla explícitamente al objeto `window` (ej. `window.cerrarLightbox = function() { ... }`) para que sea globalmente accesible, o, preferiblemente, eliminar el `onclick` del HTML y añadir el event listener mediante JavaScript en el módulo principal.
-
-**4. MODAL DE DETALLES - AJUSTES DE TAMAÑO**
-
-*   **Problema:** El botón para cerrar el modal es demasiado grande.
-*   **Archivo Afectado:** `ui.js`
-*   **Función Relevante:** `mostrarDetalleModal`
-*   **Causa Raíz:** El botón de cerrar (`closeBtn`) tiene un estilo inline `font-size: 2.5em;` que le da un tamaño excesivo.
-*   **Solución Recomendada:** Reducir el valor del `font-size` en el estilo inline a un valor más apropiado, como `1.8em`.
-
-*   **Problema:** El texto del colaborador es muy grande.
-*   **Archivo Afectado:** `ui.js`
-*   **Función Relevante:** `renderCutContent`
-*   **Causa Raíz:** El párrafo que contiene el nombre del colaborador (`colabP`) no tiene un `font-size` específico, por lo que hereda el tamaño de su contenedor, resultando demasiado grande.
-*   **Solución Recomendada:** Añadir la propiedad `font-size: 0.8em;` a los estilos inline del `colabP` para reducir su tamaño.
+**Recomendación:** Crear una regla CSS más específica para el logo del modal que anule el margen automático. Por ejemplo:
+```css
+#detalleCompleto .brand-logo-modal {
+    margin: 0; /* Anula el 'margin: auto' de la regla genérica */
+}
+```
+Esta acción resolverá el conflicto sin afectar a las otras imágenes del modal que sí deben permanecer centradas.

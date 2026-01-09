@@ -276,7 +276,7 @@ function renderCutContent(container, cutData, datosRelay) {
 
     // --- LÓGICA DE IMAGEN Y BOTONES (MODIFICADO) ---
     if (cutData.img) {
-        const highResImgUrl = getImageUrl(cutData.img, 1000);
+        const highResImgUrl = getImageUrl(cutData.img);
 
         // Contenedor principal para la imagen y el overlay
         const imgContainer = document.createElement('div');
@@ -372,7 +372,7 @@ function renderRelayInfoModal(relayInfo) {
     content.appendChild(title);
 
     const img = document.createElement('img');
-    img.src = getImageUrl(relayInfo.imagen);
+    img.src = getImageUrl(relayInfo.imagen, 1000);
     img.style.width = '100%';
     content.appendChild(img);
 
