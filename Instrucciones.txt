@@ -142,6 +142,15 @@ Alcance:
 
 ---
 
+[PENDIENTE REVISION POR EL MP] Manejo de Nombre completo del usuario.
+Origen: Requerimiento Funcional
+Prioridad: Critica
+Área: Backend, Frontend | Users.
+Descripción: actualmente se omite tener en base de datos el nombre completo del usuario. Solo su nombre de usuario, correo número de teléfono.
+Falta el nombre. Agregar una nueva columna para la información del nombre. Y corregir en el frontend para que se pueda visualizar el nombre del usuario en la gestión de usuarios.
+
+---
+
 [TAREA] Centralizar la Lógica de Autorización de Backend
 
 Origen: Auditoría Técnica Forense v2.0
