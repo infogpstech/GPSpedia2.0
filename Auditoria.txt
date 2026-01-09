@@ -1,60 +1,33 @@
-**AUDITORÍA TÉCNICA Y DE APARIENCIA (FECHA DE HOY)**
+**AUDITORÍA TÉCNICA Y DE DISEÑO (Reiniciada)**
 
 **A. RESUMEN EJECUTIVO:**
-Se ha realizado una auditoría exhaustiva de los archivos `index.html`, `ui.js` y `style.css` en respuesta a una solicitud de corrección de errores funcionales y de diseño en el modal de detalles del vehículo. El análisis confirma que todos los problemas son de naturaleza frontend y se pueden resolver mediante modificaciones específicas en estos tres archivos.
+Tras un fallo en el intento anterior de modificación, se reinició el proceso desde cero siguiendo estrictamente el flujo de trabajo obligatorio. Se realizó una nueva auditoría línea por línea de los archivos `index.html`, `ui.js` y `style.css` para identificar la causa raíz de los problemas reportados en el modal de detalles del vehículo.
 
-Los hallazgos clave son:
-1.  **Error Crítico de Funcionalidad del Lightbox:** Un bug impide cerrar la vista ampliada de la imagen, afectando negativamente la experiencia de usuario.
-2.  **Inconsistencias de Diseño en el Modal:** La disposición de elementos clave (logo, título, configuración de Relay) y el tamaño de otros (botón de cierre, fuente del colaborador) no se adhieren a las especificaciones de diseño.
-3.  **Posicionamiento Incorrecto de Elementos Overlay:** Los botones de feedback sobre las imágenes de corte no están posicionados en la esquina inferior derecha como se requiere.
+Los hallazgos confirman los siguientes problemas:
+1.  **Bug Funcional Crítico:** El lightbox para visualización de imágenes no se puede cerrar debido a un error de scope de JavaScript.
+2.  **Discrepancias de Layout y Estilo:** El orden de los elementos en el encabezado del modal, la posición de la información de Relay, y los tamaños de fuente y botones no cumplen con las especificaciones de diseño.
+3.  **Posicionamiento Incorrecto de Overlays:** Los botones de feedback no se muestran correctamente sobre las imágenes.
 
-Este documento detalla la causa raíz de cada hallazgo y servirá de base para el plan de corrección.
+Este documento registra los hallazgos detallados para guiar la correcta implementación de las correcciones.
 
 ---
 
 **B. ANÁLISIS DETALLADO DE HALLAZGOS:**
 
-**1. MÓDULO `index.html`**
+**1. Archivo `index.html`:**
+*   **Hallazgo:** El `div` con `id="lightbox"` contiene un atributo `onclick="cerrarLightbox()"`.
+*   **Causa Raíz:** Esta implementación es incorrecta porque los scripts de la aplicación se cargan como módulos (`type="module"`), lo que significa que la función `cerrarLightbox` no está en el ámbito global (`window`) y no puede ser llamada directamente desde el HTML. Esto causa que el clic no tenga efecto y el lightbox no se pueda cerrar.
+*   **Referencia a Normas:** Este problema viola el principio de separación de responsabilidades, donde el HTML no debería contener lógica de eventos complejos.
 
-*   **Problema:** El lightbox de imágenes no se puede cerrar.
-*   **Archivo Afectado:** `index.html`
-*   **Línea Relevante:** `128` (aproximadamente)
-*   **Causa Raíz:**
-    *   **Conflicto de Ámbito (Scope):** El atributo `onclick="cerrarLightbox()"` en el `div` del lightbox intenta invocar una función en el ámbito global. Sin embargo, como los scripts se cargan como módulos (`type="module"`), la función `cerrarLightbox` definida en `ui.js` no existe en el ámbito global (`window`), provocando que el evento `onclick` falle silenciosamente.
-*   **Solución Recomendada:**
-    1.  Eliminar el atributo `onclick` del `div` del lightbox en `index.html`.
-    2.  En `ui.js`, añadir un `event listener` programáticamente al elemento del lightbox para que llame a la función `cerrarLightbox` desde dentro del ámbito del módulo, donde sí está definida.
+**2. Archivo `ui.js`:**
+*   **Hallazgo 1 (Orden de Encabezado):** En la función `mostrarDetalleModal`, el elemento `<h2>` del título se añade al `titleContainer` *después* del `logoImg`. La tarea requiere que el logo esté a la izquierda y el nombre del modelo a la derecha. La lógica actual es correcta, pero el texto del título contiene `item.marca` y `item.modelo`, lo cual es redundante si la marca ya está en el logo.
+*   **Hallazgo 2 (Orden de Contenido del Corte):** En la función `renderCutContent`, la lógica que renderiza la `configRelay` se ejecuta *antes* de la lógica que renderiza la imagen del corte (`cutData.img`). La tarea especifica que la configuración de Relay debe estar *debajo* de la imagen.
+*   **Hallazgo 3 (Estilos Inline):**
+    *   En `mostrarDetalleModal`, el botón de cierre (`closeBtn`) tiene un estilo inline `font-size: 2.5em`, que es demasiado grande.
+    *   En `renderCutContent`, el párrafo del colaborador (`colabP`) no tiene un `font-size` definido, heredando un tamaño mayor al requerido.
+*   **Causa Raíz:** La secuencia de creación y adición de elementos en el DOM no sigue el orden visual requerido. Los estilos inline dificultan el mantenimiento y no cumplen con las mejores prácticas.
 
-**2. MÓDULO `ui.js` (LÓGICA DE RENDERIZADO)**
-
-*   **Problema:** En el encabezado del modal de detalles, el logo de la marca aparece después del nombre del modelo.
-*   **Archivo Afectado:** `ui.js`
-*   **Líneas Relevantes:** Dentro de la función `mostrarDetalleModal`.
-*   **Causa Raíz:** La lógica de renderizado del encabezado (`titleContainer`) primero crea y añade el elemento `<h2>` con el título y, posteriormente, crea y añade el elemento `<img>` del logo. El orden de inserción en el DOM determina el orden visual.
-*   **Solución Recomendada:** Reordenar el código dentro de la función `mostrarDetalleModal` para que el `logoImg` se cree y se añada al `titleContainer` **antes** que el `title`.
-
-*   **Problema:** La "Configuración de Relay" se muestra antes de la imagen del corte correspondiente.
-*   **Archivo Afectado:** `ui.js`
-*   **Líneas Relevantes:** Dentro de la función `renderCutContent`.
-*   **Causa Raíz:** La función `renderCutContent` primero renderiza la información de ubicación y color, luego la configuración de Relay y, finalmente, la imagen del corte.
-*   **Solución Recomendada:** Reestructurar `renderCutContent` para que la lógica que crea y añade la imagen del corte (`cutData.img`) se ejecute **antes** de la lógica que maneja la `configRelay`.
-
-*   **Problema:** El tamaño de la fuente para el nombre del colaborador es demasiado grande.
-*   **Archivo Afectado:** `ui.js`
-*   **Líneas Relevantes:** Dentro de la función `renderCutContent`.
-*   **Causa Raíz:** El estilo aplicado al párrafo del colaborador (`colabP.style.cssText`) no especifica un `font-size`. Por lo tanto, hereda el tamaño de fuente por defecto, que es más grande de lo deseado.
-*   **Solución Recomendada:** Añadir una regla de `font-size` más pequeña (ej. `font-size: 0.8em;`) al `style.cssText` del `colabP` para reducir su tamaño visual.
-
-**3. MÓDULO `style.css` (ESTILOS)**
-
-*   **Problema:** Los botones de feedback no están posicionados en la esquina inferior derecha de la imagen del corte.
-*   **Archivo Afectado:** `style.css`
-*   **Líneas Relevantes:** Regla CSS `.image-container-with-feedback .feedback-overlay`.
-*   **Causa Raíz:** El posicionamiento actual usa `bottom: 10px;` y `right: 10px;` sin especificar explícitamente la esquina. Aunque funcional en muchos casos, puede ser inconsistente.
-*   **Solución Recomendada:** La regla actual es funcionalmente correcta para la esquina inferior derecha. No se requiere ningún cambio. (Nota: Si se observan inconsistencias, se podría añadir `justify-content: flex-end; align-items: flex-end;` al contenedor si fuera un flexbox, pero con `position: absolute` la regla actual es la estándar).
-
-*   **Problema:** El botón para cerrar el modal de detalles es demasiado grande.
-*   **Archivo Afectado:** `style.css`
-*   **Líneas Relevantes:** No hay una regla específica. El tamaño se define inline en `ui.js`.
-*   **Causa Raíz:** El tamaño de la fuente y el padding del botón de cierre se establecen inline en `ui.js` (`font-size: 2.5em; padding: 0 10px;`).
-*   **Solución Recomendada:** Reducir estos valores directamente en la línea de código donde se definen en `ui.js` (ej. a `font-size: 1.8em;`) o, preferiblemente, mover los estilos a la clase `.info-close-btn` en `style.css` para una mejor mantenibilidad y reducir su `font-size` y `padding`.
+**3. Archivo `style.css`:**
+*   **Hallazgo:** La regla `.image-container-with-feedback` tiene `display: inline-block`. Esto puede causar problemas de alineación y posicionamiento para el `feedback-overlay`, que depende de un contenedor con `position: relative` y un `display` predecible (como `block`).
+*   **Causa Raíz:** `inline-block` puede no darle al contenedor el ancho completo necesario para que el `overlay` se posicione correctamente en la esquina derecha si la imagen no ocupa todo el espacio.
+*   **Solución Sugerida:** Cambiar `display` a `block` o `flex` y asegurar que el `position` sea `relative` para anclar correctamente el overlay.

@@ -154,7 +154,7 @@ export function mostrarDetalleModal(item) {
     closeBtn.innerHTML = "&times;";
     closeBtn.onclick = () => document.getElementById("modalDetalle").classList.remove("visible");
     closeBtn.className = "info-close-btn";
-    closeBtn.style.cssText = "position: static; font-size: 2.5em; padding: 0 10px;";
+    closeBtn.style.cssText = "position: static; font-size: 1.8em; padding: 0 8px;"; // Tamaño reducido
     headerDiv.appendChild(closeBtn);
     cont.appendChild(headerDiv);
 
@@ -167,15 +167,15 @@ export function mostrarDetalleModal(item) {
         const logoImg = document.createElement("img");
         logoImg.src = getImageUrl(logoUrl);
         logoImg.alt = `Logo ${item.marca}`;
-        logoImg.className = 'brand-logo-modal'; // Clase específica para el logo
-        logoImg.style.cssText = "height: 50px; width: auto; max-width: 150px; object-fit: contain; order: 1;"; // Logo primero
-        titleContainer.appendChild(logoImg);
+        logoImg.className = 'brand-logo-modal';
+        logoImg.style.cssText = "height: 50px; width: auto; max-width: 150px; object-fit: contain;";
+        titleContainer.appendChild(logoImg); // Logo primero
     }
 
     const title = document.createElement("h2");
-    title.textContent = `${item.modelo}`; // Solo el modelo, la marca ya está en el logo
-    title.style.cssText = "color:#007bff; margin: 0; padding: 0; font-size: 1.8em; order: 2;"; // Título después
-    titleContainer.appendChild(title);
+    title.textContent = item.modelo; // Solo el modelo, la marca ya está en el logo
+    title.style.cssText = "color:#007bff; margin: 0; padding: 0; font-size: 1.8em;";
+    titleContainer.appendChild(title); // Título después
 
     cont.appendChild(titleContainer);
 
