@@ -123,9 +123,9 @@ NO se permiten atajos, omisiones ni reinterpretaciones.
 
 Origen: Auditoría 11/01/2024
 Prioridad: MEDIA
-Área: Frontend | `ui.js`, `style.css`, `index.html`
+Área: Frontend | `ui.js`, `style.css`
 Descripción:
-Se corrigieron múltiples problemas en el modal de detalles: el logo de la marca ahora aparece a la izquierda del título, la configuración de Relay se muestra después de la imagen, los botones de feedback están posicionados correctamente, el botón de cierre y la fuente del colaborador se han reducido de tamaño, y se arregló el bug que impedía cerrar el lightbox.
+Se corrigieron múltiples problemas en el modal de detalles: el logo de la marca ahora aparece a la izquierda del título, la configuración de Relay se muestra después de la imagen, los botones de feedback están posicionados correctamente, el botón de cierre y la fuente del colaborador se han reducido de tamaño.
 
 [PENDIENTE REVISION POR EL MP] Implementar Sistema de Inbox (Tarea 18)
 

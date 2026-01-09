@@ -267,23 +267,6 @@ export function mostrarDetalleModal(item) {
     document.getElementById("modalDetalle").classList.add("visible");
 }
 
-/**
- * Cierra el lightbox. Se anexa el listener programáticamente
- * para evitar problemas de scope con módulos ES6.
- */
-function cerrarLightbox() {
-    const lightbox = document.getElementById('lightbox');
-    if (lightbox) {
-        lightbox.classList.remove('visible');
-    }
-}
-
-// Añadir el listener al cargar el módulo.
-const lightboxElement = document.getElementById('lightbox');
-if (lightboxElement) {
-    lightboxElement.addEventListener('click', cerrarLightbox);
-}
-
 function renderCutContent(container, cutData, datosRelay) {
     const contentP = document.createElement('p');
     contentP.innerHTML = `<strong>Ubicación:</strong> ${cutData.ubicacion || 'No especificada'}<br>
