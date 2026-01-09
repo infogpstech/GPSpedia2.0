@@ -25,6 +25,94 @@ NORMAS OBLIGATORIAS DE DESARROLLO
 4.  Si una tarea introduce nuevos errores: Marcar como **EN REVISIÓN**.
 5.  Si la tarea no funciona o no cumple: Marcar como **REQUIERE NUEVA REVISIÓN**.
 6. si una tarea se realizo no marcarla como COMPLETADA, marcarla como PENDIENTE REVISION POR EL MP. 
+
+
+PROCESO ESTÁNDAR DE TRABAJO
+===========================================================
+
+Este protocolo define los PASOS OBLIGATORIOS que todo desarrollador debe
+seguir en TODOS los proyectos, sin excepción.
+
+
+FLUJO OBLIGATORIO DE TRABAJO
+----------------------------
+
+1. AUDITORÍA INICIAL DEL ARCHIVO
+   - Auditar el archivo o archivos involucrados en la tarea.
+   - La auditoría DEBE realizarse:
+     - Archivo por archivo
+     - Línea por línea
+   - NO modificar código durante esta fase.
+
+2. REGISTRO DE HALLAZGOS
+   - Registrar TODOS los hallazgos en Auditoría.txt.
+   - Crear una nueva entrada para el archivo auditado.
+   - Si ya existe una auditoría previa del mismo archivo:
+     -> Actualizar la entrada existente
+     -> NO eliminar información previa.
+
+3. HALLAZGOS FUERA DE LA TAREA ORIGINAL
+   - Si se detectan problemas NO relacionados directamente
+     con la tarea asignada:
+     a) Resolverlos en el MISMO commit de la tarea,
+        SOLO si es técnicamente posible y seguro.
+     b) Si NO es posible resolverlos:
+        -> Registrar la nueva tarea en Instrucciones.txt
+        -> Agregar referencia al hallazgo en Auditoría.txt
+
+4. EJECUCIÓN DE LA TAREA
+   - Realizar ÚNICAMENTE los cambios solicitados por la tarea
+     sobre el código.
+   - Respetar todas las normas definidas en Instrucciones.txt.
+
+5. VERIFICACIÓN FUNCIONAL
+   - Verificar que los cambios realizados:
+     - Cumplen el objetivo de la tarea
+     - NO rompen otras funciones del archivo
+     - NO afectan flujos de información existentes
+
+6. VERIFICACIÓN COMPLEMENTARIA
+   - Revisar:
+     - Dependencias
+     - Funciones relacionadas
+     - Llamadas internas o externas
+   - Confirmar que no se introdujeron efectos colaterales.
+
+7. REVISIÓN FINAL DEL CÓDIGO
+   - Revisar nuevamente el archivo completo modificado:
+     - Línea por línea
+     - Función por función
+   - Validar coherencia, legibilidad y cumplimiento de reglas.
+
+8. REGISTRO EN CHANGESLOGS.TXT
+   - Registrar los cambios realizados indicando:
+     - Archivo(s) modificado(s)
+     - Línea(s) afectada(s)
+     - Descripción objetiva del cambio
+   - NO asumir éxito
+   - NO usar términos como:
+     - "Se corrigió"
+     - "Se arregló"
+     - "Se solucionó"
+
+9. ACTUALIZACIÓN DE INSTRUCCIONES.TXT
+   - Mover la tarea ejecutada al bloque:
+     -> "TAREAS PENDIENTES DE REVISIÓN"
+   - NO marcar la tarea como completada.
+
+10. COMMIT
+    - Realizar el commit SOLO después de cumplir
+      todos los pasos anteriores.
+    - El commit debe reflejar exactamente:
+      - Lo documentado en ChangesLogs.txt
+      - El estado actualizado de Instrucciones.txt
+
+
+REGLA FINAL
+-----------
+Si un paso NO fue ejecutado, el proceso se considera INCOMPLETO.
+NO se permiten atajos, omisiones ni reinterpretaciones.
+
 -Tareas Pendientes- 
 
 [PENDIENTE REVISION POR EL MP] Implementar Sistema de Inbox (Tarea 18)
