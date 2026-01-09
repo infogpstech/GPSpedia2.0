@@ -1,21 +1,3 @@
-**V8.3.6 - (UI REFINEMENT) - 11/01/2024**
-**A. RESUMEN GENERAL:** Se implementaron múltiples ajustes de diseño en el modal de detalles del vehículo para alinearlo con las especificaciones visuales y de layout requeridas.
-
-**B. Mejoras Implementadas:**
-1.  **Ajustes de Layout en Modal de Detalles (`ui.js` y `style.css`):**
-    *   **Encabezado del Modal:** Se reordenaron los elementos para que el logo de la marca aparezca a la izquierda del nombre del modelo, y se eliminó el nombre de la marca del título para evitar redundancia.
-    *   **Contenido del Corte:** Se reordenó la información para que la configuración de Relay aparezca debajo de la imagen del corte.
-    *   **Botones de Feedback:** Se ajustó el CSS para que los botones de "Útil" y "Reportar" se muestren como un overlay en la esquina inferior derecha de la imagen del corte.
-    *   **Botón de Cierre:** Se redujo el tamaño del botón de cierre del modal para un diseño más limpio.
-    *   **Fuente del Colaborador:** Se redujo el tamaño de la fuente para el nombre del colaborador, mejorando la jerarquía visual.
-
-**C. Cambios Técnicos Implementados:**
-- **`ui.js`:** Se reordenó la lógica de renderizado en `mostrarDetalleModal` (Líneas ~165-180) y `renderCutContent` (Líneas ~290-340) para ajustar el layout y los estilos inline.
-- **`style.css`:** Se modificó la regla `.image-container-with-feedback` para asegurar el posicionamiento correcto del overlay (Línea ~815).
-
-**D. Impacto:**
--   **Consistencia Visual:** El modal de detalles ahora se alinea con las especificaciones de diseño, mejorando la UX y la legibilidad de la información.
-
 **V8.3.5 - (FEATURE) - 11/01/2024**
 **A. RESUMEN GENERAL:** Se implementó una mejora significativa en la calidad de las imágenes mostradas en el modal de detalles del vehículo y se corrigió un error que impedía la visualización de los "Cortes Alternativos".
 

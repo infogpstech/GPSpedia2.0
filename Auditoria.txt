@@ -1,33 +1,63 @@
-**AUDITORÍA TÉCNICA Y DE DISEÑO (Reiniciada)**
+**AUDITORÍA TÉCNICA Y DE APARIENCIA (FECHA DE HOY)**
 
 **A. RESUMEN EJECUTIVO:**
-Tras un fallo en el intento anterior de modificación, se reinició el proceso desde cero siguiendo estrictamente el flujo de trabajo obligatorio. Se realizó una nueva auditoría línea por línea de los archivos `index.html`, `ui.js` y `style.css` para identificar la causa raíz de los problemas reportados en el modal de detalles del vehículo.
+Se ha realizado una auditoría del frontend para abordar una solicitud de múltiples ajustes en la interfaz de usuario del modal de detalle del vehículo. El análisis confirma que todos los problemas se localizan en los archivos `index.html`, `ui.js`, y `style.css`, y no requieren cambios en el backend.
 
-Los hallazgos confirman los siguientes problemas:
-1.  **Bug Funcional Crítico:** El lightbox para visualización de imágenes no se puede cerrar debido a un error de scope de JavaScript.
-2.  **Discrepancias de Layout y Estilo:** El orden de los elementos en el encabezado del modal, la posición de la información de Relay, y los tamaños de fuente y botones no cumplen con las especificaciones de diseño.
-3.  **Posicionamiento Incorrecto de Overlays:** Los botones de feedback no se muestran correctamente sobre las imágenes.
+La auditoría identificó las siguientes discrepancias con los requisitos del usuario:
+1.  **Orden Incorrecto de Elementos:** La configuración del Relay se muestra antes de la imagen del corte, violando el flujo visual especificado.
+2.  **Funcionalidad Faltante:** Los botones de feedback ("Útil" y "Reportar") no están implementados en el modal.
+3.  **Error de Posicionamiento:** El contenedor de la imagen no está configurado correctamente en CSS para permitir el posicionamiento de elementos superpuestos (overlay).
+4.  **Bug Funcional:** El lightbox de imágenes no se puede cerrar porque la función `cerrarLightbox()` es llamada desde el HTML pero no está definida en el ámbito global del JavaScript.
+5.  **Estilos Desajustados:** El botón para cerrar el modal y el texto del colaborador tienen tamaños que necesitan ser reducidos según las especificaciones.
 
-Este documento registra los hallazgos detallados para guiar la correcta implementación de las correcciones.
+Este informe proporciona la causa raíz de cada punto para guiar la ejecución de los cambios.
 
 ---
 
 **B. ANÁLISIS DETALLADO DE HALLAZGOS:**
 
-**1. Archivo `index.html`:**
-*   **Hallazgo:** El `div` con `id="lightbox"` contiene un atributo `onclick="cerrarLightbox()"`.
-*   **Causa Raíz:** Esta implementación es incorrecta porque los scripts de la aplicación se cargan como módulos (`type="module"`), lo que significa que la función `cerrarLightbox` no está en el ámbito global (`window`) y no puede ser llamada directamente desde el HTML. Esto causa que el clic no tenga efecto y el lightbox no se pueda cerrar.
-*   **Referencia a Normas:** Este problema viola el principio de separación de responsabilidades, donde el HTML no debería contener lógica de eventos complejos.
+**1. MODAL DE DETALLES - ORDEN DE CONTENIDO**
 
-**2. Archivo `ui.js`:**
-*   **Hallazgo 1 (Orden de Encabezado):** En la función `mostrarDetalleModal`, el elemento `<h2>` del título se añade al `titleContainer` *después* del `logoImg`. La tarea requiere que el logo esté a la izquierda y el nombre del modelo a la derecha. La lógica actual es correcta, pero el texto del título contiene `item.marca` y `item.modelo`, lo cual es redundante si la marca ya está en el logo.
-*   **Hallazgo 2 (Orden de Contenido del Corte):** En la función `renderCutContent`, la lógica que renderiza la `configRelay` se ejecuta *antes* de la lógica que renderiza la imagen del corte (`cutData.img`). La tarea especifica que la configuración de Relay debe estar *debajo* de la imagen.
-*   **Hallazgo 3 (Estilos Inline):**
-    *   En `mostrarDetalleModal`, el botón de cierre (`closeBtn`) tiene un estilo inline `font-size: 2.5em`, que es demasiado grande.
-    *   En `renderCutContent`, el párrafo del colaborador (`colabP`) no tiene un `font-size` definido, heredando un tamaño mayor al requerido.
-*   **Causa Raíz:** La secuencia de creación y adición de elementos en el DOM no sigue el orden visual requerido. Los estilos inline dificultan el mantenimiento y no cumplen con las mejores prácticas.
+*   **Problema:** La configuración del Relay aparece encima de la imagen del corte, cuando debería estar debajo.
+*   **Archivo Afectado:** `ui.js`
+*   **Función Relevante:** `renderCutContent`
+*   **Causa Raíz:** El código dentro de la función `renderCutContent` primero crea y añade el contenedor del Relay (`relayContainer`) al DOM, y después crea y añade la imagen del corte (`img`).
+*   **Solución Recomendada:** Reordenar las líneas de código para que la imagen del corte se cree y se añada al contenedor *antes* que el contenedor del Relay.
 
-**3. Archivo `style.css`:**
-*   **Hallazgo:** La regla `.image-container-with-feedback` tiene `display: inline-block`. Esto puede causar problemas de alineación y posicionamiento para el `feedback-overlay`, que depende de un contenedor con `position: relative` y un `display` predecible (como `block`).
-*   **Causa Raíz:** `inline-block` puede no darle al contenedor el ancho completo necesario para que el `overlay` se posicione correctamente en la esquina derecha si la imagen no ocupa todo el espacio.
-*   **Solución Sugerida:** Cambiar `display` a `block` o `flex` y asegurar que el `position` sea `relative` para anclar correctamente el overlay.
+**2. MODAL DE DETALLES - BOTONES DE FEEDBACK**
+
+*   **Problema:** Los botones "Útil" y "Reportar" no se muestran sobre la imagen del corte.
+*   **Archivo Afectado:** `ui.js`
+*   **Función Relevante:** `renderCutContent`
+*   **Causa Raíz:** La lógica para crear, estilizar y añadir los botones de feedback al contenedor de la imagen es completamente inexistente.
+*   **Solución Recomendada:**
+    1.  Crear una nueva función o bloque de código que genere los dos botones (`<button>`) con sus respectivos iconos.
+    2.  Crear un `div` contenedor para estos botones con la clase `.feedback-overlay`.
+    3.  Dentro de `renderCutContent`, cuando se cree la imagen del corte, envolverla en un `div` con la clase `.image-container-with-feedback`.
+    4.  Añadir el `div` del overlay de botones dentro de este nuevo contenedor, después de la imagen.
+
+*   **Problema:** El posicionamiento overlay de los botones de feedback no funcionará correctamente.
+*   **Archivo Afectado:** `style.css`
+*   **Causa Raíz:** La clase `.image-container-with-feedback` tiene la propiedad `display: inline-block` en lugar de `position: relative`. Un elemento debe tener `position: relative` para que sus hijos con `position: absolute` (como el `.feedback-overlay`) se posicionen con respecto a él.
+*   **Solución Recomendada:** Cambiar la regla en `style.css` para que `.image-container-with-feedback` tenga `position: relative`.
+
+**3. MODAL DE DETALLES - BUG DEL LIGHTBOX**
+
+*   **Problema:** Hacer clic fuera de la imagen en el lightbox no cierra la vista.
+*   **Archivo Afectado:** `index.html`, `main.js` (o un archivo JS global)
+*   **Causa Raíz:** El `div` del lightbox en `index.html` tiene un `onclick="cerrarLightbox()"`. Sin embargo, debido a que el código JavaScript se carga como un módulo (`type="module"`), la función `cerrarLightbox` definida dentro del módulo no está disponible en el ámbito global donde el `onclick` la busca.
+*   **Solución Recomendada:** Crear la función `cerrarLightbox` y asignarla explícitamente al objeto `window` (ej. `window.cerrarLightbox = function() { ... }`) para que sea globalmente accesible, o, preferiblemente, eliminar el `onclick` del HTML y añadir el event listener mediante JavaScript en el módulo principal.
+
+**4. MODAL DE DETALLES - AJUSTES DE TAMAÑO**
+
+*   **Problema:** El botón para cerrar el modal es demasiado grande.
+*   **Archivo Afectado:** `ui.js`
+*   **Función Relevante:** `mostrarDetalleModal`
+*   **Causa Raíz:** El botón de cerrar (`closeBtn`) tiene un estilo inline `font-size: 2.5em;` que le da un tamaño excesivo.
+*   **Solución Recomendada:** Reducir el valor del `font-size` en el estilo inline a un valor más apropiado, como `1.8em`.
+
+*   **Problema:** El texto del colaborador es muy grande.
+*   **Archivo Afectado:** `ui.js`
+*   **Función Relevante:** `renderCutContent`
+*   **Causa Raíz:** El párrafo que contiene el nombre del colaborador (`colabP`) no tiene un `font-size` específico, por lo que hereda el tamaño de su contenedor, resultando demasiado grande.
+*   **Solución Recomendada:** Añadir la propiedad `font-size: 0.8em;` a los estilos inline del `colabP` para reducir su tamaño.

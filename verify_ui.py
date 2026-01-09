@@ -64,9 +64,9 @@ async def main():
 
         # Forcefully hide splash screen and show main content as a workaround
         await page.evaluate("document.getElementById('splash-screen').style.display = 'none';")
-        await page.evaluate("document.querySelector('.container').style.display = 'block';")
+        await page.evaluate("document.getElementById('main-content-container').style.display = 'block';")
 
-        await page.wait_for_selector(".container", state="visible")
+        await page.wait_for_selector("#main-content-container", state="visible")
 
         # Add a small delay to ensure rendering is complete after workaround
         await page.wait_for_timeout(500)
