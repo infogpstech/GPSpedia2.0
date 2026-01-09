@@ -28,7 +28,8 @@ const COLS_USERS = {
     Privilegios: 4,
     Telefono: 5,
     Correo_Electronico: 6,
-    SessionToken: 7
+    Nombre_Completo: 7,
+    SessionToken: 8
 };
 
 const COLS_ACTIVE_SESSIONS = {
@@ -135,12 +136,14 @@ function handleGetUsers(payload) {
     const data = userSheet.getDataRange().getValues();
     const headers = data.shift();
     const users = data.map(row => {
-        const user = {};
-        headers.forEach((header, index) => {
-            if (header !== 'Password' && header !== 'SessionToken') { // Excluir datos sensibles
-                user[header] = row[index];
-            }
-        });
+        let user = {};
+        // Mapeo manual para asegurar que se usan las claves correctas y se excluyen datos sensibles
+        user.ID = row[COLS_USERS.ID - 1];
+        user.Nombre_Usuario = row[COLS_USERS.Nombre_Usuario - 1];
+        user.Privilegios = row[COLS_USERS.Privilegios - 1];
+        user.Telefono = row[COLS_USERS.Telefono - 1];
+        user.Correo_Electronico = row[COLS_USERS.Correo_Electronico - 1];
+        user.Nombre_Completo = row[COLS_USERS.Nombre_Completo - 1];
         return user;
     });
 
@@ -163,7 +166,7 @@ function handleCreateUser(payload) {
         throw new Error(`El rol '${creatorRole}' no tiene permisos para crear usuarios de tipo '${newUser.Privilegios}'.`);
     }
 
-    const newUsername = generateUniqueUsername(userSheet, newUser.Nombre_Usuario);
+    const newUsername = generateUniqueUsername(userSheet, newUser.Nombre_Completo);
     const lastRow = userSheet.getLastRow();
     const newRowRange = userSheet.getRange(lastRow + 1, 1, 1, userSheet.getLastColumn());
 
@@ -178,6 +181,7 @@ function handleCreateUser(payload) {
     newRowData[COLS_USERS.Privilegios - 1] = newUser.Privilegios;
     newRowData[COLS_USERS.Telefono - 1] = newUser.Telefono || '';
     newRowData[COLS_USERS.Correo_Electronico - 1] = newUser.Correo_Electronico || '';
+    newRowData[COLS_USERS.Nombre_Completo - 1] = newUser.Nombre_Completo || '';
     newRowRange.setValues([newRowData]);
 
     return { status: 'success', message: `Usuario '${newUsername}' creado.` };
@@ -208,7 +212,8 @@ function handleUpdateUser(payload) {
             Object.keys(updates).forEach(key => {
                 const colIndex = COLS_USERS[key];
                 if (colIndex && key !== 'id') {
-                    if (key === 'password' && !updates.password) return; // No actualizar contraseña si está vacía
+                    // No actualizar contraseña si el campo está presente pero vacío.
+                    if (key === 'Password' && !updates.Password) return;
                     userSheet.getRange(i + 2, colIndex).setValue(updates[key]);
                 }
             });

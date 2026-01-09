@@ -367,6 +367,7 @@ async function handleUserFormSubmit(e) {
     e.preventDefault();
     const userId = document.getElementById('user-id').value;
     const userData = {
+        Nombre_Completo: document.getElementById('fullname').value, // <-- AÑADIDO
         Nombre_Usuario: document.getElementById('username-modal').value,
         Privilegios: document.getElementById('role').value,
         Password: document.getElementById('password-modal').value,

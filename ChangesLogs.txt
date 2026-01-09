@@ -1,3 +1,28 @@
+**V8.4.0 - (FEATURE) - 09/01/2026**
+**A. RESUMEN GENERAL:** Se implementó de extremo a extremo la funcionalidad para gestionar el nombre completo de los usuarios, corrigiendo una discrepancia histórica entre el frontend y el backend.
+
+**B. Mejoras y Correcciones Implementadas:**
+1.  **Modificación del Backend (`services/users/users.js`):**
+    *   **Problema:** El backend no tenía capacidad para almacenar o procesar el nombre completo de un usuario.
+    *   **Solución:**
+        *   Se actualizó el esquema de la base de datos (`COLS_USERS`) para añadir una nueva columna `Nombre_Completo`.
+        *   Se modificó `handleCreateUser` para aceptar y guardar el nombre completo, y para usarlo como base al generar el nombre de usuario (ej. "Juan Pérez" -> "juan.perez").
+        *   Se ajustó `handleUpdateUser` para permitir la modificación del nuevo campo.
+        *   Se actualizó `handleGetUsers` para incluir el `Nombre_Completo` en los datos devueltos al frontend, haciéndolo visible.
+
+2.  **Modificación del Frontend (`users.html`):**
+    *   **Problema:** La interfaz de usuario mostraba campos para el nombre completo, pero la lógica del formulario no enviaba este dato al backend.
+    *   **Solución:** Se corrigió la función `handleUserFormSubmit` para que lea el valor del campo de "Nombre Completo" y lo incluya en el payload de las peticiones `createUser` y `updateUser`.
+
+**C. Cambios Técnicos Implementados:**
+- **`Auditoria.txt`:** Se añadió una entrada de auditoría detallando la desconexión entre el frontend y el backend que motivó este cambio.
+- **`services/users/users.js`:** Se actualizó el objeto `COLS_USERS` y se modificaron las funciones `handleCreateUser`, `handleUpdateUser` y `handleGetUsers`.
+- **`users.html`:** Se actualizó la función `handleUserFormSubmit` para enviar el campo `Nombre_Completo`.
+
+**D. Impacto:**
+-   **Funcionalidad Crítica Habilitada:** El sistema ahora puede gestionar de forma completa y coherente el nombre completo de los usuarios, desde la base de datos hasta la interfaz de usuario.
+-   **Mejora de la Calidad de Datos:** Se asegura que los nombres de usuario generados sean más intuitivos y se captura información de perfil más completa.
+
 **V8.3.5 - (FEATURE) - 11/01/2024**
 **A. RESUMEN GENERAL:** Se implementó una mejora significativa en la calidad de las imágenes mostradas en el modal de detalles del vehículo y se corrigió un error que impedía la visualización de los "Cortes Alternativos".
 
