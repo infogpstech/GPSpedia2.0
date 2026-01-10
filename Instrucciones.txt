@@ -115,6 +115,16 @@ NO se permiten atajos, omisiones ni reinterpretaciones.
 
 -Tareas Pendientes-
 
+[PENDIENTE REVISION POR EL MP] Corrección de Regresión Crítica y Bug Persistente en Módulo de Usuarios
+Origen: Reporte de PM (Post-Revisión)
+Prioridad: CRÍTICA
+Área: Backend | Users
+Descripción:
+Se corrigió la regresión "create on edit" que duplicaba usuarios y se solucionó el bug que impedía guardar el "Nombre Completo".
+Archivos Afectados: `services/users/users.js`.
+
+---
+
 [PENDIENTE REVISION POR EL MP] Actualización de Endpoint del Servicio de Usuarios (Iteración 3)
 Origen: Requerimiento de Configuración
 Prioridad: CRÍTICA

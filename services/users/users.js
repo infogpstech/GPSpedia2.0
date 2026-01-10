@@ -170,12 +170,17 @@ function handleCreateUser(payload) {
     const lastRow = userSheet.getLastRow();
     const newRowRange = userSheet.getRange(lastRow + 1, 1, 1, userSheet.getLastColumn());
 
+    // Se copia la fila anterior para heredar formatos y validaciones.
     if (lastRow > 0) {
         userSheet.getRange(lastRow, 1, 1, userSheet.getLastColumn()).copyTo(newRowRange, { contentsOnly: false });
     }
     newRowRange.clearContent();
 
+    // Se genera un nuevo ID de usuario único.
+    const newId = getNewUserId(userSheet);
+
     const newRowData = new Array(userSheet.getLastColumn()).fill('');
+    newRowData[COLS_USERS.ID - 1] = newId;
     newRowData[COLS_USERS.Nombre_Usuario - 1] = newUsername;
     newRowData[COLS_USERS.Password - 1] = newUser.Password;
     newRowData[COLS_USERS.Privilegios - 1] = newUser.Privilegios;
@@ -282,6 +287,12 @@ function handleChangePassword(payload) {
 // ============================================================================
 // FUNCIONES AUXILIARES
 // ============================================================================
+
+function getNewUserId(sheet) {
+    const ids = sheet.getRange(2, COLS_USERS.ID, sheet.getLastRow() - 1, 1).getValues().flat();
+    const maxId = ids.reduce((max, id) => Math.max(max, parseInt(id) || 0), 0);
+    return maxId + 1;
+}
 
 function generateUniqueUsername(sheet, fullname) {
     let username = String(fullname).trim().toLowerCase().replace(/\s+/g, '.');

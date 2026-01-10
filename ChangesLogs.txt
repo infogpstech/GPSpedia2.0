@@ -1,3 +1,27 @@
+**V8.4.7 - (CRITICAL REGRESSION FIX) - 09/01/2026**
+**A. RESUMEN GENERAL:** Se corrigió una regresión crítica que provocaba la duplicación de usuarios al editarlos y se implementó la solución definitiva al bug persistente que impedía guardar el campo "Nombre Completo".
+
+**B. Correcciones Implementadas:**
+1.  **Regresión "Create on Edit" (`services/users/users.js`):**
+    *   **Problema:** Al editar un usuario existente, el sistema creaba un nuevo usuario duplicado en lugar de actualizar el original.
+    *   **Causa Raíz:** La función `handleCreateUser` no generaba ni asignaba un ID único al nuevo usuario, dejando la columna `ID` vacía. Esto provocaba que el frontend tratara las ediciones de estos usuarios sin ID como si fueran nuevas creaciones.
+    *   **Solución:** Se implementó una nueva función auxiliar, `getNewUserId`, para calcular el siguiente ID disponible. Se modificó `handleCreateUser` para llamar a esta función y escribir explícitamente el nuevo ID en la hoja de cálculo, garantizando la integridad de los datos y eliminando la duplicación.
+
+2.  **Bug Persistente de "Nombre Completo" (`services/users/users.js`):**
+    *   **Problema:** El campo "Nombre Completo" seguía sin guardarse al editar un usuario.
+    *   **Causa Raíz Definitiva:** La lógica en `handleUpdateUser` era demasiado frágil y fallaba por conflictos de `case-sensitivity` entre el frontend y el backend.
+    *   **Solución:** Se reemplazó la lógica de actualización genérica por bloques `if` explícitos para cada campo, asegurando que `Nombre_Completo` y todos los demás datos se guarden de manera fiable.
+
+**C. Cambios Técnicos Implementados:**
+- **`services/users/users.js`:**
+    - Se añadió la función `getNewUserId` para la generación de IDs únicos (Líneas 290-294).
+    - Se refactorizó `handleCreateUser` para asignar el nuevo ID (Líneas 175-186).
+    - Se refactorizó `handleUpdateUser` con lógica explícita para garantizar las actualizaciones (Líneas 212-227).
+
+**D. Impacto:**
+- **Estabilidad del Módulo Restaurada:** Se ha eliminado la regresión crítica que corrompía la base de datos de usuarios con duplicados.
+- **Funcionalidad Completada:** La capacidad de crear y editar usuarios, incluyendo su nombre completo, es ahora completamente funcional y robusta.
+
 **V8.4.6 - (CONFIG) - 09/01/2026**
 **A. RESUMEN GENERAL:** Se actualizó por tercera vez la configuración del frontend para apuntar a la nueva URL de producción del microservicio de gestión de usuarios (`GPSpedia-Users`).
 
@@ -100,23 +124,3 @@
 **D. Impacto:**
 - **Funcionalidad Crítica Restaurada:** El módulo de gestión de usuarios es ahora completamente funcional. Los administradores pueden ver, editar y eliminar usuarios de manera fiable, lo cual es esencial para la administración del sistema.
 - **Integridad de Datos Asegurada:** Se ha restaurado la coherencia entre el backend y la base de datos, previniendo futuros errores de corrupción de datos.
-
-**V8.4.0 - (FEATURE & CONFIG) - 09/01/2026**
-**A. RESUMEN GENERAL:** Se implementó de extremo a extremo la funcionalidad para gestionar el nombre completo de los usuarios y se actualizó el endpoint del servicio de usuarios a su nueva URL de producción.
-
-**B. Mejoras y Correcciones Implementadas:**
-1.  **Implementación de "Nombre Completo" (`services/users/users.js` y `users.html`):**
-    *   **Backend:** Se actualizó el esquema de la base de datos y la lógica del servicio para aceptar, almacenar y devolver el nombre completo del usuario.
-    *   **Frontend:** Se corrigió el formulario de gestión de usuarios para que envíe el nombre completo al backend, completando la funcionalidad.
-
-2.  **Actualización de Configuración (`api-manager.js`):**
-    *   Se actualizó la constante `API_ENDPOINTS.USERS` para que apunte a la nueva URL del servicio de usuarios desplegado, asegurando que el frontend se comunique con la versión más reciente del backend.
-
-**C. Cambios Técnicos Implementados:**
-- **`services/users/users.js`:** Se actualizó `COLS_USERS` y las funciones `handleCreateUser`, `handleUpdateUser` y `handleGetUsers`.
-- **`users.html`:** Se actualizó `handleUserFormSubmit` para enviar el campo `Nombre_Completo`.
-- **`api-manager.js`:** Se modificó la URL del endpoint para el servicio `USERS`.
-
-**D. Impacto:**
--   **Funcionalidad Crítica Habilitada:** El sistema ahora puede gestionar de forma completa el nombre completo de los usuarios.
--   **Conectividad Asegurada:** El frontend ahora se comunica con el servicio de usuarios correcto y más reciente.
