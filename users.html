@@ -259,7 +259,8 @@ async function postToAction(action, payload = {}) {
 
 async function fetchUsers() {
     try {
-        const result = await postToAction('getUsers', { privilegios: currentUser.Privilegios });
+        // FIX: Send sessionToken for secure, backend-driven authorization
+        const result = await postToAction('getUsers', { sessionToken: currentUser.SessionToken });
         allUsers = result.users;
         renderUserTable();
     } catch (error) {

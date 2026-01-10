@@ -1,3 +1,29 @@
+**V8.5.0 - (CRITICAL FIX ATTEMPT) - 10/01/2026**
+**A. RESUMEN GENERAL:** Se implementó una corrección integral multi-componente en un intento por resolver una cascada de fallos críticos que afectaban el arranque de la aplicación, la carga de datos del catálogo y la gestión de usuarios. La causa raíz fue identificada como un objeto de sesión incompleto generado por el servicio de autenticación.
+
+**B. Correcciones Implementadas:**
+1.  **Objeto de Sesión Incompleto (`services/auth/auth.js`):**
+    *   **Problema:** El servicio de autenticación no incluía el campo `Nombre_Completo` en el objeto de sesión del usuario devuelto al iniciar sesión.
+    *   **Cambio:** Se modificó la función `handleLogin` para leer y añadir explícitamente el `Nombre_Completo` de la base de datos al objeto de sesión, asegurando que el frontend reciba todos los datos necesarios del usuario. (Línea 198)
+
+2.  **Condición de Carrera en Carga de Catálogo (`auth.js`):**
+    *   **Problema:** El frontend intentaba renderizar la UI principal (`showApp`) antes de haber solicitado y recibido los datos del catálogo, resultando en una pantalla en blanco.
+    *   **Cambio:** Se invirtió la secuencia de arranque en las funciones `checkSession` y `login`. La aplicación ahora espera (`await`) a que `loadInitialData()` se complete exitosamente antes de llamar a `handleLoginSuccess()`, garantizando que los datos estén disponibles antes del renderizado. (Líneas 70-71, 84-85)
+
+3.  **Manejo de Errores de Carga (`auth.js`):**
+    *   **Problema:** Un fallo en la carga inicial de datos (`loadInitialData`) no establecía un estado por defecto, provocando un `TypeError` fatal si el renderizado procedía.
+    *   **Cambio:** Se mejoró el bloque `catch` de `loadInitialData` para que, en caso de error, inicialice el `catalogData` en el estado global con una estructura vacía. Esto previene el error fatal y permite que la aplicación se cargue parcialmente. (Líneas 44-52)
+
+4.  **Inconsistencia de Seguridad (`services/users/users.js` y `users.html`):**
+    *   **Problema:** La función `handleGetUsers` en el backend requería que el frontend enviara el rol del usuario, creando una vulnerabilidad y una condición de carrera que causaba errores de red intermitentes.
+    *   **Cambio (Backend):** Se refactorizó `handleGetUsers` para que ya no acepte el rol del frontend. En su lugar, ahora requiere el `sessionToken` y utiliza la función interna `getVerifiedRole` para una autorización segura del lado del servidor. (Líneas 128-132)
+    *   **Cambio (Frontend):** Se actualizó la función `fetchUsers` en `users.html` para que envíe el `sessionToken` del usuario en la solicitud, alineándose con el nuevo requisito del backend. (Línea 261)
+
+**C. Impacto Potencial:**
+- Estas correcciones buscan restaurar por completo la funcionalidad de arranque de la aplicación y la visualización del catálogo.
+- Se ha mejorado la robustez y seguridad del módulo de gestión de usuarios.
+- La aplicación ahora es más resiliente a fallos en la carga de datos iniciales.
+
 **V8.4.8 - (CONFIG) - 09/01/2026**
 **A. RESUMEN GENERAL:** Se actualizó por cuarta vez la configuración del frontend para apuntar a la nueva URL de producción del microservicio de gestión de usuarios (`GPSpedia-Users`).
 

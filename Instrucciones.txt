@@ -114,6 +114,19 @@ Si un paso NO fue ejecutado, el proceso se considera INCOMPLETO.
 NO se permiten atajos, omisiones ni reinterpretaciones.
 
 -Tareas Pendientes-
+[PENDIENTE REVISION POR EL MP] Corrección Integral de Múltiples Regresiones Críticas
+Origen: Reporte de PM (Post-Fallo de Despliegue)
+Prioridad: MÁXIMA
+Área: Full Stack (auth, users, frontend)
+Descripción:
+Se implementó una corrección integral para un conjunto de regresiones interconectadas. El trabajo incluyó:
+1.  **Objeto de Sesión:** Se corrigió `services/auth/auth.js` para incluir el `Nombre_Completo` en la sesión.
+2.  **Condición de Carrera:** Se rectificó la secuencia de arranque en `auth.js` para cargar datos antes de renderizar.
+3.  **Manejo de Errores:** Se añadió un estado por defecto en `auth.js` para prevenir fallos fatales.
+4.  **Seguridad:** Se refactorizó `services/users/users.js` y `users.html` para usar `sessionToken` en lugar de `privilegios` para la autorización.
+Archivos Afectados: `services/auth/auth.js`, `services/users/users.js`, `auth.js`, `users.html`.
+
+---
 
 [PENDIENTE REVISION POR EL MP] Actualización de Endpoint del Servicio de Usuarios (Iteración 4)
 Origen: Requerimiento de Configuración

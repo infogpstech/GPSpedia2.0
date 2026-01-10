@@ -125,10 +125,10 @@ function getVerifiedRole(sessionToken) {
 // ============================================================================
 
 function handleGetUsers(payload) {
-    const { privilegios } = payload;
-    if (!privilegios) throw new Error("Se requiere el rol del solicitante.");
+    const { sessionToken } = payload;
+    const requesterRole = getVerifiedRole(sessionToken); // <-- FIX: Use secure role verification
 
-    if (privilegios !== 'Desarrollador' && privilegios !== 'Gefe' && privilegios !== 'Supervisor') {
+    if (requesterRole !== 'Desarrollador' && requesterRole !== 'Gefe' && requesterRole !== 'Supervisor') {
         throw new Error('Acceso denegado. Permisos insuficientes.');
     }
 
@@ -170,13 +170,11 @@ function handleCreateUser(payload) {
     const lastRow = userSheet.getLastRow();
     const newRowRange = userSheet.getRange(lastRow + 1, 1, 1, userSheet.getLastColumn());
 
-    // Se copia la fila anterior para heredar formatos y validaciones.
     if (lastRow > 0) {
         userSheet.getRange(lastRow, 1, 1, userSheet.getLastColumn()).copyTo(newRowRange, { contentsOnly: false });
     }
     newRowRange.clearContent();
 
-    // Se genera un nuevo ID de usuario único.
     const newId = getNewUserId(userSheet);
 
     const newRowData = new Array(userSheet.getLastColumn()).fill('');

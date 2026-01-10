@@ -21,7 +21,8 @@ const COLS_USERS = {
     Privilegios: 4,
     Telefono: 5,
     Correo_Electronico: 6,
-    SessionToken: 7
+    Nombre_Completo: 7,
+    SessionToken: 8
 };
 
 const COLS_ACTIVE_SESSIONS = {
@@ -194,6 +195,7 @@ function handleLogin(payload) {
         const user = {
             ID: userId,
             Nombre_Usuario: foundUserRow[COLS_USERS.Nombre_Usuario - 1],
+            Nombre_Completo: foundUserRow[COLS_USERS.Nombre_Completo - 1], // <-- FIX: Add missing field
             Privilegios: foundUserRow[COLS_USERS.Privilegios - 1],
             Telefono: foundUserRow[COLS_USERS.Telefono - 1],
             Correo_Electronico: foundUserRow[COLS_USERS.Correo_Electronico - 1],

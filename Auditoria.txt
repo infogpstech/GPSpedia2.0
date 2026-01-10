@@ -1,33 +1,53 @@
-**AUDITORÍA FINAL (TERCERA ITERACIÓN) - Regresión Crítica "Create on Edit" y Bug Persistente en "Nombre Completo"**
+**AUDITORÍA TÉCNICA FORENSE - (10/01/2026)**
+**Sistema:** GPSpedia v4.4.0
+**Origen:** Reporte de PM post-despliegue (Regresiones Críticas Múltiples)
+**Analista:** Jules
 
-**A. OBJETIVO:**
-Identificar y corregir la causa raíz de la regresión crítica que provocaba la creación de un usuario duplicado al intentar editar uno existente, y resolver de manera definitiva el bug persistente que impedía guardar el campo "Nombre Completo".
+---
 
-**B. ALCANCE DE LA AUDITORÍA:**
-- **`services/users/users.js`:** Se realizó una auditoría exhaustiva, línea por línea, de las funciones `handleCreateUser` y `handleUpdateUser`, comparando el flujo de ejecución con el comportamiento reportado.
+**A. RESUMEN EJECUTIVO DE HALLAZGOS**
 
-**C. ANÁLISIS Y HALLAZGOS (CAUSAS RAÍZ IDENTIFICADAS):**
+Se ha realizado una auditoría exhaustiva de los módulos de frontend (`index.html`, `main.js`, `users.html`) y backend (`services/auth/auth.js`, `services/users/users.js`) para diagnosticar un conjunto de tres regresiones críticas reportadas tras los últimos despliegues.
 
-**1. Causa Raíz - Regresión "Create on Edit":**
-*   **Resultado:** POSITIVO.
-*   **Causa Raíz Identificada:** La función `handleCreateUser` no generaba ni asignaba un ID de usuario al crear una nueva fila en la hoja de cálculo.
-*   **Análisis del Flujo de Falla:**
-    1.  El administrador crea un "Usuario A". El backend crea la fila en la spreadsheet pero deja la columna `ID` vacía.
-    2.  El frontend recibe la confirmación, vuelve a cargar la lista de usuarios, y muestra al "Usuario A" (sin un ID en el objeto subyacente).
-    3.  El administrador intenta editar al "Usuario A". El frontend abre el modal y, al enviar el formulario, pasa `userId: undefined` (o `null`) al backend.
-    4.  El backend, al recibir un `userId` nulo, interpreta la acción como una *creación* en lugar de una *actualización*.
-    5.  Se crea un "Usuario B" duplicado, y el ciclo se repite.
-*   **Solución Definitiva Implementada:**
-    - Se creó una nueva función auxiliar, `getNewUserId(sheet)`, que calcula el siguiente ID disponible basándose en el valor máximo de la columna `ID`.
-    - Se modificó `handleCreateUser` para que llame a `getNewUserId` y escriba explícitamente el nuevo ID en la columna `ID` de la nueva fila, asegurando que cada nuevo usuario tenga un identificador único desde su creación.
+El análisis concluye que los tres problemas reportados no son incidentes aislados, sino **síntomas de una única falla raíz sistémica** originada en el microservicio de autenticación (`services/auth/auth.js`). Este servicio, al procesar un login exitoso, construye y devuelve un objeto de sesión de usuario **incompleto**, omitiendo el campo `Nombre_Completo`.
 
-**2. Causa Raíz - Bug Persistente en "Nombre Completo":**
-*   **Resultado:** POSITIVO.
-*   **Causa Raíz Identificada:** La lógica de actualización en `handleUpdateUser` era frágil y dependía de una coincidencia exacta de `case` entre las claves del objeto `updates` del frontend y las claves del objeto `COLS_USERS` del backend.
-*   **Análisis del Fracaso Anterior:** Los intentos previos de corrección no funcionaron porque el bucle genérico `Object.keys().forEach()` no podía encontrar una coincidencia para `Nombre_Completo` si el frontend enviaba (hipotéticamente) `nombre_completo`.
-*   **Solución Definitiva Implementada:**
-    - Se eliminó por completo el bucle genérico y se reemplazó por bloques `if` explícitos para cada campo editable (`Nombre_Completo`, `Nombre_Usuario`, `Privilegios`, `Password`).
-    - Este enfoque es más robusto porque maneja cada campo de forma individual y no es susceptible a problemas de `case-sensitivity`, garantizando que si el campo `updates.Nombre_Completo` llega, se escribirá en la columna correcta.
+Esta omisión desencadena una cascada de fallos en toda la aplicación:
+1.  Impide que el perfil del usuario se muestre correctamente.
+2.  Rompe la secuencia de arranque de la aplicación, impidiendo que el catálogo se cargue.
+3.  Expone una inconsistencia de seguridad secundaria en el servicio de usuarios que provoca errores de red intermitentes.
 
-**D. CONCLUSIÓN DE LA AUDITORÍA:**
-Las dos fallas críticas estaban contenidas exclusivamente en `services/users/users.js` y se debían a una lógica de creación de usuarios incompleta y una lógica de actualización demasiado frágil. Las correcciones implementadas resuelven ambos problemas de raíz, restaurando la integridad del módulo de gestión de usuarios.
+La corrección de estos problemas requiere un enfoque integral, reparando el objeto de sesión en el punto de origen (`auth.js`) y estandarizando la lógica de autorización en los servicios dependientes.
+
+---
+
+**B. ANÁLISIS DETALLADO DE REGRESIONES**
+
+**1. REGRESIÓN: El catálogo de vehículos no se carga al refrescar la página.**
+   - **Módulo Afectado:** `main.js` (secuencia de arranque), `services/auth/auth.js` (origen).
+   - **Causa Raíz Identificada:** La función `handleLogin` en `services/auth/auth.js` genera un objeto de sesión de usuario que carece del campo `Nombre_Completo`. El script de inicialización del frontend (`main.js` -> `auth.js`) depende implícitamente de un objeto de sesión completo para proceder con la inicialización de la aplicación. Al recibir el objeto incompleto, se produce un error no manejado que detiene la ejecución del script *antes* de que se realice la llamada a la API para obtener los datos del catálogo (`getCatalogData`). El resultado es que la aplicación se queda "congelada" en un estado post-autenticación pero pre-renderizado.
+
+**2. REGRESIÓN: Error "Failed to fetch" intermitente en la página de gestión de usuarios (`users.html`).**
+   - **Módulo Afectado:** `services/users/users.js`, `users.html`.
+   - **Causa Raíz Identificada:** Inconsistencia en el modelo de seguridad del servicio de usuarios. La función `handleGetUsers` requiere que el frontend envíe el rol (`privilegios`) del usuario actual en el payload de la solicitud. Sin embargo, las funciones más seguras del mismo servicio (`handleCreateUser`, `handleUpdateUser`, `handleDeleteUser`) derivan correctamente el rol del `sessionToken`. El error intermitente es una **condición de carrera** en el frontend (`users.html`), donde la llamada a `fetchUsers` se ejecuta a veces antes de que el objeto `currentUser` (que contiene los privilegios) esté completamente disponible, enviando una solicitud sin el campo requerido y provocando un rechazo del backend.
+
+**3. REGRESIÓN: El "Nombre Completo" no aparece en la sección "Mi Perfil" de `users.html`.**
+   - **Módulo Afectado:** `services/auth/auth.js`.
+   - **Causa Raíz Identificada:** Este es el **defecto de origen** que causa las demás regresiones. La función `handleLogin` en `services/auth/auth.js` construye el objeto de usuario para la sesión y omite explícitamente el campo `Nombre_Completo` al leer los datos de la hoja de cálculo. Por lo tanto, el objeto guardado en `localStorage` en el navegador nunca contiene este dato, y la UI en `users.html` no puede mostrarlo.
+
+---
+
+**C. PLAN DE ACCIÓN RECOMENDADO**
+
+Para resolver estas regresiones de manera definitiva y robustecer el sistema, se deben ejecutar las siguientes acciones:
+
+1.  **Corregir el Objeto de Sesión (services/auth/auth.js):**
+    *   Modificar la función `handleLogin` para que lea el valor de la columna `COLS_USERS.Nombre_Completo` y lo incluya en el objeto `user` que se devuelve al frontend. Esto resolverá directamente las regresiones #1 y #3.
+
+2.  **Estandarizar la Autorización (services/users/users.js):**
+    *   Refactorizar la función `handleGetUsers` para que deje de depender del campo `privilegios` enviado desde el frontend.
+    *   En su lugar, debe recibir el `sessionToken` y utilizar la función `getVerifiedRole` (que ya existe en el mismo archivo) para determinar el rol del solicitante de forma segura en el backend. Esto eliminará la condición de carrera y resolverá la regresión #2.
+
+3.  **Asegurar la Integridad del Frontend (users.html):**
+    *   Modificar la llamada a `fetchUsers` en `users.html` para que envíe el `sessionToken` del usuario actual en lugar de su rol, alineándose con el cambio de backend propuesto.
+
+La implementación de este plan no solo solucionará los errores visibles, sino que también mejorará la seguridad y estabilidad general de la aplicación al eliminar inconsistencias arquitectónicas.
