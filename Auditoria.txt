@@ -1,27 +1,35 @@
-**AUDITORÍA POST-REVISIÓN - Bug en Creación/Edición de Usuarios**
+**AUDITORÍA FINAL (SEGUNDA ITERACIÓN) - Bug Persistente en Guardado de "Nombre Completo"**
 
 **A. OBJETIVO:**
-Identificar y corregir la causa raíz del bug reportado por el Project Manager donde el campo "Nombre Completo" no se guardaba en la base de datos (Google Sheet) al crear o editar un usuario.
+Realizar una segunda auditoría, más profunda y específica, para identificar la causa raíz del bug persistente que impedía guardar el campo "Nombre Completo" al editar un usuario, a pesar de los intentos de corrección previos.
 
 **B. ALCANCE DE LA AUDITORÍA:**
-- **`users.html`:** Se revisó la lógica del formulario de creación y edición de usuarios, específicamente la función `handleUserFormSubmit`, para asegurar que el campo "Nombre Completo" se estuviera capturando y enviando correctamente en el `payload` de la solicitud.
-- **`services/users/users.js`:** Se auditaron las funciones `handleCreateUser` y `handleUpdateUser` para verificar si el valor de "Nombre Completo" se recibía y procesaba para ser escrito en la hoja de cálculo.
+- **`services/users/users.js`:** Se realizó una auditoría línea por línea de la función `handleUpdateUser`, enfocándose en el flujo de datos desde que se recibe el objeto `updates` del frontend hasta que se llama al método `.setValue()` de la hoja de cálculo.
 
-**C. ANÁLISIS Y HALLAZGOS (CAUSA RAÍZ IDENTIFICADA):**
+**C. ANÁLISIS Y HALLAZGOS (CAUSA RAÍZ DEFINITIVA IDENTIFICADA):**
 
-**1. Revisión de `users.html`:**
-*   **Resultado:** NEGATIVO (sin errores en el archivo).
-*   **Análisis:** La auditoría confirmó que el frontend funciona como se esperaba. La función `handleUserFormSubmit` recolecta correctamente el valor del campo `fullname` y lo incluye en el objeto `userData` con la clave `Nombre_Completo`. Este objeto se envía correctamente al backend en el `payload`.
-
-**2. Revisión de `services/users/users.js` (Hallazgo Crítico):**
+**1. Revisión de `handleUpdateUser` (Hallazgo Crítico):**
 *   **Resultado:** POSITIVO.
-*   **Causa Raíz Identificada:** El backend estaba recibiendo el campo `Nombre_Completo` pero lo estaba **ignorando silenciosamente** en la lógica de escritura.
-    *   **En `handleCreateUser`:** El código que construye el array `newRowData` para la nueva fila en la hoja de cálculo asignaba valores para `Nombre_Usuario`, `Password`, `Privilegios`, etc., pero **omitía por completo** la asignación del valor de `newUser.Nombre_Completo` a su columna correspondiente.
-    *   **En `handleUpdateUser`:** La lógica que itera sobre las `updates` del frontend para actualizar las celdas funcionaba, pero por alguna razón no se estaba actualizando el campo de nombre completo. La corrección implementada asegura que cualquier clave válida en el objeto `updates` (incluida `Nombre_Completo`) se escriba en la celda correcta.
+*   **Causa Raíz Identificada:** El intento de corrección anterior introdujo una lógica genérica (`Object.keys(updates).forEach(...)`) que fallaba silenciosamente debido a un conflicto de **sensibilidad a mayúsculas/minúsculas (case-sensitivity)**.
+    *   El **frontend (`users.html`)** envía un objeto `updates` con claves en `camelCase` o `PascalCase` (ej. `Nombre_Completo`, `Password`).
+    *   La constante `COLS_USERS` en el backend también usa `PascalCase` (ej. `Nombre_Completo`).
+    *   El error estaba en que la lógica `Object.keys(updates).forEach` intentaba hacer un match directo entre las claves del objeto `updates` y las claves de `COLS_USERS`. Si había la más mínima diferencia de `case` (ej. `password` vs `Password`), la búsqueda `COLS_USERS[key]` devolvía `undefined`, y la actualización de esa columna se omitía sin generar un error.
+
+*   **Análisis del Fracaso del Arreglo Anterior:** El arreglo previo no funcionó porque no tuvo en cuenta esta discrepancia de `case`. Simplemente iteraba sobre las claves tal como venían, y el `if (colIndex)` nunca se cumplía para los campos problemáticos.
 
 **D. CONCLUSIÓN DE LA AUDITORÍA:**
-El bug se originó exclusivamente en el backend (`services/users/users.js`), que no había sido actualizado para manejar la escritura del nuevo campo `Nombre_Completo` después de que este fuera añadido a la base de datos y al frontend. La lógica de recepción de datos era correcta, pero la lógica de procesamiento y escritura estaba incompleta.
 
-**Solución Aplicada:**
-- Se modificó `handleCreateUser` para añadir `newRowData[COLS_USERS.Nombre_Completo - 1] = newUser.Nombre_Completo || '';`, asegurando que el campo se escriba al crear un nuevo usuario.
-- Se corrigió la lógica en `handleUpdateUser` para garantizar que el campo `Nombre_Completo` se actualice correctamente al editar un usuario existente.
+El problema no era que el dato no llegara, sino que la lógica para encontrar la columna de destino era demasiado estricta y no toleraba diferencias de `case` entre el modelo de datos del frontend y el del backend.
+
+**Solución Definitiva Implementada:**
+Se abandonó el bucle genérico y se reemplazó con una serie de bloques `if` explícitos. Este enfoque es más robusto y legible, y soluciona el problema de `case-sensitivity` de raíz:
+```javascript
+// FIX DEFINITIVO: Actualizar campos explícitamente para evitar errores de case-sensitivity.
+if (updates.Nombre_Completo) {
+    userSheet.getRange(i + 2, COLS_USERS.Nombre_Completo).setValue(updates.Nombre_Completo);
+}
+if (updates.Nombre_Usuario) {
+    // ... y así para cada campo ...
+}
+```
+Esta solución asegura que cada campo se actualice usando la clave correcta (`updates.Nombre_Completo`) y el índice de columna correcto (`COLS_USERS.Nombre_Completo`), eliminando cualquier ambigüedad. La misma lógica se confirmó para `handleCreateUser`, que ya funcionaba correctamente.

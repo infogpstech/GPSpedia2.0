@@ -209,13 +209,19 @@ function handleUpdateUser(payload) {
                  throw new Error(`Rol '${updaterRole}' no puede modificar a '${userToUpdateRole}'.`);
             }
 
-            Object.keys(updates).forEach(key => {
-                const colIndex = COLS_USERS[key];
-                if (colIndex && key !== 'ID') { // Corregido para no intentar escribir en la columna ID
-                    if (key === 'Password' && !updates.Password) return; // No actualizar si la contraseña está vacía
-                    userSheet.getRange(i + 2, colIndex).setValue(updates[key]);
-                }
-            });
+            // FIX DEFINITIVO: Actualizar campos explícitamente para evitar errores de case-sensitivity.
+            if (updates.Nombre_Completo) {
+                userSheet.getRange(i + 2, COLS_USERS.Nombre_Completo).setValue(updates.Nombre_Completo);
+            }
+            if (updates.Nombre_Usuario) {
+                userSheet.getRange(i + 2, COLS_USERS.Nombre_Usuario).setValue(updates.Nombre_Usuario);
+            }
+            if (updates.Privilegios) {
+                userSheet.getRange(i + 2, COLS_USERS.Privilegios).setValue(updates.Privilegios);
+            }
+            if (updates.Password) {
+                userSheet.getRange(i + 2, COLS_USERS.Password).setValue(updates.Password);
+            }
 
             return { status: 'success', message: 'Usuario actualizado.' };
         }

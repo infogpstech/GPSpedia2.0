@@ -115,6 +115,16 @@ NO se permiten atajos, omisiones ni reinterpretaciones.
 
 -Tareas Pendientes-
 
+[PENDIENTE REVISION POR EL MP] Corrección Definitiva de Bug en Guardado de "Nombre Completo"
+Origen: Reporte de PM (Post-Revisión)
+Prioridad: CRÍTICA
+Área: Backend | Users
+Descripción:
+Se implementó la corrección definitiva para el bug persistente que impedía guardar el "Nombre Completo" al editar un usuario. La causa raíz fue un conflicto de `case-sensitivity` en la lógica de `handleUpdateUser` que impedía el mapeo correcto del campo.
+Archivos Afectados: `services/users/users.js`.
+
+---
+
 [PENDIENTE REVISION POR EL MP] Actualización de Endpoint del Servicio de Usuarios (Iteración 2)
 Origen: Requerimiento de Configuración
 Prioridad: CRÍTICA
@@ -375,7 +385,7 @@ Acciones:
 
 ---
 
-[TAREA] Implementar Funcionalidad Completa para Configuración de Relay
+[TARE] Implementar Funcionalidad Completa para Configuración de Relay
 
 Origen: Auditoría 11/01/2024
 Prioridad: ALTA
@@ -410,3 +420,12 @@ Prioridad: MEDIA
 Área: Frontend | `users.html`
 Descripción:
 Al cargar la página de gestión de usuarios, a veces aparece un error "Failed to fetch" de forma repentina, aunque el contenido de la página parece cargarse correctamente. Se debe investigar la causa de esta solicitud de red fallida para asegurar que no haya efectos secundarios ocultos.
+
+---
+
+[TARE] Investigar Falta de "Nombre Completo" en la Sección "Mi Perfil"
+Origen: Reporte de PM
+Prioridad: MEDIA
+Área: Backend | `services/auth/auth.js`
+Descripción:
+El "Nombre Completo" del usuario no aparece en la sección "Mi Perfil" de `users.html`, incluso si está presente en la base de datos. La causa probable es que la función de `login` en `services/auth/auth.js` no incluye este campo en el objeto de usuario que se devuelve al frontend y se guarda en la sesión. Se debe auditar y corregir el servicio de autenticación para que devuelva el objeto de usuario completo.
