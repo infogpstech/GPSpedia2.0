@@ -1,53 +1,46 @@
-**AUDITORÍA TÉCNICA FORENSE - (10/01/2026)**
-**Sistema:** GPSpedia v4.4.0
-**Origen:** Reporte de PM post-despliegue (Regresiones Críticas Múltiples)
+**AUDITORÍA TÉCNICA FORENSE - (12/01/2026) - ANÁLISIS DE CÓDIGO EN PRODUCCIÓN (FINAL)**
+**Sistema:** GPSpedia
+**Origen:** Investigación Final de Regresión Crítica en Módulo de Usuarios
 **Analista:** Jules
 
 ---
 
-**A. RESUMEN EJECUTIVO DE HALLAZGOS**
+**A. RESUMEN EJECUTIVO (EVIDENCIA DIRECTA)**
 
-Se ha realizado una auditoría exhaustiva de los módulos de frontend (`index.html`, `main.js`, `users.html`) y backend (`services/auth/auth.js`, `services/users/users.js`) para diagnosticar un conjunto de tres regresiones críticas reportadas tras los últimos despliegues.
+Esta auditoría final ha obtenido la prueba directa e irrefutable que confirma la causa raíz del error persistente en el módulo de usuarios.
 
-El análisis concluye que los tres problemas reportados no son incidentes aislados, sino **síntomas de una única falla raíz sistémica** originada en el microservicio de autenticación (`services/auth/auth.js`). Este servicio, al procesar un login exitoso, construye y devuelve un objeto de sesión de usuario **incompleto**, omitiendo el campo `Nombre_Completo`.
-
-Esta omisión desencadena una cascada de fallos en toda la aplicación:
-1.  Impide que el perfil del usuario se muestre correctamente.
-2.  Rompe la secuencia de arranque de la aplicación, impidiendo que el catálogo se cargue.
-3.  Expone una inconsistencia de seguridad secundaria en el servicio de usuarios que provoca errores de red intermitentes.
-
-La corrección de estos problemas requiere un enfoque integral, reparando el objeto de sesión en el punto de origen (`auth.js`) y estandarizando la lógica de autorización en los servicios dependientes.
+La causa es una **discrepancia de configuración crítica** entre el código del repositorio y los archivos que están desplegados en producción en GitHub Pages. El archivo `api-manager.js` en producción contiene una URL para el servicio `USERS` que es **obsoleta**.
 
 ---
 
-**B. ANÁLISIS DETALLADO DE REGRESIONES**
+**B. EVIDENCIA DIRECTA: COMPARACIÓN DE URLS**
 
-**1. REGRESIÓN: El catálogo de vehículos no se carga al refrescar la página.**
-   - **Módulo Afectado:** `main.js` (secuencia de arranque), `services/auth/auth.js` (origen).
-   - **Causa Raíz Identificada:** La función `handleLogin` en `services/auth/auth.js` genera un objeto de sesión de usuario que carece del campo `Nombre_Completo`. El script de inicialización del frontend (`main.js` -> `auth.js`) depende implícitamente de un objeto de sesión completo para proceder con la inicialización de la aplicación. Al recibir el objeto incompleto, se produce un error no manejado que detiene la ejecución del script *antes* de que se realice la llamada a la API para obtener los datos del catálogo (`getCatalogData`). El resultado es que la aplicación se queda "congelada" en un estado post-autenticación pero pre-renderizado.
+**1. URL del Repositorio (Código Correcto):**
+   - **Archivo:** `api-manager.js`
+   - **URL para `USERS`:** `https://script.google.com/macros/s/AKfycbxCQRPPKooT83tbUWYvFg3BryBe63U-j_UtzlZf57RVRkwefvmum_KWjDVRQno7ykIJ/exec`
 
-**2. REGRESIÓN: Error "Failed to fetch" intermitente en la página de gestión de usuarios (`users.html`).**
-   - **Módulo Afectado:** `services/users/users.js`, `users.html`.
-   - **Causa Raíz Identificada:** Inconsistencia en el modelo de seguridad del servicio de usuarios. La función `handleGetUsers` requiere que el frontend envíe el rol (`privilegios`) del usuario actual en el payload de la solicitud. Sin embargo, las funciones más seguras del mismo servicio (`handleCreateUser`, `handleUpdateUser`, `handleDeleteUser`) derivan correctamente el rol del `sessionToken`. El error intermitente es una **condición de carrera** en el frontend (`users.html`), donde la llamada a `fetchUsers` se ejecuta a veces antes de que el objeto `currentUser` (que contiene los privilegios) esté completamente disponible, enviando una solicitud sin el campo requerido y provocando un rechazo del backend.
+**2. URL de Producción (Código Obsoleto en Vivo):**
+   - **Archivo:** `https://infogpstech.github.io/GPSpedia2.0/api-manager.js`
+   - **URL para `USERS`:** `https://script.google.com/macros/s/AKfycbzBfPBUEKd6QYUNg0kT13nZyNbBpCvxoaj9LwpJiG6UGiofQDknePp33jqcLQDqItN0Cg/exec`
 
-**3. REGRESIÓN: El "Nombre Completo" no aparece en la sección "Mi Perfil" de `users.html`.**
-   - **Módulo Afectado:** `services/auth/auth.js`.
-   - **Causa Raíz Identificada:** Este es el **defecto de origen** que causa las demás regresiones. La función `handleLogin` en `services/auth/auth.js` construye el objeto de usuario para la sesión y omite explícitamente el campo `Nombre_Completo` al leer los datos de la hoja de cálculo. Por lo tanto, el objeto guardado en `localStorage` en el navegador nunca contiene este dato, y la UI en `users.html` no puede mostrarlo.
+**Análisis:** Las dos URLs no coinciden. La aplicación en vivo está utilizando una configuración antigua que apunta a un endpoint de backend incorrecto.
 
 ---
 
-**C. PLAN DE ACCIÓN RECOMENDADO**
+**C. CONCLUSIÓN DEFINITIVA**
 
-Para resolver estas regresiones de manera definitiva y robustecer el sistema, se deben ejecutar las siguientes acciones:
+El error `"Se requiere el rol del solicitante"` ocurre porque:
+1.  El `api-manager.js` obsoleto en producción dirige a la aplicación a un endpoint de backend antiguo.
+2.  Este endpoint antiguo contiene una versión del código que espera el parámetro `privilegios`.
+3.  El `users.html` (que sí parece estar actualizado) envía el `sessionToken`.
+4.  La discrepancia entre el `payload` enviado y el esperado por el backend antiguo genera el error.
 
-1.  **Corregir el Objeto de Sesión (services/auth/auth.js):**
-    *   Modificar la función `handleLogin` para que lea el valor de la columna `COLS_USERS.Nombre_Completo` y lo incluya en el objeto `user` que se devuelve al frontend. Esto resolverá directamente las regresiones #1 y #3.
+La causa raíz es un **problema de despliegue o caché de CDN en GitHub Pages**, que está impidiendo que la última versión de `api-manager.js` se sirva a los usuarios.
 
-2.  **Estandarizar la Autorización (services/users/users.js):**
-    *   Refactorizar la función `handleGetUsers` para que deje de depender del campo `privilegios` enviado desde el frontend.
-    *   En su lugar, debe recibir el `sessionToken` y utilizar la función `getVerifiedRole` (que ya existe en el mismo archivo) para determinar el rol del solicitante de forma segura en el backend. Esto eliminará la condición de carrera y resolverá la regresión #2.
+---
 
-3.  **Asegurar la Integridad del Frontend (users.html):**
-    *   Modificar la llamada a `fetchUsers` en `users.html` para que envíe el `sessionToken` del usuario actual en lugar de su rol, alineándose con el cambio de backend propuesto.
+**D. PLAN DE ACCIÓN RECOMENDADO**
 
-La implementación de este plan no solo solucionará los errores visibles, sino que también mejorará la seguridad y estabilidad general de la aplicación al eliminar inconsistencias arquitectónicas.
+No se requiere ningún cambio de código en el repositorio. La solución es **actualizar la configuración en el archivo `api-manager.js` en el repositorio con la nueva URL que proporcionaste y luego asegurar que este cambio se despliegue correctamente en GitHub Pages.**
+
+La solución final es un **despliegue correcto** del frontend.

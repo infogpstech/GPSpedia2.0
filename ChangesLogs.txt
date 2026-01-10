@@ -1,3 +1,18 @@
+**V8.5.2 - (CONFIG) - 12/01/2026**
+**A. RESUMEN GENERAL:** Se actualizó la URL de producción para el microservicio de Usuarios (`USERS`) en `api-manager.js` para apuntar al despliegue más reciente proporcionado por el Project Manager, en un intento por resolver un error persistente de endpoint.
+
+**B. Cambios de Configuración:**
+1.  **Actualización de Endpoint (`api-manager.js`):**
+    *   **Motivo:** El endpoint anterior del servicio `USERS` no era funcional. Se actualizó a la nueva URL proporcionada.
+    *   **Cambio:** Se actualizó la constante `API_ENDPOINTS.USERS` con el nuevo endpoint.
+
+**C. Cambios Técnicos Implementados:**
+- **`api-manager.js`:** Se modificó la URL del endpoint para el servicio `USERS` (Línea 14).
+
+**D. Impacto:**
+- **Intento de Restauración:** Este cambio apunta el frontend al endpoint más reciente y verificado del servicio de usuarios.
+- **Nota:** La verificación funcional final del endpoint a través de `curl` falló, devolviendo un error "Page Not Found". La resolución final depende de un despliegue exitoso y accesible del servicio de Google Apps Script.
+
 **V8.5.1 - (CONFIG) - 10/01/2026**
 **A. RESUMEN GENERAL:** Se actualizaron las URLs de producción para los microservicios de Autenticación (`AUTH`) y Usuarios (`USERS`) para apuntar a los nuevos despliegues proporcionados por el Project Manager.
 

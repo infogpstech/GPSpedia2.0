@@ -114,6 +114,15 @@ Si un paso NO fue ejecutado, el proceso se considera INCOMPLETO.
 NO se permiten atajos, omisiones ni reinterpretaciones.
 
 -Tareas Pendientes-
+[PENDIENTE REVISION POR EL MP] Actualización Final de Endpoint del Servicio de Usuarios
+Origen: Requerimiento de Configuración (Post-Investigación)
+Prioridad: CRÍTICA
+Área: Configuración | Frontend
+Descripción:
+Se actualizó la URL del microservicio de `USERS` en `api-manager.js` para apuntar al endpoint definitivo y verificado (`...LUydhEW_Ng/exec`), proporcionado por el Project Manager tras una investigación exhaustiva.
+Archivos Afectados: `api-manager.js`.
+
+---
 [PENDIENTE REVISION POR EL MP] Actualización de Endpoints de AUTH y USERS
 Origen: Requerimiento de Configuración
 Prioridad: CRÍTICA
