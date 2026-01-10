@@ -1,3 +1,17 @@
+**V8.4.4 - (CONFIG) - 09/01/2026**
+**A. RESUMEN GENERAL:** Se actualizó la configuración del frontend para apuntar a la nueva URL de producción del microservicio de gestión de usuarios (`GPSpedia-Users`) tras una nueva iteración de despliegue.
+
+**B. Cambios de Configuración:**
+1.  **Actualización de Endpoint (`api-manager.js`):**
+    *   **Motivo:** El servicio de usuarios fue redesplegado en una nueva URL para incorporar correcciones.
+    *   **Cambio:** Se actualizó la constante `API_ENDPOINTS.USERS` con el nuevo endpoint proporcionado para asegurar que las solicitudes se dirijan a la versión más reciente del servicio.
+
+**C. Cambios Técnicos Implementados:**
+- **`api-manager.js`:** Se modificó la URL del endpoint para el servicio `USERS` (Línea 12).
+
+**D. Impacto:**
+- **Continuidad del Servicio:** El frontend ahora se comunica con el endpoint correcto y más actualizado del servicio de usuarios, asegurando que toda la funcionalidad de gestión de usuarios permanezca operativa.
+
 **V8.4.3 - (BUG FIX) - 09/01/2026**
 **A. RESUMEN GENERAL:** Se corrigió un bug crítico que impedía que el campo "Nombre Completo" de un usuario se guardara en la base de datos al crear o editar un perfil.
 
@@ -98,7 +112,7 @@
 - **`ui.js`:** Se actualizó `renderCutContent` para llamar a `getImageUrl` con `size=1000`. Se refactorizó `createAccordionSection` para llamar a `renderCutContent`, corrigiendo así un bug y aplicando la mejora de resolución de manera uniforme.
 
 **D. Impacto:**
--   **Meora Crítica de UX:** Los usuarios ahora pueden ver imágenes de alta calidad y hacer zoom en detalles técnicos finos, lo cual es esencial para la funcionalidad principal de la aplicación.
+-   **Mejora Crítica de UX:** Los usuarios ahora pueden ver imágenes de alta calidad y hacer zoom en detalles técnicos finos, lo cual es esencial para la funcionalidad principal de la aplicación.
 -   **Funcionalidad Restaurada:** Se ha corregido un bug que impedía a los usuarios ver los cortes alternativos, asegurando que toda la información disponible para un vehículo sea accesible.
 
 **V8.3.4 - (REGRESSION FIX) - 11/01/2024**
