@@ -1,3 +1,32 @@
+**V8.4.1 - (CRITICAL REGRESSION FIX) - 09/01/2026**
+**A. RESUMEN GENERAL:** Se corrigieron tres regresiones críticas interconectadas en el módulo de gestión de usuarios que impedían la correcta visualización, actualización y eliminación de usuarios.
+
+**B. Correcciones Implementadas:**
+1.  **Bug de Visualización de "Nombre Completo" (`services/users/users.js`):**
+    *   **Problema:** La tabla de usuarios mostraba el `SessionToken` en lugar del "Nombre Completo" del usuario.
+    *   **Causa Raíz:** El mapeo de columnas (`COLS_USERS`) en el backend no estaba sincronizado con la estructura real de 8 columnas de la base de datos en Google Sheets.
+    *   **Solución:** Se actualizó la constante `COLS_USERS` para reflejar el esquema correcto de 8 columnas, asignando `Nombre_Completo: 7` y `SessionToken: 8`.
+
+2.  **Bug de Actualización de Usuario (`services/users/users.js`):**
+    *   **Problema:** La edición de un usuario fallaba con el error "Usuario no encontrado para actualizar".
+    *   **Causa Raíz:** Un conflicto de sensibilidad a mayúsculas/minúsculas (`case-sensitivity`). El backend enviaba el ID como `ID` (mayúsculas), pero el frontend (`users.html`) intentaba leerlo como `id` (minúsculas), enviando `undefined` de vuelta.
+    *   **Solución:** Se modificó la función `handleGetUsers` en el backend para construir manualmente el objeto de respuesta, asegurando que la propiedad del identificador sea siempre `ID` (mayúsculas), coincidiendo con lo que el frontend espera.
+
+3.  **Bug de Eliminación de Usuario (`services/users/users.js`):**
+    *   **Problema:** La eliminación de un usuario fallaba de manera intermitente.
+    *   **Causa Raíz:** Este era un síntoma secundario del mapeo de columnas incorrecto. La corrupción de datos interna impedía que la lógica de búsqueda y eliminación del backend funcionara de manera fiable.
+    *   **Solución:** La corrección del mapeo de columnas (`COLS_USERS`) resolvió este problema al restaurar la integridad de los datos que maneja el servicio.
+
+**C. Cambios Técnicos Implementados:**
+- **`services/users/users.js`:**
+    - Se actualizó el objeto `COLS_USERS` para un esquema de 8 columnas (Líneas 30-38).
+    - Se refactorizó la función `handleGetUsers` para asegurar la consistencia del `ID` de usuario (Líneas 140-149).
+- **`users.html`:** No se requirieron cambios; la lógica del frontend era correcta y los problemas se originaban en el backend.
+
+**D. Impacto:**
+- **Funcionalidad Crítica Restaurada:** El módulo de gestión de usuarios es ahora completamente funcional. Los administradores pueden ver, editar y eliminar usuarios de manera fiable, lo cual es esencial para la administración del sistema.
+- **Integridad de Datos Asegurada:** Se ha restaurado la coherencia entre el backend y la base de datos, previniendo futuros errores de corrupción de datos.
+
 **V8.4.0 - (FEATURE & CONFIG) - 09/01/2026**
 **A. RESUMEN GENERAL:** Se implementó de extremo a extremo la funcionalidad para gestionar el nombre completo de los usuarios y se actualizó el endpoint del servicio de usuarios a su nueva URL de producción.
 
@@ -51,7 +80,7 @@
 
 2.  **Refactorización de Estilos de Imagen (`style.css`):**
     *   **Problema:** Una regla de CSS genérica (`#detalleCompleto img`) estaba aplicando estilos de "contenedor" (`box-shadow`, `border-radius`) y una altura máxima (`max-height: 300px`) a *todas* las imágenes del modal, causando que el logo y la imagen del vehículo se vieran incorrectamente y que las imágenes de los cortes no se escalaran adecuadamente.
-    *   **Solución:** Se eliminó la propiedad `max-height` de la regla genérica para permitir que las imágenes se escalen proporcionalmente a su ancho. Los estilos de contenedor (`box-shadow`, `border-radius`) fueron movidos de la regla genérica a la clase más específica `.image-with-container`, que solo se aplica a las imágenes de los cortes.
+    *   **Solución:** Se eliminó la propiedad `max-height` de la regla genérica para permitir que las imágenes se escalen proporcionalmente a su ancho. Los estilos de contenedor (`box-shadow`, `border-radius`) fueron movidos de la regla genérica a la clase más específica `.image-with-container`, que solo se aplica a las imágenes que los requieren (imágenes de los cortes).
 
 3.  **Especificidad en Estilos Móviles (`style.css`):**
     *   **Problema:** La regla que definía el ancho de la imagen del corte al 80% en dispositivos móviles no se estaba aplicando debido a baja especificidad.

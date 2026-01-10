@@ -51,7 +51,7 @@ FLUJO OBLIGATORIO DE TRABAJO
      -> Actualizar la entrada existente
      -> NO eliminar información previa.
 
-3. HALLAZGOS FUERA DE LA TAREA ORIGINAL
+3. HALLAZGOS FUERA DE la TAREA ORIGINAL
    - Si se detectan problemas NO relacionados directamente
      con la tarea asignada:
      a) Resolverlos en el MISMO commit de la tarea,
@@ -60,7 +60,7 @@ FLUJO OBLIGATORIO DE TRABAJO
         -> Registrar la nueva tarea en Instrucciones.txt
         -> Agregar referencia al hallazgo en Auditoría.txt
 
-4. EJECUCIÓN DE LA TAREA
+4. EJECUCIÓN DE la TAREA
    - Realizar ÚNICAMENTE los cambios solicitados por la tarea
      sobre el código.
    - Respetar todas las normas definidas en Instrucciones.txt.
@@ -114,6 +114,19 @@ Si un paso NO fue ejecutado, el proceso se considera INCOMPLETO.
 NO se permiten atajos, omisiones ni reinterpretaciones.
 
 -Tareas Pendientes-
+
+[PENDIENTE REVISION POR EL MP] Corrección de Regresiones Críticas en Módulo de Usuarios (Tareas 24, 25, 26)
+Origen: Reporte de Regresión Post-Implementación
+Prioridad: CRÍTICA
+Área: Backend, Frontend | Users
+Descripción:
+Se corrigieron tres bugs críticos que surgieron tras la implementación de la funcionalidad "Nombre Completo":
+1.  **Bug de Visualización:** El `SessionToken` se mostraba en lugar del nombre completo. (Causa: Mapeo de columnas incorrecto en `services/users/users.js`).
+2.  **Bug de Actualización:** La edición de usuarios fallaba. (Causa: Conflicto de `case-sensitivity` en la propiedad `ID` del usuario entre frontend y backend).
+3.  **Bug de Eliminación:** La eliminación de usuarios fallaba. (Causa: Síntoma secundario del mapeo de columnas incorrecto que afectaba la integridad de los datos).
+Archivos Afectados: `services/users/users.js`.
+
+---
 
 [PENDIENTE REVISION POR EL MP] Implementar Sistema de Inbox (Tarea 18)
 
