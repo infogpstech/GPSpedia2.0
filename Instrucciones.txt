@@ -115,6 +115,16 @@ NO se permiten atajos, omisiones ni reinterpretaciones.
 
 -Tareas Pendientes-
 
+[PENDIENTE REVISION POR EL MP] Actualización de Endpoint del Servicio de Usuarios (Iteración 4)
+Origen: Requerimiento de Configuración
+Prioridad: CRÍTICA
+Área: Configuración | Frontend
+Descripción:
+Se actualizó por cuarta vez la URL del microservicio de `USERS` en `api-manager.js` para apuntar al nuevo endpoint de producción desplegado por el Project Manager.
+Archivos Afectados: `api-manager.js`.
+
+---
+
 [PENDIENTE REVISION POR EL MP] Corrección de Regresión Crítica y Bug Persistente en Módulo de Usuarios
 Origen: Reporte de PM (Post-Revisión)
 Prioridad: CRÍTICA
