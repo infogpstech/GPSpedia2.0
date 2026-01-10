@@ -114,6 +114,15 @@ Si un paso NO fue ejecutado, el proceso se considera INCOMPLETO.
 NO se permiten atajos, omisiones ni reinterpretaciones.
 
 -Tareas Pendientes-
+[PENDIENTE REVISION POR EL MP] Actualización de Endpoints de AUTH y USERS
+Origen: Requerimiento de Configuración
+Prioridad: CRÍTICA
+Área: Configuración | Frontend
+Descripción:
+Se actualizaron las URLs de los microservicios de `AUTH` y `USERS` en `api-manager.js` para apuntar a los nuevos endpoints de producción desplegados por el Project Manager.
+Archivos Afectados: `api-manager.js`.
+
+---
 [PENDIENTE REVISION POR EL MP] Corrección Integral de Múltiples Regresiones Críticas
 Origen: Reporte de PM (Post-Fallo de Despliegue)
 Prioridad: MÁXIMA

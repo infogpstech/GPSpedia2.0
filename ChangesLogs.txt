@@ -1,3 +1,17 @@
+**V8.5.1 - (CONFIG) - 10/01/2026**
+**A. RESUMEN GENERAL:** Se actualizaron las URLs de producción para los microservicios de Autenticación (`AUTH`) y Usuarios (`USERS`) para apuntar a los nuevos despliegues proporcionados por el Project Manager.
+
+**B. Cambios de Configuración:**
+1.  **Actualización de Endpoints (`api-manager.js`):**
+    *   **Motivo:** Los servicios de `AUTH` y `USERS` fueron redesplegados en nuevas URLs.
+    *   **Cambio:** Se actualizaron las constantes `API_ENDPOINTS.AUTH` y `API_ENDPOINTS.USERS` para asegurar que el frontend se comunique con las versiones más recientes de estos servicios.
+
+**C. Cambios Técnicos Implementados:**
+- **`api-manager.js`:** Se modificaron las URLs de los endpoints para los servicios `AUTH` y `USERS` (Líneas 11, 14).
+
+**D. Impacto:**
+- **Continuidad del Servicio:** El frontend ahora se comunica con los endpoints correctos y más actualizados para la autenticación y la gestión de usuarios, asegurando la continuidad operativa.
+
 **V8.5.0 - (CRITICAL FIX ATTEMPT) - 10/01/2026**
 **A. RESUMEN GENERAL:** Se implementó una corrección integral multi-componente en un intento por resolver una cascada de fallos críticos que afectaban el arranque de la aplicación, la carga de datos del catálogo y la gestión de usuarios. La causa raíz fue identificada como un objeto de sesión incompleto generado por el servicio de autenticación.
 
