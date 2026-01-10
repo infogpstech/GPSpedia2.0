@@ -1,3 +1,17 @@
+**V8.4.2 - (CONFIG) - 09/01/2026**
+**A. RESUMEN GENERAL:** Se actualizó la configuración del frontend para apuntar a la nueva URL de producción del microservicio de gestión de usuarios (`GPSpedia-Users`).
+
+**B. Cambios de Configuración:**
+1.  **Actualización de Endpoint (`api-manager.js`):**
+    *   **Motivo:** El servicio de usuarios fue desplegado en una nueva URL.
+    *   **Cambio:** Se actualizó la constante `API_ENDPOINTS.USERS` con el nuevo endpoint proporcionado para asegurar que las solicitudes de gestión de usuarios se dirijan a la versión más reciente del servicio.
+
+**C. Cambios Técnicos Implementados:**
+- **`api-manager.js`:** Se modificó la URL del endpoint para el servicio `USERS` (Línea 12).
+
+**D. Impacto:**
+- **Continuidad del Servicio:** El frontend ahora se comunica con el endpoint correcto del servicio de usuarios, asegurando que la funcionalidad de inicio de sesión, creación, edición y eliminación de usuarios siga operativa tras el nuevo despliegue.
+
 **V8.4.1 - (CRITICAL REGRESSION FIX) - 09/01/2026**
 **A. RESUMEN GENERAL:** Se corrigieron tres regresiones críticas interconectadas en el módulo de gestión de usuarios que impedían la correcta visualización, actualización y eliminación de usuarios.
 

@@ -11,7 +11,7 @@ const API_ENDPOINTS = {
     AUTH:     "https://script.google.com/macros/s/AKfycby86oaNWKj9Z3sXWs-tXJn2eIgU9QcpjaC6cyYReswtc_WSypt3fFtQ-3aAs58ZMa72/exec",
     CATALOG:  "https://script.google.com/macros/s/AKfycbzUdYI2MpBcXvXsNZvfBTbsDmBBzFgsqONemSd6vjwGEP2jls_eIVjXylU-nXgWa7-m7A/exec",
     WRITE:    "https://script.google.com/macros/s/AKfycbwuf57VJd1t4oQ5pb5ZyoLmP55APL2l6_aJ68pKpVUdxcK0OwsNUBzeqCdWV5ROblJ45w/exec",
-    USERS:    "https://script.google.com/macros/s/AKfycbxU_8PVqr5VXN6AgjrNbA2gPHU9bRMM9L0eX1K5cqZMdxQ_0nxADv-JFseRJGuKWRJW/exec",
+    USERS:    "https://script.google.com/macros/s/AKfycbyTt8ucGZi3halrc0l4_A4gA8eDqlmwk1K8SXSoi9LMG_tPouf_Xs00lEMt-o8Dt-wc/exec",
     FEEDBACK: "https://script.google.com/macros/s/AKfycbzJCn0btix2bvOfH7Q8cPEm35b0daNLn-tYc-B6aI5a8uMC7imQxMQxCrDx1tDgAjqo/exec",
     UTILITIES: "https://script.google.com/macros/s/AKfycbzkGXk_kSm3rN7K5PM0RntiPAn7DlH78RkH66a2vuwZwU8KgwDufkOiPjXoUKzuHAgG/exec"
 };
