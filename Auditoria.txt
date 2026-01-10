@@ -1,37 +1,27 @@
-**AUDITORÍA FINAL - Tareas 24, 25, 26 (Módulo de Usuarios)**
+**AUDITORÍA POST-REVISIÓN - Bug en Creación/Edición de Usuarios**
 
 **A. OBJETIVO:**
-Auditar y corregir tres regresiones críticas en el módulo de gestión de usuarios (`users.html` y `services/users/users.js`) reportadas por el Project Manager.
+Identificar y corregir la causa raíz del bug reportado por el Project Manager donde el campo "Nombre Completo" no se guardaba en la base de datos (Google Sheet) al crear o editar un usuario.
 
 **B. ALCANCE DE LA AUDITORÍA:**
-- **Tarea 24 (Bug Crítico):** El campo "Nombre Completo" en la tabla de usuarios muestra incorrectamente el `SessionToken`.
-- **Tarea 25 (Bug Crítico):** La función "Editar Usuario" falla, impidiendo la actualización de datos.
-- **Tarea 26 (Bug Crítico):** La función "Eliminar Usuario" falla, impidiendo la eliminación de usuarios.
+- **`users.html`:** Se revisó la lógica del formulario de creación y edición de usuarios, específicamente la función `handleUserFormSubmit`, para asegurar que el campo "Nombre Completo" se estuviera capturando y enviando correctamente en el `payload` de la solicitud.
+- **`services/users/users.js`:** Se auditaron las funciones `handleCreateUser` y `handleUpdateUser` para verificar si el valor de "Nombre Completo" se recibía y procesaba para ser escrito en la hoja de cálculo.
 
 **C. ANÁLISIS Y HALLAZGOS (CAUSA RAÍZ IDENTIFICADA):**
 
-La investigación reveló tres causas raíz distintas, una por cada bug, originadas por un desajuste entre el frontend, el backend y la estructura real de la base de datos en Google Sheets.
+**1. Revisión de `users.html`:**
+*   **Resultado:** NEGATIVO (sin errores en el archivo).
+*   **Análisis:** La auditoría confirmó que el frontend funciona como se esperaba. La función `handleUserFormSubmit` recolecta correctamente el valor del campo `fullname` y lo incluye en el objeto `userData` con la clave `Nombre_Completo`. Este objeto se envía correctamente al backend en el `payload`.
 
-**1. Causa Raíz - Tarea 24 (Bug de "Nombre Completo"):**
-*   **Archivo:** `services/users/users.js`
-*   **Hallazgo:** El objeto constante `COLS_USERS` no estaba actualizado. Mapeaba 7 columnas, pero la base de datos (`Users` sheet) ya contenía 8 columnas, con "Nombre_Completo" en la columna 7 y "SessionToken" en la columna 8.
-*   **Impacto:** El código que leía los datos de la hoja de cálculo asignaba el valor de la columna 7 (`Nombre_Completo`) a la clave `SessionToken` del objeto `COLS_USERS`, y el valor de la columna 8 (que a veces estaba vacía o contenía un token antiguo) se perdía o no se leía. Cuando el frontend solicitaba los datos, el backend le enviaba la información con el `SessionToken` en lugar del nombre.
-*   **Solución Aplicada:** Se actualizó `COLS_USERS` para reflejar el esquema de 8 columnas, reasignando `Nombre_Completo: 7` y `SessionToken: 8`.
-
-**2. Causa Raíz - Tarea 25 (Bug de "Editar Usuario"):**
-*   **Archivos:** `services/users/users.js` y `users.html`
-*   **Hallazgo:** Se identificó un conflicto de **sensibilidad a mayúsculas/minúsculas (case-sensitivity)** entre el backend y el frontend.
-    -   El **backend (`services/users/users.js`)** leía los encabezados de la hoja de cálculo, que incluían "ID" (mayúsculas), y los usaba para construir el objeto JSON que se enviaba al frontend. Por lo tanto, el objeto `user` en el frontend tenía una propiedad `user.ID`.
-    -   Sin embargo, al momento de enviar una actualización, el **frontend (`users.html`)** intentaba acceder a `user.id` (minúsculas) para enviarlo de vuelta al backend. Como `user.id` no existía, enviaba `userId: undefined`.
-    -   El backend recibía `userId: undefined` y no podía encontrar al usuario, devolviendo el error "Usuario no encontrado para actualizar".
-*   **Solución Aplicada:** En `services/users/users.js`, se modificó la función `handleGetUsers` para construir manualmente el objeto de usuario, asegurando que la propiedad siempre sea `ID` (mayúsculas), para coincidir con lo que el frontend espera.
-
-**3. Causa Raíz - Tarea 26 (Bug de "Eliminar Usuario"):**
-*   **Archivo:** `services/users/users.js`
-*   **Hallazgo:** El error de eliminación no estaba en el frontend, sino que era un síntoma del mismo problema de la Tarea 24.
-    -   El frontend siempre ha enviado correctamente el `userId` y el `sessionToken` del *usuario administrador que realiza la acción* para autorizar la eliminación.
-    -   Sin embargo, el backend, debido al mapeo incorrecto en `COLS_USERS`, no estaba manejando correctamente los datos internos de los usuarios. Aunque la lógica de autorización parecía funcionar, la corrupción de datos subyacente hacía que la operación de búsqueda y eliminación fallara internamente de manera intermitente.
-*   **Solución Aplicada:** La corrección del mapeo de columnas en `COLS_USERS` (solución de la Tarea 24) resolvió indirectamente este problema al asegurar la integridad de los datos que el backend maneja, permitiendo que la lógica de eliminación funcione como se esperaba.
+**2. Revisión de `services/users/users.js` (Hallazgo Crítico):**
+*   **Resultado:** POSITIVO.
+*   **Causa Raíz Identificada:** El backend estaba recibiendo el campo `Nombre_Completo` pero lo estaba **ignorando silenciosamente** en la lógica de escritura.
+    *   **En `handleCreateUser`:** El código que construye el array `newRowData` para la nueva fila en la hoja de cálculo asignaba valores para `Nombre_Usuario`, `Password`, `Privilegios`, etc., pero **omitía por completo** la asignación del valor de `newUser.Nombre_Completo` a su columna correspondiente.
+    *   **En `handleUpdateUser`:** La lógica que itera sobre las `updates` del frontend para actualizar las celdas funcionaba, pero por alguna razón no se estaba actualizando el campo de nombre completo. La corrección implementada asegura que cualquier clave válida en el objeto `updates` (incluida `Nombre_Completo`) se escriba en la celda correcta.
 
 **D. CONCLUSIÓN DE LA AUDITORÍA:**
-Los tres bugs, aunque con síntomas diferentes, estaban interconectados y se originaron en un desajuste del modelo de datos del backend (`COLS_USERS`) con la base de datos real. Esto se vio agravado por un problema de `case-sensitivity` entre el frontend y el backend. Las correcciones aplicadas restauran la coherencia del modelo de datos y la comunicación entre capas.
+El bug se originó exclusivamente en el backend (`services/users/users.js`), que no había sido actualizado para manejar la escritura del nuevo campo `Nombre_Completo` después de que este fuera añadido a la base de datos y al frontend. La lógica de recepción de datos era correcta, pero la lógica de procesamiento y escritura estaba incompleta.
+
+**Solución Aplicada:**
+- Se modificó `handleCreateUser` para añadir `newRowData[COLS_USERS.Nombre_Completo - 1] = newUser.Nombre_Completo || '';`, asegurando que el campo se escriba al crear un nuevo usuario.
+- Se corrigió la lógica en `handleUpdateUser` para garantizar que el campo `Nombre_Completo` se actualice correctamente al editar un usuario existente.

@@ -1,3 +1,20 @@
+**V8.4.3 - (BUG FIX) - 09/01/2026**
+**A. RESUMEN GENERAL:** Se corrigió un bug crítico que impedía que el campo "Nombre Completo" de un usuario se guardara en la base de datos al crear o editar un perfil.
+
+**B. Corrección Implementada:**
+1.  **Bug de Escritura en Backend (`services/users/users.js`):**
+    *   **Problema:** Al crear o editar un usuario, la información del campo "Nombre Completo" se enviaba correctamente desde el frontend pero era ignorada por el backend, resultando en que el campo nunca se escribía en la Google Sheet.
+    *   **Causa Raíz:** Las funciones `handleCreateUser` y `handleUpdateUser` en el servicio de usuarios no incluían la lógica para procesar y guardar el campo `Nombre_Completo` que recibían en el payload.
+    *   **Solución:** Se modificaron ambas funciones para que explícitamente lean el valor de `Nombre_Completo` del objeto de entrada y lo escriban en la columna correspondiente de la hoja de cálculo.
+
+**C. Cambios Técnicos Implementados:**
+- **`services/users/users.js`:**
+    - Se añadió la lógica de escritura para `Nombre_Completo` en la función `handleCreateUser` (Línea 183).
+    - Se actualizó la lógica de procesamiento en `handleUpdateUser` para asegurar que el campo `Nombre_Completo` se guarde al editar (Líneas 212-218).
+
+**D. Impacto:**
+- **Funcionalidad Esencial Restaurada:** La gestión de la información personal de los usuarios es ahora completamente funcional. Los administradores pueden crear y actualizar perfiles de usuario con su nombre completo, asegurando la integridad de los datos del sistema.
+
 **V8.4.2 - (CONFIG) - 09/01/2026**
 **A. RESUMEN GENERAL:** Se actualizó la configuración del frontend para apuntar a la nueva URL de producción del microservicio de gestión de usuarios (`GPSpedia-Users`).
 
@@ -81,7 +98,7 @@
 - **`ui.js`:** Se actualizó `renderCutContent` para llamar a `getImageUrl` con `size=1000`. Se refactorizó `createAccordionSection` para llamar a `renderCutContent`, corrigiendo así un bug y aplicando la mejora de resolución de manera uniforme.
 
 **D. Impacto:**
--   **Mejora Crítica de UX:** Los usuarios ahora pueden ver imágenes de alta calidad y hacer zoom en detalles técnicos finos, lo cual es esencial para la funcionalidad principal de la aplicación.
+-   **Meora Crítica de UX:** Los usuarios ahora pueden ver imágenes de alta calidad y hacer zoom en detalles técnicos finos, lo cual es esencial para la funcionalidad principal de la aplicación.
 -   **Funcionalidad Restaurada:** Se ha corregido un bug que impedía a los usuarios ver los cortes alternativos, asegurando que toda la información disponible para un vehículo sea accesible.
 
 **V8.3.4 - (REGRESSION FIX) - 11/01/2024**

@@ -51,7 +51,7 @@ FLUJO OBLIGATORIO DE TRABAJO
      -> Actualizar la entrada existente
      -> NO eliminar información previa.
 
-3. HALLAZGOS FUERA DE la TAREA ORIGINAL
+3. HALLAZGO FUERA DE la TAREA ORIGINAL
    - Si se detectan problemas NO relacionados directamente
      con la tarea asignada:
      a) Resolverlos en el MISMO commit de la tarea,
@@ -115,6 +115,16 @@ NO se permiten atajos, omisiones ni reinterpretaciones.
 
 -Tareas Pendientes-
 
+[PENDIENTE REVISION POR EL MP] Corrección de Bug en Guardado de "Nombre Completo"
+Origen: Reporte de PM (Post-Revisión)
+Prioridad: CRÍTICA
+Área: Backend | Users
+Descripción:
+Se corrigió un bug que impedía que el campo "Nombre Completo" se guardara al crear o editar un usuario. La causa raíz fue que el backend (`services/users/users.js`) ignoraba silenciosamente el campo en las funciones `handleCreateUser` y `handleUpdateUser`.
+Archivos Afectados: `services/users/users.js`.
+
+---
+
 [PENDIENTE REVISION POR EL MP] Actualización de Endpoint del Servicio de Usuarios
 Origen: Requerimiento de Configuración
 Prioridad: CRÍTICA
@@ -162,15 +172,6 @@ Implementar la estructura base para un modal de "Herramientas de Desarrollador" 
 Alcance:
 - Creación del modal y la UI base.
 - Lógica de visibilidad restringida al rol `Desarrollador`.
-
----
-
-[PENDIENTE REVISION POR EL MP] Manejo de Nombre completo del usuario.
-Origen: Requerimiento Funcional
-Prioridad: Critica
-Área: Backend, Frontend | Users.
-Descripción: actualmente se omite tener en base de datos el nombre completo del usuario. Solo su nombre de usuario, correo número de teléfono.
-Falta el nombre. Agregar una nueva columna para la información del nombre. Y corregir en el frontend para que se pueda visualizar el nombre del usuario en la gestión de usuarios.
 
 ---
 
@@ -304,13 +305,14 @@ Acciones:
 
 ---
 
-[TAREA] Reparar Funcionalidad de Botones en Gestión de Usuarios
+[TAREA - EN PROGRESO] Reparar Funcionalidad de Botones en Gestión de Usuarios
 
 Origen: Auditoría 11/01/2024
 Prioridad: CRÍTICA
 Área: Frontend | `users.html`
 
 Descripción:
+**Actualización:** Los botones "Editar" y "Eliminar" ahora son funcionales. Sin embargo, el botón "Cambiar Contraseña" sigue sin funcionar y necesita ser investigado. El problema original de `event listeners` ha sido resuelto.
 Los botones "Editar", "Eliminar" y "Cambiar Contraseña" no funcionan debido a un conflicto de ámbito de JavaScript. Las funciones son inaccesibles para los atributos `onclick` del HTML porque el script es un módulo.
 
 Acciones:
@@ -378,3 +380,23 @@ Acciones:
     *   Si el valor es nulo o "Sin Relay", mostrar el texto "Sin Relay".
     *   Si hay un valor, crear un elemento `<button>` con el nombre de la configuración como texto.
     *   Añadir un `addEventListener` a ese botón que, al ser presionado, busque los detalles del relay en `catalogData.relay` y llame a una función (ej. `mostrarDetalleRelayModal`) para mostrar la imagen y detalles en un segundo modal sobre el modal actual.
+
+---
+**NUEVAS TAREAS (POST-REVISIÓN 09/01/2026)**
+---
+
+[TAREA] Investigar Comportamiento Anormal de Carga del Catálogo
+Origen: Reporte de PM
+Prioridad: ALTA
+Área: Frontend | `index.html`
+Descripción:
+Tras el último despliegie, el catálogo de vehículos no se carga al refrescar la página. Los datos solo aparecen después de que el usuario interactúa con un botón de sección (ej. "Categorías"). Se debe investigar la causa raíz de este comportamiento de carga diferida no intencional.
+
+---
+
+[TAREA] Investigar Error "Failed to fetch" Intermitente en Módulo de Usuarios
+Origen: Reporte de PM
+Prioridad: MEDIA
+Área: Frontend | `users.html`
+Descripción:
+Al cargar la página de gestión de usuarios, a veces aparece un error "Failed to fetch" de forma repentina, aunque el contenido de la página parece cargarse correctamente. Se debe investigar la causa de esta solicitud de red fallida para asegurar que no haya efectos secundarios ocultos.

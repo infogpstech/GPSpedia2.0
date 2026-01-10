@@ -181,6 +181,7 @@ function handleCreateUser(payload) {
     newRowData[COLS_USERS.Privilegios - 1] = newUser.Privilegios;
     newRowData[COLS_USERS.Telefono - 1] = newUser.Telefono || '';
     newRowData[COLS_USERS.Correo_Electronico - 1] = newUser.Correo_Electronico || '';
+    newRowData[COLS_USERS.Nombre_Completo - 1] = newUser.Nombre_Completo || '';
     newRowRange.setValues([newRowData]);
 
     return { status: 'success', message: `Usuario '${newUsername}' creado.` };
@@ -210,8 +211,8 @@ function handleUpdateUser(payload) {
 
             Object.keys(updates).forEach(key => {
                 const colIndex = COLS_USERS[key];
-                if (colIndex && key !== 'id') {
-                    if (key === 'password' && !updates.password) return; // No actualizar contraseña si está vacía
+                if (colIndex && key !== 'ID') { // Corregido para no intentar escribir en la columna ID
+                    if (key === 'Password' && !updates.Password) return; // No actualizar si la contraseña está vacía
                     userSheet.getRange(i + 2, colIndex).setValue(updates[key]);
                 }
             });
