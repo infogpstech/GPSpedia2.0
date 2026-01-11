@@ -391,3 +391,13 @@ Prioridad: MEDIA
 Área: Frontend | `users.html`
 Descripción:
 Al cargar la página de gestión de usuarios, a veces aparece un error "Failed to fetch" de forma repentina, aunque el contenido de la página parece cargarse correctamente. Se debe investigar la causa de esta solicitud de red fallida para asegurar que no haya efectos secundarios ocultos.
+
+---
+
+[TAREA] Refactorizar Generación de IDs para Usar Fórmulas de Hoja de Cálculo
+Origen: Requerimiento Técnico
+Prioridad: ALTA
+Área: Arquitectura | Backend
+Descripción:
+La generación de IDs numéricos en el backend es propensa a errores y no hereda formatos ni validaciones de datos en Google Sheets. Se debe refactorizar la lógica de creación de nuevos registros para que inyecte una fórmula de hoja de cálculo en la celda del ID, delegando la generación del ID a Google Sheets.
+Archivos Afectados: `services/users/users.js`, `services/feedback/feedback.js`.

@@ -6,32 +6,34 @@
 
 ---
 
-### **INCIDENTE: Regresión Crítica - Servicio `USERS` Inutilizable ("Failed to fetch")**
+### **HALLAZGO ARQUITECTÓNICO: Refactorización de la Generación de IDs de Backend**
 
 **1. RESUMEN DEL PROBLEMA:**
-   - Tras una corrección anterior (V8.4.7) destinada a solucionar un problema con el guardado del campo "Nombre Completo", el microservicio `USERS` ha dejado de funcionar por completo, devolviendo un error genérico "Failed to fetch" en el frontend.
-   - Este error indica que el backend está sufriendo un crash fatal que le impide devolver cualquier tipo de respuesta, sea de éxito o de error.
+   - Se identificó un problema fundamental en la forma en que los servicios de backend creaban nuevos registros en Google Sheets.
+   - La lógica para generar nuevos IDs se realizaba manualmente en el código del backend (ej. `getNewUserId` en `services/users/users.js`) o mediante métodos como `appendRow` (`logUserActivity` en `services/feedback/feedback.js`).
+   - Este enfoque tenía dos debilidades críticas:
+     1.  **Propenso a Errores:** La lógica manual podía fallar en casos borde, como una hoja vacía, causando crashes fatales en el servicio (como se vio en un incidente anterior).
+     2.  **No Hereda Propiedades:** El uso de `appendRow` o la escritura directa de valores no copia las validaciones de datos, formatos condicionales ni, lo más importante, las **fórmulas de la hoja de cálculo** de la fila anterior. Esto impedía que los IDs se generaran dinámicamente con el formato requerido (ej. "U-001").
 
-**2. ANÁLISIS DE CAUSA RAÍZ (RCA):**
-   - **Auditoría de `ChangesLogs.txt`:** Se confirmó que las versiones V8.4.5 y V8.4.7 se enfocaron en refactorizar la función `handleUpdateUser` para solucionar un problema de `case-sensitivity`.
-   - **Auditoría de `services/users/users.js`:** Un análisis línea por línea del código reveló que la causa de la regresión no estaba en `handleUpdateUser`, sino en una función auxiliar introducida en el mismo período: `getNewUserId`.
-   - **El Bug Crítico:** La implementación de `getNewUserId` era la siguiente:
-     ```javascript
-     function getNewUserId(sheet) {
-         const ids = sheet.getRange(2, COLS_USERS.ID, sheet.getLastRow() - 1, 1).getValues().flat();
-         const maxId = ids.reduce((max, id) => Math.max(max, parseInt(id) || 0), 0);
-         return maxId + 1;
-     }
-     ```
-     El problema reside en `sheet.getLastRow() - 1`. Si la hoja de cálculo "Users" solo contiene la fila de encabezado (o está vacía), `getLastRow()` devuelve `1`. La expresión se evalúa a `1 - 1 = 0`. El método `sheet.getRange()` de Google Apps Script **no acepta `0` como un número de filas válido**; requiere un entero mayor o igual a 1.
-   - **Conclusión:** Esta llamada a `getRange` con un argumento inválido provoca un **error fatal no capturado** que detiene la ejecución de todo el script del servicio, resultando en la ausencia de respuesta al frontend ("Failed to fetch").
+**2. ANÁLISIS Y SOLUCIÓN IMPLEMENTADA:**
+   - Se determinó que la estrategia correcta es delegar la generación de IDs y la herencia de propiedades a Google Sheets. El método robusto para esto es:
+     1.  Obtener la última fila de la hoja.
+     2.  Copiar la fila completa a una nueva fila (`previousRow.copyTo(newRow)`). Esto transfiere todas las propiedades, incluyendo fórmulas.
+     3.  Limpiar solo el contenido de la nueva fila (`newRow.clearContent()`), lo que deja las fórmulas intactas.
+     4.  Escribir los nuevos datos en la fila, asegurándose de no sobrescribir las celdas que contienen fórmulas (como la del ID).
 
-**3. SOLUCIÓN PROPUESTA:**
-   - Se debe añadir una **cláusula de guarda (guard clause)** al inicio de la función `getNewUserId`.
-   - La nueva lógica comprobará si la hoja de cálculo tiene menos de 2 filas (es decir, está vacía o solo tiene encabezado). Si es así, devolverá `1` como el primer ID de usuario, evitando por completo la llamada problemática a `getRange`.
-   - Este cambio hace que la función sea robusta y resiliente a hojas de cálculo vacías, eliminando la causa del crash del servicio.
+**3. CAMBIOS REALIZADOS:**
+   - **`services/users/users.js`:**
+     - Se eliminó por completo la función `getNewUserId`.
+     - Se refactorizó la función `handleCreateUser` para adoptar el patrón `copyTo`/`clearContent`/`setValues`, eliminando la asignación manual de ID.
+   - **`services/feedback/feedback.js`:**
+     - Se refactorizó la función `logUserActivity` para reemplazar el `appendRow` por el patrón `copyTo`/`clearContent`/`setValues`.
+   - **`services/write/write.js`:**
+     - Durante la auditoría, se confirmó que la función `handleAddOrUpdateCut` para nuevos vehículos ya utilizaba correctamente este patrón. **No se necesitaron cambios.**
+   - **Hoja `LogosMarcas`:**
+     - La investigación (`grep`) confirmó que ningún servicio de backend escribe en esta hoja. Su gestión parece ser manual, por lo que la automatización de IDs no es aplicable.
 
 **4. ESTADO:**
-   - **PENDIENTE DE CORRECCIÓN:** La causa raíz ha sido identificada y la solución está definida.
+   - **COMPLETADO:** La generación de IDs para nuevos usuarios y logs de actividad ha sido refactorizada para ser más robusta, resiliente y consistente con las mejores prácticas de la plataforma, asegurando la integridad de los datos y formatos de la base de datos.
 
 ---

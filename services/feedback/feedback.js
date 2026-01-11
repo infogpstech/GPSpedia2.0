@@ -252,15 +252,24 @@ function handleSuggestYear(payload) {
 function logUserActivity(userId, userName, activityType, associatedId, details) {
     try {
         const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.ACTIVIDAD_USUARIO);
-        const newRow = [];
-        newRow[COLS_ACTIVIDAD_USUARIO.id - 1] = ''; // Autogen ID
-        newRow[COLS_ACTIVIDAD_USUARIO.timestamp - 1] = new Date().toISOString();
-        newRow[COLS_ACTIVIDAD_USUARIO.idUsuario - 1] = userId;
-        newRow[COLS_ACTIVIDAD_USUARIO.nombreUsuario - 1] = userName;
-        newRow[COLS_ACTIVIDAD_USUARIO.tipoActividad - 1] = activityType;
-        newRow[COLS_ACTIVIDAD_USUARIO.idElementoAsociado - 1] = associatedId;
-        newRow[COLS_ACTIVIDAD_USUARIO.detalle - 1] = details;
-        sheet.appendRow(newRow);
+        const lastRow = sheet.getLastRow();
+        const newRowRange = sheet.getRange(lastRow + 1, 1, 1, sheet.getLastColumn());
+
+        if (lastRow > 0) {
+            const previousRowRange = sheet.getRange(lastRow, 1, 1, sheet.getLastColumn());
+            previousRowRange.copyTo(newRowRange);
+        }
+        newRowRange.clearContent();
+
+        const newRowData = new Array(sheet.getLastColumn()).fill('');
+        newRowData[COLS_ACTIVIDAD_USUARIO.timestamp - 1] = new Date().toISOString();
+        newRowData[COLS_ACTIVIDAD_USUARIO.idUsuario - 1] = userId;
+        newRowData[COLS_ACTIVIDAD_USUARIO.nombreUsuario - 1] = userName;
+        newRowData[COLS_ACTIVIDAD_USUARIO.tipoActividad - 1] = activityType;
+        newRowData[COLS_ACTIVIDAD_USUARIO.idElementoAsociado - 1] = associatedId;
+        newRowData[COLS_ACTIVIDAD_USUARIO.detalle - 1] = details;
+
+        newRowRange.setValues([newRowData]);
     } catch (e) {
         // Log error to main log sheet if activity logging fails
         Logger.log(`CRITICAL: Fallo al registrar actividad de usuario. Error: ${e.message}`);
