@@ -1,30 +1,28 @@
 **AUDITORÍA DEL SISTEMA GPSpedia v2.0**
 
-**FECHA DE AUDITORÍA:** 2024-07-29
+**FECHA DE AUDITORÍA:** 2024-07-30
 
 **AUDITOR:** Jules
 
 ---
 
-### **INCIDENTE: Actualización de Tareas y Endpoints de Servicios**
+### **INCIDENTE: Regresión Crítica - `Nombre_Completo` es sobrescrito por `SessionToken` al iniciar sesión**
 
-**1. RESUMEN DE LA TAREA:**
-   - Se recibió una solicitud para realizar múltiples actualizaciones de configuración y estado en el proyecto.
-   - Las acciones incluyeron:
-     1.  Marcar una tarea como completada en `Instrucciones.txt`.
-     2.  Actualizar las URLs de producción para los microservicios de `FEEDBACK` y `USERS`.
+**1. RESUMEN DEL PROBLEMA:**
+   - Se reportó un bug crítico donde el campo `Nombre_Completo` de un usuario en la base de datos es reemplazado por el `SessionToken` al iniciar sesión.
 
-**2. ANÁLISIS Y SOLUCIÓN IMPLEMENTADA:**
-   - **Actualización de `Instrucciones.txt`:**
-     - Se localizó la tarea `[EN PROGRESO] Investigar Falta de "Nombre Completo" en la Sección "Mi Perfil"`.
-     - Se movió esta tarea al bloque de `TAREAS COMPLETADAS` para reflejar su finalización.
+**2. ANÁLISIS DE CAUSA RAÍZ (RCA) - CORREGIDO:**
+   - **Auditoría Inicial:** La hipótesis inicial, basada en logs de cambios anteriores (`V8.4.1`), apuntaba a un mapa de columnas (`COLS_USERS`) incorrecto en el servicio de autenticación (`services/auth/auth.js`). Se sospechaba que a la constante le faltaba la entrada `SessionToken: 8`.
+   - **Auditoría de Código Fuente (Actual):** Una revisión directa del archivo `services/auth/auth.js` en el repositorio demostró que esta hipótesis era **incorrecta**. El código fuente **actual es correcto** y la constante `COLS_USERS` sí incluye las 8 columnas, con `SessionToken` correctamente mapeado a la columna 8.
+   - **Conclusión Definitiva:** El problema no reside en el código del repositorio, sino en el **código que está actualmente en producción**. La versión del servicio `GPSpedia-Auth` que está desplegada en Google Apps Script es una versión **obsoleta** que todavía contiene el mapa de 7 columnas defectuoso. Es esta versión desactualizada la que, al ejecutarse, provoca el bug.
 
-   - **Actualización de Endpoints:**
-     - Se realizó una auditoría de los archivos `api.js` y `api-manager.js`, que gestionan las URLs de los servicios.
-     - Se confirmó que las URLs existentes para `FEEDBACK` y `USERS` eran diferentes a las proporcionadas.
-     - Se procedió a actualizar la constante `API_ENDPOINTS.FEEDBACK` y `API_ENDPOINTS.USERS` en **ambos archivos** con las nuevas URLs para garantizar la consistencia en todo el frontend.
+**3. SOLUCIÓN:**
+   - **NO SE REQUIEREN CAMBIOS DE CÓDIGO.** El código en el repositorio ya contiene la solución.
+   - La única acción correctiva es **redesplegar el servicio `GPSpedia-Auth` en Google Apps Script** utilizando la última versión del archivo `services/auth/auth.js` de este repositorio.
+   - Esta acción debe ser llevada a cabo por el Project Manager o la persona encargada de los despliegues.
 
-**3. ESTADO:**
-   - **COMPLETADO:** Se han aplicado todas las actualizaciones de estado y configuración solicitadas. El archivo de tareas está al día y el frontend ahora apunta a los endpoints correctos para los servicios de Feedback y Users.
+**4. ESTADO:**
+   - **NO ES UN BUG DE CÓDIGO - PENDIENTE DE DESPLIEGUE.**
+   - El trabajo de desarrollo para solucionar este problema está completo, pendiente únicamente de la acción de despliegue para que la corrección se haga efectiva en el ambiente de producción.
 
 ---
