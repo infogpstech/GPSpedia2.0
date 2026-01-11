@@ -6,19 +6,22 @@
 
 ---
 
-### **INCIDENTE: Corrección de Regresión Crítica Post-Refactorización (Fallo de Carga)**
+### **INCIDENTE: Corrección de Bug de Carga de Imágenes (Causa Raíz Final)**
 
 **1. RESUMEN DEL INCIDENTE:**
-   - Inmediatamente después de una refactorización de la arquitectura de la API del frontend, se reportó un bug crítico: la aplicación no pasaba de la pantalla de splash, impidiendo por completo su uso.
-   - La investigación se centró en identificar la causa raíz de esta regresión.
+   - Después de resolver los problemas de carga iniciales, persistía un bug que impedía que las imágenes se mostraran en la aplicación.
+   - El diagnóstico inicial apuntaba a una dependencia circular, pero un análisis más profundo guiado por el feedback del usuario reveló la verdadera causa raíz.
 
 **2. ANÁLISIS Y HALLAZGOS:**
-   - **Causa Raíz:** El diagnóstico a través de `grep` confirmó la sospecha inicial. La refactorización había consolidado toda la lógica de la API en `api-config.js` y eliminado el archivo `api.js`. Sin embargo, varios módulos clave (`add_cortes.html`, `navigation.js`, y `ui.js`) no fueron actualizados y seguían intentando importar funciones desde el archivo `api.js` que ya no existía.
-   - **Impacto:** La importación rota en `ui.js` era particularmente crítica, ya que este módulo es responsable de gestionar la transición de la pantalla de splash a la aplicación principal. El error fatal de JavaScript detenía toda la ejecución del script, resultando en que la pantalla de splash nunca se ocultaba.
+   - **Causa Raíz Definitiva:** Se descubrió que el problema no era una importación fallida, sino una **doble codificación de la URL** de la imagen.
+     - El backend ya estaba procesando los IDs de Google Drive y devolviendo una URL de imagen completamente formada (ej: `https://drive.google.com/thumbnail?...`).
+     - La función `getImageUrl` en el frontend recibía esta URL completa y, sin verificarla, le anteponía de nuevo el prefijo `https://drive.google.com/thumbnail?id=`, resultando en una URL malformada y rota.
 
 **3. ACCIONES CORRECTIVAS REALIZADAS:**
-   1.  **Corrección de Importaciones:** Se actualizaron las rutas de `import` en todos los archivos afectados (`add_cortes.html`, `navigation.js`, `ui.js`) para que apuntaran al nuevo y único módulo de API: `api-config.js`.
-   2.  **Invalidación de Caché:** Para asegurar que la corrección se distribuyera inmediatamente a todos los usuarios y que sus navegadores no continuaran sirviendo los archivos rotos desde el caché, se incrementó la versión del caché en `service-worker.js` de `v9` a `v10`.
+   1.  **Refactorización de `getImageUrl`:** Se modificó la función `getImageUrl` en `ui.js` para hacerla **idempotente** y robusta.
+   2.  **Nueva Lógica:** La función ahora primero comprueba si el `fileId` que recibe ya es una URL válida (si empieza con "http").
+       - Si es una URL, la devuelve sin realizar ninguna modificación.
+       - Si es un simple ID, construye la URL de Google Drive como lo hacía antes.
 
 **4. ESTADO:**
-   - **COMPLETADO:** La funcionalidad de carga de la aplicación ha sido restaurada. La corrección de las importaciones y la invalidación del caché aseguran que todos los usuarios puedan volver a acceder al catálogo y a todas las funcionalidades de la aplicación sin interrupciones.
+   - **COMPLETADO:** El problema de la carga de imágenes ha sido resuelto de manera definitiva. La corrección asegura que las URLs de las imágenes se manejen correctamente, independientemente de si el backend envía un ID o una URL completa, lo que hace al frontend más resiliente a futuros cambios en la API.

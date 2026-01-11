@@ -4,7 +4,21 @@
 // - Contain all functions that directly manipulate the DOM.
 // - Use document.createElement, not HTML strings.
 
-import { getImageUrl, getFeedbackItems, replyToFeedback, markAsResolved } from './api-config.js';
+import { getFeedbackItems, replyToFeedback, markAsResolved } from './api-config.js';
+
+export function getImageUrl(fileId, size = 280) {
+    // Si el fileId ya es una URL completa, devuélvelo directamente.
+    if (typeof fileId === 'string' && fileId.startsWith('http')) {
+        return fileId;
+    }
+    // Si no hay fileId, devuelve la imagen placeholder.
+    if (!fileId || typeof fileId !== 'string' || fileId.trim() === '') {
+        return "https://placehold.co/280x200/cccccc/333333?text=Sin+Imagen";
+    }
+    // Si es un ID, construye la URL de Google Drive.
+    const sizeParam = typeof size === 'number' ? `w${size}` : size;
+    return `https://drive.google.com/thumbnail?id=${fileId.trim()}&sz=${sizeParam}`;
+}
 import { getState } from './state.js';
 import { mostrarMarcas, mostrarCategoriasPorMarca, mostrarModelos, getLogoUrlForMarca } from './navigation.js';
 

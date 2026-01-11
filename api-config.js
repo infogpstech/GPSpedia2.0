@@ -79,11 +79,3 @@ export async function replyToFeedback(itemId, itemType, replyText, responderName
 export async function markAsResolved(itemId) {
     return await routeAction('markAsResolved', { itemId });
 }
-
-export function getImageUrl(fileId, size = 280) {
-    if (!fileId || typeof fileId !== 'string' || fileId.trim() === '') {
-        return "https://placehold.co/280x200/cccccc/333333?text=Sin+Imagen";
-    }
-    const sizeParam = typeof size === 'number' ? `w${size}` : size;
-    return `https://drive.google.com/thumbnail?id=${fileId.trim()}&sz=${sizeParam}`;
-}

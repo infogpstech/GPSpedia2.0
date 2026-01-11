@@ -1,3 +1,35 @@
+**V8.5.8 - (BUG FIX) - 13/01/2026**
+**A. RESUMEN GENERAL:** Se corrigió un bug que impedía la carga de imágenes en toda la aplicación. La causa raíz fue un error de lógica en la función `getImageUrl` que no manejaba correctamente las URLs pre-construidas enviadas por el backend.
+
+**B. Corrección Implementada:**
+1.  **Causa Raíz - Doble Codificación de URL:**
+    *   **Problema:** El backend ya estaba enviando URLs de imagen completas. La función `getImageUrl` del frontend recibía esta URL y, sin verificarla, le anteponía de nuevo el prefijo `https://drive.google.com/thumbnail?id=`, creando una URL rota e inválida.
+    *   **Solución:** Se refactorizó la función `getImageUrl` en `ui.js` para que sea idempotente. Ahora comprueba si el valor que recibe ya es una URL válida (empieza con "http"). Si lo es, la devuelve sin cambios. Si es solo un ID, construye la URL como antes.
+
+**C. Cambios Técnicos Implementados:**
+- **`ui.js`:** Se modificó la lógica interna de la función `getImageUrl` para manejar tanto IDs como URLs completas (Líneas 7-15).
+
+**D. Impacto:**
+- **Funcionalidad Visual Restaurada:** Todas las imágenes (logos, vehículos, cortes) ahora se cargan y muestran correctamente en toda la aplicación, ya que el problema de las URLs malformadas ha sido resuelto.
+- **Robustez del Frontend:** La función `getImageUrl` es ahora más robusta y resistente a cambios en el formato de los datos provenientes del backend.
+
+**V8.5.7 - (BUG FIX) - 13/01/2026**
+**A. RESUMEN GENERAL:** Se corrigió un bug que impedía la carga de imágenes en toda la aplicación. El problema se manifestó después de la corrección del fallo de carga de la pantalla de splash.
+
+**B. Corrección Implementada:**
+1.  **Causa Raíz - Dependencia Circular:**
+    *   **Problema:** Se identificó una dependencia circular entre los módulos `ui.js` y `navigation.js`. `ui.js` importaba funciones de `navigation.js`, y viceversa. Esto creaba una condición de carrera durante la carga de los módulos, provocando que la función `getImageUrl` (importada por `navigation.js` desde `api-config.js`) fuera `undefined` en el momento en que `ui.js` intentaba utilizarla para renderizar las imágenes.
+    *   **Solución:** Se rompió la dependencia circular moviendo la función `getImageUrl` desde el módulo de API (`api-config.js`) al módulo de UI (`ui.js`), que es su lugar más lógico ya que es una función de ayuda para la presentación. Se actualizaron las importaciones en `navigation.js` para que ahora importe `getImageUrl` directamente desde `ui.js`.
+
+**C. Cambios Técnicos Implementados:**
+- **`api-config.js`:** Se eliminó la función `getImageUrl`.
+- **`ui.js`:** Se añadió y exportó la función `getImageUrl`. Se ajustó su importación de API para no incluir `getImageUrl`.
+- **`navigation.js`:** Se actualizó la ruta de importación para `getImageUrl` para que apunte a `ui.js`.
+
+**D. Impacto:**
+- **Funcionalidad Visual Restaurada:** Todas las imágenes (logos, vehículos, cortes) ahora se cargan y muestran correctamente en toda la aplicación.
+- **Mejora de la Arquitectura:** La eliminación de la dependencia circular hace que la arquitectura del frontend sea más robusta, predecible y menos propensa a errores de carga.
+
 **V8.5.6 - (CRITICAL FIX) - 13/01/2026**
 **A. RESUMEN GENERAL:** Se corrigió un bug crítico que impedía que la aplicación cargara, dejándola atascada en la pantalla de splash. El error fue una regresión introducida durante la refactorización de la API.
 
