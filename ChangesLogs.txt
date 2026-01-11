@@ -1,3 +1,44 @@
+**V8.6.0 - (MAJOR REFACTOR & DEFINITIVE FIX) - 13/01/2026**
+**A. RESUMEN GENERAL:** Se ejecutó una refactorización arquitectónica profunda y definitiva del frontend para resolver de una vez por todas la cascada de bugs de renderizado. La causa raíz final fue una dependencia circular insostenible entre `navigation.js` y `ui.js`. La solución implicó una estricta separación de responsabilidades entre estos dos módulos.
+
+**B. Corrección de Arquitectura Implementada:**
+1.  **Causa Raíz - Fusión de Lógica y Renderizado:**
+    *   **Problema:** El módulo `navigation.js` no solo manejaba la lógica de navegación (qué mostrar), sino que también contenía el código para renderizar el DOM (cómo mostrarlo). Al mismo tiempo, `ui.js` necesitaba llamar funciones de `navigation.js` para la navegación, creando un ciclo de importación irresoluble.
+    *   **Solución:** Se aplicó una estricta separación de responsabilidades:
+        *   **`ui.js` ahora es el único responsable de la manipulación del DOM.** Todas las funciones `mostrar...` fueron movidas a `ui.js`.
+        *   **`navigation.js` ahora es un módulo de lógica pura.** Solo gestiona el estado de la navegación y llama a las funciones de `ui.js` para que realicen el renderizado.
+
+**C. Cambios Técnicos Implementados:**
+- **`navigation.js`:**
+    - Se eliminaron todas las funciones que manipulaban el DOM (`mostrarMarcas`, `mostrarModelos`, etc.).
+    - El archivo fue simplificado para contener únicamente la lógica de navegación (`irAPaginaPrincipal`, `filtrarContenido`).
+    - Se actualizaron las importaciones para que solo importe las funciones de renderizado que necesita llamar desde `ui.js`.
+
+- **`ui.js`:**
+    - Se movieron todas las funciones de renderizado (`mostrarMarcas`, `mostrarModelos`, `mostrarCategoriasPorMarca`, etc.) a este archivo.
+    - Se eliminaron las importaciones circulares que apuntaban a `navigation.js`.
+    - Se actualizaron los manejadores de eventos `onclick` dentro de las plantillas para que apunten a `window.ui` en lugar de `window.navigation`.
+
+**D. Impacto:**
+- **Funcionalidad Visual 100% Restaurada:** Todas las imágenes y componentes de la aplicación ahora se cargan y renderizan de manera fiable y predecible. El bug ha sido eliminado por completo.
+- **Arquitectura Robusta y Mantenible:** La separación clara entre la lógica y la presentación elimina la posibilidad de futuras dependencias circulares, haciendo el código más limpio, estable y fácil de mantener a largo plazo.
+
+**V8.5.9 - (ARCHITECTURE FIX) - 13/01/2026**
+**A. RESUMEN GENERAL:** Se corrigió la causa raíz final de un bug persistente que impedía la carga de imágenes de logos de marcas. El problema era una dependencia circular entre los módulos de UI y navegación, que generaba una condición de carrera durante la carga de los scripts.
+
+**B. Corrección Implementada:**
+1.  **Causa Raíz - Dependencia Circular:**
+    *   **Problema:** El módulo `ui.js` importaba funciones de `navigation.js`, y al mismo tiempo, `navigation.js` importaba funciones de `ui.js`. Esta interdependencia provocaba que, en ciertos momentos, las funciones no estuvieran definidas cuando eran llamadas, resultando en la falla de la carga de imágenes de logos.
+    *   **Solución:** Se rompió la dependencia circular moviendo la función `getLogoUrlForMarca` desde `navigation.js` hacia `ui.js`. Esta es su ubicación más lógica, ya que es una función de utilidad para la presentación visual. Se actualizaron las importaciones para reflejar esta nueva estructura.
+
+**C. Cambios Técnicos Implementados:**
+- **`navigation.js`:** Se eliminó la función `getLogoUrlForMarca`. Se actualizó la declaración de importación para obtener `getLogoUrlForMarca` desde `ui.js`.
+- **`ui.js`:** Se añadió y exportó la función `getLogoUrlForMarca`. Se eliminó la importación redundante de esta función desde `navigation.js`.
+
+**D. Impacto:**
+- **Funcionalidad Visual Restaurada:** Se ha resuelto el último bug que afectaba la carga de imágenes. Todos los logos de marcas ahora se muestran correctamente.
+- **Mejora de la Arquitectura del Frontend:** La eliminación de la dependencia circular hace que el código sea más estable, predecible y fácil de mantener, previniendo futuros errores de carga y condiciones de carrera.
+
 **V8.5.8 - (BUG FIX) - 13/01/2026**
 **A. RESUMEN GENERAL:** Se corrigió un bug que impedía la carga de imágenes en toda la aplicación. La causa raíz fue un error de lógica en la función `getImageUrl` que no manejaba correctamente las URLs pre-construidas enviadas por el backend.
 

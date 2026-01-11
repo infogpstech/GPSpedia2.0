@@ -5,22 +5,66 @@
 // - Use document.createElement, not HTML strings.
 
 import { getFeedbackItems, replyToFeedback, markAsResolved } from './api-config.js';
+import { getState, setState } from './state.js';
+import { irAPaginaPrincipal } from './navigation.js';
+
+const backSvg = '<svg style="width:20px;height:20px;margin-right:5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
 
 export function getImageUrl(fileId, size = 280) {
-    // Si el fileId ya es una URL completa, devuélvelo directamente.
     if (typeof fileId === 'string' && fileId.startsWith('http')) {
         return fileId;
     }
-    // Si no hay fileId, devuelve la imagen placeholder.
     if (!fileId || typeof fileId !== 'string' || fileId.trim() === '') {
         return "https://placehold.co/280x200/cccccc/333333?text=Sin+Imagen";
     }
-    // Si es un ID, construye la URL de Google Drive.
     const sizeParam = typeof size === 'number' ? `w${size}` : size;
     return `https://drive.google.com/thumbnail?id=${fileId.trim()}&sz=${sizeParam}`;
 }
-import { getState } from './state.js';
-import { mostrarMarcas, mostrarCategoriasPorMarca, mostrarModelos, getLogoUrlForMarca } from './navigation.js';
+
+export function getLogoUrlForMarca(marca, categoria) {
+    const { catalogData } = getState();
+    const { logos } = catalogData;
+
+    if (!logos || !logos.length || !marca) {
+        return null;
+    }
+
+    const normalize = (str) => str ? str.toLowerCase().replace(/[^a-z0-9]/g, '') : '';
+    const normalizedMarca = normalize(marca);
+    const normalizedCategoria = normalize(categoria);
+
+    const potentialMatches = logos.filter(logo => {
+        const normalizedLogoMarca = normalize(logo.nombreMarca);
+        return normalizedLogoMarca.startsWith(normalizedMarca);
+    });
+
+    if (potentialMatches.length === 0) return null;
+    if (potentialMatches.length === 1) return potentialMatches[0].urlLogo;
+
+    let bestMatch = null;
+    if (normalizedCategoria) {
+        const catSynonyms = (normalizedCategoria === 'motos' || normalizedCategoria === 'motocicletas')
+            ? ['motos', 'motocicletas']
+            : [normalizedCategoria];
+
+        for (const synonym of catSynonyms) {
+            bestMatch = potentialMatches.find(logo => normalize(logo.nombreMarca).includes(synonym));
+            if (bestMatch) break;
+        }
+    }
+
+    if (!bestMatch) {
+        bestMatch = potentialMatches.find(logo => normalize(logo.nombreMarca) === normalizedMarca);
+    }
+
+    if (!bestMatch) {
+        bestMatch = potentialMatches.reduce((prev, current) =>
+            (prev.nombreMarca.length < current.nombreMarca.length) ? prev : current
+        );
+    }
+
+    return bestMatch ? bestMatch.urlLogo : (potentialMatches.length > 0 ? potentialMatches[0].urlLogo : null);
+}
 
 function crearCarrusel(titulo, items, cardGenerator) {
     const cont = document.getElementById("contenido");
@@ -90,16 +134,13 @@ export function mostrarCategorias() {
     const { catalogData } = getState();
     const { cortes, sortedCategories } = catalogData;
 
-    // Si hay una búsqueda activa, no mostrar las categorías principales
     if (document.getElementById("searchInput").value.trim()) return;
 
     const cont = document.getElementById("contenido");
-    cont.innerHTML = ""; // Limpiar contenido existente
+    cont.innerHTML = "";
 
-    // 1. Mostrar "Últimos Agregados" primero
     mostrarUltimosAgregados();
 
-    // 2. Mostrar "Búsqueda por Categoría"
     const categorias = sortedCategories;
     crearCarrusel('Búsqueda por Categoría', categorias, cat => {
         const ejemplo = cortes.find(item => item.categoria === cat && item.imagenVehiculo);
@@ -117,7 +158,6 @@ export function mostrarCategorias() {
         return card;
     });
 
-    // 3. Mostrar "Marcas de Vehículos"
     const marcasVehiculos = [...new Set(cortes
         .filter(item => item.categoria && !['motocicletas', 'motos'].includes(item.categoria.toLowerCase()))
         .map(item => item.marca))]
@@ -135,7 +175,6 @@ export function mostrarCategorias() {
         return card;
     });
 
-    // 4. Mostrar "Marcas de Motocicletas"
     const marcasMotos = [...new Set(cortes
         .filter(item => item.categoria && ['motocicletas', 'motos'].includes(item.categoria.toLowerCase()))
         .map(item => item.marca))]
@@ -154,14 +193,298 @@ export function mostrarCategorias() {
     });
 }
 
+export function mostrarMarcas(categoria) {
+    const { catalogData } = getState();
+    const { cortes } = catalogData;
+
+    setState({ navigationState: { level: "marcas", categoria: categoria } });
+    const cont = document.getElementById("contenido");
+    cont.innerHTML = `<span class="backBtn" onclick="window.navigation.irAPaginaPrincipal()">${backSvg} Volver</span><h4>Marcas de ${categoria}</h4>`;
+    const itemsInCategory = cortes.filter(item => item.categoria === categoria);
+    const marcas = [...new Set(itemsInCategory.map(item => item.marca))].filter(m => m).sort();
+
+    const grid = document.createElement("div");
+    grid.className = "grid";
+    grid.style.gridTemplateColumns = "repeat(auto-fill, minmax(120px, 1fr))";
+    grid.style.gap = "30px";
+
+    marcas.forEach(m => {
+        const logoUrl = getLogoUrlForMarca(m, categoria);
+        const logoContainer = document.createElement("div");
+        logoContainer.className = "card brand-logo-item";
+        logoContainer.onclick = () => mostrarModelos(categoria, m);
+
+        const img = document.createElement("img");
+        img.src = getImageUrl(logoUrl) || 'https://placehold.co/120x80/cccccc/333333?text=Sin+Logo';
+        img.alt = `Marca ${m}`;
+        img.loading = "lazy";
+
+        logoContainer.appendChild(img);
+        grid.appendChild(logoContainer);
+    });
+    cont.appendChild(grid);
+}
+
+export function mostrarCategoriasPorMarca(marca) {
+    const { catalogData } = getState();
+    const { cortes } = catalogData;
+
+    setState({ navigationState: { nivel: "categoriasPorMarca", marca: marca } });
+    const cont = document.getElementById("contenido");
+    cont.innerHTML = `<span class="backBtn" onclick="window.navigation.irAPaginaPrincipal()">${backSvg} Volver</span><h4>Categorías para ${marca}</h4>`;
+
+    const categoriasDeMarca = [...new Set(cortes
+        .filter(item => item.marca === marca)
+        .map(item => item.categoria))]
+        .filter(Boolean).sort();
+
+    const grid = document.createElement("div");
+    grid.className = "grid";
+    categoriasDeMarca.forEach(cat => {
+        const ejemplo = cortes.find(item => item.categoria === cat && item.marca === marca && item.imagenVehiculo);
+        const card = document.createElement("div");
+        card.className = "card";
+        card.onclick = () => mostrarModelos(cat, marca);
+        const img = document.createElement("img");
+        img.src = getImageUrl(ejemplo?.imagenVehiculo);
+        img.alt = `Categoría ${cat}`;
+        card.appendChild(img);
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+        overlay.innerHTML = cat;
+        card.appendChild(overlay);
+        grid.appendChild(card);
+    });
+    cont.appendChild(grid);
+}
+
+export function mostrarModelos(categoria, marca, versionEquipamiento = null) {
+    const { catalogData } = getState();
+    const { cortes } = catalogData;
+
+    setState({ navigationState: { level: "modelos", categoria, marca, versionEquipamiento } });
+    const cont = document.getElementById("contenido");
+    const backAction = versionEquipamiento ? `window.ui.mostrarVersionesEquipamiento('${categoria}', '${marca}')` : `window.ui.mostrarMarcas('${categoria}')`;
+    cont.innerHTML = `<span class="backBtn" onclick="${backAction}">${backSvg} Volver</span><h4>Modelos de ${marca} ${versionEquipamiento || ''}</h4>`;
+
+    let modelosFiltrados = cortes.filter(item => item.categoria === categoria && item.marca === marca);
+    if (versionEquipamiento) {
+        modelosFiltrados = modelosFiltrados.filter(item => item.versionesAplicables === versionEquipamiento);
+    }
+
+    const modelosUnicos = [...new Map(modelosFiltrados.map(item => [item.modelo, item])).values()].sort((a,b) => a.modelo.localeCompare(b.modelo));
+
+    if (modelosUnicos.length === 1 && !versionEquipamiento) {
+        mostrarTiposEncendido(categoria, marca, versionEquipamiento, modelosUnicos[0].modelo);
+        return;
+    }
+
+    const grid = document.createElement("div"); grid.className = "grid";
+    modelosUnicos.forEach(ejemplo => {
+        const card = document.createElement("div"); card.className = "card";
+        card.onclick = () => mostrarTiposEncendido(categoria, marca, versionEquipamiento, ejemplo.modelo);
+        const img = document.createElement("img"); img.src = getImageUrl(ejemplo.imagenVehiculo); img.alt = `Modelo ${ejemplo.modelo}`; card.appendChild(img);
+        const overlay = document.createElement("div"); overlay.className = "overlay";
+        overlay.innerHTML = `<div>${ejemplo.modelo}</div>`;
+        card.appendChild(overlay);
+        grid.appendChild(card);
+    });
+    cont.appendChild(grid);
+}
+
+export function mostrarTiposEncendido(categoria, marca, versionEquipamiento, modelo) {
+     const { catalogData } = getState();
+    const { cortes } = catalogData;
+    setState({ navigationState: { level: "tiposEncendido", categoria, marca, versionEquipamiento, modelo } });
+    const cont = document.getElementById("contenido");
+    const backAction = `window.ui.mostrarModelos('${categoria}', '${marca}', ${versionEquipamiento ? `'${versionEquipamiento}'` : 'null'})`;
+    cont.innerHTML = `<span class="backBtn" onclick="${backAction}">${backSvg} Volver</span><h4>Tipos de Encendido para ${modelo}</h4>`;
+
+    let vehiculos = cortes.filter(item =>
+        item.categoria === categoria &&
+        item.marca === marca &&
+        item.modelo === modelo &&
+        (!versionEquipamiento || item.versionesAplicables === versionEquipamiento)
+    );
+
+    const tiposEncendido = [...new Set(vehiculos.map(v => v.tipoEncendido).filter(Boolean))];
+
+    if (tiposEncendido.length === 1) {
+        mostrarVersiones(vehiculos, categoria, marca, modelo);
+        return;
+    }
+
+    const grid = document.createElement("div"); grid.className = "grid";
+    tiposEncendido.forEach(tipo => {
+        const ejemplo = vehiculos.find(v => v.tipoEncendido === tipo);
+        const card = document.createElement("div"); card.className = "card";
+        card.onclick = () => mostrarVersiones(vehiculos.filter(v => v.tipoEncendido === tipo), categoria, marca, modelo);
+
+        const img = document.createElement("img");
+        img.src = getImageUrl(ejemplo.imagenVehiculo);
+        img.alt = tipo;
+        card.appendChild(img);
+
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+        overlay.innerHTML = tipo;
+        card.appendChild(overlay);
+        grid.appendChild(card);
+    });
+    cont.appendChild(grid);
+}
+
+export function mostrarVersiones(filas, categoria, marca, modelo) {
+    setState({ navigationState: { level: "versiones", categoria, marca, modelo } });
+    const cont = document.getElementById("contenido");
+    cont.innerHTML = `<span class="backBtn" onclick="window.ui.mostrarModelos('${categoria}','${marca}')">${backSvg} Volver</span><h4>Cortes/Años de ${modelo}</h4>`;
+    const grid = document.createElement("div"); grid.className = "grid";
+    filas.forEach(item => {
+        const card = document.createElement("div"); card.className = "card";
+        card.onclick = () => mostrarDetalleModal(item);
+        const img = document.createElement("img"); img.src = getImageUrl(item.imagenVehiculo); img.alt = `Corte ${item.anoDesde}`; card.appendChild(img);
+        const overlay = document.createElement("div"); overlay.className = "overlay";
+        const yearRange = item.anoHasta ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
+        overlay.innerHTML = `<div style="font-weight:bold;">${yearRange || modelo}</div><div style="font-size:0.8em;">${item.tipoEncendido || ''}</div>`;
+        card.appendChild(overlay);
+        grid.appendChild(card);
+    });
+    cont.appendChild(grid);
+}
+
+export function mostrarVersionesEquipamiento(categoria, marca) {
+    const { catalogData } = getState();
+    const { cortes } = catalogData;
+
+    setState({ navigationState: { level: "versionesEquipamiento", categoria, marca } });
+    const cont = document.getElementById("contenido");
+    cont.innerHTML = `<span class="backBtn" onclick="window.ui.mostrarMarcas('${categoria}')">${backSvg} Volver</span><h4>Versiones de Equipamiento para ${marca}</h4>`;
+
+    const vehiculosDeMarca = cortes.filter(item => item.categoria === categoria && item.marca === marca);
+    const versiones = [...new Set(vehiculosDeMarca.map(item => item.versionesAplicables).filter(v => v))];
+
+    const grid = document.createElement("div");
+    grid.className = "grid";
+
+    versiones.forEach(version => {
+        const ejemplo = vehiculosDeMarca.find(item => item.versionesAplicables === version && item.imagenVehiculo);
+        const card = document.createElement("div");
+        card.className = "card";
+        card.onclick = () => mostrarModelos(categoria, marca, version);
+
+        const img = document.createElement("img");
+        img.src = getImageUrl(ejemplo?.imagenVehiculo);
+        img.alt = `Versión ${version}`;
+        card.appendChild(img);
+
+        const overlay = document.createElement("div");
+        overlay.className = "overlay";
+        overlay.innerHTML = version;
+        card.appendChild(overlay);
+        grid.appendChild(card);
+    });
+
+    cont.appendChild(grid);
+}
+
+
+export function mostrarResultadosBusquedaMarca(busquedaTexto, datosFiltrados) {
+    const cont = document.getElementById("contenido");
+    if (datosFiltrados.length === 1) {
+        mostrarDetalleModal(datosFiltrados[0]);
+        const yearRange = datosFiltrados[0].anoHasta ? `${datosFiltrados[0].anoDesde} - ${datosFiltrados[0].anoHasta}` : datosFiltrados[0].anoDesde;
+        cont.innerHTML = `<h4>Resultado Exacto Encontrado</h4><p>Abriendo detalle de ${datosFiltrados[0].modelo} ${yearRange || ''}.</p>`;
+        return;
+    }
+    cont.innerHTML = `<h4>Resultados de búsqueda para: "${busquedaTexto}"</h4>`;
+    const marcasUnicas = [...new Set(datosFiltrados.map(item => item.marca))].sort();
+
+    const grid = document.createElement("div");
+    grid.className = "grid";
+    grid.style.gridTemplateColumns = "repeat(auto-fill, minmax(120px, 1fr))";
+    grid.style.gap = "30px";
+
+    marcasUnicas.forEach(marca => {
+        const logoUrl = getLogoUrlForMarca(marca, null);
+        const card = document.createElement("div");
+        card.className = "card brand-logo-item";
+        card.onclick = () => mostrarResultadosBusquedaModelo(busquedaTexto, marca, datosFiltrados);
+
+        const img = document.createElement("img");
+        img.src = getImageUrl(logoUrl);
+        img.alt = `Marca ${marca}`;
+        img.loading = "lazy";
+        card.appendChild(img);
+
+        const brandName = document.createElement('p');
+        brandName.textContent = marca;
+        brandName.style.textAlign = 'center';
+        brandName.style.marginTop = '8px';
+        brandName.style.fontWeight = 'bold';
+        brandName.style.fontSize = '0.9em';
+        card.appendChild(brandName);
+
+        grid.appendChild(card);
+    });
+    cont.appendChild(grid);
+}
+
+function mostrarResultadosBusquedaModelo(busquedaTexto, marcaFiltro, datosFiltrados) {
+    const cont = document.getElementById("contenido");
+    cont.innerHTML = `<span class="backBtn" onclick="window.ui.mostrarResultadosBusquedaMarca('${busquedaTexto}', getDatosFiltrados())">${backSvg} Volver a Marcas</span>
+                      <h4>Modelos de ${marcaFiltro} (Búsqueda: "${busquedaTexto}")</h4>`;
+    const modelosFiltrados = datosFiltrados.filter(item => item.marca === marcaFiltro);
+    const modelosUnicos = [...new Map(modelosFiltrados.map(item => [item.modelo, item])).values()].sort((a,b) => a.modelo.localeCompare(b.modelo));
+
+    const grid = document.createElement("div"); grid.className = "grid";
+    modelosUnicos.forEach(ejemplo => {
+        const versiones = modelosFiltrados.filter(item => item.modelo === ejemplo.modelo);
+        const card = document.createElement("div"); card.className = "card";
+        card.onclick = () => (versiones.length === 1) ? mostrarDetalleModal(ejemplo) : mostrarResultadosBusquedaVersion(busquedaTexto, marcaFiltro, ejemplo.modelo, datosFiltrados);
+        const img = document.createElement("img"); img.src = getImageUrl(ejemplo.imagenVehiculo); img.alt = `Modelo ${ejemplo.modelo}`; card.appendChild(img);
+        const overlay = document.createElement("div"); overlay.className = "overlay";
+        if (versiones.length === 1) {
+            const yearRange = ejemplo.anoHasta ? `${ejemplo.anoDesde} - ${ejemplo.anoHasta}` : ejemplo.anoDesde;
+            overlay.innerHTML = `<div>${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8; font-weight:normal;">${yearRange || ''} ${ejemplo.tipoEncendido || ''}</div>`;
+        } else {
+            overlay.innerHTML = `<div>${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8; font-weight:normal;">(${versiones.length} cortes)</div>`;
+        }
+        card.appendChild(overlay);
+        grid.appendChild(card);
+    });
+    cont.appendChild(grid);
+}
+
+function mostrarResultadosBusquedaVersion(busquedaTexto, marcaFiltro, modeloFiltro, datosFiltrados) {
+    const cont = document.getElementById("contenido");
+    cont.innerHTML = `<span class="backBtn" onclick="window.ui.mostrarResultadosBusquedaModelo('${busquedaTexto}', '${marcaFiltro}', getDatosFiltrados())">${backSvg} Volver a Modelos (${modeloFiltro})</span>
+                      <h4>Cortes/Años de ${modeloFiltro}</h4>`;
+    const versiones = datosFiltrados.filter(item => item.marca === marcaFiltro && item.modelo === modeloFiltro);
+    const grid = document.createElement("div"); grid.className = "grid";
+    versiones.forEach(item => {
+        const card = document.createElement("div"); card.className = "card";
+        card.onclick = () => mostrarDetalleModal(item);
+        const img = document.createElement("img"); img.src = getImageUrl(item.imagenVehiculo); img.alt = `Corte ${item.anoDesde}`; card.appendChild(img);
+        const overlay = document.createElement("div"); overlay.className = "overlay";
+        const yearRange = item.anoHasta ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
+        overlay.innerHTML = `<div style="font-weight:bold;">${yearRange || modeloFiltro}</div><div style="font-size:0.8em; opacity:0.8;">${item.tipoEncendido || ''}</div>`;
+        card.appendChild(overlay);
+        grid.appendChild(card);
+    });
+    cont.appendChild(grid);
+}
+
+export function showNoResultsMessage(textoBusqueda) {
+    document.getElementById("contenido").innerHTML = `<p style="text-align:center; padding: 20px;">No se encontraron resultados para "${textoBusqueda}".</p>`;
+}
+
 export function mostrarDetalleModal(item) {
     const { catalogData } = getState();
     const { relay: datosRelay } = catalogData;
 
     const cont = document.getElementById("detalleCompleto");
-    cont.innerHTML = ""; // Limpiar el contenido anterior
+    cont.innerHTML = "";
 
-    // --- 1. Botón de Cerrar ---
     const headerDiv = document.createElement("div");
     headerDiv.style.cssText = "display: flex; justify-content: flex-end; align-items: center; margin-bottom: 10px;";
     const closeBtn = document.createElement("button");
@@ -172,30 +495,26 @@ export function mostrarDetalleModal(item) {
     headerDiv.appendChild(closeBtn);
     cont.appendChild(headerDiv);
 
-    // --- 2. Encabezado Principal (Logo y Título) ---
     const titleContainer = document.createElement("div");
     titleContainer.style.cssText = "border-bottom: 3px solid #007bff; padding-bottom: 8px; margin-bottom: 15px; display: flex; align-items: center; justify-content: flex-start; gap: 15px;";
 
-    // --- REORDENADO PARA PONER EL LOGO PRIMERO ---
     const logoUrl = getLogoUrlForMarca(item.marca, item.categoria);
     if (logoUrl) {
         const logoImg = document.createElement("img");
         logoImg.src = getImageUrl(logoUrl);
         logoImg.alt = `Logo ${item.marca}`;
         logoImg.className = 'brand-logo-modal';
-        logoImg.style.cssText = "height: 50px; width: auto; max-width: 150px; object-fit: contain; order: 1;"; // Logo primero
+        logoImg.style.cssText = "height: 50px; width: auto; max-width: 150px; object-fit: contain; order: 1;";
         titleContainer.appendChild(logoImg);
     }
 
     const title = document.createElement("h2");
-    title.textContent = `${item.modelo}`; // Quitado ${item.marca} para no duplicar
-    title.style.cssText = "color:#007bff; margin: 0; padding: 0; font-size: 1.8em; order: 2;"; // Título después
+    title.textContent = `${item.modelo}`;
+    title.style.cssText = "color:#007bff; margin: 0; padding: 0; font-size: 1.8em; order: 2;";
     titleContainer.appendChild(title);
 
     cont.appendChild(titleContainer);
 
-    // --- 3. Sub-encabezado (Versión, Años, Categoría) ---
-    // (Esta parte se mantiene igual)
     const subHeaderDiv = document.createElement('div');
     subHeaderDiv.style.marginBottom = '15px';
     const subHeaderText = document.createElement('p');
@@ -210,7 +529,6 @@ export function mostrarDetalleModal(item) {
     cont.appendChild(subHeaderDiv);
 
 
-    // --- 4. Imagen del Vehículo ---
     if (item.imagenVehiculo) {
         const imgVehiculo = document.createElement("img");
         imgVehiculo.src = getImageUrl(item.imagenVehiculo);
@@ -218,7 +536,6 @@ export function mostrarDetalleModal(item) {
         cont.appendChild(imgVehiculo);
     }
 
-    // --- 5. Nota Importante ---
     if (item.notaImportante) {
         const p = document.createElement("p");
         p.style.cssText = "color:#cc0000; font-weight: bold; background: #ffe0e0; padding: 10px; border-radius: 5px; border-left: 4px solid #cc0000; margin: 15px 0;";
@@ -226,7 +543,6 @@ export function mostrarDetalleModal(item) {
         cont.appendChild(p);
     }
 
-    // --- Lógica de Ordenamiento de Cortes ---
     const cortes = [];
     for (let i = 1; i <= 3; i++) {
         if (item[`tipoCorte${i}`]) {
@@ -244,23 +560,19 @@ export function mostrarDetalleModal(item) {
     }
     cortes.sort((a, b) => b.util - a.util);
 
-    // --- 6. Renderizar Corte Recomendado (si existe) ---
-    const recommendedCut = cortes.shift(); // Extrae el primer corte (el mejor)
+    const recommendedCut = cortes.shift();
     if (recommendedCut) {
         const recommendedSection = document.createElement('div');
         const title = document.createElement('h4');
         title.innerHTML = `Corte Recomendado <span style="font-weight:normal; color:#666;">(Votos: ${recommendedCut.util})</span>`;
         recommendedSection.appendChild(title);
-        // Usar una función helper para no duplicar código
         renderCutContent(recommendedSection, recommendedCut, datosRelay);
         cont.appendChild(recommendedSection);
     }
 
-    // --- 7. Contenedor para secciones desplegables ---
     const accordionContainer = document.createElement('div');
     cont.appendChild(accordionContainer);
 
-    // --- 8. Renderizar el resto de las secciones en acordeones ---
     const otherSections = [
         ...cortes.map((corte, idx) => ({
             isCorte: true,
@@ -275,7 +587,7 @@ export function mostrarDetalleModal(item) {
     otherSections.forEach(sec => {
         const hasContent = sec.isCorte || sec.content || sec.img || sec.videoUrl;
         if (hasContent && sec.title) {
-            createAccordionSection(accordionContainer, sec.title, sec, false, datosRelay); // Pasar datosRelay
+            createAccordionSection(accordionContainer, sec.title, sec, false, datosRelay);
         }
     });
 
@@ -288,15 +600,12 @@ function renderCutContent(container, cutData, datosRelay) {
                         <strong>Color de Cable:</strong> ${cutData.colorCable || 'No especificado'}`;
     container.appendChild(contentP);
 
-    // --- LÓGICA DE IMAGEN Y BOTONES (MODIFICADO) ---
     if (cutData.img) {
         const highResImgUrl = getImageUrl(cutData.img);
 
-        // Contenedor principal para la imagen y el overlay
         const imgContainer = document.createElement('div');
         imgContainer.className = 'image-container-with-feedback';
 
-        // Imagen
         const img = document.createElement("img");
         img.src = highResImgUrl;
         img.className = 'img-corte image-with-container';
@@ -306,7 +615,6 @@ function renderCutContent(container, cutData, datosRelay) {
         };
         imgContainer.appendChild(img);
 
-        // Overlay de botones de feedback
         const feedbackOverlay = document.createElement('div');
         feedbackOverlay.className = 'feedback-overlay';
 
@@ -314,21 +622,18 @@ function renderCutContent(container, cutData, datosRelay) {
         utilBtn.className = 'feedback-btn-overlay util-btn';
         utilBtn.innerHTML = '<i class="fa-solid fa-thumbs-up"></i>';
         utilBtn.title = 'Marcar como útil';
-        // TODO: Agregar lógica de 'like'
         feedbackOverlay.appendChild(utilBtn);
 
         const reportBtn = document.createElement('button');
         reportBtn.className = 'feedback-btn-overlay report-btn';
         reportBtn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
         reportBtn.title = 'Reportar un problema';
-        // TODO: Agregar lógica de 'reporte'
         feedbackOverlay.appendChild(reportBtn);
 
         imgContainer.appendChild(feedbackOverlay);
         container.appendChild(imgContainer);
     }
 
-    // --- CONFIGURACIÓN DE RELAY (REORDENADO) ---
     const relayContainer = document.createElement('p');
     const configRelay = cutData.configRelay;
 
@@ -351,10 +656,8 @@ function renderCutContent(container, cutData, datosRelay) {
     }
     container.appendChild(relayContainer);
 
-    // --- COLABORADOR (MODIFICADO) ---
     if (cutData.colaborador) {
         const colabP = document.createElement('p');
-        // Se reduce el tamaño de la fuente
         colabP.style.cssText = "font-style: italic; color: #888; margin-top: 10px; text-align: left; font-size: 0.8em;";
         colabP.innerHTML = `Aportado por: <strong>${cutData.colaborador}</strong>`;
         container.appendChild(colabP);
@@ -364,13 +667,13 @@ function renderCutContent(container, cutData, datosRelay) {
 function renderRelayInfoModal(relayInfo) {
     let modal = document.getElementById('relay-info-modal');
     if (modal) {
-        modal.remove(); // Eliminar modal anterior si existe para evitar duplicados
+        modal.remove();
     }
 
     modal = document.createElement('div');
     modal.id = 'relay-info-modal';
-    modal.className = 'info-modal'; // Usar la misma clase que otros modales para consistencia
-    modal.style.display = 'flex'; // Hacerlo visible
+    modal.className = 'info-modal';
+    modal.style.display = 'flex';
 
     const content = document.createElement('div');
     content.className = 'info-modal-content';
@@ -393,9 +696,6 @@ function renderRelayInfoModal(relayInfo) {
     modal.appendChild(content);
     document.body.appendChild(modal);
 }
-
-
-// --- Inbox and Dev Tools Modal Logic ---
 
 function setupModal(modalId, openFn) {
     const modal = document.getElementById(modalId);
@@ -441,7 +741,6 @@ export const openInbox = setupModal('inbox-modal', async () => {
 
 export const openDevTools = setupModal('dev-tools-modal', () => {
     document.getElementById('dev-tools-modal').style.display = 'flex';
-    // Logic to move debug console if needed can be added here
 });
 
 function renderInboxList(items) {
@@ -517,7 +816,6 @@ function renderInboxDetail(item) {
         }
         try {
             await replyToFeedback(item.id, item.type, replyText, userName);
-            // Refresh inbox to show changes
             openInbox();
         } catch (error) {
             showGlobalError(`Error al enviar respuesta: ${error.message}`);
@@ -529,7 +827,7 @@ function renderInboxDetail(item) {
         resolveBtn.addEventListener('click', async () => {
              try {
                 await markAsResolved(item.id);
-                openInbox(); // Refresh
+                openInbox();
             } catch (error) {
                 showGlobalError(`Error al resolver: ${error.message}`);
             }
@@ -545,12 +843,9 @@ function createAccordionSection(container, title, sec, isOpen = false, datosRela
     const panel = document.createElement("div");
     panel.className = "panel-desplegable";
 
-    // --- Lógica Refactorizada ---
     if (sec.isCorte) {
-        // Si es un corte, reutilizar la lógica de renderizado de cortes
         renderCutContent(panel, sec.data, datosRelay);
     } else {
-        // Lógica anterior para otras secciones
         if (sec.content) {
             const contentP = document.createElement('p');
             contentP.innerHTML = sec.content;
@@ -730,8 +1025,6 @@ export function closeSideMenu() {
     document.getElementById('side-menu').classList.remove('open');
     document.getElementById('menu-overlay').classList.remove('open');
 }
-
-// --- Section Rendering Logic ---
 
 export function mostrarSeccion(sectionName) {
     document.querySelectorAll('.content-section').forEach(section => {
