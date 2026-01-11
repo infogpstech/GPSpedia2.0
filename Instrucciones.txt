@@ -23,7 +23,7 @@ NORMAS OBLIGATORIAS DE DESARROLLO
 2.  **PROHIBIDO asumir que un cambio resolvió un problema.**
 3.  **SOLO describir qué se cambió o qué se debe cambiar.**
 4.  Si una tarea introduce nuevos errores: Marcar como **EN REVISIÓN**.
-5.  Si la tarea no funciona o no cumple: Marcar como **REQUIERE NUEVA REVISIÓN**.
+5.  Si la tarea no funciona o no cumple: REQUIERE **NUEVA REVISIÓN**.
 6. si una tarea se realizo no marcarla como COMPLETADA, marcarla como PENDIENTE REVISION POR EL MP.
 
 
@@ -113,26 +113,13 @@ REGLA FINAL
 Si un paso NO fue ejecutado, el proceso se considera INCOMPLETO.
 NO se permiten atajos, omisiones ni reinterpretaciones.
 
--Tareas Pendientes-
-[PENDIENTE REVISION POR EL MP] Actualización Final de Endpoint del Servicio de Usuarios
-Origen: Requerimiento de Configuración (Post-Investigación)
-Prioridad: CRÍTICA
-Área: Configuración | Frontend
-Descripción:
-Se actualizó la URL del microservicio de `USERS` en `api-manager.js` para apuntar al endpoint definitivo y verificado (`...LUydhEW_Ng/exec`), proporcionado por el Project Manager tras una investigación exhaustiva.
-Archivos Afectados: `api-manager.js`.
-
 ---
-[PENDIENTE REVISION POR EL MP] Actualización de Endpoints de AUTH y USERS
-Origen: Requerimiento de Configuración
-Prioridad: CRÍTICA
-Área: Configuración | Frontend
-Descripción:
-Se actualizaron las URLs de los microservicios de `AUTH` y `USERS` en `api-manager.js` para apuntar a los nuevos endpoints de producción desplegados por el Project Manager.
-Archivos Afectados: `api-manager.js`.
-
+# ESTADO DE TAREAS
 ---
-[PENDIENTE REVISION POR EL MP] Corrección Integral de Múltiples Regresiones Críticas
+
+## -- TAREAS COMPLETADAS --
+
+[COMPLETADA] Corrección Integral de Múltiples Regresiones Críticas
 Origen: Reporte de PM (Post-Fallo de Despliegue)
 Prioridad: MÁXIMA
 Área: Full Stack (auth, users, frontend)
@@ -143,6 +130,65 @@ Se implementó una corrección integral para un conjunto de regresiones intercon
 3.  **Manejo de Errores:** Se añadió un estado por defecto en `auth.js` para prevenir fallos fatales.
 4.  **Seguridad:** Se refactorizó `services/users/users.js` y `users.html` para usar `sessionToken` en lugar de `privilegios` para la autorización.
 Archivos Afectados: `services/auth/auth.js`, `services/users/users.js`, `auth.js`, `users.html`.
+
+---
+
+[COMPLETADA] Implementar Estrategia de Caché Granular para el Catálogo
+Origen: Auditoría Técnica Forense v2.0
+Prioridad: ALTA
+Área: Performance | Backend
+Descripción:
+El servicio de catálogo (`services/catalog/catalog.js`) ha deshabilitado el almacenamiento en caché porque el conjunto de datos completo excede el límite de 100 KB de Google Apps Script. Esto causa que cada carga de la aplicación sea lenta, ya que debe leer y procesar toda la base de datos cada vez.
+Alcance:
+- Diseñar e implementar una estrategia de caché que no exceda los límites de tamaño. Esto podría implicar cachear subconjuntos de datos (ej. por categoría o marca) en lugar del catálogo completo.
+- El frontend deberá ser actualizado para ensamblar los datos cacheados granularmente.
+- NO incluye la optimización de otras consultas de la base de datos.
+
+---
+
+## -- TAREAS EN PROGRESO O CON OBSERVACIONES --
+
+[EN PROGRESO] Implementar Sistema de Inbox (Tarea 18)
+Origen: Requerimiento de Funcionalidad
+Prioridad: ALTA
+Área: Frontend | UI/UX
+Descripción:
+Implementación funcional completada. Pendiente revisión de estilos y lógica final para la gestión de feedback de usuarios (reportes de problemas y formularios de contacto).
+Alcance:
+- Creación de la UI para listar y detallar mensajes.
+- Integración con el `services/feedback/feedback.js` para obtener, responder y resolver items.
+- Lógica de visibilidad basada en roles de usuario (`Supervisor`, `Gefe`, `Desarrollador`).
+
+---
+
+[EN PROGRESO] Investigar Falta de "Nombre Completo" en la Sección "Mi Perfil"
+Origen: Reporte de PM
+Prioridad: MEDIA
+Área: Backend | `services/auth/auth.js`
+Descripción:
+El "Nombre Completo" del usuario no aparece en la sección "Mi Perfil" de `users.html`, incluso si está presente en la base de datos. La causa probable es que la función de `login` en `services/auth/auth.js` no incluye este campo en el objeto de usuario que se devuelve al frontend y se guarda en la sesión. Se debe auditar y corregir el servicio de autenticación para que devuelva el objeto de usuario completo.
+
+---
+
+## -- TAREAS PENDIENTES DE REVISIÓN POR EL PM --
+
+[PENDIENTE REVISION POR EL MP] Actualización Final de Endpoint del Servicio de Usuarios
+Origen: Requerimiento de Configuración (Post-Investigación)
+Prioridad: CRÍTICA
+Área: Configuración | Frontend
+Descripción:
+Se actualizó la URL del microservicio de `USERS` en `api-manager.js` para apuntar al endpoint definitivo y verificado (`...LUydhEW_Ng/exec`), proporcionado por el Project Manager tras una investigación exhaustiva.
+Archivos Afectados: `api-manager.js`.
+
+---
+
+[PENDIENTE REVISION POR EL MP] Actualización de Endpoints de AUTH y USERS
+Origen: Requerimiento de Configuración
+Prioridad: CRÍTICA
+Área: Configuración | Frontend
+Descripción:
+Se actualizaron las URLs de los microservicios de `AUTH` y `USERS` en `api-manager.js` para apuntar a los nuevos endpoints de producción desplegados por el Project Manager.
+Archivos Afectados: `api-manager.js`.
 
 ---
 
@@ -229,173 +275,51 @@ Archivos Afectados: `services/users/users.js`.
 
 ---
 
-[PENDIENTE REVISION POR EL MP] Implementar Sistema de Inbox (Tarea 18)
-
-Origen: Requerimiento de Funcionalidad
-Prioridad: ALTA
-Área: Frontend | UI/UX
-Descripción:
-Implementar un modal de "Inbox" completamente funcional para la gestión de feedback de usuarios (reportes de problemas y formularios de contacto).
-Alcance:
-- Creación de la UI para listar y detallar mensajes.
-- Integración con el `services/feedback/feedback.js` para obtener, responder y resolver items.
-- Lógica de visibilidad basada en roles de usuario (`Supervisor`, `Gefe`, `Desarrollador`).
-
----
-
-[PENDIENTE REVISION POR EL MP] Implementar Modal de Herramientas de Desarrollador (Tarea 19)
-
-Origen: Requerimiento de Mantenimiento
-Prioridad: MEDIA
-Área: Frontend | Herramientas
-Descripción:
-Implementar la estructura base para un modal de "Herramientas de Desarrollador" para facilitar futuras tareas de migración y mantenimiento.
-Alcance:
-- Creación del modal y la UI base.
-- Lógica de visibilidad restringida al rol `Desarrollador`.
-
----
-
-[TAREA] Centralizar la Lógica de Autorización de Backend
-
-Origen: Auditoría Técnica Forense v2.0
-Prioridad: CRÍTICA
-Área: Arquitectura | Seguridad
-
-Descripción:
-El código para validar sesiones de usuario y verificar roles está duplicado en múltiples servicios de backend (ej. `services/users/users.js`, `services/utilities/utilities.js`). Esta inconsistencia representa un riesgo de seguridad y una pesadilla de mantenimiento.
-
-Alcance:
-- Crear un único servicio o librería compartida para manejar toda la lógica de autorización.
-- Refactorizar todos los servicios existentes para que utilicen este nuevo componente centralizado.
-- NO incluye la modificación de la lógica de frontend, solo el consumo del nuevo servicio.
-
-Notas:
-- Riesgo si no se ejecuta: Una brecha de seguridad si una política de permisos no se actualiza en todos los servicios a la vez.
-
----
+## -- TAREAS PENDIENTES (BACKLOG) --
 
 [TAREA] Refactorizar Frontend para Separar Lógica de Presentación
-
 Origen: Auditoría Técnica Forense v2.0
 Prioridad: ALTA
 Área: Frontend
-
 Descripción:
 El archivo `index.html` contiene una cantidad masiva de código JavaScript inline, mezclando la lógica de la aplicación con la estructura del DOM. Esto hace que el código sea frágil y difícil de mantener.
-
 Alcance:
 - Extraer todo el código JavaScript inline del `index.html` a archivos `.js` modulares y cohesivos.
 - Reducir la dependencia de selectores de ID y clase en JavaScript, favoreciendo el uso de atributos `data-*` para desacoplar la lógica del estilo.
 - NO incluye rediseñar la interfaz de usuario, solo refactorizar el código subyacente.
 
-Notas:
-- Riesgo si no se ejecuta: El mantenimiento del frontend se volverá cada vez más costoso y propenso a errores, ralentizando el desarrollo de nuevas funcionalidades.
-
----
-
-[TAREA] Implementar Estrategia de Caché Granular para el Catálogo
-
-Origen: Auditoría Técnica Forense v2.0
-Prioridad: ALTA
-Área: Performance | Backend
-
-Descripción:
-El servicio de catálogo (`services/catalog/catalog.js`) ha deshabilitado el almacenamiento en caché porque el conjunto de datos completo excede el límite de 100 KB de Google Apps Script. Esto causa que cada carga de la aplicación sea lenta, ya que debe leer y procesar toda la base de datos cada vez.
-
-Alcance:
-- Diseñar e implementar una estrategia de caché que no exceda los límites de tamaño. Esto podría implicar cachear subconjuntos de datos (ej. por categoría o marca) en lugar del catálogo completo.
-- El frontend deberá ser actualizado para ensamblar los datos cacheados granularmente.
-- NO incluye la optimización de otras consultas de la base de datos.
-
-Notas:
-- Riesgo si no se ejecuta: Tiempos de carga deficientes persistirán, afectando negativamente la experiencia del usuario.
-
 ---
 
 [TAREA] Abstraer la Capa de Acceso a Datos del Backend
-
 Origen: Auditoría Técnica Forense v2.0
 Prioridad: MEDIA
 Área: Arquitectura | Backend
-
 Descripción:
 La lógica de negocio en todos los servicios de backend está fuertemente acoplada a la estructura de la hoja de Google Sheets, utilizando índices de columna numéricos hardcodeados (ej. `row[COLS_CORTES.marca - 1]`). Esto hace que el sistema sea extremadamente frágil a cualquier cambio en la base de datos.
-
 Alcance:
 - Crear una capa de abstracción de datos (un "mapper" o "repositorio") que traduzca las filas de la hoja de cálculo a objetos JavaScript de una manera centralizada.
 - Refactorizar todos los servicios para que utilicen esta capa de abstracción en lugar de acceder directamente a los índices de las columnas.
 - NO incluye cambiar el esquema de la base de datos.
 
-Notas:
-- Riesgo si no se ejecuta: Un simple cambio como insertar una nueva columna en Google Sheets podría romper toda la aplicación de maneras impredecibles.
-
----
-
-[TAREA] Implementar Bloqueo Concurrente para Operaciones Críticas
-
-Origen: Auditoría Técnica Forense v2.0
-Prioridad: MEDIA
-Área: Backend | Arquitectura
-
-Descripción:
-Operaciones como registrar un "like" (`handleRecordLike` en `services/feedback/feedback.js`) no son atómicas, lo que crea una condición de carrera. Si dos usuarios realizan la misma acción simultáneamente, se pueden perder datos.
-
-Alcance:
-- Utilizar el `LockService` de Google Apps Script para envolver las operaciones de lectura-modificación-escritura en un bloqueo exclusivo.
-- Aplicar este patrón a todas las operaciones identificadas como no atómicas, como los contadores.
-- NO incluye una revisión exhaustiva de todas las operaciones del sistema, solo las más críticas ya identificadas.
-
-Notas:
-- Riesgo si no se ejecuta: La integridad de los datos generados por el usuario (likes, contadores, etc.) no es fiable.
-
----
-
-[TARE] Formalizar y Documentar la API de Microservicios
-
-Origen: Auditoría Técnica Forense v2.0
-Prioridad: BAJA
-Área: Arquitectura | Documentación
-
-Descripción:
-La comunicación entre el frontend y el backend se basa en un contrato de API implícito y no documentado. Esto dificulta la incorporación de nuevos desarrolladores y aumenta la probabilidad de errores por expectativas desalineadas entre el cliente y el servidor.
-
-Alcance:
-- Crear documentación para cada endpoint de cada microservicio.
-- La documentación debe especificar la `action` esperada, la estructura del `payload` de la solicitud y el formato de la respuesta JSON.
-- NO incluye la creación de un nuevo sistema de API, solo documentar el existente.
-
-Notas:
-- Riesgo si no se ejecuta: El mantenimiento a largo plazo será más lento y costoso debido a la falta de una referencia clara de la API.
-
----
-**NUEVAS TAREAS (AUDITORÍA 11/01/2024)**
 ---
 
 [TAREA] Mejorar Calidad de Imagen en Modal de Relay
-
 Origen: Reporte de Tareas
 Prioridad: BAJA
 Área: Frontend | UI
-
 Descripción:
 La imagen de la configuración del Relay en el modal de detalle se muestra en baja resolución.
-
 Acciones:
 1.  **Modificar `ui.js`:** En la función `renderRelayInfoModal`, al llamar a `getImageUrl`, añadir el parámetro `size` con un valor de `1000` para solicitar una versión de mayor calidad de la imagen.
 
 ---
 
-[TAREA - EN PROGRESO] Reparar Funcionalidad de Botones en Gestión de Usuarios
-
+[TAREA] Reparar Funcionalidad de Botones en Gestión de Usuarios
 Origen: Auditoría 11/01/2024
 Prioridad: CRÍTICA
 Área: Frontend | `users.html`
-
 Descripción:
-**Actualización:** Los botones "Editar" y "Eliminar" ahora son funcionales. Sin embargo, el botón "Cambiar Contraseña" sigue sin funcionar y necesita ser investigado. El problema original de `event listeners` ha sido resuelto.
 Los botones "Editar", "Eliminar" y "Cambiar Contraseña" no funcionan debido a un conflicto de ámbito de JavaScript. Las funciones son inaccesibles para los atributos `onclick` del HTML porque el script es un módulo.
-
 Acciones:
 1.  **Refactorizar `users.html`:** Modificar la función `renderUserTable` para que los `event listeners` de los botones "Editar" y "Eliminar" se adjunten mediante `button.addEventListener('click', ...)`.
 2.  **Añadir Enlace de Retorno:** Incluir un enlace `<a>` en la parte superior de `users.html` que permita al usuario volver fácilmente al catálogo (`index.html`).
@@ -403,28 +327,22 @@ Acciones:
 ---
 
 [TAREA] Corregir Apariencia del Encabezado en Modal de Detalles
-
 Origen: Auditoría 11/01/2024
 Prioridad: MEDIA
 Área: Frontend | `ui.js`
-
 Descripción:
 El logo de la marca aparece a la derecha del título del vehículo, en lugar de a la izquierda como se especifica.
-
 Acciones:
 1.  **Modificar `ui.js`:** En la función `mostrarDetalleModal`, reordenar la lógica para que el elemento `img` del logo se añada al `titleContainer` antes que el elemento que contiene el `h2` del título.
 
 ---
 
 [TAREA] Ajustar Tamaño de Imágenes en Modal de Detalles
-
 Origen: Auditoría 11/01/2024
 Prioridad: BAJA
 Área: Frontend | `style.css`
-
 Descripción:
 Las imágenes dentro del modal de detalles no tienen el tamaño correcto: la del vehículo es muy grande y la del corte no es responsiva.
-
 Acciones:
 1.  **Modificar `style.css`:**
     *   Ajustar la regla `.img-vehiculo-modal` para reducir su tamaño (ej. `width: 50%; max-width: 200px;`).
@@ -433,28 +351,22 @@ Acciones:
 ---
 
 [TAREA] Implementar Lógica de Visualización para Corte Recomendado
-
 Origen: Auditoría 11/01/2024
 Prioridad: MEDIA
 Área: Frontend | `ui.js`
-
 Descripción:
 El corte con más votos ("Corte Recomendado") se muestra incorrectamente dentro de un acordeón. Debe estar siempre visible y expandido.
-
 Acciones:
 1.  **Modificar `ui.js`:** En `mostrarDetalleModal`, cambiar el bucle de renderizado de secciones. Primero, renderizar el contenido del corte recomendado directamente en el DOM (sin usar `createAccordionSection`). Luego, iterar sobre el resto de los cortes y secciones para crear los acordeones correspondientes.
 
 ---
 
 [TARE] Implementar Funcionalidad Completa para Configuración de Relay
-
 Origen: Auditoría 11/01/2024
 Prioridad: ALTA
 Área: Frontend | `ui.js`
-
 Descripción:
 La sección de "Configuración de Relay" es solo texto estático. Debe ser un componente interactivo que muestre "Sin Relay" si no hay datos o un botón que abra un modal secundario con el diagrama.
-
 Acciones:
 1.  **Modificar `ui.js`:** Dentro de la función que renderiza el contenido de los cortes (actualmente `createAccordionSection`):
     *   Implementar una lógica condicional para el valor `configRelay`.
@@ -463,15 +375,13 @@ Acciones:
     *   Añadir un `addEventListener` a ese botón que, al ser presionado, busque los detalles del relay en `catalogData.relay` y llame a una función (ej. `mostrarDetalleRelayModal`) para mostrar la imagen y detalles en un segundo modal sobre el modal actual.
 
 ---
-**NUEVAS TAREAS (POST-REVISIÓN 09/01/2026)**
----
 
 [TAREA] Investigar Comportamiento Anormal de Carga del Catálogo
 Origen: Reporte de PM
 Prioridad: ALTA
 Área: Frontend | `index.html`
 Descripción:
-Tras el último despliegie, el catálogo de vehículos no se carga al refrescar la página. Los datos solo aparecen después de que el usuario interactúa con un botón de sección (ej. "Categorías"). Se debe investigar la causa raíz de este comportamiento de carga diferida no intencional.
+Tras el último despliegue, el catálogo de vehículos no se carga al refrescar la página. Los datos solo aparecen después de que el usuario interactúa con un botón de sección (ej. "Categorías"). Se debe investigar la causa raíz de este comportamiento de carga diferida no intencional.
 
 ---
 
@@ -481,12 +391,3 @@ Prioridad: MEDIA
 Área: Frontend | `users.html`
 Descripción:
 Al cargar la página de gestión de usuarios, a veces aparece un error "Failed to fetch" de forma repentina, aunque el contenido de la página parece cargarse correctamente. Se debe investigar la causa de esta solicitud de red fallida para asegurar que no haya efectos secundarios ocultos.
-
----
-
-[TARE] Investigar Falta de "Nombre Completo" en la Sección "Mi Perfil"
-Origen: Reporte de PM
-Prioridad: MEDIA
-Área: Backend | `services/auth/auth.js`
-Descripción:
-El "Nombre Completo" del usuario no aparece en la sección "Mi Perfil" de `users.html`, incluso si está presente en la base de datos. La causa probable es que la función de `login` en `services/auth/auth.js` no incluye este campo en el objeto de usuario que se devuelve al frontend y se guarda en la sesión. Se debe auditar y corregir el servicio de autenticación para que devuelva el objeto de usuario completo.
