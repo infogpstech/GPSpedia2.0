@@ -6,23 +6,19 @@
 
 ---
 
-### **INCIDENTE: Refactorización Final de Arquitectura Frontend para Unificar el Módulo de API**
+### **INCIDENTE: Corrección de Regresión Crítica Post-Refactorización (Fallo de Carga)**
 
 **1. RESUMEN DEL INCIDENTE:**
-   - Siguiendo una refactorización inicial para centralizar la configuración, se recibió una solicitud para eliminar la ambigüedad restante y consolidar toda la funcionalidad de la API en un único módulo.
-   - El objetivo era eliminar la separación entre `api-config.js` (configuración) y `api.js` (lógica), unificándolos para crear una sola fuente de verdad para toda la capa de API del frontend.
+   - Inmediatamente después de una refactorización de la arquitectura de la API del frontend, se reportó un bug crítico: la aplicación no pasaba de la pantalla de splash, impidiendo por completo su uso.
+   - La investigación se centró en identificar la causa raíz de esta regresión.
 
 **2. ANÁLISIS Y HALLAZGOS:**
-   - **Arquitectura Previa:** La separación entre configuración y lógica, aunque mejor que la duplicación, seguía siendo innecesariamente compleja para el tamaño de la aplicación y generaba confusión sobre qué archivo importar.
-   - **Objetivo Arquitectónico:** El estado ideal es tener un solo módulo (`api-config.js`) que exporte tanto las constantes de configuración como las funciones de la API.
+   - **Causa Raíz:** El diagnóstico a través de `grep` confirmó la sospecha inicial. La refactorización había consolidado toda la lógica de la API en `api-config.js` y eliminado el archivo `api.js`. Sin embargo, varios módulos clave (`add_cortes.html`, `navigation.js`, y `ui.js`) no fueron actualizados y seguían intentando importar funciones desde el archivo `api.js` que ya no existía.
+   - **Impacto:** La importación rota en `ui.js` era particularmente crítica, ya que este módulo es responsable de gestionar la transición de la pantalla de splash a la aplicación principal. El error fatal de JavaScript detenía toda la ejecución del script, resultando en que la pantalla de splash nunca se ocultaba.
 
-**3. ACCIONES CORRECTIVAS REALIZADAS (Refactorización Final):**
-   1.  **Consolidación de Lógica:** Todo el contenido de `api.js` (incluyendo `routeAction` y las funciones de ayuda) fue movido y fusionado dentro de `api-config.js`.
-   2.  **Eliminación de Redundancia:** El archivo `api.js` fue eliminado del proyecto.
-   3.  **Actualización de Dependencias:** Se realizó una búsqueda en toda la base de código para encontrar todos los `import` que apuntaban a `api.js`. Los siguientes archivos fueron modificados para importar desde el nuevo módulo unificado `api-config.js`:
-       - `main.js`
-       - `auth.js`
-       - `users.html` (en su script de módulo en línea)
+**3. ACCIONES CORRECTIVAS REALIZADAS:**
+   1.  **Corrección de Importaciones:** Se actualizaron las rutas de `import` en todos los archivos afectados (`add_cortes.html`, `navigation.js`, `ui.js`) para que apuntaran al nuevo y único módulo de API: `api-config.js`.
+   2.  **Invalidación de Caché:** Para asegurar que la corrección se distribuyera inmediatamente a todos los usuarios y que sus navegadores no continuaran sirviendo los archivos rotos desde el caché, se incrementó la versión del caché en `service-worker.js` de `v9` a `v10`.
 
 **4. ESTADO:**
-   - **COMPLETADO:** La refactorización ha sido completada y verificada. Ahora existe un único módulo de API, `api-config.js`, que centraliza toda la configuración y la lógica. La arquitectura del frontend es significativamente más limpia, simple y mantenible. Se ha eliminado toda la deuda técnica relacionada con la gestión de la configuración de la API.
+   - **COMPLETADO:** La funcionalidad de carga de la aplicación ha sido restaurada. La corrección de las importaciones y la invalidación del caché aseguran que todos los usuarios puedan volver a acceder al catálogo y a todas las funcionalidades de la aplicación sin interrupciones.

@@ -4,7 +4,7 @@
 // - Contain all functions that directly manipulate the DOM.
 // - Use document.createElement, not HTML strings.
 
-import { getImageUrl, getFeedbackItems, replyToFeedback, markAsResolved } from './api.js';
+import { getImageUrl, getFeedbackItems, replyToFeedback, markAsResolved } from './api-config.js';
 import { getState } from './state.js';
 import { mostrarMarcas, mostrarCategoriasPorMarca, mostrarModelos, getLogoUrlForMarca } from './navigation.js';
 

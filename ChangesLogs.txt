@@ -1,3 +1,24 @@
+**V8.5.6 - (CRITICAL FIX) - 13/01/2026**
+**A. RESUMEN GENERAL:** Se corrigió un bug crítico que impedía que la aplicación cargara, dejándola atascada en la pantalla de splash. El error fue una regresión introducida durante la refactorización de la API.
+
+**B. Corrección Implementada:**
+1.  **Regresión por Importaciones Rotas:**
+    *   **Problema:** Después de unificar la lógica de la API en `api-config.js` y eliminar `api.js`, varios módulos (`add_cortes.html`, `navigation.js`, `ui.js`) seguían intentando importar desde el archivo eliminado, causando un error fatal de JavaScript que detenía la ejecución.
+    *   **Solución:** Se actualizaron las rutas de importación en todos los archivos afectados para que apuntaran al nuevo módulo unificado `api-config.js`, restaurando el flujo de carga de la aplicación.
+2.  **Invalidación de Caché:**
+    *   **Problema:** Para asegurar que los usuarios recibieran la corrección inmediatamente y no se quedaran con una versión rota en la caché del navegador.
+    *   **Solución:** Se incrementó la versión del caché en `service-worker.js` a `v10`, forzando a todos los clientes a descargar la nueva versión de los archivos.
+
+**C. Cambios Técnicos Implementados:**
+- **`add_cortes.html`:** Se actualizó la ruta de importación de `api.js` a `api-config.js`.
+- **`navigation.js`:** Se actualizó la ruta de importación de `api.js` a `api-config.js`.
+- **`ui.js`:** Se actualizó la ruta de importación de `api.js` a `api-config.js`.
+- **`service-worker.js`:** Se incrementó `CACHE_NAME` a `v10`.
+
+**D. Impacto:**
+- **Funcionalidad Crítica Restaurada:** La aplicación vuelve a ser completamente funcional. Se ha resuelto el bloqueo en la pantalla de splash, permitiendo a los usuarios acceder al catálogo y a todas las demás funcionalidades.
+- **Estabilidad Asegurada:** La invalidación del caché asegura que la corrección se propague a todos los usuarios, previniendo reportes de error adicionales relacionados con este problema.
+
 **V8.5.5 - (REFACTOR) - 13/01/2026**
 **A. RESUMEN GENERAL:** Se ejecutó una refactorización final y definitiva de la arquitectura del frontend para eliminar toda duplicación de la configuración de la API, consolidando todo en un único módulo.
 
@@ -20,30 +41,6 @@
 **D. Impacto:**
 - **Máxima Mantenibilidad:** Se ha eliminado toda la ambigüedad. Ahora hay un solo archivo para todo lo relacionado con la API, lo que simplifica futuras actualizaciones y reduce la superficie para errores.
 - **Claridad Arquitectónica:** La estructura del frontend es ahora más limpia y sigue un patrón de diseño modular más estricto y comprensible.
-
-**B. Cambios de Arquitectura:**
-1.  **Centralización de la Configuración:**
-    *   **Problema:** Los endpoints y el mapeo de acciones estaban definidos de forma idéntica pero separada en `api.js` y `api-manager.js`, creando un riesgo de desincronización y errores.
-    *   **Solución:** Se creó un nuevo módulo, `api-config.js`, que ahora contiene y exporta las constantes `API_ENDPOINTS` y `ACTION_TO_SERVICE_MAP`. Este archivo es ahora la **única fuente de verdad**.
-
-2.  **Modularización de los Archivos de API:**
-    *   **`api.js`:** Se refactorizó para que importe la configuración desde `api-config.js` en lugar de definirla localmente.
-    *   **`api-manager.js`:** Se refactorizó de la misma manera, importando la configuración desde `api-config.js`.
-
-3.  **Unificación y Eliminación de Redundancia:**
-    *   Se determinó que la lógica en `api-manager.js` era redundante, ya que `main.js` y otros módulos ya dependían de `api.js`.
-    *   Se eliminó el archivo `api-manager.js` y se ajustó `main.js` para asegurar que solo se utilice `api.js` a través de importaciones de módulos.
-
-**C. Cambios Técnicos Implementados:**
-- **`api-config.js`:** Creado para centralizar la configuración.
-- **`api.js`:** Refactorizado para importar desde `api-config.js`.
-- **`api-manager.js`:** Eliminado por redundancia.
-- **`main.js`:** Se ajustaron las importaciones para reflejar la nueva arquitectura modular y la eliminación de `api-manager.js`.
-
-**D. Impacto:**
-- **Mantenibilidad Mejorada:** Al haber una sola fuente de verdad para la configuración, futuras actualizaciones de endpoints serán más rápidas, seguras y menos propensas a errores.
-- **Reducción de Deuda Técnica:** Se eliminó código duplicado y un archivo redundante, limpiando la base del código del frontend.
-- **Consistencia Arquitectónica:** Toda la aplicación ahora sigue un patrón de módulos de JavaScript consistente para la gestión de la API.
 
 **V8.5.4 - (CONFIG) - 13/01/2026**
 **A. RESUMEN GENERAL:** Se actualizó la URL de producción para el microservicio `WRITE` en ambos archivos de configuración del frontend (`api.js` y `api-manager.js`) para apuntar al despliegue más reciente proporcionado por el Project Manager.

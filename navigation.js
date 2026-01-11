@@ -6,7 +6,7 @@
 // - Handle search functionality and display results.
 
 import { getState, setState } from './state.js';
-import { getImageUrl } from './api.js';
+import { getImageUrl } from './api-config.js';
 import { mostrarCategorias, mostrarDetalleModal } from './ui.js';
 
 const backSvg = '<svg style="width:20px;height:20px;margin-right:5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
