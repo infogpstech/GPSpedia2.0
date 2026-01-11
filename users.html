@@ -260,10 +260,8 @@ async function postToAction(action, payload = {}) {
 async function fetchUsers() {
     try {
         // FIX: Send sessionToken for secure, backend-driven authorization
-        // HOTFIX: Add requesterRole for backward compatibility with older deployed versions.
         const result = await postToAction('getUsers', {
-            sessionToken: currentUser.SessionToken,
-            requesterRole: currentUser.Privilegios
+            sessionToken: currentUser.SessionToken
         });
         allUsers = result.users;
         renderUserTable();

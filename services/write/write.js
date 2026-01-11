@@ -133,24 +133,24 @@ function handleAddOrUpdateCut(payload) {
 
         newId = vehicleId;
 
-    } else { // --- Lógica para vehículo NUEVO (REFACTORIZADO) ---
+    } else { // --- Lógica para vehículo NUEVO (CORREGIDO PARA PRESERVAR FÓRMULA DE ID) ---
         if (!vehicleData) throw new Error("Los datos del vehículo son requeridos para un nuevo registro.");
 
         const lastRow = sheet.getLastRow();
         rowIndex = lastRow + 1;
+        const lastColumn = sheet.getLastColumn();
 
-        // 1. Copiar la fila anterior para heredar TODAS las validaciones, formatos y FÓRMULAS.
-        const previousRowRange = sheet.getRange(lastRow, 1, 1, sheet.getLastColumn());
-        const newRowRange = sheet.getRange(rowIndex, 1, 1, sheet.getLastColumn());
+        // 1. Copiar la fila anterior para heredar TODAS las validaciones, formatos y FÓRMULAS (incluyendo ID).
+        const previousRowRange = sheet.getRange(lastRow, 1, 1, lastColumn);
+        const newRowRange = sheet.getRange(rowIndex, 1, 1, lastColumn);
         previousRowRange.copyTo(newRowRange);
 
-        // 2. Limpiar SOLO el contenido de la fila nueva, preservando las fórmulas.
-        newRowRange.clearContent();
+        // 2. Limpiar el contenido de las columnas de DATOS para eliminar datos viejos, preservando la fórmula del ID.
+        const dataRange = sheet.getRange(rowIndex, 2, 1, lastColumn - 1);
+        dataRange.clearContent();
 
-        // 3. Preparar todos los datos en un array para una única operación de escritura.
-        const newRowData = new Array(sheet.getLastColumn()).fill(''); // Array vacío del tamaño de la fila
-
-        // Parsear año según la especificación (si es un solo año, se copia a anoHasta)
+        // 3. Preparar los datos que se van a escribir.
+        // Parsear año...
         const yearInput = vehicleData.anoDesde.trim();
         let anoDesde, anoHasta, anioParaFolder;
         if (yearInput.includes('-')) {
@@ -159,50 +159,47 @@ function handleAddOrUpdateCut(payload) {
             anoHasta = Math.max(start, end);
         } else {
             anoDesde = parseInt(yearInput, 10);
-            anoHasta = anoDesde; // Lógica corregida para un solo año
+            anoHasta = anoDesde;
         }
         anioParaFolder = anoDesde;
 
-        // Subir imágenes y obtener URLs
+        // Subir imágenes y obtener URLs...
+        const folder = getOrCreateFolder(vehicleData.categoria, vehicleData.marca, vehicleData.modelo, anioParaFolder);
         let vehiculoImageUrl = '';
         if (vehicleData.imagenVehiculo) {
-            const folder = getOrCreateFolder(vehicleData.categoria, vehicleData.marca, vehicleData.modelo, anioParaFolder);
             const filename = `${sanitizeForFilename(vehicleData.marca)}_${sanitizeForFilename(vehicleData.modelo)}_${sanitizeForFilename(vehicleData.tipoEncendido)}_${yearInput}_Vehiculo.jpg`;
             vehiculoImageUrl = uploadImageToDrive(vehicleData.imagenVehiculo, filename, folder);
         }
         let corteImageUrl = '';
         if (cutData.imgCorte1) {
-            const folder = getOrCreateFolder(vehicleData.categoria, vehicleData.marca, vehicleData.modelo, anioParaFolder);
             const filename = `${sanitizeForFilename(vehicleData.marca)}_${sanitizeForFilename(vehicleData.modelo)}_${sanitizeForFilename(vehicleData.tipoEncendido)}_${anioParaFolder}_Corte1.jpg`;
             corteImageUrl = uploadImageToDrive(cutData.imgCorte1, filename, folder);
         }
 
-        // Poblar el array con los datos. El índice 0 (ID) se deja vacío para no sobrescribir la fórmula.
-        newRowData[COLS_CORTES.categoria - 1] = vehicleData.categoria || '';
-        newRowData[COLS_CORTES.marca - 1] = vehicleData.marca;
-        newRowData[COLS_CORTES.modelo - 1] = vehicleData.modelo;
-        newRowData[COLS_CORTES.versionesAplicables - 1] = vehicleData.versionesAplicables || '';
-        newRowData[COLS_CORTES.anoDesde - 1] = anoDesde;
-        newRowData[COLS_CORTES.anoHasta - 1] = anoHasta;
-        newRowData[COLS_CORTES.tipoEncendido - 1] = vehicleData.tipoEncendido;
-        newRowData[COLS_CORTES.imagenVehiculo - 1] = vehiculoImageUrl;
-        newRowData[COLS_CORTES.timestamp - 1] = formattedDate;
+        // 4. Escribir los nuevos datos en las celdas específicas usando múltiples `setValue` para claridad.
+        // Esto es más legible que crear un array gigante y previene errores de índice.
+        sheet.getRange(rowIndex, COLS_CORTES.categoria).setValue(vehicleData.categoria || '');
+        sheet.getRange(rowIndex, COLS_CORTES.marca).setValue(vehicleData.marca);
+        sheet.getRange(rowIndex, COLS_CORTES.modelo).setValue(vehicleData.modelo);
+        sheet.getRange(rowIndex, COLS_CORTES.versionesAplicables).setValue(vehicleData.versionesAplicables || '');
+        sheet.getRange(rowIndex, COLS_CORTES.anoDesde).setValue(anoDesde);
+        sheet.getRange(rowIndex, COLS_CORTES.anoHasta).setValue(anoHasta);
+        sheet.getRange(rowIndex, COLS_CORTES.tipoEncendido).setValue(vehicleData.tipoEncendido);
+        sheet.getRange(rowIndex, COLS_CORTES.imagenVehiculo).setValue(vehiculoImageUrl);
+        sheet.getRange(rowIndex, COLS_CORTES.timestamp).setValue(formattedDate);
 
         // Datos del primer corte
-        newRowData[COLS_CORTES.tipoCorte1 - 1] = cutData.tipoCorte1;
-        newRowData[COLS_CORTES.ubicacionCorte1 - 1] = cutData.ubicacionCorte1;
-        newRowData[COLS_CORTES.colorCableCorte1 - 1] = cutData.colorCableCorte1;
-        newRowData[COLS_CORTES.configRelay1 - 1] = cutData.configRelay1;
-        newRowData[COLS_CORTES.imgCorte1 - 1] = corteImageUrl;
-        newRowData[COLS_CORTES.colaboradorCorte1 - 1] = colaborador;
-
-        // 4. Escribir todos los datos en la hoja de cálculo con una sola llamada.
-        newRowRange.setValues([newRowData]);
+        sheet.getRange(rowIndex, COLS_CORTES.tipoCorte1).setValue(cutData.tipoCorte1);
+        sheet.getRange(rowIndex, COLS_CORTES.ubicacionCorte1).setValue(cutData.ubicacionCorte1);
+        sheet.getRange(rowIndex, COLS_CORTES.colorCableCorte1).setValue(cutData.colorCableCorte1);
+        sheet.getRange(rowIndex, COLS_CORTES.configRelay1).setValue(cutData.configRelay1);
+        sheet.getRange(rowIndex, COLS_CORTES.imgCorte1).setValue(corteImageUrl);
+        sheet.getRange(rowIndex, COLS_CORTES.colaboradorCorte1).setValue(colaborador);
 
         // 5. Esperar a que la hoja calcule el valor del ID generado por la fórmula.
         SpreadsheetApp.flush();
         Utilities.sleep(1500); // Espera para asegurar que la fórmula se calcule.
-        newId = newRowRange.getCell(1, COLS_CORTES.id).getValue();
+        newId = sheet.getRange(rowIndex, COLS_CORTES.id).getValue();
     }
 
     return { status: 'success', message: `Corte agregado exitosamente.`, vehicleId: newId };

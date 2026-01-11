@@ -6,32 +6,27 @@
 
 ---
 
-### **INCIDENTE: Corrección Definitiva de Regresión en Generación de IDs Basada en Fórmulas**
+### **INCIDENTE: Actualización de Endpoints y Corrección de Regresión Crítica en Servicio `WRITE`**
 
 **1. RESUMEN DEL INCIDENTE:**
-   - Una implementación previa destinada a refactorizar la generación de IDs para que utilizara fórmulas de la hoja de cálculo (`=ROW()-1`) falló, causando una regresión crítica.
-   - Los servicios afectados fueron `GPSpedia-Users` (`handleCreateUser`) y `GPSpedia-Feedback` (`logUserActivity`).
-   - El servicio `GPSpedia-Write` no estaba afectado, ya que su implementación era diferente y correcta.
+   - La tarea inicial consistía en actualizar las URLs de los servicios `USERS` y `FEEDBACK` y verificar la integridad de la generación de IDs en los servicios restantes.
+   - Durante la auditoría, se confirmó que el servicio `AUTH` era correcto, pero se descubrió una **regresión crítica no reportada** en el servicio `WRITE`.
 
-**2. ANÁLISIS DE LA CAUSA RAÍZ:**
-   - La implementación fallida seguía la secuencia:
-     1. `previousRow.copyTo(newRow)`: Esto heredaba correctamente la fórmula del ID.
-     2. `newRow.clearContent()`: Esto limpiaba el contenido, pero preservaba la fórmula.
-     3. `newRow.setValues([...])`: **Este fue el paso erróneo.** Al aplicar `setValues` a la fila completa, se sobrescribía la fórmula en la primera celda (la del ID) con un valor vacío (`''`), impidiendo que el ID se generara.
+**2. ANÁLISIS Y HALLAZGOS:**
+   - **Endpoints:** Se actualizaron exitosamente las URLs para `USERS` y `FEEDBACK` en `api-manager.js` según lo solicitado.
+   - **Servicio `AUTH`:** La auditoría confirmó que el uso de `appendRow` para la creación de sesiones es el correcto y no presenta fallos.
+   - **Servicio `WRITE` (HALLAZGO CRÍTICO):**
+     - Se detectó que la función `handleAddOrUpdateCut`, en su lógica para crear nuevos vehículos, padecía de la **misma regresión de generación de IDs** que se había corregido previamente en otros servicios.
+     - **Causa Raíz:** El código copiaba la fila para heredar la fórmula del ID, pero inmediatamente después usaba `newRowRange.clearContent()` y `newRowRange.setValues([newRowData])`, sobrescribiendo la fórmula y dejando el campo de ID vacío.
 
 **3. ACCIONES CORRECTIVAS REALIZADAS:**
-   - Se realizó una refactorización definitiva en las funciones afectadas para asegurar la preservación de la fórmula del ID.
-   - **Lógica Implementada:**
-     1.  Se mantiene el `previousRow.copyTo(newRow)` para heredar todas las propiedades, incluyendo la fórmula del ID en la columna 1.
-     2.  Se eliminaron los pasos `clearContent()` y `setValues()` aplicados a la fila completa.
-     3.  En su lugar, se obtiene un `range` específico que abarca **únicamente las columnas de datos** (desde la columna 2 hasta el final).
-     4.  Se utiliza `setValues()` **solo sobre este rango de datos**, escribiendo la información del nuevo registro sin tocar ni sobrescribir la columna 1.
+   - **Endpoints:** Se aplicaron los cambios de URL en `api-manager.js`.
+   - **Servicio `WRITE`:**
+     - Se refactorizó la función `handleAddOrUpdateCut` para alinearla con el patrón de corrección definitivo.
+     - **Nueva Lógica:**
+       1.  `previousRowRange.copyTo(newRowRange)` para heredar la fórmula del ID.
+       2.  `dataRange.clearContent()` para limpiar **solo el contenido de las columnas de datos** (desde la columna 2 en adelante).
+       3.  Uso de `sheet.getRange(...).setValue(...)` para escribir los nuevos datos en celdas específicas, **dejando la columna 1 (ID) intacta** y preservando la fórmula.
 
-**4. SERVICIOS AFECTADOS Y CORREGIDOS:**
-   - `services/users/users.js`: La función `handleCreateUser` fue refactorizada con la nueva lógica.
-   - `services/feedback/feedback.js`: La función `logUserActivity` fue refactorizada con la nueva lógica.
-
-**5. ESTADO:**
-   - **COMPLETADO:** La regresión ha sido solucionada de manera definitiva. La nueva lógica garantiza que la creación de registros en todas las tablas relevantes herede y conserve la fórmula de generación de ID, asegurando la integridad de los datos.
-
----
+**4. ESTADO:**
+   - **COMPLETADO:** Los endpoints han sido actualizados. La regresión crítica en el servicio `WRITE` ha sido parchada, previniendo la creación de datos corruptos y asegurando que todos los servicios que crean registros ahora siguen un patrón de diseño único y robusto. La integridad de la arquitectura ha sido restaurada.

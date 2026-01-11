@@ -1,3 +1,25 @@
+**V8.5.3 - (CONFIG & CRITICAL FIX) - 13/01/2026**
+**A. RESUMEN GENERAL:** Se realizó una actualización de configuración crítica para los endpoints de los servicios `USERS` y `FEEDBACK`. Durante una auditoría de seguimiento, se descubrió y corrigió una regresión severa no reportada en el servicio `WRITE` que impedía la correcta generación de IDs para nuevos vehículos.
+
+**B. Cambios de Configuración:**
+1.  **Actualización de Endpoints (`api-manager.js`):**
+    *   **Motivo:** Se proporcionaron nuevas URLs de producción para los servicios `USERS` y `FEEDBACK` para apuntar a los últimos despliegues.
+    *   **Cambio:** Se actualizaron las constantes `API_ENDPOINTS.USERS` y `API_ENDPOINTS.FEEDBACK` con las nuevas direcciones.
+
+**C. Correcciones Implementadas:**
+1.  **Regresión de Generación de ID en `services/write/write.js`:**
+    *   **Problema:** Al crear un nuevo vehículo, la función `handleAddOrUpdateCut` sobrescribía la fórmula de generación de ID que había sido heredada, resultando en nuevos registros sin ID y potencial corrupción de datos.
+    *   **Causa Raíz:** La lógica utilizaba `copyTo` para heredar la fila completa, pero luego aplicaba `clearContent()` y `setValues([newRowData])` a toda la fila, borrando la fórmula en la columna 1.
+    *   **Solución:** Se refactorizó la lógica para seguir el patrón robusto y definitivo: `copyTo` hereda la fórmula, luego se limpia el contenido solo del rango de datos (columnas 2 en adelante), y finalmente los nuevos datos se escriben con `setValue` en celdas específicas, preservando intacta la columna del ID.
+
+**D. Cambios Técnicos Implementados:**
+- **`api-manager.js`:** Se modificaron las URLs de los endpoints para `USERS` y `FEEDBACK` (Líneas 14, 15).
+- **`services/write/write.js`:** Se refactorizó la lógica de creación de nuevos vehículos en la función `handleAddOrUpdateCut` para preservar la fórmula del ID (Líneas 156-215).
+
+**E. Impacto:**
+- **Estabilidad de la Arquitectura:** Se ha restaurado la integridad de los datos en el servicio de escritura, previniendo la creación de registros de vehículos corruptos. Este cambio alinea todos los servicios de creación de registros a un estándar único y fiable.
+- **Continuidad del Servicio:** El frontend ahora se comunica con los endpoints correctos para los servicios de usuarios y feedback.
+
 **V8.5.2 - (CONFIG) - 12/01/2026**
 **A. RESUMEN GENERAL:** Se actualizó la URL de producción para el microservicio de Usuarios (`USERS`) en `api-manager.js` para apuntar al despliegue más reciente proporcionado por el Project Manager, en un intento por resolver un error persistente de endpoint.
 

@@ -114,11 +114,6 @@ Si un paso NO fue ejecutado, el proceso se considera INCOMPLETO.
 NO se permiten atajos, omisiones ni reinterpretaciones.
 
 ---
-# ESTADO DE TAREAS
----
-
-## -- TAREAS COMPLETADAS --
-
 [COMPLETADA] Corrección Integral de Múltiples Regresiones Críticas
 Origen: Reporte de PM (Post-Fallo de Despliegue)
 Prioridad: MÁXIMA
@@ -153,10 +148,6 @@ El "Nombre Completo" del usuario no aparece en la sección "Mi Perfil" de `users
 
 ---
 
----
-
-## -- TAREAS EN PROGRESO O CON OBSERVACIONES --
-
 [EN PROGRESO] Implementar Sistema de Inbox (Tarea 18)
 Origen: Requerimiento de Funcionalidad
 Prioridad: ALTA
@@ -169,8 +160,6 @@ Alcance:
 - Lógica de visibilidad basada en roles de usuario (`Supervisor`, `Gefe`, `Desarrollador`).
 
 ---
-
-## -- TAREAS PENDIENTES DE REVISIÓN POR EL PM --
 
 [PENDIENTE REVISION POR EL MP] Actualización Final de Endpoint del Servicio de Usuarios
 Origen: Requerimiento de Configuración (Post-Investigación)
@@ -274,8 +263,6 @@ Se corrigieron tres bugs críticos que surgieron tras la implementación de la f
 Archivos Afectados: `services/users/users.js`.
 
 ---
-
-## -- TAREAS PENDIENTES (BACKLOG) --
 
 [TAREA] Refactorizar Frontend para Separar Lógica de Presentación
 Origen: Auditoría Técnica Forense v2.0
