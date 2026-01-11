@@ -1,3 +1,46 @@
+**V8.5.5 - (REFACTOR) - 13/01/2026**
+**A. RESUMEN GENERAL:** Se ejecutó una refactorización de la arquitectura del frontend para eliminar la configuración de endpoints duplicada, estableciendo una única fuente de verdad y mejorando la mantenibilidad del código.
+
+**B. Cambios de Arquitectura:**
+1.  **Centralización de la Configuración:**
+    *   **Problema:** Los endpoints y el mapeo de acciones estaban definidos de forma idéntica pero separada en `api.js` y `api-manager.js`, creando un riesgo de desincronización y errores.
+    *   **Solución:** Se creó un nuevo módulo, `api-config.js`, que ahora contiene y exporta las constantes `API_ENDPOINTS` y `ACTION_TO_SERVICE_MAP`. Este archivo es ahora la **única fuente de verdad**.
+
+2.  **Modularización de los Archivos de API:**
+    *   **`api.js`:** Se refactorizó para que importe la configuración desde `api-config.js` en lugar de definirla localmente.
+    *   **`api-manager.js`:** Se refactorizó de la misma manera, importando la configuración desde `api-config.js`.
+
+3.  **Unificación y Eliminación de Redundancia:**
+    *   Se determinó que la lógica en `api-manager.js` era redundante, ya que `main.js` y otros módulos ya dependían de `api.js`.
+    *   Se eliminó el archivo `api-manager.js` y se ajustó `main.js` para asegurar que solo se utilice `api.js` a través de importaciones de módulos.
+
+**C. Cambios Técnicos Implementados:**
+- **`api-config.js`:** Creado para centralizar la configuración.
+- **`api.js`:** Refactorizado para importar desde `api-config.js`.
+- **`api-manager.js`:** Eliminado por redundancia.
+- **`main.js`:** Se ajustaron las importaciones para reflejar la nueva arquitectura modular y la eliminación de `api-manager.js`.
+
+**D. Impacto:**
+- **Mantenibilidad Mejorada:** Al haber una sola fuente de verdad para la configuración, futuras actualizaciones de endpoints serán más rápidas, seguras y menos propensas a errores.
+- **Reducción de Deuda Técnica:** Se eliminó código duplicado y un archivo redundante, limpiando la base del código del frontend.
+- **Consistencia Arquitectónica:** Toda la aplicación ahora sigue un patrón de módulos de JavaScript consistente para la gestión de la API.
+
+**V8.5.4 - (CONFIG) - 13/01/2026**
+**A. RESUMEN GENERAL:** Se actualizó la URL de producción para el microservicio `WRITE` en ambos archivos de configuración del frontend (`api.js` y `api-manager.js`) para apuntar al despliegue más reciente proporcionado por el Project Manager.
+
+**B. Cambios de Configuración:**
+1.  **Actualización de Endpoint de `WRITE`:**
+    *   **Motivo:** Se proporcionó una nueva URL de producción para el servicio `WRITE`.
+    *   **Cambio:** Se actualizó la constante `API_ENDPOINTS.WRITE` en `api.js` y `api-manager.js` para asegurar la consistencia y que toda la aplicación apunte al endpoint correcto.
+
+**C. Cambios Técnicos Implementados:**
+- **`api-manager.js`:** Se modificó la URL del endpoint para el servicio `WRITE` (Línea 12).
+- **`api.js`:** Se modificó la URL del endpoint para el servicio `WRITE` (Línea 10).
+
+**D. Impacto:**
+- **Consistencia de la Arquitectura:** Se ha abordado la problemática de la configuración duplicada actualizando ambos archivos, asegurando que todas las partes del frontend que interactúan con el servicio de escritura lo hagan a través del endpoint correcto.
+- **Continuidad del Servicio:** La funcionalidad de agregar y modificar datos de vehículos y cortes ahora apunta al despliegue más reciente.
+
 **V8.5.3 - (CONFIG & CRITICAL FIX) - 13/01/2026**
 **A. RESUMEN GENERAL:** Se realizó una actualización de configuración crítica para los endpoints de los servicios `USERS` y `FEEDBACK`. Durante una auditoría de seguimiento, se descubrió y corrigió una regresión severa no reportada en el servicio `WRITE` que impedía la correcta generación de IDs para nuevos vehículos.
 

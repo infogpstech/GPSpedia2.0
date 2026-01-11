@@ -6,27 +6,22 @@
 
 ---
 
-### **INCIDENTE: Actualización de Endpoints y Corrección de Regresión Crítica en Servicio `WRITE`**
+### **INCIDENTE: Refactorización de Arquitectura Frontend para Centralizar la Configuración de Endpoints**
 
 **1. RESUMEN DEL INCIDENTE:**
-   - La tarea inicial consistía en actualizar las URLs de los servicios `USERS` y `FEEDBACK` y verificar la integridad de la generación de IDs en los servicios restantes.
-   - Durante la auditoría, se confirmó que el servicio `AUTH` era correcto, pero se descubrió una **regresión crítica no reportada** en el servicio `WRITE`.
+   - Tras una actualización de endpoints, se identificó un problema de arquitectura crítico: la configuración de los endpoints de los microservicios estaba duplicada en dos archivos (`api.js` y `api-manager.js`).
+   - Esta duplicación era una fuente de errores, inconsistencias y deuda técnica, dificultando el mantenimiento de la aplicación.
+   - Se tomó la decisión de refactorizar el frontend para establecer una **única fuente de verdad** para toda la configuración de la API.
 
 **2. ANÁLISIS Y HALLAZGOS:**
-   - **Endpoints:** Se actualizaron exitosamente las URLs para `USERS` y `FEEDBACK` en `api-manager.js` según lo solicitado.
-   - **Servicio `AUTH`:** La auditoría confirmó que el uso de `appendRow` para la creación de sesiones es el correcto y no presenta fallos.
-   - **Servicio `WRITE` (HALLAZGO CRÍTICO):**
-     - Se detectó que la función `handleAddOrUpdateCut`, en su lógica para crear nuevos vehículos, padecía de la **misma regresión de generación de IDs** que se había corregido previamente en otros servicios.
-     - **Causa Raíz:** El código copiaba la fila para heredar la fórmula del ID, pero inmediatamente después usaba `newRowRange.clearContent()` y `newRowRange.setValues([newRowData])`, sobrescribiendo la fórmula y dejando el campo de ID vacío.
+   - **Causa Raíz:** La aplicación había evolucionado de forma incremental, con `index.html` utilizando `api-manager.js` como un script global, mientras que páginas más nuevas como `users.html` utilizaban `api.js` como un módulo de JavaScript (`import`). Ambos archivos contenían copias idénticas de las mismas constantes de configuración.
+   - **Riesgo:** Cualquier actualización de URL que no se aplicara en ambos archivos resultaría en un fallo parcial de la aplicación.
 
-**3. ACCIONES CORRECTIVAS REALIZADAS:**
-   - **Endpoints:** Se aplicaron los cambios de URL en `api-manager.js`.
-   - **Servicio `WRITE`:**
-     - Se refactorizó la función `handleAddOrUpdateCut` para alinearla con el patrón de corrección definitivo.
-     - **Nueva Lógica:**
-       1.  `previousRowRange.copyTo(newRowRange)` para heredar la fórmula del ID.
-       2.  `dataRange.clearContent()` para limpiar **solo el contenido de las columnas de datos** (desde la columna 2 en adelante).
-       3.  Uso de `sheet.getRange(...).setValue(...)` para escribir los nuevos datos en celdas específicas, **dejando la columna 1 (ID) intacta** y preservando la fórmula.
+**3. ACCIONES CORRECTIVAS REALIZADAS (Refactorización):**
+   1.  **Creación de `api-config.js`:** Se creó un nuevo archivo que ahora contiene y exporta las constantes `API_ENDPOINTS` y `ACTION_TO_SERVICE_MAP`, sirviendo como la única fuente de verdad.
+   2.  **Refactorización de `api.js`:** Se modificó para que importe su configuración directamente desde `api-config.js`, eliminando las constantes locales.
+   3.  **Refactorización y Eliminación de `api-manager.js`:** Se refactorizó `api-manager.js` de la misma manera. Tras un análisis más profundo, se determinó que su funcionalidad era completamente redundante con respecto a `api.js`. Por lo tanto, el archivo `api-manager.js` fue **eliminado** del proyecto.
+   4.  **Ajuste de `main.js`:** Se revisó y ajustó el punto de entrada principal, `main.js`, para asegurar que importa y utiliza correctamente la lógica del refactorizado `api.js`, y que expone las funciones necesarias al ámbito global para la compatibilidad con el HTML.
 
 **4. ESTADO:**
-   - **COMPLETADO:** Los endpoints han sido actualizados. La regresión crítica en el servicio `WRITE` ha sido parchada, previniendo la creación de datos corruptos y asegurando que todos los servicios que crean registros ahora siguen un patrón de diseño único y robusto. La integridad de la arquitectura ha sido restaurada.
+   - **COMPLETADO:** La refactorización ha sido completada con éxito. La configuración de la API ahora está centralizada en `api-config.js`, eliminando la duplicación y el riesgo de inconsistencia. El código del frontend es ahora más limpio, más mantenible y sigue un patrón de diseño modular consistente.
