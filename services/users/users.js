@@ -287,6 +287,12 @@ function handleChangePassword(payload) {
 // ============================================================================
 
 function getNewUserId(sheet) {
+    // FIX: Add a guard clause to handle empty sheets.
+    // If the sheet has 1 or fewer rows (i.e., only a header or is empty),
+    // sheet.getLastRow() - 1 would be 0 or less, causing a fatal error in getRange.
+    if (sheet.getLastRow() < 2) {
+        return 1; // Return the first ID
+    }
     const ids = sheet.getRange(2, COLS_USERS.ID, sheet.getLastRow() - 1, 1).getValues().flat();
     const maxId = ids.reduce((max, id) => Math.max(max, parseInt(id) || 0), 0);
     return maxId + 1;

@@ -6,22 +6,32 @@
 
 ---
 
-### **INCIDENTE: Actualización de URL del Servicio de Usuarios (USERS)**
+### **INCIDENTE: Regresión Crítica - Servicio `USERS` Inutilizable ("Failed to fetch")**
 
-**1. RESUMEN DE LA TAREA:**
-   - Se recibió una solicitud para confirmar y, si era necesario, actualizar la URL del microservicio `USERS`.
-   - Nueva URL proporcionada: `https://script.google.com/macros/s/AKfycbxh-kdkom9vq6cHTBe53EMzuIO7qcW6DJO-FkttQCn3ugPO935BQSWnB88qTkLQPNmn/exec`
+**1. RESUMEN DEL PROBLEMA:**
+   - Tras una corrección anterior (V8.4.7) destinada a solucionar un problema con el guardado del campo "Nombre Completo", el microservicio `USERS` ha dejado de funcionar por completo, devolviendo un error genérico "Failed to fetch" en el frontend.
+   - Este error indica que el backend está sufriendo un crash fatal que le impide devolver cualquier tipo de respuesta, sea de éxito o de error.
 
-**2. ANÁLISIS DE ESTADO INICIAL:**
-   - **Auditoría de `api.js`:** Se encontró una URL desactualizada para el endpoint `USERS`.
-   - **Auditoría de `api-manager.js`:** Se encontró una URL diferente y también desactualizada para el endpoint `USERS`.
-   - **Conclusión:** Existía una inconsistencia de URLs para el mismo servicio entre los archivos de configuración de la API, y ninguna de las URLs coincidía con la nueva URL proporcionada, que se considera la fuente de verdad.
+**2. ANÁLISIS DE CAUSA RAÍZ (RCA):**
+   - **Auditoría de `ChangesLogs.txt`:** Se confirmó que las versiones V8.4.5 y V8.4.7 se enfocaron en refactorizar la función `handleUpdateUser` para solucionar un problema de `case-sensitivity`.
+   - **Auditoría de `services/users/users.js`:** Un análisis línea por línea del código reveló que la causa de la regresión no estaba en `handleUpdateUser`, sino en una función auxiliar introducida en el mismo período: `getNewUserId`.
+   - **El Bug Crítico:** La implementación de `getNewUserId` era la siguiente:
+     ```javascript
+     function getNewUserId(sheet) {
+         const ids = sheet.getRange(2, COLS_USERS.ID, sheet.getLastRow() - 1, 1).getValues().flat();
+         const maxId = ids.reduce((max, id) => Math.max(max, parseInt(id) || 0), 0);
+         return maxId + 1;
+     }
+     ```
+     El problema reside en `sheet.getLastRow() - 1`. Si la hoja de cálculo "Users" solo contiene la fila de encabezado (o está vacía), `getLastRow()` devuelve `1`. La expresión se evalúa a `1 - 1 = 0`. El método `sheet.getRange()` de Google Apps Script **no acepta `0` como un número de filas válido**; requiere un entero mayor o igual a 1.
+   - **Conclusión:** Esta llamada a `getRange` con un argumento inválido provoca un **error fatal no capturado** que detiene la ejecución de todo el script del servicio, resultando en la ausencia de respuesta al frontend ("Failed to fetch").
 
-**3. SOLUCIÓN IMPLEMENTADA:**
-   - Se actualizó la constante `API_ENDPOINTS.USERS` en **ambos archivos (`api.js` y `api-manager.js`)** con la nueva URL proporcionada por el Project Manager.
-   - Esta acción centraliza y estandariza el endpoint del servicio `USERS`, resolviendo la inconsistencia y asegurando que todas las llamadas futuras se dirijan a la implementación correcta del servicio.
+**3. SOLUCIÓN PROPUESTA:**
+   - Se debe añadir una **cláusula de guarda (guard clause)** al inicio de la función `getNewUserId`.
+   - La nueva lógica comprobará si la hoja de cálculo tiene menos de 2 filas (es decir, está vacía o solo tiene encabezado). Si es así, devolverá `1` como el primer ID de usuario, evitando por completo la llamada problemática a `getRange`.
+   - Este cambio hace que la función sea robusta y resiliente a hojas de cálculo vacías, eliminando la causa del crash del servicio.
 
 **4. ESTADO:**
-   - **COMPLETADO:** La URL del servicio `USERS` ha sido actualizada y unificada en toda la base de código.
+   - **PENDIENTE DE CORRECCIÓN:** La causa raíz ha sido identificada y la solución está definida.
 
 ---
