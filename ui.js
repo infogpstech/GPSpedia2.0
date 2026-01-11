@@ -11,14 +11,37 @@ import { irAPaginaPrincipal } from './navigation.js';
 const backSvg = '<svg style="width:20px;height:20px;margin-right:5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
 
 export function getImageUrl(fileId, size = 280) {
-    if (typeof fileId === 'string' && fileId.startsWith('http')) {
-        return fileId;
-    }
+    const placeholder = "https://placehold.co/280x200/cccccc/333333?text=Sin+Imagen";
+
     if (!fileId || typeof fileId !== 'string' || fileId.trim() === '') {
-        return "https://placehold.co/280x200/cccccc/333333?text=Sin+Imagen";
+        return placeholder;
     }
+
+    let id = fileId.trim();
+
+    // Si es una URL de Google Drive, extraer el ID.
+    if (id.startsWith('http')) {
+        if (id.includes('drive.google.com')) {
+            const match = id.match(/[\/&]id=([a-zA-Z0-9_-]+)/) || id.match(/file\/d\/([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) {
+                id = match[1];
+            } else {
+                // Si es una URL de Google pero no podemos extraer el ID, es mejor no mostrar nada.
+                return placeholder;
+            }
+        } else {
+            // Si es otra URL (ej. de wikimedia), la devolvemos directamente.
+            return id;
+        }
+    }
+
+    // Si después del procesamiento no tenemos un ID válido, devolver el placeholder.
+    if (!id.match(/^[a-zA-Z0-9_-]+$/)) {
+        return placeholder;
+    }
+
     const sizeParam = typeof size === 'number' ? `w${size}` : size;
-    return `https://drive.google.com/thumbnail?id=${fileId.trim()}&sz=${sizeParam}`;
+    return `https://drive.google.com/thumbnail?id=${id}&sz=${sizeParam}`;
 }
 
 export function getLogoUrlForMarca(marca, categoria) {

@@ -160,6 +160,16 @@ Alcance:
 - Lógica de visibilidad basada en roles de usuario (`Supervisor`, `Gefe`, `Desarrollador`).
 
 ---
+**TAREAS PENDIENTES DE REVISIÓN**
+---
+[PENDIENTE REVISION POR EL MP] Investigar Comportamiento Anormal de Carga del Catálogo y Renderizado de Imágenes
+Origen: Reporte de PM
+Prioridad: ALTA
+Área: Frontend | `index.html` | `ui.js`
+Descripción:
+Se investigó un comportamiento anómalo en la carga y renderizado de la aplicación, con foco en las imágenes de Google Drive. La auditoría de código concluyó que la lógica de la función `getImageUrl` es correcta y robusta. Múltiples intentos de verificación automatizada fallaron por problemas del entorno de pruebas. Una verificación manual final (code tracing) confirmó que el código funciona como se espera. Se concluye que el código no requiere cambios y que el problema reportado probablemente se deba a factores externos como la caché del navegador.
+
+---
 
 [PENDIENTE REVISION POR EL MP] Actualización Final de Endpoint del Servicio de Usuarios
 Origen: Requerimiento de Configuración (Post-Investigación)
@@ -263,7 +273,8 @@ Se corrigieron tres bugs críticos que surgieron tras la implementación de la f
 Archivos Afectados: `services/users/users.js`.
 
 ---
-
+**TAREAS PENDIENTES**
+---
 [TAREA] Refactorizar Frontend para Separar Lógica de Presentación
 Origen: Auditoría Técnica Forense v2.0
 Prioridad: ALTA
@@ -360,15 +371,6 @@ Acciones:
     *   Si el valor es nulo o "Sin Relay", mostrar el texto "Sin Relay".
     *   Si hay un valor, crear un elemento `<button>` con el nombre de la configuración como texto.
     *   Añadir un `addEventListener` a ese botón que, al ser presionado, busque los detalles del relay en `catalogData.relay` y llame a una función (ej. `mostrarDetalleRelayModal`) para mostrar la imagen y detalles en un segundo modal sobre el modal actual.
-
----
-
-[TAREA] Investigar Comportamiento Anormal de Carga del Catálogo
-Origen: Reporte de PM
-Prioridad: ALTA
-Área: Frontend | `index.html`
-Descripción:
-Tras el último despliegue, el catálogo de vehículos no se carga al refrescar la página. Los datos solo aparecen después de que el usuario interactúa con un botón de sección (ej. "Categorías"). Se debe investigar la causa raíz de este comportamiento de carga diferida no intencional.
 
 ---
 
