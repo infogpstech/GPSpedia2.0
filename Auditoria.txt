@@ -6,28 +6,22 @@
 
 ---
 
-### **INCIDENTE: Error en la acción 'getUsers'**
+### **INCIDENTE: Actualización de URL del Servicio de Usuarios (USERS)**
 
-**1. RESUMEN DEL PROBLEMA:**
-   - Se reportó un error `"Error: Ocurrió un error en el servicio.: Se requiere el rol del solicitante."` al intentar cargar la lista de usuarios en `users.html`.
-   - El error se producía durante la llamada a la acción `getUsers`.
+**1. RESUMEN DE LA TAREA:**
+   - Se recibió una solicitud para confirmar y, si era necesario, actualizar la URL del microservicio `USERS`.
+   - Nueva URL proporcionada: `https://script.google.com/macros/s/AKfycbxh-kdkom9vq6cHTBe53EMzuIO7qcW6DJO-FkttQCn3ugPO935BQSWnB88qTkLQPNmn/exec`
 
-**2. ANÁLISIS DE CAUSA RAÍZ (RCA):**
-   - **Auditoría de Código Frontend (`users.html`):** La llamada a `postToAction('getUsers', ...)` enviaba únicamente el `sessionToken` para la autorización. Esta implementación es **correcta y segura**, ya que el backend debe derivar los permisos del token de sesión, no de un parámetro enviado por el cliente.
-   - **Auditoría de Código Backend (`services/users/users.js`):** La versión del código en el repositorio también es **correcta**. La función `handleGetUsers` utiliza `getVerifiedRole(sessionToken)` para obtener el rol del solicitante de forma segura a partir del token, sin depender de un parámetro `requesterRole` en el payload.
-   - **Conclusión de la Discrepancia:** La evidencia apunta a una **desincronización entre el código del repositorio y el código actualmente desplegado** en el entorno de Google Apps Script para el servicio `GPSpedia-USERS`. La versión desplegada es una versión anterior que, incorrectamente, esperaba recibir el `requesterRole` como un parámetro explícito en el payload, mientras que el frontend, ya actualizado a una versión más segura, había dejado de enviarlo.
+**2. ANÁLISIS DE ESTADO INICIAL:**
+   - **Auditoría de `api.js`:** Se encontró una URL desactualizada para el endpoint `USERS`.
+   - **Auditoría de `api-manager.js`:** Se encontró una URL diferente y también desactualizada para el endpoint `USERS`.
+   - **Conclusión:** Existía una inconsistencia de URLs para el mismo servicio entre los archivos de configuración de la API, y ninguna de las URLs coincidía con la nueva URL proporcionada, que se considera la fuente de verdad.
 
 **3. SOLUCIÓN IMPLEMENTADA:**
-   - Se aplicó un **parche de retrocompatibilidad** en `users.html`.
-   - Se modificó la función `fetchUsers` para que el payload de la acción `getUsers` incluya **tanto el `sessionToken` como el `requesterRole`**.
-   - **Líneas afectadas en `users.html`:** Aproximadamente 262-265.
-   - **Justificación:**
-     - Esta solución permite que el frontend funcione correctamente con la **versión antigua (y actualmente desplegada)** del backend, ya que esta recibirá el parámetro `requesterRole` que espera.
-     - Al mismo tiempo, es compatible con la **versión nueva y correcta del backend** (la del repositorio), ya que esta está diseñada para ignorar el parámetro `requesterRole` y basar su lógica únicamente en el `sessionToken`.
-     - De este modo, se soluciona el error inmediato sin comprometer la seguridad ni la futura actualización del servicio.
+   - Se actualizó la constante `API_ENDPOINTS.USERS` en **ambos archivos (`api.js` y `api-manager.js`)** con la nueva URL proporcionada por el Project Manager.
+   - Esta acción centraliza y estandariza el endpoint del servicio `USERS`, resolviendo la inconsistencia y asegurando que todas las llamadas futuras se dirijan a la implementación correcta del servicio.
 
 **4. ESTADO:**
-   - **CORREGIDO** (mediante parche de retrocompatibilidad).
-   - Se recomienda al Project Manager que el servicio `GPSpedia-USERS` sea redesplegado con la última versión del código del repositorio para eliminar la necesidad de este parche a largo plazo.
+   - **COMPLETADO:** La URL del servicio `USERS` ha sido actualizada y unificada en toda la base de código.
 
 ---
