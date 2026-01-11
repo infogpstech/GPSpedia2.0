@@ -250,26 +250,41 @@ function handleSuggestYear(payload) {
 }
 
 function logUserActivity(userId, userName, activityType, associatedId, details) {
+    // CORRECCIÓN DE REGRESIÓN: Se implementa el método robusto que copia la fila
+    // completa para heredar la fórmula del ID, pero luego solo escribe en las
+    // columnas de datos para no sobrescribir la fórmula.
     try {
         const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.ACTIVIDAD_USUARIO);
+        if (!sheet) {
+            Logger.log(`CRITICAL: No se encontró la hoja de actividad de usuario: ${SHEET_NAMES.ACTIVIDAD_USUARIO}`);
+            return;
+        }
         const lastRow = sheet.getLastRow();
-        const newRowRange = sheet.getRange(lastRow + 1, 1, 1, sheet.getLastColumn());
+        const newRowNumber = lastRow + 1;
+        const lastColumn = sheet.getLastColumn();
 
+        // 1. Copiar la fila anterior para heredar TODAS las validaciones, formatos y FÓRMULAS (incluyendo ID).
         if (lastRow > 0) {
-            const previousRowRange = sheet.getRange(lastRow, 1, 1, sheet.getLastColumn());
+            const previousRowRange = sheet.getRange(lastRow, 1, 1, lastColumn);
+            const newRowRange = sheet.getRange(newRowNumber, 1, 1, lastColumn);
             previousRowRange.copyTo(newRowRange);
         }
-        newRowRange.clearContent();
 
-        const newRowData = new Array(sheet.getLastColumn()).fill('');
-        newRowData[COLS_ACTIVIDAD_USUARIO.timestamp - 1] = new Date().toISOString();
-        newRowData[COLS_ACTIVIDAD_USUARIO.idUsuario - 1] = userId;
-        newRowData[COLS_ACTIVIDAD_USUARIO.nombreUsuario - 1] = userName;
-        newRowData[COLS_ACTIVIDAD_USUARIO.tipoActividad - 1] = activityType;
-        newRowData[COLS_ACTIVIDAD_USUARIO.idElementoAsociado - 1] = associatedId;
-        newRowData[COLS_ACTIVIDAD_USUARIO.detalle - 1] = details;
+        // 2. Preparar los datos que se van a escribir, EXCLUYENDO la columna de ID.
+        const dataToWrite = [
+            new Date().toISOString(),
+            userId,
+            userName,
+            activityType,
+            associatedId,
+            details
+        ];
 
-        newRowRange.setValues([newRowData]);
+        // 3. Obtener el rango SOLO para las celdas de datos y escribirlos.
+        // Esto deja la columna 1 (ID) intacta, conservando la fórmula heredada.
+        const dataRange = sheet.getRange(newRowNumber, COLS_ACTIVIDAD_USUARIO.timestamp, 1, dataToWrite.length);
+        dataRange.setValues([dataToWrite]);
+
     } catch (e) {
         // Log error to main log sheet if activity logging fails
         Logger.log(`CRITICAL: Fallo al registrar actividad de usuario. Error: ${e.message}`);

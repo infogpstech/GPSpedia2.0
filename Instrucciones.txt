@@ -401,3 +401,13 @@ Prioridad: ALTA
 Descripción:
 La generación de IDs numéricos en el backend es propensa a errores y no hereda formatos ni validaciones de datos en Google Sheets. Se debe refactorizar la lógica de creación de nuevos registros para que inyecte una fórmula de hoja de cálculo en la celda del ID, delegando la generación del ID a Google Sheets.
 Archivos Afectados: `services/users/users.js`, `services/feedback/feedback.js`.
+
+---
+
+[TAREA] Corregir Regresión en Generación de IDs con Fórmulas
+Origen: Revisión Post-Commit
+Prioridad: CRÍTICA
+Área: Arquitectura | Backend
+Descripción:
+La implementación anterior para la generación de IDs basados en fórmulas falló. El uso de `setValues` en toda la fila nueva sobrescribió la fórmula del ID que se acababa de heredar con `copyTo`. Se debe implementar una solución definitiva que copie la fila, pero que luego solo limpie y escriba en las columnas de datos, dejando la columna del ID intacta.
+Archivos Afectados: `services/users/users.js`, `services/feedback/feedback.js`.

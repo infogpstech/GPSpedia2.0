@@ -151,6 +151,9 @@ function handleGetUsers(payload) {
 }
 
 function handleCreateUser(payload) {
+    // CORRECCIÓN DE REGRESIÓN: El método anterior (copyTo -> clearContent -> setValues)
+    // borraba la fórmula del ID heredada. El nuevo método solo escribe en las
+    // columnas de datos, preservando la columna del ID intacta post-copia.
     const { newUser, sessionToken } = payload;
     if (!newUser || !sessionToken) throw new Error("Datos insuficientes para crear el usuario. Se requiere sessionToken.");
 
@@ -168,27 +171,32 @@ function handleCreateUser(payload) {
 
     const newUsername = generateUniqueUsername(userSheet, newUser.Nombre_Usuario);
     const lastRow = userSheet.getLastRow();
-    const newRowRange = userSheet.getRange(lastRow + 1, 1, 1, userSheet.getLastColumn());
+    const newRowNumber = lastRow + 1;
+    const lastColumn = userSheet.getLastColumn();
 
-    // 1. Copiar la fila anterior para heredar TODAS las validaciones, formatos y FÓRMULAS.
+    // 1. Copiar la fila anterior para heredar TODAS las validaciones, formatos y FÓRMULAS (incluyendo ID).
     if (lastRow > 0) {
-        const previousRowRange = userSheet.getRange(lastRow, 1, 1, userSheet.getLastColumn());
+        const previousRowRange = userSheet.getRange(lastRow, 1, 1, lastColumn);
+        const newRowRange = userSheet.getRange(newRowNumber, 1, 1, lastColumn);
         previousRowRange.copyTo(newRowRange);
     }
 
-    // 2. Limpiar SOLO el contenido de la fila nueva, preservando las fórmulas.
-    newRowRange.clearContent();
+    // 2. Preparar los datos que se van a escribir, EXCLUYENDO la columna de ID.
+    const dataToWrite = [
+        newUsername,
+        newUser.Password,
+        newUser.Privilegios,
+        newUser.Telefono || '',
+        newUser.Correo_Electronico || '',
+        newUser.Nombre_Completo || '',
+        '' // SessionToken se deja vacío
+    ];
 
-    // 3. Escribir los nuevos datos, dejando la celda del ID intacta para que la fórmula funcione.
-    const newRowData = new Array(userSheet.getLastColumn()).fill('');
-    // newRowData[COLS_USERS.ID - 1] = newId; // Se elimina esta línea
-    newRowData[COLS_USERS.Nombre_Usuario - 1] = newUsername;
-    newRowData[COLS_USERS.Password - 1] = newUser.Password;
-    newRowData[COLS_USERS.Privilegios - 1] = newUser.Privilegios;
-    newRowData[COLS_USERS.Telefono - 1] = newUser.Telefono || '';
-    newRowData[COLS_USERS.Correo_Electronico - 1] = newUser.Correo_Electronico || '';
-    newRowData[COLS_USERS.Nombre_Completo - 1] = newUser.Nombre_Completo || '';
-    newRowRange.setValues([newRowData]);
+    // 3. Obtener el rango SOLO para las celdas de datos y escribirlos.
+    // Esto deja la columna 1 (ID) intacta, conservando la fórmula heredada.
+    const dataRange = userSheet.getRange(newRowNumber, COLS_USERS.Nombre_Usuario, 1, dataToWrite.length);
+    dataRange.setValues([dataToWrite]);
+
 
     return { status: 'success', message: `Usuario '${newUsername}' creado.` };
 }
