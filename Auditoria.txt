@@ -6,34 +6,25 @@
 
 ---
 
-### **HALLAZGO ARQUITECTÓNICO: Refactorización de la Generación de IDs de Backend**
+### **INCIDENTE: Actualización de Tareas y Endpoints de Servicios**
 
-**1. RESUMEN DEL PROBLEMA:**
-   - Se identificó un problema fundamental en la forma en que los servicios de backend creaban nuevos registros en Google Sheets.
-   - La lógica para generar nuevos IDs se realizaba manualmente en el código del backend (ej. `getNewUserId` en `services/users/users.js`) o mediante métodos como `appendRow` (`logUserActivity` en `services/feedback/feedback.js`).
-   - Este enfoque tenía dos debilidades críticas:
-     1.  **Propenso a Errores:** La lógica manual podía fallar en casos borde, como una hoja vacía, causando crashes fatales en el servicio (como se vio en un incidente anterior).
-     2.  **No Hereda Propiedades:** El uso de `appendRow` o la escritura directa de valores no copia las validaciones de datos, formatos condicionales ni, lo más importante, las **fórmulas de la hoja de cálculo** de la fila anterior. Esto impedía que los IDs se generaran dinámicamente con el formato requerido (ej. "U-001").
+**1. RESUMEN DE LA TAREA:**
+   - Se recibió una solicitud para realizar múltiples actualizaciones de configuración y estado en el proyecto.
+   - Las acciones incluyeron:
+     1.  Marcar una tarea como completada en `Instrucciones.txt`.
+     2.  Actualizar las URLs de producción para los microservicios de `FEEDBACK` y `USERS`.
 
 **2. ANÁLISIS Y SOLUCIÓN IMPLEMENTADA:**
-   - Se determinó que la estrategia correcta es delegar la generación de IDs y la herencia de propiedades a Google Sheets. El método robusto para esto es:
-     1.  Obtener la última fila de la hoja.
-     2.  Copiar la fila completa a una nueva fila (`previousRow.copyTo(newRow)`). Esto transfiere todas las propiedades, incluyendo fórmulas.
-     3.  Limpiar solo el contenido de la nueva fila (`newRow.clearContent()`), lo que deja las fórmulas intactas.
-     4.  Escribir los nuevos datos en la fila, asegurándose de no sobrescribir las celdas que contienen fórmulas (como la del ID).
+   - **Actualización de `Instrucciones.txt`:**
+     - Se localizó la tarea `[EN PROGRESO] Investigar Falta de "Nombre Completo" en la Sección "Mi Perfil"`.
+     - Se movió esta tarea al bloque de `TAREAS COMPLETADAS` para reflejar su finalización.
 
-**3. CAMBIOS REALIZADOS:**
-   - **`services/users/users.js`:**
-     - Se eliminó por completo la función `getNewUserId`.
-     - Se refactorizó la función `handleCreateUser` para adoptar el patrón `copyTo`/`clearContent`/`setValues`, eliminando la asignación manual de ID.
-   - **`services/feedback/feedback.js`:**
-     - Se refactorizó la función `logUserActivity` para reemplazar el `appendRow` por el patrón `copyTo`/`clearContent`/`setValues`.
-   - **`services/write/write.js`:**
-     - Durante la auditoría, se confirmó que la función `handleAddOrUpdateCut` para nuevos vehículos ya utilizaba correctamente este patrón. **No se necesitaron cambios.**
-   - **Hoja `LogosMarcas`:**
-     - La investigación (`grep`) confirmó que ningún servicio de backend escribe en esta hoja. Su gestión parece ser manual, por lo que la automatización de IDs no es aplicable.
+   - **Actualización de Endpoints:**
+     - Se realizó una auditoría de los archivos `api.js` y `api-manager.js`, que gestionan las URLs de los servicios.
+     - Se confirmó que las URLs existentes para `FEEDBACK` y `USERS` eran diferentes a las proporcionadas.
+     - Se procedió a actualizar la constante `API_ENDPOINTS.FEEDBACK` y `API_ENDPOINTS.USERS` en **ambos archivos** con las nuevas URLs para garantizar la consistencia en todo el frontend.
 
-**4. ESTADO:**
-   - **COMPLETADO:** La generación de IDs para nuevos usuarios y logs de actividad ha sido refactorizada para ser más robusta, resiliente y consistente con las mejores prácticas de la plataforma, asegurando la integridad de los datos y formatos de la base de datos.
+**3. ESTADO:**
+   - **COMPLETADO:** Se han aplicado todas las actualizaciones de estado y configuración solicitadas. El archivo de tareas está al día y el frontend ahora apunta a los endpoints correctos para los servicios de Feedback y Users.
 
 ---

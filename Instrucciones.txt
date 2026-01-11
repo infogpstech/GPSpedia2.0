@@ -144,6 +144,15 @@ Alcance:
 - El frontend deberá ser actualizado para ensamblar los datos cacheados granularmente.
 - NO incluye la optimización de otras consultas de la base de datos.
 
+[COMPLETADA] Investigar Falta de "Nombre Completo" en la Sección "Mi Perfil"
+Origen: Reporte de PM
+Prioridad: MEDIA
+Área: Backend | `services/auth/auth.js`
+Descripción:
+El "Nombre Completo" del usuario no aparece en la sección "Mi Perfil" de `users.html`, incluso si está presente en la base de datos. La causa probable es que la función de `login` en `services/auth/auth.js` no incluye este campo en el objeto de usuario que se devuelve al frontend y se guarda en la sesión. Se debe auditar y corregir el servicio de autenticación para que devuelva el objeto de usuario completo.
+
+---
+
 ---
 
 ## -- TAREAS EN PROGRESO O CON OBSERVACIONES --
@@ -158,15 +167,6 @@ Alcance:
 - Creación de la UI para listar y detallar mensajes.
 - Integración con el `services/feedback/feedback.js` para obtener, responder y resolver items.
 - Lógica de visibilidad basada en roles de usuario (`Supervisor`, `Gefe`, `Desarrollador`).
-
----
-
-[EN PROGRESO] Investigar Falta de "Nombre Completo" en la Sección "Mi Perfil"
-Origen: Reporte de PM
-Prioridad: MEDIA
-Área: Backend | `services/auth/auth.js`
-Descripción:
-El "Nombre Completo" del usuario no aparece en la sección "Mi Perfil" de `users.html`, incluso si está presente en la base de datos. La causa probable es que la función de `login` en `services/auth/auth.js` no incluye este campo en el objeto de usuario que se devuelve al frontend y se guarda en la sesión. Se debe auditar y corregir el servicio de autenticación para que devuelva el objeto de usuario completo.
 
 ---
 
