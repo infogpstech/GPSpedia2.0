@@ -6,23 +6,24 @@
 
 ---
 
-### **INCIDENTE: Regresión Crítica - `Nombre_Completo` es sobrescrito por `SessionToken` al iniciar sesión**
+### **INCIDENTE: Verificación de Funcionalidad y Actualización de Endpoints de Servicios**
 
-**1. RESUMEN DEL PROBLEMA:**
-   - Se reportó un bug crítico donde el campo `Nombre_Completo` de un usuario en la base de datos es reemplazado por el `SessionToken` al iniciar sesión.
+**1. RESUMEN DE LA TAREA:**
+   - Se recibió una solicitud para realizar dos acciones principales:
+     1.  Confirmar que la lógica de generación de IDs en el servicio `GPSpedia-Write` era correcta y no necesitaba refactorización.
+     2.  Actualizar las URLs de producción para los microservicios `Auth`, `Feedback` y `Users`.
 
-**2. ANÁLISIS DE CAUSA RAÍZ (RCA) - CORREGIDO:**
-   - **Auditoría Inicial:** La hipótesis inicial, basada en logs de cambios anteriores (`V8.4.1`), apuntaba a un mapa de columnas (`COLS_USERS`) incorrecto en el servicio de autenticación (`services/auth/auth.js`). Se sospechaba que a la constante le faltaba la entrada `SessionToken: 8`.
-   - **Auditoría de Código Fuente (Actual):** Una revisión directa del archivo `services/auth/auth.js` en el repositorio demostró que esta hipótesis era **incorrecta**. El código fuente **actual es correcto** y la constante `COLS_USERS` sí incluye las 8 columnas, con `SessionToken` correctamente mapeado a la columna 8.
-   - **Conclusión Definitiva:** El problema no reside en el código del repositorio, sino en el **código que está actualmente en producción**. La versión del servicio `GPSpedia-Auth` que está desplegada en Google Apps Script es una versión **obsoleta** que todavía contiene el mapa de 7 columnas defectuoso. Es esta versión desactualizada la que, al ejecutarse, provoca el bug.
+**2. ANÁLISIS Y ACCIONES REALIZADAS:**
+   - **Verificación del Servicio `GPSpedia-Write`:**
+     - Se realizó una auditoría exhaustiva del archivo `services/write/write.js`.
+     - **Se confirma que el servicio ya implementa la lógica correcta** para la creación de nuevos registros. Utiliza el método `previousRow.copyTo(newRow)` seguido de `newRow.clearContent()`, lo cual asegura que las fórmulas de la hoja de cálculo (incluida la generación de IDs) se hereden correctamente.
+     - **Conclusión:** No se requirieron cambios de código en este servicio.
 
-**3. SOLUCIÓN:**
-   - **NO SE REQUIEREN CAMBIOS DE CÓDIGO.** El código en el repositorio ya contiene la solución.
-   - La única acción correctiva es **redesplegar el servicio `GPSpedia-Auth` en Google Apps Script** utilizando la última versión del archivo `services/auth/auth.js` de este repositorio.
-   - Esta acción debe ser llevada a cabo por el Project Manager o la persona encargada de los despliegues.
+   - **Actualización de Endpoints:**
+     - Se auditaron los archivos de configuración del frontend, `api.js` y `api-manager.js`.
+     - Se reemplazaron las URLs existentes para los servicios `AUTH`, `FEEDBACK` y `USERS` en **ambos archivos** con los nuevos endpoints proporcionados. Esto garantiza la consistencia y que toda la aplicación apunte a las últimas versiones desplegadas de estos servicios.
 
-**4. ESTADO:**
-   - **NO ES UN BUG DE CÓDIGO - PENDIENTE DE DESPLIEGUE.**
-   - El trabajo de desarrollo para solucionar este problema está completo, pendiente únicamente de la acción de despliegue para que la corrección se haga efectiva en el ambiente de producción.
+**3. ESTADO:**
+   - **COMPLETADO:** La verificación del servicio `write` ha sido confirmada y las URLs de los servicios `Auth`, `Feedback` y `Users` han sido actualizadas exitosamente en toda la base de código del frontend.
 
 ---

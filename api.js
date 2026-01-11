@@ -6,11 +6,11 @@
 
 const API_ENDPOINTS = {
     LEGACY: "https://script.google.com/macros/s/AKfycbwpIFH1nX2BZEjAKbpq9HJpEGNlo_0LqD1CwxWsWFo5J0AJDdbfMrKpcsAV4ZFJzFWd/exec",
-    AUTH:     "https://script.google.com/macros/s/AKfycbwoReCKliFdD_Ep8Ivq2WOLwxlMnfsxwKxlM3mgxGocTcmJ8cP5bEF7R6Z8iEui8ynU/exec",
+    AUTH:     "https://script.google.com/macros/s/AKfycbwATstMSSnuYZMeGEjI7Q5cznO6kA8rqLo7zNZLmu_f29qwcyt4Fucn5VIBdB9tMoRg/exec",
     CATALOG:  "https://script.google.com/macros/s/AKfycbxI295Wu8KW9Zi_DzgZKr68js2IHyDXYgBRM-TRXk2jwBy5lBrlKHxH--I3cUpdUCS60Q/exec",
     WRITE:    "https://script.google.com/macros/s/AKfycbwx51C9UQPRis2hIExIT2d1lGoTFZdCFyzMVVvQseHg41pztX86H16n88D8npO5__o_cQ/exec",
-    USERS:    "https://script.google.com/macros/s/AKfycbyqrrPeuawqRVg6bWdHem1DiPEV8KWT8KUgIfi6KOeXAQk1jZPouQb6mIKGPOsyWDkVMg/exec",
-    FEEDBACK: "https://script.google.com/macros/s/AKfycbwEwlpdUBFwF8TvIjGLp73bydJoB-QLEghhw3E_mvksMC805Y7fu6c0ckvT7fq9NNI/exec",
+    USERS:    "https://script.google.com/macros/s/AKfycbyTMlc7SMuhpq2lM3q0cr1HeUWZErthLgvKqqhuCo02i-ktjHILfHgxw8lHytbkHYwCHQ/exec",
+    FEEDBACK: "https://script.google.com/macros/s/AKfycbzQs_hbwa8aqF_MxQOJnuDZu65HZnm_sBbmzOMU4SqZFvfcZfo6szP24ZNV_SeUZB9d/exec",
     UTILITIES: "https://script.google.com/macros/s/AKfycbzkGXk_kSm3rN7K5PM0RntiPAn7DlH78RkH66a2vuwZwU8KgwDufkOiPjXoUKzuHAgG/exec"
 };
 
