@@ -1,5 +1,25 @@
 **V8.5.5 - (REFACTOR) - 13/01/2026**
-**A. RESUMEN GENERAL:** Se ejecutó una refactorización de la arquitectura del frontend para eliminar la configuración de endpoints duplicada, estableciendo una única fuente de verdad y mejorando la mantenibilidad del código.
+**A. RESUMEN GENERAL:** Se ejecutó una refactorización final y definitiva de la arquitectura del frontend para eliminar toda duplicación de la configuración de la API, consolidando todo en un único módulo.
+
+**B. Cambios de Arquitectura:**
+1.  **Unificación Total del Módulo de API:**
+    *   **Problema:** La refactorización anterior había centralizado la configuración en `api-config.js`, pero `api.js` todavía existía como una capa de lógica separada, creando una ambigüedad innecesaria.
+    *   **Solución:** Se consolidó toda la lógica y la configuración en un único archivo, `api-config.js`. Este archivo ahora contiene las constantes de endpoints, el mapeo de acciones y todas las funciones de ayuda (`routeAction`, `login`, etc.).
+    *   Se eliminó `api.js` por completo, ya que su contenido fue fusionado en `api-config.js`.
+
+2.  **Actualización de Dependencias:**
+    *   Todos los módulos que dependían de `api.js` (como `main.js`, `auth.js`) y el script en línea de `users.html` fueron actualizados para importar directamente desde el módulo unificado `api-config.js`.
+
+**C. Cambios Técnicos Implementados:**
+- **`api-config.js`:** Se convirtió en el único módulo de API, conteniendo tanto configuración como lógica.
+- **`api.js`:** Eliminado.
+- **`main.js`:** Actualizada la ruta de importación a `api-config.js`.
+- **`auth.js`:** Actualizada la ruta de importación a `api-config.js`.
+- **`users.html`:** Actualizada la ruta de importación en su script de módulo a `api-config.js`.
+
+**D. Impacto:**
+- **Máxima Mantenibilidad:** Se ha eliminado toda la ambigüedad. Ahora hay un solo archivo para todo lo relacionado con la API, lo que simplifica futuras actualizaciones y reduce la superficie para errores.
+- **Claridad Arquitectónica:** La estructura del frontend es ahora más limpia y sigue un patrón de diseño modular más estricto y comprensible.
 
 **B. Cambios de Arquitectura:**
 1.  **Centralización de la Configuración:**

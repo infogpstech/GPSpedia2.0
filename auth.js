@@ -5,7 +5,7 @@
 // - Update the user state.
 
 import { setState } from './state.js';
-import { routeAction, fetchCatalogData, login as apiLogin, validateSession as apiValidateSession } from './api.js';
+import { routeAction, fetchCatalogData, login as apiLogin, validateSession as apiValidateSession } from './api-config.js';
 import { showLoginScreen, showApp, showGlobalError } from './ui.js';
 
 const SESSION_KEY = 'gpsepedia_session';

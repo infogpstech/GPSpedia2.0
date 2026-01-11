@@ -6,22 +6,23 @@
 
 ---
 
-### **INCIDENTE: Refactorización de Arquitectura Frontend para Centralizar la Configuración de Endpoints**
+### **INCIDENTE: Refactorización Final de Arquitectura Frontend para Unificar el Módulo de API**
 
 **1. RESUMEN DEL INCIDENTE:**
-   - Tras una actualización de endpoints, se identificó un problema de arquitectura crítico: la configuración de los endpoints de los microservicios estaba duplicada en dos archivos (`api.js` y `api-manager.js`).
-   - Esta duplicación era una fuente de errores, inconsistencias y deuda técnica, dificultando el mantenimiento de la aplicación.
-   - Se tomó la decisión de refactorizar el frontend para establecer una **única fuente de verdad** para toda la configuración de la API.
+   - Siguiendo una refactorización inicial para centralizar la configuración, se recibió una solicitud para eliminar la ambigüedad restante y consolidar toda la funcionalidad de la API en un único módulo.
+   - El objetivo era eliminar la separación entre `api-config.js` (configuración) y `api.js` (lógica), unificándolos para crear una sola fuente de verdad para toda la capa de API del frontend.
 
 **2. ANÁLISIS Y HALLAZGOS:**
-   - **Causa Raíz:** La aplicación había evolucionado de forma incremental, con `index.html` utilizando `api-manager.js` como un script global, mientras que páginas más nuevas como `users.html` utilizaban `api.js` como un módulo de JavaScript (`import`). Ambos archivos contenían copias idénticas de las mismas constantes de configuración.
-   - **Riesgo:** Cualquier actualización de URL que no se aplicara en ambos archivos resultaría en un fallo parcial de la aplicación.
+   - **Arquitectura Previa:** La separación entre configuración y lógica, aunque mejor que la duplicación, seguía siendo innecesariamente compleja para el tamaño de la aplicación y generaba confusión sobre qué archivo importar.
+   - **Objetivo Arquitectónico:** El estado ideal es tener un solo módulo (`api-config.js`) que exporte tanto las constantes de configuración como las funciones de la API.
 
-**3. ACCIONES CORRECTIVAS REALIZADAS (Refactorización):**
-   1.  **Creación de `api-config.js`:** Se creó un nuevo archivo que ahora contiene y exporta las constantes `API_ENDPOINTS` y `ACTION_TO_SERVICE_MAP`, sirviendo como la única fuente de verdad.
-   2.  **Refactorización de `api.js`:** Se modificó para que importe su configuración directamente desde `api-config.js`, eliminando las constantes locales.
-   3.  **Refactorización y Eliminación de `api-manager.js`:** Se refactorizó `api-manager.js` de la misma manera. Tras un análisis más profundo, se determinó que su funcionalidad era completamente redundante con respecto a `api.js`. Por lo tanto, el archivo `api-manager.js` fue **eliminado** del proyecto.
-   4.  **Ajuste de `main.js`:** Se revisó y ajustó el punto de entrada principal, `main.js`, para asegurar que importa y utiliza correctamente la lógica del refactorizado `api.js`, y que expone las funciones necesarias al ámbito global para la compatibilidad con el HTML.
+**3. ACCIONES CORRECTIVAS REALIZADAS (Refactorización Final):**
+   1.  **Consolidación de Lógica:** Todo el contenido de `api.js` (incluyendo `routeAction` y las funciones de ayuda) fue movido y fusionado dentro de `api-config.js`.
+   2.  **Eliminación de Redundancia:** El archivo `api.js` fue eliminado del proyecto.
+   3.  **Actualización de Dependencias:** Se realizó una búsqueda en toda la base de código para encontrar todos los `import` que apuntaban a `api.js`. Los siguientes archivos fueron modificados para importar desde el nuevo módulo unificado `api-config.js`:
+       - `main.js`
+       - `auth.js`
+       - `users.html` (en su script de módulo en línea)
 
 **4. ESTADO:**
-   - **COMPLETADO:** La refactorización ha sido completada con éxito. La configuración de la API ahora está centralizada en `api-config.js`, eliminando la duplicación y el riesgo de inconsistencia. El código del frontend es ahora más limpio, más mantenible y sigue un patrón de diseño modular consistente.
+   - **COMPLETADO:** La refactorización ha sido completada y verificada. Ahora existe un único módulo de API, `api-config.js`, que centraliza toda la configuración y la lógica. La arquitectura del frontend es significativamente más limpia, simple y mantenible. Se ha eliminado toda la deuda técnica relacionada con la gestión de la configuración de la API.

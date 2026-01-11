@@ -4,8 +4,8 @@
 // - Initialize the application and set up global event listeners.
 // - Expose modules to the global window object for HTML compatibility.
 
-// Importar la función `routeAction` refactorizada, que ahora usa la config central.
-import { routeAction } from './api.js';
+// Importar la función `routeAction` desde el módulo de API unificado.
+import { routeAction } from './api-config.js';
 import * as auth from './auth.js';
 import * as state from './state.js';
 import * as ui from './ui.js';

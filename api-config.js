@@ -1,13 +1,11 @@
-// GPSpedia API Configuration Module | Version: 1.0.0
+// GPSpedia Unified API Module | Version: 2.0.0
 // ============================================================================
-// ÚNICA FUENTE DE VERDAD PARA LA CONFIGURACIÓN DE ENDPOINTS Y RUTEO DE ACCIONES
+// ÚNICA FUENTE DE VERDAD PARA LA CONFIGURACIÓN Y LÓGICA DE LA API
 // ============================================================================
 
+// 1. CONFIGURACIÓN
 export const API_ENDPOINTS = {
-    // URL del script original (monolítico). Se usará como fallback durante la migración.
     LEGACY: "https://script.google.com/macros/s/AKfycbwpIFH1nX2BZEjAKbpq9HJpEGNlo_0LqD1CwxWsWFo5J0AJDdbfMrKpcsAV4ZFJzFWd/exec",
-
-    // URLs para los nuevos microservicios.
     AUTH:     "https://script.google.com/macros/s/AKfycbwATstMSSnuYZMeGEjI7Q5cznO6kA8rqLo7zNZLmu_f29qwcyt4Fucn5VIBdB9tMoRg/exec",
     CATALOG:  "https://script.google.com/macros/s/AKfycbzUdYI2MpBcXvXsNZvfBTbsDmBBzFgsqONemSd6vjwGEP2jls_eIVjXylU-nXgWa7-m7A/exec",
     WRITE:    "https://script.google.com/macros/s/AKfycbyzP3RwEAqxJN8xzrqxjlsChx4xDgRuvpW-ygWM9teMHM0hWl0DDx91gR3TTR832BWakQ/exec",
@@ -17,36 +15,75 @@ export const API_ENDPOINTS = {
 };
 
 export const ACTION_TO_SERVICE_MAP = {
-    // Auth Service
-    'login': 'AUTH',
-    'validateSession': 'AUTH',
-
-    // Catalog Service
-    'getCatalogData': 'CATALOG',
-    'getDropdownData': 'CATALOG',
-    'checkVehicle': 'CATALOG',
-
-    // Write Service
-    'addCorte': 'WRITE',
-    'addOrUpdateCut': 'WRITE',
-    'addSupplementaryInfo': 'WRITE',
-
-    // Users Service
-    'getUsers': 'USERS',
-    'createUser': 'USERS',
-    'updateUser': 'USERS',
-    'deleteUser': 'USERS',
-    'changePassword': 'USERS',
-
-    // Feedback Service
-    'recordLike': 'FEEDBACK',
-    'reportProblem': 'FEEDBACK',
-    'sendContactForm': 'FEEDBACK', // <-- Corregido/Añadido
-
-    // Utilities Service (NUEVO)
-    'migrateYearRanges': 'UTILITIES',
-    'migrateTimestamps': 'UTILITIES',
-
-    // Legacy (acciones que aún no se han migrado o son de propósito general)
+    'login': 'AUTH', 'validateSession': 'AUTH',
+    'getNavigationData': 'CATALOG', 'getCatalogData': 'CATALOG', 'getDropdownData': 'CATALOG',
+    'getSuggestion': 'WRITE', 'checkVehicle': 'WRITE', 'addCorte': 'WRITE', 'addOrUpdateCut': 'WRITE', 'addSupplementaryInfo': 'WRITE',
+    'getUsers': 'USERS', 'createUser': 'USERS', 'updateUser': 'USERS', 'deleteUser': 'USERS', 'changePassword': 'USERS',
+    'recordLike': 'FEEDBACK', 'reportProblem': 'FEEDBACK', 'sendContactForm': 'FEEDBACK', 'suggestYear': 'FEEDBACK',
+    'getFeedbackItems': 'FEEDBACK', 'replyToFeedback': 'FEEDBACK', 'markAsResolved': 'FEEDBACK',
+    'migrateYearRanges': 'UTILITIES', 'migrateTimestamps': 'UTILITIES',
     'logFrontend': 'LEGACY'
 };
+
+// 2. LÓGICA DE RUTEO CENTRAL
+export async function routeAction(action, payload = {}, serviceOverride = null) {
+    const service = serviceOverride || ACTION_TO_SERVICE_MAP[action];
+    if (!service) throw new Error(`Acción no definida: ${action}`);
+
+    let targetUrl = API_ENDPOINTS[service];
+    if (!targetUrl) targetUrl = API_ENDPOINTS.LEGACY;
+
+    try {
+        const response = await fetch(targetUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({ action, payload })
+        });
+
+        if (!response.ok) throw new Error(`Error de red: ${response.status} ${response.statusText}`);
+
+        const text = await response.text();
+        const result = JSON.parse(text);
+
+        if (result.status === 'error') {
+            const errorMessage = result.details ? `${result.message}: ${result.details.errorMessage}` : result.message;
+            throw new Error(errorMessage);
+        }
+        return result;
+    } catch (error) {
+        throw error;
+    }
+}
+
+// 3. FUNCIONES DE CONVENIENCIA (HELPERS)
+export async function login(username, password) {
+    return await routeAction('login', { username, password });
+}
+
+export async function validateSession(userId, sessionToken) {
+    return await routeAction('validateSession', { userId, sessionToken });
+}
+
+export async function fetchCatalogData() {
+    return await routeAction('getCatalogData');
+}
+
+export async function getFeedbackItems() {
+    return await routeAction('getFeedbackItems');
+}
+
+export async function replyToFeedback(itemId, itemType, replyText, responderName) {
+    return await routeAction('replyToFeedback', { itemId, itemType, replyText, responderName });
+}
+
+export async function markAsResolved(itemId) {
+    return await routeAction('markAsResolved', { itemId });
+}
+
+export function getImageUrl(fileId, size = 280) {
+    if (!fileId || typeof fileId !== 'string' || fileId.trim() === '') {
+        return "https://placehold.co/280x200/cccccc/333333?text=Sin+Imagen";
+    }
+    const sizeParam = typeof size === 'number' ? `w${size}` : size;
+    return `https://drive.google.com/thumbnail?id=${fileId.trim()}&sz=${sizeParam}`;
+}
