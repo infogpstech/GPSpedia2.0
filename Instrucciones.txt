@@ -116,12 +116,12 @@ NO se permiten atajos, omisiones ni reinterpretaciones.
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-[PENDIENTE DE REVISIÓN POR EL PM] CORRECCIÓN Y NORMALIZACIÓN DEL FLUJO DE NAVEGACIÓN
+[PENDIENTE DE REVISIÓN POR EL PM] CORRECCIÓN Y NORMALIZACIÓN DEL FLUJO DE NAVEGACIÓN (v2)
 Origen: Reporte de PM + Requerimiento Funcional
 Prioridad: ALTA
 Área: Frontend | UI
 Descripción:
-Se ha refactorizado integralmente el flujo de navegación en `ui.js` para crear una experiencia de usuario consistente, reversible y lógica. Se implementó una función "hub" (`navegarADetallesDeModelo`) que centraliza la decisión de mostrar "Versiones de Equipamiento" o "Tipos de Encendido", resolviendo el bug principal. Todos los flujos (por categoría, marca y búsqueda) ahora convergen en este comportamiento unificado.
+Se ha implementado una corrección sobre la refactorización anterior para asegurar que el flujo de navegación sea el correcto (`Modelo -> [Versión O Encendido] -> Año`). Se modificó `mostrarVersionesEquipamiento` para que navegue directamente a la selección de año/generación. Adicionalmente, se robusteció la lógica de los botones "Volver" para que utilicen el estado de la aplicación, garantizando una navegación hacia atrás siempre predecible y correcta.
 Archivos Afectados: `ui.js`, `index.html`.
 
 ---

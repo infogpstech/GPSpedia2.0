@@ -168,3 +168,19 @@ Se realizó una auditoría exhaustiva de `ui.js` para abordar la tarea de correc
 4.  **Consistencia de Botones de Regreso:**
     *   **Hallazgo:** Los botones de "Volver" están implementados con llamadas a funciones específicas en atributos `onclick` (ej. `onclick="window.ui.mostrarMarcas('${categoria}')"`).
     *   **Impacto:** Durante la refactorización, será crucial actualizar cada uno de estos `onclick` para asegurar que apunten a la etapa anterior correcta dentro del nuevo flujo unificado, pasando todos los parámetros necesarios para reconstruir la vista anterior.
+
+**M. RE-AUDITORÍA DEL FLUJO DE NAVEGACIÓN (POST-CORRECCIÓN INICIAL) - 15/01/2026**
+---------------------------------------------------------------------------------
+Tras la identificación de un error en la primera implementación de la corrección del flujo de navegación, se realizó una segunda auditoría focalizada.
+
+1.  **Error en el Flujo `Versión de Equipamiento`:**
+    *   **Hallazgo (Causa Raíz):** La función `mostrarVersionesEquipamiento` fue modificada para ser llamada correctamente por la función "hub". Sin embargo, el `onclick` de las tarjetas que genera llama a `mostrarTiposEncendido`.
+    *   **Impacto:** Esto introduce un paso extra e incorrecto en el flujo (`Modelo -> Versión de Equipamiento -> Tipo de Encendido -> Año`) en lugar del flujo requerido (`Modelo -> Versión de Equipamiento -> Año`).
+
+2.  **Error en la Lógica de los Botones "Volver":**
+    *   **Hallazgo:** Las funciones `mostrarTiposEncendido` y `mostrarVersiones` utilizan una lógica estática para generar la acción de sus botones "Volver". Por ejemplo, `mostrarVersiones` siempre genera un botón que regresa a `mostrarModelos`.
+    *   **Impacto:** Si un usuario llega a `mostrarVersiones` a través de la ruta `... -> mostrarVersionesEquipamiento -> mostrarTiposEncendido`, el botón "Volver" lo enviará incorrectamente a la lista de modelos, saltándose dos pasos intermedios. La navegación no es reversible ni predecible.
+
+3.  **Acción Requerida:**
+    *   **Flujo Hacia Adelante:** Modificar el `onclick` en `mostrarVersionesEquipamiento` para que filtre los datos por la versión seleccionada y llame directamente a `mostrarVersiones`.
+    *   **Flujo Hacia Atrás:** Refactorizar la lógica de los botones "Volver" en `mostrarTiposEncendido` y `mostrarVersiones` para que utilicen el `navigationState` y determinen dinámicamente la función y los parámetros correctos para regresar al paso anterior real.

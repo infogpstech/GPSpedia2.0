@@ -1,3 +1,26 @@
+**V4.7.1 - (FIX) - 15/01/2026**
+**A. RESUMEN GENERAL:** Se implementó una corrección definitiva al flujo de navegación, solucionando un error lógico introducido en la refactorización anterior. Se ha restaurado el flujo funcional requerido y se ha robustecido la navegación hacia atrás.
+
+**B. Cambios Implementados:**
+1.  **Corrección del Flujo `Versión de Equipamiento` (`ui.js`):**
+    *   **Problema:** Al seleccionar una "Versión de Equipamiento", el sistema navegaba incorrectamente a la pantalla de "Tipo de Encendido", creando un paso extra no deseado en el flujo.
+    *   **Solución:** Se modificó la función `mostrarVersionesEquipamiento`. El evento `onclick` de cada tarjeta de versión ahora filtra los datos correspondientes a esa versión y navega directamente a `mostrarVersiones` (la pantalla de selección de Año/Generación), omitiendo el paso incorrecto.
+    *   **Líneas Afectadas en `ui.js`:** 465-467.
+
+2.  **Mejora de la Información en Tarjetas (`ui.js`):**
+    *   **Problema:** Las tarjetas en la pantalla de "Versión de Equipamiento" solo mostraban el nombre de la versión.
+    *   **Solución:** Se mejoró el renderizado de estas tarjetas para incluir también los tipos de encendido asociados a cada versión, proporcionando más contexto al usuario, tal como se requería.
+    *   **Líneas Afectadas en `ui.js`:** 476-477.
+
+3.  **Robustecimiento de la Navegación Hacia Atrás (`ui.js`):**
+    *   **Problema:** Los botones "Volver" en las pantallas de "Tipo de Encendido" y "Año/Generación" tenían una lógica estática que fallaba si el usuario llegaba a través de un flujo alternativo (como el de "Versión de Equipamiento").
+    *   **Solución:** Se refactorizaron las funciones `mostrarTiposEncendido` y `mostrarVersiones` para que utilicen el `navigationState` guardado. Ahora, determinan dinámicamente cuál fue la pantalla anterior y construyen el `onclick` del botón "Volver" para que siempre regrese al paso previo correcto, garantizando una navegación reversible y predecible.
+    *   **Líneas Afectadas en `ui.js`:** 370-381, 418-426.
+
+**C. Impacto:**
+- **Flujo de Navegación Correcto:** La aplicación ahora sigue estrictamente el flujo funcional requerido (`Modelo -> [Versión O Encendido] -> Año`), eliminando pasos incorrectos y confusos.
+- **Experiencia de Usuario Mejorada:** La navegación hacia atrás es ahora completamente fiable, y las tarjetas de versión de equipamiento son más informativas, mejorando la usabilidad general.
+
 **V4.7.0 - (REFACTOR) - 15/01/2026**
 **A. RESUMEN GENERAL:** Se ejecutó una refactorización integral del flujo de navegación en `ui.js` para corregir inconsistencias, normalizar el comportamiento y alinearlo con los requisitos funcionales. Se ha establecido un flujo de usuario lógico, predecible y reversible.
 

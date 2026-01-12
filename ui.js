@@ -367,10 +367,18 @@ export function mostrarModelos(categoria, marca, versionEquipamiento = null) {
 export function mostrarTiposEncendido(categoria, marca, versionEquipamiento, modelo) {
      const { catalogData } = getState();
     const { cortes } = catalogData;
-    setState({ navigationState: { level: "tiposEncendido", categoria, marca, versionEquipamiento, modelo } });
+    const previousState = getState().navigationState || {};
+    setState({ navigationState: { level: "tiposEncendido", categoria, marca, versionEquipamiento, modelo, previousState } });
+
     const cont = document.getElementById("contenido");
-    const backAction = `window.ui.mostrarModelos('${categoria}', '${marca}', ${versionEquipamiento ? `'${versionEquipamiento}'` : 'null'})`;
-    cont.innerHTML = `<span class="backBtn" onclick="${backAction}">${backSvg} Volver</span><h4>Tipos de Encendido para ${modelo}</h4>`;
+
+    // Comentario: Lógica dinámica para el botón "Volver".
+    // Regresa a `mostrarVersionesEquipamiento` si ese fue el paso anterior, si no, a `mostrarModelos`.
+    const backAction = previousState.level === 'versionesEquipamiento'
+        ? `window.ui.mostrarVersionesEquipamiento('${categoria}', '${marca}', '${modelo}')`
+        : `window.ui.mostrarModelos('${categoria}', '${marca}')`;
+
+    cont.innerHTML = `<span class="backBtn" onclick="${backAction}">${backSvg} Volver</span><h4>Tipos de Encendido para ${modelo} ${versionEquipamiento || ''}</h4>`;
 
     let vehiculos = cortes.filter(item =>
         item.categoria === categoria &&
@@ -407,9 +415,15 @@ export function mostrarTiposEncendido(categoria, marca, versionEquipamiento, mod
 }
 
 export function mostrarVersiones(filas, categoria, marca, modelo) {
-    setState({ navigationState: { level: "versiones", categoria, marca, modelo } });
+    const previousState = getState().navigationState || {};
+    setState({ navigationState: { level: "versiones", categoria, marca, modelo, previousState } });
     const cont = document.getElementById("contenido");
-    cont.innerHTML = `<span class="backBtn" onclick="window.ui.mostrarModelos('${categoria}','${marca}')">${backSvg} Volver</span><h4>Cortes/Años de ${modelo}</h4>`;
+
+    // Comentario: Lógica dinámica para el botón "Volver".
+    // Regresa a la pantalla anterior (tipos de encendido o versiones de equipamiento).
+    const backAction = `window.ui.mostrarTiposEncendido('${categoria}', '${marca}', '${previousState.versionEquipamiento || null}', '${modelo}')`;
+
+    cont.innerHTML = `<span class="backBtn" onclick="${backAction}">${backSvg} Volver</span><h4>Años de ${modelo}</h4>`;
     const grid = document.createElement("div"); grid.className = "grid";
     filas.forEach(item => {
         const card = document.createElement("div"); card.className = "card";
@@ -442,11 +456,15 @@ export function mostrarVersionesEquipamiento(categoria, marca, modelo) {
     grid.className = "grid";
 
     versiones.forEach(version => {
-        const ejemplo = vehiculosDelModelo.find(item => item.versionesAplicables === version && item.imagenVehiculo);
+        const vehiculosDeVersion = vehiculosDelModelo.filter(v => v.versionesAplicables === version);
+        const tiposDeEncendidoEnVersion = [...new Set(vehiculosDeVersion.map(v => v.tipoEncendido).filter(Boolean))].join(' / ');
+
+        const ejemplo = vehiculosDeVersion.find(item => item.imagenVehiculo);
         const card = document.createElement("div");
         card.className = "card";
-        // Comentario: Al hacer clic en una versión, se avanza a mostrar los tipos de encendido para ESA versión.
-        card.onclick = () => mostrarTiposEncendido(categoria, marca, version, modelo);
+
+        // Comentario CORREGIDO: Al hacer clic, se filtran los vehículos de esta versión y se avanza a la pantalla de Años.
+        card.onclick = () => mostrarVersiones(vehiculosDeVersion, categoria, marca, modelo);
 
         const img = document.createElement("img");
         img.src = getImageUrl(ejemplo?.imagenVehiculo);
@@ -455,7 +473,8 @@ export function mostrarVersionesEquipamiento(categoria, marca, modelo) {
 
         const overlay = document.createElement("div");
         overlay.className = "overlay";
-        overlay.innerHTML = version;
+        // Comentario: La tarjeta ahora muestra el nombre de la versión y los tipos de encendido asociados.
+        overlay.innerHTML = `<div>${version}</div><div style="font-size:0.8em; opacity:0.8;">${tiposDeEncendidoEnVersion}</div>`;
         card.appendChild(overlay);
         grid.appendChild(card);
     });
