@@ -114,6 +114,119 @@ Si un paso NO fue ejecutado, el proceso se considera INCOMPLETO.
 NO se permiten atajos, omisiones ni reinterpretaciones.
 
 ---
+**TAREAS COMPLETADAS**
+---
+[COMPLETADA] Investigar Comportamiento Anormal de Carga del Catálogo y Renderizado de Imágenes
+Origen: Reporte de PM
+Prioridad: ALTA
+Área: Frontend | `index.html` | `ui.js`
+Descripción:
+Se investigó un comportamiento anómalo en la carga y renderizado de la aplicación, con foco en las imágenes de Google Drive. La auditoría de código concluyó que la lógica de la función `getImageUrl` es correcta y robusta. Múltiples intentos de verificación automatizada fallaron por problemas del entorno de pruebas. Una verificación manual final (code tracing) confirmó que el código funciona como se espera. Se concluye que el código no requiere cambios y que el problema reportado probablemente se deba a factores externos como la caché del navegador.
+
+---
+
+[COMPLETADA] Actualización Final de Endpoint del Servicio de Usuarios
+Origen: Requerimiento de Configuración (Post-Investigación)
+Prioridad: CRÍTICA
+Área: Configuración | Frontend
+Descripción:
+Se actualizó la URL del microservicio de `USERS` en `api-manager.js` para apuntar al endpoint definitivo y verificado (`...LUydhEW_Ng/exec`), proporcionado por el Project Manager tras una investigación exhaustiva.
+Archivos Afectados: `api-manager.js`.
+
+---
+
+[COMPLETADA] Actualización de Endpoints de AUTH y USERS
+Origen: Requerimiento de Configuración
+Prioridad: CRÍTICA
+Área: Configuración | Frontend
+Descripción:
+Se actualizaron las URLs de los microservicios de `AUTH` y `USERS` en `api-manager.js` para apuntar a los nuevos endpoints de producción desplegados por el Project Manager.
+Archivos Afectados: `api-manager.js`.
+
+---
+
+[COMPLETADA] Actualización de Endpoint del Servicio de Usuarios (Iteración 4)
+Origen: Requerimiento de Configuración
+Prioridad: CRÍTICA
+Área: Configuración | Frontend
+Descripción:
+Se actualizó por cuarta vez la URL del microservicio de `USERS` en `api-manager.js` para apuntar al nuevo endpoint de producción desplegado por el Project Manager.
+Archivos Afectados: `api-manager.js`.
+
+---
+
+[COMPLETADA] Corrección de Regresión Crítica y Bug Persistente en Módulo de Usuarios
+Origen: Reporte de PM (Post-Revisión)
+Prioridad: CRÍTICA
+Área: Backend | Users
+Descripción:
+Se corrigió la regresión "create on edit" que duplicaba usuarios y se solucionó el bug que impedía guardar el "Nombre Completo".
+Archivos Afectados: `services/users/users.js`.
+
+---
+
+[COMPLETADA] Actualización de Endpoint del Servicio de Usuarios (Iteración 3)
+Origen: Requerimiento de Configuración
+Prioridad: CRÍTICA
+Área: Configuración | Frontend
+Descripción:
+Se actualizó por tercera vez la URL del microservicio de `USERS` en `api-manager.js` para apuntar al nuevo endpoint de producción desplegado por el Project Manager.
+Archivos Afectados: `api-manager.js`.
+
+---
+
+[COMPLETADA] Corrección Definitiva de Bug en Guardado de "Nombre Completo"
+Origen: Reporte de PM (Post-Revisión)
+Prioridad: CRÍTICA
+Área: Backend | Users
+Descripción:
+Se implementó la corrección definitiva para el bug persistente que impedía guardar el "Nombre Completo" al editar un usuario. La causa raíz fue un conflicto de `case-sensitivity` en la lógica de `handleUpdateUser` que impedía el mapeo correcto del campo.
+Archivos Afectados: `services/users/users.js`.
+
+---
+
+[COMPLETADA] Actualización de Endpoint del Servicio de Usuarios (Iteración 2)
+Origen: Requerimiento de Configuración
+Prioridad: CRÍTICA
+Área: Configuración | Frontend
+Descripción:
+Se actualizó por segunda vez la URL del microservicio de `USERS` en `api-manager.js` para apuntar al nuevo endpoint de producción desplegado por el Project Manager.
+Archivos Afectados: `api-manager.js`.
+
+---
+
+[COMPLETADA] Corrección de Bug en Guardado de "Nombre Completo"
+Origen: Reporte de PM (Post-Revisión)
+Prioridad: CRÍTICA
+Área: Backend | Users
+Descripción:
+Se corrigió un bug que impedía que el campo "Nombre Completo" se guardara al crear o editar un usuario. La causa raíz fue que el backend (`services/users/users.js`) ignoraba silenciosamente el campo en las funciones `handleCreateUser` y `handleUpdateUser`.
+Archivos Afectados: `services/users/users.js`.
+
+---
+
+[COMPLETADA] Actualización de Endpoint del Servicio de Usuarios
+Origen: Requerimiento de Configuración
+Prioridad: CRÍTICA
+Área: Configuración | Frontend
+Descripción:
+Se actualizó la URL del microservicio de `USERS` en `api-manager.js` para apuntar al nuevo endpoint de producción desplegado por el Project Manager.
+Archivos Afectados: `api-manager.js`.
+
+---
+
+[COMPLETADA] Corrección de Regresiones Críticas en Módulo de Usuarios (Tareas 24, 25, 26)
+Origen: Reporte de Regresión Post-Implementación
+Prioridad: CRÍTICA
+Área: Backend, Frontend | Users
+Descripción:
+Se corrigieron tres bugs críticos que surgieron tras la implementación de la funcionalidad "Nombre Completo":
+1.  **Bug de Visualización:** El `SessionToken` se mostraba en lugar del nombre completo. (Causa: Mapeo de columnas incorrecto en `services/users/users.js`).
+2.  **Bug de Actualización:** La edición de usuarios fallaba. (Causa: Conflicto de `case-sensitivity` en la propiedad `ID` del usuario entre frontend y backend).
+3.  **Bug de Eliminación:** La eliminación de usuarios fallaba. (Causa: Síntoma secundario del mapeo de columnas incorrecto que afectaba la integridad de los datos).
+Archivos Afectados: `services/users/users.js`.
+
+---
 [COMPLETADA] Corrección Integral de Múltiples Regresiones Críticas
 Origen: Reporte de PM (Post-Fallo de Despliegue)
 Prioridad: MÁXIMA
@@ -147,7 +260,8 @@ Descripción:
 El "Nombre Completo" del usuario no aparece en la sección "Mi Perfil" de `users.html`, incluso si está presente en la base de datos. La causa probable es que la función de `login` en `services/auth/auth.js` no incluye este campo en el objeto de usuario que se devuelve al frontend y se guarda en la sesión. Se debe auditar y corregir el servicio de autenticación para que devuelva el objeto de usuario completo.
 
 ---
-
+**TAREAS PENDIENTES**
+---
 [EN PROGRESO] Implementar Sistema de Inbox (Tarea 18)
 Origen: Requerimiento de Funcionalidad
 Prioridad: ALTA
@@ -159,121 +273,6 @@ Alcance:
 - Integración con el `services/feedback/feedback.js` para obtener, responder y resolver items.
 - Lógica de visibilidad basada en roles de usuario (`Supervisor`, `Gefe`, `Desarrollador`).
 
----
-**TAREAS PENDIENTES DE REVISIÓN**
----
-[PENDIENTE REVISION POR EL MP] Investigar Comportamiento Anormal de Carga del Catálogo y Renderizado de Imágenes
-Origen: Reporte de PM
-Prioridad: ALTA
-Área: Frontend | `index.html` | `ui.js`
-Descripción:
-Se investigó un comportamiento anómalo en la carga y renderizado de la aplicación, con foco en las imágenes de Google Drive. La auditoría de código concluyó que la lógica de la función `getImageUrl` es correcta y robusta. Múltiples intentos de verificación automatizada fallaron por problemas del entorno de pruebas. Una verificación manual final (code tracing) confirmó que el código funciona como se espera. Se concluye que el código no requiere cambios y que el problema reportado probablemente se deba a factores externos como la caché del navegador.
-
----
-
-[PENDIENTE REVISION POR EL MP] Actualización Final de Endpoint del Servicio de Usuarios
-Origen: Requerimiento de Configuración (Post-Investigación)
-Prioridad: CRÍTICA
-Área: Configuración | Frontend
-Descripción:
-Se actualizó la URL del microservicio de `USERS` en `api-manager.js` para apuntar al endpoint definitivo y verificado (`...LUydhEW_Ng/exec`), proporcionado por el Project Manager tras una investigación exhaustiva.
-Archivos Afectados: `api-manager.js`.
-
----
-
-[PENDIENTE REVISION POR EL MP] Actualización de Endpoints de AUTH y USERS
-Origen: Requerimiento de Configuración
-Prioridad: CRÍTICA
-Área: Configuración | Frontend
-Descripción:
-Se actualizaron las URLs de los microservicios de `AUTH` y `USERS` en `api-manager.js` para apuntar a los nuevos endpoints de producción desplegados por el Project Manager.
-Archivos Afectados: `api-manager.js`.
-
----
-
-[PENDIENTE REVISION POR EL MP] Actualización de Endpoint del Servicio de Usuarios (Iteración 4)
-Origen: Requerimiento de Configuración
-Prioridad: CRÍTICA
-Área: Configuración | Frontend
-Descripción:
-Se actualizó por cuarta vez la URL del microservicio de `USERS` en `api-manager.js` para apuntar al nuevo endpoint de producción desplegado por el Project Manager.
-Archivos Afectados: `api-manager.js`.
-
----
-
-[PENDIENTE REVISION POR EL MP] Corrección de Regresión Crítica y Bug Persistente en Módulo de Usuarios
-Origen: Reporte de PM (Post-Revisión)
-Prioridad: CRÍTICA
-Área: Backend | Users
-Descripción:
-Se corrigió la regresión "create on edit" que duplicaba usuarios y se solucionó el bug que impedía guardar el "Nombre Completo".
-Archivos Afectados: `services/users/users.js`.
-
----
-
-[PENDIENTE REVISION POR EL MP] Actualización de Endpoint del Servicio de Usuarios (Iteración 3)
-Origen: Requerimiento de Configuración
-Prioridad: CRÍTICA
-Área: Configuración | Frontend
-Descripción:
-Se actualizó por tercera vez la URL del microservicio de `USERS` en `api-manager.js` para apuntar al nuevo endpoint de producción desplegado por el Project Manager.
-Archivos Afectados: `api-manager.js`.
-
----
-
-[PENDIENTE REVISION POR EL MP] Corrección Definitiva de Bug en Guardado de "Nombre Completo"
-Origen: Reporte de PM (Post-Revisión)
-Prioridad: CRÍTICA
-Área: Backend | Users
-Descripción:
-Se implementó la corrección definitiva para el bug persistente que impedía guardar el "Nombre Completo" al editar un usuario. La causa raíz fue un conflicto de `case-sensitivity` en la lógica de `handleUpdateUser` que impedía el mapeo correcto del campo.
-Archivos Afectados: `services/users/users.js`.
-
----
-
-[PENDIENTE REVISION POR EL MP] Actualización de Endpoint del Servicio de Usuarios (Iteración 2)
-Origen: Requerimiento de Configuración
-Prioridad: CRÍTICA
-Área: Configuración | Frontend
-Descripción:
-Se actualizó por segunda vez la URL del microservicio de `USERS` en `api-manager.js` para apuntar al nuevo endpoint de producción desplegado por el Project Manager.
-Archivos Afectados: `api-manager.js`.
-
----
-
-[PENDIENTE REVISION POR EL MP] Corrección de Bug en Guardado de "Nombre Completo"
-Origen: Reporte de PM (Post-Revisión)
-Prioridad: CRÍTICA
-Área: Backend | Users
-Descripción:
-Se corrigió un bug que impedía que el campo "Nombre Completo" se guardara al crear o editar un usuario. La causa raíz fue que el backend (`services/users/users.js`) ignoraba silenciosamente el campo en las funciones `handleCreateUser` y `handleUpdateUser`.
-Archivos Afectados: `services/users/users.js`.
-
----
-
-[PENDIENTE REVISION POR EL MP] Actualización de Endpoint del Servicio de Usuarios
-Origen: Requerimiento de Configuración
-Prioridad: CRÍTICA
-Área: Configuración | Frontend
-Descripción:
-Se actualizó la URL del microservicio de `USERS` en `api-manager.js` para apuntar al nuevo endpoint de producción desplegado por el Project Manager.
-Archivos Afectados: `api-manager.js`.
-
----
-
-[PENDIENTE REVISION POR EL MP] Corrección de Regresiones Críticas en Módulo de Usuarios (Tareas 24, 25, 26)
-Origen: Reporte de Regresión Post-Implementación
-Prioridad: CRÍTICA
-Área: Backend, Frontend | Users
-Descripción:
-Se corrigieron tres bugs críticos que surgieron tras la implementación de la funcionalidad "Nombre Completo":
-1.  **Bug de Visualización:** El `SessionToken` se mostraba en lugar del nombre completo. (Causa: Mapeo de columnas incorrecto en `services/users/users.js`).
-2.  **Bug de Actualización:** La edición de usuarios fallaba. (Causa: Conflicto de `case-sensitivity` en la propiedad `ID` del usuario entre frontend y backend).
-3.  **Bug de Eliminación:** La eliminación de usuarios fallaba. (Causa: Síntoma secundario del mapeo de columnas incorrecto que afectaba la integridad de los datos).
-Archivos Afectados: `services/users/users.js`.
-
----
-**TAREAS PENDIENTES**
 ---
 [TAREA] Refactorizar Frontend para Separar Lógica de Presentación
 Origen: Auditoría Técnica Forense v2.0
