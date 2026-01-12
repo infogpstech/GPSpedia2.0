@@ -186,11 +186,13 @@ export function mostrarCategorias() {
         .map(item => item.marca))]
         .filter(Boolean).sort();
 
-    crearCarrusel('Marcas de Vehículos', marcasVehiculos, marca => {
+    // Comentario: Se corrige el título y el flujo de navegación para cumplir con el README.
+    crearCarrusel('Búsqueda por Marca de Vehículos', marcasVehiculos, marca => {
         const logoUrl = getLogoUrlForMarca(marca, null);
         const card = document.createElement("div");
         card.className = "card brand-logo-item";
-        card.onclick = () => mostrarCategoriasPorMarca(marca);
+        // Cambio Crítico: Corregir el flujo de navegación para que vaya de Marca -> Modelos.
+        card.onclick = () => mostrarModelosPorMarca(marca);
         const img = document.createElement("img");
         img.src = getImageUrl(logoUrl);
         img.alt = `Marca ${marca}`;
@@ -203,7 +205,8 @@ export function mostrarCategorias() {
         .map(item => item.marca))]
         .filter(Boolean).sort();
 
-    crearCarrusel('Marcas de Motocicletas', marcasMotos, marca => {
+    // Comentario: Título ajustado para consistencia.
+    crearCarrusel('Búsqueda por Marca de Motocicletas', marcasMotos, marca => {
         const logoUrl = getLogoUrlForMarca(marca, 'Motocicletas');
         const card = document.createElement("div");
         card.className = "card brand-logo-item";
@@ -248,33 +251,41 @@ export function mostrarMarcas(categoria) {
     cont.appendChild(grid);
 }
 
-export function mostrarCategoriasPorMarca(marca) {
+/**
+ * Nueva función para implementar el flujo de navegación lineal: Marca -> Modelos.
+ * Reemplaza la función redundante y circular mostrarCategoriasPorMarca.
+ * @param {string} marca - La marca de vehículos para la cual mostrar los modelos.
+ */
+export function mostrarModelosPorMarca(marca) {
     const { catalogData } = getState();
     const { cortes } = catalogData;
 
-    setState({ navigationState: { nivel: "categoriasPorMarca", marca: marca } });
+    // Se establece el estado de navegación actual
+    setState({ navigationState: { level: "modelosPorMarca", marca: marca } });
     const cont = document.getElementById("contenido");
-    cont.innerHTML = `<span class="backBtn" onclick="window.navigation.irAPaginaPrincipal()">${backSvg} Volver</span><h4>Categorías para ${marca}</h4>`;
+    // Se limpia el contenido y se añade el botón de regreso a la página principal
+    cont.innerHTML = `<span class="backBtn" onclick="window.navigation.irAPaginaPrincipal()">${backSvg} Volver</span><h4>Modelos de ${marca}</h4>`;
 
-    const categoriasDeMarca = [...new Set(cortes
-        .filter(item => item.marca === marca)
-        .map(item => item.categoria))]
-        .filter(Boolean).sort();
+    // Se filtran los cortes para obtener todos los modelos de la marca seleccionada, excluyendo motocicletas
+    const modelosFiltrados = cortes.filter(item => item.marca === marca && item.categoria && !['motocicletas', 'motos'].includes(item.categoria.toLowerCase()));
+
+    // Se obtienen modelos únicos para no repetir tarjetas
+    const modelosUnicos = [...new Map(modelosFiltrados.map(item => [item.modelo, item])).values()].sort((a,b) => a.modelo.localeCompare(b.modelo));
 
     const grid = document.createElement("div");
     grid.className = "grid";
-    categoriasDeMarca.forEach(cat => {
-        const ejemplo = cortes.find(item => item.categoria === cat && item.marca === marca && item.imagenVehiculo);
+    modelosUnicos.forEach(ejemplo => {
         const card = document.createElement("div");
         card.className = "card";
-        card.onclick = () => mostrarModelos(cat, marca);
+        // Al hacer clic, se avanza al siguiente nivel de detalle: tipos de encendido, pasando el contexto completo.
+        card.onclick = () => mostrarTiposEncendido(ejemplo.categoria, marca, ejemplo.versionesAplicables, ejemplo.modelo);
         const img = document.createElement("img");
-        img.src = getImageUrl(ejemplo?.imagenVehiculo);
-        img.alt = `Categoría ${cat}`;
+        img.src = getImageUrl(ejemplo.imagenVehiculo);
+        img.alt = `Modelo ${ejemplo.modelo}`;
         card.appendChild(img);
         const overlay = document.createElement("div");
         overlay.className = "overlay";
-        overlay.innerHTML = cat;
+        overlay.innerHTML = `<div>${ejemplo.modelo}</div>`;
         card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -518,8 +529,14 @@ export function mostrarDetalleModal(item) {
     headerDiv.appendChild(closeBtn);
     cont.appendChild(headerDiv);
 
+    // Comentario: Se reordena la lógica para cumplir con el requisito de diseño (logo a la derecha).
     const titleContainer = document.createElement("div");
-    titleContainer.style.cssText = "border-bottom: 3px solid #007bff; padding-bottom: 8px; margin-bottom: 15px; display: flex; align-items: center; justify-content: flex-start; gap: 15px;";
+    titleContainer.style.cssText = "border-bottom: 3px solid #007bff; padding-bottom: 8px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; gap: 15px;";
+
+    const title = document.createElement("h2");
+    title.textContent = `${item.modelo}`;
+    title.style.cssText = "color:#007bff; margin: 0; padding: 0; font-size: 1.8em;";
+    titleContainer.appendChild(title);
 
     const logoUrl = getLogoUrlForMarca(item.marca, item.categoria);
     if (logoUrl) {
@@ -527,14 +544,9 @@ export function mostrarDetalleModal(item) {
         logoImg.src = getImageUrl(logoUrl);
         logoImg.alt = `Logo ${item.marca}`;
         logoImg.className = 'brand-logo-modal';
-        logoImg.style.cssText = "height: 50px; width: auto; max-width: 150px; object-fit: contain; order: 1;";
+        logoImg.style.cssText = "height: 40px; width: auto; max-width: 120px; object-fit: contain;";
         titleContainer.appendChild(logoImg);
     }
-
-    const title = document.createElement("h2");
-    title.textContent = `${item.modelo}`;
-    title.style.cssText = "color:#007bff; margin: 0; padding: 0; font-size: 1.8em; order: 2;";
-    titleContainer.appendChild(title);
 
     cont.appendChild(titleContainer);
 
@@ -681,7 +693,8 @@ function renderCutContent(container, cutData, datosRelay) {
 
     if (cutData.colaborador) {
         const colabP = document.createElement('p');
-        colabP.style.cssText = "font-style: italic; color: #888; margin-top: 10px; text-align: left; font-size: 0.8em;";
+        // Comentario: Se añade una clase para un estilo dedicado y robusto desde style.css
+        colabP.className = "colaborador-info";
         colabP.innerHTML = `Aportado por: <strong>${cutData.colaborador}</strong>`;
         container.appendChild(colabP);
     }
@@ -1145,15 +1158,32 @@ function mostrarDetalleTutorialModal(item) {
     headerDiv.appendChild(closeBtn);
     cont.appendChild(headerDiv);
 
+    // Comentario: Se refactoriza para usar appendChild y evitar `innerHTML +=` que es propenso a errores.
     if (item.Video) {
         const videoContainer = document.createElement('div');
         const videoUrl = item.Video.replace("watch?v=", "embed/");
         videoContainer.innerHTML = `<iframe width="100%" height="315" src="${videoUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 8px;"></iframe>`;
         cont.appendChild(videoContainer);
     }
-    if (item.comoIdentificarlo) cont.innerHTML += `<p><strong>Cómo Identificarlo:</strong> ${item.comoIdentificarlo}</p>`;
-    if (item.dondeEncontrarlo) cont.innerHTML += `<p><strong>Dónde Encontrarlo:</strong> ${item.dondeEncontrarlo}</p>`;
-    if (item.Detalles) cont.innerHTML += `<p><strong>Detalles:</strong> ${item.Detalles}</p>`;
+
+    const createDetailParagraph = (label, text) => {
+        if (text) {
+            const p = document.createElement('p');
+            p.innerHTML = `<strong>${label}:</strong> ${text}`;
+            return p;
+        }
+        return null;
+    };
+
+    const details = [
+        createDetailParagraph('Cómo Identificarlo', item.comoIdentificarlo),
+        createDetailParagraph('Dónde Encontrarlo', item.dondeEncontrarlo),
+        createDetailParagraph('Detalles', item.Detalles)
+    ];
+
+    details.forEach(detail => {
+        if (detail) cont.appendChild(detail);
+    });
 
     document.getElementById("modalDetalle").classList.add("visible");
 }
@@ -1176,6 +1206,7 @@ function mostrarDetalleRelayModal(item) {
     headerDiv.appendChild(closeBtn);
     cont.appendChild(headerDiv);
 
+    // Comentario: Se refactoriza para usar appendChild y evitar `innerHTML +=` que es propenso a errores.
     if (item.imagen) {
         const img = document.createElement("img");
         img.src = getImageUrl(item.imagen);
@@ -1183,9 +1214,25 @@ function mostrarDetalleRelayModal(item) {
         img.style.borderRadius = "8px";
         cont.appendChild(img);
     }
-    if (item.funcion) cont.innerHTML += `<p><strong>Función:</strong> ${item.funcion}</p>`;
-    if (item.vehiculoDondeSeUtiliza) cont.innerHTML += `<p><strong>Vehículos Comunes:</strong> ${item.vehiculoDondeSeUtiliza}</p>`;
-    if (item.observacion) cont.innerHTML += `<p><strong>Observación:</strong> ${item.observacion}</p>`;
+
+    const createDetailParagraph = (label, text) => {
+        if (text) {
+            const p = document.createElement('p');
+            p.innerHTML = `<strong>${label}:</strong> ${text}`;
+            return p;
+        }
+        return null;
+    };
+
+    const details = [
+        createDetailParagraph('Función', item.funcion),
+        createDetailParagraph('Vehículos Comunes', item.vehiculoDondeSeUtiliza),
+        createDetailParagraph('Observación', item.observacion)
+    ];
+
+    details.forEach(detail => {
+        if (detail) cont.appendChild(detail);
+    });
 
     document.getElementById("modalDetalle").classList.add("visible");
 }

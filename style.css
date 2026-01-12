@@ -818,13 +818,24 @@ body.search-active .app-logo {
     display: block; /* Cambiado para permitir que el contenedor se ajuste al 100% */
     margin: 10px auto;
 }
+/* Comentario: Se ajusta el posicionamiento para mayor precisión en la esquina. */
 .image-container-with-feedback .feedback-overlay {
     position: absolute;
-    bottom: 10px;
-    right: 10px;
+    bottom: 5px; /* Reducido para estar más cerca del borde */
+    right: 5px;  /* Reducido para estar más cerca del borde */
     display: flex;
     flex-direction: row;
     gap: 8px;
+}
+/* Comentario: Se añade una nueva clase para el párrafo del colaborador para garantizar su propio espacio. */
+.colaborador-info {
+    display: block;
+    width: 100%;
+    font-style: italic;
+    color: #888;
+    margin-top: 15px;
+    text-align: left;
+    font-size: 0.8em;
 }
 .feedback-btn-overlay {
     background-color: rgba(0, 0, 0, 0.6);

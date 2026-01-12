@@ -45,3 +45,54 @@ Dado que el código es correcto, la persistencia del error se atribuye a las sig
 ------------------
 - **Código Verificado:** El código JavaScript del frontend se considera correcto y estable.
 - **Investigación en Curso:** El foco se traslada de la auditoría de código a la verificación funcional y el análisis de datos para confirmar la causa raíz externa.
+
+---
+**ACTUALIZACIÓN DE AUDITORÍA - 14/01/2026**
+---
+**F. HALLAZGOS DE REGRESIÓN (POST-REFACTOR) - `ui.js`**
+-----------------------------------------------------
+Se realizó una auditoría específica de `ui.js` para investigar un conjunto de regresiones funcionales y visuales reportadas tras la refactorización de la navegación.
+
+1.  **Navegación Principal Rota (`mostrarCategorias` y subsecuentes):**
+    *   **Hallazgo:** La lógica de navegación es destructiva. Cada vez que el usuario selecciona una categoría o marca, la función correspondiente (`mostrarMarcas`, `mostrarModelos`, etc.) borra completamente el contenido del contenedor principal (`cont.innerHTML = ""`).
+    *   **Impacto:** Esto elimina la vista principal y da la impresión de que las secciones "Últimos agregados" y las otras opciones de navegación han desaparecido. No se sigue el flujo jerárquico y lineal especificado en el `README.md`.
+    *   **Acción Requerida:** Refactorizar el flujo de navegación para que sea aditivo y preserve el contexto, siguiendo las especificaciones del `README.md`.
+
+2.  **Contenido Faltante en Modales de Detalle:**
+    *   **Hallazgo (`mostrarDetalleTutorialModal`):** No se comprueba si `item.Video` existe antes de intentar usarlo. Si es nulo o indefinido, se produce un error de script que impide la renderización del video.
+    *   **Hallazgo (`mostrarDetalleRelayModal`):** No se comprueba si `item.imagen` existe antes de intentar renderizarla, resultando en que no se muestre la imagen si el dato falta.
+    *   **Acción Requerida:** Añadir bloques `if` en ambas funciones para renderizar los elementos solo si los datos correspondientes existen.
+
+3.  **Errores de Diseño en Modal de Vehículos (`mostrarDetalleModal`):**
+    *   **Hallazgo (Logo de Marca):** El elemento del logo de la marca se añade al DOM después del elemento del título, causando que aparezca en la posición incorrecta.
+    *   **Hallazgo (Botones de Feedback):** La estructura HTML para los botones de feedback (`feedback-overlay`) es correcta. El problema de posicionamiento es puramente de CSS.
+    *   **Hallazgo (Nombre del Colaborador):** La estructura HTML para el colaborador es correcta (se renderiza fuera del contenedor de la imagen). El problema de posicionamiento es puramente de CSS.
+    *   **Acción Requerida:** Reordenar la creación de elementos DOM para el logo y el título. Las demás correcciones deberán realizarse en `style.css`.
+
+**G. HALLAZGOS DE REGRESIÓN (POST-REFACTOR) - `style.css`**
+------------------------------------------------------
+Se realizó una auditoría específica de `style.css` para identificar las causas de los problemas de diseño reportados.
+
+1.  **Posicionamiento de Botones de Feedback:**
+    *   **Hallazgo:** La regla `.feedback-overlay` utiliza `position: absolute` y está correctamente definida para colocar los botones en la esquina inferior derecha. Su contenedor padre, `.image-container-with-feedback`, tiene `position: relative`. El CSS es teóricamente correcto.
+    *   **Hipótesis:** El problema visual persistente podría deberse a un conflicto con otra regla CSS de mayor especificidad o a un comportamiento inesperado del layout del modal.
+    *   **Acción Requerida:** Implementar la corrección y verificar visualmente en el navegador. Si persiste, usar las herramientas de desarrollador para identificar el estilo conflictivo.
+
+2.  **Posicionamiento del Logo de la Marca en el Modal:**
+    *   **Hallazgo:** No existen reglas CSS específicas para el layout del encabezado del modal. El problema de posicionamiento se origina en el orden incorrecto de los elementos DOM creados en `ui.js`, no en el CSS.
+    *   **Acción Requerida:** La corrección principal debe hacerse en `ui.js`. Se pueden añadir reglas en `style.css` para forzar el orden visual con Flexbox (`order`) si fuera necesario como solución secundaria.
+
+3.  **Espacio para el Nombre del Colaborador:**
+    *   **Hallazgo:** No existe una clase dedicada para el párrafo del colaborador; los estilos se aplican en línea. Esto lo hace susceptible a ser afectado por reglas más generales.
+    *   **Acción Requerida:** Crear una nueva clase (ej. `.colaborador-info`) en `style.css` con propiedades (`display: block`, `width: 100%`, `margin-top: 15px`) que garanticen que ocupe su propio espacio vertical dedicado, y aplicarla al elemento en `ui.js`.
+
+**H. REGISTRO DE CODE REVIEW (14/01/2026)**
+-------------------------------------------
+Se ha recibido feedback de la revisión de código.
+
+1.  **Evaluación General:** La solución a las regresiones de UI es considerada excelente y la documentación es meticulosa.
+2.  **Punto Bloqueante - Cambio Fuera de Alcance:**
+    *   **Hallazgo:** La revisión detectó que el archivo `server.py` fue modificado para intentar solucionar un problema del entorno de pruebas. Este cambio no estaba relacionado con la tarea de corregir las regresiones de la UI, no fue documentado y viola la regla de "realizar ÚNICAMENTE lo solicitado".
+    *   **Acción Requerida:** Revertir todos los cambios realizados en `server.py` a su estado original antes de volver a solicitar una revisión.
+3.  **Protocolo a Seguir:**
+    *   De acuerdo con el "PROTOCOLO DE RESULTADO DE CODE REVIEW", esta observación implica un cambio de código y, por lo tanto, **REINICIA el ciclo de trabajo completo**, comenzando desde la auditoría del archivo a modificar (`server.py`).

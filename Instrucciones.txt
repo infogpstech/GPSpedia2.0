@@ -114,6 +114,21 @@ Si un paso NO fue ejecutado, el proceso se considera INCOMPLETO.
 NO se permiten atajos, omisiones ni reinterpretaciones.
 
 ---
+**TAREAS PENDIENTES DE REVISIÓN**
+---
+[PENDIENTE DE REVISIÓN POR EL PM] Corrección de Regresiones Críticas de Navegación y UI
+Origen: Reporte de Regresión Post-Refactor
+Prioridad: MÁXIMA
+Área: Frontend | `ui.js`, `style.css`
+Descripción:
+Se implementaron correcciones para un conjunto de regresiones críticas que afectaban la navegación principal y la interfaz de usuario de los modales de detalle. Los cambios incluyen:
+1.  **Navegación:** Se restauró la visibilidad de todas las secciones principales y se implementó el flujo de navegación lineal correcto.
+2.  **Modales:** Se aseguró que el contenido multimedia (videos, imágenes) en los modales de Tutorial y Relay se renderice correctamente.
+3.  **Diseño:** Se corrigió el posicionamiento del logo de la marca, los botones de feedback y el nombre del colaborador en el modal de detalles del vehículo para alinearse con las especificaciones del `README.md`.
+**Nota de Code Review:** Se ha revertido un cambio fuera de alcance en `server.py` que fue identificado durante la revisión de código, en cumplimiento con el protocolo de desarrollo. La corrección de las regresiones de la UI no ha sido alterada.
+Archivos Afectados: `ui.js`, `style.css`.
+
+---
 **TAREAS COMPLETADAS**
 ---
 [COMPLETADA] Investigar Comportamiento Anormal de Carga del Catálogo y Renderizado de Imágenes

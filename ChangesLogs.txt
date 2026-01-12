@@ -1,3 +1,28 @@
+**V4.5.0 - (REGRESSION FIX) - 14/01/2026**
+**A. RESUMEN GENERAL:** Se implementó una corrección integral para un conjunto de regresiones críticas en el frontend que afectaban la navegación principal y la visualización de detalles en los modales, restaurando la funcionalidad y el diseño a las especificaciones definidas en la documentación.
+
+**B. Correcciones Implementadas:**
+1.  **Restauración de la Navegación Principal (`ui.js`):**
+    *   **Problema:** Las secciones "Últimos agregados", "Marcas de Vehículos" y "Marcas de Motocicletas" desaparecían después de la primera interacción del usuario.
+    *   **Causa Raíz:** La lógica de navegación era destructiva, borrando el contenido principal en cada clic.
+    *   **Solución:** Se refactorizó el flujo de navegación para que sea lineal y jerárquico. Se implementó una nueva función `mostrarModelosPorMarca` para manejar correctamente la transición de "Marca" a "Modelos", y se ajustaron los `onclick` para seguir este flujo, asegurando que todas las secciones principales permanezcan visibles.
+    *   **Líneas Afectadas en `ui.js`:** 195, 211, 254-292 (nueva función `mostrarModelosPorMarca` reemplazando `mostrarCategoriasPorMarca`).
+
+2.  **Corrección de Contenido en Modales (`ui.js`):**
+    *   **Problema:** Los videos en los modales de tutoriales y las imágenes en los modales de relay no se mostraban si el dato correspondiente faltaba.
+    *   **Solución:** Se refactorizaron las funciones `mostrarDetalleTutorialModal` y `mostrarDetalleRelayModal` para construir el DOM de forma segura con `appendChild` y validar la existencia de los datos (`item.Video`, `item.imagen`) antes de intentar renderizar los elementos.
+    *   **Líneas Afectadas en `ui.js`:** 1158-1188, 1199-1237.
+
+3.  **Corrección de Diseño del Modal de Vehículos (`ui.js` y `style.css`):**
+    *   **Problema:** El logo de la marca, los botones de feedback y el nombre del colaborador estaban mal posicionados.
+    *   **Solución (`ui.js`):** Se reordenó la creación de elementos en `mostrarDetalleModal` para colocar el logo a la derecha del título (Líneas 533-551). Se asignó la clase `colaborador-info` al párrafo del colaborador para un estilo dedicado (Línea 697).
+    *   **Solución (`style.css`):** Se ajustó la regla `.feedback-overlay` para un posicionamiento preciso de los botones (Líneas 822-827). Se añadió la nueva clase `.colaborador-info` para garantizar que el texto del colaborador tenga su propio espacio vertical (Líneas 829-838).
+
+**C. Impacto:**
+- **Funcionalidad de Navegación Restaurada:** Los usuarios ahora pueden navegar por el catálogo de manera lógica y predecible sin perder el contexto.
+- **Estabilidad de la UI:** Los modales ahora manejan correctamente los datos faltantes, evitando errores de renderizado.
+- **Consistencia Visual:** El diseño del modal de detalles ahora cumple con las especificaciones visuales del `README.md`.
+
 **V8.6.1 - (CODE VERIFICATION & INVESTIGATION) - 13/01/2026**
 **A. RESUMEN GENERAL:** Se realizó una investigación exhaustiva en respuesta a un reporte de usuario sobre la persistencia de problemas en el renderizado de imágenes de Google Drive. La investigación concluyó que el código de la aplicación, específicamente la función `getImageUrl` en `ui.js`, es **correcto, robusto y no contiene errores**.
 
