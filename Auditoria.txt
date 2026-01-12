@@ -223,3 +223,25 @@ Se realizó una auditoría de `ui.js` para abordar el nuevo requisito de omitir 
 
 3.  **Conclusión de la Auditoría:**
     *   La refactorización de `navegarADetallesDeModelo` para implementar la lógica de omisión de pantallas no solo cumplirá con el nuevo requisito funcional, sino que también resolverá de forma inherente el bug de la "pantalla en blanco", al eliminar por completo el paso problemático del flujo de navegación en los casos de opción única.
+
+---
+**Q. AUDITORÍA DEL SISTEMA DE BÚSQUEDA GLOBAL (FECHA ACTUAL)**
+---------------------------------------------------------
+Se realizó una auditoría del flujo de búsqueda global para abordar la Tarea 2 del backlog.
+
+1.  **Flujo de Datos de Búsqueda:**
+    *   **Hallazgo:** El flujo de datos es el siguiente:
+        1. `main.js`: Un `event listener` en el campo de búsqueda (`searchInput`) captura la entrada del usuario.
+        2. `main.js` -> `navigation.js`: Se invoca la función `navigation.filtrarContenido(textoBusqueda)`.
+        3. `navigation.js`: La función `filtrarContenido` realiza un filtrado de texto simple sobre el catálogo de datos.
+        4. `navigation.js` -> `ui.js`: Tras el filtrado, la función invoca **incondicionalmente** `ui.mostrarResultadosBusquedaMarca(busqueda, datosFiltrados)`.
+
+2.  **Causa Raíz del Comportamiento Incorrecto:**
+    *   **Hallazgo (Lógica):** La función `navigation.filtrarContenido` carece de cualquier lógica para analizar o clasificar los resultados de la búsqueda. No diferencia si los `datosFiltrados` corresponden a una marca, un modelo o un año.
+    *   **Hallazgo (Renderizado):** Como consecuencia, siempre se llama a `ui.mostrarResultadosBusquedaMarca`, una función diseñada exclusivamente para renderizar tarjetas de logos de marcas. Esto explica por qué una búsqueda de "Aveo" (un modelo) resulta en la visualización del logo de "Chevrolet" (la marca).
+    *   **Hallazgo (Navegación):** El `onclick` en las tarjetas de marca generadas por `mostrarResultadosBusquedaMarca` lleva a `mostrarResultadosBusquedaModelo`, que es una función de renderizado que no está correctamente integrada en el flujo de navegación principal, causando inconsistencias y falta de un botón "Volver" funcional.
+
+3.  **Acción Requerida:**
+    *   **En `navigation.js`:** Se debe refactorizar `filtrarContenido` para que, después de filtrar los datos, realice un análisis de los resultados para determinar el tipo de coincidencia (marca, modelo, año, mixta).
+    *   **En `ui.js`:** Se deben crear nuevas funciones de renderizado o adaptar las existentes para mostrar correctamente los resultados según su tipo (tarjetas de modelo para búsquedas de modelo, etc.).
+    *   **Integración del Flujo:** La navegación desde los resultados de búsqueda debe ser redirigida para usar las funciones de navegación estándar (ej. `navegarADetallesDeModelo`), asegurando la consistencia y la funcionalidad de los botones "Volver".

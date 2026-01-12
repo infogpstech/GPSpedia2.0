@@ -1,3 +1,33 @@
+**V4.7.4 - (CRITICAL FEATURE REFACTOR) - 16/01/2026**
+**A. RESUMEN GENERAL:** Se realizó una refactorización profunda y estructural del sistema de búsqueda global para corregir inconsistencias graves y alinearlo con los requisitos funcionales. La nueva implementación distingue correctamente entre búsquedas por marca, modelo y año, y asegura que la navegación sea consistente y reversible.
+
+**B. Cambios Implementados:**
+1.  **Refactorización de la Lógica de Búsqueda (`navigation.js`):**
+    *   **Problema:** La lógica anterior trataba todas las búsquedas como si fueran por marca, mostrando resultados incorrectos (logos de marca en lugar de tarjetas de modelo).
+    *   **Solución:** Se refactorizó completamente la función `filtrarContenido`. La nueva lógica:
+        a. Implementa un filtrado mejorado que maneja correctamente los rangos de años.
+        b. Analiza los resultados del filtro para clasificar la búsqueda (marca, modelo, año, mixta).
+        c. Invoca una nueva función de renderizado unificada en `ui.js`, pasando el tipo y los resultados.
+    *   **Líneas Afectadas en `navigation.js`:** 31-85 (función `filtrarContenido` reemplazada).
+
+2.  **Unificación del Renderizado de Resultados (`ui.js`):**
+    *   **Problema:** Existían múltiples funciones de renderizado de búsqueda (`mostrarResultadosBusquedaMarca`, `mostrarResultadosBusquedaModelo`) que creaban flujos de navegación inconsistentes y rotos.
+    *   **Solución:** Se eliminaron las funciones antiguas y se creó una única función `mostrarResultadosDeBusqueda`. Esta función:
+        a. Acepta un objeto con el tipo y los resultados de la búsqueda.
+        b. Renderiza dinámicamente el tipo de tarjeta correcto (logo de marca o tarjeta de modelo).
+        c. Asegura que los eventos `onclick` de las tarjetas se integren con el flujo de navegación principal y estándar de la aplicación (`mostrarModelosPorMarca`, `navegarADetallesDeModelo`).
+    *   **Líneas Afectadas en `ui.js`:** 521-585 (funciones de búsqueda reemplazadas por `mostrarResultadosDeBusqueda`).
+
+3.  **Corrección de Dependencia Circular (`ui.js`):**
+    *   **Problema:** Se detectó una dependencia circular entre `navigation.js` y `ui.js` que impedía la correcta inicialización de la aplicación en entornos de prueba.
+    *   **Solución:** Se eliminó la importación innecesaria de `irAPaginaPrincipal` dentro de `ui.js`.
+    *   **Líneas Afectadas en `ui.js`:** 9 (línea eliminada).
+
+**C. Impacto:**
+- **Funcionalidad de Búsqueda Corregida:** El sistema ahora devuelve resultados precisos y visualmente correctos para búsquedas por modelo, marca y año.
+- **Navegación Consistente:** El flujo de navegación desde los resultados de búsqueda ahora es idéntico al de la navegación principal, con botones "Volver" funcionales y un comportamiento predecible.
+- **Mantenibilidad del Código:** La lógica de búsqueda está ahora centralizada y es más fácil de mantener, y se ha mejorado la estabilidad general de la aplicación al eliminar una dependencia circular.
+
 **V4.7.3 - (FEATURE & BUGFIX) - 16/01/2026**
 **A. RESUMEN GENERAL:** Se refactorizó la lógica central de navegación para optimizar el flujo en casos de opción única. Adicionalmente, esta refactorización corrige un bug que mostraba una pantalla en blanco al navegar hacia atrás en estos mismos flujos.
 

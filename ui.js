@@ -6,7 +6,6 @@
 
 import { getFeedbackItems, replyToFeedback, markAsResolved } from './api-config.js';
 import { getState, setState } from './state.js';
-import { irAPaginaPrincipal } from './navigation.js';
 
 const backSvg = '<svg style="width:20px;height:20px;margin-right:5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
 
@@ -519,70 +518,68 @@ export function mostrarVersionesEquipamiento(categoria, marca, modelo) {
 }
 
 
-export function mostrarResultadosBusquedaMarca(busquedaTexto, datosFiltrados) {
+// --- NUEVA FUNCIÓN UNIFICADA PARA RENDERIZAR RESULTADOS DE BÚSQUEDA ---
+/**
+ * Renderiza los resultados de una búsqueda de forma dinámica.
+ * @param {object} searchData - Un objeto que contiene el tipo, la consulta y los resultados.
+ * @param {string} searchData.type - El tipo de resultado ('marca' o 'modelo').
+ * @param {string} searchData.query - El texto original de la búsqueda.
+ * @param {Array} searchData.results - El array de resultados (strings de marcas o objetos de modelos).
+ */
+export function mostrarResultadosDeBusqueda({ type, query, results }) {
     const cont = document.getElementById("contenido");
-    if (datosFiltrados.length === 1) {
-        mostrarDetalleModal(datosFiltrados[0]);
-        const yearRange = datosFiltrados[0].anoHasta ? `${datosFiltrados[0].anoDesde} - ${datosFiltrados[0].anoHasta}` : datosFiltrados[0].anoDesde;
-        cont.innerHTML = `<h4>Resultado Exacto Encontrado</h4><p>Abriendo detalle de ${datosFiltrados[0].modelo} ${yearRange || ''}.</p>`;
+    // Se añade un botón "Volver" que siempre regresa a la página principal.
+    cont.innerHTML = `<span class="backBtn" onclick="window.navigation.irAPaginaPrincipal()">${backSvg} Volver</span>
+                      <h4>Resultados para: "${query}"</h4>`;
+
+    // Caso especial: Si solo hay un resultado de modelo, se muestra directamente el modal de detalle.
+    if (type === 'modelo' && results.length === 1) {
+        mostrarDetalleModal(results[0]);
         return;
     }
-    cont.innerHTML = `<h4>Resultados de búsqueda para: "${busquedaTexto}"</h4>`;
-    const marcasUnicas = [...new Set(datosFiltrados.map(item => item.marca))].sort();
 
     const grid = document.createElement("div");
     grid.className = "grid";
-    grid.style.gridTemplateColumns = "repeat(auto-fill, minmax(120px, 1fr))";
-    grid.style.gap = "30px";
 
-    marcasUnicas.forEach(marca => {
-        const logoUrl = getLogoUrlForMarca(marca, null);
-        const card = document.createElement("div");
-        card.className = "card brand-logo-item";
-        card.onclick = () => mostrarResultadosBusquedaModelo(busquedaTexto, marca, datosFiltrados);
+    if (type === 'marca') {
+        // Renderizado para resultados de tipo MARCA.
+        grid.style.gridTemplateColumns = "repeat(auto-fill, minmax(120px, 1fr))";
+        grid.style.gap = "30px";
+        results.forEach(marca => {
+            const logoUrl = getLogoUrlForMarca(marca, null);
+            const card = document.createElement("div");
+            card.className = "card brand-logo-item";
+            // El onclick ahora usa el flujo de navegación estándar.
+            card.onclick = () => mostrarModelosPorMarca(marca);
 
-        const img = document.createElement("img");
-        img.src = getImageUrl(logoUrl);
-        img.alt = `Marca ${marca}`;
-        img.loading = "lazy";
-        card.appendChild(img);
+            const img = document.createElement("img");
+            img.src = getImageUrl(logoUrl);
+            img.alt = `Marca ${marca}`;
+            card.appendChild(img);
+            grid.appendChild(card);
+        });
+    } else {
+        // Renderizado para resultados de tipo MODELO (y por defecto).
+        results.forEach(ejemplo => {
+            const card = document.createElement("div");
+            card.className = "card";
+            // El onclick ahora usa el flujo de navegación estándar.
+            card.onclick = () => navegarADetallesDeModelo(ejemplo.categoria, ejemplo.marca, ejemplo.modelo);
 
-        const brandName = document.createElement('p');
-        brandName.textContent = marca;
-        brandName.style.textAlign = 'center';
-        brandName.style.marginTop = '8px';
-        brandName.style.fontWeight = 'bold';
-        brandName.style.fontSize = '0.9em';
-        card.appendChild(brandName);
+            const img = document.createElement("img");
+            img.src = getImageUrl(ejemplo.imagenVehiculo);
+            img.alt = `Modelo ${ejemplo.modelo}`;
+            card.appendChild(img);
 
-        grid.appendChild(card);
-    });
-    cont.appendChild(grid);
-}
-
-function mostrarResultadosBusquedaModelo(busquedaTexto, marcaFiltro, datosFiltrados) {
-    const cont = document.getElementById("contenido");
-    cont.innerHTML = `<span class="backBtn" onclick="window.ui.mostrarResultadosBusquedaMarca('${busquedaTexto}', getDatosFiltrados())">${backSvg} Volver a Marcas</span>
-                      <h4>Modelos de ${marcaFiltro} (Búsqueda: "${busquedaTexto}")</h4>`;
-    const modelosFiltrados = datosFiltrados.filter(item => item.marca === marcaFiltro);
-    const modelosUnicos = [...new Map(modelosFiltrados.map(item => [item.modelo, item])).values()].sort((a,b) => a.modelo.localeCompare(b.modelo));
-
-    const grid = document.createElement("div"); grid.className = "grid";
-    modelosUnicos.forEach(ejemplo => {
-        const card = document.createElement("div"); card.className = "card";
-        // Comentario: Se integra el flujo de búsqueda con la nueva lógica de navegación.
-        card.onclick = () => navegarADetallesDeModelo(ejemplo.categoria, marcaFiltro, ejemplo.modelo);
-        const img = document.createElement("img"); img.src = getImageUrl(ejemplo.imagenVehiculo); img.alt = `Modelo ${ejemplo.modelo}`; card.appendChild(img);
-        const overlay = document.createElement("div"); overlay.className = "overlay";
-        if (versiones.length === 1) {
+            const overlay = document.createElement("div");
+            overlay.className = "overlay";
             const yearRange = ejemplo.anoHasta ? `${ejemplo.anoDesde} - ${ejemplo.anoHasta}` : ejemplo.anoDesde;
-            overlay.innerHTML = `<div>${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8; font-weight:normal;">${yearRange || ''} ${ejemplo.tipoEncendido || ''}</div>`;
-        } else {
-            overlay.innerHTML = `<div>${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8; font-weight:normal;">(${versiones.length} cortes)</div>`;
-        }
-        card.appendChild(overlay);
-        grid.appendChild(card);
-    });
+            overlay.innerHTML = `<div>${ejemplo.marca} ${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8;">${yearRange || ''}</div>`;
+            card.appendChild(overlay);
+            grid.appendChild(card);
+        });
+    }
+
     cont.appendChild(grid);
 }
 
