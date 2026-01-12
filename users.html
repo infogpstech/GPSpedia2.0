@@ -198,7 +198,7 @@
         </div>
     </div>
 <script type="module">
-import { routeAction } from './api.js';
+import { routeAction } from './api-config.js';
 // COMPONENT VERSION: 3.8.0
 // --- LÓGICA DE DEPURACIÓN REMOTA ---
 function remoteLog(level, message, data = {}) {
@@ -259,7 +259,10 @@ async function postToAction(action, payload = {}) {
 
 async function fetchUsers() {
     try {
-        const result = await postToAction('getUsers', { privilegios: currentUser.Privilegios });
+        // FIX: Send sessionToken for secure, backend-driven authorization
+        const result = await postToAction('getUsers', {
+            sessionToken: currentUser.SessionToken
+        });
         allUsers = result.users;
         renderUserTable();
     } catch (error) {
@@ -367,6 +370,7 @@ async function handleUserFormSubmit(e) {
     e.preventDefault();
     const userId = document.getElementById('user-id').value;
     const userData = {
+        Nombre_Completo: document.getElementById('fullname').value, // <-- AÑADIDO
         Nombre_Usuario: document.getElementById('username-modal').value,
         Privilegios: document.getElementById('role').value,
         Password: document.getElementById('password-modal').value,
