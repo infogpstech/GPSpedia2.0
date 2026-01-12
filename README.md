@@ -988,13 +988,13 @@ Resultados combinados
 
 2. Modal de detalle
 
-El icono de la marca debe mostrarse dentro del modal de detalle.
+El logo de la marca debe mostrarse dentro del modal de detalle.
 
 Ubicación exacta:
 
-A la derecha del título del modal, donde se muestra:
+A la izquierda del título del modal, donde se muestra:
 
-> “Detalle de ‘modelo de vehículo’”
+> [Logo] Detalle de ‘modelo de vehículo’
 
 
 
@@ -1020,23 +1020,60 @@ Además de la lógica funcional, se deben completar las mejoras visuales y de ex
 
 La información en el modal debe presentarse exactamente en el siguiente orden y con el formato especificado para garantizar consistencia y claridad.
 
-1.  **Nombre del modelo en el encabezado, seguido por el logo de la marca.**
-2.  **Versión de equipamiento si tiene.** Si no tiene, usar el tipo de encendido.
-3.  **Rango de años.** (Tanto el punto 2 como el 3 deben usar letras más pequeñas que el encabezado principal).
-4.  **Categoría.** (Debe usar letras más pequeñas que los puntos 2 y 3).
-5.  **Imagen del modelo del vehículo.** Debe ser una imagen pequeña (mitad del tamaño de la imagen del corte), centrada, sin bordes ni fondo, y con efecto `drop-shadow`.
-6.  **Nota importante.** Debe estar en color rojo y usar el icono de ⚠️ al final de la nota.
-7.  **Corte recomendado.** Determinado por la mayor cantidad de votos "útil". La imagen de este corte debe ajustarse para que su ancho coincida con el ancho del modal, con altura automática. Cada corte debe contener la siguiente información en este orden:
-    *   Descripción de la ubicación.
-    *   Color de cable.
-    *   Imagen (con botones de feedback en overlay).
-    *   Configuración del Relay.
-    *   Colaborador (posicionado a la izquierda, sin cambiar estilos, solo posición).
-8.  **Corte 2, si está disponible.**
-9.  **Corte 3, si está disponible.**
-10. **Apertura.** Con su descripción e imagen.
-11. **Cables de alimentación.** Con su descripción e imagen.
-12. **Vídeo guía de desarme.**
+A continuación se presenta un ejemplo visual de la estructura del modal:
+
+```
++-----------------------------------------------------------------+
+| [Logo Marca] Nombre del Modelo                  Cerrar [X]      |
++-----------------------------------------------------------------+
+| **Versión / Tipo Encendido | Rango de Años**                     |
+| Categoría                                                       |
+|                                                                 |
+|                 [    Imagen Pequeña del Vehículo   ]             |
+|                                                                 |
+| ⚠️ Nota Importante en fondo rojo...                             |
++-----------------------------------------------------------------+
+| ▼ Corte Recomendado (Siempre Visible)                           |
+|   Ubicación: ...                                                |
+|   Color Cable: ...                                              |
+|   +---------------------------------------------------------+   |
+|   |                                                         |   |
+|   |             Imagen del Corte 1                          |   |
+|   |                                           [👍] [⚠️]      |   |
+|   +---------------------------------------------------------+   |
+|   Configuración Relay: [Botón]                                  |
+|   Aportado por: Nombre Colaborador                              |
++-----------------------------------------------------------------+
+| ► Corte 2 (Acordeón)                                            |
++-----------------------------------------------------------------+
+| ► Apertura (Acordeón)                                           |
++-----------------------------------------------------------------+
+| ► Cables de Alimentación (Acordeón)                             |
++-----------------------------------------------------------------+
+| ► Vídeo Guía de Desarme (Acordeón)                              |
++-----------------------------------------------------------------+
+```
+
+**Requisitos Detallados:**
+
+1.  **Encabezado:**
+    *   **Logo de la marca:** Posicionado a la izquierda. Debe tener una altura fija de `44px` con ancho automático.
+    *   **Nombre del modelo:** Justo a la derecha del logo.
+    *   Ambos elementos deben estar alineados a la izquierda del modal.
+2.  **Sub-encabezado:**
+    *   **Versión de equipamiento / Tipo de encendido** y **Rango de años** en una línea, con texto más pequeño que el encabezado.
+    *   **Categoría** en una línea separada, con texto aún más pequeño.
+3.  **Imagen del Vehículo:**
+    *   Debe ser una imagen pequeña (reducida al 90% de su tamaño anterior, `max-width: 225px`), centrada, sin bordes y con efecto `drop-shadow`.
+4.  **Nota Importante:** Si existe, debe mostrarse en color rojo con el icono ⚠️.
+5.  **Corte Recomendado:**
+    *   Esta sección debe estar siempre visible y expandida, no dentro de un acordeón.
+    *   La imagen del corte debe ocupar el ancho completo del modal.
+    *   Los botones de feedback (`Útil` y `Reportar`) deben estar superpuestos en la esquina inferior derecha de la imagen.
+    *   El nombre del colaborador debe tener su propio espacio vertical dedicado, fuera de la imagen.
+6.  **Otras Secciones (Cortes 2/3, Apertura, etc.):**
+    *   Deben presentarse como secciones de acordeón colapsadas por defecto.
+    *   El orden debe ser el especificado: Cortes, Apertura, Cables, Vídeo.
 
 > La sección de "Notas personales" ha sido eliminada y ya no se implementará.
 

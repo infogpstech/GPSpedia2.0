@@ -774,13 +774,19 @@ body.search-active .app-logo {
     margin: 0; /* Anula el 'margin: auto' de la regla genérica */
 }
 
+/* Comentario: Ajustes de tamaño según la nueva solicitud de diseño. */
+.brand-logo-modal {
+    height: 44px !important; /* Aumento del 10% desde 40px */
+    width: auto !important;
+}
+
 .image-with-container {
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .img-vehiculo-modal {
-    max-width: 250px;
+    max-width: 225px; /* Reducción del 10% desde 250px */
     width: auto;
     height: auto;
     margin: 10px auto;
@@ -818,13 +824,24 @@ body.search-active .app-logo {
     display: block; /* Cambiado para permitir que el contenedor se ajuste al 100% */
     margin: 10px auto;
 }
+/* Comentario: Se ajusta el posicionamiento para mayor precisión en la esquina. */
 .image-container-with-feedback .feedback-overlay {
     position: absolute;
-    bottom: 10px;
-    right: 10px;
+    bottom: 5px; /* Reducido para estar más cerca del borde */
+    right: 5px;  /* Reducido para estar más cerca del borde */
     display: flex;
     flex-direction: row;
     gap: 8px;
+}
+/* Comentario: Se añade una nueva clase para el párrafo del colaborador para garantizar su propio espacio. */
+.colaborador-info {
+    display: block;
+    width: 100%;
+    font-style: italic;
+    color: #888;
+    margin-top: 15px;
+    text-align: left;
+    font-size: 0.8em;
 }
 .feedback-btn-overlay {
     background-color: rgba(0, 0, 0, 0.6);
@@ -1073,4 +1090,96 @@ body.search-active .app-logo {
     z-index: 4001;
     font-size: 1em;
     cursor: pointer;
+}
+
+/* --- ESTILOS DEL MODAL DE INBOX --- */
+.inbox-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.inbox-item:hover {
+    background-color: #f9f9f9;
+}
+.inbox-item.active {
+    background-color: #e9f7ff;
+    border-left: 3px solid #007bff;
+}
+.inbox-item.resolved {
+    opacity: 0.6;
+}
+.inbox-item.replied .inbox-item-content strong::after {
+    content: ' (Respondido)';
+    color: #28a745;
+    font-weight: normal;
+    font-size: 0.8em;
+    margin-left: 5px;
+}
+.inbox-item i {
+    color: #007bff;
+}
+.inbox-item-content {
+    flex-grow: 1;
+}
+.inbox-item-content strong {
+    font-size: 1em;
+}
+.inbox-item-content p {
+    font-size: 0.9em;
+    color: #666;
+    margin: 4px 0 0 0;
+}
+#inbox-detail {
+    padding: 10px;
+}
+#inbox-detail h3 {
+    margin-top: 0;
+    color: #007bff;
+}
+.inbox-message-content,
+.inbox-reply-content {
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 15px 0;
+}
+.inbox-reply-content {
+    border-left: 4px solid #28a745;
+}
+.inbox-message-content pre,
+.inbox-reply-content pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: inherit;
+    font-size: 1em;
+    margin: 0;
+}
+.inbox-actions {
+    margin-top: 20px;
+}
+.inbox-actions textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+}
+.inbox-actions button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-right: 10px;
+}
+.inbox-actions button.resolve-btn {
+    background-color: #28a745;
 }

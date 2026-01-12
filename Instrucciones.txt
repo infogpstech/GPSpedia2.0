@@ -45,7 +45,7 @@ FLUJO OBLIGATORIO DE TRABAJO
    - NO modificar código durante esta fase.
 
 2. REGISTRO DE HALLAZGO
-   - Registrar TODOS los hallazgos en Auditoría.txt.
+   - Registrar TODOS los hallazgos en Auditoria.txt.
    - Crear una nueva entrada para el archivo auditado.
    - Si ya existe una auditoría previa del mismo archivo:
      -> Actualizar la entrada existente
@@ -114,288 +114,197 @@ Si un paso NO fue ejecutado, el proceso se considera INCOMPLETO.
 NO se permiten atajos, omisiones ni reinterpretaciones.
 
 ---
-**TAREAS COMPLETADAS**
+**TAREAS PENDIENTES DE REVISIÓN**
 ---
-[COMPLETADA] Investigar Comportamiento Anormal de Carga del Catálogo y Renderizado de Imágenes
-Origen: Reporte de PM
+
+========================================
+REGISTRO DE TAREAS — BACKLOG ACTIVO
+========================================
+
+1. CORRECCIÓN Y NORMALIZACIÓN DEL FLUJO DE NAVEGACIÓN (CATEGORÍA, MARCA, TIPO DE ENCENDIDO)
+Estado: Completado
+Origen: Reporte de PM + Requerimiento Funcional
 Prioridad: ALTA
-Área: Frontend | `index.html` | `ui.js`
+Área: Frontend | UI
+Archivos involucrados: ui.js
+
 Descripción:
-Se investigó un comportamiento anómalo en la carga y renderizado de la aplicación, con foco en las imágenes de Google Drive. La auditoría de código concluyó que la lógica de la función `getImageUrl` es correcta y robusta. Múltiples intentos de verificación automatizada fallaron por problemas del entorno de pruebas. Una verificación manual final (code tracing) confirmó que el código funciona como se espera. Se concluye que el código no requiere cambios y que el problema reportado probablemente se deba a factores externos como la caché del navegador.
+Existe un conjunto de fallos y comportamientos inconsistentes en el flujo de navegación principal de la plataforma, que afectan:
+- Navegación por categoría
+- Navegación por marca
+- Navegación por resultados de búsqueda
+- Selección de versión de equipamiento y/o tipo de encendido
 
----
+Problema identificado:
+Cuando un modelo posee un único tipo de encendido, la lógica actual intenta omitir la pantalla de selección, provocando inconsistencias en el flujo de datos y errores de navegación. Un intento previo de corrección eliminó dicha omisión para forzar un flujo lineal, pero el problema persiste.
 
-[COMPLETADA] Actualización Final de Endpoint del Servicio de Usuarios
-Origen: Requerimiento de Configuración (Post-Investigación)
-Prioridad: CRÍTICA
-Área: Configuración | Frontend
-Descripción:
-Se actualizó la URL del microservicio de `USERS` en `api-manager.js` para apuntar al endpoint definitivo y verificado (`...LUydhEW_Ng/exec`), proporcionado por el Project Manager tras una investigación exhaustiva.
-Archivos Afectados: `api-manager.js`.
+Flujo funcional requerido (OBLIGATORIO):
 
----
+Navegación por Categoría:
+1. Categoría
+   - Mostrar categorías ordenadas por población.
+2. Marcas
+   - Mostrar solo marcas que tengan modelos dentro de la categoría seleccionada.
+   - Orden alfabético ascendente (A–Z).
+3. Modelos
+   - Mostrar modelos que cumplan con la categoría y marca seleccionadas.
+4. Versión de Equipamiento o Tipo de Encendido
+   - Si el modelo tiene versiones de equipamiento, mostrarlas.
+   - Si no tiene versiones, mostrar opciones por tipo de encendido (botón / llave).
+   - La tarjeta debe mostrar nombre de la versión y tipo de encendido.
+5. Años / Generación
+   - Mostrar años disponibles según modelo y versión.
 
-[COMPLETADA] Actualización de Endpoints de AUTH y USERS
-Origen: Requerimiento de Configuración
-Prioridad: CRÍTICA
-Área: Configuración | Frontend
-Descripción:
-Se actualizaron las URLs de los microservicios de `AUTH` y `USERS` en `api-manager.js` para apuntar a los nuevos endpoints de producción desplegados por el Project Manager.
-Archivos Afectados: `api-manager.js`.
+Navegación por Marca:
+- Inicia desde la etapa de Marcas.
+- No filtra por categoría.
+- Debe seguir exactamente el mismo flujo desde la etapa de Modelos en adelante.
 
----
+Búsqueda:
+- Priorizar coincidencias por versión de equipamiento y modelo.
+- Si coincide con marca, mostrar tarjeta de marca.
+- La navegación desde cualquier resultado debe seguir el mismo flujo descrito arriba.
 
-[COMPLETADA] Actualización de Endpoint del Servicio de Usuarios (Iteración 4)
-Origen: Requerimiento de Configuración
-Prioridad: CRÍTICA
-Área: Configuración | Frontend
-Descripción:
-Se actualizó por cuarta vez la URL del microservicio de `USERS` en `api-manager.js` para apuntar al nuevo endpoint de producción desplegado por el Project Manager.
-Archivos Afectados: `api-manager.js`.
+Requisitos adicionales:
+- Todas las etapas deben tener botón de regreso funcional.
+- El flujo debe ser gradual, reversible y consistente.
+- El PM debe validar el flujo final antes de cerrar la tarea.
 
----
+----------------------------------------
 
-[COMPLETADA] Corrección de Regresión Crítica y Bug Persistente en Módulo de Usuarios
-Origen: Reporte de PM (Post-Revisión)
-Prioridad: CRÍTICA
-Área: Backend | Users
-Descripción:
-Se corrigió la regresión "create on edit" que duplicaba usuarios y se solucionó el bug que impedía guardar el "Nombre Completo".
-Archivos Afectados: `services/users/users.js`.
-
----
-
-[COMPLETADA] Actualización de Endpoint del Servicio de Usuarios (Iteración 3)
-Origen: Requerimiento de Configuración
-Prioridad: CRÍTICA
-Área: Configuración | Frontend
-Descripción:
-Se actualizó por tercera vez la URL del microservicio de `USERS` en `api-manager.js` para apuntar al nuevo endpoint de producción desplegado por el Project Manager.
-Archivos Afectados: `api-manager.js`.
-
----
-
-[COMPLETADA] Corrección Definitiva de Bug en Guardado de "Nombre Completo"
-Origen: Reporte de PM (Post-Revisión)
-Prioridad: CRÍTICA
-Área: Backend | Users
-Descripción:
-Se implementó la corrección definitiva para el bug persistente que impedía guardar el "Nombre Completo" al editar un usuario. La causa raíz fue un conflicto de `case-sensitivity` en la lógica de `handleUpdateUser` que impedía el mapeo correcto del campo.
-Archivos Afectados: `services/users/users.js`.
-
----
-
-[COMPLETADA] Actualización de Endpoint del Servicio de Usuarios (Iteración 2)
-Origen: Requerimiento de Configuración
-Prioridad: CRÍTICA
-Área: Configuración | Frontend
-Descripción:
-Se actualizó por segunda vez la URL del microservicio de `USERS` en `api-manager.js` para apuntar al nuevo endpoint de producción desplegado por el Project Manager.
-Archivos Afectados: `api-manager.js`.
-
----
-
-[COMPLETADA] Corrección de Bug en Guardado de "Nombre Completo"
-Origen: Reporte de PM (Post-Revisión)
-Prioridad: CRÍTICA
-Área: Backend | Users
-Descripción:
-Se corrigió un bug que impedía que el campo "Nombre Completo" se guardara al crear o editar un usuario. La causa raíz fue que el backend (`services/users/users.js`) ignoraba silenciosamente el campo en las funciones `handleCreateUser` y `handleUpdateUser`.
-Archivos Afectados: `services/users/users.js`.
-
----
-
-[COMPLETADA] Actualización de Endpoint del Servicio de Usuarios
-Origen: Requerimiento de Configuración
-Prioridad: CRÍTICA
-Área: Configuración | Frontend
-Descripción:
-Se actualizó la URL del microservicio de `USERS` en `api-manager.js` para apuntar al nuevo endpoint de producción desplegado por el Project Manager.
-Archivos Afectados: `api-manager.js`.
-
----
-
-[COMPLETADA] Corrección de Regresiones Críticas en Módulo de Usuarios (Tareas 24, 25, 26)
-Origen: Reporte de Regresión Post-Implementación
-Prioridad: CRÍTICA
-Área: Backend, Frontend | Users
-Descripción:
-Se corrigieron tres bugs críticos que surgieron tras la implementación de la funcionalidad "Nombre Completo":
-1.  **Bug de Visualización:** El `SessionToken` se mostraba en lugar del nombre completo. (Causa: Mapeo de columnas incorrecto en `services/users/users.js`).
-2.  **Bug de Actualización:** La edición de usuarios fallaba. (Causa: Conflicto de `case-sensitivity` en la propiedad `ID` del usuario entre frontend y backend).
-3.  **Bug de Eliminación:** La eliminación de usuarios fallaba. (Causa: Síntoma secundario del mapeo de columnas incorrecto que afectaba la integridad de los datos).
-Archivos Afectados: `services/users/users.js`.
-
----
-[COMPLETADA] Corrección Integral de Múltiples Regresiones Críticas
-Origen: Reporte de PM (Post-Fallo de Despliegue)
-Prioridad: MÁXIMA
-Área: Full Stack (auth, users, frontend)
-Descripción:
-Se implementó una corrección integral para un conjunto de regresiones interconectadas. El trabajo incluyó:
-1.  **Objeto de Sesión:** Se corrigió `services/auth/auth.js` para incluir el `Nombre_Completo` en la sesión.
-2.  **Condición de Carrera:** Se rectificó la secuencia de arranque en `auth.js` para cargar datos antes de renderizar.
-3.  **Manejo de Errores:** Se añadió un estado por defecto en `auth.js` para prevenir fallos fatales.
-4.  **Seguridad:** Se refactorizó `services/users/users.js` y `users.html` para usar `sessionToken` en lugar de `privilegios` para la autorización.
-Archivos Afectados: `services/auth/auth.js`, `services/users/users.js`, `auth.js`, `users.html`.
-
----
-
-[COMPLETADA] Implementar Estrategia de Caché Granular para el Catálogo
-Origen: Auditoría Técnica Forense v2.0
-Prioridad: ALTA
-Área: Performance | Backend
-Descripción:
-El servicio de catálogo (`services/catalog/catalog.js`) ha deshabilitado el almacenamiento en caché porque el conjunto de datos completo excede el límite de 100 KB de Google Apps Script. Esto causa que cada carga de la aplicación sea lenta, ya que debe leer y procesar toda la base de datos cada vez.
-Alcance:
-- Diseñar e implementar una estrategia de caché que no exceda los límites de tamaño. Esto podría implicar cachear subconjuntos de datos (ej. por categoría o marca) en lugar del catálogo completo.
-- El frontend deberá ser actualizado para ensamblar los datos cacheados granularmente.
-- NO incluye la optimización de otras consultas de la base de datos.
-
-[COMPLETADA] Investigar Falta de "Nombre Completo" en la Sección "Mi Perfil"
-Origen: Reporte de PM
-Prioridad: MEDIA
-Área: Backend | `services/auth/auth.js`
-Descripción:
-El "Nombre Completo" del usuario no aparece en la sección "Mi Perfil" de `users.html`, incluso si está presente en la base de datos. La causa probable es que la función de `login` en `services/auth/auth.js` no incluye este campo en el objeto de usuario que se devuelve al frontend y se guarda en la sesión. Se debe auditar y corregir el servicio de autenticación para que devuelva el objeto de usuario completo.
-
----
-**TAREAS PENDIENTES**
----
-[EN PROGRESO] Implementar Sistema de Inbox (Tarea 18)
+2. IMPLEMENTAR SISTEMA DE INBOX — AJUSTES VISUALES Y MAQUETADO
+Estado: EN PROCESO
 Origen: Requerimiento de Funcionalidad
 Prioridad: ALTA
 Área: Frontend | UI/UX
-Descripción:
-Implementación funcional completada. Pendiente revisión de estilos y lógica final para la gestión de feedback de usuarios (reportes de problemas y formularios de contacto).
-Alcance:
-- Creación de la UI para listar y detallar mensajes.
-- Integración con el `services/feedback/feedback.js` para obtener, responder y resolver items.
-- Lógica de visibilidad basada en roles de usuario (`Supervisor`, `Gefe`, `Desarrollador`).
+Archivos involucrados: UI del Inbox
 
----
-[TAREA] Refactorizar Frontend para Separar Lógica de Presentación
-Origen: Auditoría Técnica Forense v2.0
-Prioridad: ALTA
+Descripción:
+La funcionalidad principal del sistema de Inbox está implementada e integrada con el servicio `services/feedback/feedback.js`, incluyendo:
+- Listado de mensajes
+- Detalle de mensajes
+- Gestión por roles (Supervisor, Jefe, Desarrollador)
+
+Pendiente:
+- Aplicar estilos finales al modal de Inbox.
+- Corregir problemas de desbordamiento de contenido.
+- Asegurar una maquetación estable y consistente con el resto de la plataforma.
+
+----------------------------------------
+
+3. REPARAR FUNCIONALIDAD DEL BOTÓN "CAMBIAR CONTRASEÑA" EN GESTIÓN DE USUARIOS
+Estado: EN PROCESO
+Origen: Auditoría 11/01/2024
+Prioridad: CRÍTICA
 Área: Frontend
+Archivo involucrado: users.html
+
 Descripción:
-El archivo `index.html` contiene una cantidad masiva de código JavaScript inline, mezclando la lógica de la aplicación con la estructura del DOM. Esto hace que el código sea frágil y difícil de mantener.
-Alcance:
-- Extraer todo el código JavaScript inline del `index.html` a archivos `.js` modulares y cohesivos.
-- Reducir la dependencia de selectores de ID y clase en JavaScript, favoreciendo el uso de atributos `data-*` para desacoplar la lógica del estilo.
-- NO incluye rediseñar la interfaz de usuario, solo refactorizar el código subyacente.
+Debido al uso de scripts como módulos (`type="module"`), las funciones JavaScript no están disponibles en el ámbito global para ser llamadas desde atributos `onclick`.
 
----
+Estado actual:
+- Los botones Crear, Editar y Eliminar ya fueron corregidos usando `addEventListener`.
+- El botón "Cambiar Contraseña" continúa sin funcionar.
 
-[TAREA] Abstraer la Capa de Acceso a Datos del Backend
-Origen: Auditoría Técnica Forense v2.0
-Prioridad: MEDIA
-Área: Arquitectura | Backend
-Descripción:
-La lógica de negocio en todos los servicios de backend está fuertemente acoplada a la estructura de la hoja de Google Sheets, utilizando índices de columna numéricos hardcodeados (ej. `row[COLS_CORTES.marca - 1]`). Esto hace que el sistema sea extremadamente frágil a cualquier cambio en la base de datos.
-Alcance:
-- Crear una capa de abstracción de datos (un "mapper" o "repositorio") que traduzca las filas de la hoja de cálculo a objetos JavaScript de una manera centralizada.
-- Refactorizar todos los servicios para que utilicen esta capa de abstracción en lugar de acceder directamente a los índices de las columnas.
-- NO incluye cambiar el esquema de la base de datos.
+Acción requerida:
+- Refactorizar completamente la lógica del botón "Cambiar Contraseña" para usar `addEventListener`.
+- Eliminar cualquier dependencia de atributos `onclick` inline.
 
----
+----------------------------------------
 
-[TAREA] Mejorar Calidad de Imagen en Modal de Relay
-Origen: Reporte de Tareas
+4. CORREGIR Y VALIDAR LA LÓGICA DEL MODO OSCURO
+Estado: TAREA NUEVA (NO INICIADA)
+Origen: Revisión por PM
 Prioridad: BAJA
 Área: Frontend | UI
+
 Descripción:
-La imagen de la configuración del Relay en el modal de detalle se muestra en baja resolución.
-Acciones:
-1.  **Modificar `ui.js`:** En la función `renderRelayInfoModal`, al llamar a `getImageUrl`, añadir el parámetro `size` con un valor de `1000` para solicitar una versión de mayor calidad de la imagen.
+- Verificar el correcto funcionamiento del botón de modo oscuro.
+- Asegurar la inversión correcta de colores.
+- Detectar y respetar el tema del sistema operativo.
+- Validar contraste adecuado sobre fondo gris.
+- Usar el logo correcto para modo oscuro: Logo_TemaOscuro.png (disponible en el repositorio).
 
----
+----------------------------------------
 
-[TAREA] Reparar Funcionalidad de Botones en Gestión de Usuarios
-Origen: Auditoría 11/01/2024
-Prioridad: CRÍTICA
-Área: Frontend | `users.html`
-Descripción:
-Los botones "Editar", "Eliminar" y "Cambiar Contraseña" no funcionan debido a un conflicto de ámbito de JavaScript. Las funciones son inaccesibles para los atributos `onclick` del HTML porque el script es un módulo.
-Acciones:
-1.  **Refactorizar `users.html`:** Modificar la función `renderUserTable` para que los `event listeners` de los botones "Editar" y "Eliminar" se adjunten mediante `button.addEventListener('click', ...)`.
-2.  **Añadir Enlace de Retorno:** Incluir un enlace `<a>` en la parte superior de `users.html` que permita al usuario volver fácilmente al catálogo (`index.html`).
-
----
-
-[TAREA] Corregir Apariencia del Encabezado en Modal de Detalles
-Origen: Auditoría 11/01/2024
+5. ORGANIZAR Y LIMPIAR EL REPOSITORIO
+Estado: TAREA NUEVA (NO INICIADA)
+Origen: Revisión del PM
 Prioridad: MEDIA
-Área: Frontend | `ui.js`
+Área: Repositorio General
+
 Descripción:
-El logo de la marca aparece a la derecha del título del vehículo, en lugar de a la izquierda como se especifica.
-Acciones:
-1.  **Modificar `ui.js`:** En la función `mostrarDetalleModal`, reordenar la lógica para que el elemento `img` del logo se añada al `titleContainer` antes que el elemento que contiene el `h2` del título.
+- Reorganizar la estructura de archivos del repositorio.
+- Crear directorios adecuados para imágenes.
+- Actualizar todas las URLs de imágenes usadas en el frontend.
+- Evitar rutas rotas o referencias inconsistentes.
 
----
+----------------------------------------
 
-[TAREA] Ajustar Tamaño de Imágenes en Modal de Detalles
-Origen: Auditoría 11/01/2024
+6. IMPLEMENTAR ANIMACIONES DE CARGA PARA OPERACIONES CRÍTICAS
+Estado: TAREA NUEVA (NO INICIADA)
+Origen: Implementación Nueva
+Prioridad: ALTA
+Área: Arquitectura | Funcionalidad
+
+Descripción:
+- Implementar animaciones de carga para:
+  - Formularios
+  - Operaciones que guardan o modifican datos en el Spreadsheet
+- El modal de login debe tener una animación propia, coherente con su estilo y paleta de colores.
+- La pantalla Splash de inicio NO debe modificarse bajo ninguna circunstancia.
+
+----------------------------------------
+
+7. MODAL DE VERIFICACIÓN DE EXISTENCIA DE VEHÍCULOS (FORMULARIO AGREGAR CORTE)
+Estado: TAREA NUEVA (NO INICIADA)
+Origen: Revisión del PM
+Prioridad: CRÍTICA
+Área: Funcional | Estructural
+
+Nota obligatoria:
+- HACER BACKUP de todos los archivos involucrados antes de iniciar.
+
+Descripción:
+- Revisar e implementar la lógica de la función `checkVehicle`.
+- La etapa 1 debe mostrar un modal con:
+  - Modelos coincidentes
+  - Detalles de cortes existentes
+  - Imágenes correctamente visibles con lógica propia de construcción de URLs
+- Los botones de la etapa 1.5 no responden.
+- Agregar botones para regresar a la etapa 1 (Marca, Modelo, Año, Tipo de Encendido).
+- El botón actual regresa al catálogo, lo cual es incorrecto.
+- La creación del vehículo funciona correctamente, pero:
+  - No se genera el ID usando la fórmula del Spreadsheet.
+  - Esto bloquea la ejecución correcta de la etapa 3.
+
+----------------------------------------
+
+8. FORMALIZAR Y DOCUMENTAR LA API DE MICROSERVICIOS
+Estado: TAREA NUEVA (NO INICIADA)
+Origen: Auditoría Técnica Forense v2.0
 Prioridad: BAJA
-Área: Frontend | `style.css`
+Área: Arquitectura | Documentación
+
 Descripción:
-Las imágenes dentro del modal de detalles no tienen el tamaño correcto: la del vehículo es muy grande y la del corte no es responsiva.
-Acciones:
-1.  **Modificar `style.css`:**
-    *   Ajustar la regla `.img-vehiculo-modal` para reducir su tamaño (ej. `width: 50%; max-width: 200px;`).
-    *   Añadir una `@media query` para que la clase `.img-corte` tenga un `width: 80%` en pantallas con un ancho máximo de `600px`.
+- Documentar todos los endpoints de cada microservicio.
+- Definir contratos claros entre frontend y backend.
+- Reducir errores por expectativas implícitas.
+- Facilitar la incorporación de nuevos desarrolladores.
 
----
+----------------------------------------
 
-[TAREA] Implementar Lógica de Visualización para Corte Recomendado
-Origen: Auditoría 11/01/2024
+9. MODAL DE DETALLES DE RELAY — PINES NO VISIBLES
+Estado: TAREA NUEVA (NO INICIADA)
+Origen: Requerimiento Funcional
 Prioridad: MEDIA
-Área: Frontend | `ui.js`
+Área: Frontend | UI
+
 Descripción:
-El corte con más votos ("Corte Recomendado") se muestra incorrectamente dentro de un acordeón. Debe estar siempre visible y expandido.
-Acciones:
-1.  **Modificar `ui.js`:** En `mostrarDetalleModal`, cambiar el bucle de renderizado de secciones. Primero, renderizar el contenido del corte recomendado directamente en el DOM (sin usar `createAccordionSection`). Luego, iterar sobre el resto de los cortes y secciones para crear los acordeones correspondientes.
+- El modal de detalles de Relay no muestra la información de los pines.
+- Revisar la lógica de construcción del URL de la imagen del diagrama.
+- Asegurar que el URL incluya el parámetro `sz=1000` para el lightbox.
 
----
-
-[TARE] Implementar Funcionalidad Completa para Configuración de Relay
-Origen: Auditoría 11/01/2024
-Prioridad: ALTA
-Área: Frontend | `ui.js`
-Descripción:
-La sección de "Configuración de Relay" es solo texto estático. Debe ser un componente interactivo que muestre "Sin Relay" si no hay datos o un botón que abra un modal secundario con el diagrama.
-Acciones:
-1.  **Modificar `ui.js`:** Dentro de la función que renderiza el contenido de los cortes (actualmente `createAccordionSection`):
-    *   Implementar una lógica condicional para el valor `configRelay`.
-    *   Si el valor es nulo o "Sin Relay", mostrar el texto "Sin Relay".
-    *   Si hay un valor, crear un elemento `<button>` con el nombre de la configuración como texto.
-    *   Añadir un `addEventListener` a ese botón que, al ser presionado, busque los detalles del relay en `catalogData.relay` y llame a una función (ej. `mostrarDetalleRelayModal`) para mostrar la imagen y detalles en un segundo modal sobre el modal actual.
-
----
-
-[TAREA] Investigar Error "Failed to fetch" Intermitente en Módulo de Usuarios
-Origen: Reporte de PM
-Prioridad: MEDIA
-Área: Frontend | `users.html`
-Descripción:
-Al cargar la página de gestión de usuarios, a veces aparece un error "Failed to fetch" de forma repentina, aunque el contenido de la página parece cargarse correctamente. Se debe investigar la causa de esta solicitud de red fallida para asegurar que no haya efectos secundarios ocultos.
-
----
-
-[TAREA] Refactorizar Generación de IDs para Usar Fórmulas de Hoja de Cálculo
-Origen: Requerimiento Técnico
-Prioridad: ALTA
-Área: Arquitectura | Backend
-Descripción:
-La generación de IDs numéricos en el backend es propensa a errores y no hereda formatos ni validaciones de datos en Google Sheets. Se debe refactorizar la lógica de creación de nuevos registros para que inyecte una fórmula de hoja de cálculo en la celda del ID, delegando la generación del ID a Google Sheets.
-Archivos Afectados: `services/users/users.js`, `services/feedback/feedback.js`.
-
----
-
-[TAREA] Corregir Regresión en Generación de IDs con Fórmulas
-Origen: Revisión Post-Commit
-Prioridad: CRÍTICA
-Área: Arquitectura | Backend
-Descripción:
-La implementación anterior para la generación de IDs basados en fórmulas falló. El uso de `setValues` en toda la fila nueva sobrescribió la fórmula del ID que se acababa de heredar con `copyTo`. Se debe implementar una solución definitiva que copie la fila, pero que luego solo limpie y escriba en las columnas de datos, dejando la columna del ID intacta.
-Archivos Afectados: `services/users/users.js`, `services/feedback/feedback.js`.
+========================================
+FIN DEL REGISTRO
+========================================
