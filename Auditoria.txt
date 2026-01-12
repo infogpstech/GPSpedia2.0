@@ -10,7 +10,7 @@ Esta auditoría de seguimiento se inició tras la notificación del usuario de q
 
 La investigación concluye que la causa del problema recurrente **no reside en un defecto del código**, sino que probablemente se deba a uno de dos factores externos: un **caso de borde en el formato de los datos** de entrada que no ha sido contemplado, o un **problema de caché** en el entorno del cliente.
 
-**B. ANÁLISIS TÉCNICO DE `getImageUrl`**
+**B. ANÁLISÉS TÉCNICO DE `getImageUrl`**
 -----------------------------------------
 1.  **Robustez y Manejo de Errores:**
     *   La función gestiona adecuadamente valores nulos, indefinidos o vacíos, devolviendo una imagen provisional (`placeholder`) para evitar fallos de renderizado.
@@ -114,3 +114,12 @@ Se realizó una auditoría de los archivos `README.md`, `ui.js` y `style.css` pa
     *   **Acción Requerida:** Incrementar la altura en un 10% a `44px` y establecer el ancho en `auto` para mantener la proporción, tal como se solicita.
     *   **Hallazgo (`.img-vehiculo-modal`):** El ancho máximo actual es de `250px`.
     *   **Acción Requerida:** Reducir el ancho máximo en un 10% a `225px`.
+
+**J. AUDITORÍA DE BUG DE NAVEGACIÓN EN "TIPO DE ENCENDIDO" (14/01/2026)**
+--------------------------------------------------------------------
+Se realizó una auditoría de `ui.js` para investigar un bug reportado en la etapa de selección de tipo de encendido.
+
+1.  **Función `mostrarTiposEncendido`:**
+    *   **Hallazgo (Causa Raíz):** La función contiene una lógica de "optimización" que intenta saltarse la pantalla de selección si solo existe un tipo de encendido para un modelo (`if (tiposEncendido.length === 1)`). Al hacerlo, llama directamente a la siguiente función en el flujo (`mostrarVersiones`) con una lista de vehículos no filtrada por tipo de encendido.
+    *   **Impacto:** Esto rompe la cadena de filtrado secuencial. La función `mostrarVersiones` espera recibir un conjunto de datos ya acotado a un solo tipo de encendido, y al no hacerlo, procesa datos incorrectos, causando el bug de navegación.
+    *   **Acción Requerida:** Eliminar el bloque condicional `if (tiposEncendido.length === 1)`. Se debe forzar siempre la visualización de la pantalla de selección de tipo de encendido, incluso si solo hay una opción. Esto garantiza un flujo de datos consistente y predecible, y simplifica la lógica del código.

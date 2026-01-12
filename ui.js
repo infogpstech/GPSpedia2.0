@@ -343,10 +343,10 @@ export function mostrarTiposEncendido(categoria, marca, versionEquipamiento, mod
 
     const tiposEncendido = [...new Set(vehiculos.map(v => v.tipoEncendido).filter(Boolean))];
 
-    if (tiposEncendido.length === 1) {
-        mostrarVersiones(vehiculos, categoria, marca, modelo);
-        return;
-    }
+    // Comentario: Se elimina el bloque condicional `if (tiposEncendido.length === 1)` que causaba el bug.
+    // Al forzar siempre la visualización de esta pantalla, se asegura que la función `mostrarVersiones`
+    // reciba siempre un conjunto de datos correctamente filtrado por tipo de encendido,
+    // manteniendo la consistencia del flujo de navegación.
 
     const grid = document.createElement("div"); grid.className = "grid";
     tiposEncendido.forEach(tipo => {

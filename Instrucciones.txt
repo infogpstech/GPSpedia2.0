@@ -116,7 +116,20 @@ NO se permiten atajos, omisiones ni reinterpretaciones.
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-[PENDIENTE DE REVISIÓN POR EL PM] Ajuste Final de Diseño y Documentación del Modal de Detalle
+[PENDIENTE DE REVISIÓN POR EL PM] Corrección de Bug de Navegación en "Tipo de Encendido"
+Origen: Reporte de PM
+Prioridad: ALTA
+Área: Frontend | `ui.js`
+Descripción:
+Se corrigió un bug en el flujo de navegación que ocurría cuando un modelo de vehículo tenía un único tipo de encendido. Se eliminó la lógica que omitía esta pantalla de selección para garantizar un flujo de datos consistente y predecible, resolviendo el error.
+Archivos Afectados: `ui.js`.
+
+---
+
+---
+**TAREAS COMPLETADAS**
+---
+[COMPLETADA] Ajuste Final de Diseño y Documentación del Modal de Detalle
 Origen: Solicitud de PM
 Prioridad: ALTA
 Área: Frontend | `README.md`, `ui.js`, `style.css`
@@ -128,7 +141,7 @@ Se implementaron los ajustes finales de diseño para el modal de detalles del ve
 Archivos Afectados: `README.md`, `ui.js`, `style.css`.
 
 ---
-[PENDIENTE DE REVISIÓN POR EL PM] Corrección de Regresiones Críticas de Navegación y UI
+[COMPLETADA] Corrección de Regresiones Críticas de Navegación y UI
 Origen: Reporte de Regresión Post-Refactor
 Prioridad: MÁXIMA
 Área: Frontend | `ui.js`, `style.css`
@@ -140,8 +153,6 @@ Se implementaron correcciones para un conjunto de regresiones críticas que afec
 **Nota de Code Review:** Se ha revertido un cambio fuera de alcance en `server.py` que fue identificado durante la revisión de código, en cumplimiento con el protocolo de desarrollo. La corrección de las regresiones de la UI no ha sido alterada.
 Archivos Afectados: `ui.js`, `style.css`.
 
----
-**TAREAS COMPLETADAS**
 ---
 [COMPLETADA] Investigar Comportamiento Anormal de Carga del Catálogo y Renderizado de Imágenes
 Origen: Reporte de PM

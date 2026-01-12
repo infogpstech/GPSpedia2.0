@@ -1,3 +1,16 @@
+**V4.5.2 - (NAV BUG FIX) - 14/01/2026**
+**A. RESUMEN GENERAL:** Se corrigió un bug en el flujo de navegación que ocurría en la etapa de selección de "Tipo de Encendido".
+
+**B. Corrección Implementada:**
+1.  **Bug de Flujo de Navegación (`ui.js`):**
+    *   **Problema:** Cuando un modelo de vehículo tenía un solo tipo de encendido, el sistema se saltaba la pantalla de selección, pasando un conjunto de datos incorrectamente filtrado a la siguiente etapa y rompiendo el flujo.
+    *   **Causa Raíz:** Una lógica de "optimización" en la función `mostrarTiposEncendido` que no consideraba los casos en los que múltiples rangos de años existían para un único tipo de encendido.
+    *   **Solución:** Se eliminó el bloque condicional que causaba el salto. Ahora, la pantalla de selección de "Tipo de Encendido" se mostrará siempre, incluso si solo hay una opción. Esto garantiza que el flujo de datos sea consistente y predecible, resolviendo el bug.
+    *   **Líneas Afectadas en `ui.js`:** 346-349.
+
+**C. Impacto:**
+- **Estabilidad de la Navegación:** Se ha restaurado el flujo de navegación correcto para todos los casos, asegurando que los usuarios puedan llegar al detalle del vehículo sin errores, independientemente de la estructura de los datos.
+
 **V4.5.1 - (UI & DOCS UPDATE) - 14/01/2026**
 **A. RESUMEN GENERAL:** Se implementaron ajustes de diseño en el modal de detalles del vehículo y se actualizó la documentación (`README.md`) para reflejar los nuevos requisitos visuales, según la solicitud del Project Manager.
 
