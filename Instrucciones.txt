@@ -172,7 +172,92 @@ Requisitos adicionales:
 
 ----------------------------------------
 
-2. IMPLEMENTAR SISTEMA DE INBOX — AJUSTES VISUALES Y MAQUETADO
+----------------------------------------
+
+2. REVISIÓN PROFUNDA Y CORRECCIÓN DEL SISTEMA DE BÚSQUEDA GLOBAL
+Estado: TAREA NUEVA (NO INICIADA)
+Origen: Requerimiento Funcional + Detección de Comportamiento Incorrecto
+Prioridad: CRÍTICA
+Área: Frontend | Lógica de Navegación | UX
+Archivos involucrados: search.js, ui.js (o lógica equivalente)
+
+Descripción:
+El sistema de búsqueda presenta inconsistencias graves en la forma en que procesa y muestra los resultados. Actualmente:
+- Al buscar un MODELO, los resultados muestran únicamente el LOGO DE LA MARCA.
+- Al seleccionar una MARCA desde los resultados de búsqueda, no se muestran los modelos asociados.
+- El flujo de navegación posterior a la búsqueda no es consistente ni reversible.
+
+Se requiere una revisión profunda y estructural del sistema de búsqueda para corregir la lógica de interpretación, clasificación y navegación de resultados.
+
+----------------------------------------
+COMPORTAMIENTO FUNCIONAL REQUERIDO (OBLIGATORIO)
+----------------------------------------
+
+Tipos de búsqueda soportados:
+
+1. Búsqueda por Marca
+- Si el término coincide con una marca:
+  - Mostrar tarjeta de la MARCA (logo).
+  - Al seleccionar la marca, iniciar el flujo de navegación por Marca:
+    Marca → Modelos → Versión / Tipo de Encendido → Años.
+  - Debe respetar exactamente el flujo estándar de navegación.
+
+2. Búsqueda por Modelo
+- Si el término coincide con uno o más modelos:
+  - Mostrar directamente tarjetas de MODELOS (NO el logo de la marca).
+  - Cada tarjeta debe representar un modelo único.
+  - Al seleccionar un modelo:
+    - Continuar el flujo normal desde Modelo → Versión / Tipo de Encendido → Años.
+
+3. Búsqueda por Año
+- Si el término corresponde a un año:
+  - Mostrar modelos que contengan ese año dentro de su rango de años disponibles.
+  - El sistema debe validar rangos (ejemplo: 2012–2018).
+  - No mostrar modelos fuera del rango.
+
+4. Búsqueda Mixta (Marca + Modelo + Año)
+- El sistema debe ser capaz de resolver búsquedas combinadas de forma inteligente.
+- Priorizar coincidencias más específicas:
+  Modelo + Año > Modelo > Marca.
+
+----------------------------------------
+REGLAS ESPECIALES DE RESULTADOS
+----------------------------------------
+
+- Si un modelo tiene UN SOLO RESULTADO posible:
+  - Mostrar directamente el modal de detalle del modelo,
+    tal como funciona actualmente.
+  - No mostrar listado intermedio innecesario.
+
+- El sistema debe permitir:
+  - Coincidencias aproximadas.
+  - Errores ortográficos leves.
+  - Insensibilidad a mayúsculas y minúsculas.
+
+----------------------------------------
+NAVEGACIÓN Y UX (OBLIGATORIO)
+----------------------------------------
+
+- Todos los resultados deben:
+  - Mantener botones funcionales para regresar al estado anterior.
+  - Respetar el flujo gradual y reversible del sistema.
+  - No romper el estado de navegación actual.
+
+----------------------------------------
+CRITERIOS DE ACEPTACIÓN
+----------------------------------------
+
+- La búsqueda devuelve tarjetas correctas según el tipo de término ingresado.
+- No se muestran logos de marca cuando el resultado es un modelo.
+- La navegación posterior a la búsqueda es consistente con:
+  - Navegación por Marca
+  - Navegación por Categoría
+  - Navegación por Búsqueda
+- El PM valida el comportamiento final antes de cerrar la tarea.
+
+----------------------------------------
+
+3. IMPLEMENTAR SISTEMA DE INBOX — AJUSTES VISUALES Y MAQUETADO
 Estado: EN PROCESO
 Origen: Requerimiento de Funcionalidad
 Prioridad: ALTA
@@ -192,7 +277,7 @@ Pendiente:
 
 ----------------------------------------
 
-3. REPARAR FUNCIONALIDAD DEL BOTÓN "CAMBIAR CONTRASEÑA" EN GESTIÓN DE USUARIOS
+4. REPARAR FUNCIONALIDAD DEL BOTÓN "CAMBIAR CONTRASEÑA" EN GESTIÓN DE USUARIOS
 Estado: EN PROCESO
 Origen: Auditoría 11/01/2024
 Prioridad: CRÍTICA
@@ -212,7 +297,7 @@ Acción requerida:
 
 ----------------------------------------
 
-4. CORREGIR Y VALIDAR LA LÓGICA DEL MODO OSCURO
+5. CORREGIR Y VALIDAR LA LÓGICA DEL MODO OSCURO
 Estado: TAREA NUEVA (NO INICIADA)
 Origen: Revisión por PM
 Prioridad: BAJA
@@ -227,7 +312,7 @@ Descripción:
 
 ----------------------------------------
 
-5. ORGANIZAR Y LIMPIAR EL REPOSITORIO
+6. ORGANIZAR Y LIMPIAR EL REPOSITORIO
 Estado: TAREA NUEVA (NO INICIADA)
 Origen: Revisión del PM
 Prioridad: MEDIA
@@ -241,7 +326,7 @@ Descripción:
 
 ----------------------------------------
 
-6. IMPLEMENTAR ANIMACIONES DE CARGA PARA OPERACIONES CRÍTICAS
+7. IMPLEMENTAR ANIMACIONES DE CARGA PARA OPERACIONES CRÍTICAS
 Estado: TAREA NUEVA (NO INICIADA)
 Origen: Implementación Nueva
 Prioridad: ALTA
@@ -256,7 +341,7 @@ Descripción:
 
 ----------------------------------------
 
-7. MODAL DE VERIFICACIÓN DE EXISTENCIA DE VEHÍCULOS (FORMULARIO AGREGAR CORTE)
+8. MODAL DE VERIFICACIÓN DE EXISTENCIA DE VEHÍCULOS (FORMULARIO AGREGAR CORTE)
 Estado: TAREA NUEVA (NO INICIADA)
 Origen: Revisión del PM
 Prioridad: CRÍTICA
@@ -280,7 +365,7 @@ Descripción:
 
 ----------------------------------------
 
-8. FORMALIZAR Y DOCUMENTAR LA API DE MICROSERVICIOS
+9. FORMALIZAR Y DOCUMENTAR LA API DE MICROSERVICIOS
 Estado: TAREA NUEVA (NO INICIADA)
 Origen: Auditoría Técnica Forense v2.0
 Prioridad: BAJA
@@ -294,7 +379,7 @@ Descripción:
 
 ----------------------------------------
 
-9. MODAL DE DETALLES DE RELAY — PINES NO VISIBLES
+10. MODAL DE DETALLES DE RELAY — PINES NO VISIBLES
 Estado: TAREA NUEVA (NO INICIADA)
 Origen: Requerimiento Funcional
 Prioridad: MEDIA
