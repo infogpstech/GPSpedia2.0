@@ -116,6 +116,18 @@ NO se permiten atajos, omisiones ni reinterpretaciones.
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
+[PENDIENTE DE REVISIÓN POR EL PM] Ajuste Final de Diseño y Documentación del Modal de Detalle
+Origen: Solicitud de PM
+Prioridad: ALTA
+Área: Frontend | `README.md`, `ui.js`, `style.css`
+Descripción:
+Se implementaron los ajustes finales de diseño para el modal de detalles del vehículo y se actualizó la documentación para reflejar estos cambios.
+1.  **Documentación (`README.md`):** Se actualizó la descripción del layout del encabezado y se añadió un ejemplo visual de la estructura completa del modal.
+2.  **Diseño del Encabezado (`ui.js`):** Se modificó el layout para posicionar el logo de la marca a la izquierda del título del modelo, con ambos elementos alineados a la izquierda.
+3.  **Tamaño de Imágenes (`style.css`):** Se ajustó el tamaño del logo de la marca (+10%) y de la imagen del vehículo (-10%) según los nuevos requisitos.
+Archivos Afectados: `README.md`, `ui.js`, `style.css`.
+
+---
 [PENDIENTE DE REVISIÓN POR EL PM] Corrección de Regresiones Críticas de Navegación y UI
 Origen: Reporte de Regresión Post-Refactor
 Prioridad: MÁXIMA

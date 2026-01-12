@@ -96,3 +96,21 @@ Se ha recibido feedback de la revisión de código.
     *   **Acción Requerida:** Revertir todos los cambios realizados en `server.py` a su estado original antes de volver a solicitar una revisión.
 3.  **Protocolo a Seguir:**
     *   De acuerdo con el "PROTOCOLO DE RESULTADO DE CODE REVIEW", esta observación implica un cambio de código y, por lo tanto, **REINICIA el ciclo de trabajo completo**, comenzando desde la auditoría del archivo a modificar (`server.py`).
+
+**I. AUDITORÍA PARA AJUSTES DE DISEÑO DEL MODAL (14/01/2026)**
+-------------------------------------------------------------
+Se realizó una auditoría de los archivos `README.md`, `ui.js` y `style.css` para abordar una nueva solicitud de ajuste de diseño del modal de detalles.
+
+1.  **Documentación (`README.md`):**
+    *   **Hallazgo:** La descripción actual del encabezado del modal ("Nombre del modelo... seguido por el logo") es incorrecta según la nueva solicitud. Falta el ejemplo visual del modal.
+    *   **Acción Requerida:** Actualizar el texto para que indique "El logo de la marca debe mostrarse a la izquierda del nombre del modelo" y añadir una nueva sección con un ejemplo visual detallado de la estructura del modal.
+
+2.  **Lógica de Layout (`ui.js`):**
+    *   **Hallazgo:** La función `mostrarDetalleModal` actualmente construye el DOM del encabezado añadiendo el título antes que el logo y usa `justify-content: space-between`.
+    *   **Acción Requerida:** Modificar la función para: 1) Añadir el logo al `titleContainer` *antes* que el título. 2) Cambiar el estilo en línea a `justify-content: flex-start` para alinear ambos elementos a la izquierda.
+
+3.  **Estilos de Imágenes (`style.css`):**
+    *   **Hallazgo (`.brand-logo-modal`):** La altura actual es de `40px`.
+    *   **Acción Requerida:** Incrementar la altura en un 10% a `44px` y establecer el ancho en `auto` para mantener la proporción, tal como se solicita.
+    *   **Hallazgo (`.img-vehiculo-modal`):** El ancho máximo actual es de `250px`.
+    *   **Acción Requerida:** Reducir el ancho máximo en un 10% a `225px`.

@@ -1,3 +1,27 @@
+**V4.5.1 - (UI & DOCS UPDATE) - 14/01/2026**
+**A. RESUMEN GENERAL:** Se implementaron ajustes de diseño en el modal de detalles del vehículo y se actualizó la documentación (`README.md`) para reflejar los nuevos requisitos visuales, según la solicitud del Project Manager.
+
+**B. Cambios Implementados:**
+1.  **Actualización de Documentación (`README.md`):**
+    *   **Problema:** La descripción del layout del encabezado del modal era incorrecta y faltaba un ejemplo visual.
+    *   **Solución:** Se actualizó el texto para indicar que el logo de la marca debe aparecer a la izquierda del título. Se añadió una nueva sección con un diagrama ASCII y una lista detallada de requisitos que describen la estructura y el orden del contenido del modal.
+    *   **Líneas Afectadas en `README.md`:** 991-1078.
+
+2.  **Ajuste del Layout del Encabezado (`ui.js`):**
+    *   **Problema:** El logo de la marca aparecía a la derecha del título del modelo.
+    *   **Solución:** Se refactorizó la función `mostrarDetalleModal` para reordenar la creación de los elementos del DOM, insertando el logo *antes* que el título y ajustando el estilo `justify-content` a `flex-start` para asegurar una alineación a la izquierda.
+    *   **Líneas Afectadas en `ui.js`:** 532-550.
+
+3.  **Ajuste de Tamaño de Imágenes (`style.css`):**
+    *   **Problema:** El tamaño del logo de la marca y de la imagen del vehículo no cumplían con los nuevos requisitos de diseño.
+    *   **Solución:** Se modificaron las reglas de CSS para:
+        *   Aumentar la altura del logo de la marca en un 10% (a `44px`) en la clase `.brand-logo-modal`.
+        *   Reducir el ancho máximo de la imagen del vehículo en un 10% (a `225px`) en la clase `.img-vehiculo-modal`.
+    *   **Líneas Afectadas en `style.css`:** 777-781, 790.
+
+**C. Impacto:**
+- **Consistencia Visual y Documental:** El diseño del modal de detalles del vehículo ahora coincide con los requisitos visuales más recientes, y la documentación en `README.md` actúa como una fuente de verdad precisa para la estructura de la UI.
+
 **V4.5.0 - (REGRESSION FIX) - 14/01/2026**
 **A. RESUMEN GENERAL:** Se implementó una corrección integral para un conjunto de regresiones críticas en el frontend que afectaban la navegación principal y la visualización de detalles en los modales, restaurando la funcionalidad y el diseño a las especificaciones definidas en la documentación.
 

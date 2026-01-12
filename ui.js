@@ -529,14 +529,9 @@ export function mostrarDetalleModal(item) {
     headerDiv.appendChild(closeBtn);
     cont.appendChild(headerDiv);
 
-    // Comentario: Se reordena la lógica para cumplir con el requisito de diseño (logo a la derecha).
+    // Comentario: Se ajusta el layout del encabezado para cumplir con el nuevo requisito (logo a la izquierda).
     const titleContainer = document.createElement("div");
-    titleContainer.style.cssText = "border-bottom: 3px solid #007bff; padding-bottom: 8px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; gap: 15px;";
-
-    const title = document.createElement("h2");
-    title.textContent = `${item.modelo}`;
-    title.style.cssText = "color:#007bff; margin: 0; padding: 0; font-size: 1.8em;";
-    titleContainer.appendChild(title);
+    titleContainer.style.cssText = "border-bottom: 3px solid #007bff; padding-bottom: 8px; margin-bottom: 15px; display: flex; align-items: center; justify-content: flex-start; gap: 15px;";
 
     const logoUrl = getLogoUrlForMarca(item.marca, item.categoria);
     if (logoUrl) {
@@ -544,9 +539,14 @@ export function mostrarDetalleModal(item) {
         logoImg.src = getImageUrl(logoUrl);
         logoImg.alt = `Logo ${item.marca}`;
         logoImg.className = 'brand-logo-modal';
-        logoImg.style.cssText = "height: 40px; width: auto; max-width: 120px; object-fit: contain;";
+        // El tamaño se controla ahora desde style.css para mantener la consistencia.
         titleContainer.appendChild(logoImg);
     }
+
+    const title = document.createElement("h2");
+    title.textContent = `${item.modelo}`;
+    title.style.cssText = "color:#007bff; margin: 0; padding: 0; font-size: 1.8em;";
+    titleContainer.appendChild(title);
 
     cont.appendChild(titleContainer);
 
