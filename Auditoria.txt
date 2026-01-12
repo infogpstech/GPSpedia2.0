@@ -123,3 +123,28 @@ Se realizó una auditoría de `ui.js` para investigar un bug reportado en la eta
     *   **Hallazgo (Causa Raíz):** La función contiene una lógica de "optimización" que intenta saltarse la pantalla de selección si solo existe un tipo de encendido para un modelo (`if (tiposEncendido.length === 1)`). Al hacerlo, llama directamente a la siguiente función en el flujo (`mostrarVersiones`) con una lista de vehículos no filtrada por tipo de encendido.
     *   **Impacto:** Esto rompe la cadena de filtrado secuencial. La función `mostrarVersiones` espera recibir un conjunto de datos ya acotado a un solo tipo de encendido, y al no hacerlo, procesa datos incorrectos, causando el bug de navegación.
     *   **Acción Requerida:** Eliminar el bloque condicional `if (tiposEncendido.length === 1)`. Se debe forzar siempre la visualización de la pantalla de selección de tipo de encendido, incluso si solo hay una opción. Esto garantiza un flujo de datos consistente y predecible, y simplifica la lógica del código.
+
+**K. AUDITORÍA PARA IMPLEMENTACIÓN DEL SISTEMA DE INBOX (15/01/2026)**
+------------------------------------------------------------------
+Se realizó una auditoría de los archivos `index.html`, `ui.js`, `style.css` y `services/feedback/feedback.js` para evaluar el estado de la Tarea 18: "Implementar Sistema de Inbox".
+
+1.  **`index.html` (Frontend - Estructura):**
+    *   **Hallazgo:** El archivo ya contiene la estructura HTML base para el modal del Inbox (`<div id="inbox-modal">`), incluyendo los contenedores para la lista de mensajes (`#inbox-list`) y el detalle (`#inbox-detail`). La estructura es adecuada para la implementación.
+    *   **Acción Requerida:** No se requieren cambios en el HTML.
+
+2.  **`ui.js` (Frontend - Lógica):**
+    *   **Hallazgo:** El módulo contiene la lógica funcional completa para el Inbox:
+        *   La función `openInbox` maneja la apertura del modal.
+        *   Realiza correctamente la llamada a la API (`getFeedbackItems`) para obtener los mensajes.
+        *   Las funciones `renderInboxList` y `renderInboxDetail` están implementadas y manejan la renderización dinámica de los datos.
+        *   Los manejadores de eventos para responder (`replyToFeedback`) y resolver (`markAsResolved`) están presentes y conectados a las funciones de la API.
+    *   **Acción Requerida:** La lógica JavaScript se considera completa. El trabajo restante es visual.
+
+3.  **`services/feedback/feedback.js` (Backend - Servicio):**
+    *   **Hallazgo:** El servicio de backend ya expone los tres endpoints necesarios para la funcionalidad del Inbox: `handleGetFeedbackItems`, `handleReplyToFeedback`, y `handleMarkAsResolved`. La lógica para interactuar con las hojas de cálculo "Feedbacks" y "Contactanos" es correcta.
+    *   **Acción Requerida:** No se requieren cambios en el backend.
+
+4.  **`style.css` (Frontend - Estilos):**
+    *   **Hallazgo (Causa Raíz de la Tarea):** El archivo carece por completo de reglas de estilo para los elementos del Inbox. Los IDs y clases generados por `ui.js` (ej. `.inbox-item`, `#inbox-detail`, `.inbox-actions`) no tienen ninguna definición de estilo.
+    *   **Impacto:** El modal es funcional pero visualmente inutilizable.
+    *   **Acción Requerida:** La tarea consiste principalmente en añadir un nuevo bloque de CSS para dar formato al modal del Inbox, sus componentes y estados (activo, respondido, resuelto), asegurando que el diseño sea consistente con el resto de la aplicación.
