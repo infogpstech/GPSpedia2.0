@@ -419,9 +419,20 @@ export function mostrarVersiones(filas, categoria, marca, modelo) {
     setState({ navigationState: { level: "versiones", categoria, marca, modelo, previousState } });
     const cont = document.getElementById("contenido");
 
-    // Comentario: Lógica dinámica para el botón "Volver".
-    // Regresa a la pantalla anterior (tipos de encendido o versiones de equipamiento).
-    const backAction = `window.ui.mostrarTiposEncendido('${categoria}', '${marca}', '${previousState.versionEquipamiento || null}', '${modelo}')`;
+    // Comentario: Lógica dinámica MEJORADA para el botón "Volver".
+    // Determina si el paso anterior fue la selección de tipo de encendido o de versión de equipamiento.
+    let backAction;
+    if (previousState.level === 'tiposEncendido') {
+        // Comentario: Se corrige el bug que pasaba 'null' como string.
+        // Se asegura que si no hay versión de equipamiento, se pase el valor literal `null`.
+        const veq = previousState.versionEquipamiento ? `'${previousState.versionEquipamiento}'` : null;
+        backAction = `window.ui.mostrarTiposEncendido('${categoria}', '${marca}', ${veq}, '${modelo}')`;
+    } else if (previousState.level === 'versionesEquipamiento') {
+        backAction = `window.ui.mostrarVersionesEquipamiento('${categoria}', '${marca}', '${modelo}')`;
+    } else {
+        // Fallback seguro, regresa a la lista de modelos.
+        backAction = `window.ui.mostrarModelos('${categoria}', '${marca}')`;
+    }
 
     cont.innerHTML = `<span class="backBtn" onclick="${backAction}">${backSvg} Volver</span><h4>Años de ${modelo}</h4>`;
     const grid = document.createElement("div"); grid.className = "grid";

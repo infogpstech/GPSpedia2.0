@@ -184,3 +184,21 @@ Tras la identificación de un error en la primera implementación de la correcci
 3.  **Acción Requerida:**
     *   **Flujo Hacia Adelante:** Modificar el `onclick` en `mostrarVersionesEquipamiento` para que filtre los datos por la versión seleccionada y llame directamente a `mostrarVersiones`.
     *   **Flujo Hacia Atrás:** Refactorizar la lógica de los botones "Volver" en `mostrarTiposEncendido` y `mostrarVersiones` para que utilicen el `navigationState` y determinen dinámicamente la función y los parámetros correctos para regresar al paso anterior real.
+
+**N. AUDITORÍA FINAL DEL BOTÓN "VOLVER" (15/01/2026)**
+-----------------------------------------------------
+Se realizó una auditoría final para identificar la causa raíz del bug del botón "Volver" en la pantalla de "Años/Generación".
+
+1.  **Función `mostrarVersiones`:**
+    *   **Hallazgo (Causa Raíz):** La lógica para construir la acción del botón "Volver" (`backAction`) es estática y errónea. La línea `const backAction = \`window.ui.mostrarTiposEncendido(...)\`;` asume incorrectamente que el usuario siempre llega a esta pantalla desde `mostrarTiposEncendido`.
+    *   **Impacto:** Cuando un usuario sigue el flujo `Modelo -> Versiones de Equipamiento -> Años`, el botón "Volver" intenta llevarlo a `mostrarTiposEncendido`, una pantalla que nunca vio. Esto rompe la navegación reversible y causa el bug reportado.
+    *   **Acción Requerida:** Refactorizar la construcción del `backAction` en `mostrarVersiones` para que sea dinámica. Debe utilizar el `navigationState` (específicamente `previousState.level`) para determinar si la pantalla anterior fue `tiposEncendido` o `versionesEquipamiento` y construir la llamada a la función de "Volver" correspondiente con los parámetros correctos.
+
+**O. AUDITORÍA DE SEGUIMIENTO (POST-CORRECCIÓN v2) - 16/01/2026**
+-----------------------------------------------------------------
+Se realizó una auditoría de seguimiento tras el reporte de la persistencia del bug de navegación, incluso después de la segunda corrección.
+
+1.  **Función `mostrarVersiones` - Análisis de la Lógica del Botón "Volver":**
+    *   **Hallazgo (Causa Raíz Definitiva):** La implementación anterior, aunque mejorada, seguía conteniendo un error lógico. La lógica condicional (`if/else if`) para determinar la `backAction` no manejaba correctamente los parámetros pasados. Cuando el flujo es `Modelo -> Versión de Equipamiento -> Años`, el `previousState.level` es correctamente identificado como `versionesEquipamiento`, pero la acción de retorno intenta invocar `mostrarVersionesEquipamiento` con un parámetro `modelo` que es `undefined` en ese contexto, causando el error `"... para 'Captiva' null"`.
+    *   **Impacto:** El bug persiste porque la función de retorno se llama con los argumentos incorrectos. La navegación hacia atrás sigue rota en uno de los flujos principales.
+    *   **Acción Requerida:** Implementar una corrección definitiva en la lógica de construcción del `backAction` dentro de `mostrarVersiones`. La lógica debe asegurar que, al determinar la función de retorno, también se utilicen los parámetros correctos y disponibles en el `navigationState` para reconstruir la vista anterior sin errores.

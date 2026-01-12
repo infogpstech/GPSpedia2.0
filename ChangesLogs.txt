@@ -1,3 +1,16 @@
+**V4.7.2 - (CRITICAL NAV FIX) - 16/01/2026**
+**A. RESUMEN GENERAL:** Se implementó una corrección definitiva para un bug crítico y persistente en la navegación hacia atrás que ocurría en flujos específicos. Esta solución asegura que la navegación sea reversible y estable en todos los escenarios.
+
+**B. Corrección Implementada:**
+1.  **Manejo de Parámetros Nulos en Botón "Volver" (`ui.js`):**
+    *   **Problema:** Al navegar por la ruta `Modelo -> Versión de Equipamiento -> Año` y presionar "Volver", la aplicación fallaba con un error (`... para 'Captiva' null`).
+    *   **Causa Raíz:** La función `mostrarVersiones` construía incorrectamente la llamada de retorno, pasando el valor `null` de la versión de equipamiento como una cadena de texto (`'null'`) en lugar de como un valor nulo real.
+    *   **Solución:** Se refactorizó la lógica que construye el `onclick` del botón "Volver" en la función `mostrarVersiones`. Ahora, se valida explícitamente si la versión de equipamiento existe. Si no existe, se pasa el valor `null` correctamente, evitando la conversión a string y asegurando que la función de retorno reciba los parámetros correctos.
+    *   **Líneas Afectadas en `ui.js`:** 426-429.
+
+**C. Impacto:**
+- **Navegación Estable y Predecible:** Se ha eliminado el bug que rompía la navegación hacia atrás. El flujo de usuario es ahora completamente reversible y funcional, independientemente de la ruta de navegación que se tome.
+
 **V4.7.1 - (FIX) - 15/01/2026**
 **A. RESUMEN GENERAL:** Se implementó una corrección definitiva al flujo de navegación, solucionando un error lógico introducido en la refactorización anterior. Se ha restaurado el flujo funcional requerido y se ha robustecido la navegación hacia atrás.
 

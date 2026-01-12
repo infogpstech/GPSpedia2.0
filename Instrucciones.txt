@@ -45,7 +45,7 @@ FLUJO OBLIGATORIO DE TRABAJO
    - NO modificar código durante esta fase.
 
 2. REGISTRO DE HALLAZGO
-   - Registrar TODOS los hallazgos en Auditoría.txt.
+   - Registrar TODOS los hallazgos en Auditoria.txt.
    - Crear una nueva entrada para el archivo auditado.
    - Si ya existe una auditoría previa del mismo archivo:
      -> Actualizar la entrada existente
@@ -116,12 +116,12 @@ NO se permiten atajos, omisiones ni reinterpretaciones.
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-[PENDIENTE DE REVISIÓN POR EL PM] CORRECCIÓN Y NORMALIZACIÓN DEL FLUJO DE NAVEGACIÓN (v2)
-Origen: Reporte de PM + Requerimiento Funcional
-Prioridad: ALTA
+[PENDIENTE DE REVISIÓN POR EL PM] CORRECCIÓN Y NORMALIZACIÓN DEL FLUJO DE NAVEGACIÓN (v3 - FIX DEFINITIVO)
+Origen: Reporte de PM (Bug Persistente)
+Prioridad: CRÍTICA
 Área: Frontend | UI
 Descripción:
-Se ha implementado una corrección sobre la refactorización anterior para asegurar que el flujo de navegación sea el correcto (`Modelo -> [Versión O Encendido] -> Año`). Se modificó `mostrarVersionesEquipamiento` para que navegue directamente a la selección de año/generación. Adicionalmente, se robusteció la lógica de los botones "Volver" para que utilicen el estado de la aplicación, garantizando una navegación hacia atrás siempre predecible y correcta.
+Se implementó la corrección definitiva para el bug del botón "Volver" en la pantalla de selección de año/generación. La causa raíz era un manejo incorrecto de parámetros `null`, que se convertían a string (`'null'`) y rompían la lógica de la función de retorno. Se ha modificado la construcción del `onclick` para asegurar que los valores `null` se pasen correctamente, restaurando la navegación hacia atrás en todos los flujos.
 Archivos Afectados: `ui.js`, `index.html`.
 
 ---
