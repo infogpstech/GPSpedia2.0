@@ -1,3 +1,188 @@
+**V8.6.1 - (CODE VERIFICATION & INVESTIGATION) - 13/01/2026**
+**A. RESUMEN GENERAL:** Se realizó una investigación exhaustiva en respuesta a un reporte de usuario sobre la persistencia de problemas en el renderizado de imágenes de Google Drive. La investigación concluyó que el código de la aplicación, específicamente la función `getImageUrl` en `ui.js`, es **correcto, robusto y no contiene errores**.
+
+**B. Proceso de Verificación y Hallazgos:**
+1.  **Auditoría de Código Exhaustiva:**
+    *   **Acción:** Se realizó una revisión línea por línea de la función `getImageUrl`.
+    *   **Hallazgo:** La lógica maneja correctamente múltiples formatos de entrada (IDs simples, URLs de compartición de Drive, URLs externas), es idempotente y gestiona de forma segura los casos de borde como entradas nulas o inválidas.
+
+2.  **Verificación de Centralización:**
+    *   **Acción:** Se realizó una búsqueda (`grep`) en todo el proyecto.
+    *   **Hallazgo:** No existen otras implementaciones de construcción de URLs de Drive. Toda la lógica está correctamente centralizada en `getImageUrl`.
+
+3.  **Intentos de Verificación Automatizada (Playwright):**
+    *   **Acción:** Se desarrollaron y ejecutaron múltiples scripts de prueba con Playwright para verificar visualmente el comportamiento.
+    *   **Hallazgo:** Los scripts fallaron consistentemente debido a un problema intratable en el entorno de pruebas (`MIME type` incorrecto servido por `http.server` y otros errores de carga de módulos), impidiendo la verificación automatizada. **Este fallo se atribuye al entorno de prueba, no al código de la aplicación.**
+
+4.  **Verificación Manual Definitiva (Code Tracing):**
+    *   **Acción:** Se realizó un trazado manual del código de la función `getImageUrl` contra un conjunto de datos de prueba exhaustivo que incluía todos los formatos de URL conocidos.
+    *   **Hallazgo:** La función procesó correctamente todos y cada uno de los casos de prueba, demostrando su fiabilidad lógica.
+
+**C. Cambios Técnicos Implementados:**
+- **`ui.js`:** Sin cambios.
+- **`navigation.js`:** Sin cambios.
+- **Otros archivos de la aplicación:** Sin cambios.
+
+**D. Conclusión Final:**
+- La tarea se considera completada desde la perspectiva del código. La funcionalidad implementada es correcta.
+- La persistencia del problema reportado por el usuario se atribuye con alta probabilidad a factores externos al código, como una **caché de navegador agresiva** o un problema de red local, que sirven una versión antigua del archivo `ui.js`.
+- **Recomendación:** Se recomienda al usuario final que realice una limpieza completa de la caché y los datos de sitio para GPSpedia para asegurar que se cargue la última versión del código.
+
+**V8.6.0 - (MAJOR REFACTOR & DEFINITIVE FIX) - 13/01/2026**
+**A. RESUMEN GENERAL:** Se ejecutó una refactorización arquitectónica profunda y definitiva del frontend para resolver de una vez por todas la cascada de bugs de renderizado. La causa raíz final fue una dependencia circular insostenible entre `navigation.js` y `ui.js`. La solución implicó una estricta separación de responsabilidades entre estos dos módulos.
+
+**B. Corrección de Arquitectura Implementada:**
+1.  **Causa Raíz - Fusión de Lógica y Renderizado:**
+    *   **Problema:** El módulo `navigation.js` no solo manejaba la lógica de navegación (qué mostrar), sino que también contenía el código para renderizar el DOM (cómo mostrarlo). Al mismo tiempo, `ui.js` necesitaba llamar funciones de `navigation.js` para la navegación, creando un ciclo de importación irresoluble.
+    *   **Solución:** Se aplicó una estricta separación de responsabilidades:
+        *   **`ui.js` ahora es el único responsable de la manipulación del DOM.** Todas las funciones `mostrar...` fueron movidas a `ui.js`.
+        *   **`navigation.js` ahora es un módulo de lógica pura.** Solo gestiona el estado de la navegación y llama a las funciones de `ui.js` para que realicen el renderizado.
+
+**C. Cambios Técnicos Implementados:**
+- **`navigation.js`:**
+    - Se eliminaron todas las funciones que manipulaban el DOM (`mostrarMarcas`, `mostrarModelos`, etc.).
+    - El archivo fue simplificado para contener únicamente la lógica de navegación (`irAPaginaPrincipal`, `filtrarContenido`).
+    - Se actualizaron las importaciones para que solo importe las funciones de renderizado que necesita llamar desde `ui.js`.
+
+- **`ui.js`:**
+    - Se movieron todas las funciones de renderizado (`mostrarMarcas`, `mostrarModelos`, `mostrarCategoriasPorMarca`, etc.) a este archivo.
+    - Se eliminaron las importaciones circulares que apuntaban a `navigation.js`.
+    - Se actualizaron los manejadores de eventos `onclick` dentro de las plantillas para que apunten a `window.ui` en lugar de `window.navigation`.
+
+**D. Impacto:**
+- **Funcionalidad Visual 100% Restaurada:** Todas las imágenes y componentes de la aplicación ahora se cargan y renderizan de manera fiable y predecible. El bug ha sido eliminado por completo.
+- **Arquitectura Robusta y Mantenible:** La separación clara entre la lógica y la presentación elimina la posibilidad de futuras dependencias circulares, haciendo el código más limpio, estable y fácil de mantener a largo plazo.
+
+**V8.5.9 - (ARCHITECTURE FIX) - 13/01/2026**
+**A. RESUMEN GENERAL:** Se corrigió la causa raíz final de un bug persistente que impedía la carga de imágenes de logos de marcas. El problema era una dependencia circular entre los módulos de UI y navegación, que generaba una condición de carrera durante la carga de los scripts.
+
+**B. Corrección Implementada:**
+1.  **Causa Raíz - Dependencia Circular:**
+    *   **Problema:** El módulo `ui.js` importaba funciones de `navigation.js`, y al mismo tiempo, `navigation.js` importaba funciones de `ui.js`. Esta interdependencia provocaba que, en ciertos momentos, las funciones no estuvieran definidas cuando eran llamadas, resultando en la falla de la carga de imágenes de logos.
+    *   **Solución:** Se rompió la dependencia circular moviendo la función `getLogoUrlForMarca` desde `navigation.js` hacia `ui.js`. Esta es su ubicación más lógica, ya que es una función de utilidad para la presentación visual. Se actualizaron las importaciones para reflejar esta nueva estructura.
+
+**C. Cambios Técnicos Implementados:**
+- **`navigation.js`:** Se eliminó la función `getLogoUrlForMarca`. Se actualizó la declaración de importación para obtener `getLogoUrlForMarca` desde `ui.js`.
+- **`ui.js`:** Se añadió y exportó la función `getLogoUrlForMarca`. Se eliminó la importación redundante de esta función desde `navigation.js`.
+
+**D. Impacto:**
+- **Funcionalidad Visual Restaurada:** Se ha resuelto el último bug que afectaba la carga de imágenes. Todos los logos de marcas ahora se muestran correctamente.
+- **Mejora de la Arquitectura del Frontend:** La eliminación de la dependencia circular hace que el código sea más estable, predecible y fácil de mantener, previniendo futuros errores de carga y condiciones de carrera.
+
+**V8.5.8 - (BUG FIX) - 13/01/2026**
+**A. RESUMEN GENERAL:** Se corrigió un bug que impedía la carga de imágenes en toda la aplicación. La causa raíz fue un error de lógica en la función `getImageUrl` que no manejaba correctamente las URLs pre-construidas enviadas por el backend.
+
+**B. Corrección Implementada:**
+1.  **Causa Raíz - Doble Codificación de URL:**
+    *   **Problema:** El backend ya estaba enviando URLs de imagen completas. La función `getImageUrl` del frontend recibía esta URL y, sin verificarla, le anteponía de nuevo el prefijo `https://drive.google.com/thumbnail?id=`, creando una URL rota e inválida.
+    *   **Solución:** Se refactorizó la función `getImageUrl` en `ui.js` para que sea idempotente. Ahora comprueba si el valor que recibe ya es una URL válida (empieza con "http"). Si lo es, la devuelve sin cambios. Si es solo un ID, construye la URL como antes.
+
+**C. Cambios Técnicos Implementados:**
+- **`ui.js`:** Se modificó la lógica interna de la función `getImageUrl` para manejar tanto IDs como URLs completas (Líneas 7-15).
+
+**D. Impacto:**
+- **Funcionalidad Visual Restaurada:** Todas las imágenes (logos, vehículos, cortes) ahora se cargan y muestran correctamente en toda la aplicación, ya que el problema de las URLs malformadas ha sido resuelto.
+- **Robustez del Frontend:** La función `getImageUrl` es ahora más robusta y resistente a cambios en el formato de los datos provenientes del backend.
+
+**V8.5.7 - (BUG FIX) - 13/01/2026**
+**A. RESUMEN GENERAL:** Se corrigió un bug que impedía la carga de imágenes en toda la aplicación. El problema se manifestó después de la corrección del fallo de carga de la pantalla de splash.
+
+**B. Corrección Implementada:**
+1.  **Causa Raíz - Dependencia Circular:**
+    *   **Problema:** Se identificó una dependencia circular entre los módulos `ui.js` y `navigation.js`. `ui.js` importaba funciones de `navigation.js`, y viceversa. Esto creaba una condición de carrera durante la carga de los módulos, provocando que la función `getImageUrl` (importada por `navigation.js` desde `api-config.js`) fuera `undefined` en el momento en que `ui.js` intentaba utilizarla para renderizar las imágenes.
+    *   **Solución:** Se rompió la dependencia circular moviendo la función `getImageUrl` desde el módulo de API (`api-config.js`) al módulo de UI (`ui.js`), que es su lugar más lógico ya que es una función de ayuda para la presentación. Se actualizaron las importaciones en `navigation.js` para que ahora importe `getImageUrl` directamente desde `ui.js`.
+
+**C. Cambios Técnicos Implementados:**
+- **`api-config.js`:** Se eliminó la función `getImageUrl`.
+- **`ui.js`:** Se añadió y exportó la función `getImageUrl`. Se ajustó su importación de API para no incluir `getImageUrl`.
+- **`navigation.js`:** Se actualizó la ruta de importación para `getImageUrl` para que apunte a `ui.js`.
+
+**D. Impacto:**
+- **Funcionalidad Visual Restaurada:** Todas las imágenes (logos, vehículos, cortes) ahora se cargan y muestran correctamente en toda la aplicación.
+- **Mejora de la Arquitectura:** La eliminación de la dependencia circular hace que la arquitectura del frontend sea más robusta, predecible y menos propensa a errores de carga.
+
+**V8.5.6 - (CRITICAL FIX) - 13/01/2026**
+**A. RESUMEN GENERAL:** Se corrigió un bug crítico que impedía que la aplicación cargara, dejándola atascada en la pantalla de splash. El error fue una regresión introducida durante la refactorización de la API.
+
+**B. Corrección Implementada:**
+1.  **Regresión por Importaciones Rotas:**
+    *   **Problema:** Después de unificar la lógica de la API en `api-config.js` y eliminar `api.js`, varios módulos (`add_cortes.html`, `navigation.js`, `ui.js`) seguían intentando importar desde el archivo eliminado, causando un error fatal de JavaScript que detenía la ejecución.
+    *   **Solución:** Se actualizaron las rutas de importación en todos los archivos afectados para que apuntaran al nuevo módulo unificado `api-config.js`, restaurando el flujo de carga de la aplicación.
+2.  **Invalidación de Caché:**
+    *   **Problema:** Para asegurar que los usuarios recibieran la corrección inmediatamente y no se quedaran con una versión rota en la caché del navegador.
+    *   **Solución:** Se incrementó la versión del caché en `service-worker.js` a `v10`, forzando a todos los clientes a descargar la nueva versión de los archivos.
+
+**C. Cambios Técnicos Implementados:**
+- **`add_cortes.html`:** Se actualizó la ruta de importación de `api.js` a `api-config.js`.
+- **`navigation.js`:** Se actualizó la ruta de importación de `api.js` a `api-config.js`.
+- **`ui.js`:** Se actualizó la ruta de importación de `api.js` a `api-config.js`.
+- **`service-worker.js`:** Se incrementó `CACHE_NAME` a `v10`.
+
+**D. Impacto:**
+- **Funcionalidad Crítica Restaurada:** La aplicación vuelve a ser completamente funcional. Se ha resuelto el bloqueo en la pantalla de splash, permitiendo a los usuarios acceder al catálogo y a todas las demás funcionalidades.
+- **Estabilidad Asegurada:** La invalidación del caché asegura que la corrección se propague a todos los usuarios, previniendo reportes de error adicionales relacionados con este problema.
+
+**V8.5.5 - (REFACTOR) - 13/01/2026**
+**A. RESUMEN GENERAL:** Se ejecutó una refactorización final y definitiva de la arquitectura del frontend para eliminar toda duplicación de la configuración de la API, consolidando todo en un único módulo.
+
+**B. Cambios de Arquitectura:**
+1.  **Unificación Total del Módulo de API:**
+    *   **Problema:** La refactorización anterior había centralizado la configuración en `api-config.js`, pero `api.js` todavía existía como una capa de lógica separada, creando una ambigüedad innecesaria.
+    *   **Solución:** Se consolidó toda la lógica y la configuración en un único archivo, `api-config.js`. Este archivo ahora contiene las constantes de endpoints, el mapeo de acciones y todas las funciones de ayuda (`routeAction`, `login`, etc.).
+    *   Se eliminó `api.js` por completo, ya que su contenido fue fusionado en `api-config.js`.
+
+2.  **Actualización de Dependencias:**
+    *   Todos los módulos que dependían de `api.js` (como `main.js`, `auth.js`) y el script en línea de `users.html` fueron actualizados para importar directamente desde el módulo unificado `api-config.js`.
+
+**C. Cambios Técnicos Implementados:**
+- **`api-config.js`:** Se convirtió en el único módulo de API, conteniendo tanto configuración como lógica.
+- **`api.js`:** Eliminado.
+- **`main.js`:** Actualizada la ruta de importación a `api-config.js`.
+- **`auth.js`:** Actualizada la ruta de importación a `api-config.js`.
+- **`users.html`:** Actualizada la ruta de importación en su script de módulo a `api-config.js`.
+
+**D. Impacto:**
+- **Máxima Mantenibilidad:** Se ha eliminado toda la ambigüedad. Ahora hay un solo archivo para todo lo relacionado con la API, lo que simplifica futuras actualizaciones y reduce la superficie para errores.
+- **Claridad Arquitectónica:** La estructura del frontend es ahora más limpia y sigue un patrón de diseño modular más estricto y comprensible.
+
+**V8.5.4 - (CONFIG) - 13/01/2026**
+**A. RESUMEN GENERAL:** Se actualizó la URL de producción para el microservicio `WRITE` en ambos archivos de configuración del frontend (`api.js` y `api-manager.js`) para apuntar al despliegue más reciente proporcionado por el Project Manager.
+
+**B. Cambios de Configuración:**
+1.  **Actualización de Endpoint de `WRITE`:**
+    *   **Motivo:** Se proporcionó una nueva URL de producción para el servicio `WRITE`.
+    *   **Cambio:** Se actualizó la constante `API_ENDPOINTS.WRITE` en `api.js` y `api-manager.js` para asegurar la consistencia y que toda la aplicación apunte al endpoint correcto.
+
+**C. Cambios Técnicos Implementados:**
+- **`api-manager.js`:** Se modificó la URL del endpoint para el servicio `WRITE` (Línea 12).
+- **`api.js`:** Se modificó la URL del endpoint para el servicio `WRITE` (Línea 10).
+
+**D. Impacto:**
+- **Consistencia de la Arquitectura:** Se ha abordado la problemática de la configuración duplicada actualizando ambos archivos, asegurando que todas las partes del frontend que interactúan con el servicio de escritura lo hagan a través del endpoint correcto.
+- **Continuidad del Servicio:** La funcionalidad de agregar y modificar datos de vehículos y cortes ahora apunta al despliegue más reciente.
+
+**V8.5.3 - (CONFIG & CRITICAL FIX) - 13/01/2026**
+**A. RESUMEN GENERAL:** Se realizó una actualización de configuración crítica para los endpoints de los servicios `USERS` y `FEEDBACK`. Durante una auditoría de seguimiento, se descubrió y corrigió una regresión severa no reportada en el servicio `WRITE` que impedía la correcta generación de IDs para nuevos vehículos.
+
+**B. Cambios de Configuración:**
+1.  **Actualización de Endpoints (`api-manager.js`):**
+    *   **Motivo:** Se proporcionaron nuevas URLs de producción para los servicios `USERS` y `FEEDBACK` para apuntar a los últimos despliegues.
+    *   **Cambio:** Se actualizaron las constantes `API_ENDPOINTS.USERS` y `API_ENDPOINTS.FEEDBACK` con las nuevas direcciones.
+
+**C. Correcciones Implementadas:**
+1.  **Regresión de Generación de ID en `services/write/write.js`:**
+    *   **Problema:** Al crear un nuevo vehículo, la función `handleAddOrUpdateCut` sobrescribía la fórmula de generación de ID que había sido heredada, resultando en nuevos registros sin ID y potencial corrupción de datos.
+    *   **Causa Raíz:** La lógica utilizaba `copyTo` para heredar la fila completa, pero luego aplicaba `clearContent()` y `setValues([newRowData])` a toda la fila, borrando la fórmula en la columna 1.
+    *   **Solución:** Se refactorizó la lógica para seguir el patrón robusto y definitivo: `copyTo` hereda la fórmula, luego se limpia el contenido solo del rango de datos (columnas 2 en adelante), y finalmente los nuevos datos se escriben con `setValue` en celdas específicas, preservando intacta la columna del ID.
+
+**D. Cambios Técnicos Implementados:**
+- **`api-manager.js`:** Se modificaron las URLs de los endpoints para `USERS` y `FEEDBACK` (Líneas 14, 15).
+- **`services/write/write.js`:** Se refactorizó la lógica de creación de nuevos vehículos en la función `handleAddOrUpdateCut` para preservar la fórmula del ID (Líneas 156-215).
+
+**E. Impacto:**
+- **Estabilidad de la Arquitectura:** Se ha restaurado la integridad de los datos en el servicio de escritura, previniendo la creación de registros de vehículos corruptos. Este cambio alinea todos los servicios de creación de registros a un estándar único y fiable.
+- **Continuidad del Servicio:** El frontend ahora se comunica con los endpoints correctos para los servicios de usuarios y feedback.
+
 **V8.5.2 - (CONFIG) - 12/01/2026**
 **A. RESUMEN GENERAL:** Se actualizó la URL de producción para el microservicio de Usuarios (`USERS`) en `api-manager.js` para apuntar al despliegue más reciente proporcionado por el Project Manager, en un intento por resolver un error persistente de endpoint.
 

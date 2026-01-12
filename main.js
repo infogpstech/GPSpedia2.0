@@ -4,7 +4,8 @@
 // - Initialize the application and set up global event listeners.
 // - Expose modules to the global window object for HTML compatibility.
 
-import * as api from './api.js';
+// Importar la función `routeAction` desde el módulo de API unificado.
+import { routeAction } from './api-config.js';
 import * as auth from './auth.js';
 import * as state from './state.js';
 import * as ui from './ui.js';
@@ -20,7 +21,7 @@ async function initializeApp() {
     console.log("GPSpedia Modular Initializing...");
 
     // 1. Expose modules to the global scope for inline event handlers in HTML
-    window.api = api;
+    window.routeAction = routeAction; // Exponer la función central de API
     window.auth = auth;
     window.state = state;
     window.ui = ui;
