@@ -202,3 +202,24 @@ Se realizó una auditoría de seguimiento tras el reporte de la persistencia del
     *   **Hallazgo (Causa Raíz Definitiva):** La implementación anterior, aunque mejorada, seguía conteniendo un error lógico. La lógica condicional (`if/else if`) para determinar la `backAction` no manejaba correctamente los parámetros pasados. Cuando el flujo es `Modelo -> Versión de Equipamiento -> Años`, el `previousState.level` es correctamente identificado como `versionesEquipamiento`, pero la acción de retorno intenta invocar `mostrarVersionesEquipamiento` con un parámetro `modelo` que es `undefined` en ese contexto, causando el error `"... para 'Captiva' null"`.
     *   **Impacto:** El bug persiste porque la función de retorno se llama con los argumentos incorrectos. La navegación hacia atrás sigue rota en uno de los flujos principales.
     *   **Acción Requerida:** Implementar una corrección definitiva en la lógica de construcción del `backAction` dentro de `mostrarVersiones`. La lógica debe asegurar que, al determinar la función de retorno, también se utilicen los parámetros correctos y disponibles en el `navigationState` para reconstruir la vista anterior sin errores.
+
+**P. AUDITORÍA DE FLUJO DE NAVEGACIÓN PARA CASOS DE OPCIÓN ÚNICA (16/01/2026)**
+---------------------------------------------------------------------------
+Se realizó una auditoría de `ui.js` para abordar el nuevo requisito de omitir pantallas de selección con una sola opción y corregir el bug de la pantalla en blanco.
+
+1.  **Análisis de la Causa Raíz (Bug de Pantalla en Blanco):**
+    *   **Hallazgo:** El bug ocurre al regresar a una vista que se renderizó con un solo elemento (ej., un solo tipo de encendido). La lógica de `mostrarTiposEncendido` (o `mostrarVersionesEquipamiento`) renderiza correctamente la única tarjeta. Sin embargo, al navegar hacia adelante y luego "Volver", el estado de la aplicación no se reconstruye adecuadamente para esta vista intermedia, lo que provoca que el bucle de renderizado no encuentre elementos que mostrar.
+
+2.  **Análisis del Requisito (Omitir Pantallas):**
+    *   **Hallazgo:** El flujo de navegación actual fuerza al usuario a pasar por las pantallas de "Versión de Equipamiento" y "Tipo de Encendido", incluso si solo hay una opción disponible.
+    *   **Impacto:** Esto crea pasos innecesarios en la navegación y una mala experiencia de usuario.
+    *   **Acción Requerida:** La función `navegarADetallesDeModelo` es el punto de control ideal para implementar la nueva lógica. Se debe modificar para que:
+        a. Cuente el número de "Versiones de Equipamiento" únicas para el modelo seleccionado.
+        b. Si es `1`, debe omitir la pantalla de selección y filtrar el conjunto de datos por esa única versión.
+        c. A continuación, debe contar el número de "Tipos de Encendido" únicos dentro del conjunto de datos (ya filtrado, si aplica).
+        d. Si es `1`, debe omitir también esa pantalla de selección y filtrar los datos por ese único tipo.
+        e. Finalmente, debe llamar directamente a `mostrarVersiones` con el conjunto de datos final y correctamente filtrado.
+        f. Si en cualquier paso hay más de una opción, debe detenerse y mostrar la pantalla de selección correspondiente (`mostrarVersionesEquipamiento` o `mostrarTiposEncendido`).
+
+3.  **Conclusión de la Auditoría:**
+    *   La refactorización de `navegarADetallesDeModelo` para implementar la lógica de omisión de pantallas no solo cumplirá con el nuevo requisito funcional, sino que también resolverá de forma inherente el bug de la "pantalla en blanco", al eliminar por completo el paso problemático del flujo de navegación en los casos de opción única.

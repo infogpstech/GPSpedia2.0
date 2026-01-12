@@ -116,6 +116,17 @@ NO se permiten atajos, omisiones ni reinterpretaciones.
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
+[PENDIENTE DE REVISIÓN POR EL PM] OPTIMIZACIÓN DEL FLUJO DE NAVEGACIÓN Y CORRECCIÓN DE BUG
+Origen: Reporte de PM
+Prioridad: ALTA
+Área: Frontend | UI
+Descripción:
+Se implementó una refactorización en la lógica de navegación para optimizar la experiencia del usuario en casos de opción única. Adicionalmente, se corrigió un bug que causaba una pantalla en blanco.
+1.  **Optimización del Flujo:** La función `navegarADetallesDeModelo` ahora omite las pantallas de selección de "Versión de Equipamiento" o "Tipo de Encendido" si solo existe una opción, llevando al usuario directamente a la pantalla de "Año".
+2.  **Corrección de Bug:** Esta optimización elimina inherentemente el bug que mostraba una pantalla en blanco al navegar hacia atrás en estos flujos de opción única.
+Archivos Afectados: `ui.js`, `index.html`.
+
+---
 [PENDIENTE DE REVISIÓN POR EL PM] CORRECCIÓN Y NORMALIZACIÓN DEL FLUJO DE NAVEGACIÓN (v3 - FIX DEFINITIVO)
 Origen: Reporte de PM (Bug Persistente)
 Prioridad: CRÍTICA

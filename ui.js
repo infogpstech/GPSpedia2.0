@@ -312,23 +312,48 @@ function navegarADetallesDeModelo(categoria, marca, modelo) {
     const { catalogData } = getState();
     const { cortes } = catalogData;
 
-    // Filtrar todos los cortes que coinciden con el modelo, marca y categoría.
-    const vehiculosDelModelo = cortes.filter(item =>
+    // Comentario: Lógica de navegación refactorizada para omitir pantallas de selección con una sola opción.
+    // 1. Obtener todos los cortes para el modelo específico.
+    let vehiculosFiltrados = cortes.filter(item =>
         item.categoria === categoria &&
         item.marca === marca &&
         item.modelo === modelo
     );
 
-    // Obtener una lista única de las versiones de equipamiento para este modelo.
-    const versionesDeEquipamiento = [...new Set(vehiculosDelModelo.map(v => v.versionesAplicables).filter(Boolean))];
+    // 2. Analizar Versiones de Equipamiento.
+    const versionesDeEquipamiento = [...new Set(vehiculosFiltrados.map(v => v.versionesAplicables).filter(Boolean))];
 
-    // Decisión del flujo: Si hay versiones de equipamiento, mostrar esa pantalla.
-    // Si no, mostrar directamente los tipos de encendido.
-    if (versionesDeEquipamiento.length > 0) {
+    if (versionesDeEquipamiento.length === 1) {
+        // Omitir pantalla: Si hay una sola versión, se filtra el conjunto de datos y se continúa el análisis.
+        vehiculosFiltrados = vehiculosFiltrados.filter(v => v.versionesAplicables === versionesDeEquipamiento[0]);
+    } else if (versionesDeEquipamiento.length > 1) {
+        // Detener: Si hay múltiples versiones, se muestra la pantalla de selección y termina el flujo.
         mostrarVersionesEquipamiento(categoria, marca, modelo);
+        return;
+    }
+    // Si hay 0 versiones, se continúa con el conjunto de datos original.
+
+    // 3. Analizar Tipos de Encendido sobre el conjunto de datos ya (potencialmente) filtrado.
+    const tiposEncendido = [...new Set(vehiculosFiltrados.map(v => v.tipoEncendido).filter(Boolean))];
+
+    if (tiposEncendido.length === 1) {
+        // Omitir pantalla: Si hay un solo tipo de encendido, se filtra y se navega directamente a la pantalla de Años.
+        vehiculosFiltrados = vehiculosFiltrados.filter(v => v.tipoEncendido === tiposEncendido[0]);
+        mostrarVersiones(vehiculosFiltrados, categoria, marca, modelo);
+        return;
+    } else if (tiposEncendido.length > 1) {
+        // Detener: Si hay múltiples tipos, se muestra la pantalla de selección y termina el flujo.
+        const versionEquipamiento = versionesDeEquipamiento.length === 1 ? versionesDeEquipamiento[0] : null;
+        mostrarTiposEncendido(categoria, marca, versionEquipamiento, modelo);
+        return;
+    }
+
+    // 4. Fallback: Si no hay ni versiones ni tipos de encendido, pero sí hay datos, se muestra la pantalla de Años.
+    if (vehiculosFiltrados.length > 0) {
+        mostrarVersiones(vehiculosFiltrados, categoria, marca, modelo);
     } else {
-        // Se pasa `null` como versionEquipamiento para mantener la consistencia.
-        mostrarTiposEncendido(categoria, marca, null, modelo);
+        // Caso de seguridad: no debería ocurrir si se hizo clic en un modelo existente.
+        showNoResultsMessage(`Datos para ${marca} ${modelo}`);
     }
 }
 

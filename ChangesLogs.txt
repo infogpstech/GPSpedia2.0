@@ -1,3 +1,21 @@
+**V4.7.3 - (FEATURE & BUGFIX) - 16/01/2026**
+**A. RESUMEN GENERAL:** Se refactorizó la lógica central de navegación para optimizar el flujo en casos de opción única. Adicionalmente, esta refactorización corrige un bug que mostraba una pantalla en blanco al navegar hacia atrás en estos mismos flujos.
+
+**B. Cambios Implementados:**
+1.  **Optimización del Flujo de Navegación (`ui.js`):**
+    *   **Problema:** El usuario debía pasar por pantallas de selección intermedias ("Versión de Equipamiento" o "Tipo de Encendido") incluso si solo existía una opción, creando pasos innecesarios.
+    *   **Solución:** Se refactorizó la función `navegarADetallesDeModelo` para que actúe como un procesador de flujo secuencial. Ahora analiza si un modelo tiene una única versión de equipamiento y/o un único tipo de encendido. Si es así, omite las pantallas de selección correspondientes y navega directamente a la siguiente etapa, mostrando finalmente la pantalla de selección de "Año".
+    *   **Líneas Afectadas en `ui.js`:** 312-357 (lógica refactorizada de `navegarADetallesDeModelo`).
+
+2.  **Corrección del Bug de Pantalla en Blanco (`ui.js`):**
+    *   **Problema:** Al navegar hacia atrás a una pantalla de selección que contenía un único elemento (ej. "Peterbilt -> Tipo de Encendido"), la pantalla se mostraba vacía.
+    *   **Solución:** La refactorización de `navegarADetallesDeModelo` elimina este bug de forma inherente. Al omitir por completo las pantallas de selección de opción única, el flujo de "navegación hacia atrás" ya no necesita reconstruir estas vistas problemáticas, asegurando una experiencia de usuario consistente.
+    *   **Líneas Afectadas en `ui.js`:** 312-357.
+
+**C. Impacto:**
+- **Experiencia de Usuario Mejorada:** La navegación es más rápida e intuitiva, eliminando clics redundantes.
+- **Estabilidad del Flujo:** Se ha corregido el bug de la "pantalla en blanco", haciendo la navegación hacia atrás más robusta y predecible en todos los casos.
+
 **V4.7.2 - (CRITICAL NAV FIX) - 16/01/2026**
 **A. RESUMEN GENERAL:** Se implementó una corrección definitiva para un bug crítico y persistente en la navegación hacia atrás que ocurría en flujos específicos. Esta solución asegura que la navegación sea reversible y estable en todos los escenarios.
 
@@ -131,7 +149,7 @@
 
 **B. Correcciones Implementadas:**
 1.  **Restauración de la Navegación Principal (`ui.js`):**
-    *   **Problema:** Las secciones "Últimos agregados", "Marcas de Vehículos" y "Marcas de Motocicletas" desaparecían después de la primera interacción del usuario.
+    *   **Problema:** Las secciones "Últimos agregados", "Marcas de Vehículos" y "Marcas de Motocicletas" desaparecian después de la primera interacción del usuario.
     *   **Causa Raíz:** La lógica de navegación era destructiva, borrando el contenido principal en cada clic.
     *   **Solución:** Se refactorizó el flujo de navegación para que sea lineal y jerárquico. Se implementó una nueva función `mostrarModelosPorMarca` para manejar correctamente la transición de "Marca" a "Modelos", y se ajustaron los `onclick` para seguir este flujo, asegurando que todas las secciones principales permanezcan visibles.
     *   **Líneas Afectadas en `ui.js`:** 195, 211, 254-292 (nueva función `mostrarModelosPorMarca` reemplazando `mostrarCategoriasPorMarca`).
