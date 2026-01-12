@@ -164,16 +164,8 @@ export function mostrarCategorias() {
 
     mostrarUltimosAgregados();
 
-    // Comentario: Se implementa el ordenamiento de categorías por población.
-    const categoriasPorPoblacion = [...new Set(cortes.map(c => c.categoria).filter(Boolean))]
-        .map(cat => ({
-            nombre: cat,
-            poblacion: cortes.filter(c => c.categoria === cat).length
-        }))
-        .sort((a, b) => b.poblacion - a.poblacion)
-        .map(c => c.nombre);
-
-    crearCarrusel('Búsqueda por Categoría', categoriasPorPoblacion, cat => {
+    const categorias = sortedCategories;
+    crearCarrusel('Búsqueda por Categoría', categorias, cat => {
         const ejemplo = cortes.find(item => item.categoria === cat && item.imagenVehiculo);
         const card = document.createElement("div");
         card.className = "card";
@@ -285,8 +277,8 @@ export function mostrarModelosPorMarca(marca) {
     modelosUnicos.forEach(ejemplo => {
         const card = document.createElement("div");
         card.className = "card";
-        // Comentario: Se utiliza la nueva función "hub" para decidir el siguiente paso.
-        card.onclick = () => navegarADetallesDeModelo(ejemplo.categoria, marca, ejemplo.modelo);
+        // Al hacer clic, se avanza al siguiente nivel de detalle: tipos de encendido, pasando el contexto completo.
+        card.onclick = () => mostrarTiposEncendido(ejemplo.categoria, marca, ejemplo.versionesAplicables, ejemplo.modelo);
         const img = document.createElement("img");
         img.src = getImageUrl(ejemplo.imagenVehiculo);
         img.alt = `Modelo ${ejemplo.modelo}`;
@@ -298,38 +290,6 @@ export function mostrarModelosPorMarca(marca) {
         grid.appendChild(card);
     });
     cont.appendChild(grid);
-}
-
-/**
- * Función "Hub" para decidir el siguiente paso en la navegación después de seleccionar un modelo.
- * Verifica si existen versiones de equipamiento para un modelo y dirige al usuario a la pantalla
- * correspondiente (selección de versión o selección de tipo de encendido).
- * @param {string} categoria - La categoría del vehículo.
- * @param {string} marca - La marca del vehículo.
- * @param {string} modelo - El modelo del vehículo.
- */
-function navegarADetallesDeModelo(categoria, marca, modelo) {
-    const { catalogData } = getState();
-    const { cortes } = catalogData;
-
-    // Filtrar todos los cortes que coinciden con el modelo, marca y categoría.
-    const vehiculosDelModelo = cortes.filter(item =>
-        item.categoria === categoria &&
-        item.marca === marca &&
-        item.modelo === modelo
-    );
-
-    // Obtener una lista única de las versiones de equipamiento para este modelo.
-    const versionesDeEquipamiento = [...new Set(vehiculosDelModelo.map(v => v.versionesAplicables).filter(Boolean))];
-
-    // Decisión del flujo: Si hay versiones de equipamiento, mostrar esa pantalla.
-    // Si no, mostrar directamente los tipos de encendido.
-    if (versionesDeEquipamiento.length > 0) {
-        mostrarVersionesEquipamiento(categoria, marca, modelo);
-    } else {
-        // Se pasa `null` como versionEquipamiento para mantener la consistencia.
-        mostrarTiposEncendido(categoria, marca, null, modelo);
-    }
 }
 
 export function mostrarModelos(categoria, marca, versionEquipamiento = null) {
@@ -348,13 +308,15 @@ export function mostrarModelos(categoria, marca, versionEquipamiento = null) {
 
     const modelosUnicos = [...new Map(modelosFiltrados.map(item => [item.modelo, item])).values()].sort((a,b) => a.modelo.localeCompare(b.modelo));
 
-    // Comentario: Se elimina la lógica de omisión de pantalla. La decisión ahora se centraliza en `navegarADetallesDeModelo`.
+    if (modelosUnicos.length === 1 && !versionEquipamiento) {
+        mostrarTiposEncendido(categoria, marca, versionEquipamiento, modelosUnicos[0].modelo);
+        return;
+    }
 
     const grid = document.createElement("div"); grid.className = "grid";
     modelosUnicos.forEach(ejemplo => {
         const card = document.createElement("div"); card.className = "card";
-        // Comentario: Se utiliza la nueva función "hub" para decidir el siguiente paso.
-        card.onclick = () => navegarADetallesDeModelo(categoria, marca, ejemplo.modelo);
+        card.onclick = () => mostrarTiposEncendido(categoria, marca, versionEquipamiento, ejemplo.modelo);
         const img = document.createElement("img"); img.src = getImageUrl(ejemplo.imagenVehiculo); img.alt = `Modelo ${ejemplo.modelo}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay";
         overlay.innerHTML = `<div>${ejemplo.modelo}</div>`;
@@ -424,29 +386,25 @@ export function mostrarVersiones(filas, categoria, marca, modelo) {
     cont.appendChild(grid);
 }
 
-export function mostrarVersionesEquipamiento(categoria, marca, modelo) {
+export function mostrarVersionesEquipamiento(categoria, marca) {
     const { catalogData } = getState();
     const { cortes } = catalogData;
 
-    setState({ navigationState: { level: "versionesEquipamiento", categoria, marca, modelo } });
+    setState({ navigationState: { level: "versionesEquipamiento", categoria, marca } });
     const cont = document.getElementById("contenido");
-    // Comentario: El botón de regreso ahora apunta a la selección de modelos de la marca, que es el paso anterior lógico.
-    const backAction = `window.ui.mostrarModelos('${categoria}', '${marca}')`;
-    cont.innerHTML = `<span class="backBtn" onclick="${backAction}">${backSvg} Volver</span><h4>Versiones de ${modelo}</h4>`;
+    cont.innerHTML = `<span class="backBtn" onclick="window.ui.mostrarMarcas('${categoria}')">${backSvg} Volver</span><h4>Versiones de Equipamiento para ${marca}</h4>`;
 
-    // Comentario: Se filtra por modelo específico para mostrar solo las versiones relevantes.
-    const vehiculosDelModelo = cortes.filter(item => item.categoria === categoria && item.marca === marca && item.modelo === modelo);
-    const versiones = [...new Set(vehiculosDelModelo.map(item => item.versionesAplicables).filter(v => v))];
+    const vehiculosDeMarca = cortes.filter(item => item.categoria === categoria && item.marca === marca);
+    const versiones = [...new Set(vehiculosDeMarca.map(item => item.versionesAplicables).filter(v => v))];
 
     const grid = document.createElement("div");
     grid.className = "grid";
 
     versiones.forEach(version => {
-        const ejemplo = vehiculosDelModelo.find(item => item.versionesAplicables === version && item.imagenVehiculo);
+        const ejemplo = vehiculosDeMarca.find(item => item.versionesAplicables === version && item.imagenVehiculo);
         const card = document.createElement("div");
         card.className = "card";
-        // Comentario: Al hacer clic en una versión, se avanza a mostrar los tipos de encendido para ESA versión.
-        card.onclick = () => mostrarTiposEncendido(categoria, marca, version, modelo);
+        card.onclick = () => mostrarModelos(categoria, marca, version);
 
         const img = document.createElement("img");
         img.src = getImageUrl(ejemplo?.imagenVehiculo);
@@ -514,9 +472,9 @@ function mostrarResultadosBusquedaModelo(busquedaTexto, marcaFiltro, datosFiltra
 
     const grid = document.createElement("div"); grid.className = "grid";
     modelosUnicos.forEach(ejemplo => {
+        const versiones = modelosFiltrados.filter(item => item.modelo === ejemplo.modelo);
         const card = document.createElement("div"); card.className = "card";
-        // Comentario: Se integra el flujo de búsqueda con la nueva lógica de navegación.
-        card.onclick = () => navegarADetallesDeModelo(ejemplo.categoria, marcaFiltro, ejemplo.modelo);
+        card.onclick = () => (versiones.length === 1) ? mostrarDetalleModal(ejemplo) : mostrarResultadosBusquedaVersion(busquedaTexto, marcaFiltro, ejemplo.modelo, datosFiltrados);
         const img = document.createElement("img"); img.src = getImageUrl(ejemplo.imagenVehiculo); img.alt = `Modelo ${ejemplo.modelo}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay";
         if (versiones.length === 1) {
@@ -525,6 +483,25 @@ function mostrarResultadosBusquedaModelo(busquedaTexto, marcaFiltro, datosFiltra
         } else {
             overlay.innerHTML = `<div>${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8; font-weight:normal;">(${versiones.length} cortes)</div>`;
         }
+        card.appendChild(overlay);
+        grid.appendChild(card);
+    });
+    cont.appendChild(grid);
+}
+
+function mostrarResultadosBusquedaVersion(busquedaTexto, marcaFiltro, modeloFiltro, datosFiltrados) {
+    const cont = document.getElementById("contenido");
+    cont.innerHTML = `<span class="backBtn" onclick="window.ui.mostrarResultadosBusquedaModelo('${busquedaTexto}', '${marcaFiltro}', getDatosFiltrados())">${backSvg} Volver a Modelos (${modeloFiltro})</span>
+                      <h4>Cortes/Años de ${modeloFiltro}</h4>`;
+    const versiones = datosFiltrados.filter(item => item.marca === marcaFiltro && item.modelo === modeloFiltro);
+    const grid = document.createElement("div"); grid.className = "grid";
+    versiones.forEach(item => {
+        const card = document.createElement("div"); card.className = "card";
+        card.onclick = () => mostrarDetalleModal(item);
+        const img = document.createElement("img"); img.src = getImageUrl(item.imagenVehiculo); img.alt = `Corte ${item.anoDesde}`; card.appendChild(img);
+        const overlay = document.createElement("div"); overlay.className = "overlay";
+        const yearRange = item.anoHasta ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
+        overlay.innerHTML = `<div style="font-weight:bold;">${yearRange || modeloFiltro}</div><div style="font-size:0.8em; opacity:0.8;">${item.tipoEncendido || ''}</div>`;
         card.appendChild(overlay);
         grid.appendChild(card);
     });

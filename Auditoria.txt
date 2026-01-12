@@ -148,3 +148,23 @@ Se realizó una auditoría de los archivos `index.html`, `ui.js`, `style.css` y 
     *   **Hallazgo (Causa Raíz de la Tarea):** El archivo carece por completo de reglas de estilo para los elementos del Inbox. Los IDs y clases generados por `ui.js` (ej. `.inbox-item`, `#inbox-detail`, `.inbox-actions`) no tienen ninguna definición de estilo.
     *   **Impacto:** El modal es funcional pero visualmente inutilizable.
     *   **Acción Requerida:** La tarea consiste principalmente en añadir un nuevo bloque de CSS para dar formato al modal del Inbox, sus componentes y estados (activo, respondido, resuelto), asegurando que el diseño sea consistente con el resto de la aplicación.
+
+**L. AUDITORÍA PARA NORMALIZACIÓN DEL FLUJO DE NAVEGACIÓN (15/01/2026)**
+--------------------------------------------------------------------
+Se realizó una auditoría exhaustiva de `ui.js` para abordar la tarea de corrección y normalización del flujo de navegación.
+
+1.  **Punto Crítico de Decisión (Modelo -> Siguiente Etapa):**
+    *   **Hallazgo (Causa Raíz):** Al seleccionar un modelo (desde `mostrarModelos`, `mostrarModelosPorMarca` o resultados de búsqueda), la lógica invoca incondicionalmente `mostrarTiposEncendido`. No existe un paso intermedio que evalúe si el modelo tiene "versiones de equipamiento" (`versionesAplicables`) y dirija el flujo a una pantalla de selección de versiones antes de mostrar los tipos de encendido.
+    *   **Impacto:** Esto viola el flujo funcional requerido y es la causa principal de la inconsistencia en la navegación.
+
+2.  **Ordenamiento de Contenido:**
+    *   **Hallazgo (`mostrarCategorias`):** La función utiliza `sortedCategories` del estado, pero no hay garantía de que esté ordenado por población. La lógica de ordenamiento debe aplicarse explícitamente aquí.
+    *   **Hallazgo (`mostrarMarcas`):** La función ya implementa un ordenamiento alfabético (`.sort()`), lo cual es correcto y cumple con el requisito.
+
+3.  **Fragmentación de la Lógica de Flujo:**
+    *   **Hallazgo:** Existen múltiples funciones de entrada que conducen a la selección de modelos (ej. `mostrarModelos`, `mostrarModelosPorMarca`), cada una con su propia lógica de renderizado y `onclick`. Esto crea duplicación y dificulta el mantenimiento de un flujo único y consistente.
+    *   **Acción Requerida:** La implementación de una función "hub" de decisión, como se propuso en el plan, es la estrategia correcta para centralizar y simplificar esta lógica.
+
+4.  **Consistencia de Botones de Regreso:**
+    *   **Hallazgo:** Los botones de "Volver" están implementados con llamadas a funciones específicas en atributos `onclick` (ej. `onclick="window.ui.mostrarMarcas('${categoria}')"`).
+    *   **Impacto:** Durante la refactorización, será crucial actualizar cada uno de estos `onclick` para asegurar que apunten a la etapa anterior correcta dentro del nuevo flujo unificado, pasando todos los parámetros necesarios para reconstruir la vista anterior.
