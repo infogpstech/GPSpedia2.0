@@ -1,7 +1,17 @@
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-1. ANIMACIÓN DE BARRA DE BÚSQUEDA — AJUSTE DE ALTURA Y LOGO
+1. MEJORA DE ANIMACIÓN DE BÚSQUEDA - OCULTAR MENÚ Y REDUCIR ESPACIO
+Estado: PENDIENTE DE REVISIÓN POR EL PM
+Origen: Refinamiento UX
+Prioridad: Normal
+Área: Frontend | UI | CSS
+Archivos involucrados: style.css
+
+Descripción:
+Se ha refinado la animación de la barra de búsqueda. Ahora, al activarse, el botón del menú de hamburguesa se oculta junto con el resto del encabezado, y el espacio superior entre la barra y los resultados se ha reducido para una vista más limpia y optimizada.
+
+2. ANIMACIÓN DE BARRA DE BÚSQUEDA — AJUSTE DE ALTURA Y LOGO
 Estado: PENDIENTE DE REVISIÓN POR EL PM
 Origen: Mejora UX / Animación / Adaptabilidad móvil
 Prioridad: Normal
@@ -11,7 +21,7 @@ Archivos involucrados: main.js
 Descripción:
 Se implementó la animación de la barra de búsqueda para replicar el comportamiento de la v1.5. Al hacer foco, la barra se expande, el encabezado se oculta y el logo se reposiciona dentro de la barra, mejorando la visibilidad de los resultados en dispositivos móviles.
 
-2. INVESTIGAR CIERRE DE SESIÓN INESPERADO TRAS REFRESH
+3. INVESTIGAR CIERRE DE SESIÓN INESPERADO TRAS REFRESH
 Estado: PENDIENTE DE REVISIÓN POR EL PM
 Origen: Reporte de Bug
 Prioridad: CRÍTICA

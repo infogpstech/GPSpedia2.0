@@ -1,3 +1,18 @@
+**V4.8.3 - (UI/UX REFINEMENT) - 23/01/2026**
+**A. RESUMEN GENERAL:** Se refinó la animación de la barra de búsqueda para optimizar el espacio en pantalla, especialmente en dispositivos móviles.
+
+**B. Cambios Implementados:**
+1.  **Ajustes de la Animación de Búsqueda (`style.css`):**
+    *   **Problema:** Durante la animación de búsqueda, el botón de hamburguesa permanecía visible y el espacio entre la barra de búsqueda y los resultados era excesivo.
+    *   **Solución:** Se realizaron dos ajustes en las reglas de CSS para `body.search-active`:
+        - Se añadió el selector `#hamburger-btn` a la lista de elementos que se ocultan durante la animación.
+        - Se redujo el `padding-top` del `.container` de `80px` a `60px` para disminuir el espacio vertical.
+    *   **Líneas Afectadas en `style.css`:** 372, 385.
+
+**C. Impacto:**
+- **UI más Limpia:** La ocultación del botón de hamburguesa y la reducción del espacio superior proporcionan una vista más limpia y centrada en los resultados de la búsqueda.
+- **Mejora de Usabilidad Móvil:** Se maximiza el espacio vertical disponible para los resultados, mejorando la experiencia cuando el teclado virtual está desplegado.
+
 **V4.8.2 - (UI/UX IMPROVEMENT) - 23/01/2026**
 **A. RESUMEN GENERAL:** Se implementó la animación de la barra de búsqueda para replicar el comportamiento de la v1.5, mejorando la experiencia de usuario, especialmente en dispositivos móviles.
 

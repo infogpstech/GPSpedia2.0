@@ -369,6 +369,7 @@ input:checked + .slider:before {
 /* --- ESTILOS DE BÚSQUEDA ACTIVA --- */
 body.search-active .app-title,
 body.search-active #header-controls,
+body.search-active #hamburger-btn,
 body.search-active .section-selector,
 body.search-active .footer {
     opacity: 0;
@@ -383,7 +384,7 @@ body.search-active .footer {
 }
 
 body.search-active .container {
-    padding-top: 80px; /* Crea espacio para la barra de búsqueda fija */
+    padding-top: 60px; /* Espacio reducido para la barra de búsqueda fija */
     transition: padding-top 0.35s ease-in-out;
 }
 
