@@ -1,56 +1,40 @@
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-1. CORRECCIÓN DEFINITIVA DE REGRESIÓN EN NAVEGACIÓN DE BÚSQUEDA
+1. INVESTIGAR CIERRE DE SESIÓN INESPERADO TRAS REFRESH
 Estado: PENDIENTE DE REVISIÓN POR EL PM
-Origen: Reporte de Bug de Regresión Persistente
+Origen: Reporte de Bug
 Prioridad: CRÍTICA
-Área: Frontend | Navegación | Estado
-Archivos involucrados: ui.js
+Área: Frontend | Autenticación | Estado
+Archivos involucrados: auth.js
 
 Descripción:
-Se ha implementado la corrección definitiva para el bug del botón "Regresar" en la búsqueda. La función `regresarABusqueda` fue refactorizada para inspeccionar el `previousState` anidado en el estado de navegación, asegurando que se utilice el término de búsqueda original para reconstruir la vista de resultados.
----
-1. CORRECCIÓN DE REGRESIÓN EN EL BOTÓN "REGRESAR" DE BÚSQUEDA
-Estado: PENDIENTE DE REVISIÓN POR EL PM
-Origen: Reporte de Bug de Regresión
-Prioridad: CRÍTICA
-Área: Frontend | Navegación | UX
-Archivos involucrados: ui.js
+Se ha implementado una corrección para prevenir una condición de carrera (`race condition`) durante la validación de la sesión. Se añadió un mecanismo de bloqueo (`lock`) en `localStorage` para asegurar que solo una pestaña o proceso de validación se comunique con el backend a la vez, evitando que validaciones concurrentes se invaliden entre sí.
 
-Descripción:
-Se ha corregido una regresión que mostraba incorrectamente un botón "Regresar" en la página de resultados de búsqueda. Se eliminó dicho botón de la vista para asegurar que el flujo de navegación comience correctamente desde la lista de resultados.
 ---
-1. CONSISTENCIA DEL BOTÓN "REGRESAR" EN BÚSQUEDA DE MODELOS
-Estado: PENDIENTE DE REVISIÓN POR EL PM
-Origen: Reporte de Bug de Flujo
-Prioridad: MEDIA
-Área: Frontend | Navegación | UX
+**TAREAS COMPLETADAS (Validadas por el PM)**
+---
+1. CORRECCIÓN DEL SISTEMA DE BÚSQUEDA Y NAVEGACIÓN
+Estado: COMPLETADO
+Origen: Múltiples reportes de bugs y regresiones.
+Prioridad: CRÍTICA
+Área: Frontend | Navegación | Búsqueda | UX
 Archivos involucrados: ui.js, navigation.js
 
 Descripción:
-Se ha corregido el bug que causaba que el botón "Regresar" no volviera a los resultados de la búsqueda. Se modificó el manejo de estado para incluir el término de búsqueda y se implementó una nueva función de retorno para reconstruir la vista de búsqueda.
+Se completó un ciclo de correcciones que abordaron múltiples fallos en el sistema de búsqueda y su navegación subsecuente. Las correcciones incluyen:
+- Asegurar que la búsqueda por modelo muestre tarjetas de modelo en lugar de logos de marca.
+- Corregir el flujo de navegación para que, después de una búsqueda, se avance correctamente en la jerarquía de selección (Año, etc.).
+- Eliminar una regresión que causaba la de-duplicación incorrecta de resultados.
+- Corregir un `SyntaxError` fatal que impedía la carga de la aplicación.
+- Implementar la corrección definitiva para el botón "Regresar", asegurando que devuelva al usuario a los resultados de la búsqueda de manera consistente, mediante el manejo correcto del estado de navegación anidado.
+
 ---
-1. CORRECCIÓN DE REGRESIÓN CRÍTICA (SYNTAXERROR)
-Estado: PENDIENTE DE REVISIÓN POR EL PM
-Origen: Reporte de Bug Crítico
-Prioridad: CRÍTICA
-Área: Frontend | General
-Archivos involucrados: ui.js
-
-Descripción:
-Se ha corregido un `SyntaxError` fatal en `ui.js` que impedía la carga de la aplicación.
+**REGISTRO DE TAREAS — BACKLOG ACTIVO**
 ---
-1. CORRECCIÓN DEL FLUJO DE NAVEGACIÓN EN BÚSQUEDA DE MODELOS
-Estado: PENDIENTE DE REVISIÓN POR EL PM
-Origen: Reporte de Bug de Flujo
-Prioridad: CRÍTICA
-Área: Frontend | Lógica de Navegación
-Archivos involucrados: ui.js
+*En este momento no hay tareas activas en el backlog.*
 
-Descripción:
-Se ha corregido el flujo de navegación anómalo que ocurría tras una búsqueda por modelo. La lógica en `ui.js` fue ajustada para que los resultados de la búsqueda dirijan al usuario al paso correcto del flujo (selección de año), en lugar de retroceder a una etapa anterior.
-
+---
 NORMAS OBLIGATORIAS DE DESARROLLO
 ---------------------------------
 
@@ -165,280 +149,3 @@ REGLA FINAL
 -----------
 Si un paso NO fue ejecutado, el proceso se considera INCOMPLETO.
 NO se permiten atajos, omisiones ni reinterpretaciones.
-
-========================================
-REGISTRO DE TAREAS — BACKLOG ACTIVO
-========================================
-
-1. CORRECCIÓN Y NORMALIZACIÓN DEL FLUJO DE NAVEGACIÓN (CATEGORÍA, MARCA, TIPO DE ENCENDIDO)
-Estado: Completado
-Origen: Reporte de PM + Requerimiento Funcional
-Prioridad: ALTA
-Área: Frontend | UI
-Archivos involucrados: ui.js
-
-Descripción:
-Existe un conjunto de fallos y comportamientos inconsistentes en el flujo de navegación principal de la plataforma, que afectan:
-- Navegación por categoría
-- Navegación por marca
-- Navegación por resultados de búsqueda
-- Selección de versión de equipamiento y/o tipo de encendido
-
-Problema identificado:
-Cuando un modelo posee un único tipo de encendido, la lógica actual intenta omitir la pantalla de selección, provocando inconsistencias en el flujo de datos y errores de navegación. Un intento previo de corrección eliminó dicha omisión para forzar un flujo lineal, pero el problema persiste.
-
-Flujo funcional requerido (OBLIGATORIO):
-
-Navegación por Categoría:
-1. Categoría
-   - Mostrar categorías ordenadas por población.
-2. Marcas
-   - Mostrar solo marcas que tengan modelos dentro de la categoría seleccionada.
-   - Orden alfabético ascendente (A–Z).
-3. Modelos
-   - Mostrar modelos que cumplan con la categoría y marca seleccionadas.
-4. Versión de Equipamiento o Tipo de Encendido
-   - Si el modelo tiene versiones de equipamiento, mostrarlas.
-   - Si no tiene versiones, mostrar opciones por tipo de encendido (botón / llave).
-   - La tarjeta debe mostrar nombre de la versión y tipo de encendido.
-5. Años / Generación
-   - Mostrar años disponibles según modelo y versión.
-
-Navegación por Marca:
-- Inicia desde la etapa de Marcas.
-- No filtra por categoría.
-- Debe seguir exactamente el mismo flujo desde la etapa de Modelos en adelante.
-
-Búsqueda:
-- Priorizar coincidencias por versión de equipamiento y modelo.
-- Si coincide con marca, mostrar tarjeta de marca.
-- La navegación desde cualquier resultado debe seguir el mismo flujo descrito arriba.
-
-Requisitos adicionales:
-- Todas las etapas deben tener botón de regreso funcional.
-- El flujo debe ser gradual, reversible y consistente.
-- El PM debe validar el flujo final antes de cerrar la tarea.
-
-----------------------------------------
-
-----------------------------------------
-
-2. REVISIÓN PROFUNDA Y CORRECCIÓN DEL SISTEMA DE BÚSQUEDA GLOBAL
-Estado: TAREA NUEVA (NO INICIADA)
-Origen: Requerimiento Funcional + Detección de Comportamiento Incorrecto
-Prioridad: CRÍTICA
-Área: Frontend | Lógica de Navegación | UX
-Archivos involucrados: search.js, ui.js (o lógica equivalente)
-
-Descripción:
-El sistema de búsqueda presenta inconsistencias graves en la forma en que procesa y muestra los resultados. Actualmente:
-- Al buscar un MODELO, los resultados muestran únicamente el LOGO DE LA MARCA.
-- Al seleccionar una MARCA desde los resultados de búsqueda, no se muestran los modelos asociados.
-- El flujo de navegación posterior a la búsqueda no es consistente ni reversible.
-
-Se requiere una revisión profunda y estructural del sistema de búsqueda para corregir la lógica de interpretación, clasificación y navegación de resultados.
-
-----------------------------------------
-COMPORTAMIENTO FUNCIONAL REQUERIDO (OBLIGATORIO)
-----------------------------------------
-
-Tipos de búsqueda soportados:
-
-1. Búsqueda por Marca
-- Si el término coincide con una marca:
-  - Mostrar tarjeta de la MARCA (logo).
-  - Al seleccionar la marca, iniciar el flujo de navegación por Marca:
-    Marca → Modelos → Versión / Tipo de Encendido → Años.
-  - Debe respetar exactamente el flujo estándar de navegación.
-
-2. Búsqueda por Modelo
-- Si el término coincide con uno o más modelos:
-  - Mostrar directamente tarjetas de MODELOS (NO el logo de la marca).
-  - Cada tarjeta debe representar un modelo único.
-  - Al seleccionar un modelo:
-    - Continuar el flujo normal desde Modelo → Versión / Tipo de Encendido → Años.
-
-3. Búsqueda por Año
-- Si el término corresponde a un año:
-  - Mostrar modelos que contengan ese año dentro de su rango de años disponibles.
-  - El sistema debe validar rangos (ejemplo: 2012–2018).
-  - No mostrar modelos fuera del rango.
-
-4. Búsqueda Mixta (Marca + Modelo + Año)
-- El sistema debe ser capaz de resolver búsquedas combinadas de forma inteligente.
-- Priorizar coincidencias más específicas:
-  Modelo + Año > Modelo > Marca.
-
-----------------------------------------
-REGLAS ESPECIALES DE RESULTADOS
-----------------------------------------
-
-- Si un modelo tiene UN SOLO RESULTADO posible:
-  - Mostrar directamente el modal de detalle del modelo,
-    tal como funciona actualmente.
-  - No mostrar listado intermedio innecesario.
-
-- El sistema debe permitir:
-  - Coincidencias aproximadas.
-  - Errores ortográficos leves.
-  - Insensibilidad a mayúsculas y minúsculas.
-
-----------------------------------------
-NAVEGACIÓN E UX (OBLIGATORIO)
-----------------------------------------
-
-- Todos los resultados deben:
-  - Mantener botones funcionales para regresar al estado anterior.
-  - Respetar el flujo gradual y reversible del sistema.
-  - No romper el estado de navegación actual.
-
-----------------------------------------
-CRITERIOS DE ACEPTACIÓN
-----------------------------------------
-
-- La búsqueda devuelve tarjetas correctas según el tipo de término ingresado.
-- No se muestran logos de marca cuando el resultado es un modelo.
-- La navegación posterior a la búsqueda es consistente con:
-  - Navegación por Marca
-  - Navegación por Categoría
-  - Navegación por Búsqueda
-- El PM valida el comportamiento final antes de cerrar la tarea.
-
-----------------------------------------
-
-3. IMPLEMENTAR SISTEMA DE INBOX — AJUSTES VISUALES Y MAQUETADO
-Estado: EN PROCESO
-Origen: Requerimiento de Funcionalidad
-Prioridad: ALTA
-Área: Frontend | UI/UX
-Archivos involucrados: UI del Inbox
-
-Descripción:
-La funcionalidad principal del sistema de Inbox está implementada e integrada con el servicio `services/feedback/feedback.js`, incluyendo:
-- Listado de mensajes
-- Detalle de mensajes
-- Gestión por roles (Supervisor, Jefe, Desarrollador)
-
-Pendiente:
-- Aplicar estilos finales al modal de Inbox.
-- Corregir problemas de desbordamiento de contenido.
-- Asegurar una maquetación estable y consistente con el resto de la plataforma.
-
-----------------------------------------
-
-4. REPARAR FUNCIONALIDAD DEL BOTÓN "CAMBIAR CONTRASEÑA" EN GESTIÓN DE USUARIOS
-Estado: EN PROCESO
-Origen: Auditoría 11/01/2024
-Prioridad: CRÍTICA
-Área: Frontend
-Archivo involucrado: users.html
-
-Descripción:
-Debido al uso de scripts como módulos (`type="module"`), las funciones JavaScript no están disponibles en el ámbito global para ser llamadas desde atributos `onclick`.
-
-Estado actual:
-- Los botones Crear, Editar y Eliminar ya fueron corregidos usando `addEventListener`.
-- El botón "Cambiar Contraseña" continúa sin funcionar.
-
-Acción requerida:
-- Refactorizar completamente la lógica del botón "Cambiar Contraseña" para usar `addEventListener`.
-- Eliminar cualquier dependencia de atributos `onclick` inline.
-
-----------------------------------------
-
-5. CORREGIR Y VALIDAR LA LÓGICA DEL MODO OSCURO
-Estado: TAREA NUEVA (NO INICIADA)
-Origen: Revisión por PM
-Prioridad: BAJA
-Área: Frontend | UI
-
-Descripción:
-- Verificar el correcto funcionamiento del botón de modo oscuro.
-- Asegurar la inversión correcta de colores.
-- Detectar y respetar el tema del sistema operativo.
-- Validar contraste adecuado sobre fondo gris.
-- Usar el logo correcto para modo oscuro: Logo_TemaOscuro.png (disponible en el repositorio).
-
-----------------------------------------
-
-6. ORGANIZAR Y LIMPIAR EL REPOSITORIO
-Estado: TAREA NUEVA (NO INICIADA)
-Origen: Revisión del PM
-Prioridad: MEDIA
-Área: Repositorio General
-
-Descripción:
-- Reorganizar la estructura de archivos del repositorio.
-- Crear directorios adecuados para imágenes.
-- Actualizar todas las URLs de imágenes usadas en el frontend.
-- Evitar rutas rotas o referencias inconsistentes.
-
-----------------------------------------
-
-7. IMPLEMENTAR ANIMACIONES DE CARGA PARA OPERACIONES CRÍTICAS
-Estado: TAREA NUEVA (NO INICIADA)
-Origen: Implementación Nueva
-Prioridad: ALTA
-Área: Arquitectura | Funcionalidad
-
-Descripción:
-- Implementar animaciones de carga para:
-  - Formularios
-  - Operaciones que guardan o modifican datos en el Spreadsheet
-- El modal de login debe tener una animación propia, coherente con su estilo y paleta de colores.
-- La pantalla Splash de inicio NO debe modificarse bajo ninguna circunstancia.
-
-----------------------------------------
-
-8. MODAL DE VERIFICACIÓN DE EXISTENCIA DE VEHÍCULOS (FORMULARIO AGREGAR CORTE)
-Estado: TAREA NUEVA (NO INICIADA)
-Origen: Revisión del PM
-Prioridad: CRÍTICA
-Área: Funcional | Estructural
-
-Nota obligatoria:
-- HACER BACKUP de todos los archivos involucrados antes de iniciar.
-
-Descripción:
-- Revisar e implementar la lógica de la función `checkVehicle`.
-- La etapa 1 debe mostrar un modal con:
-  - Modelos coincidentes
-  - Detalles de cortes existentes
-  - Imágenes correctamente visibles con lógica propia de construcción de URLs
-- Los botones de la etapa 1.5 no responden.
-- Agregar botones para regresar a la etapa 1 (Marca, Modelo, Año, Tipo de Encendido).
-- El botón actual regresa al catálogo, lo cual es incorrecto.
-- La creación del vehículo funciona correctamente, pero:
-  - No se genera el ID usando la fórmula del Spreadsheet.
-  - Esto bloquea la ejecución correcta de la etapa 3.
-
-----------------------------------------
-
-9. FORMALIZAR Y DOCUMENTAR LA API DE MICROSERVICIOS
-Estado: TAREA NUEVA (NO INICIADA)
-Origen: Auditoría Técnica Forense v2.0
-Prioridad: BAJA
-Área: Arquitectura | Documentación
-
-Descripción:
-- Documentar todos los endpoints de cada microservicio.
-- Definir contratos claros entre frontend y backend.
-- Reducir errores por expectativas implícitas.
-- Facilitar la incorporación de nuevos desarrolladores.
-
-----------------------------------------
-
-10. MODAL DE DETALLES DE RELAY — PINES NO VISIBLES
-Estado: TAREA NUEVA (NO INICIADA)
-Origen: Requerimiento Funcional
-Prioridad: MEDIA
-Área: Frontend | UI
-
-Descripción:
-- El modal de detalles de Relay no muestra la información de los pines.
-- Revisar la lógica de construcción del URL de la imagen del diagrama.
-- Asegurar que el URL incluya el parámetro `sz=1000` para el lightbox.
-
-========================================
-FIN DEL REGISTRO
-========================================

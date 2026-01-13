@@ -1,3 +1,14 @@
+**V4.8.1 - (AUTH STABILITY FIX) - 22/01/2026**
+**A. RESUMEN GENERAL:** Se implementó una corrección para un bug crítico que causaba el cierre inesperado de la sesión del usuario después de múltiples recargas de la página.
+
+**B. Cambios Implementados:**
+1.  **Prevención de Condición de Carrera en `checkSession` (`auth.js`):**
+    *   **Problema:** Múltiples recargas rápidas o pestañas abiertas iniciaban procesos de validación de sesión (`checkSession`) concurrentes. Esto provocaba una condición de carrera en la que la validación de una pestaña podía hacer que el backend invalidara el token que otra pestaña estaba usando, resultando en un `logout` forzado.
+    *   **Solución:** Se introdujo un mecanismo de "bloqueo" (`lock`) utilizando `localStorage`. Antes de iniciar una validación de sesión, la función ahora establece una marca de tiempo. Si otra instancia de la aplicación intenta validar mientras el bloqueo está activo (y no ha expirado), omitirá su propia validación, evitando la llamada conflictiva al backend. El bloqueo se libera una vez que la validación (exitosa o fallida) se completa.
+    *   **Líneas Afectadas en `auth.js`:** 60-98.
+
+**C. Impacto:**
+- **Estabilidad de la Sesión:** Se ha eliminado la condición de carrera, asegurando que la sesión del usuario se mantenga estable y persistente incluso bajo condiciones de recargas rápidas o uso en múltiples pestañas. Se mejora significativamente la fiabilidad de la autenticación.
 **V4.8.0 - (DEFINITIVE NAV FIX) - 22/01/2026**
 **A. RESUMEN GENERAL:** Se implementó una corrección definitiva a una regresión persistente en el flujo de navegación de búsqueda. El botón "Regresar" ahora devuelve consistentemente al usuario a la lista de resultados de búsqueda.
 
