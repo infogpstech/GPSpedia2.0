@@ -1,0 +1,25 @@
+{
+    "cortes": [
+        {
+            "id": 1, "categoria": "Automóvil", "marca": "Honda", "modelo": "CR-V",
+            "versionesAplicables": "Touring", "anoDesde": "2016", "anoHasta": "2022",
+            "tipoEncendido": "Botón", "imagenVehiculo": "1_id_imagen_honda_crv"
+        },
+        {
+            "id": 2, "categoria": "Automóvil", "marca": "Honda", "modelo": "CR-V",
+            "versionesAplicables": "EXL", "anoDesde": "2016", "anoHasta": "2022",
+            "tipoEncendido": "Botón", "imagenVehiculo": "2_id_imagen_honda_crv"
+        },
+        {
+            "id": 3, "categoria": "Automóvil", "marca": "Chevrolet", "modelo": "Aveo",
+            "versionesAplicables": "Sedan", "anoDesde": "2020", "anoHasta": "",
+            "tipoEncendido": "Llave", "imagenVehiculo": "3_id_imagen_aveo_sedan"
+        }
+    ],
+    "logos": [
+        {"id": 1, "nombreMarca": "Honda", "urlLogo": "1_id_logo_honda"},
+        {"id": 2, "nombreMarca": "Chevrolet", "urlLogo": "2_id_logo_chevrolet"}
+    ],
+    "tutoriales": [],
+    "relay": []
+}

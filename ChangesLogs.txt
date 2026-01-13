@@ -1,3 +1,129 @@
+**V4.8.1 - (AUTH STABILITY FIX) - 22/01/2026**
+**A. RESUMEN GENERAL:** Se implementó una corrección para un bug crítico que causaba el cierre inesperado de la sesión del usuario después de múltiples recargas de la página.
+
+**B. Cambios Implementados:**
+1.  **Prevención de Condición de Carrera en `checkSession` (`auth.js`):**
+    *   **Problema:** Múltiples recargas rápidas o pestañas abiertas iniciaban procesos de validación de sesión (`checkSession`) concurrentes. Esto provocaba una condición de carrera en la que la validación de una pestaña podía hacer que el backend invalidara el token que otra pestaña estaba usando, resultando en un `logout` forzado.
+    *   **Solución:** Se introdujo un mecanismo de "bloqueo" (`lock`) utilizando `localStorage`. Antes de iniciar una validación de sesión, la función ahora establece una marca de tiempo. Si otra instancia de la aplicación intenta validar mientras el bloqueo está activo (y no ha expirado), omitirá su propia validación, evitando la llamada conflictiva al backend. El bloqueo se libera una vez que la validación (exitosa o fallida) se completa.
+    *   **Líneas Afectadas en `auth.js`:** 60-98.
+
+**C. Impacto:**
+- **Estabilidad de la Sesión:** Se ha eliminado la condición de carrera, asegurando que la sesión del usuario se mantenga estable y persistente incluso bajo condiciones de recargas rápidas o uso en múltiples pestañas. Se mejora significativamente la fiabilidad de la autenticación.
+**V4.8.0 - (DEFINITIVE NAV FIX) - 22/01/2026**
+**A. RESUMEN GENERAL:** Se implementó una corrección definitiva a una regresión persistente en el flujo de navegación de búsqueda. El botón "Regresar" ahora devuelve consistentemente al usuario a la lista de resultados de búsqueda.
+
+**B. Cambios Implementados:**
+1.  **Corrección de Lógica de Estado en `regresarABusqueda` (`ui.js`):**
+    *   **Problema:** La función `regresarABusqueda` estaba inspeccionando el estado de navegación actual (`navigationState`) en lugar del estado anidado (`navigationState.previousState`). Esto causaba que no se encontrara el contexto de la búsqueda y se ejecutara un retorno incorrecto a la página principal.
+    *   **Solución:** Se refactorizó la función para que acceda al objeto `previousState`. Ahora comprueba `previousState.level` y extrae el término de búsqueda de `previousState.query`, asegurando que la vista de resultados de búsqueda se reconstruya utilizando el contexto correcto.
+    *   **Líneas Afectadas en `ui.js`:** 480-488.
+
+**C. Impacto:**
+- **Estabilidad del Flujo de Búsqueda:** El comportamiento del botón "Regresar" en el flujo de búsqueda es ahora robusto y predecible. Se ha eliminado la regresión, asegurando que los usuarios no pierdan el contexto de su búsqueda al navegar por los resultados.
+**V4.7.9 - (REGRESSION FIX) - 22/01/2026**
+**A. RESUMEN GENERAL:** Se corrigió una regresión en el flujo de búsqueda que mostraba incorrectamente un botón "Regresar" en la página de resultados.
+
+**B. Cambios Implementados:**
+1.  **Corrección de la Interfaz de Resultados de Búsqueda (`ui.js`):**
+    *   **Problema:** La función `mostrarResultadosDeBusqueda` añadía un botón "Regresar" a la vista de resultados. Esta vista debe ser el nivel superior del flujo de búsqueda y no debe permitir "regresar" a un estado anterior.
+    *   **Solución:** Se eliminó la línea de código que generaba el `span` del botón "Regresar" dentro de esta función. Ahora, la vista de resultados de búsqueda se presenta correctamente sin opciones de navegación hacia atrás, estableciéndola como el punto de partida del flujo.
+    *   **Líneas Afectadas en `ui.js`:** 549-550.
+
+**C. Impacto:**
+- **Flujo de Navegación Corregido:** El comportamiento del flujo de búsqueda ahora es el correcto. El botón "Regresar" solo aparecerá en las pantallas subsecuentes (ej. selección de año), y su acción devolverá correctamente al usuario a la lista de resultados de búsqueda, como se esperaba.
+**V4.7.8 - (NAV BUG FIX) - 21/01/2026**
+**A. RESUMEN GENERAL:** Se corrigió un bug en el flujo de navegación donde el botón "Regresar" no volvía a los resultados de la búsqueda, perdiendo el contexto del usuario.
+
+**B. Cambios Implementados:**
+1.  **Preservación del Estado de Búsqueda (`navigation.js`):**
+    *   **Problema:** El término de búsqueda no se guardaba en el estado de la aplicación.
+    *   **Solución:** Se modificó la función `filtrarContenido` para que almacene el `query` de la búsqueda en el `navigationState`.
+    *   **Líneas Afectadas en `navigation.js`:** 86.
+
+2.  **Lógica de Regreso a la Búsqueda (`ui.js`):**
+    *   **Problema:** El botón "Regresar" no tenía una lógica para reconstruir la vista de búsqueda.
+    *   **Solución:**
+        a. Se creó una nueva función `regresarABusqueda` que vuelve a ejecutar el filtro con el `query` guardado en el estado.
+        b. Se actualizó la función `mostrarVersiones` para que, si detecta que la navegación proviene de una búsqueda, el botón "Regresar" invoque a `regresarABusqueda`.
+    *   **Líneas Afectadas en `ui.js`:** 450-453 (nueva condición), 478-489 (nueva función).
+
+**C. Impacto:**
+- **Consistencia de Navegación:** El botón "Regresar" ahora funciona de manera predecible, devolviendo al usuario a los resultados de su búsqueda y manteniendo el contexto de la navegación.
+**V4.7.7 - (CRITICAL REGRESSION FIX) - 20/01/2026**
+**A. RESUMEN GENERAL:** Se corrigió un `SyntaxError` fatal en `ui.js` que fue introducido en el commit anterior. Este error impedía la carga completa de la aplicación, haciendo que se quedara congelada en la pantalla de carga (splash screen).
+
+**B. Cambios Implementados:**
+1.  **Corrección de Error de Sintaxis (`ui.js`):**
+    *   **Problema:** Una propiedad de un objeto (`ejemplo.imagenVehiculo`) fue dividida incorrectamente en dos líneas, rompiendo el parseo del script.
+    *   **Solución:** Se unificó la propiedad en una sola línea para corregir la sintaxis del código JavaScript.
+    *   **Líneas Afectadas en `ui.js`:** 601.
+
+**C. Impacto:**
+- **Funcionalidad Restaurada:** La aplicación ahora puede cargar y operar normalmente. Se ha restaurado la funcionalidad completa del catálogo.
+**V4.7.6 - (NAV BUG FIX) - 20/01/2026**
+**A. RESUMEN GENERAL:** Se corrigió un bug crítico en el flujo de navegación que ocurría después de realizar una búsqueda por modelo. El sistema ahora navega correctamente a la selección de año en lugar de retroceder en el flujo.
+
+**B. Cambios Implementados:**
+1.  **Corrección del Flujo de Navegación en Búsqueda (`ui.js`):**
+    *   **Problema:** Al buscar un modelo, la UI mostraba incorrectamente tarjetas para cada año. Al hacer clic en una, el flujo retrocedía a la selección de versión de equipamiento.
+    *   **Solución:** Se refactorizó la función `mostrarResultadosDeBusqueda`. Ahora:
+        a. Agrupa los resultados para mostrar una única tarjeta por cada variante de modelo (ej. "CR-V Touring").
+        b. El `onclick` de cada tarjeta ahora lleva directamente a la selección de año para esa variante específica, alineando el comportamiento de la búsqueda con el de la navegación principal.
+    *   **Líneas Afectadas en `ui.js`:** 570-607.
+
+**C. Impacto:**
+- **Experiencia de Usuario Mejorada:** Se ha eliminado la confusión en el flujo de búsqueda. La navegación es ahora lógica, predecible y consistente en toda la aplicación.
+- **Consistencia del Flujo:** El comportamiento post-búsqueda ahora es idéntico al de la navegación por categorías o marcas.
+
+
+**V4.7.5 - (REGRESSION FIX) - 16/01/2026**
+**A. RESUMEN GENERAL:** Se corrigió un bug de regresión crítico en el sistema de búsqueda que provocaba que, al buscar un modelo con múltiples versiones, se abriera incorrectamente el modal de detalle del primer resultado en lugar de mostrar todas las opciones disponibles.
+
+**B. Cambios Implementados:**
+1.  **Eliminación de De-duplicación Agresiva (`navigation.js`):**
+    *   **Problema:** La lógica de búsqueda agrupaba incorrectamente todas las variantes de un mismo modelo, tratando múltiples resultados como si fueran uno solo.
+    *   **Solución:** Se eliminó la línea de código que creaba `modelosUnicos`, asegurando que la lista completa de vehículos filtrados, con todas sus variantes, sea pasada a la capa de renderizado.
+    *   **Líneas Afectadas en `navigation.js`:** 82-83.
+
+2.  **Mejora de la Claridad en Resultados (`ui.js`):**
+    *   **Problema:** Las tarjetas de resultado no mostraban información que permitiera diferenciar entre múltiples versiones de un mismo modelo.
+    *   **Solución:** Se modificó la función `mostrarResultadosDeBusqueda` para que el texto de cada tarjeta de modelo incluya la `versionesAplicables` o el `tipoEncendido`, además del nombre y el año.
+    *   **Líneas Afectadas en `ui.js`:** 576-579.
+
+**C. Impacto:**
+- **Funcionalidad Restaurada:** El sistema de búsqueda ahora muestra correctamente todas las variantes disponibles para un modelo, permitiendo al usuario ver y seleccionar la opción deseada.
+- **Experiencia de Usuario Mejorada:** Las tarjetas de resultados son más informativas, evitando la confusión cuando un mismo modelo tiene múltiples configuraciones.
+
+**V4.7.4 - (CRITICAL FEATURE REFACTOR) - 16/01/2026**
+**A. RESUMEN GENERAL:** Se realizó una refactorización profunda y estructural del sistema de búsqueda global para corregir inconsistencias graves y alinearlo con los requisitos funcionales. La nueva implementación distingue correctamente entre búsquedas por marca, modelo y año, y asegura que la navegación sea consistente y reversible.
+
+**B. Cambios Implementados:**
+1.  **Refactorización de la Lógica de Búsqueda (`navigation.js`):**
+    *   **Problema:** La lógica anterior trataba todas las búsquedas como si fueran por marca, mostrando resultados incorrectos (logos de marca en lugar de tarjetas de modelo).
+    *   **Solución:** Se refactorizó completamente la función `filtrarContenido`. La nueva lógica:
+        a. Implementa un filtrado mejorado que maneja correctamente los rangos de años.
+        b. Analiza los resultados del filtro para clasificar la búsqueda (marca, modelo, año, mixta).
+        c. Invoca una nueva función de renderizado unificada en `ui.js`, pasando el tipo y los resultados.
+    *   **Líneas Afectadas en `navigation.js`:** 31-85 (función `filtrarContenido` reemplazada).
+
+2.  **Unificación del Renderizado de Resultados (`ui.js`):**
+    *   **Problema:** Existían múltiples funciones de renderizado de búsqueda (`mostrarResultadosBusquedaMarca`, `mostrarResultadosBusquedaModelo`) que creaban flujos de navegación inconsistentes y rotos.
+    *   **Solución:** Se eliminaron las funciones antiguas y se creó una única función `mostrarResultadosDeBusqueda`. Esta función:
+        a. Acepta un objeto con el tipo y los resultados de la búsqueda.
+        b. Renderiza dinámicamente el tipo de tarjeta correcto (logo de marca o tarjeta de modelo).
+        c. Asegura que los eventos `onclick` de las tarjetas se integren con el flujo de navegación principal y estándar de la aplicación (`mostrarModelosPorMarca`, `navegarADetallesDeModelo`).
+    *   **Líneas Afectadas en `ui.js`:** 521-585 (funciones de búsqueda reemplazadas por `mostrarResultadosDeBusqueda`).
+
+3.  **Corrección de Dependencia Circular (`ui.js`):**
+    *   **Problema:** Se detectó una dependencia circular entre `navigation.js` y `ui.js` que impedía la correcta inicialización de la aplicación en entornos de prueba.
+    *   **Solución:** Se eliminó la importación innecesaria de `irAPaginaPrincipal` dentro de `ui.js`.
+    *   **Líneas Afectadas en `ui.js`:** 9 (línea eliminada).
+
+**C. Impacto:**
+- **Funcionalidad de Búsqueda Corregida:** El sistema ahora devuelve resultados precisos y visualmente correctos para búsquedas por modelo, marca y año.
+- **Navegación Consistente:** El flujo de navegación desde los resultados de búsqueda ahora es idéntico al de la navegación principal, con botones "Volver" funcionales y un comportamiento predecible.
+- **Mantenibilidad del Código:** La lógica de búsqueda está ahora centralizada y es más fácil de mantener, y se ha mejorado la estabilidad general de la aplicación al eliminar una dependencia circular.
+
 **V4.7.3 - (FEATURE & BUGFIX) - 16/01/2026**
 **A. RESUMEN GENERAL:** Se refactorizó la lógica central de navegación para optimizar el flujo en casos de opción única. Adicionalmente, esta refactorización corrige un bug que mostraba una pantalla en blanco al navegar hacia atrás en estos mismos flujos.
 

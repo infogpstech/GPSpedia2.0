@@ -1,3 +1,153 @@
+========================================
+AUDITORÍA - 22/01/2026 (CIERRE DE SESIÓN INESPERADO)
+========================================
+
+**TAREA:** Investigar cierre de sesión inesperado tras múltiples recargas de la página.
+
+**ARCHIVOS REVISADOS:**
+- main.js
+- auth.js
+
+**HALLAZGOS Y ANÁLISIS DE CAUSA RAÍZ:**
+1.  **Flujo de Inicialización y Validación:**
+    - `main.js` (`initializeApp`): Se ejecuta en `DOMContentLoaded`. La última llamada es a `auth.checkSession()`.
+    - `auth.js` (`checkSession`):
+        a. Lee la sesión (`gpsepedia_session`) del `localStorage`.
+        b. Si no existe, muestra la pantalla de login (correcto).
+        c. Si existe, la parsea y llama a `apiValidateSession(userId, sessionToken)` para validar contra el backend.
+        d. Si la validación falla, llama a `logout()`.
+        e. `logout()` elimina la sesión del `localStorage`.
+
+2.  **Hipótesis Principal: Condición de Carrera (`Race Condition`) Concurrente:**
+    - **Escenario:** Múltiples recargas rápidas o la apertura de múltiples pestañas de la aplicación casi al mismo tiempo.
+    - **Secuencia del Fallo:**
+        1.  **Recarga 1** inicia `checkSession()`, lee un token válido del `localStorage` y envía una petición de validación al backend.
+        2.  **Recarga 2** inicia `checkSession()` inmediatamente después, lee el *mismo* token válido del `localStorage` y envía una *segunda* petición de validación al backend.
+        3.  **Comportamiento Inferido del Backend:** Es altamente probable que el backend, al procesar una solicitud de `apiValidateSession`, no solo valide el token sino que también genere y guarde un *nuevo* token para esa sesión, invalidando el anterior. Este es un patrón de seguridad común para prevenir ataques de repetición.
+        4.  La petición de la **Recarga 2** llega al backend, que valida el token `T1`, lo invalida, y genera un nuevo token `T2`.
+        5.  La petición de la **Recarga 1** llega al backend un instante después. Intenta validar el token `T1`, pero este ya ha sido invalidado por la Recarga 2. El backend responde con `{ valid: false }`.
+        6.  La **Recarga 1** recibe `{ valid: false }`, interpreta que la sesión ha expirado y llama a `logout()`.
+        7.  `logout()` borra la sesión del `localStorage`.
+        8.  Cualquier recarga o pestaña subsecuente (`Recarga 3` o incluso la `Recarga 2` si se vuelve a recargar) encontrará el `localStorage` vacío y mostrará la pantalla de login.
+
+**CONCLUSIÓN DE LA AUDITORÍA:**
+El problema no es un error lógico simple, sino una condición de carrera causada por la validación concurrente de un mismo token de sesión que es invalidado y regenerado por el backend en cada llamada. El frontend no está diseñado para manejar este escenario, asumiendo que el `localStorage` es una fuente de verdad única y que su propia validación no interferirá con otras.
+
+**ACCIÓN REQUERIDA (PROPUESTA):**
+La solución ideal es implementar un mecanismo de "bloqueo" o "mutex" en el cliente para asegurar que solo una pestaña o proceso de validación se ejecute a la vez.
+
+1.  **Introducir un "Lock" en `localStorage`:**
+    - Antes de iniciar la llamada a `apiValidateSession`, el script debería establecer una marca de tiempo de "bloqueo" en `localStorage` (ej. `session_validation_lock`).
+    - Otras pestañas o recargas que se inicien comprobarían la existencia y la antigüedad de esta marca. Si el bloqueo es reciente (ej. menos de 5 segundos), la nueva instancia debería esperar y reintentar, en lugar de iniciar su propia validación.
+2.  **Instrumentación con Logs:** Antes de implementar la solución, se añadirán logs de diagnóstico detallados en `auth.js` para confirmar esta hipótesis, registrando el inicio de la validación, el resultado y el momento en que se llama a `logout`.
+========================================
+AUDITORÍA - 22/01/2026 (RE-AUDITORÍA DE REGRESIÓN)
+========================================
+
+**TAREA:** Corrección definitiva de la regresión en el botón "Regresar" del flujo de búsqueda.
+
+**ARCHIVOS REVISADOS:**
+- ui.js
+
+**HALLAZGOS (CAUSA RAÍZ DEFINITIVA):**
+1.  **Error de Lógica en `regresarABusqueda`:**
+    - La auditoría anterior fue incorrecta al asumir que el problema era la existencia de un botón "Regresar" en la vista de resultados. El problema real yace en la lógica de la función `regresarABusqueda`, que se invoca correctamente pero falla en su ejecución.
+    - **Línea 480:** La condición `if (navigationState && navigationState.level === 'busqueda' && navigationState.query)` es **incorrecta**.
+    - **Análisis:** Cuando el usuario está en la pantalla de "Años" (invocada por `mostrarVersiones`), el `navigationState` actual tiene un `level` de `"versiones"`. El estado de la búsqueda (`{level: 'busqueda', query: '...'}`) está anidado dentro de `navigationState.previousState`.
+    - **Impacto:** La condición siempre evalúa a `false` porque `navigationState.level` no es `'busqueda'`. Como resultado, la función ejecuta la lógica del bloque `else`, que incorrectamente llama a `window.navigation.irAPaginaPrincipal()`, devolviendo al usuario al inicio del catálogo en lugar de a sus resultados de búsqueda.
+
+**CONCLUSIÓN DE LA AUDITORÍA:**
+La causa raíz ha sido identificada de manera concluyente. La corrección debe realizarse exclusivamente en la función `regresarABusqueda` dentro de `ui.js`. La lógica debe ser modificada para que inspeccione el objeto `navigationState.previousState` para verificar el nivel y obtener el término de búsqueda, en lugar de inspeccionar el objeto `navigationState` de nivel superior.
+========================================
+AUDITORÍA - 22/01/2026 (REGRESIÓN EN BOTÓN "REGRESAR")
+========================================
+
+**TAREA:** Corrección de la regresión en el botón "Regresar" del flujo de búsqueda.
+
+**ARCHIVOS REVISADOS:**
+- ui.js
+- navigation.js
+
+**HALLAZGOS:**
+1.  **Causa Raíz del Comportamiento Incorrecto en `ui.js`:**
+    - Se ha localizado el origen del bug en la función `mostrarResultadosDeBusqueda`.
+    - **Problema Específico:** La función está construyendo y mostrando un botón "Regresar" en la propia vista de resultados de búsqueda. La acción de este botón es `window.navigation.irAPaginaPrincipal()`.
+    - **Impacto:** Esto viola el flujo de navegación requerido. La página de resultados de búsqueda debe ser el nivel superior en el contexto de una búsqueda, y por lo tanto, **no debe contener un botón "Regresar"**. El botón que se muestra es el que debería aparecer en las pantallas *siguientes* del flujo para poder volver a la lista de resultados. La presencia de este botón en la vista de resultados es la causa de la confusión y el comportamiento incorrecto reportado por el usuario.
+
+2.  **Validación de Lógica Existente:**
+    - La lógica implementada en la `v4.7.8` para regresar *a* la búsqueda desde pantallas más profundas (como `mostrarVersiones`) es correcta. Las funciones `regresarABusqueda` en `ui.js` y el almacenamiento del `query` en el `navigationState` en `navigation.js` están funcionando como se espera. El problema no es cómo se regresa, sino el estado inicial de la página de resultados.
+
+**CONCLUSIÓN DE LA AUDITORÍA:**
+La solución es puntual y precisa. Se debe modificar la función `mostrarResultadosDeBusqueda` en `ui.js` para eliminar la línea de código que crea el botón "Regresar". Esto establecerá la página de resultados de búsqueda como el punto de partida correcto del flujo, permitiendo que la lógica de "Regresar" ya implementada en las pantallas subsecuentes funcione como se espera.
+========================================
+AUDITORÍA - 21/01/2026
+========================================
+
+**TAREA:** Consistencia del botón "Regresar" en la búsqueda de modelos.
+
+**ARCHIVOS REVISADOS:**
+- ui.js
+- navigation.js
+
+**HALLAZGOS:**
+1.  **Causa Raíz del Bug en el Flujo de Regreso:**
+    - El problema se origina por una gestión de estado incompleta durante el proceso de búsqueda.
+    - **En `navigation.js` (`filtrarContenido`):** Al realizar una búsqueda, la función establece el estado de navegación a `{ level: "busqueda" }`, pero omite guardar el término de búsqueda (`textoBusqueda`) en dicho estado.
+    - **En `ui.js` (`mostrarVersiones`):** Cuando se navega a la pantalla de selección de año desde un resultado de búsqueda, el `previousState.level` es "busqueda". La lógica que construye el botón "Regresar" no tiene un caso para manejar "busqueda".
+    - **Comportamiento Incorrecto:** Al no encontrar una coincidencia para el estado anterior, la función aplica un `fallback` incorrecto, generando un botón que regresa a la lista de modelos de la marca (`mostrarModelos`), en lugar de volver a los resultados de la búsqueda.
+
+**CONCLUSIÓN DE LA AUDITORÍA:**
+Para corregir el bug, se requiere un enfoque de dos partes:
+1.  **Modificar `navigation.js`:** Actualizar la función `filtrarContenido` para que almacene el término de búsqueda en el `navigationState` (ej. `{ level: "busqueda", query: textoBusqueda }`).
+2.  **Modificar `ui.js`:**
+    - Crear una nueva función, `regresarABusqueda`, que use el `query` guardado en el estado para volver a ejecutar `filtrarContenido` y mostrar los resultados de búsqueda.
+    - Actualizar la lógica del botón "Regresar" en `mostrarVersiones` para que, si `previousState.level` es "busqueda", llame a la nueva función `regresarABusqueda`.
+========================================
+AUDITORÍA - 20/01/2026 (REGRESIÓN CRÍTICA)
+========================================
+
+**TAREA:** Corrección de `Uncaught SyntaxError` que impide la carga de la aplicación.
+
+**ARCHIVOS REVISADOS:**
+- ui.js
+
+**HALLAZGOS:**
+1.  **Causa Raíz del Error de Sintaxis:**
+    - Se ha localizado un `SyntaxError` fatal en la función `mostrarResultadosDeBusqueda` del archivo `ui.js`.
+    - **Línea Afectada:** 601.
+    - **Problema Específico:** Durante la modificación anterior, la propiedad de un objeto fue dividida incorrectamente en dos líneas:
+      ```javascript
+      img.src = getImageUrl(ejemplo.imagenVehic
+      ulo);
+      ```
+    - **Impacto:** Este error de sintaxis impide que el motor de JavaScript parsee el archivo `ui.js`, deteniendo por completo la ejecución de todos los scripts de la aplicación. Como resultado, la aplicación no puede inicializarse y se queda congelada en la pantalla de carga (splash screen).
+
+**CONCLUSIÓN DE LA AUDITORÍA:**
+El error es crítico pero de solución directa. Se debe corregir la línea 601 para que lea `ejemplo.imagenVehiculo`. Esto restaurará la capacidad de la aplicación para cargar y funcionar normalmente.
+========================================
+AUDITORÍA - 20/01/2026
+========================================
+
+**TAREA:** Corrección del flujo de navegación en la búsqueda de modelos.
+
+**ARCHIVOS REVISADOS:**
+- ui.js
+- navigation.js
+
+**HALLAZGOS:**
+1.  **Error de Lógica en `ui.js` - `mostrarResultadosDeBusqueda`:**
+    - Se ha identificado que la función `mostrarResultadosDeBusqueda` es la fuente del comportamiento anómalo.
+    - **Problema Específico:** Cuando los resultados de una búsqueda corresponden a un modelo, la función renderiza incorrectamente una tarjeta individual para cada AÑO disponible de ese modelo (ej. 'CR-V 2018', 'CR-V 2019'). El comportamiento esperado es que se muestren las VERSIONES DE EQUIPAMIENTO o los TIPOS DE ENCENDIDO para el modelo buscado.
+    - **Causa de la Confusión:** El evento `onclick` de cada una de estas tarjetas de "año" llama a `navegarADetallesDeModelo`. Esta función está diseñada para iniciar el flujo de navegación para un modelo desde el principio, por lo que, al ser invocada, muestra la pantalla de selección de "Versión de Equipamiento", dando la impresión de que el flujo retrocede.
+
+2.  **Análisis de `navigation.js`:**
+    - La lógica de filtrado en `navigation.js` (`filtrarContenido`) funciona correctamente. Entrega la lista completa de vehículos coincidentes a `ui.js`.
+    - El problema no reside en la obtención de datos, sino exclusivamente en su presentación y en la acción `onclick` asignada en la capa de UI.
+
+**CONCLUSIÓN DE LA AUDITORÍA:**
+El bug está localizado en la función `mostrarResultadosDeBusqueda` de `ui.js`. La corrección debe centrarse en modificar el `onclick` de las tarjetas de resultado de tipo "modelo" para que invoque la función de navegación correcta (`navegarADetallesDeModelo`), que ya contiene la lógica para decidir si mostrar versiones de equipamiento, tipos de encendido o directamente los años. Esto alineará el comportamiento de la búsqueda con el flujo de navegación estándar de la aplicación.
+
+
 **AUDITORÍA GENERAL DEL PROYECTO GPSpedia v2.0**
 
 **Fecha de Auditoría:** 13/01/2026
@@ -223,3 +373,38 @@ Se realizó una auditoría de `ui.js` para abordar el nuevo requisito de omitir 
 
 3.  **Conclusión de la Auditoría:**
     *   La refactorización de `navegarADetallesDeModelo` para implementar la lógica de omisión de pantallas no solo cumplirá con el nuevo requisito funcional, sino que también resolverá de forma inherente el bug de la "pantalla en blanco", al eliminar por completo el paso problemático del flujo de navegación en los casos de opción única.
+
+---
+**Q. AUDITORÍA DEL SISTEMA DE BÚSQUEDA GLOBAL (FECHA ACTUAL)**
+---------------------------------------------------------
+Se realizó una auditoría del flujo de búsqueda global para abordar la Tarea 2 del backlog.
+
+1.  **Flujo de Datos de Búsqueda:**
+    *   **Hallazgo:** El flujo de datos es el siguiente:
+        1. `main.js`: Un `event listener` en el campo de búsqueda (`searchInput`) captura la entrada del usuario.
+        2. `main.js` -> `navigation.js`: Se invoca la función `navigation.filtrarContenido(textoBusqueda)`.
+        3. `navigation.js`: La función `filtrarContenido` realiza un filtrado de texto simple sobre el catálogo de datos.
+        4. `navigation.js` -> `ui.js`: Tras el filtrado, la función invoca **incondicionalmente** `ui.mostrarResultadosBusquedaMarca(busqueda, datosFiltrados)`.
+
+2.  **Causa Raíz del Comportamiento Incorrecto:**
+    *   **Hallazgo (Lógica):** La función `navigation.filtrarContenido` carece de cualquier lógica para analizar o clasificar los resultados de la búsqueda. No diferencia si los `datosFiltrados` corresponden a una marca, un modelo o un año.
+    *   **Hallazgo (Renderizado):** Como consecuencia, siempre se llama a `ui.mostrarResultadosBusquedaMarca`, una función diseñada exclusivamente para renderizar tarjetas de logos de marcas. Esto explica por qué una búsqueda de "Aveo" (un modelo) resulta en la visualización del logo de "Chevrolet" (la marca).
+    *   **Hallazgo (Navegación):** El `onclick` en las tarjetas de marca generadas por `mostrarResultadosBusquedaMarca` lleva a `mostrarResultadosBusquedaModelo`, que es una función de renderizado que no está correctamente integrada en el flujo de navegación principal, causando inconsistencias y falta de un botón "Volver" funcional.
+
+3.  **Acción Requerida:**
+    *   **En `navigation.js`:** Se debe refactorizar `filtrarContenido` para que, después de filtrar los datos, realice un análisis de los resultados para determinar el tipo de coincidencia (marca, modelo, año, mixta).
+    *   **En `ui.js`:** Se deben crear nuevas funciones de renderizado o adaptar las existentes para mostrar correctamente los resultados según su tipo (tarjetas de modelo para búsquedas de modelo, etc.).
+    *   **Integración del Flujo:** La navegación desde los resultados de búsqueda debe ser redirigida para usar las funciones de navegación estándar (ej. `navegarADetallesDeModelo`), asegurando la consistencia y la funcionalidad de los botones "Volver".
+
+---
+**R. AUDITORÍA DE REGRESIÓN EN BÚSQUEDA DE MODELOS (FECHA ACTUAL)**
+-----------------------------------------------------------------
+Se realizó una auditoría para identificar la causa de una regresión en el sistema de búsqueda, donde una búsqueda de un modelo con múltiples versiones abre incorrectamente el modal de detalle del primer resultado.
+
+1.  **Causa Raíz del Bug:**
+    *   **Hallazgo:** La refactorización anterior introdujo una lógica de de-duplicación demasiado agresiva en `navigation.js`. La línea `const modelosUnicos = [...new Map(datosFiltrados.map(item => [\`${item.marca}-${item.modelo}\`, item])).values()];` elimina todas las variantes de un mismo modelo, conservando solo la primera que encuentra.
+    *   **Impacto:** Cuando se busca un modelo que tiene diferentes versiones o tipos de encendido, el sistema los agrupa incorrectamente como un único resultado. Esto, combinado con la regla de negocio que abre el modal para resultados únicos, causa que se muestre el detalle del primer vehículo, impidiendo al usuario ver y seleccionar las otras variantes.
+
+2.  **Acción Requerida:**
+    *   **En `navigation.js`:** Eliminar la línea que crea `modelosUnicos`. La función `filtrarContenido` debe pasar la lista completa y sin filtrar de `datosFiltrados` a la capa de UI.
+    *   **En `ui.js`:** Modificar la función `mostrarResultadosDeBusqueda` para que las tarjetas de resultado de modelo muestren información distintiva. El `overlay` de cada tarjeta debe incluir no solo el modelo y año, sino también la `versionesAplicables` o el `tipoEncendido`, permitiendo al usuario diferenciar entre las tarjetas.
