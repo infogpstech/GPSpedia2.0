@@ -560,23 +560,48 @@ export function mostrarResultadosDeBusqueda({ type, query, results }) {
         });
     } else {
         // Renderizado para resultados de tipo MODELO (y por defecto).
-        results.forEach(ejemplo => {
+
+        // De-duplicar los resultados para mostrar solo una tarjeta por variante única (modelo + versión).
+        // Esto evita mostrar una tarjeta para cada año del mismo vehículo.
+        const variantesUnicas = [...new Map(results.map(item => {
+            const key = `${item.marca}|${item.modelo}|${item.versionesAplicables || ''}`;
+            return [key, item];
+        })).values()];
+
+        variantesUnicas.forEach(ejemplo => {
             const card = document.createElement("div");
             card.className = "card";
-            // El onclick ahora usa el flujo de navegación estándar.
-            card.onclick = () => navegarADetallesDeModelo(ejemplo.categoria, ejemplo.marca, ejemplo.modelo);
+
+            // CORRECCIÓN: El onclick ahora salta directamente a la selección de AÑO para la variante elegida,
+            // evitando el "retroceso" en el flujo de navegación.
+            card.onclick = () => {
+                const filasDeVariante = results.filter(r =>
+                    r.marca === ejemplo.marca &&
+                    r.modelo === ejemplo.modelo &&
+                    r.versionesAplicables === ejemplo.versionesAplicables
+                );
+                mostrarVersiones(filasDeVariante, ejemplo.categoria, ejemplo.marca, ejemplo.modelo);
+            };
 
             const img = document.createElement("img");
-            img.src = getImageUrl(ejemplo.imagenVehiculo);
+            img.src = getImageUrl(ejemplo.imagenVehic
+ulo);
             img.alt = `Modelo ${ejemplo.modelo}`;
             card.appendChild(img);
 
             const overlay = document.createElement("div");
             overlay.className = "overlay";
-            // Se añade la versión o tipo de encendido al texto de la tarjeta para diferenciar resultados.
-            const anio = ejemplo.anoHasta ? `${ejemplo.anoDesde} - ${ejemplo.anoHasta}` : ejemplo.anoDesde;
-            const diferenciador = ejemplo.versionesAplicables || ejemplo.tipoEncendido || '';
-            overlay.innerHTML = `<div>${ejemplo.marca} ${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8;">${anio} (${diferenciador})</div>`;
+
+            // CORRECCIÓN: El texto de la tarjeta ahora representa la variante, no un año específico,
+            // para que coincida con la acción del onclick.
+            const version = ejemplo.versionesAplicables || '';
+            const tiposEncendido = [...new Set(results
+                .filter(r => r.marca === ejemplo.marca && r.modelo === ejemplo.modelo && r.versionesAplicables === ejemplo.versionesAplicables)
+                .map(r => r.tipoEncendido).filter(Boolean))].join(' / ');
+
+            const diferenciador = version || tiposEncendido;
+
+            overlay.innerHTML = `<div>${ejemplo.marca} ${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8;">${diferenciador}</div>`;
             card.appendChild(overlay);
             grid.appendChild(card);
         });

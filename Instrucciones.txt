@@ -1,3 +1,16 @@
+---
+**TAREAS PENDIENTES DE REVISIÓN**
+---
+1. CORRECCIÓN DEL FLUJO DE NAVEGACIÓN EN BÚSQUEDA DE MODELOS
+Estado: PENDIENTE DE REVISIÓN POR EL PM
+Origen: Reporte de Bug de Flujo
+Prioridad: CRÍTICA
+Área: Frontend | Lógica de Navegación
+Archivos involucrados: ui.js
+
+Descripción:
+Se ha corregido el flujo de navegación anómalo que ocurría tras una búsqueda por modelo. La lógica en `ui.js` fue ajustada para que los resultados de la búsqueda dirijan al usuario al paso correcto del flujo (selección de año), en lugar de retroceder a una etapa anterior.
+
 NORMAS OBLIGATORIAS DE DESARROLLO
 ---------------------------------
 
@@ -113,15 +126,69 @@ REGLA FINAL
 Si un paso NO fue ejecutado, el proceso se considera INCOMPLETO.
 NO se permiten atajos, omisiones ni reinterpretaciones.
 
----
-**TAREAS PENDIENTES DE REVISIÓN**
----
+========================================
+REGISTRO DE TAREAS — BACKLOG ACTIVO
+========================================
+
+1. CORRECCIÓN Y NORMALIZACIÓN DEL FLUJO DE NAVEGACIÓN (CATEGORÍA, MARCA, TIPO DE ENCENDIDO)
+Estado: Completado
+Origen: Reporte de PM + Requerimiento Funcional
+Prioridad: ALTA
+Área: Frontend | UI
+Archivos involucrados: ui.js
+
+Descripción:
+Existe un conjunto de fallos y comportamientos inconsistentes en el flujo de navegación principal de la plataforma, que afectan:
+- Navegación por categoría
+- Navegación por marca
+- Navegación por resultados de búsqueda
+- Selección de versión de equipamiento y/o tipo de encendido
+
+Problema identificado:
+Cuando un modelo posee un único tipo de encendido, la lógica actual intenta omitir la pantalla de selección, provocando inconsistencias en el flujo de datos y errores de navegación. Un intento previo de corrección eliminó dicha omisión para forzar un flujo lineal, pero el problema persiste.
+
+Flujo funcional requerido (OBLIGATORIO):
+
+Navegación por Categoría:
+1. Categoría
+   - Mostrar categorías ordenadas por población.
+2. Marcas
+   - Mostrar solo marcas que tengan modelos dentro de la categoría seleccionada.
+   - Orden alfabético ascendente (A–Z).
+3. Modelos
+   - Mostrar modelos que cumplan con la categoría y marca seleccionadas.
+4. Versión de Equipamiento o Tipo de Encendido
+   - Si el modelo tiene versiones de equipamiento, mostrarlas.
+   - Si no tiene versiones, mostrar opciones por tipo de encendido (botón / llave).
+   - La tarjeta debe mostrar nombre de la versión y tipo de encendido.
+5. Años / Generación
+   - Mostrar años disponibles según modelo y versión.
+
+Navegación por Marca:
+- Inicia desde la etapa de Marcas.
+- No filtra por categoría.
+- Debe seguir exactamente el mismo flujo desde la etapa de Modelos en adelante.
+
+Búsqueda:
+- Priorizar coincidencias por versión de equipamiento y modelo.
+- Si coincide con marca, mostrar tarjeta de marca.
+- La navegación desde cualquier resultado debe seguir el mismo flujo descrito arriba.
+
+Requisitos adicionales:
+- Todas las etapas deben tener botón de regreso funcional.
+- El flujo debe ser gradual, reversible y consistente.
+- El PM debe validar el flujo final antes de cerrar la tarea.
+
+----------------------------------------
+
+----------------------------------------
+
 2. REVISIÓN PROFUNDA Y CORRECCIÓN DEL SISTEMA DE BÚSQUEDA GLOBAL
-Estado: PENDIENTE DE REVISIÓN POR EL PM
+Estado: TAREA NUEVA (NO INICIADA)
 Origen: Requerimiento Funcional + Detección de Comportamiento Incorrecto
 Prioridad: CRÍTICA
 Área: Frontend | Lógica de Navegación | UX
-Archivos involucrados: navigation.js, ui.js
+Archivos involucrados: search.js, ui.js (o lógica equivalente)
 
 Descripción:
 El sistema de búsqueda presenta inconsistencias graves en la forma en que procesa y muestra los resultados. Actualmente:
@@ -196,59 +263,6 @@ CRITERIOS DE ACEPTACIÓN
   - Navegación por Categoría
   - Navegación por Búsqueda
 - El PM valida el comportamiento final antes de cerrar la tarea.
-
-========================================
-REGISTRO DE TAREAS — BACKLOG ACTIVO
-========================================
-
-1. CORRECCIÓN Y NORMALIZACIÓN DEL FLUJO DE NAVEGACIÓN (CATEGORÍA, MARCA, TIPO DE ENCENDIDO)
-Estado: Completado
-Origen: Reporte de PM + Requerimiento Funcional
-Prioridad: ALTA
-Área: Frontend | UI
-Archivos involucrados: ui.js
-
-Descripción:
-Existe un conjunto de fallos y comportamientos inconsistentes en el flujo de navegación principal de la plataforma, que afectan:
-- Navegación por categoría
-- Navegación por marca
-- Navegación por resultados de búsqueda
-- Selección de versión de equipamiento y/o tipo de encendido
-
-Problema identificado:
-Cuando un modelo posee un único tipo de encendido, la lógica actual intenta omitir la pantalla de selección, provocando inconsistencias en el flujo de datos y errores de navegación. Un intento previo de corrección eliminó dicha omisión para forzar un flujo lineal, pero el problema persiste.
-
-Flujo funcional requerido (OBLIGATORIO):
-
-Navegación por Categoría:
-1. Categoría
-   - Mostrar categorías ordenadas por población.
-2. Marcas
-   - Mostrar solo marcas que tengan modelos dentro de la categoría seleccionada.
-   - Orden alfabético ascendente (A–Z).
-3. Modelos
-   - Mostrar modelos que cumplan con la categoría y marca seleccionadas.
-4. Versión de Equipamiento o Tipo de Encendido
-   - Si el modelo tiene versiones de equipamiento, mostrarlas.
-   - Si no tiene versiones, mostrar opciones por tipo de encendido (botón / llave).
-   - La tarjeta debe mostrar nombre de la versión y tipo de encendido.
-5. Años / Generación
-   - Mostrar años disponibles según modelo y versión.
-
-Navegación por Marca:
-- Inicia desde la etapa de Marcas.
-- No filtra por categoría.
-- Debe seguir exactamente el mismo flujo desde la etapa de Modelos en adelante.
-
-Búsqueda:
-- Priorizar coincidencias por versión de equipamiento y modelo.
-- Si coincide con marca, mostrar tarjeta de marca.
-- La navegación desde cualquier resultado debe seguir el mismo flujo descrito arriba.
-
-Requisitos adicionales:
-- Todas las etapas deben tener botón de regreso funcional.
-- El flujo debe ser gradual, reversible y consistente.
-- El PM debe validar el flujo final antes de cerrar la tarea.
 
 ----------------------------------------
 

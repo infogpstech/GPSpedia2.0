@@ -1,3 +1,19 @@
+**V4.7.6 - (NAV BUG FIX) - 20/01/2026**
+**A. RESUMEN GENERAL:** Se corrigió un bug crítico en el flujo de navegación que ocurría después de realizar una búsqueda por modelo. El sistema ahora navega correctamente a la selección de año en lugar de retroceder en el flujo.
+
+**B. Cambios Implementados:**
+1.  **Corrección del Flujo de Navegación en Búsqueda (`ui.js`):**
+    *   **Problema:** Al buscar un modelo, la UI mostraba incorrectamente tarjetas para cada año. Al hacer clic en una, el flujo retrocedía a la selección de versión de equipamiento.
+    *   **Solución:** Se refactorizó la función `mostrarResultadosDeBusqueda`. Ahora:
+        a. Agrupa los resultados para mostrar una única tarjeta por cada variante de modelo (ej. "CR-V Touring").
+        b. El `onclick` de cada tarjeta ahora lleva directamente a la selección de año para esa variante específica, alineando el comportamiento de la búsqueda con el de la navegación principal.
+    *   **Líneas Afectadas en `ui.js`:** 570-607.
+
+**C. Impacto:**
+- **Experiencia de Usuario Mejorada:** Se ha eliminado la confusión en el flujo de búsqueda. La navegación es ahora lógica, predecible y consistente en toda la aplicación.
+- **Consistencia del Flujo:** El comportamiento post-búsqueda ahora es idéntico al de la navegación por categorías o marcas.
+
+
 **V4.7.5 - (REGRESSION FIX) - 16/01/2026**
 **A. RESUMEN GENERAL:** Se corrigió un bug de regresión crítico en el sistema de búsqueda que provocaba que, al buscar un modelo con múltiples versiones, se abriera incorrectamente el modal de detalle del primer resultado en lugar de mostrar todas las opciones disponibles.
 

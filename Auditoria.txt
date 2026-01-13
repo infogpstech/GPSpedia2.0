@@ -1,3 +1,27 @@
+========================================
+AUDITORÍA - 20/01/2026
+========================================
+
+**TAREA:** Corrección del flujo de navegación en la búsqueda de modelos.
+
+**ARCHIVOS REVISADOS:**
+- ui.js
+- navigation.js
+
+**HALLAZGOS:**
+1.  **Error de Lógica en `ui.js` - `mostrarResultadosDeBusqueda`:**
+    - Se ha identificado que la función `mostrarResultadosDeBusqueda` es la fuente del comportamiento anómalo.
+    - **Problema Específico:** Cuando los resultados de una búsqueda corresponden a un modelo, la función renderiza incorrectamente una tarjeta individual para cada AÑO disponible de ese modelo (ej. 'CR-V 2018', 'CR-V 2019'). El comportamiento esperado es que se muestren las VERSIONES DE EQUIPAMIENTO o los TIPOS DE ENCENDIDO para el modelo buscado.
+    - **Causa de la Confusión:** El evento `onclick` de cada una de estas tarjetas de "año" llama a `navegarADetallesDeModelo`. Esta función está diseñada para iniciar el flujo de navegación para un modelo desde el principio, por lo que, al ser invocada, muestra la pantalla de selección de "Versión de Equipamiento", dando la impresión de que el flujo retrocede.
+
+2.  **Análisis de `navigation.js`:**
+    - La lógica de filtrado en `navigation.js` (`filtrarContenido`) funciona correctamente. Entrega la lista completa de vehículos coincidentes a `ui.js`.
+    - El problema no reside en la obtención de datos, sino exclusivamente en su presentación y en la acción `onclick` asignada en la capa de UI.
+
+**CONCLUSIÓN DE LA AUDITORÍA:**
+El bug está localizado en la función `mostrarResultadosDeBusqueda` de `ui.js`. La corrección debe centrarse en modificar el `onclick` de las tarjetas de resultado de tipo "modelo" para que invoque la función de navegación correcta (`navegarADetallesDeModelo`), que ya contiene la lógica para decidir si mostrar versiones de equipamiento, tipos de encendido o directamente los años. Esto alineará el comportamiento de la búsqueda con el flujo de navegación estándar de la aplicación.
+
+
 **AUDITORÍA GENERAL DEL PROYECTO GPSpedia v2.0**
 
 **Fecha de Auditoría:** 13/01/2026
