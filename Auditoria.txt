@@ -1,4 +1,26 @@
 ========================================
+AUDITORÍA - 20/01/2026 (REGRESIÓN CRÍTICA)
+========================================
+
+**TAREA:** Corrección de `Uncaught SyntaxError` que impide la carga de la aplicación.
+
+**ARCHIVOS REVISADOS:**
+- ui.js
+
+**HALLAZGOS:**
+1.  **Causa Raíz del Error de Sintaxis:**
+    - Se ha localizado un `SyntaxError` fatal en la función `mostrarResultadosDeBusqueda` del archivo `ui.js`.
+    - **Línea Afectada:** 601.
+    - **Problema Específico:** Durante la modificación anterior, la propiedad de un objeto fue dividida incorrectamente en dos líneas:
+      ```javascript
+      img.src = getImageUrl(ejemplo.imagenVehic
+      ulo);
+      ```
+    - **Impacto:** Este error de sintaxis impide que el motor de JavaScript parsee el archivo `ui.js`, deteniendo por completo la ejecución de todos los scripts de la aplicación. Como resultado, la aplicación no puede inicializarse y se queda congelada en la pantalla de carga (splash screen).
+
+**CONCLUSIÓN DE LA AUDITORÍA:**
+El error es crítico pero de solución directa. Se debe corregir la línea 601 para que lea `ejemplo.imagenVehiculo`. Esto restaurará la capacidad de la aplicación para cargar y funcionar normalmente.
+========================================
 AUDITORÍA - 20/01/2026
 ========================================
 

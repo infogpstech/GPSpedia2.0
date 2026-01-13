@@ -1,6 +1,16 @@
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
+1. CORRECCIÓN DE REGRESIÓN CRÍTICA (SYNTAXERROR)
+Estado: PENDIENTE DE REVISIÓN POR EL PM
+Origen: Reporte de Bug Crítico
+Prioridad: CRÍTICA
+Área: Frontend | General
+Archivos involucrados: ui.js
+
+Descripción:
+Se ha corregido un `SyntaxError` fatal en `ui.js` que impedía la carga de la aplicación.
+---
 1. CORRECCIÓN DEL FLUJO DE NAVEGACIÓN EN BÚSQUEDA DE MODELOS
 Estado: PENDIENTE DE REVISIÓN POR EL PM
 Origen: Reporte de Bug de Flujo

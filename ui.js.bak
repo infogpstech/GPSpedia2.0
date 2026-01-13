@@ -584,7 +584,8 @@ export function mostrarResultadosDeBusqueda({ type, query, results }) {
             };
 
             const img = document.createElement("img");
-            img.src = getImageUrl(ejemplo.imagenVehiculo);
+            img.src = getImageUrl(ejemplo.imagenVehic
+ulo);
             img.alt = `Modelo ${ejemplo.modelo}`;
             card.appendChild(img);
 

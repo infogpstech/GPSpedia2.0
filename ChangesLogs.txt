@@ -1,3 +1,14 @@
+**V4.7.7 - (CRITICAL REGRESSION FIX) - 20/01/2026**
+**A. RESUMEN GENERAL:** Se corrigió un `SyntaxError` fatal en `ui.js` que fue introducido en el commit anterior. Este error impedía la carga completa de la aplicación, haciendo que se quedara congelada en la pantalla de carga (splash screen).
+
+**B. Cambios Implementados:**
+1.  **Corrección de Error de Sintaxis (`ui.js`):**
+    *   **Problema:** Una propiedad de un objeto (`ejemplo.imagenVehiculo`) fue dividida incorrectamente en dos líneas, rompiendo el parseo del script.
+    *   **Solución:** Se unificó la propiedad en una sola línea para corregir la sintaxis del código JavaScript.
+    *   **Líneas Afectadas en `ui.js`:** 601.
+
+**C. Impacto:**
+- **Funcionalidad Restaurada:** La aplicación ahora puede cargar y operar normalmente. Se ha restaurado la funcionalidad completa del catálogo.
 **V4.7.6 - (NAV BUG FIX) - 20/01/2026**
 **A. RESUMEN GENERAL:** Se corrigió un bug crítico en el flujo de navegación que ocurría después de realizar una búsqueda por modelo. El sistema ahora navega correctamente a la selección de año en lugar de retroceder en el flujo.
 
