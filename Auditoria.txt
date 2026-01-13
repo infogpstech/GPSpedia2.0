@@ -408,3 +408,34 @@ Se realizó una auditoría para identificar la causa de una regresión en el sis
 2.  **Acción Requerida:**
     *   **En `navigation.js`:** Eliminar la línea que crea `modelosUnicos`. La función `filtrarContenido` debe pasar la lista completa y sin filtrar de `datosFiltrados` a la capa de UI.
     *   **En `ui.js`:** Modificar la función `mostrarResultadosDeBusqueda` para que las tarjetas de resultado de modelo muestren información distintiva. El `overlay` de cada tarjeta debe incluir no solo el modelo y año, sino también la `versionesAplicables` o el `tipoEncendido`, permitiendo al usuario diferenciar entre las tarjetas.
+
+========================================
+AUDITORÍA - 23/01/2026 (ANIMACIÓN DE BARRA DE BÚSQUEDA)
+========================================
+
+**TAREA:** Replicar la animación de la barra de búsqueda de la v1.5.
+
+**ARCHIVOS REVISADOS:**
+- index.html
+- style.css
+- main.js
+- ui.js
+- navigation.js
+- Olds/GPSpedia 1.5/index.html (como referencia)
+
+**HALLAZGOS Y ANÁLISIS DE CAUSA RAÍZ:**
+1.  **Análisis de la Implementación Actual:**
+    - `style.css`: Contiene todas las reglas de CSS necesarias para la animación. La animación se controla mediante la adición de una clase `search-active` al elemento `<body>`. Cuando esta clase está presente, los estilos reajustan la altura de la barra de búsqueda, ocultan el encabezado y reposicionan el logo.
+    - `main.js`, `ui.js`, `navigation.js`: Una auditoría completa de los archivos JavaScript revela que, aunque existe la lógica para filtrar contenido (`navigation.filtrarContenido`), **no hay ningún código que añada o elimine la clase `search-active` del body**. Faltan los manejadores de eventos (`event listeners`) que deberían activar la animación.
+
+2.  **Análisis de la Implementación de Referencia (`Olds/GPSpedia 1.5/index.html`):**
+    - El archivo de referencia contiene un bloque `<script>` con la lógica de la animación.
+    - Se utilizan los eventos `focus` y `blur` en el elemento `#searchInput`.
+    - En el evento `focus`, se añade la clase `search-active` a `document.body`.
+    - En el evento `blur`, se elimina la clase `search-active` de `document.body` después de un breve `setTimeout`. Este retardo es crucial para permitir que un clic en un resultado de búsqueda se procese antes de que la interfaz se revierta.
+
+**CONCLUSIÓN DE LA AUDITORÍA:**
+La causa raíz del problema es clara y está localizada: la ausencia de los `event listeners` `focus` y `blur` en el JavaScript de la aplicación actual. La solución consiste en implementar esta lógica faltante, replicando el comportamiento de la versión de referencia.
+
+**ACCIÓN REQUERIDA (PROPUESTA):**
+Añadir los `event listeners` para `focus` y `blur` al `searchInput` dentro del archivo `main.js`, en la función `initializeApp`, donde se configuran otros listeners globales. Esto centralizará la lógica de eventos y resolverá el problema de animación.

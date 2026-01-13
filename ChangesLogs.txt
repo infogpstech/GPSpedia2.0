@@ -1,3 +1,18 @@
+**V4.8.2 - (UI/UX IMPROVEMENT) - 23/01/2026**
+**A. RESUMEN GENERAL:** Se implementó la animación de la barra de búsqueda para replicar el comportamiento de la v1.5, mejorando la experiencia de usuario, especialmente en dispositivos móviles.
+
+**B. Cambios Implementados:**
+1.  **Implementación de la Animación de Búsqueda (`main.js`):**
+    *   **Problema:** La barra de búsqueda no tenía ninguna animación al ser seleccionada, lo que dificultaba la visualización de resultados en pantallas pequeñas cuando el teclado virtual estaba activo.
+    *   **Solución:** Se añadieron dos nuevos `event listeners` al `searchInput` en la función `initializeApp`:
+        - `focus`: Añade la clase `search-active` al `<body>`, activando los estilos CSS que expanden la barra de búsqueda, ocultan el encabezado y reposicionan el logo.
+        - `blur`: Elimina la clase `search-active` del `<body>` con un retardo de 200ms, permitiendo que los clics en los resultados se registren antes de que la animación se revierta.
+    *   **Líneas Afectadas en `main.js`:** 42-56.
+
+**C. Impacto:**
+- **Experiencia de Usuario Mejorada:** La animación proporciona más espacio para los resultados de la búsqueda, evitando que el teclado en pantalla los oculte.
+- **Consistencia Visual:** El comportamiento de la barra de búsqueda ahora es consistente con la versión de referencia (`v1.5`), cumpliendo con los requisitos de diseño.
+
 **V4.8.1 - (AUTH STABILITY FIX) - 22/01/2026**
 **A. RESUMEN GENERAL:** Se implementó una corrección para un bug crítico que causaba el cierre inesperado de la sesión del usuario después de múltiples recargas de la página.
 
