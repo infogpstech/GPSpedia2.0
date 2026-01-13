@@ -1,4 +1,25 @@
 ========================================
+AUDITORÍA - 22/01/2026 (REGRESIÓN EN BOTÓN "REGRESAR")
+========================================
+
+**TAREA:** Corrección de la regresión en el botón "Regresar" del flujo de búsqueda.
+
+**ARCHIVOS REVISADOS:**
+- ui.js
+- navigation.js
+
+**HALLAZGOS:**
+1.  **Causa Raíz del Comportamiento Incorrecto en `ui.js`:**
+    - Se ha localizado el origen del bug en la función `mostrarResultadosDeBusqueda`.
+    - **Problema Específico:** La función está construyendo y mostrando un botón "Regresar" en la propia vista de resultados de búsqueda. La acción de este botón es `window.navigation.irAPaginaPrincipal()`.
+    - **Impacto:** Esto viola el flujo de navegación requerido. La página de resultados de búsqueda debe ser el nivel superior en el contexto de una búsqueda, y por lo tanto, **no debe contener un botón "Regresar"**. El botón que se muestra es el que debería aparecer en las pantallas *siguientes* del flujo para poder volver a la lista de resultados. La presencia de este botón en la vista de resultados es la causa de la confusión y el comportamiento incorrecto reportado por el usuario.
+
+2.  **Validación de Lógica Existente:**
+    - La lógica implementada en la `v4.7.8` para regresar *a* la búsqueda desde pantallas más profundas (como `mostrarVersiones`) es correcta. Las funciones `regresarABusqueda` en `ui.js` y el almacenamiento del `query` en el `navigationState` en `navigation.js` están funcionando como se espera. El problema no es cómo se regresa, sino el estado inicial de la página de resultados.
+
+**CONCLUSIÓN DE LA AUDITORÍA:**
+La solución es puntual y precisa. Se debe modificar la función `mostrarResultadosDeBusqueda` en `ui.js` para eliminar la línea de código que crea el botón "Regresar". Esto establecerá la página de resultados de búsqueda como el punto de partida correcto del flujo, permitiendo que la lógica de "Regresar" ya implementada en las pantallas subsecuentes funcione como se espera.
+========================================
 AUDITORÍA - 21/01/2026
 ========================================
 

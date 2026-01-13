@@ -1,3 +1,14 @@
+**V4.7.9 - (REGRESSION FIX) - 22/01/2026**
+**A. RESUMEN GENERAL:** Se corrigió una regresión en el flujo de búsqueda que mostraba incorrectamente un botón "Regresar" en la página de resultados.
+
+**B. Cambios Implementados:**
+1.  **Corrección de la Interfaz de Resultados de Búsqueda (`ui.js`):**
+    *   **Problema:** La función `mostrarResultadosDeBusqueda` añadía un botón "Regresar" a la vista de resultados. Esta vista debe ser el nivel superior del flujo de búsqueda y no debe permitir "regresar" a un estado anterior.
+    *   **Solución:** Se eliminó la línea de código que generaba el `span` del botón "Regresar" dentro de esta función. Ahora, la vista de resultados de búsqueda se presenta correctamente sin opciones de navegación hacia atrás, estableciéndola como el punto de partida del flujo.
+    *   **Líneas Afectadas en `ui.js`:** 549-550.
+
+**C. Impacto:**
+- **Flujo de Navegación Corregido:** El comportamiento del flujo de búsqueda ahora es el correcto. El botón "Regresar" solo aparecerá en las pantallas subsecuentes (ej. selección de año), y su acción devolverá correctamente al usuario a la lista de resultados de búsqueda, como se esperaba.
 **V4.7.8 - (NAV BUG FIX) - 21/01/2026**
 **A. RESUMEN GENERAL:** Se corrigió un bug en el flujo de navegación donde el botón "Regresar" no volvía a los resultados de la búsqueda, perdiendo el contexto del usuario.
 

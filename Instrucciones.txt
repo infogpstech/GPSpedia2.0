@@ -1,6 +1,16 @@
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
+1. CORRECCIÓN DE REGRESIÓN EN EL BOTÓN "REGRESAR" DE BÚSQUEDA
+Estado: PENDIENTE DE REVISIÓN POR EL PM
+Origen: Reporte de Bug de Regresión
+Prioridad: CRÍTICA
+Área: Frontend | Navegación | UX
+Archivos involucrados: ui.js
+
+Descripción:
+Se ha corregido una regresión que mostraba incorrectamente un botón "Regresar" en la página de resultados de búsqueda. Se eliminó dicho botón de la vista para asegurar que el flujo de navegación comience correctamente desde la lista de resultados.
+---
 1. CONSISTENCIA DEL BOTÓN "REGRESAR" EN BÚSQUEDA DE MODELOS
 Estado: PENDIENTE DE REVISIÓN POR EL PM
 Origen: Reporte de Bug de Flujo

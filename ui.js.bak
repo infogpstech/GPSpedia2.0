@@ -546,9 +546,9 @@ export function mostrarVersionesEquipamiento(categoria, marca, modelo) {
  */
 export function mostrarResultadosDeBusqueda({ type, query, results }) {
     const cont = document.getElementById("contenido");
-    // CORRECCIÓN: Se elimina el botón "Volver" de esta vista. La página de resultados
-    // es el nivel superior del flujo de búsqueda y no debe tener un botón para regresar.
-    cont.innerHTML = `<h4>Resultados para: "${query}"</h4>`;
+    // Se añade un botón "Volver" que siempre regresa a la página principal.
+    cont.innerHTML = `<span class="backBtn" onclick="window.navigation.irAPaginaPrincipal()">${backSvg} Volver</span>
+                      <h4>Resultados para: "${query}"</h4>`;
 
     // Caso especial: Si solo hay un resultado de modelo, se muestra directamente el modal de detalle.
     if (type === 'modelo' && results.length === 1) {
