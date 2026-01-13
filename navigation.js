@@ -83,5 +83,6 @@ export function filtrarContenido(textoBusqueda) {
         mostrarResultadosDeBusqueda({ type: 'modelo', query: textoBusqueda, results: datosFiltrados });
     }
 
-    setState({ navigationState: { level: "busqueda" } });
+    // Se guarda el término de búsqueda en el estado para permitir la navegación hacia atrás.
+    setState({ navigationState: { level: "busqueda", query: textoBusqueda } });
 }

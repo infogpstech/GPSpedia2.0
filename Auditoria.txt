@@ -1,4 +1,27 @@
 ========================================
+AUDITORÍA - 21/01/2026
+========================================
+
+**TAREA:** Consistencia del botón "Regresar" en la búsqueda de modelos.
+
+**ARCHIVOS REVISADOS:**
+- ui.js
+- navigation.js
+
+**HALLAZGOS:**
+1.  **Causa Raíz del Bug en el Flujo de Regreso:**
+    - El problema se origina por una gestión de estado incompleta durante el proceso de búsqueda.
+    - **En `navigation.js` (`filtrarContenido`):** Al realizar una búsqueda, la función establece el estado de navegación a `{ level: "busqueda" }`, pero omite guardar el término de búsqueda (`textoBusqueda`) en dicho estado.
+    - **En `ui.js` (`mostrarVersiones`):** Cuando se navega a la pantalla de selección de año desde un resultado de búsqueda, el `previousState.level` es "busqueda". La lógica que construye el botón "Regresar" no tiene un caso para manejar "busqueda".
+    - **Comportamiento Incorrecto:** Al no encontrar una coincidencia para el estado anterior, la función aplica un `fallback` incorrecto, generando un botón que regresa a la lista de modelos de la marca (`mostrarModelos`), en lugar de volver a los resultados de la búsqueda.
+
+**CONCLUSIÓN DE LA AUDITORÍA:**
+Para corregir el bug, se requiere un enfoque de dos partes:
+1.  **Modificar `navigation.js`:** Actualizar la función `filtrarContenido` para que almacene el término de búsqueda en el `navigationState` (ej. `{ level: "busqueda", query: textoBusqueda }`).
+2.  **Modificar `ui.js`:**
+    - Crear una nueva función, `regresarABusqueda`, que use el `query` guardado en el estado para volver a ejecutar `filtrarContenido` y mostrar los resultados de búsqueda.
+    - Actualizar la lógica del botón "Regresar" en `mostrarVersiones` para que, si `previousState.level` es "busqueda", llame a la nueva función `regresarABusqueda`.
+========================================
 AUDITORÍA - 20/01/2026 (REGRESIÓN CRÍTICA)
 ========================================
 

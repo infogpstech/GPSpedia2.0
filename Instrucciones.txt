@@ -1,6 +1,16 @@
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
+1. CONSISTENCIA DEL BOTÓN "REGRESAR" EN BÚSQUEDA DE MODELOS
+Estado: PENDIENTE DE REVISIÓN POR EL PM
+Origen: Reporte de Bug de Flujo
+Prioridad: MEDIA
+Área: Frontend | Navegación | UX
+Archivos involucrados: ui.js, navigation.js
+
+Descripción:
+Se ha corregido el bug que causaba que el botón "Regresar" no volviera a los resultados de la búsqueda. Se modificó el manejo de estado para incluir el término de búsqueda y se implementó una nueva función de retorno para reconstruir la vista de búsqueda.
+---
 1. CORRECCIÓN DE REGRESIÓN CRÍTICA (SYNTAXERROR)
 Estado: PENDIENTE DE REVISIÓN POR EL PM
 Origen: Reporte de Bug Crítico

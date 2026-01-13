@@ -1,3 +1,21 @@
+**V4.7.8 - (NAV BUG FIX) - 21/01/2026**
+**A. RESUMEN GENERAL:** Se corrigió un bug en el flujo de navegación donde el botón "Regresar" no volvía a los resultados de la búsqueda, perdiendo el contexto del usuario.
+
+**B. Cambios Implementados:**
+1.  **Preservación del Estado de Búsqueda (`navigation.js`):**
+    *   **Problema:** El término de búsqueda no se guardaba en el estado de la aplicación.
+    *   **Solución:** Se modificó la función `filtrarContenido` para que almacene el `query` de la búsqueda en el `navigationState`.
+    *   **Líneas Afectadas en `navigation.js`:** 86.
+
+2.  **Lógica de Regreso a la Búsqueda (`ui.js`):**
+    *   **Problema:** El botón "Regresar" no tenía una lógica para reconstruir la vista de búsqueda.
+    *   **Solución:**
+        a. Se creó una nueva función `regresarABusqueda` que vuelve a ejecutar el filtro con el `query` guardado en el estado.
+        b. Se actualizó la función `mostrarVersiones` para que, si detecta que la navegación proviene de una búsqueda, el botón "Regresar" invoque a `regresarABusqueda`.
+    *   **Líneas Afectadas en `ui.js`:** 450-453 (nueva condición), 478-489 (nueva función).
+
+**C. Impacto:**
+- **Consistencia de Navegación:** El botón "Regresar" ahora funciona de manera predecible, devolviendo al usuario a los resultados de su búsqueda y manteniendo el contexto de la navegación.
 **V4.7.7 - (CRITICAL REGRESSION FIX) - 20/01/2026**
 **A. RESUMEN GENERAL:** Se corrigió un `SyntaxError` fatal en `ui.js` que fue introducido en el commit anterior. Este error impedía la carga completa de la aplicación, haciendo que se quedara congelada en la pantalla de carga (splash screen).
 

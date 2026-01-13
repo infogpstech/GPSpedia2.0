@@ -444,9 +444,12 @@ export function mostrarVersiones(filas, categoria, marca, modelo) {
     const cont = document.getElementById("contenido");
 
     // Comentario: Lógica dinámica MEJORADA para el botón "Volver".
-    // Determina si el paso anterior fue la selección de tipo de encendido o de versión de equipamiento.
+    // Determina si el paso anterior fue una búsqueda, selección de tipo de encendido o de versión de equipamiento.
     let backAction;
-    if (previousState.level === 'tiposEncendido') {
+    if (previousState.level === 'busqueda') {
+        // Si venimos de una búsqueda, el botón debe regresar a los resultados de esa búsqueda.
+        backAction = `window.ui.regresarABusqueda()`;
+    } else if (previousState.level === 'tiposEncendido') {
         // Comentario: Se corrige el bug que pasaba 'null' como string.
         // Se asegura que si no hay versión de equipamiento, se pase el valor literal `null`.
         const veq = previousState.versionEquipamiento ? `'${previousState.versionEquipamiento}'` : null;
@@ -471,6 +474,21 @@ export function mostrarVersiones(filas, categoria, marca, modelo) {
         grid.appendChild(card);
     });
     cont.appendChild(grid);
+}
+
+/**
+ * Nueva función para reconstruir la vista de resultados de búsqueda.
+ * Utiliza el `query` guardado en el estado de navegación.
+ */
+export function regresarABusqueda() {
+    const { navigationState } = getState();
+    if (navigationState && navigationState.level === 'busqueda' && navigationState.query) {
+        // Vuelve a ejecutar la función de filtrado con el término de búsqueda guardado.
+        window.navigation.filtrarContenido(navigationState.query);
+    } else {
+        // Si por alguna razón el estado no es el esperado, regresa a la página principal como fallback.
+        window.navigation.irAPaginaPrincipal();
+    }
 }
 
 export function mostrarVersionesEquipamiento(categoria, marca, modelo) {
