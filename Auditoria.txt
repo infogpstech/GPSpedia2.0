@@ -1,4 +1,22 @@
 ========================================
+AUDITORÍA - 22/01/2026 (RE-AUDITORÍA DE REGRESIÓN)
+========================================
+
+**TAREA:** Corrección definitiva de la regresión en el botón "Regresar" del flujo de búsqueda.
+
+**ARCHIVOS REVISADOS:**
+- ui.js
+
+**HALLAZGOS (CAUSA RAÍZ DEFINITIVA):**
+1.  **Error de Lógica en `regresarABusqueda`:**
+    - La auditoría anterior fue incorrecta al asumir que el problema era la existencia de un botón "Regresar" en la vista de resultados. El problema real yace en la lógica de la función `regresarABusqueda`, que se invoca correctamente pero falla en su ejecución.
+    - **Línea 480:** La condición `if (navigationState && navigationState.level === 'busqueda' && navigationState.query)` es **incorrecta**.
+    - **Análisis:** Cuando el usuario está en la pantalla de "Años" (invocada por `mostrarVersiones`), el `navigationState` actual tiene un `level` de `"versiones"`. El estado de la búsqueda (`{level: 'busqueda', query: '...'}`) está anidado dentro de `navigationState.previousState`.
+    - **Impacto:** La condición siempre evalúa a `false` porque `navigationState.level` no es `'busqueda'`. Como resultado, la función ejecuta la lógica del bloque `else`, que incorrectamente llama a `window.navigation.irAPaginaPrincipal()`, devolviendo al usuario al inicio del catálogo en lugar de a sus resultados de búsqueda.
+
+**CONCLUSIÓN DE LA AUDITORÍA:**
+La causa raíz ha sido identificada de manera concluyente. La corrección debe realizarse exclusivamente en la función `regresarABusqueda` dentro de `ui.js`. La lógica debe ser modificada para que inspeccione el objeto `navigationState.previousState` para verificar el nivel y obtener el término de búsqueda, en lugar de inspeccionar el objeto `navigationState` de nivel superior.
+========================================
 AUDITORÍA - 22/01/2026 (REGRESIÓN EN BOTÓN "REGRESAR")
 ========================================
 

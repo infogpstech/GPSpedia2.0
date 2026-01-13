@@ -1,6 +1,16 @@
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
+1. CORRECCIÓN DEFINITIVA DE REGRESIÓN EN NAVEGACIÓN DE BÚSQUEDA
+Estado: PENDIENTE DE REVISIÓN POR EL PM
+Origen: Reporte de Bug de Regresión Persistente
+Prioridad: CRÍTICA
+Área: Frontend | Navegación | Estado
+Archivos involucrados: ui.js
+
+Descripción:
+Se ha implementado la corrección definitiva para el bug del botón "Regresar" en la búsqueda. La función `regresarABusqueda` fue refactorizada para inspeccionar el `previousState` anidado en el estado de navegación, asegurando que se utilice el término de búsqueda original para reconstruir la vista de resultados.
+---
 1. CORRECCIÓN DE REGRESIÓN EN EL BOTÓN "REGRESAR" DE BÚSQUEDA
 Estado: PENDIENTE DE REVISIÓN POR EL PM
 Origen: Reporte de Bug de Regresión
@@ -55,7 +65,7 @@ NORMAS OBLIGATORIAS DE DESARROLLO
 3.**prohibido resumir o utilizar sumarizacion "(Sin Cambios)" EN NINGUN ARCHIVO DE CODIGO, DOCUMENTACIÓN O DE REGLAMENTO.
 4. PROHIBIDO REVERTIR COMMITS SIN LA SOLICITUD DEL PM.
 5. PROHIBIDO USAR HERRAMIENTAS BUSQUEDA, EDICION RAPIDA, TODA BUSQUESA, REVISION DEBE SER LINEA POR LINEA DE ARCHIVO POR ARCHIVO.
-6. OBLIGATORIO AUDITAR CADA ARCHIVO DE CODIGO ANTES DE CUALQUIER MODIFICACION POR MUY PEQUEÑA QUE SEA CADA HALLAZGO NO DEBE SER REPARADO EN EL MOMENTO DE AUDITORIA, DEBE DE REGISTRARSE EN Auditoria.txt Y DESPUES PLANTEARSE COMO UNA NUEVA TAREA EN Instrucciones.txt.
+6. OBLIGATORIO AUDITAR CADA ARCHIVO DE CODIGO ANTES DE CUALQUIER MODIFICacion POR MUY PEQUEÑA QUE SEA CADA HALLAZGO NO DEBE SER REPARADO EN EL MOMENTO DE AUDITORIA, DEBE DE REGISTRARSE EN Auditoria.txt Y DESPUES PLANTEARSE COMO UNA NUEVA TAREA EN Instrucciones.txt.
 7. PROHIBIDO DUPLICAR BLOQUES DE CODIGO, POR ELLO ES LA AUDITORIA INICIAL.
 8. PROHIBIDO INVENTARSE LA FECHA EN ChangesLogs.txt USAR DE REFERENCIA LA FECHA DE LA ULTIMA ENTRADA DE ChangesLogs.txt
 9. No asumir que cualquier fix registrado en ChangesLogs.txt fue exitoso.
@@ -274,7 +284,7 @@ REGLAS ESPECIALES DE RESULTADOS
   - Insensibilidad a mayúsculas y minúsculas.
 
 ----------------------------------------
-NAVEGACIÓN Y UX (OBLIGATORIO)
+NAVEGACIÓN E UX (OBLIGATORIO)
 ----------------------------------------
 
 - Todos los resultados deben:

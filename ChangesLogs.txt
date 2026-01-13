@@ -1,3 +1,14 @@
+**V4.8.0 - (DEFINITIVE NAV FIX) - 22/01/2026**
+**A. RESUMEN GENERAL:** Se implementó una corrección definitiva a una regresión persistente en el flujo de navegación de búsqueda. El botón "Regresar" ahora devuelve consistentemente al usuario a la lista de resultados de búsqueda.
+
+**B. Cambios Implementados:**
+1.  **Corrección de Lógica de Estado en `regresarABusqueda` (`ui.js`):**
+    *   **Problema:** La función `regresarABusqueda` estaba inspeccionando el estado de navegación actual (`navigationState`) en lugar del estado anidado (`navigationState.previousState`). Esto causaba que no se encontrara el contexto de la búsqueda y se ejecutara un retorno incorrecto a la página principal.
+    *   **Solución:** Se refactorizó la función para que acceda al objeto `previousState`. Ahora comprueba `previousState.level` y extrae el término de búsqueda de `previousState.query`, asegurando que la vista de resultados de búsqueda se reconstruya utilizando el contexto correcto.
+    *   **Líneas Afectadas en `ui.js`:** 480-488.
+
+**C. Impacto:**
+- **Estabilidad del Flujo de Búsqueda:** El comportamiento del botón "Regresar" en el flujo de búsqueda es ahora robusto y predecible. Se ha eliminado la regresión, asegurando que los usuarios no pierdan el contexto de su búsqueda al navegar por los resultados.
 **V4.7.9 - (REGRESSION FIX) - 22/01/2026**
 **A. RESUMEN GENERAL:** Se corrigió una regresión en el flujo de búsqueda que mostraba incorrectamente un botón "Regresar" en la página de resultados.
 

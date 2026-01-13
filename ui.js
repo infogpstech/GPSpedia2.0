@@ -482,11 +482,16 @@ export function mostrarVersiones(filas, categoria, marca, modelo) {
  */
 export function regresarABusqueda() {
     const { navigationState } = getState();
-    if (navigationState && navigationState.level === 'busqueda' && navigationState.query) {
-        // Vuelve a ejecutar la función de filtrado con el término de búsqueda guardado.
-        window.navigation.filtrarContenido(navigationState.query);
+    // CORRECCIÓN DEFINITIVA: La lógica ahora inspecciona el `previousState` anidado.
+    // Cuando se llama a esta función, el estado actual es 'versiones', pero el estado
+    // que contiene la información de la búsqueda es el 'previousState'.
+    const prevState = navigationState ? navigationState.previousState : null;
+
+    if (prevState && prevState.level === 'busqueda' && prevState.query) {
+        // Vuelve a ejecutar la función de filtrado con el término de búsqueda guardado en el estado anterior.
+        window.navigation.filtrarContenido(prevState.query);
     } else {
-        // Si por alguna razón el estado no es el esperado, regresa a la página principal como fallback.
+        // Si el estado anterior no es de búsqueda, regresa a la página principal como fallback seguro.
         window.navigation.irAPaginaPrincipal();
     }
 }
