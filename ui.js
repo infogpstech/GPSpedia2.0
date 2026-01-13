@@ -573,8 +573,10 @@ export function mostrarResultadosDeBusqueda({ type, query, results }) {
 
             const overlay = document.createElement("div");
             overlay.className = "overlay";
-            const yearRange = ejemplo.anoHasta ? `${ejemplo.anoDesde} - ${ejemplo.anoHasta}` : ejemplo.anoDesde;
-            overlay.innerHTML = `<div>${ejemplo.marca} ${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8;">${yearRange || ''}</div>`;
+            // Se añade la versión o tipo de encendido al texto de la tarjeta para diferenciar resultados.
+            const anio = ejemplo.anoHasta ? `${ejemplo.anoDesde} - ${ejemplo.anoHasta}` : ejemplo.anoDesde;
+            const diferenciador = ejemplo.versionesAplicables || ejemplo.tipoEncendido || '';
+            overlay.innerHTML = `<div>${ejemplo.marca} ${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8;">${anio} (${diferenciador})</div>`;
             card.appendChild(overlay);
             grid.appendChild(card);
         });

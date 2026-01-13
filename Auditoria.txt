@@ -245,3 +245,16 @@ Se realizó una auditoría del flujo de búsqueda global para abordar la Tarea 2
     *   **En `navigation.js`:** Se debe refactorizar `filtrarContenido` para que, después de filtrar los datos, realice un análisis de los resultados para determinar el tipo de coincidencia (marca, modelo, año, mixta).
     *   **En `ui.js`:** Se deben crear nuevas funciones de renderizado o adaptar las existentes para mostrar correctamente los resultados según su tipo (tarjetas de modelo para búsquedas de modelo, etc.).
     *   **Integración del Flujo:** La navegación desde los resultados de búsqueda debe ser redirigida para usar las funciones de navegación estándar (ej. `navegarADetallesDeModelo`), asegurando la consistencia y la funcionalidad de los botones "Volver".
+
+---
+**R. AUDITORÍA DE REGRESIÓN EN BÚSQUEDA DE MODELOS (FECHA ACTUAL)**
+-----------------------------------------------------------------
+Se realizó una auditoría para identificar la causa de una regresión en el sistema de búsqueda, donde una búsqueda de un modelo con múltiples versiones abre incorrectamente el modal de detalle del primer resultado.
+
+1.  **Causa Raíz del Bug:**
+    *   **Hallazgo:** La refactorización anterior introdujo una lógica de de-duplicación demasiado agresiva en `navigation.js`. La línea `const modelosUnicos = [...new Map(datosFiltrados.map(item => [\`${item.marca}-${item.modelo}\`, item])).values()];` elimina todas las variantes de un mismo modelo, conservando solo la primera que encuentra.
+    *   **Impacto:** Cuando se busca un modelo que tiene diferentes versiones o tipos de encendido, el sistema los agrupa incorrectamente como un único resultado. Esto, combinado con la regla de negocio que abre el modal para resultados únicos, causa que se muestre el detalle del primer vehículo, impidiendo al usuario ver y seleccionar las otras variantes.
+
+2.  **Acción Requerida:**
+    *   **En `navigation.js`:** Eliminar la línea que crea `modelosUnicos`. La función `filtrarContenido` debe pasar la lista completa y sin filtrar de `datosFiltrados` a la capa de UI.
+    *   **En `ui.js`:** Modificar la función `mostrarResultadosDeBusqueda` para que las tarjetas de resultado de modelo muestren información distintiva. El `overlay` de cada tarjeta debe incluir no solo el modelo y año, sino también la `versionesAplicables` o el `tipoEncendido`, permitiendo al usuario diferenciar entre las tarjetas.

@@ -1,3 +1,21 @@
+**V4.7.5 - (REGRESSION FIX) - 16/01/2026**
+**A. RESUMEN GENERAL:** Se corrigió un bug de regresión crítico en el sistema de búsqueda que provocaba que, al buscar un modelo con múltiples versiones, se abriera incorrectamente el modal de detalle del primer resultado en lugar de mostrar todas las opciones disponibles.
+
+**B. Cambios Implementados:**
+1.  **Eliminación de De-duplicación Agresiva (`navigation.js`):**
+    *   **Problema:** La lógica de búsqueda agrupaba incorrectamente todas las variantes de un mismo modelo, tratando múltiples resultados como si fueran uno solo.
+    *   **Solución:** Se eliminó la línea de código que creaba `modelosUnicos`, asegurando que la lista completa de vehículos filtrados, con todas sus variantes, sea pasada a la capa de renderizado.
+    *   **Líneas Afectadas en `navigation.js`:** 82-83.
+
+2.  **Mejora de la Claridad en Resultados (`ui.js`):**
+    *   **Problema:** Las tarjetas de resultado no mostraban información que permitiera diferenciar entre múltiples versiones de un mismo modelo.
+    *   **Solución:** Se modificó la función `mostrarResultadosDeBusqueda` para que el texto de cada tarjeta de modelo incluya la `versionesAplicables` o el `tipoEncendido`, además del nombre y el año.
+    *   **Líneas Afectadas en `ui.js`:** 576-579.
+
+**C. Impacto:**
+- **Funcionalidad Restaurada:** El sistema de búsqueda ahora muestra correctamente todas las variantes disponibles para un modelo, permitiendo al usuario ver y seleccionar la opción deseada.
+- **Experiencia de Usuario Mejorada:** Las tarjetas de resultados son más informativas, evitando la confusión cuando un mismo modelo tiene múltiples configuraciones.
+
 **V4.7.4 - (CRITICAL FEATURE REFACTOR) - 16/01/2026**
 **A. RESUMEN GENERAL:** Se realizó una refactorización profunda y estructural del sistema de búsqueda global para corregir inconsistencias graves y alinearlo con los requisitos funcionales. La nueva implementación distingue correctamente entre búsquedas por marca, modelo y año, y asegura que la navegación sea consistente y reversible.
 

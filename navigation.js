@@ -79,8 +79,8 @@ export function filtrarContenido(textoBusqueda) {
         mostrarResultadosDeBusqueda({ type: 'marca', query: textoBusqueda, results: uniqueMarcasEnResultados });
     } else {
         // En todos los demás casos (modelo, año, mixto), se muestran tarjetas de modelo.
-        const modelosUnicos = [...new Map(datosFiltrados.map(item => [`${item.marca}-${item.modelo}`, item])).values()];
-        mostrarResultadosDeBusqueda({ type: 'modelo', query: textoBusqueda, results: modelosUnicos });
+        // Se elimina la de-duplicación para mostrar todas las versiones.
+        mostrarResultadosDeBusqueda({ type: 'modelo', query: textoBusqueda, results: datosFiltrados });
     }
 
     setState({ navigationState: { level: "busqueda" } });
