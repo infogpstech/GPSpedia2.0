@@ -647,7 +647,14 @@ export function mostrarDetalleModal(item) {
     headerDiv.style.cssText = "display: flex; justify-content: flex-end; align-items: center; margin-bottom: 10px;";
     const closeBtn = document.createElement("button");
     closeBtn.innerHTML = "&times;";
-    closeBtn.onclick = () => document.getElementById("modalDetalle").classList.remove("visible");
+    closeBtn.onclick = () => {
+        // Detener cualquier video de YouTube que se esté reproduciendo en el modal
+        const iframe = cont.querySelector('iframe');
+        if (iframe && iframe.contentWindow) {
+            iframe.contentWindow.postMessage('{"event":"command","func":"stopVideo","args":""}', '*');
+        }
+        document.getElementById("modalDetalle").classList.remove("visible");
+    };
     closeBtn.className = "info-close-btn";
     closeBtn.style.cssText = "position: static; font-size: 1.8em; padding: 0 10px;";
     headerDiv.appendChild(closeBtn);
@@ -1038,12 +1045,17 @@ function createAccordionSection(container, title, sec, isOpen = false, datosRela
     }
 
     if (sec.videoUrl) {
-        const videoLink = document.createElement('a');
-        videoLink.href = sec.videoUrl;
-        videoLink.target = '_blank';
-        videoLink.textContent = 'Ver Video Guía en YouTube';
-        videoLink.style.cssText = "display: block; margin-top: 10px; color: #007bff; font-weight: bold;";
-        panel.appendChild(videoLink);
+        const videoContainer = document.createElement('div');
+        // Asegurar que el ID del iframe sea único para evitar conflictos
+        const iframeId = `video-${Date.now()}`;
+        // Convertir URL de visualización a URL de inserción y añadir parámetros de API
+        const videoEmbedUrl = sec.videoUrl.replace("watch?v=", "embed/") + '?enablejsapi=1';
+
+        videoContainer.innerHTML = `<iframe id="${iframeId}" width="100%" height="315" src="${videoEmbedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 8px; margin-top: 10px;"></iframe>`;
+        panel.appendChild(videoContainer);
+
+        // Guardar la referencia al iframe en el botón para fácil acceso
+        btn.dataset.iframeId = iframeId;
     }
 
     container.appendChild(btn);
@@ -1056,8 +1068,15 @@ function createAccordionSection(container, title, sec, isOpen = false, datosRela
 
     btn.addEventListener("click", function() {
         this.classList.toggle("active");
+        const iframeId = this.dataset.iframeId;
+        const iframe = iframeId ? document.getElementById(iframeId) : null;
+
         if (panel.style.maxHeight) {
             panel.style.maxHeight = null;
+            // Si hay un video y el panel se está cerrando, pausar el video.
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+            }
         } else {
             panel.style.maxHeight = panel.scrollHeight + "px";
         }

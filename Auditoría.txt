@@ -1,0 +1,33 @@
+AUDITORÍA DE CÓDIGO
+======================
+
+Este documento registra los hallazgos de las auditorías de código realizadas como parte del proceso de desarrollo.
+
+--------------------------------------------------
+**FECHA:** 2024-08-01
+
+**AUDITOR:**
+Jules
+
+**ARCHIVOS AUDITADOS:**
+- `style.css`
+- `index.html`
+- `ui.js`
+- `main.js`
+- `navigation.js`
+
+**HALLAZGOS:**
+
+1.  **Archivo: `style.css`**
+    *   **Líneas 371-387 (`body.search-active` rules):** La animación para ocultar elementos durante la búsqueda activa es abrupta. Utiliza propiedades como `max-height: 0` y `!important` que colapsan el layout de forma instantánea en lugar de permitir una transición suave. Esto causa que los botones de sección interfieran visualmente con la barra de búsqueda antes de desaparecer.
+    *   **Líneas 166 (`.search-container`) y 105 (inline style en `index.html`):** Se identificó un exceso de espacio vertical alrededor de la barra de búsqueda debido a `margin-bottom: 30px` y `padding: 10px 0` en `.search-container`, además de un `margin-bottom: 20px` en el elemento `#search-wrapper` en `index.html`. Estos valores combinados reducen el espacio disponible para los resultados de búsqueda.
+    *   **Líneas 371-387 (`body.search-active` rules):** El botón de hamburguesa (`#hamburger-btn`) es afectado por las mismas reglas de animación abruptas que los botones de sección, provocando que no se oculte de forma consistente o suave.
+
+2.  **Archivo: `ui.js`**
+    *   **Línea 1045 (`createAccordionSection` function):** La lógica para la "Vídeo Guía de Desarme" actualmente solo genera un enlace (`<a>`) a la URL del video. No hay un reproductor de video embebido, lo cual es necesario para cumplir con los requisitos.
+    *   **Línea 1061 (`btn.addEventListener`):** El listener del acordeón no tiene lógica para controlar la reproducción de video. Si se implementa un iframe, es necesario añadir aquí la funcionalidad para pausar el video cuando el acordeón se colapsa.
+    *   **Línea 650 (`mostrarDetalleModal` function):** El botón para cerrar el modal de detalle no tiene funcionalidad para detener un video que se esté reproduciendo. Si se añade un video, este continuará reproduciéndose en segundo plano después de cerrar el modal si no se implementa una lógica de detención.
+
+3.  **Archivo: `index.html`**
+    *   **Línea 105 (`#search-wrapper`):** El `margin-bottom: 20px` contribuye al exceso de espaciado vertical identificado en la auditoría de `style.css`.
+--------------------------------------------------

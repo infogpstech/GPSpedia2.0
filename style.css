@@ -164,8 +164,8 @@ h1.app-title {
 /* --- ESTILOS DEL BUSCADOR --- */
 .search-container {
     position: relative; /* Contenedor para el botón de limpiar */
-    margin-bottom: 30px;
-    padding: 10px 0;
+    margin-bottom: 0; /* Controlado por #search-wrapper */
+    padding: 0; /* Reducido para compactar */
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
@@ -369,18 +369,19 @@ input:checked + .slider:before {
 /* --- ESTILOS DE BÚSQUEDA ACTIVA --- */
 body.search-active .app-title,
 body.search-active #header-controls,
-body.search-active #hamburger-btn,
-body.search-active .section-selector,
 body.search-active .footer {
     opacity: 0;
     visibility: hidden;
     transform: translateY(-20px);
-    max-height: 0; /* Colapsa el espacio vertical */
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    border: none !important;
+}
+
+/* Transición específica para los botones que deben ocultarse suavemente */
+body.search-active #hamburger-btn,
+body.search-active .section-selector {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-20px);
+    pointer-events: none; /* Asegura que no se pueda interactuar con ellos mientras están ocultos */
 }
 
 body.search-active #search-wrapper {

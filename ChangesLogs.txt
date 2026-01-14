@@ -1,3 +1,36 @@
+**V4.8.5 - (UX/UI & FUNCTIONAL FIX) - 25/01/2026**
+**A. RESUMEN GENERAL:** Se implementaron múltiples ajustes en la interfaz de usuario para mejorar las animaciones de la barra de búsqueda, optimizar el espaciado y corregir la funcionalidad del modal de detalle para incluir una video guía interactiva.
+
+**B. Cambios Implementados:**
+
+1.  **Suavizado de Animación de Búsqueda (`style.css`):**
+    *   **Problema:** Los elementos del encabezado (botones de sección, menú hamburguesa) desaparecían de forma abrupta al activar la búsqueda.
+    *   **Solución:** Se modificaron las reglas de CSS bajo `body.search-active`. Se eliminaron las propiedades que causaban un colapso instantáneo del layout (ej. `max-height: 0`, `!important`) y se refinaron las propiedades `opacity` y `transform` para asegurar una transición de desvanecimiento y deslizamiento suave y visualmente agradable.
+    *   **Líneas Afectadas en `style.css`:** 371-383.
+
+2.  **Reducción de Espaciado Vertical (`style.css`, `index.html`):**
+    *   **Problema:** Existía un espacio vertical excesivo alrededor de la barra de búsqueda, reduciendo el área visible para los resultados.
+    *   **Solución:**
+        *   En `style.css`, se eliminó el `margin-bottom` y `padding` del selector `.search-container`.
+        *   En `index.html`, se redujo el `margin-bottom` del `div` contenedor `#search-wrapper` de `20px` a `10px`.
+    *   **Líneas Afectadas en `style.css`:** 166-167.
+    *   **Líneas Afectadas en `index.html`:** 105.
+
+3.  **Implementación de Video Guía en Modal (`ui.js`):**
+    *   **Problema:** El modal de detalle solo mostraba un enlace al video en lugar de un reproductor embebido.
+    *   **Solución:** Se modificó la función `createAccordionSection`. Ahora, en lugar de un enlace, genera un `<iframe>` de YouTube, añadiendo el parámetro `?enablejsapi=1` a la URL para permitir el control mediante JavaScript.
+    *   **Líneas Afectadas en `ui.js`:** 1039-1050.
+
+4.  **Control de Reproducción de Video (`ui.js`):**
+    *   **Problema:** El video continuaría reproduciéndose si el acordeón se cerraba o si el modal se cerraba.
+    *   **Solución:**
+        *   Se añadió lógica al `event listener` del botón del acordeón para que, al colapsar la sección, envíe un comando `pauseVideo` al `iframe` a través de `postMessage`.
+        *   Se modificó el `onclick` del botón de cerrar del modal (`mostrarDetalleModal`) para que envíe un comando `stopVideo` al `iframe`, deteniendo completamente la reproducción al salir.
+    *   **Líneas Afectadas en `ui.js`:** 1061-1072 (pausa), 650-656 (detención).
+
+**C. Impacto:**
+- **Mejora de la Experiencia de Usuario (UX):** Las animaciones de búsqueda son ahora más fluidas y el layout más compacto, mejorando la interacción general.
+- **Funcionalidad Corregida:** El modal de detalle ahora muestra correctamente la video guía en un reproductor interactivo que respeta las acciones del usuario, funcionando como se esperaba.
 **V4.8.4 - (UI/UX FIX) - 24/01/2026**
 **A. RESUMEN GENERAL:** Se implementó una corrección definitiva al problema de espaciado en la animación de la barra de búsqueda, eliminando completamente el espacio vertical entre la barra y los resultados.
 
@@ -118,7 +151,7 @@
     *   **Problema:** Al buscar un modelo, la UI mostraba incorrectamente tarjetas para cada año. Al hacer clic en una, el flujo retrocedía a la selección de versión de equipamiento.
     *   **Solución:** Se refactorizó la función `mostrarResultadosDeBusqueda`. Ahora:
         a. Agrupa los resultados para mostrar una única tarjeta por cada variante de modelo (ej. "CR-V Touring").
-        b. El `onclick` de cada tarjeta ahora lleva directamente a la selección de año para esa variante específica, alineando el comportamiento de la búsqueda con el de la navegación principal.
+        b. El `onclick` de cada tarjeta ahora lleva directamente a la selección de año para esa variante específica, alineando el comportamiento de la búsqueda con el de la navegación por categorías o marcas.
     *   **Líneas Afectadas en `ui.js`:** 570-607.
 
 **C. Impacto:**
