@@ -40,11 +40,10 @@ async function initializeApp() {
         navigation.filtrarContenido(searchInput.value);
     });
 
-    // Event listeners to control search bar animation
+    // Event listeners for search animation
     searchInput.addEventListener('focus', () => {
         document.body.classList.add('search-active');
     });
-
     searchInput.addEventListener('blur', () => {
         document.body.classList.remove('search-active');
     });

@@ -1,17 +1,7 @@
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-1. IMPLEMENTAR ANIMACIÓN FLUIDA PARA LA BARRA DE BÚSQUEDA
-Estado: PENDIENTE DE REVISIÓN POR EL PM
-Origen: Feedback de UX
-Prioridad: ALTA
-Área: Frontend | UI | Animación
-Archivos involucrados: style.css, main.js
-
-Descripción:
-Se ha implementado una animación de búsqueda mediante CSS. Al hacer foco en el campo de búsqueda, el contenedor principal (`.container`) se desplaza hacia arriba con `transform: translateY()`, y la barra de búsqueda permanece fija en la parte superior gracias a `position: sticky`. Se añadió la propiedad `transition` al `.container` para asegurar que el movimiento sea fluido. El código JavaScript se limita a alternar la clase `.search-active` en el `body` para controlar el estado de la animación.
-
-2. INVESTIGAR CIERRE DE SESIÓN INESPERADO TRAS REFRESH
+1. INVESTIGAR CIERRE DE SESIÓN INESPERADO TRAS REFRESH
 Estado: PENDIENTE DE REVISIÓN POR EL PM
 Origen: Reporte de Bug
 Prioridad: CRÍTICA
