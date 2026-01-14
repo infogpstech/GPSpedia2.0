@@ -41,38 +41,18 @@ async function initializeApp() {
     });
 
     // --- LÓGICA DE ANIMACIÓN DE LA BARRA DE BÚSQUEDA ---
-    const searchContainer = document.querySelector('.search-container');
-
     // Añade la clase 'search-active' al body cuando el input gana el foco.
     searchInput.addEventListener('focus', () => {
-        const rect = searchContainer.getBoundingClientRect();
-
-        searchContainer.style.setProperty('--start-top', `${rect.top}px`);
-        searchContainer.style.setProperty('--start-left', `${rect.left}px`);
-        searchContainer.style.setProperty('--start-width', `${rect.width}px`);
-        searchContainer.style.setProperty('--start-height', `${rect.height}px`);
-
-        searchContainer.classList.add('animating');
-
-        requestAnimationFrame(() => {
-            document.body.classList.add('search-active');
-        });
+        document.body.classList.add('search-active');
     });
 
     // Elimina la clase 'search-active' del body cuando el input pierde el foco.
+    // Se utiliza un setTimeout para permitir que los eventos de clic en los resultados de búsqueda se registren
+    // antes de que la UI se revierta a su estado normal.
     searchInput.addEventListener('blur', () => {
         setTimeout(() => {
             document.body.classList.remove('search-active');
-
-            searchContainer.addEventListener('transitionend', () => {
-                searchContainer.classList.remove('animating');
-                searchContainer.style.removeProperty('--start-top');
-                searchContainer.style.removeProperty('--start-left');
-                searchContainer.style.removeProperty('--start-width');
-                searchContainer.style.removeProperty('--start-height');
-            }, { once: true });
-
-        }, 200); // Retardo para permitir clics en resultados
+        }, 200); // 200ms de retardo
     });
 
 

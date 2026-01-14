@@ -1,25 +1,3 @@
-**V4.8.5 - (UI/UX ANIMATION FIX) - 24/01/2026**
-**A. RESUMEN GENERAL:** Se implementó una corrección definitiva a la animación de la barra de búsqueda para lograr una transición fluida, eliminando el "salto" visual que ocurría al activarla y desactivarla.
-
-**B. Cambios Implementados:**
-1.  **Orquestación Avanzada de la Animación (`main.js`):**
-    *   **Problema:** La implementación anterior no lograba una transición suave porque el cambio de la propiedad `position` en CSS no es animable de forma directa.
-    *   **Solución:** Se refactorizó la lógica de los `event listeners` `focus` y `blur` para forzar un estado inicial y final claro para la transición:
-        - **`focus`**: Se captura la geometría inicial del buscador (`getBoundingClientRect`) y se almacena en variables CSS. Se añade una clase `.animating` para posicionar el elemento de forma `fixed` en su lugar actual. Usando `requestAnimationFrame`, se asegura que el navegador renderice este estado inicial antes de añadir la clase `search-active` que dispara la animación a su estado final.
-        - **`blur`**: Se elimina la clase `search-active` para iniciar la animación de retorno. Un listener `transitionend` ahora se encarga de eliminar la clase `.animating` y limpiar las variables CSS, devolviendo el elemento al flujo normal del documento.
-    *   **Líneas Afectadas en `main.js`:** 42-79.
-
-2.  **Lógica de Animación Declarativa en CSS (`style.css`):**
-    *   **Problema:** El CSS carecía de un estado inicial definido para la animación.
-    *   **Solución:**
-        - Se añadió una nueva regla, `.search-container.animating`, que define el estado "desde" el cual animar, usando `position: fixed` y las variables CSS para replicar la posición y tamaño originales.
-        - La regla existente `body.search-active .search-container` ahora actúa como el estado "hacia" el cual animar. La transición entre estas dos reglas, orquestada por JavaScript, produce el efecto de deslizamiento fluido.
-    *   **Líneas Afectadas en `style.css`:** 409-416 (nueva regla).
-
-**C. Impacto:**
-- **Experiencia de Usuario Mejorada:** La animación ahora es fluida, profesional y consistente con el resto de las transiciones de la interfaz, mejorando significativamente la sensación visual de la aplicación.
-- **Calidad de la Interfaz:** Se ha eliminado un comportamiento visualmente discordante, resultando en una UI más pulida y refinada.
-
 **V4.8.4 - (UI/UX FIX) - 24/01/2026**
 **A. RESUMEN GENERAL:** Se implementó una corrección definitiva al problema de espaciado en la animación de la barra de búsqueda, eliminando completamente el espacio vertical entre la barra y los resultados.
 
