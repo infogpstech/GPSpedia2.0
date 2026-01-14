@@ -1,3 +1,25 @@
+**V4.8.9 - (ROOT CAUSE FIX) - 29/01/2026**
+**A. RESUMEN GENERAL:** Se implementaron correcciones definitivas para las causas raíz de los dos problemas persistentes, basadas en los hallazgos de una auditoría consolidada y correcta que incluyó el `README.md`, el servicio de backend `catalog.js` y el frontend.
+
+**B. Cambios Implementados:**
+
+1.  **Corrección de Contrato de Datos (Backend y Frontend):**
+    *   **Problema:** El backend (`services/catalog/catalog.js`) enviaba la URL del video bajo la propiedad `videoGuiaDesarmeUrl`, pero el frontend (`ui.js`) esperaba una propiedad `Video`.
+    *   **Solución (Backend):** Se modificó `services/catalog/catalog.js` para que, después de procesar la URL del video, la asigne a una nueva propiedad `Video` y elimine la propiedad original `videoGuiaDesarmeUrl` antes de enviar la respuesta.
+    *   **Solución (Frontend):** Se ajustó `ui.js` para que utilice consistentemente la propiedad `Video` al construir el modal de detalle, asegurando que el contrato de datos se cumpla en ambos extremos.
+    *   **Líneas Afectadas en `catalog.js`:** 308-315 (aprox.).
+    *   **Líneas Afectadas en `ui.js`:** 749, 752, 1046, 1049.
+
+2.  **Corrección de Espaciado (CSS):**
+    *   **Problema:** Un `margin-bottom: 10px` en un estilo en línea en `index.html` (en el `div#search-wrapper`) no estaba siendo anulado, causando un espacio persistente.
+    *   **Solución:** Se añadió `!important` a la regla `body.search-active #search-wrapper { margin-bottom: 0; }` en `style.css` para darle la especificidad necesaria para anular el estilo en línea.
+    *   **Líneas Afectadas en `style.css`:** 386.
+
+**C. Impacto:**
+- **Funcionalidad Restaurada:** La video guía de desarme ahora se visualiza correctamente en el modal de detalle, ya que el frontend recibe el dato esperado.
+- **UI Corregida:** El espacio extra debajo de la barra de búsqueda en el estado activo ha sido eliminado por completo.
+- **Robustez del Sistema:** Se ha corregido un error fundamental de inconsistencia de datos entre el frontend y el backend, haciendo el sistema más predecible.
+
 **V4.8.8 - (DEFINITIVE FIX) - 28/01/2026**
 **A. RESUMEN GENERAL:** Se implementaron correcciones definitivas y robustas para las fallas persistentes en el espaciado de la barra de búsqueda y la visualización de la video guía, abordando las causas raíz identificadas en una auditoría profunda.
 

@@ -385,7 +385,7 @@ body.search-active .section-selector {
 }
 
 body.search-active #search-wrapper {
-    margin-bottom: 0; /* Elimina el margen inferior del contenedor del buscador */
+    margin-bottom: 0 !important; /* Anula el estilo en línea para eliminar el espacio */
     transition: margin-bottom 0.35s ease-in-out;
 }
 

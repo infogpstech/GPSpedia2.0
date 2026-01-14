@@ -265,3 +265,60 @@ AUDITORÍA - 2024-08-04 (IN-DEPTH AUDIT POST-FAILURE)
 
 **CONCLUSIÓN DE LA AUDITORÍA PROFUNDA:**
 Se han identificado las causas raíz definitivas. El problema del espaciado es un efecto aditivo de CSS, y el del video es una condición de carrera clásica en el manejo de iframes. Las correcciones deben abordar estos problemas específicos.
+========================================
+AUDITORÍA - 2024-08-05 (AUDITORÍA EXCLUSIVA DE BACKEND)
+========================================
+
+**TAREA:** Verificar la correcta entrega del campo de la video guía desde el backend.
+
+**ARCHIVOS REVISADOS:**
+- Code.gs
+
+**HALLAZGOS Y ANÁLISIS DE CAUSA RAÍZ:**
+
+1.  **Análisis de `Code.gs`:**
+    *   **Hallazgo Crítico:** El archivo `Code.gs` es un servicio **legacy** post-migración. Su única y exclusiva funcionalidad actual es la de actuar como un receptor de logs (`logFrontend`).
+    *   **Evidencia Concluyente:** El código no contiene ninguna función, endpoint o lógica relacionada con la obtención o el envío de datos del catálogo (hoja "CORTES"). La estructura `switch` en la función `doPost` maneja únicamente la acción `logFrontend` y lanza un error explícito para cualquier otra acción, confirmando que la obtención de datos fue migrada a otro servicio.
+
+**CONCLUSIÓN DE LA AUDITORÍA DE BACKEND:**
+La auditoría del backend es concluyente: **el archivo `Code.gs` no es la fuente de los datos del catálogo y no tiene ninguna relación con el bug de la video guía.** La sospecha de que el backend estaba fallando es incorrecta.
+
+Este hallazgo refuerza la conclusión de la auditoría anterior: el problema reside exclusivamente en el frontend, específicamente en la condición de carrera (`race condition`) dentro del `event listener` del acordeón en `ui.js`.
+========================================
+AUDITORÍA - 2024-08-06 (AUDITORÍA CORRECTIVA Y CONSOLIDADA)
+========================================
+
+**TAREA:** Identificar las causas raíz definitivas de los fallos persistentes tras la corrección de un error de auditoría previo.
+
+**ARCHIVOS REVISADOS:**
+- README.md
+- services/catalog/catalog.js
+- index.html
+- style.css
+- ui.js
+
+**HALLAZGOS Y ANÁLISIS DE CAUSA RAÍZ CONSOLIDADOS:**
+
+1.  **Causa Raíz - Video Guía No se Visualiza (Backend + Frontend Mismatch):**
+    *   **Archivo Backend:** `services/catalog/catalog.js`
+    *   **Línea (aprox):** 281-310 (dentro de `handleGetCatalogData`).
+    *   **Análisis:** La auditoría del backend correcto (`catalog.js`) revela que el servicio lee correctamente la columna `videoGuiaDesarmeUrl` de la base de datos. Sin embargo, el objeto `vehicle` que se construye y se envía al frontend **mantiene el nombre de la propiedad como `videoGuiaDesarmeUrl`**.
+    *   **Archivo Frontend:** `ui.js`
+    *   **Línea (aprox):** 818 (dentro de `mostrarDetalleModal`).
+    *   **Análisis:** La lógica del frontend que construye las secciones del acordeón espera una propiedad llamada `videoUrl` (basado en la línea `videoUrl: item.Video`). Existe una inconsistencia adicional, ya que el código anterior esperaba `item.Video` (con 'V' mayúscula).
+    *   **Causa Raíz Conclusiva:** El problema es una **discrepancia en el contrato de datos** entre el backend y el frontend. El backend envía `videoGuiaDesarmeUrl`, mientras que el frontend espera `Video` o `videoUrl`. Como resultado, la condición `if (sec.videoUrl)` siempre es falsa, y la sección del acordeón del video nunca se crea.
+
+2.  **Causa Raíz - Espacio Incorrecto en Barra de Búsqueda (Especificidad CSS):**
+    *   **Archivo:** `index.html`
+    *   **Línea (aprox):** 111.
+    *   **Análisis:** La auditoría del HTML confirma la existencia de un `div` con `id="search-wrapper"` que tiene un estilo en línea: `style="...; margin-bottom: 10px;"`.
+    *   **Archivo:** `style.css`
+    *   **Análisis:** Debido a la alta especificidad de los estilos en línea, las reglas existentes en `style.css` para el estado `body.search-active` no son capaces de anular este `margin-bottom`.
+    *   **Causa Raíz Conclusiva:** El `margin-bottom` en línea del `div#search-wrapper` es la causa directa y única del espacio persistente. La solución requiere una regla de CSS con la especificidad suficiente para anularlo (ej. `body.search-active #search-wrapper`).
+
+**CONCLUSIÓN DE LA AUDITORÍA CONSOLIDADA:**
+Se han identificado las dos causas raíz definitivas y no relacionadas:
+1.  Un **contrato de datos roto** entre el microservicio `catalog.js` y el `ui.js` impide que se muestre el video.
+2.  Un **estilo en línea con alta especificidad** en `index.html` causa el problema de espaciado visual.
+
+Ambos problemas son ahora claramente entendidos y pueden ser corregidos de forma precisa.

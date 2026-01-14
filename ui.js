@@ -747,11 +747,11 @@ export function mostrarDetalleModal(item) {
         })),
         { title: 'Apertura', content: item.apertura, img: item.imgApertura, colaborador: item.colaboradorApertura },
         { title: 'Cables de Alimentación', content: item.cableAlimen, img: item.imgCableAlimen, colaborador: item.colaboradorAlimen },
-        { title: 'Vídeo Guía de Desarme', videoUrl: item.Video }
+        { title: 'Vídeo Guía de Desarme', Video: item.Video }
     ];
 
     otherSections.forEach(sec => {
-        const hasContent = sec.isCorte || sec.content || sec.img || sec.videoUrl;
+        const hasContent = sec.isCorte || sec.content || sec.img || sec.Video;
         if (hasContent && sec.title) {
             createAccordionSection(accordionContainer, sec.title, sec, false, datosRelay);
         }
@@ -1044,12 +1044,12 @@ function createAccordionSection(container, title, sec, isOpen = false, datosRela
         panel.appendChild(colabDiv);
     }
 
-    if (sec.videoUrl) {
+    if (sec.Video) {
         const videoContainer = document.createElement('div');
         // Asegurar que el ID del iframe sea único para evitar conflictos
         const iframeId = `video-${Date.now()}`;
-        // Convertir URL de visualización a URL de inserción y añadir parámetros de API
-        const videoEmbedUrl = sec.videoUrl.replace("watch?v=", "embed/") + '?enablejsapi=1';
+        // El backend ya debería enviar una URL 'embed' válida, pero se mantiene el replace por seguridad.
+        const videoEmbedUrl = sec.Video.replace("watch?v=", "embed/") + '?enablejsapi=1';
 
         videoContainer.innerHTML = `<iframe id="${iframeId}" width="100%" height="315" src="${videoEmbedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 8px; margin-top: 10px;"></iframe>`;
         panel.appendChild(videoContainer);

@@ -263,8 +263,14 @@ function handleGetCatalogData() {
             }
 
             // Se elimina la conversión de URLs. El backend ahora envía solo los IDs.
-            if (vehicle.videoGuiaDesarmeUrl && !vehicle.videoGuiaDesarmeUrl.includes('embed')) {
-                vehicle.videoGuiaDesarmeUrl = `https://www.youtube.com/embed/${vehicle.videoGuiaDesarmeUrl}`;
+if (vehicle.videoGuiaDesarmeUrl) {
+                if (!vehicle.videoGuiaDesarmeUrl.includes('embed')) {
+                    vehicle.Video = `https://www.youtube.com/embed/${vehicle.videoGuiaDesarmeUrl}`;
+                } else {
+                    vehicle.Video = vehicle.videoGuiaDesarmeUrl;
+                }
+                delete vehicle.videoGuiaDesarmeUrl;
+            }
             }
 
             const cortes = [
