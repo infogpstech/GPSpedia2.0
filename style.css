@@ -390,7 +390,9 @@ body.search-active #search-wrapper {
 }
 
 body.search-active .container {
-    padding-top: 0; /* Elimina el padding superior para juntar el contenido */
+    /* Añade un padding superior para empujar el contenido hacia abajo,
+       evitando que quede oculto tras la barra de búsqueda fija. */
+    padding-top: 60px;
     transition: padding-top 0.35s ease-in-out;
 }
 

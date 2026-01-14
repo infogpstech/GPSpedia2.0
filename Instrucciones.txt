@@ -1,7 +1,15 @@
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-1. **TÍTULO: Ajustes de animación en barra de búsqueda y corrección de modal de detalle de corte**
+1. **TÍTULO: Correcciones Post-Commit de Animación y Modal de Video**
+   - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
+   - **TIPO:** Corrección de Bug / Regresión
+   - **ALCANCE:** Se implementaron correcciones a problemas identificados en una revisión post-commit, afectando `style.css` y `ui.js`.
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Tarea 2 (Incompleta - Espaciado):** Se corrigió el espaciado debajo de la barra de búsqueda en su estado activo. Se añadió un `padding-top` al contenedor principal en `style.css` para evitar que los resultados queden ocultos.
+     - **Tarea 4 (Incompleta y Regresión - Modal):** Se restauró la funcionalidad del acordeón en `ui.js` desacoplando la lógica de animación de la de control del video. El video ahora es visible y la animación del acordeón funciona correctamente. La lógica de pausa y detención del video se mantuvo funcional.
+
+2. **TÍTULO: Ajustes de animación en barra de búsqueda y corrección de modal de detalle de corte**
    - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
    - **TIPO:** Mejora UX / Corrección de animaciones / Bug funcional en modal
    - **ALCANCE:** Múltiples ajustes en `style.css`, `index.html` y `ui.js` para mejorar la animación de la búsqueda y corregir la visualización de la video guía en el modal de detalle.
@@ -11,7 +19,7 @@
      - **Tarea 3 (Botón Hamburguesa):** Se corrigió la animación del botón hamburguesa en `style.css` para que se oculte de forma consistente al activar la búsqueda.
      - **Tarea 4 (Modal de Video Guía):** Se modificó `ui.js` para embeber la video guía en un `iframe` dentro de un acordeón. Se añadió lógica para pausar el video al cerrar el acordeón y detenerlo por completo al cerrar el modal.
 
-2. CORRECCIÓN DEFINITIVA DE ESPACIADO EN ANIMACIÓN DE BÚSQUEDA
+3. CORRECCIÓN DEFINITIVA DE ESPACIADO EN ANIMACIÓN DE BÚSQUEDA
 Estado: PENDIENTE DE REVISIÓN POR EL PM
 Origen: Reporte de Bug Visual
 Prioridad: Normal

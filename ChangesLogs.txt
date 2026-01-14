@@ -1,3 +1,21 @@
+**V4.8.6 - (POST-COMMIT FIX) - 26/01/2026**
+**A. RESUMEN GENERAL:** Se aplicaron correcciones a una Tarea Incompleta (espaciado de búsqueda) y a una Regresión Funcional (modal de video) identificadas durante la revisión post-commit.
+
+**B. Cambios Implementados:**
+1.  **Corrección de Espaciado en Búsqueda (`style.css`):**
+    *   **Problema:** El contenido de los resultados de búsqueda quedaba oculto detrás de la barra de búsqueda cuando esta se encontraba en su estado fijo (`position: fixed`).
+    *   **Solución:** Se restauró un `padding-top` (`60px`) a la regla `body.search-active .container`. Este padding desplaza el contenedor de contenido hacia abajo, compensando la altura de la barra de búsqueda y asegurando que los resultados sean completamente visibles.
+    *   **Líneas Afectadas en `style.css`:** 393.
+
+2.  **Restauración y Corrección del Acordeón de Video (`ui.js`):**
+    *   **Problema:** Una modificación anterior en el `event listener` del acordeón rompió la animación de `max-height`, impidiendo que el panel se expandiera y, por lo tanto, que el video fuera visible.
+    *   **Solución:** Se refactorizó la lógica del acordeón. Se restauró el `click` listener a su comportamiento original (solo gestiona el `max-height`) y se añadió un nuevo `event listener` para el evento `transitionend`. Este nuevo listener se encarga de pausar el video solo después de que la animación de cierre haya concluido, desacoplando la animación del control del video y restaurando la funcionalidad completa.
+    *   **Líneas Afectadas en `ui.js`:** 1068-1087.
+
+**C. Impacto:**
+- **Funcionalidad de Búsqueda Restaurada:** Se ha corregido el layout durante la búsqueda activa, garantizando que los resultados sean siempre visibles y accesibles.
+- **Funcionalidad del Modal Restaurada:** La video guía es ahora visible y el acordeón funciona con su animación original. El control de pausa y detención del video se ha mantenido, corrigiendo la regresión por completo.
+
 **V4.8.5 - (UX/UI & FUNCTIONAL FIX) - 25/01/2026**
 **A. RESUMEN GENERAL:** Se implementaron múltiples ajustes en la interfaz de usuario para mejorar las animaciones de la barra de búsqueda, optimizar el espaciado y corregir la funcionalidad del modal de detalle para incluir una video guía interactiva.
 

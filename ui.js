@@ -1068,17 +1068,24 @@ function createAccordionSection(container, title, sec, isOpen = false, datosRela
 
     btn.addEventListener("click", function() {
         this.classList.toggle("active");
-        const iframeId = this.dataset.iframeId;
-        const iframe = iframeId ? document.getElementById(iframeId) : null;
-
         if (panel.style.maxHeight) {
             panel.style.maxHeight = null;
-            // Si hay un video y el panel se está cerrando, pausar el video.
+        } else {
+            panel.style.maxHeight = panel.scrollHeight + "px";
+        }
+    });
+
+    // Se añade un listener para el final de la transición para pausar el video.
+    // Esto desacopla el control del video de la lógica de la animación,
+    // restaurando el comportamiento original del acordeón y evitando bugs.
+    panel.addEventListener('transitionend', () => {
+        // Si el panel ha terminado de cerrarse (maxHeight es null o '0px')
+        if (!panel.style.maxHeight || panel.style.maxHeight === '0px') {
+            const iframeId = btn.dataset.iframeId;
+            const iframe = iframeId ? document.getElementById(iframeId) : null;
             if (iframe && iframe.contentWindow) {
                 iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
             }
-        } else {
-            panel.style.maxHeight = panel.scrollHeight + "px";
         }
     });
 }

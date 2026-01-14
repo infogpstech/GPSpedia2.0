@@ -147,345 +147,49 @@ AUDITORÍA - 20/01/2026
 **CONCLUSIÓN DE LA AUDITORÍA:**
 El bug está localizado en la función `mostrarResultadosDeBusqueda` de `ui.js`. La corrección debe centrarse en modificar el `onclick` de las tarjetas de resultado de tipo "modelo" para que invoque la función de navegación correcta (`navegarADetallesDeModelo`), que ya contiene la lógica para decidir si mostrar versiones de equipamiento, tipos de encendido o directamente los años. Esto alineará el comportamiento de la búsqueda con el flujo de navegación estándar de la aplicación.
 
-
-**AUDITORÍA GENERAL DEL PROYECTO GPSpedia v2.0**
-
-**Fecha de Auditoría:** 13/01/2026
-
-**Auditor Principal:** Jules
-
-**A. RESUMEN EJECUTIVO**
---------------------
-Esta auditoría de seguimiento se inició tras la notificación del usuario de que el problema de renderizado de imágenes de Google Drive persistía. Una re-auditoría exhaustiva del código fuente, centrada en la función `getImageUrl` del módulo `ui.js`, ha confirmado que la lógica de programación implementada es **robusta, correcta y no presenta errores evidentes**.
-
-La investigación concluye que la causa del problema recurrente **no reside en un defecto del código**, sino que probablemente se deba a uno de dos factores externos: un **caso de borde en el formato de los datos** de entrada que no ha sido contemplado, o un **problema de caché** en el entorno del cliente.
-
-**B. ANÁLISÉS TÉCNICO DE `getImageUrl`**
------------------------------------------
-1.  **Robustez y Manejo de Errores:**
-    *   La función gestiona adecuadamente valores nulos, indefinidos o vacíos, devolviendo una imagen provisional (`placeholder`) para evitar fallos de renderizado.
-    *   Valida el formato del ID extraído para asegurar que solo se construyan URLs con caracteres válidos.
-
-2.  **Lógica de Parseo de URLs:**
-    *   La función es **idempotente**: si recibe una URL ya construida, la utiliza directamente (si no es de Google Drive) o extrae el ID si es una URL de Google Drive.
-    *   Utiliza expresiones regulares para identificar y extraer el ID de los dos formatos de URL de compartición de Google Drive más comunes (`/file/d/...` y `?id=...`).
-
-3.  **Centralización del Código:**
-    *   Una búsqueda global (`grep`) ha confirmado que no existen otras implementaciones de construcción de URLs de Google Drive en el código activo de la aplicación. Toda la lógica está correctamente centralizada en esta función, lo cual es una buena práctica.
-
-**C. HIPÓTESIS SOBRE LA CAUSA RAÍZ PERSISTENTE**
--------------------------------------------------
-Dado que el código es correcto, la persistencia del error se atribuye a las siguientes hipótesis:
-
-1.  **Hipótesis Principal: Caso de Borde en los Datos:**
-    *   **Descripción:** El backend podría estar enviando un formato de URL de Google Drive atípico o no estándar que las expresiones regulares actuales no son capaces de procesar.
-    *   **Próximo Paso:** Se requiere una prueba funcional con un conjunto de datos de prueba más amplio, incluyendo todos los posibles formatos de URL que Google Drive puede generar, para validar esta hipótesis.
-
-2.  **Hipótesis Secundaria: Problema de Caché:**
-    *   **Descripción:** Es posible que el Service Worker o la caché del navegador del cliente estén sirviendo una versión obsoleta del archivo `ui.js`, lo que impediría que las correcciones más recientes se apliquen.
-    *   **Próximo Paso:** La verificación funcional se realizará en un entorno controlado (Playwright) que por defecto utiliza un contexto de navegador limpio para mitigar este factor.
-
-**D. PLAN DE ACCIÓN**
--------------------
-1.  **Verificación Funcional Rigurosa:** Ejecutar un script de prueba (Playwright) que renderice imágenes usando una variedad de formatos de URL de Google Drive para intentar reproducir el fallo.
-2.  **Análisis de Resultados:** Si la prueba falla con un formato de URL específico, se ajustará la expresión regular en `getImageUrl` para contemplar ese caso. Si todas las pruebas pasan, se concluirá con alta probabilidad que el problema reside en el entorno del cliente.
-3.  **Documentación Final:** Actualizar `ChangesLogs.txt` con el resultado final de la investigación y las acciones tomadas.
-
-**E. ESTADO ACTUAL**
-------------------
-- **Código Verificado:** El código JavaScript del frontend se considera correcto y estable.
-- **Investigación en Curso:** El foco se traslada de la auditoría de código a la verificación funcional y el análisis de datos para confirmar la causa raíz externa.
-
----
-**ACTUALIZACIÓN DE AUDITORÍA - 14/01/2026**
----
-**F. HALLAZgos DE REGRESIÓN (POST-REFACTOR) - `ui.js`**
------------------------------------------------------
-Se realizó una auditoría específica de `ui.js` para investigar un conjunto de regresiones funcionales y visuales reportadas tras la refactorización de la navegación.
-
-1.  **Navegación Principal Rota (`mostrarCategorias` y subsecuentes):**
-    *   **Hallazgo:** La lógica de navegación es destructiva. Cada vez que el usuario selecciona una categoría o marca, la función correspondiente (`mostrarMarcas`, `mostrarModelos`, etc.) borra completamente el contenido del contenedor principal (`cont.innerHTML = ""`).
-    *   **Impacto:** Esto elimina la vista principal y da la impresión de que las secciones "Últimos agregados" y las otras opciones de navegación han desaparecido. No se sigue el flujo jerárquico y lineal especificado en el `README.md`.
-    *   **Acción Requerida:** Refactorizar el flujo de navegación para que sea aditivo y preserve el contexto, siguiendo las especificaciones del `README.md`.
-
-2.  **Contenido Faltante en Modales de Detalle:**
-    *   **Hallazgo (`mostrarDetalleTutorialModal`):** No se comprueba si `item.Video` existe antes de intentar usarlo. Si es nulo o indefinido, se produce un error de script que impide la renderización del video.
-    *   **Hallazgo (`mostrarDetalleRelayModal`):** No se comprueba si `item.imagen` existe antes de intentar renderizarla, resultando en que no se muestre la imagen si el dato falta.
-    *   **Acción Requerida:** Añadir bloques `if` en ambas funciones para renderizar los elementos solo si los datos correspondientes existen.
-
-3.  **Errores de Diseño en Modal de Vehículos (`mostrarDetalleModal`):**
-    *   **Hallazgo (Logo de Marca):** El elemento del logo de la marca se añade al DOM después del elemento del título, causando que aparezca en la posición incorrecta.
-    *   **Hallazgo (Botones de Feedback):** La estructura HTML para los botones de feedback (`feedback-overlay`) es correcta. El problema de posicionamiento es puramente de CSS.
-    *   **Hallazgo (Nombre del Colaborador):** La estructura HTML para el colaborador es correcta (se renderiza fuera del contenedor de la imagen). El problema de posicionamiento es puramente de CSS.
-    *   **Acción Requerida:** Reordenar la creación de elementos DOM para el logo y el título. Las demás correcciones deberán realizarse en `style.css`.
-
-**G. HALLAZgos DE REGRESIÓN (POST-REFACTOR) - `style.css`**
-------------------------------------------------------
-Se realizó una auditoría específica de `style.css` para identificar las causas de los problemas de diseño reportados.
-
-1.  **Posicionamiento de Botones de Feedback:**
-    *   **Hallazgo:** La regla `.feedback-overlay` utiliza `position: absolute` y está correctamente definida para colocar los botones en la esquina inferior derecha. Su contenedor padre, `.image-container-with-feedback`, tiene `position: relative`. El CSS es teóricamente correcto.
-    *   **Hipótesis:** El problema visual persistente podría deberse a un conflicto con otra regla CSS de mayor especificidad o a un comportamiento inesperado del layout del modal.
-    *   **Acción Requerida:** Implementar la corrección y verificar visualmente en el navegador. Si persiste, usar las herramientas de desarrollador para identificar el estilo conflictivo.
-
-2.  **Posicionamiento del Logo de la Marca en el Modal:**
-    *   **Hallazgo:** No existen reglas CSS específicas para el layout del encabezado del modal. El problema de posicionamiento se origina en el orden incorrecto de los elementos DOM creados en `ui.js`, no en el CSS.
-    *   **Acción Requerida:** La corrección principal debe hacerse en `ui.js`. Se pueden añadir reglas en `style.css` para forzar el orden visual con Flexbox (`order`) si fuera necesario como solución secundaria.
-
-3.  **Espacio para el Nombre del Colaborador:**
-    *   **Hallazgo:** No existe una clase dedicada para el párrafo del colaborador; los estilos se aplican en línea. Esto lo hace susceptible a ser afectado por reglas más generales.
-    *   **Acción Requerida:** Crear una nueva clase (ej. `.colaborador-info`) en `style.css` con propiedades (`display: block`, `width: 100%`, `margin-top: 15px`) que garanticen que ocupe su propio espacio vertical dedicado, y aplicarla al elemento en `ui.js`.
-
-**H. REGISTRO DE CODE REVIEW (14/01/2026)**
--------------------------------------------
-Se ha recibido feedback de la revisión de código.
-
-1.  **Evaluación General:** La solución a las regresiones de UI es considerada excelente y la documentación es meticulosa.
-2.  **Punto Bloqueante - Cambio Fuera de Alcance:**
-    *   **Hallazgo:** La revisión detectó que el archivo `server.py` fue modificado para intentar solucionar un problema del entorno de pruebas. Este cambio no estaba relacionado con la tarea de corregir las regresiones de la UI, no fue documentado y viola la regla de "realizar ÚNICAMENTE lo solicitado".
-    *   **Acción Requerida:** Revertir todos los cambios realizados en `server.py` a su estado original antes de volver a solicitar una revisión.
-3.  **Protocolo a Seguir:**
-    *   De acuerdo con el "PROTOCOLO DE RESULTADO DE CODE REVIEW", esta observación implica un cambio de código y, por lo tanto, **REINICIA el ciclo de trabajo completo**, comenzando desde la auditoría del archivo a modificar (`server.py`).
-
-**I. AUDITORÍA PARA AJUSTES DE DISEÑO DEL MODAL (14/01/2026)**
--------------------------------------------------------------
-Se realizó una auditoría de los archivos `README.md`, `ui.js` y `style.css` para abordar una nueva solicitud de ajuste de diseño del modal de detalles.
-
-1.  **Documentación (`README.md`):**
-    *   **Hallazgo:** La descripción actual del encabezado del modal ("Nombre del modelo... seguido por el logo") es incorrecta según la nueva solicitud. Falta el ejemplo visual del modal.
-    *   **Acción Requerida:** Actualizar el texto para que indique "El logo de la marca debe mostrarse a la izquierda del nombre del modelo" y añadir una nueva sección con un ejemplo visual detallado de la estructura del modal.
-
-2.  **Lógica de Layout (`ui.js`):**
-    *   **Hallazgo:** La función `mostrarDetalleModal` actualmente construye el DOM del encabezado añadiendo el título antes que el logo y usa `justify-content: space-between`.
-    *   **Acción Requerida:** Modificar la función para: 1) Añadir el logo al `titleContainer` *antes* que el título. 2) Cambiar el estilo en línea a `justify-content: flex-start` para alinear ambos elementos a la izquierda.
-
-3.  **Estilos de Imágenes (`style.css`):**
-    *   **Hallazgo (`.brand-logo-modal`):** La altura actual es de `40px`.
-    *   **Acción Requerida:** Incrementar la altura en un 10% a `44px` y establecer el ancho en `auto` para mantener la proporción, tal como se solicita.
-    *   **Hallazgo (`.img-vehiculo-modal`):** El ancho máximo actual es de `250px`.
-    *   **Acción Requerida:** Reducir el ancho máximo en un 10% a `225px`.
-
-**J. AUDITORÍA DE BUG DE NAVEGACIÓN EN "TIPO DE ENCENDIDO" (14/01/2026)**
---------------------------------------------------------------------
-Se realizó una auditoría de `ui.js` para investigar un bug reportado en la etapa de selección de tipo de encendido.
-
-1.  **Función `mostrarTiposEncendido`:**
-    *   **Hallazgo (Causa Raíz):** La función contiene una lógica de "optimización" que intenta saltarse la pantalla de selección si solo existe un tipo de encendido para un modelo (`if (tiposEncendido.length === 1)`). Al hacerlo, llama directamente a la siguiente función en el flujo (`mostrarVersiones`) con una lista de vehículos no filtrada por tipo de encendido.
-    *   **Impacto:** Esto rompe la cadena de filtrado secuencial. La función `mostrarVersiones` espera recibir un conjunto de datos ya acotado a un solo tipo de encendido, y al no hacerlo, procesa datos incorrectos, causando el bug de navegación.
-    *   **Acción Requerida:** Eliminar el bloque condicional `if (tiposEncendido.length === 1)`. Se debe forzar siempre la visualización de la pantalla de selección de tipo de encendido, incluso si solo hay una opción. Esto garantiza un flujo de datos consistente y predecible, y simplifica la lógica del código.
-
-**K. AUDITORÍA PARA IMPLEMENTACIÓN DEL SISTEMA DE INBOX (15/01/2026)**
-------------------------------------------------------------------
-Se realizó una auditoría de los archivos `index.html`, `ui.js`, `style.css` y `services/feedback/feedback.js` para evaluar el estado de la Tarea 18: "Implementar Sistema de Inbox".
-
-1.  **`index.html` (Frontend - Estructura):**
-    *   **Hallazgo:** El archivo ya contiene la estructura HTML base para el modal del Inbox (`<div id="inbox-modal">`), incluyendo los contenedores para la lista de mensajes (`#inbox-list`) y el detalle (`#inbox-detail`). La estructura es adecuada para la implementación.
-    *   **Acción Requerida:** No se requieren cambios en el HTML.
-
-2.  **`ui.js` (Frontend - Lógica):**
-    *   **Hallazgo:** El módulo contiene la lógica funcional completa para el Inbox:
-        *   La función `openInbox` maneja la apertura del modal.
-        *   Realiza correctamente la llamada a la API (`getFeedbackItems`) para obtener los mensajes.
-        *   Las funciones `renderInboxList` y `renderInboxDetail` están implementadas y manejan la renderización dinámica de los datos.
-        *   Los manejadores de eventos para responder (`replyToFeedback`) y resolver (`markAsResolved`) están presentes y conectados a las funciones de la API.
-    *   **Acción Requerida:** La lógica JavaScript se considera completa. El trabajo restante es visual.
-
-3.  **`services/feedback/feedback.js` (Backend - Servicio):**
-    *   **Hallazgo:** El servicio de backend ya expone los tres endpoints necesarios para la funcionalidad del Inbox: `handleGetFeedbackItems`, `handleReplyToFeedback`, y `handleMarkAsResolved`. La lógica para interactuar con las hojas de cálculo "Feedbacks" y "Contactanos" es correcta.
-    *   **Acción Requerida:** No se requieren cambios en el backend.
-
-4.  **`style.css` (Frontend - Estilos):**
-    *   **Hallazgo (Causa Raíz de la Tarea):** El archivo carece por completo de reglas de estilo para los elementos del Inbox. Los IDs y clases generados por `ui.js` (ej. `.inbox-item`, `#inbox-detail`, `.inbox-actions`) no tienen ninguna definición de estilo.
-    *   **Impacto:** El modal es funcional pero visualmente inutilizable.
-    *   **Acción Requerida:** La tarea consiste principalmente en añadir un nuevo bloque de CSS para dar formato al modal del Inbox, sus componentes y estados (activo, respondido, resuelto), asegurando que el diseño sea consistente con el resto de la aplicación.
-
-**L. AUDITORÍA PARA NORMALIZACIÓN DEL FLUJO DE NAVEGACIÓN (15/01/2026)**
---------------------------------------------------------------------
-Se realizó una auditoría exhaustiva de `ui.js` para abordar la tarea de corrección y normalización del flujo de navegación.
-
-1.  **Punto Crítico de Decisión (Modelo -> Siguiente Etapa):**
-    *   **Hallazgo (Causa Raíz):** Al seleccionar un modelo (desde `mostrarModelos`, `mostrarModelosPorMarca` o resultados de búsqueda), la lógica invoca incondicionalmente `mostrarTiposEncendido`. No existe un paso intermedio que evalúe si el modelo tiene "versiones de equipamiento" (`versionesAplicables`) y dirija el flujo a una pantalla de selección de versiones antes de mostrar los tipos de encendido.
-    *   **Impacto:** Esto viola el flujo funcional requerido y es la causa principal de la inconsistencia en la navegación.
-
-2.  **Ordenamiento de Contenido:**
-    *   **Hallazgo (`mostrarCategorias`):** La función utiliza `sortedCategories` del estado, pero no hay garantía de que esté ordenado por población. La lógica de ordenamiento debe aplicarse explícitamente aquí.
-    *   **Hallazgo (`mostrarMarcas`):** La función ya implementa un ordenamiento alfabético (`.sort()`), lo cual es correcto y cumple con el requisito.
-
-3.  **Fragmentación de la Lógica de Flujo:**
-    *   **Hallazgo:** Existen múltiples funciones de entrada que conducen a la selección de modelos (ej. `mostrarModelos`, `mostrarModelosPorMarca`), cada una con su propia lógica de renderizado y `onclick`. Esto crea duplicación y dificulta el mantenimiento de un flujo único y consistente.
-    *   **Acción Requerida:** La implementación de una función "hub" de decisión, como se propuso en el plan, es la estrategia correcta para centralizar y simplificar esta lógica.
-
-4.  **Consistencia de Botones de Regreso:**
-    *   **Hallazgo:** Los botones de "Volver" están implementados con llamadas a funciones específicas en atributos `onclick` (ej. `onclick="window.ui.mostrarMarcas('${categoria}')"`).
-    *   **Impacto:** Durante la refactorización, será crucial actualizar cada uno de estos `onclick` para asegurar que apunten a la etapa anterior correcta dentro del nuevo flujo unificado, pasando todos los parámetros necesarios para reconstruir la vista anterior.
-
-**M. RE-AUDITORÍA DEL FLUJO DE NAVEGACIÓN (POST-CORRECCIÓN INICIAL) - 15/01/2026**
----------------------------------------------------------------------------------
-Tras la identificación de un error en la primera implementación de la corrección del flujo de navegación, se realizó una segunda auditoría focalizada.
-
-1.  **Error en el Flujo `Versión de Equipamiento`:**
-    *   **Hallazgo (Causa Raíz):** La función `mostrarVersionesEquipamiento` fue modificada para ser llamada correctamente por la función "hub". Sin embargo, el `onclick` de las tarjetas que genera llama a `mostrarTiposEncendido`.
-    *   **Impacto:** Esto introduce un paso extra e incorrecto en el flujo (`Modelo -> Versión de Equipamiento -> Tipo de Encendido -> Año`) en lugar del flujo requerido (`Modelo -> Versión de Equipamiento -> Año`).
-
-2.  **Error en la Lógica de los Botones "Volver":**
-    *   **Hallazgo:** Las funciones `mostrarTiposEncendido` y `mostrarVersiones` utilizan una lógica estática para generar la acción de sus botones "Volver". Por ejemplo, `mostrarVersiones` siempre genera un botón que regresa a `mostrarModelos`.
-    *   **Impacto:** Si un usuario llega a `mostrarVersiones` a través de la ruta `... -> mostrarVersionesEquipamiento -> mostrarTiposEncendido`, el botón "Volver" lo enviará incorrectamente a la lista de modelos, saltándose dos pasos intermedios. La navegación no es reversible ni predecible.
-
-3.  **Acción Requerida:**
-    *   **Flujo Hacia Adelante:** Modificar el `onclick` en `mostrarVersionesEquipamiento` para que filtre los datos por la versión seleccionada y llame directamente a `mostrarVersiones`.
-    *   **Flujo Hacia Atrás:** Refactorizar la lógica de los botones "Volver" en `mostrarTiposEncendido` y `mostrarVersiones` para que utilicen el `navigationState` y determinen dinámicamente la función y los parámetros correctos para regresar al paso anterior real.
-
-**N. AUDITORÍA FINAL DEL BOTÓN "VOLVER" (15/01/2026)**
------------------------------------------------------
-Se realizó una auditoría final para identificar la causa raíz del bug del botón "Volver" en la pantalla de "Años/Generación".
-
-1.  **Función `mostrarVersiones`:**
-    *   **Hallazgo (Causa Raíz):** La lógica para construir la acción del botón "Volver" (`backAction`) es estática y errónea. La línea `const backAction = \`window.ui.mostrarTiposEncendido(...)\`;` asume incorrectamente que el usuario siempre llega a esta pantalla desde `mostrarTiposEncendido`.
-    *   **Impacto:** Cuando un usuario sigue el flujo `Modelo -> Versiones de Equipamiento -> Años`, el botón "Volver" intenta llevarlo a `mostrarTiposEncendido`, una pantalla que nunca vio. Esto rompe la navegación reversible y causa el bug reportado.
-    *   **Acción Requerida:** Refactorizar la construcción del `backAction` en `mostrarVersiones` para que sea dinámica. Debe utilizar el `navigationState` (específicamente `previousState.level`) para determinar si la pantalla anterior fue `tiposEncendido` o `versionesEquipamiento` y construir la llamada a la función de "Volver" correspondiente con los parámetros correctos.
-
-**O. AUDITORÍA DE SEGUIMIENTO (POST-CORRECCIÓN v2) - 16/01/2026**
------------------------------------------------------------------
-Se realizó una auditoría de seguimiento tras el reporte de la persistencia del bug de navegación, incluso después de la segunda corrección.
-
-1.  **Función `mostrarVersiones` - Análisis de la Lógica del Botón "Volver":**
-    *   **Hallazgo (Causa Raíz Definitiva):** La implementación anterior, aunque mejorada, seguía conteniendo un error lógico. La lógica condicional (`if/else if`) para determinar la `backAction` no manejaba correctamente los parámetros pasados. Cuando el flujo es `Modelo -> Versión de Equipamiento -> Años`, el `previousState.level` es correctamente identificado como `versionesEquipamiento`, pero la acción de retorno intenta invocar `mostrarVersionesEquipamiento` con un parámetro `modelo` que es `undefined` en ese contexto, causando el error `"... para 'Captiva' null"`.
-    *   **Impacto:** El bug persiste porque la función de retorno se llama con los argumentos incorrectos. La navegación hacia atrás sigue rota en uno de los flujos principales.
-    *   **Acción Requerida:** Implementar una corrección definitiva en la lógica de construcción del `backAction` dentro de `mostrarVersiones`. La lógica debe asegurar que, al determinar la función de retorno, también se utilicen los parámetros correctos y disponibles en el `navigationState` para reconstruir la vista anterior sin errores.
-
-**P. AUDITORÍA DE FLUJO DE NAVEGACIÓN PARA CASOS DE OPCIÓN ÚNICA (16/01/2026)**
----------------------------------------------------------------------------
-Se realizó una auditoría de `ui.js` para abordar el nuevo requisito de omitir pantallas de selección con una sola opción y corregir el bug de la pantalla en blanco.
-
-1.  **Análisis de la Causa Raíz (Bug de Pantalla en Blanco):**
-    *   **Hallazgo:** El bug ocurre al regresar a una vista que se renderizó con un solo elemento (ej., un solo tipo de encendido). La lógica de `mostrarTiposEncendido` (o `mostrarVersionesEquipamiento`) renderiza correctamente la única tarjeta. Sin embargo, al navegar hacia adelante y luego "Volver", el estado de la aplicación no se reconstruye adecuadamente para esta vista intermedia, lo que provoca que el bucle de renderizado no encuentre elementos que mostrar.
-
-2.  **Análisis del Requisito (Omitir Pantallas):**
-    *   **Hallazgo:** El flujo de navegación actual fuerza al usuario a pasar por las pantallas de "Versión de Equipamiento" y "Tipo de Encendido", incluso si solo hay una opción disponible.
-    *   **Impacto:** Esto crea pasos innecesarios en la navegación y una mala experiencia de usuario.
-    *   **Acción Requerida:** La función `navegarADetallesDeModelo` es el punto de control ideal para implementar la nueva lógica. Se debe modificar para que:
-        a. Cuente el número de "Versiones de Equipamiento" únicas para el modelo seleccionado.
-        b. Si es `1`, debe omitir la pantalla de selección y filtrar el conjunto de datos por esa única versión.
-        c. A continuación, debe contar el número de "Tipos de Encendido" únicos dentro del conjunto de datos (ya filtrado, si aplica).
-        d. Si es `1`, debe omitir también esa pantalla de selección y filtrar los datos por ese único tipo.
-        e. Finalmente, debe llamar directamente a `mostrarVersiones` con el conjunto de datos final y correctamente filtrado.
-        f. Si en cualquier paso hay más de una opción, debe detenerse y mostrar la pantalla de selección correspondiente (`mostrarVersionesEquipamiento` o `mostrarTiposEncendido`).
-
-3.  **Conclusión de la Auditoría:**
-    *   La refactorización de `navegarADetallesDeModelo` para implementar la lógica de omisión de pantallas no solo cumplirá con el nuevo requisito funcional, sino que también resolverá de forma inherente el bug de la "pantalla en blanco", al eliminar por completo el paso problemático del flujo de navegación en los casos de opción única.
-
----
-**Q. AUDITORÍA DEL SISTEMA DE BÚSQUEDA GLOBAL (FECHA ACTUAL)**
----------------------------------------------------------
-Se realizó una auditoría del flujo de búsqueda global para abordar la Tarea 2 del backlog.
-
-1.  **Flujo de Datos de Búsqueda:**
-    *   **Hallazgo:** El flujo de datos es el siguiente:
-        1. `main.js`: Un `event listener` en el campo de búsqueda (`searchInput`) captura la entrada del usuario.
-        2. `main.js` -> `navigation.js`: Se invoca la función `navigation.filtrarContenido(textoBusqueda)`.
-        3. `navigation.js`: La función `filtrarContenido` realiza un filtrado de texto simple sobre el catálogo de datos.
-        4. `navigation.js` -> `ui.js`: Tras el filtrado, la función invoca **incondicionalmente** `ui.mostrarResultadosBusquedaMarca(busqueda, datosFiltrados)`.
-
-2.  **Causa Raíz del Comportamiento Incorrecto:**
-    *   **Hallazgo (Lógica):** La función `navigation.filtrarContenido` carece de cualquier lógica para analizar o clasificar los resultados de la búsqueda. No diferencia si los `datosFiltrados` corresponden a una marca, un modelo o un año.
-    *   **Hallazgo (Renderizado):** Como consecuencia, siempre se llama a `ui.mostrarResultadosBusquedaMarca`, una función diseñada exclusivamente para renderizar tarjetas de logos de marcas. Esto explica por qué una búsqueda de "Aveo" (un modelo) resulta en la visualización del logo de "Chevrolet" (la marca).
-    *   **Hallazgo (Navegación):** El `onclick` en las tarjetas de marca generadas por `mostrarResultadosBusquedaMarca` lleva a `mostrarResultadosBusquedaModelo`, que es una función de renderizado que no está correctamente integrada en el flujo de navegación principal, causando inconsistencias y falta de un botón "Volver" funcional.
-
-3.  **Acción Requerida:**
-    *   **En `navigation.js`:** Se debe refactorizar `filtrarContenido` para que, después de filtrar los datos, realice un análisis de los resultados para determinar el tipo de coincidencia (marca, modelo, año, mixta).
-    *   **En `ui.js`:** Se deben crear nuevas funciones de renderizado o adaptar las existentes para mostrar correctamente los resultados según su tipo (tarjetas de modelo para búsquedas de modelo, etc.).
-    *   **Integración del Flujo:** La navegación desde los resultados de búsqueda debe ser redirigida para usar las funciones de navegación estándar (ej. `navegarADetallesDeModelo`), asegurando la consistencia y la funcionalidad de los botones "Volver".
-
----
-**R. AUDITORÍA DE REGRESIÓN EN BÚSQUEDA DE MODELOS (FECHA ACTUAL)**
------------------------------------------------------------------
-Se realizó una auditoría para identificar la causa de una regresión en el sistema de búsqueda, donde una búsqueda de un modelo con múltiples versiones abre incorrectamente el modal de detalle del primer resultado.
-
-1.  **Causa Raíz del Bug:**
-    *   **Hallazgo:** La refactorización anterior introdujo una lógica de de-duplicación demasiado agresiva en `navigation.js`. La línea `const modelosUnicos = [...new Map(datosFiltrados.map(item => [\`${item.marca}-${item.modelo}\`, item])).values()];` elimina todas las variantes de un mismo modelo, conservando solo la primera que encuentra.
-    *   **Impacto:** Cuando se busca un modelo que tiene diferentes versiones o tipos de encendido, el sistema los agrupa incorrectamente como un único resultado. Esto, combinado con la regla de negocio que abre el modal para resultados únicos, causa que se muestre el detalle del primer vehículo, impidiendo al usuario ver y seleccionar las otras variantes.
-
-2.  **Acción Requerida:**
-    *   **En `navigation.js`:** Eliminar la línea que crea `modelosUnicos`. La función `filtrarContenido` debe pasar la lista completa y sin filtrar de `datosFiltrados` a la capa de UI.
-    *   **En `ui.js`:** Modificar la función `mostrarResultadosDeBusqueda` para que las tarjetas de resultado de modelo muestren información distintiva. El `overlay` de cada tarjeta debe incluir no solo el modelo y año, sino también la `versionesAplicables` o el `tipoEncendido`, permitiendo al usuario diferenciar entre las tarjetas.
-
-========================================
-AUDITORÍA - 23/01/2026 (ANIMACIÓN DE BARRA DE BÚSQUEDA)
-========================================
-
-**TAREA:** Replicar la animación de la barra de búsqueda de la v1.5.
-
-**ARCHIVOS REVISADOS:**
-- index.html
-- style.css
-- main.js
-- ui.js
-- navigation.js
-- Olds/GPSpedia 1.5/index.html (como referencia)
-
-**HALLAZgos Y ANÁLISIS DE CAUSA RAÍZ:**
-1.  **Análisis de la Implementación Actual:**
-    - `style.css`: Contiene todas las reglas de CSS necesarias para la animación. La animación se controla mediante la adición de una clase `search-active` al elemento `<body>`. Cuando esta clase está presente, los estilos reajustan la altura de la barra de búsqueda, ocultan el encabezado y reposicionan el logo.
-    - `main.js`, `ui.js`, `navigation.js`: Una auditoría completa de los archivos JavaScript revela que, aunque existe la lógica para filtrar contenido (`navigation.filtrarContenido`), **no hay ningún código que añada o elimine la clase `search-active` del body**. Faltan los manejadores de eventos (`event listeners`) que deberían activar la animación.
-
-2.  **Análisis de la Implementación de Referencia (`Olds/GPSpedia 1.5/index.html`):**
-    - El archivo de referencia contiene un bloque `<script>` con la lógica de la animación.
-    - Se utilizan los eventos `focus` y `blur` en el elemento `#searchInput`.
-    - En el evento `focus`, se añade la clase `search-active` a `document.body`.
-    - En el evento `blur`, se elimina la clase `search-active` de `document.body` después de un breve `setTimeout`. Este retardo es crucial para permitir que un clic en un resultado de búsqueda se procese antes de que la interfaz se revierta.
-
-**CONCLUSIÓN DE LA AUDITORÍA:**
-La causa raíz del problema es clara y está localizada: la ausencia de los `event listeners` `focus` y `blur` en el JavaScript de la aplicación actual. La solución consiste en implementar esta lógica faltante, replicando el comportamiento de la versión de referencia.
-
-**ACCIÓN REQUERIDA (PROPUESTA):**
-Añadir los `event listeners` para `focus` y `blur` al `searchInput` dentro del archivo `main.js`, en la función `initializeApp`, donde se configuran otros listeners globales. Esto centralizará la lógica de eventos y resolverá el problema de animación.
-========================================
-AUDITORÍA - 23/01/2026 (MEJORA DE ANIMACIÓN DE BÚSQUEDA)
-========================================
-
-**TAREA:** Ocultar el botón de hamburguesa y reducir el espacio superior durante la animación de búsqueda.
-
-**ARCHIVOS REVISADOS:**
-- index.html
-- style.css
-
-**HALLAZgos Y ANÁLISIS DE CAUSA RAÍZ:**
-1.  **Análisis del Comportamiento Actual:**
-    - Al activarse la búsqueda (`body.search-active`), el botón de hamburguesa (`#hamburger-btn`) permanece visible porque no está incluido en la regla CSS que oculta los otros elementos del encabezado.
-    - El espacio superior es controlado por la propiedad `padding-top` de la regla `body.search-active .container`, que actualmente tiene un valor de `80px`.
-
-**CONCLUSIÓN DE LA AUDITORÍA:**
-La solución es puramente de CSS y requiere dos ajustes específicos:
-1.  Incluir el selector `#hamburger-btn` en la lista de elementos que se ocultan.
-2.  Reducir el valor de `padding-top` para acercar los resultados a la barra de búsqueda.
-
-**ACCIÓN REQUERIDA (PROPUESTA):**
-Modificar el archivo `style.css` para aplicar los dos ajustes mencionados.
-========================================
-AUDITORÍA - 24/01/2026 (CORRECCIÓN DE ESPACIADO EN BÚSQUEDA)
-========================================
-
-**TAREA:** Corregir el espaciado excesivo entre la barra de búsqueda y los resultados durante la animación.
-
-**ARCHIVOS REVISADOS:**
-- index.html
-- style.css
-
-**HALLAZgos Y ANÁLISIS DE CAUSA RAÍZ:**
-1.  **Análisis de Intentos Anteriores:**
-    - Las modificaciones previas a la propiedad `padding-top` del `.container` no fueron efectivas para eliminar completamente el espacio.
-
-2.  **Identificación de la Causa Raíz:**
-    - Una inspección detallada de `index.html` reveló que el contenedor de la barra de búsqueda (`<div class="search-container">`) está envuelto en otro `div`.
-    - Este `div` contenedor tiene un estilo en línea: `style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;"`.
-    - La propiedad `margin-bottom: 20px;` es la causa directa y persistente del espacio no deseado. Esta regla de estilo en línea tiene una alta especificidad y no se veía afectada por los cambios anteriores al padding del contenedor principal.
-
-**CONCLUSIÓN DE LA AUDITORÍA:**
-La causa raíz del problema de espaciado ha sido identificada de manera concluyente. El problema no era el padding del contenedor principal, sino un margen inferior aplicado a través de un estilo en línea a un elemento contenedor del buscador.
-
-**ACCIÓN REQUERIDA (PROPUESTA):**
-La solución correcta y definitiva requiere un enfoque de dos pasos para garantizar la especificidad y la claridad del código:
-1.  **En `index.html`:** Asignar un ID único (ej. `id="search-wrapper"`) al `div` contenedor que tiene el estilo en línea problemático. Esto permitirá anular el estilo de forma segura y específica.
-2.  **En `style.css`:**
-    - Añadir una nueva regla CSS: `body.search-active #search-wrapper { margin-bottom: 0; }`. Esta regla altamente específica anulará el `margin-bottom` del estilo en línea solo cuando la búsqueda esté activa.
-    - Ajustar la regla `body.search-active .container` a `padding-top: 0;` para eliminar cualquier espaciado restante y asegurar que los resultados se alineen directamente debajo de la barra de búsqueda.
+--------------------------------------------------
+**FECHA:** 2024-08-01
+
+**AUDITOR:**
+Jules
+
+**ARCHIVOS AUDITADOS:**
+- `style.css`
+- `index.html`
+- `ui.js`
+- `main.js`
+- `navigation.js`
+
+**HALLAZGOS:**
+
+1.  **Archivo: `style.css`**
+    *   **Líneas 371-387 (`body.search-active` rules):** La animación para ocultar elementos durante la búsqueda activa es abrupta. Utiliza propiedades como `max-height: 0` y `!important` que colapsan el layout de forma instantánea en lugar de permitir una transición suave. Esto causa que los botones de sección interfieran visualmente con la barra de búsqueda antes de desaparecer.
+    *   **Líneas 166 (`.search-container`) y 105 (inline style en `index.html`):** Se identificó un exceso de espacio vertical alrededor de la barra de búsqueda debido a `margin-bottom: 30px` y `padding: 10px 0` en `.search-container`, además de un `margin-bottom: 20px` en el elemento `#search-wrapper` en `index.html`. Estos valores combinados reducen el espacio disponible para los resultados de búsqueda.
+    *   **Líneas 371-387 (`body.search-active` rules):** El botón de hamburguesa (`#hamburger-btn`) es afectado por las mismas reglas de animación abruptas que los botones de sección, provocando que no se oculte de forma consistente o suave.
+
+2.  **Archivo: `ui.js`**
+    *   **Línea 1045 (`createAccordionSection` function):** La lógica para la "Vídeo Guía de Desarme" actualmente solo genera un enlace (`<a>`) a la URL del video. No hay un reproductor de video embebido, lo cual es necesario para cumplir con los requisitos.
+    *   **Línea 1061 (`btn.addEventListener`):** El listener del acordeón no tiene lógica para controlar la reproducción de video. Si se implementa un iframe, es necesario añadir aquí la funcionalidad para pausar el video cuando el acordeón se colapsa.
+    *   **Línea 650 (`mostrarDetalleModal` function):** El botón para cerrar el modal de detalle no tiene funcionalidad para detener un video que se esté reproduciendo. Si se añade un video, este continuará reproduciéndose en segundo plano después de cerrar el modal si no se implementa una lógica de detención.
+
+3.  **Archivo: `index.html`**
+    *   **Línea 105 (`#search-wrapper`):** El `margin-bottom: 20px` contribuye al exceso de espaciado vertical identificado en la auditoría de `style.css`.
+--------------------------------------------------
+**FECHA:** 2024-08-02 (Post-Commit Review)
+
+**AUDITOR:**
+Jules
+
+**ARCHIVOS AUDITADOS:**
+- `style.css`
+- `ui.js`
+
+**HALLAZGOS (Post-Commit):**
+
+1.  **Archivo: `style.css`**
+    *   **Línea 390 (`body.search-active .container`):** Se ha identificado la causa del espaciado incorrecto. Cuando la barra de búsqueda se vuelve `position: fixed`, el `.container` principal no tiene un `padding-top` para compensar la altura de la barra. Esto hace que el contenido (`#contenido`) se posicione en la parte superior del viewport, quedando oculto detrás de la barra de búsqueda. La eliminación del `padding-top` en el commit anterior fue la causa directa de esta regresión visual.
+
+2.  **Archivo: `ui.js`**
+    *   **Línea 1061 (`btn.addEventListener`):** Se ha identificado una regresión funcional en el acordeón. La lógica del `event listener` fue modificada para manejar la pausa del video, pero esta modificación alteró el comportamiento original. La animación de `max-height` ahora no funciona correctamente porque la lógica de pausa interfiere con el cálculo del `scrollHeight`.
+    *   **Línea 1045 (`createAccordionSection` function):** El `iframe` del video se crea correctamente, pero no es visible dentro del modal. Esto se debe a que el panel del acordeón (`panel-desplegable`) tiene `max-height: 0` y `overflow: hidden` por defecto, y la nueva lógica no está expandiendo el panel correctamente para hacer visible el video. La solución requiere restaurar la lógica original del acordeón y asegurar que el video se renderice dentro de un panel que pueda expandirse.
+--------------------------------------------------
