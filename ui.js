@@ -1067,10 +1067,30 @@ function createAccordionSection(container, title, sec, isOpen = false, datosRela
     }
 
     btn.addEventListener("click", function() {
+        // Primero, cerrar todos los demás paneles en el mismo contenedor
+        const allButtons = container.querySelectorAll(".accordion-btn");
+        allButtons.forEach(otherBtn => {
+            if (otherBtn !== this) {
+                otherBtn.classList.remove("active");
+                const otherPanel = otherBtn.nextElementSibling;
+                if (otherPanel && otherPanel.style.maxHeight) {
+                    otherPanel.style.maxHeight = null;
+                    // Pausar video si se cierra otro panel
+                    const iframeId = otherBtn.dataset.iframeId;
+                    const iframe = iframeId ? document.getElementById(iframeId) : null;
+                    if (iframe && iframe.contentWindow) {
+                        iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                    }
+                }
+            }
+        });
+
+        // Luego, abrir o cerrar el panel actual
         this.classList.toggle("active");
         if (panel.style.maxHeight) {
             panel.style.maxHeight = null;
         } else {
+            // Recalcular scrollHeight en caso de que el contenido haya cambiado
             panel.style.maxHeight = panel.scrollHeight + "px";
         }
     });

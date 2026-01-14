@@ -1,3 +1,27 @@
+**V4.8.7 - (POST-COMMIT REGRESSION FIX) - 27/01/2026**
+**A. RESUMEN GENERAL:** Se implementaron correcciones definitivas para múltiples fracasos funcionales y regresiones graves que fueron identificadas durante la revisión post-commit de la versión anterior.
+
+**B. Cambios Implementados:**
+
+1.  **Corrección del Espaciado de la Barra de Búsqueda (`style.css`):**
+    *   **Problema:** Un commit anterior incrementó incorrectamente el espacio vertical entre la barra de búsqueda y los resultados, empeorando el problema que intentaba solucionar.
+    *   **Solución:** Se ajustó la regla `body.search-active .container`. Se redujo el `padding-top` de `60px` a `20px`, un valor que compensa de manera precisa la altura de la barra de búsqueda fija sin crear un espaciado excesivo.
+    *   **Líneas Afectadas en `style.css`:** 395.
+
+2.  **Restauración de la Lógica del Acordeón (`ui.js`):**
+    *   **Problema (Regresión):** El comportamiento del acordeón en el modal de detalle se rompió, permitiendo que múltiples paneles estuvieran abiertos simultáneamente.
+    *   **Solución:** Se refactorizó el `event listener` del `click` en la función `createAccordionSection`. La nueva lógica ahora itera sobre todos los botones del acordeón dentro del mismo contenedor y cierra cualquier panel que no sea el que se ha clickeado, restaurando el comportamiento original de "solo un panel abierto a la vez".
+    *   **Líneas Afectadas en `ui.js`:** 1070-1088.
+
+3.  **Corrección de Visualización de Video Guía (`ui.js`):**
+    *   **Problema:** El video guía no era visible porque el panel del acordeón que lo contenía no se expandía correctamente debido a la lógica de animación rota.
+    *   **Solución:** La restauración de la lógica del acordeón (punto anterior) soluciona este problema de manera inherente. Al asegurar que el `max-height` del panel se calcule y aplique correctamente en el `click`, el panel ahora se expande como se espera, haciendo visible el `iframe` del video. La lógica de pausa y detención del video ahora funciona sobre un componente visible.
+    *   **Líneas Afectadas en `ui.js`:** 1070-1088.
+
+**C. Impacto:**
+- **Funcionalidad y UI Corregidas:** Se han resuelto todas las regresiones y fracasos funcionales reportados. El espaciado de la búsqueda es ahora correcto, el acordeón del modal funciona según su diseño original, y el video guía es completamente accesible y funcional.
+- **Estabilidad del Componente:** La lógica del acordeón es ahora más robusta, manejando correctamente tanto la expansión/colapso de los paneles como la pausa de los videos embebidos.
+
 **V4.8.6 - (POST-COMMIT FIX) - 26/01/2026**
 **A. RESUMEN GENERAL:** Se aplicaron correcciones a una Tarea Incompleta (espaciado de búsqueda) y a una Regresión Funcional (modal de video) identificadas durante la revisión post-commit.
 
