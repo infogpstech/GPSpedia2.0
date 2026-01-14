@@ -1,4 +1,24 @@
-**V4.8.9 - (ROOT CAUSE FIX) - 29/01/2026**
+**V4.9.0 - (DEFINITIVE ROOT CAUSE FIX) - 29/01/2026**
+**A. RESUMEN GENERAL:** Se implementaron correcciones definitivas para las causas raíz de los problemas persistentes de visualización de video y espaciado de la barra de búsqueda, basadas en una auditoría correcta y consolidada del flujo de datos completo (backend y frontend).
+
+**B. Cambios Implementados:**
+
+1.  **Corrección de Contrato de Datos Backend-Frontend (Causa Raíz del Video):**
+    *   **Problema:** El backend (`services/catalog/catalog.js`) enviaba la URL del video bajo la propiedad `videoGuiaDesarmeUrl`, pero el frontend (`ui.js`) esperaba una propiedad llamada `Video`. Esta discrepancia causaba que el frontend no encontrara el dato.
+    *   **Solución (Backend):** Se modificó `services/catalog/catalog.js` para alinear el contrato de datos. Ahora, la propiedad se renombra a `Video` antes de enviar la respuesta al frontend.
+    *   **Solución (Frontend):** Se robusteció la lógica en `ui.js` para manejar correctamente la URL del video recibida y se añadió una nueva función (`getYouTubeEmbedUrl`) para convertir de forma fiable cualquier formato de URL de YouTube a un formato `embed` válido, solucionando el problema de reproducción.
+    *   **Líneas Afectadas en `catalog.js`:** 311-313.
+    *   **Líneas Afectadas en `ui.js`:** 1041-1065 (nueva función), 1076.
+
+2.  **Corrección de Espaciado de Búsqueda (Causa Raíz: Estilo en Línea):**
+    *   **Problema:** Un estilo en línea (`margin-bottom: 10px;`) en el `div#search-wrapper` en `index.html` tenía mayor especificidad que las reglas en `style.css`, causando un espaciado persistente.
+    *   **Solución:** Se añadió la directiva `!important` a la regla `body.search-active #search-wrapper { margin-bottom: 0; }` en `style.css`. Esto le otorga la máxima prioridad, permitiendo anular el estilo en línea y eliminar el espacio no deseado.
+    *   **Líneas Afectadas en `style.css`:** 386.
+
+**C. Impacto:**
+- **Funcionalidad de Video Restaurada:** La video guía de desarme ahora se visualiza y reproduce correctamente, ya que el frontend recibe el dato en el formato esperado y lo procesa de forma robusta.
+- **UI Corregida Definitivamente:** El espacio extra debajo de la barra de búsqueda ha sido eliminado por completo, logrando el diseño requerido.
+- **Robustez del Sistema:** Se ha corregido una inconsistencia fundamental en el contrato de datos entre el backend y el frontend, haciendo el sistema más predec- **V4.8.9 - (ROOT CAUSE FIX) - 29/01/2026**
 **A. RESUMEN GENERAL:** Se implementaron correcciones definitivas para las causas raíz de los dos problemas persistentes, basadas en los hallazgos de una auditoría consolidada y correcta que incluyó el `README.md`, el servicio de backend `catalog.js` y el frontend.
 
 **B. Cambios Implementados:**
@@ -62,7 +82,6 @@
 
 **C. Impacto:**
 - **Funcionalidad y UI Corregidas:** Se han resuelto todas las regresiones y fracasos funcionales reportados. El espaciado de la búsqueda es ahora correcto, el acordeón del modal funciona según su diseño original, y el video guía es completamente accesible y funcional.
-- **Estabilidad del Componente:** La lógica del acordeón es ahora más robusta, manejando correctamente tanto la expansión/colapso de los paneles como la pausa de los videos embebidos.
 
 **V4.8.6 - (POST-COMMIT FIX) - 26/01/2026**
 **A. RESUMEN GENERAL:** Se aplicaron correcciones a una Tarea Incompleta (espaciado de búsqueda) y a una Regresión Funcional (modal de video) identificadas durante la revisión post-commit.

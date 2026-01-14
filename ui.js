@@ -1002,6 +1002,29 @@ function renderInboxDetail(item) {
     }
 }
 
+function getYouTubeEmbedUrl(url) {
+    if (!url) return null;
+    let videoId;
+    try {
+        const urlObj = new URL(url);
+        if (urlObj.hostname === 'youtu.be') {
+            videoId = urlObj.pathname.slice(1);
+        } else if (urlObj.hostname.includes('youtube.com')) {
+            videoId = urlObj.searchParams.get('v');
+        }
+    } catch (e) {
+        // Fallback for simple strings that might just be the ID
+        if (!url.includes('http') && url.length > 5) {
+            videoId = url;
+        }
+    }
+
+    if (videoId) {
+        return `https://www.youtube.com/embed/${videoId}?enablejsapi=1`;
+    }
+    return null; // Return null if no valid ID could be extracted
+}
+
 function createAccordionSection(container, title, sec, isOpen = false, datosRelay = []) {
     const btn = document.createElement("button");
     btn.className = "accordion-btn";
@@ -1045,17 +1068,14 @@ function createAccordionSection(container, title, sec, isOpen = false, datosRela
     }
 
     if (sec.Video) {
-        const videoContainer = document.createElement('div');
-        // Asegurar que el ID del iframe sea único para evitar conflictos
-        const iframeId = `video-${Date.now()}`;
-        // El backend ya debería enviar una URL 'embed' válida, pero se mantiene el replace por seguridad.
-        const videoEmbedUrl = sec.Video.replace("watch?v=", "embed/") + '?enablejsapi=1';
-
-        videoContainer.innerHTML = `<iframe id="${iframeId}" width="100%" height="315" src="${videoEmbedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 8px; margin-top: 10px;"></iframe>`;
-        panel.appendChild(videoContainer);
-
-        // Guardar la referencia al iframe en el botón para fácil acceso
-        btn.dataset.iframeId = iframeId;
+        const videoEmbedUrl = getYouTubeEmbedUrl(sec.Video);
+        if (videoEmbedUrl) {
+            const videoContainer = document.createElement('div');
+            const iframeId = `video-${Date.now()}`;
+            videoContainer.innerHTML = `<iframe id="${iframeId}" width="100%" height="315" src="${videoEmbedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 8px; margin-top: 10px;"></iframe>`;
+            panel.appendChild(videoContainer);
+            btn.dataset.iframeId = iframeId;
+        }
     }
 
     container.appendChild(btn);
