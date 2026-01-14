@@ -1,21 +1,34 @@
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-1. REFACTORIZACIÓN DE LA ANIMACIÓN DEL BUSCADOR Y MEJORA DEL DISEÑO
+1. CORRECCIÓN Y REFINAMIENTO DE ANIMACIÓN DE BÚSQUEDA
 Estado: PENDIENTE DE REVISIÓN POR EL PM
-Origen: Feedback de Regresión Visual
-Prioridad: ALTA
-Área: Frontend | UI | UX
-Archivos involucrados: style.css, main.js, index.html
+Origen: Refinamiento UX y Reporte de Bug Visual
+Prioridad: Normal
+Área: Frontend | UI | CSS | JS
+Archivos involucrados: main.js, style.css
 
 Descripción:
-Se ha refactorizado la animación de la barra de búsqueda para restaurar el efecto visual del logo encogiéndose y eliminar un espacio vacío que afectaba negativamente a la UI. Adicionalmente, se ha mejorado la compacidad del diseño en el estado por defecto y se ha robustecido el código eliminando manejadores de eventos en línea.
+Se ha implementado una corrección definitiva para la animación de la barra de búsqueda. La nueva lógica utiliza una orquestación precisa con JavaScript (`requestAnimationFrame`) y CSS (clases y variables personalizadas) para asegurar una transición completamente fluida, eliminando el "salto" visual que ocurría anteriormente.
 
-
-**TAREAS PENDIENTES DE REVISIÓN**
 ---
-1. INVESTIGAR CIERRE DE SESIÓN INESPERADO TRAS REFRESH
-Estado: PENDIENTE DE REVISIÓN POR EL PM
+**TAREAS COMPLETADAS (Validadas por el PM)**
+---
+1. MEJORA Y REFINAMIENTO DE ANIMACIÓN DE BÚSQUEDA (CICLO ANTERIOR)
+Estado: COMPLETADO
+Origen: Refinamiento UX y Reporte de Bug Visual
+Prioridad: Normal
+Área: Frontend | UI | CSS | JS
+Archivos involucrados: index.html, style.css, main.js
+
+Descripción:
+Se completó un ciclo integral de mejoras en la animación de la barra de búsqueda. Las implementaciones incluyen:
+- La adición de la animación de expansión/contracción de la barra al hacer foco.
+- La ocultación de elementos de la UI (menú, logo, etc.) para optimizar el espacio.
+- La corrección definitiva del espaciado vertical entre la barra y los resultados.
+
+2. INVESTIGAR CIERRE DE SESIÓN INESPERADO TRAS REFRESH
+Estado: COMPLETADO
 Origen: Reporte de Bug
 Prioridad: CRÍTICA
 Área: Frontend | Autenticación | Estado
@@ -24,10 +37,7 @@ Archivos involucrados: auth.js
 Descripción:
 Se ha implementado una corrección para prevenir una condición de carrera (`race condition`) durante la validación de la sesión. Se añadió un mecanismo de bloqueo (`lock`) en `localStorage` para asegurar que solo una pestaña o proceso de validación se comunique con el backend a la vez, evitando que validaciones concurrentes se invaliden entre sí.
 
----
-**TAREAS COMPLETADAS (Validadas por el PM)**
----
-1. CORRECCIÓN DEL SISTEMA DE BÚSQUEDA Y NAVEGACIÓN
+3. CORRECCIÓN DEL SISTEMA DE BÚSQUEDA Y NAVEGACIÓN
 Estado: COMPLETADO
 Origen: Múltiples reportes de bugs y regresiones.
 Prioridad: CRÍTICA

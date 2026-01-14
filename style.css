@@ -163,13 +163,13 @@ h1.app-title {
 
 /* --- ESTILOS DEL BUSCADOR --- */
 .search-container {
-    position: relative; /* Contenedor para el botón de limpiar */
-    margin-bottom: 5px; /* Aún más reducido para un diseño compacto */
+    position: relative;
+    margin-bottom: 30px;
     padding: 10px 0;
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
-    transition: all 0.35s ease-in-out;
+    transition: top 0.35s ease-in-out, left 0.35s ease-in-out, width 0.35s ease-in-out, height 0.35s ease-in-out;
 }
 
 #clear-search-btn {
@@ -226,7 +226,7 @@ body.search-active .search-container.has-text #clear-search-btn {
     color: #333;
     padding: 10px;
     border-radius: 8px;
-    transition: all 0.35s ease-in-out;
+    transition: background-color 0.2s;
 }
 #hamburger-btn:hover {
     background-color: #e0e0e0;
@@ -366,68 +366,65 @@ input:checked + .slider:before {
     transform: translateX(26px);
 }
 
-/* --- ESTILOS DE BÚSQUEDA ACTIVA (REFACTORIZACIÓN FINAL) --- */
-.header-container {
-    position: -webkit-sticky;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background-color: var(--bg-color);
-    padding: 10px 0;
-    flex-wrap: nowrap; /* Evita que el buscador salte de línea durante la animación */
+/* --- ESTILOS DE BÚSQUEDA ACTIVA --- */
+body.search-active .app-title,
+body.search-active #header-controls,
+body.search-active #hamburger-btn,
+body.search-active .section-selector,
+body.search-active .footer {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-20px);
+    max-height: 0; /* Colapsa el espacio vertical */
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    border: none !important;
 }
 
-/* Contenedor del logo y título */
-.header-branding {
-    flex-shrink: 1; /* Permite que este contenedor se encoja */
+body.search-active #search-wrapper {
+    margin-bottom: 0; /* Elimina el margen inferior del contenedor del buscador */
+    transition: margin-bottom 0.35s ease-in-out;
 }
 
-/* Contenedor de los controles, INCLUYENDO el buscador */
-#header-controls {
-    flex-grow: 1; /* Permite que este contenedor crezca */
-    min-width: 60px; /* Evita que colapse totalmente */
+body.search-active .container {
+    padding-top: 0; /* Elimina el padding superior para juntar el contenido */
+    transition: padding-top 0.35s ease-in-out;
 }
 
-/* El buscador dentro de los controles */
-.search-container {
-    padding: 0; /* Reseteo para estado normal */
-    margin: 0;  /* Reseteo para estado normal */
-    width: 100%;
+body.search-active .search-container {
+    position: fixed;
+    top: 15px;
+    left: 20px; /* Alineado con el padding de destino */
+    width: calc(100% - 40px); /* Ancho completo menos el padding */
+    height: var(--start-height); /* Mantiene la altura original */
+    padding: 0;
+    margin: 0;
+    z-index: 1500;
 }
 
-/* --- ESTADO DE BÚSQUEDA ACTIVA --- */
-
-body.search-active .header-container {
-    align-items: center;
+.search-container.animating {
+    position: fixed;
+    top: var(--start-top);
+    left: var(--start-left);
+    width: var(--start-width);
+    height: var(--start-height);
+    margin: 0;
 }
 
-body.search-active .header-branding {
-    flex-grow: 0;     /* No debe crecer */
-    flex-shrink: 0;   /* No debe encogerse más */
-    flex-basis: auto; /* Base automática */
-}
-
-body.search-active #header-controls {
-    flex-grow: 1; /* Ocupa el espacio disponible */
+body.search-active #searchInput {
+    padding-left: 55px; /* Espacio para el logo */
+    height: 48px;
+    box-sizing: border-box;
 }
 
 body.search-active .app-logo {
-    max-width: 40px; /* Encoge el logo */
-}
-
-/* El truco para la animación del título */
-body.search-active .app-title {
-    font-size: 1em;
-    width: 0;
-    opacity: 0;
-    overflow: hidden;
-    white-space: nowrap;
-    margin-left: -10px; /* Ajuste para que desaparezca limpiamente */
-}
-
-/* Ajuste del input para hacer espacio al logo */
-body.search-active .search-container input[type="text"] {
-    padding-left: 50px;
+    position: fixed;
+    top: 22px;       /* 15px (search-container top) + 7px (para centrar) */
+    left: 30px;      /* 20px (search-container padding) + 10px (margen interno) */
+    max-width: 34px;
+    z-index: 1501;   /* Por encima del input */
 }
 
 

@@ -40,13 +40,41 @@ async function initializeApp() {
         navigation.filtrarContenido(searchInput.value);
     });
 
-    // Event listeners for search animation
+    // --- LÓGICA DE ANIMACIÓN DE LA BARRA DE BÚSQUEDA ---
+    const searchContainer = document.querySelector('.search-container');
+
+    // Añade la clase 'search-active' al body cuando el input gana el foco.
     searchInput.addEventListener('focus', () => {
-        document.body.classList.add('search-active');
+        const rect = searchContainer.getBoundingClientRect();
+
+        searchContainer.style.setProperty('--start-top', `${rect.top}px`);
+        searchContainer.style.setProperty('--start-left', `${rect.left}px`);
+        searchContainer.style.setProperty('--start-width', `${rect.width}px`);
+        searchContainer.style.setProperty('--start-height', `${rect.height}px`);
+
+        searchContainer.classList.add('animating');
+
+        requestAnimationFrame(() => {
+            document.body.classList.add('search-active');
+        });
     });
+
+    // Elimina la clase 'search-active' del body cuando el input pierde el foco.
     searchInput.addEventListener('blur', () => {
-        document.body.classList.remove('search-active');
+        setTimeout(() => {
+            document.body.classList.remove('search-active');
+
+            searchContainer.addEventListener('transitionend', () => {
+                searchContainer.classList.remove('animating');
+                searchContainer.style.removeProperty('--start-top');
+                searchContainer.style.removeProperty('--start-left');
+                searchContainer.style.removeProperty('--start-width');
+                searchContainer.style.removeProperty('--start-height');
+            }, { once: true });
+
+        }, 200); // Retardo para permitir clics en resultados
     });
+
 
     // Hamburger menu listeners
     document.getElementById('hamburger-btn').addEventListener('click', ui.openSideMenu);
