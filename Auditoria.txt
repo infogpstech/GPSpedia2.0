@@ -489,3 +489,37 @@ La solución correcta y definitiva requiere un enfoque de dos pasos para garanti
 2.  **En `style.css`:**
     - Añadir una nueva regla CSS: `body.search-active #search-wrapper { margin-bottom: 0; }`. Esta regla altamente específica anulará el `margin-bottom` del estilo en línea solo cuando la búsqueda esté activa.
     - Ajustar la regla `body.search-active .container` a `padding-top: 0;` para eliminar cualquier espaciado restante y asegurar que los resultados se alineen directamente debajo de la barra de búsqueda.
+========================================
+AUDITORÍA - 24/01/2026 (FLUIDEZ DE ANIMACIÓN DE BÚSQUEDA)
+========================================
+
+**TAREA:** Implementar una animación fluida para la barra de búsqueda, eliminando el "salto" a su posición final.
+
+**ARCHIVOS REVISADOS:**
+- main.js
+- style.css
+
+**HALLAZgos Y ANÁLISIS DE CAUSA RAÍZ (POST-CODE REVIEW):**
+1.  **Causa del "Salto" en la Animación:**
+    - La regla de CSS `body.search-active .search-container` cambia abruptamente la propiedad `position` de `relative` a `fixed`. Las transiciones de CSS no pueden animar un cambio en la propiedad `position`.
+    - **Error en la Implementación Inicial:** El intento anterior de usar variables CSS personalizadas falló porque no había un estado intermedio claro que el navegador pudiera usar como punto de partida para la transición. El cambio de `position` seguía siendo instantáneo.
+
+**CONCLUSIÓN DE LA AUDITORÍA (CORREGIDA):**
+Para lograr un "deslizamiento" fluido, es necesario un enfoque más robusto que fuerce al navegador a reconocer un estado "antes" y un estado "después" para la transición.
+
+**ACCIÓN REQUERIDA (PROPUESTA CORREGIDA):**
+1.  **En `main.js`:**
+    -   **Evento `focus`:**
+        a. Obtener la posición inicial con `getBoundingClientRect()` y guardarla en variables CSS (`--start-top`, etc.).
+        b. Añadir una clase `.animating` al `.search-container`. Esto lo posicionará de forma `fixed` en su ubicación *actual*.
+        c. Usar `requestAnimationFrame` para asegurar que el navegador aplique los estilos de la clase `.animating` *antes* de proceder. Esto crea el estado "desde" el cual animar.
+        d. Dentro del `requestAnimationFrame`, añadir la clase `search-active` al `body`. Esto activará los estilos del estado final, y como ahora existe un punto de partida definido, el navegador ejecutará la transición.
+    -   **Evento `blur`:**
+        a. Eliminar la clase `search-active` para iniciar la animación de retorno.
+        b. Usar un `addEventListener('transitionend', ..., { once: true })` para detectar cuándo termina la animación de retorno.
+        c. Dentro del listener `transitionend`, eliminar la clase `.animating` y las variables CSS personalizadas para limpiar el estado y devolver el elemento al flujo normal del documento.
+
+2.  **En `style.css`:**
+    -   **Regla `.search-container.animating`:** Esta nueva regla definirá el estado inicial de la animación, posicionando el elemento de forma `fixed` en el lugar exacto donde estaba, usando las variables CSS.
+    -   **Regla `body.search-active .search-container`:** Esta regla existente definirá el estado final de la animación (en la parte superior de la pantalla).
+    -   La transición entre estas dos reglas, orquestada por el `requestAnimationFrame`, creará el efecto de deslizamiento deseado.

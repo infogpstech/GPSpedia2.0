@@ -1,31 +1,31 @@
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-1. CORRECCIÓN DEFINITIVA DE ESPACIADO EN ANIMACIÓN DE BÚSQUEDA
+1. CORRECCIÓN Y REFINAMIENTO DE ANIMACIÓN DE BÚSQUEDA
 Estado: PENDIENTE DE REVISIÓN POR EL PM
-Origen: Reporte de Bug Visual
+Origen: Refinamiento UX y Reporte de Bug Visual
 Prioridad: Normal
-Área: Frontend | UI | CSS
-Archivos involucrados: index.html, style.css
+Área: Frontend | UI | CSS | JS
+Archivos involucrados: main.js, style.css
 
 Descripción:
-Se implementó la corrección definitiva para el espaciado vertical durante la animación de búsqueda. Se asignó un ID al contenedor del buscador para anular de forma precisa un `margin-bottom` en línea que causaba el problema, y se ajustó el `padding-top` del contenedor principal a cero, eliminando completamente el espacio no deseado.
+Se ha implementado una corrección definitiva para la animación de la barra de búsqueda. La nueva lógica utiliza una orquestación precisa con JavaScript (`requestAnimationFrame`) y CSS (clases y variables personalizadas) para asegurar una transición completamente fluida, eliminando el "salto" visual que ocurría anteriormente.
 
 ---
 **TAREAS COMPLETADAS (Validadas por el PM)**
 ---
-1. MEJORA Y REFINAMIENTO DE ANIMACIÓN DE BÚSQUEDA
+1. MEJORA Y REFINAMIENTO DE ANIMACIÓN DE BÚSQUEDA (CICLO ANTERIOR)
 Estado: COMPLETADO
-Origen: Refinamiento UX
+Origen: Refinamiento UX y Reporte de Bug Visual
 Prioridad: Normal
 Área: Frontend | UI | CSS | JS
-Archivos involucrados: style.css, main.js
+Archivos involucrados: index.html, style.css, main.js
 
 Descripción:
-Se completó un ciclo de mejoras en la animación de la barra de búsqueda. Las implementaciones incluyen:
-- La adición de la animación de expansión/contracción de la barra al hacer foco, replicando el comportamiento de la v1.5.
-- La ocultación del menú de hamburguesa y la reducción del espacio superior para optimizar la vista de búsqueda.
-- La corrección final y definitiva del espaciado vertical entre la barra y los resultados, asegurando una alineación perfecta.
+Se completó un ciclo integral de mejoras en la animación de la barra de búsqueda. Las implementaciones incluyen:
+- La adición de la animación de expansión/contracción de la barra al hacer foco.
+- La ocultación de elementos de la UI (menú, logo, etc.) para optimizar el espacio.
+- La corrección definitiva del espaciado vertical entre la barra y los resultados.
 
 2. INVESTIGAR CIERRE DE SESIÓN INESPERADO TRAS REFRESH
 Estado: COMPLETADO
