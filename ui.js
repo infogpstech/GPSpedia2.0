@@ -1067,40 +1067,28 @@ function createAccordionSection(container, title, sec, isOpen = false, datosRela
     }
 
     btn.addEventListener("click", function() {
-        // Primero, cerrar todos los demás paneles en el mismo contenedor
+        const isActive = this.classList.contains("active");
+
+        // Cerrar todos los paneles antes de abrir el nuevo
         const allButtons = container.querySelectorAll(".accordion-btn");
         allButtons.forEach(otherBtn => {
-            if (otherBtn !== this) {
-                otherBtn.classList.remove("active");
-                const otherPanel = otherBtn.nextElementSibling;
-                if (otherPanel && otherPanel.style.maxHeight) {
-                    otherPanel.style.maxHeight = null;
-                    // Pausar video si se cierra otro panel
-                    const iframeId = otherBtn.dataset.iframeId;
-                    const iframe = iframeId ? document.getElementById(iframeId) : null;
-                    if (iframe && iframe.contentWindow) {
-                        iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
-                    }
-                }
-            }
+            otherBtn.classList.remove("active");
+            otherBtn.nextElementSibling.style.maxHeight = null;
         });
 
-        // Luego, abrir o cerrar el panel actual
-        this.classList.toggle("active");
-        if (panel.style.maxHeight) {
-            panel.style.maxHeight = null;
-        } else {
-            // Recalcular scrollHeight en caso de que el contenido haya cambiado
-            panel.style.maxHeight = panel.scrollHeight + "px";
+        // Si el botón no estaba activo, ábrelo.
+        if (!isActive) {
+            this.classList.add("active");
+            // Esperar un ciclo de renderizado para asegurar que el iframe exista
+            setTimeout(() => {
+                panel.style.maxHeight = panel.scrollHeight + "px";
+            }, 0);
         }
     });
 
-    // Se añade un listener para el final de la transición para pausar el video.
-    // Esto desacopla el control del video de la lógica de la animación,
-    // restaurando el comportamiento original del acordeón y evitando bugs.
+    // Listener para pausar el video CUANDO la animación de cierre TERMINA
     panel.addEventListener('transitionend', () => {
-        // Si el panel ha terminado de cerrarse (maxHeight es null o '0px')
-        if (!panel.style.maxHeight || panel.style.maxHeight === '0px') {
+        if (!panel.style.maxHeight) { // Si el panel está cerrado
             const iframeId = btn.dataset.iframeId;
             const iframe = iframeId ? document.getElementById(iframeId) : null;
             if (iframe && iframe.contentWindow) {

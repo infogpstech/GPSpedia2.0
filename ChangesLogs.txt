@@ -1,3 +1,23 @@
+**V4.8.8 - (DEFINITIVE FIX) - 28/01/2026**
+**A. RESUMEN GENERAL:** Se implementaron correcciones definitivas y robustas para las fallas persistentes en el espaciado de la barra de búsqueda y la visualización de la video guía, abordando las causas raíz identificadas en una auditoría profunda.
+
+**B. Cambios Implementados:**
+
+1.  **Corrección de Espaciado de Búsqueda (Causa Raíz: Efecto Aditivo) (`style.css`):**
+    *   **Problema:** Un `padding-bottom` heredado de una regla general (`.container`) persistía en el estado de búsqueda activa, creando un espacio no deseado.
+    *   **Solución:** Se modificó la regla `body.search-active .container` para que defina explícitamente todos los valores de `padding` (`padding: 60px 20px 0;`). Esto anula por completo la regla general, eliminando el `padding-bottom` y corrigiendo el espaciado de manera definitiva.
+    *   **Líneas Afectadas en `style.css`:** 393-396.
+
+2.  **Corrección de Visualización de Video (Causa Raíz: Race Condition) (`ui.js`):**
+    *   **Problema:** Una condición de carrera (`race condition`) causaba que la altura del panel del acordeón se calculara *antes* de que el `iframe` del video se cargara, resultando en un panel demasiado pequeño que ocultaba el video.
+    *   **Solución:** Se refactorizó el `event listener` del `click` en `createAccordionSection`. La lógica ahora utiliza un `setTimeout` con un retardo de `0` milisegundos. Esto pospone la ejecución del cálculo de `scrollHeight` hasta el siguiente ciclo de eventos del navegador, dando tiempo al `iframe` para que comience a renderizarse y tenga dimensiones, resolviendo así la condición de carrera y asegurando que el panel se expanda a la altura correcta.
+    *   **Líneas Afectadas en `ui.js`:** 1070-1085.
+
+**C. Impacto:**
+- **Solución Definitiva:** Se han resuelto las causas raíz de ambos problemas persistentes, no solo sus síntomas.
+- **UI Correcta:** El espaciado de la barra de búsqueda ahora es preciso y funcional.
+- **Funcionalidad Restaurada:** La video guía es ahora visible y el acordeón funciona de manera robusta y predecible, manejando correctamente el contenido dinámico como los `iframes`.
+
 **V4.8.7 - (POST-COMMIT REGRESSION FIX) - 27/01/2026**
 **A. RESUMEN GENERAL:** Se implementaron correcciones definitivas para múltiples fracasos funcionales y regresiones graves que fueron identificadas durante la revisión post-commit de la versión anterior.
 

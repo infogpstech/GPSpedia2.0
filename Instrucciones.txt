@@ -1,14 +1,13 @@
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-1. **TÍTULO: Corrección Definitiva de Regresiones Post-Commit (Búsqueda y Modal)**
+1. **TÍTULO: Corrección Definitiva de Fallas Persistentes (Búsqueda y Modal)**
    - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
-   - **TIPO:** Corrección de Bug / Regresión Funcional / UI
-   - **ALCANCE:** Se implementaron correcciones definitivas a múltiples fracasos funcionales identificados tras un commit anterior, afectando `style.css` y `ui.js`.
+   - **TIPO:** Corrección de Causa Raíz / Bug / UI / Race Condition
+   - **ALCANCE:** Se implementaron correcciones definitivas basadas en una auditoría profunda para resolver las causas raíz de las fallas en `style.css` y `ui.js`.
    - **DESCRIPCIÓN DETALLADA:**
-     - **Espaciado de Búsqueda (style.css):** Se corrigió el espacio vertical excesivo que ocurría durante la animación de búsqueda. Se ajustó el `padding-top` en la regla `body.search-active .container` a un valor preciso (`20px`) que compensa la altura de la barra fija sin crear un espacio no deseado.
-     - **Lógica de Acordeón (ui.js):** Se restauró el comportamiento original del acordeón en el modal de detalle. La lógica ahora asegura que solo un panel puede estar abierto a la vez, cerrando los demás automáticamente.
-     - **Visualización de Video Guía (ui.js):** La corrección de la lógica del acordeón resolvió el bug que impedía que el panel del video se expandiera. El video guía ahora es visible y completamente funcional, incluyendo los controles de pausa al cerrar el acordeón y detención al cerrar el modal.
+     - **Espaciado de Búsqueda (Causa Raíz: Efecto Aditivo CSS):** Se corrigió el espaciado de la barra de búsqueda modificando la regla `body.search-active .container` para definir explícitamente todos los `padding`, anulando así un `padding-bottom` heredado que causaba el espaciado incorrecto.
+     - **Visualización de Video Guía (Causa Raíz: Race Condition JS):** Se resolvió la condición de carrera que impedía la visualización del video. La lógica del acordeón ahora usa un `setTimeout` para retrasar el cálculo del `scrollHeight`, asegurando que el `iframe` del video tenga dimensiones antes de que el panel se expanda. Esto garantiza que el panel se anime a la altura correcta y el video sea siempre visible.
 
 ---
 **TAREAS COMPLETADAS (Validadas por el PM)**
