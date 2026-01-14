@@ -383,8 +383,13 @@ body.search-active .footer {
     border: none !important;
 }
 
+body.search-active #search-wrapper {
+    margin-bottom: 0; /* Elimina el margen inferior del contenedor del buscador */
+    transition: margin-bottom 0.35s ease-in-out;
+}
+
 body.search-active .container {
-    padding-top: 60px; /* Espacio reducido para la barra de búsqueda fija */
+    padding-top: 0; /* Elimina el padding superior para juntar el contenido */
     transition: padding-top 0.35s ease-in-out;
 }
 

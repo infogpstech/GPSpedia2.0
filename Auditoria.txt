@@ -461,3 +461,31 @@ La solución es puramente de CSS y requiere dos ajustes específicos:
 
 **ACCIÓN REQUERIDA (PROPUESTA):**
 Modificar el archivo `style.css` para aplicar los dos ajustes mencionados.
+========================================
+AUDITORÍA - 24/01/2026 (CORRECCIÓN DE ESPACIADO EN BÚSQUEDA)
+========================================
+
+**TAREA:** Corregir el espaciado excesivo entre la barra de búsqueda y los resultados durante la animación.
+
+**ARCHIVOS REVISADOS:**
+- index.html
+- style.css
+
+**HALLAZgos Y ANÁLISIS DE CAUSA RAÍZ:**
+1.  **Análisis de Intentos Anteriores:**
+    - Las modificaciones previas a la propiedad `padding-top` del `.container` no fueron efectivas para eliminar completamente el espacio.
+
+2.  **Identificación de la Causa Raíz:**
+    - Una inspección detallada de `index.html` reveló que el contenedor de la barra de búsqueda (`<div class="search-container">`) está envuelto en otro `div`.
+    - Este `div` contenedor tiene un estilo en línea: `style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;"`.
+    - La propiedad `margin-bottom: 20px;` es la causa directa y persistente del espacio no deseado. Esta regla de estilo en línea tiene una alta especificidad y no se veía afectada por los cambios anteriores al padding del contenedor principal.
+
+**CONCLUSIÓN DE LA AUDITORÍA:**
+La causa raíz del problema de espaciado ha sido identificada de manera concluyente. El problema no era el padding del contenedor principal, sino un margen inferior aplicado a través de un estilo en línea a un elemento contenedor del buscador.
+
+**ACCIÓN REQUERIDA (PROPUESTA):**
+La solución correcta y definitiva requiere un enfoque de dos pasos para garantizar la especificidad y la claridad del código:
+1.  **En `index.html`:** Asignar un ID único (ej. `id="search-wrapper"`) al `div` contenedor que tiene el estilo en línea problemático. Esto permitirá anular el estilo de forma segura y específica.
+2.  **En `style.css`:**
+    - Añadir una nueva regla CSS: `body.search-active #search-wrapper { margin-bottom: 0; }`. Esta regla altamente específica anulará el `margin-bottom` del estilo en línea solo cuando la búsqueda esté activa.
+    - Ajustar la regla `body.search-active .container` a `padding-top: 0;` para eliminar cualquier espaciado restante y asegurar que los resultados se alineen directamente debajo de la barra de búsqueda.

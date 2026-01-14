@@ -1,3 +1,23 @@
+**V4.8.4 - (UI/UX FIX) - 24/01/2026**
+**A. RESUMEN GENERAL:** Se implementó una corrección definitiva al problema de espaciado en la animación de la barra de búsqueda, eliminando completamente el espacio vertical entre la barra y los resultados.
+
+**B. Cambios Implementados:**
+1.  **Identificador Único para Contenedor de Búsqueda (`index.html`):**
+    *   **Problema:** Un estilo en línea (`margin-bottom: 20px;`) en un `div` anónimo que envolvía el buscador causaba un espaciado persistente que no podía ser anulado por reglas de CSS generales.
+    *   **Solución:** Se asignó un ID único, `search-wrapper`, a este `div` contenedor para permitir que sea objetivo de una regla de CSS específica y de alta prioridad.
+    *   **Líneas Afectadas en `index.html`:** 105.
+
+2.  **Anulación Específica de Estilos (`style.css`):**
+    *   **Problema:** El espaciado no deseado persistía a pesar de los intentos anteriores de ajustar el `padding`.
+    *   **Solución:** Se añadieron nuevas reglas de CSS para `body.search-active` que ahora anulan de manera precisa y definitiva los estilos que causaban el espacio:
+        - Se añadió la regla `body.search-active #search-wrapper { margin-bottom: 0; }` para anular el margen inferior del contenedor.
+        - Se modificó la regla `body.search-active .container` para que tenga `padding-top: 0;`, eliminando cualquier espaciado restante.
+    *   **Líneas Afectadas en `style.css`:** 384-391.
+
+**C. Impacto:**
+- **Corrección Visual Definitiva:** Se ha eliminado por completo el espacio no deseado, logrando que los resultados de la búsqueda se muestren directamente debajo de la barra de búsqueda, tal como se requería.
+- **Mejora de la Mantenibilidad:** La adición de un ID específico y una regla de CSS clara hace que el comportamiento del layout sea más predecible y fácil de mantener en el futuro.
+
 **V4.8.3 - (UI/UX REFINEMENT) - 23/01/2026**
 **A. RESUMEN GENERAL:** Se refinó la animación de la barra de búsqueda para optimizar el espacio en pantalla, especialmente en dispositivos móviles.
 
@@ -298,7 +318,7 @@
     *   **Líneas Afectadas en `style.css`:** 777-781, 790.
 
 **C. Impacto:**
-- **Consistencia Visual y Documental:** El diseño del modal de detalles del vehículo ahora coincide con los requisitos visuales más recientes, y la documentación en `README.md` actúa como una fuente de verdad precisa para la estructura de la UI.
+- **Consistencia Visual y Documental:** El diseño del modal de detalles ahora coincide con los requisitos visuales más recientes, y la documentación en `README.md` actúa como una fuente de verdad precisa para la estructura de la UI.
 
 **V4.5.0 - (REGRESSION FIX) - 14/01/2026**
 **A. RESUMEN GENERAL:** Se implementó una corrección integral para un conjunto de regresiones críticas en el frontend que afectaban la navegación principal y la visualización de detalles en los modales, restaurando la funcionalidad y el diseño a las especificaciones definidas en la documentación.
