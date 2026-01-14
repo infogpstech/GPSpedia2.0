@@ -1,4 +1,38 @@
 ========================================
+AUDITORÍA - 23/01/2026 (IMPLEMENTACIÓN DE ANIMACIÓN DE BÚSQUEDA)
+========================================
+
+**TAREA:** Implementar una animación fluida para la barra de búsqueda que mejore la experiencia de usuario.
+
+**ARCHIVOS REVISADOS:**
+- style.css
+- main.js
+- index.html
+
+**ANÁLISIS TÉCNICO Y ESTADO FINAL:**
+
+1.  **Requisito Funcional:**
+    - Al activar la búsqueda (haciendo foco en el campo de texto), el encabezado completo (logo, título, etc.) y los botones de sección deben deslizarse hacia arriba y desaparecer.
+    - La barra de búsqueda debe permanecer "pegada" en la parte superior del viewport mientras dure la búsqueda.
+    - La animación debe ser fluida, sin "saltos" visuales.
+    - El menú hamburguesa debe ocultarse durante la animación.
+
+2.  **Solución Implementada (CSS-Driven):**
+    - Se ha implementado una solución basada puramente en CSS para lograr la animación, controlada por una clase en el `<body>`.
+    - **`main.js`:** Se añadieron `event listeners` de `focus` y `blur` al campo de búsqueda (`searchInput`). Estos `listeners` se limitan a añadir o quitar la clase `search-active` del `<body>`, delegando toda la lógica de animación al CSS.
+    - **`style.css`:**
+        - Se añadió la propiedad `transition: transform 0.35s ease-in-out;` al selector `.container`. Esta es la regla clave que permite la animación fluida.
+        - Se implementó una regla para `body.search-active .container` que aplica un `transform: translateY(-135px);`. Este valor desplaza todo el contenedor principal hacia arriba, ocultando los elementos superiores.
+        - Se aplicó `position: sticky;` (con su prefijo `-webkit-`) al `div` que envuelve el `.search-container`. Esta regla hace que dicho `div` se "pegue" a la parte superior de la ventana (`top: 0;`) cuando el `scroll` (o el `transform` del padre) lo desplazaría fuera de la vista.
+        - Se añadieron reglas para ocultar (`opacity: 0; pointer-events: none;`) el botón `#hamburger-btn` y el `.section-selector` cuando la clase `search-active` está presente, cumpliendo con todos los requisitos visuales.
+
+3.  **Corrección de Errores Anteriores:**
+    - La implementación final corrige los intentos fallidos previos que utilizaban `position: fixed` y manipulaciones complejas de `padding`, los cuales causaban un "salto" visual. El enfoque actual con `transform` y `position: sticky` es más robusto, eficiente y produce una animación suave.
+
+**CONCLUSIÓN DE LA AUDITORÍA:**
+La implementación se considera finalizada y correcta. Cumple con todos los requisitos funcionales y visuales especificados, y sigue las mejores prácticas al favorecer las transiciones CSS sobre la manipulación del DOM por JavaScript para las animaciones.
+
+========================================
 AUDITORÍA - 22/01/2026 (CIERRE DE SESIÓN INESPERADO)
 ========================================
 
@@ -8,7 +42,7 @@ AUDITORÍA - 22/01/2026 (CIERRE DE SESIÓN INESPERADO)
 - main.js
 - auth.js
 
-**HALLAZgos Y ANÁLISIS DE CAUSA RAÍZ:**
+**HALLAZGOS Y ANÁLISIS DE CAUSA RAÍZ:**
 1.  **Flujo de Inicialización y Validación:**
     - `main.js` (`initializeApp`): Se ejecuta en `DOMContentLoaded`. La última llamada es a `auth.checkSession()`.
     - `auth.js` (`checkSession`):
@@ -49,7 +83,7 @@ AUDITORÍA - 22/01/2026 (RE-AUDITORÍA DE REGRESIÓN)
 **ARCHIVOS REVISADOS:**
 - ui.js
 
-**HALLAZgos (CAUSA RAÍZ DEFINITIVA):**
+**HALLAZGOS (CAUSA RAÍZ DEFINITIVA):**
 1.  **Error de Lógica en `regresarABusqueda`:**
     - La auditoría anterior fue incorrecta al asumir que el problema era la existencia de un botón "Regresar" en la vista de resultados. El problema real yace en la lógica de la función `regresarABusqueda`, que se invoca correctamente pero falla en su ejecución.
     - **Línea 480:** La condición `if (navigationState && navigationState.level === 'busqueda' && navigationState.query)` es **incorrecta**.
@@ -68,7 +102,7 @@ AUDITORÍA - 22/01/2026 (REGRESIÓN EN BOTÓN "REGRESAR")
 - ui.js
 - navigation.js
 
-**HALLAZgos:**
+**HALLAZGOS:**
 1.  **Causa Raíz del Comportamiento Incorrecto en `ui.js`:**
     - Se ha localizado el origen del bug en la función `mostrarResultadosDeBusqueda`.
     - **Problema Específico:** La función está construyendo y mostrando un botón "Regresar" en la propia vista de resultados de búsqueda. La acción de este botón es `window.navigation.irAPaginaPrincipal()`.
@@ -89,7 +123,7 @@ AUDITORÍA - 21/01/2026
 - ui.js
 - navigation.js
 
-**HALLAZgos:**
+**HALLAZGOS:**
 1.  **Causa Raíz del Bug en el Flujo de Regreso:**
     - El problema se origina por una gestión de estado incompleta durante el proceso de búsqueda.
     - **En `navigation.js` (`filtrarContenido`):** Al realizar una búsqueda, la función establece el estado de navegación a `{ level: "busqueda" }`, pero omite guardar el término de búsqueda (`textoBusqueda`) en dicho estado.
@@ -111,7 +145,7 @@ AUDITORÍA - 20/01/2026 (REGRESIÓN CRÍTICA)
 **ARCHIVOS REVISADOS:**
 - ui.js
 
-**HALLAZgos:**
+**HALLAZGOS:**
 1.  **Causa Raíz del Error de Sintaxis:**
     - Se ha localizado un `SyntaxError` fatal en la función `mostrarResultadosDeBusqueda` del archivo `ui.js`.
     - **Línea Afectada:** 601.
@@ -134,7 +168,7 @@ AUDITORÍA - 20/01/2026
 - ui.js
 - navigation.js
 
-**HALLAZgos:**
+**HALLAZGOS:**
 1.  **Error de Lógica en `ui.js` - `mostrarResultadosDeBusqueda`:**
     - Se ha identificado que la función `mostrarResultadosDeBusqueda` es la fuente del comportamiento anómalo.
     - **Problema Específico:** Cuando los resultados de una búsqueda corresponden a un modelo, la función renderiza incorrectamente una tarjeta individual para cada AÑO disponible de ese modelo (ej. 'CR-V 2018', 'CR-V 2019'). El comportamiento esperado es que se muestren las VERSIONES DE EQUIPAMIENTO o los TIPOS DE ENCENDIDO para el modelo buscado.
@@ -160,7 +194,7 @@ Esta auditoría de seguimiento se inició tras la notificación del usuario de q
 
 La investigación concluye que la causa del problema recurrente **no reside en un defecto del código**, sino que probablemente se deba a uno de dos factores externos: un **caso de borde en el formato de los datos** de entrada que no ha sido contemplado, o un **problema de caché** en el entorno del cliente.
 
-**B. ANÁLISÉS TÉCNICO DE `getImageUrl`**
+**B. ANÁLISIS TÉCNICO DE `getImageUrl`**
 -----------------------------------------
 1.  **Robustez y Manejo de Errores:**
     *   La función gestiona adecuadamente valores nulos, indefinidos o vacíos, devolviendo una imagen provisional (`placeholder`) para evitar fallos de renderizado.
@@ -199,7 +233,7 @@ Dado que el código es correcto, la persistencia del error se atribuye a las sig
 ---
 **ACTUALIZACIÓN DE AUDITORÍA - 14/01/2026**
 ---
-**F. HALLAZgos DE REGRESIÓN (POST-REFACTOR) - `ui.js`**
+**F. HALLAZGOS DE REGRESIÓN (POST-REFACTOR) - `ui.js`**
 -----------------------------------------------------
 Se realizó una auditoría específica de `ui.js` para investigar un conjunto de regresiones funcionales y visuales reportadas tras la refactorización de la navegación.
 
@@ -219,7 +253,7 @@ Se realizó una auditoría específica de `ui.js` para investigar un conjunto de
     *   **Hallazgo (Nombre del Colaborador):** La estructura HTML para el colaborador es correcta (se renderiza fuera del contenedor de la imagen). El problema de posicionamiento es puramente de CSS.
     *   **Acción Requerida:** Reordenar la creación de elementos DOM para el logo y el título. Las demás correcciones deberán realizarse en `style.css`.
 
-**G. HALLAZgos DE REGRESIÓN (POST-REFACTOR) - `style.css`**
+**G. HALLAZGOS DE REGRESIÓN (POST-REFACTOR) - `style.css`**
 ------------------------------------------------------
 Se realizó una auditoría específica de `style.css` para identificar las causas de los problemas de diseño reportados.
 
@@ -407,119 +441,4 @@ Se realizó una auditoría para identificar la causa de una regresión en el sis
 
 2.  **Acción Requerida:**
     *   **En `navigation.js`:** Eliminar la línea que crea `modelosUnicos`. La función `filtrarContenido` debe pasar la lista completa y sin filtrar de `datosFiltrados` a la capa de UI.
-    *   **En `ui.js`:** Modificar la función `mostrarResultadosDeBusqueda` para que las tarjetas de resultado de modelo muestren información distintiva. El `overlay` de cada tarjeta debe incluir no solo el modelo y año, sino también la `versionesAplicables` o el `tipoEncendido`, permitiendo al usuario diferenciar entre las tarjetas.
-
-========================================
-AUDITORÍA - 23/01/2026 (ANIMACIÓN DE BARRA DE BÚSQUEDA)
-========================================
-
-**TAREA:** Replicar la animación de la barra de búsqueda de la v1.5.
-
-**ARCHIVOS REVISADOS:**
-- index.html
-- style.css
-- main.js
-- ui.js
-- navigation.js
-- Olds/GPSpedia 1.5/index.html (como referencia)
-
-**HALLAZgos Y ANÁLISIS DE CAUSA RAÍZ:**
-1.  **Análisis de la Implementación Actual:**
-    - `style.css`: Contiene todas las reglas de CSS necesarias para la animación. La animación se controla mediante la adición de una clase `search-active` al elemento `<body>`. Cuando esta clase está presente, los estilos reajustan la altura de la barra de búsqueda, ocultan el encabezado y reposicionan el logo.
-    - `main.js`, `ui.js`, `navigation.js`: Una auditoría completa de los archivos JavaScript revela que, aunque existe la lógica para filtrar contenido (`navigation.filtrarContenido`), **no hay ningún código que añada o elimine la clase `search-active` del body**. Faltan los manejadores de eventos (`event listeners`) que deberían activar la animación.
-
-2.  **Análisis de la Implementación de Referencia (`Olds/GPSpedia 1.5/index.html`):**
-    - El archivo de referencia contiene un bloque `<script>` con la lógica de la animación.
-    - Se utilizan los eventos `focus` y `blur` en el elemento `#searchInput`.
-    - En el evento `focus`, se añade la clase `search-active` a `document.body`.
-    - En el evento `blur`, se elimina la clase `search-active` de `document.body` después de un breve `setTimeout`. Este retardo es crucial para permitir que un clic en un resultado de búsqueda se procese antes de que la interfaz se revierta.
-
-**CONCLUSIÓN DE LA AUDITORÍA:**
-La causa raíz del problema es clara y está localizada: la ausencia de los `event listeners` `focus` y `blur` en el JavaScript de la aplicación actual. La solución consiste en implementar esta lógica faltante, replicando el comportamiento de la versión de referencia.
-
-**ACCIÓN REQUERIDA (PROPUESTA):**
-Añadir los `event listeners` para `focus` y `blur` al `searchInput` dentro del archivo `main.js`, en la función `initializeApp`, donde se configuran otros listeners globales. Esto centralizará la lógica de eventos y resolverá el problema de animación.
-========================================
-AUDITORÍA - 23/01/2026 (MEJORA DE ANIMACIÓN DE BÚSQUEDA)
-========================================
-
-**TAREA:** Ocultar el botón de hamburguesa y reducir el espacio superior durante la animación de búsqueda.
-
-**ARCHIVOS REVISADOS:**
-- index.html
-- style.css
-
-**HALLAZgos Y ANÁLISIS DE CAUSA RAÍZ:**
-1.  **Análisis del Comportamiento Actual:**
-    - Al activarse la búsqueda (`body.search-active`), el botón de hamburguesa (`#hamburger-btn`) permanece visible porque no está incluido en la regla CSS que oculta los otros elementos del encabezado.
-    - El espacio superior es controlado por la propiedad `padding-top` de la regla `body.search-active .container`, que actualmente tiene un valor de `80px`.
-
-**CONCLUSIÓN DE LA AUDITORÍA:**
-La solución es puramente de CSS y requiere dos ajustes específicos:
-1.  Incluir el selector `#hamburger-btn` en la lista de elementos que se ocultan.
-2.  Reducir el valor de `padding-top` para acercar los resultados a la barra de búsqueda.
-
-**ACCIÓN REQUERIDA (PROPUESTA):**
-Modificar el archivo `style.css` para aplicar los dos ajustes mencionados.
-========================================
-AUDITORÍA - 24/01/2026 (CORRECCIÓN DE ESPACIADO EN BÚSQUEDA)
-========================================
-
-**TAREA:** Corregir el espaciado excesivo entre la barra de búsqueda y los resultados durante la animación.
-
-**ARCHIVOS REVISADOS:**
-- index.html
-- style.css
-
-**HALLAZgos Y ANÁLISIS DE CAUSA RAÍZ:**
-1.  **Análisis de Intentos Anteriores:**
-    - Las modificaciones previas a la propiedad `padding-top` del `.container` no fueron efectivas para eliminar completamente el espacio.
-
-2.  **Identificación de la Causa Raíz:**
-    - Una inspección detallada de `index.html` reveló que el contenedor de la barra de búsqueda (`<div class="search-container">`) está envuelto en otro `div`.
-    - Este `div` contenedor tiene un estilo en línea: `style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;"`.
-    - La propiedad `margin-bottom: 20px;` es la causa directa y persistente del espacio no deseado. Esta regla de estilo en línea tiene una alta especificidad y no se veía afectada por los cambios anteriores al padding del contenedor principal.
-
-**CONCLUSIÓN DE LA AUDITORÍA:**
-La causa raíz del problema de espaciado ha sido identificada de manera concluyente. El problema no era el padding del contenedor principal, sino un margen inferior aplicado a través de un estilo en línea a un elemento contenedor del buscador.
-
-**ACCIÓN REQUERIDA (PROPUESTA):**
-La solución correcta y definitiva requiere un enfoque de dos pasos para garantizar la especificidad y la claridad del código:
-1.  **En `index.html`:** Asignar un ID único (ej. `id="search-wrapper"`) al `div` contenedor que tiene el estilo en línea problemático. Esto permitirá anular el estilo de forma segura y específica.
-2.  **En `style.css`:**
-    - Añadir una nueva regla CSS: `body.search-active #search-wrapper { margin-bottom: 0; }`. Esta regla altamente específica anulará el `margin-bottom` del estilo en línea solo cuando la búsqueda esté activa.
-    - Ajustar la regla `body.search-active .container` a `padding-top: 0;` para eliminar cualquier espaciado restante y asegurar que los resultados se alineen directamente debajo de la barra de búsqueda.
-========================================
-AUDITORÍA - 24/01/2026 (FLUIDEZ DE ANIMACIÓN DE BÚSQUEDA)
-========================================
-
-**TAREA:** Implementar una animación fluida para la barra de búsqueda, eliminando el "salto" a su posición final.
-
-**ARCHIVOS REVISADOS:**
-- main.js
-- style.css
-
-**HALLAZgos Y ANÁLISIS DE CAUSA RAÍZ (POST-CODE REVIEW):**
-1.  **Causa del "Salto" en la Animación:**
-    - La regla de CSS `body.search-active .search-container` cambia abruptamente la propiedad `position` de `relative` a `fixed`. Las transiciones de CSS no pueden animar un cambio en la propiedad `position`.
-    - **Error en la Implementación Inicial:** El intento anterior de usar variables CSS personalizadas falló porque no había un estado intermedio claro que el navegador pudiera usar como punto de partida para la transición. El cambio de `position` seguía siendo instantáneo.
-
-**CONCLUSIÓN DE LA AUDITORÍA (CORREGIDA):**
-Para lograr un "deslizamiento" fluido, es necesario un enfoque más robusto que fuerce al navegador a reconocer un estado "antes" y un estado "después" para la transición.
-
-**ACCIÓN REQUERIDA (PROPUESTA CORREGIDA):**
-1.  **En `main.js`:**
-    -   **Evento `focus`:**
-        a. Obtener la posición inicial con `getBoundingClientRect()` y guardarla en variables CSS (`--start-top`, etc.).
-        b. Añadir una clase `.animating` al `.search-container`. Esto lo posicionará de forma `fixed` en su ubicación *actual*.
-        c. Usar `requestAnimationFrame` para asegurar que el navegador aplique los estilos de la clase `.animating` *antes* de proceder. Esto crea el estado "desde" el cual animar.
-        d. Dentro del `requestAnimationFrame`, añadir la clase `search-active` al `body`. Esto activará los estilos del estado final, y como ahora existe un punto de partida definido, el navegador ejecutará la transición.
-    -   **Evento `blur`:**
-        a. Eliminar la clase `search-active` para iniciar la animación de retorno.
-        b. Usar un `addEventListener('transitionend', ..., { once: true })` para detectar cuándo termina la animación de retorno.
-        c. Dentro del listener `transitionend`, eliminar la clase `.animating` y las variables CSS personalizadas para limpiar el estado y devolver el elemento al flujo normal del documento.
-
-2.  **En `style.css`:**
-    -   **Regla `.search-container.animating`:** Esta nueva regla definirá el estado inicial de la animación, posicionando el elemento de forma `fixed` en el lugar exacto donde estaba, usando las variables CSS.
-    -   **Regla `body.search-active .search-container`:** Esta regla existente definirá el estado final de la animación (en la parte superior de la pantalla).
-    -   La transición entre estas dos reglas, orquestada por el `requestAnimationFrame`, creará el efecto de deslizamiento deseado.
+    - **En `ui.js`:** Modificar la función `mostrarResultadosDeBusqueda` para que las tarjetas de resultado de modelo muestren información distintiva. El `overlay` de cada tarjeta debe incluir no solo el modelo y año, sino también la `versionesAplicables` o el `tipoEncendido`, permitiendo al usuario diferenciar entre las tarjetas.

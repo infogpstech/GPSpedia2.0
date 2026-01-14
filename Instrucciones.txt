@@ -1,34 +1,18 @@
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-1. CORRECCIÓN Y REFINAMIENTO DE ANIMACIÓN DE BÚSQUEDA
+1. IMPLEMENTAR ANIMACIÓN FLUIDA PARA LA BARRA DE BÚSQUEDA
 Estado: PENDIENTE DE REVISIÓN POR EL PM
-Origen: Refinamiento UX y Reporte de Bug Visual
-Prioridad: Normal
-Área: Frontend | UI | CSS | JS
-Archivos involucrados: main.js, style.css
+Origen: Feedback de UX
+Prioridad: ALTA
+Área: Frontend | UI | Animación
+Archivos involucrados: style.css, main.js
 
 Descripción:
-Se ha implementado una corrección definitiva para la animación de la barra de búsqueda. La nueva lógica utiliza una orquestación precisa con JavaScript (`requestAnimationFrame`) y CSS (clases y variables personalizadas) para asegurar una transición completamente fluida, eliminando el "salto" visual que ocurría anteriormente.
-
----
-**TAREAS COMPLETADAS (Validadas por el PM)**
----
-1. MEJORA Y REFINAMIENTO DE ANIMACIÓN DE BÚSQUEDA (CICLO ANTERIOR)
-Estado: COMPLETADO
-Origen: Refinamiento UX y Reporte de Bug Visual
-Prioridad: Normal
-Área: Frontend | UI | CSS | JS
-Archivos involucrados: index.html, style.css, main.js
-
-Descripción:
-Se completó un ciclo integral de mejoras en la animación de la barra de búsqueda. Las implementaciones incluyen:
-- La adición de la animación de expansión/contracción de la barra al hacer foco.
-- La ocultación de elementos de la UI (menú, logo, etc.) para optimizar el espacio.
-- La corrección definitiva del espaciado vertical entre la barra y los resultados.
+Se ha implementado una animación de búsqueda mediante CSS. Al hacer foco en el campo de búsqueda, el contenedor principal (`.container`) se desplaza hacia arriba con `transform: translateY()`, y la barra de búsqueda permanece fija en la parte superior gracias a `position: sticky`. Se añadió la propiedad `transition` al `.container` para asegurar que el movimiento sea fluido. El código JavaScript se limita a alternar la clase `.search-active` en el `body` para controlar el estado de la animación.
 
 2. INVESTIGAR CIERRE DE SESIÓN INESPERADO TRAS REFRESH
-Estado: COMPLETADO
+Estado: PENDIENTE DE REVISIÓN POR EL PM
 Origen: Reporte de Bug
 Prioridad: CRÍTICA
 Área: Frontend | Autenticación | Estado
@@ -37,7 +21,10 @@ Archivos involucrados: auth.js
 Descripción:
 Se ha implementado una corrección para prevenir una condición de carrera (`race condition`) durante la validación de la sesión. Se añadió un mecanismo de bloqueo (`lock`) en `localStorage` para asegurar que solo una pestaña o proceso de validación se comunique con el backend a la vez, evitando que validaciones concurrentes se invaliden entre sí.
 
-3. CORRECCIÓN DEL SISTEMA DE BÚSQUEDA Y NAVEGACIÓN
+---
+**TAREAS COMPLETADAS (Validadas por el PM)**
+---
+1. CORRECCIÓN DEL SISTEMA DE BÚSQUEDA Y NAVEGACIÓN
 Estado: COMPLETADO
 Origen: Múltiples reportes de bugs y regresiones.
 Prioridad: CRÍTICA

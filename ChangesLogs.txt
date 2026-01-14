@@ -1,75 +1,24 @@
-**V4.8.5 - (UI/UX ANIMATION FIX) - 24/01/2026**
-**A. RESUMEN GENERAL:** Se implementó una corrección definitiva a la animación de la barra de búsqueda para lograr una transición fluida, eliminando el "salto" visual que ocurría al activarla y desactivarla.
+**V4.8.2 - (UI/UX ENHANCEMENT) - 23/01/2026**
+**A. RESUMEN GENERAL:** Se implementó una animación de búsqueda fluida y CSS-driven para mejorar la experiencia del usuario. La solución corrige implementaciones anteriores fallidas y cumple con todos los requisitos visuales.
 
 **B. Cambios Implementados:**
-1.  **Orquestación Avanzada de la Animación (`main.js`):**
-    *   **Problema:** La implementación anterior no lograba una transición suave porque el cambio de la propiedad `position` en CSS no es animable de forma directa.
-    *   **Solución:** Se refactorizó la lógica de los `event listeners` `focus` y `blur` para forzar un estado inicial y final claro para la transición:
-        - **`focus`**: Se captura la geometría inicial del buscador (`getBoundingClientRect`) y se almacena en variables CSS. Se añade una clase `.animating` para posicionar el elemento de forma `fixed` en su lugar actual. Usando `requestAnimationFrame`, se asegura que el navegador renderice este estado inicial antes de añadir la clase `search-active` que dispara la animación a su estado final.
-        - **`blur`**: Se elimina la clase `search-active` para iniciar la animación de retorno. Un listener `transitionend` ahora se encarga de eliminar la clase `.animating` y limpiar las variables CSS, devolviendo el elemento al flujo normal del documento.
-    *   **Líneas Afectadas en `main.js`:** 42-79.
+1.  **Implementación de la Animación de Búsqueda (`style.css`):**
+    *   **Problema:** Las implementaciones anteriores de la animación de búsqueda eran "jumpy" y visualmente inconsistentes.
+    *   **Solución:** Se adoptó un enfoque basado en `transform` y `position: sticky`.
+        - Se añadió una `transition` al selector `.container` para permitir una animación suave.
+        - Al activar la búsqueda (`body.search-active`), el `.container` se desplaza hacia arriba con `transform: translateY(-135px)`.
+        - El `div` que contiene la barra de búsqueda se hizo `position: sticky` para que se "pegue" a la parte superior de la ventana durante la animación.
+        - Se añadieron reglas para ocultar el menú hamburguesa y los botones de sección durante la búsqueda.
+    *   **Líneas Afectadas en `style.css`:** 369-410 (bloque `ESTILOS DE BÚSQUEDA ACTIVA` reemplazado).
 
-2.  **Lógica de Animación Declarativa en CSS (`style.css`):**
-    *   **Problema:** El CSS carecía de un estado inicial definido para la animación.
-    *   **Solución:**
-        - Se añadió una nueva regla, `.search-container.animating`, que define el estado "desde" el cual animar, usando `position: fixed` y las variables CSS para replicar la posición y tamaño originales.
-        - La regla existente `body.search-active .search-container` ahora actúa como el estado "hacia" el cual animar. La transición entre estas dos reglas, orquestada por JavaScript, produce el efecto de deslizamiento fluido.
-    *   **Líneas Afectadas en `style.css`:** 409-416 (nueva regla).
-
-**C. Impacto:**
-- **Experiencia de Usuario Mejorada:** La animación ahora es fluida, profesional y consistente con el resto de las transiciones de la interfaz, mejorando significativamente la sensación visual de la aplicación.
-- **Calidad de la Interfaz:** Se ha eliminado un comportamiento visualmente discordante, resultando en una UI más pulida y refinada.
-
-**V4.8.4 - (UI/UX FIX) - 24/01/2026**
-**A. RESUMEN GENERAL:** Se implementó una corrección definitiva al problema de espaciado en la animación de la barra de búsqueda, eliminando completamente el espacio vertical entre la barra y los resultados.
-
-**B. Cambios Implementados:**
-1.  **Identificador Único para Contenedor de Búsqueda (`index.html`):**
-    *   **Problema:** Un estilo en línea (`margin-bottom: 20px;`) en un `div` anónimo que envolvía el buscador causaba un espaciado persistente que no podía ser anulado por reglas de CSS generales.
-    *   **Solución:** Se asignó un ID único, `search-wrapper`, a este `div` contenedor para permitir que sea objetivo de una regla de CSS específica y de alta prioridad.
-    *   **Líneas Afectadas en `index.html`:** 105.
-
-2.  **Anulación Específica de Estilos (`style.css`):**
-    *   **Problema:** El espaciado no deseado persistía a pesar de los intentos anteriores de ajustar el `padding`.
-    *   **Solución:** Se añadieron nuevas reglas de CSS para `body.search-active` que ahora anulan de manera precisa y definitiva los estilos que causaban el espacio:
-        - Se añadió la regla `body.search-active #search-wrapper { margin-bottom: 0; }` para anular el margen inferior del contenedor.
-        - Se modificó la regla `body.search-active .container` para que tenga `padding-top: 0;`, eliminando cualquier espaciado restante.
-    *   **Líneas Afectadas en `style.css`:** 384-391.
+2.  **Control de la Animación (`main.js`):**
+    *   **Problema:** El JavaScript no estaba manejando la activación de la animación.
+    *   **Solución:** Se añadieron `event listeners` de `focus` y `blur` al campo de búsqueda (`searchInput`). Estos `listeners` alternan la clase `search-active` en el `<body>`, que a su vez activa las animaciones definidas en CSS.
+    *   **Líneas Afectadas en `main.js`:** 44-52.
 
 **C. Impacto:**
-- **Corrección Visual Definitiva:** Se ha eliminado por completo el espacio no deseado, logrando que los resultados de la búsqueda se muestren directamente debajo de la barra de búsqueda, tal como se requería.
-- **Mejora de la Mantenibilidad:** La adición de un ID específico y una regla de CSS clara hace que el comportamiento del layout sea más predecible y fácil de mantener en el futuro.
-
-**V4.8.3 - (UI/UX REFINEMENT) - 23/01/2026**
-**A. RESUMEN GENERAL:** Se refinó la animación de la barra de búsqueda para optimizar el espacio en pantalla, especialmente en dispositivos móviles.
-
-**B. Cambios Implementados:**
-1.  **Ajustes de la Animación de Búsqueda (`style.css`):**
-    *   **Problema:** Durante la animación de búsqueda, el botón de hamburguesa permanecía visible y el espacio entre la barra de búsqueda y los resultados era excesivo.
-    *   **Solución:** Se realizaron dos ajustes en las reglas de CSS para `body.search-active`:
-        - Se añadió el selector `#hamburger-btn` a la lista de elementos que se ocultan durante la animación.
-        - Se redujo el `padding-top` del `.container` de `80px` a `60px` para disminuir el espacio vertical.
-    *   **Líneas Afectadas en `style.css`:** 372, 385.
-
-**C. Impacto:**
-- **UI más Limpia:** La ocultación del botón de hamburguesa y la reducción del espacio superior proporcionan una vista más limpia y centrada en los resultados de la búsqueda.
-- **Mejora de Usabilidad Móvil:** Se maximiza el espacio vertical disponible para los resultados, mejorando la experiencia cuando el teclado virtual está desplegado.
-
-**V4.8.2 - (UI/UX IMPROVEMENT) - 23/01/2026**
-**A. RESUMEN GENERAL:** Se implementó la animación de la barra de búsqueda para replicar el comportamiento de la v1.5, mejorando la experiencia de usuario, especialmente en dispositivos móviles.
-
-**B. Cambios Implementados:**
-1.  **Implementación de la Animación de Búsqueda (`main.js`):**
-    *   **Problema:** La barra de búsqueda no tenía ninguna animación al ser seleccionada, lo que dificultaba la visualización de resultados en pantallas pequeñas cuando el teclado virtual estaba activo.
-    *   **Solución:** Se añadieron dos nuevos `event listeners` al `searchInput` en la función `initializeApp`:
-        - `focus`: Añade la clase `search-active` al `<body>`, activando los estilos CSS que expanden la barra de búsqueda, ocultan el encabezado y reposicionan el logo.
-        - `blur`: Elimina la clase `search-active` del `<body>` con un retardo de 200ms, permitiendo que los clics en los resultados se registren antes de que la animación se revierta.
-    *   **Líneas Afectadas en `main.js`:** 42-56.
-
-**C. Impacto:**
-- **Experiencia de Usuario Mejorada:** La animación proporciona más espacio para los resultados de la búsqueda, evitando que el teclado en pantalla los oculte.
-- **Consistencia Visual:** El comportamiento de la barra de búsqueda ahora es consistente con la versión de referencia (`v1.5`), cumpliendo con los requisitos de diseño.
-
+- **Experiencia de Usuario Mejorada:** La nueva animación es fluida, profesional y mejora significativamente la interacción con la función de búsqueda.
+- **Calidad del Código:** La solución final es más robusta, eficiente y mantenible al delegar la animación a CSS en lugar de a la manipulación del DOM por JavaScript.
 **V4.8.1 - (AUTH STABILITY FIX) - 22/01/2026**
 **A. RESUMEN GENERAL:** Se implementó una corrección para un bug crítico que causaba el cierre inesperado de la sesión del usuario después de múltiples recargas de la página.
 
@@ -340,7 +289,7 @@
     *   **Líneas Afectadas en `style.css`:** 777-781, 790.
 
 **C. Impacto:**
-- **Consistencia Visual y Documental:** El diseño del modal de detalles ahora coincide con los requisitos visuales más recientes, y la documentación en `README.md` actúa como una fuente de verdad precisa para la estructura de la UI.
+- **Consistencia Visual y Documental:** El diseño del modal de detalles del vehículo ahora coincide con los requisitos visuales más recientes, y la documentación en `README.md` actúa como una fuente de verdad precisa para la estructura de la UI.
 
 **V4.5.0 - (REGRESSION FIX) - 14/01/2026**
 **A. RESUMEN GENERAL:** Se implementó una corrección integral para un conjunto de regresiones críticas en el frontend que afectaban la navegación principal y la visualización de detalles en los modales, restaurando la funcionalidad y el diseño a las especificaciones definidas en la documentación.

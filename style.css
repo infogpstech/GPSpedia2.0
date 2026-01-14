@@ -24,6 +24,7 @@ body {
     --button-bg: #f0f0f0;
     --button-text: #007bff;
     --menu-bg: #fff;
+    --header-animation-offset: -135px; /* Variable para la animación */
 }
 
 body.dark-mode {
@@ -52,6 +53,7 @@ h1.app-title {
     width: 100%;
     box-sizing: border-box;
     flex: 1 0 auto;
+    transition: transform 0.35s ease-in-out;
 }
 .backBtn {
     margin-bottom: 15px;
@@ -76,33 +78,24 @@ h1.app-title {
     flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
     margin-bottom: 20px;
     gap: 15px; /* Espacio entre el logo/título y los controles */
-    transition: all 0.35s ease-in-out;
 }
 
 .header-branding {
     display: flex;
     align-items: center;
     gap: 15px;
-    transition: all 0.35s ease-in-out;
 }
 
 .app-logo {
     max-width: 96px;
     height: auto;
     border-radius: 8px;
-    /* margin-right ya no es necesario gracias a 'gap' */
-    transition: all 0.35s ease-in-out;
 }
 h1.app-title {
     text-align: left;
     margin: 0;
     font-size: 2.2em;
     color: #333;
-    transition: all 0.35s ease-in-out;
-}
-
-#header-controls {
-    transition: all 0.35s ease-in-out;
 }
 
 #install-button {
@@ -163,13 +156,12 @@ h1.app-title {
 
 /* --- ESTILOS DEL BUSCADOR --- */
 .search-container {
-    position: relative;
+    position: relative; /* Contenedor para el botón de limpiar */
     margin-bottom: 30px;
     padding: 10px 0;
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
-    transition: top 0.35s ease-in-out, left 0.35s ease-in-out, width 0.35s ease-in-out, height 0.35s ease-in-out;
 }
 
 #clear-search-btn {
@@ -209,7 +201,6 @@ body.search-active .search-container.has-text #clear-search-btn {
     border-radius: 8px;
     box-sizing: border-box;
     font-size: 1em;
-    transition: all 0.35s ease-in-out;
 }
 .search-container input[type="text"]:focus {
     border-color: #007bff;
@@ -226,7 +217,7 @@ body.search-active .search-container.has-text #clear-search-btn {
     color: #333;
     padding: 10px;
     border-radius: 8px;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, opacity 0.35s ease-in-out;
 }
 #hamburger-btn:hover {
     background-color: #e0e0e0;
@@ -367,73 +358,44 @@ input:checked + .slider:before {
 }
 
 /* --- ESTILOS DE BÚSQUEDA ACTIVA --- */
-body.search-active .app-title,
-body.search-active #header-controls,
-body.search-active #hamburger-btn,
-body.search-active .section-selector,
-body.search-active .footer {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-20px);
-    max-height: 0; /* Colapsa el espacio vertical */
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    border: none !important;
+/*
+  La animación funciona moviendo todo el .container hacia arriba.
+  El div que contiene la barra de búsqueda se declara "sticky" para que se "pegue"
+  a la parte superior del viewport cuando el contenedor se desplaza.
+*/
+
+/* Este es el div que contiene .search-container y #hamburger-btn. Lo hacemos "pegajoso". */
+.container > div:has(> .search-container) {
+    position: -webkit-sticky; /* Para compatibilidad con Safari */
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    /* Se necesita un fondo para que el contenido que pasa por detrás no se vea */
+    background-color: var(--bg-color);
+    /* El padding y el margen negativo evitan un "salto" visual cuando se vuelve sticky */
+    padding: 15px 0;
+    margin-top: -15px;
+    margin-bottom: 20px; /* Preserva el margen inferior original del elemento */
 }
 
-body.search-active #search-wrapper {
-    margin-bottom: 0; /* Elimina el margen inferior del contenedor del buscador */
-    transition: margin-bottom 0.35s ease-in-out;
-}
-
+/* Cuando la búsqueda está activa, deslizamos todo el contenedor hacia arriba */
 body.search-active .container {
-    padding-top: 0; /* Elimina el padding superior para juntar el contenido */
-    transition: padding-top 0.35s ease-in-out;
+    transform: translateY(var(--header-animation-offset));
 }
 
-body.search-active .search-container {
-    position: fixed;
-    top: 15px;
-    left: 20px; /* Alineado con el padding de destino */
-    width: calc(100% - 40px); /* Ancho completo menos el padding */
-    height: var(--start-height); /* Mantiene la altura original */
-    padding: 0;
-    margin: 0;
-    z-index: 1500;
+/* Ocultamos el botón de hamburguesa y los selectores de sección durante la búsqueda */
+body.search-active #hamburger-btn,
+body.search-active .section-selector {
+    opacity: 0;
+    pointer-events: none;
 }
-
-.search-container.animating {
-    position: fixed;
-    top: var(--start-top);
-    left: var(--start-left);
-    width: var(--start-width);
-    height: var(--start-height);
-    margin: 0;
-}
-
-body.search-active #searchInput {
-    padding-left: 55px; /* Espacio para el logo */
-    height: 48px;
-    box-sizing: border-box;
-}
-
-body.search-active .app-logo {
-    position: fixed;
-    top: 22px;       /* 15px (search-container top) + 7px (para centrar) */
-    left: 30px;      /* 20px (search-container padding) + 10px (margen interno) */
-    max-width: 34px;
-    z-index: 1501;   /* Por encima del input */
-}
-
 
 /* --- ESTILOS DE LA SELECCIÓN DE SECCIÓN --- */
 .section-selector {
     display: flex;
     justify-content: center;
     margin-bottom: 20px;
-    transition: all 0.35s ease-in-out;
+    transition: opacity 0.35s ease-in-out;
     flex-wrap: wrap;
     gap: 10px;
 }
