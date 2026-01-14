@@ -1,3 +1,28 @@
+**V4.9.0 - (UI REFACTOR & STABILITY) - 23/01/2026**
+**A. RESUMEN GENERAL:** Se realizó una refactorización integral de la animación de la barra de búsqueda para restaurar la identidad visual de la marca y corregir regresiones funcionales. Se mejoró la estabilidad del código y el diseño visual general del encabezado.
+
+**B. Cambios Implementados:**
+1.  **Refactorización de la Animación del Buscador (`style.css`):**
+    *   **Problema:** La animación anterior, aunque fluida, eliminaba el efecto visual del logo encogiéndose y creaba un gran espacio vacío en la interfaz.
+    *   **Solución:** Se re-implementó la animación utilizando una técnica de `position: sticky` en el encabezado. Ahora, al activar la búsqueda, el logo se encoge y se posiciona junto a la barra de búsqueda, y el título se desvanece, recreando el efecto visual original sin causar espacios vacíos.
+    *   **Líneas Afectadas en `style.css`:** 370-420.
+
+2.  **Mejora del Diseño Compacto (`style.css`):**
+    *   **Problema:** El espaciado vertical entre la barra de búsqueda y los botones de sección era excesivo en el estado normal.
+    *   **Solución:** Se redujo el `margin-bottom` del `.search-container` para crear un diseño más compacto y armonioso.
+    *   **Líneas Afectadas en `style.css`:** 167.
+
+3.  **Centralización de Manejadores de Eventos (`index.html` y `main.js`):**
+    *   **Problema:** El evento de entrada de la barra de búsqueda se manejaba tanto en línea en `index.html` (`oninput`) como a través de un `addEventListener` en `main.js`, causando errores de inicialización.
+    *   **Solución:** Se eliminó el manejador `oninput` de `index.html`, centralizando la lógica del evento exclusivamente en `main.js`, lo que mejora la estabilidad y sigue las mejores prácticas de la arquitectura modular.
+    *   **Líneas Afectadas en `index.html`:** 106.
+    *   **Líneas Afectadas en `main.js`:** 30 (se eliminó la exposición innecesaria de `filtrarContenido`).
+
+**C. Impacto:**
+- **Identidad Visual Restaurada:** La animación del encabezado y el buscador vuelve a ser la original y preferida, reforzando la identidad de la marca.
+- **Experiencia de Usuario Mejorada:** Se ha eliminado el espacio vacío y se ha mejorado la compacidad del diseño, resultando en una interfaz más pulida.
+- **Estabilidad del Código:** La centralización del manejo de eventos resuelve errores de inicialización y hace que el código sea más robusto y fácil de mantener.
+
 **V4.8.1 - (AUTH STABILITY FIX) - 22/01/2026**
 **A. RESUMEN GENERAL:** Se implementó una corrección para un bug crítico que causaba el cierre inesperado de la sesión del usuario después de múltiples recargas de la página.
 

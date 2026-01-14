@@ -1,6 +1,19 @@
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
+1. REFACTORIZACIÓN DE LA ANIMACIÓN DEL BUSCADOR Y MEJORA DEL DISEÑO
+Estado: PENDIENTE DE REVISIÓN POR EL PM
+Origen: Feedback de Regresión Visual
+Prioridad: ALTA
+Área: Frontend | UI | UX
+Archivos involucrados: style.css, main.js, index.html
+
+Descripción:
+Se ha refactorizado la animación de la barra de búsqueda para restaurar el efecto visual del logo encogiéndose y eliminar un espacio vacío que afectaba negativamente a la UI. Adicionalmente, se ha mejorado la compacidad del diseño en el estado por defecto y se ha robustecido el código eliminando manejadores de eventos en línea.
+
+
+**TAREAS PENDIENTES DE REVISIÓN**
+---
 1. INVESTIGAR CIERRE DE SESIÓN INESPERADO TRAS REFRESH
 Estado: PENDIENTE DE REVISIÓN POR EL PM
 Origen: Reporte de Bug
