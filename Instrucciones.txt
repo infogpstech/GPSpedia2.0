@@ -1,8 +1,34 @@
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-1. INVESTIGAR CIERRE DE SESIÓN INESPERADO TRAS REFRESH
+1. CORRECCIÓN DEFINITIVA DE ESPACIADO EN ANIMACIÓN DE BÚSQUEDA
 Estado: PENDIENTE DE REVISIÓN POR EL PM
+Origen: Reporte de Bug Visual
+Prioridad: Normal
+Área: Frontend | UI | CSS
+Archivos involucrados: index.html, style.css
+
+Descripción:
+Se implementó la corrección definitiva para el espaciado vertical durante la animación de búsqueda. Se asignó un ID al contenedor del buscador para anular de forma precisa un `margin-bottom` en línea que causaba el problema, y se ajustó el `padding-top` del contenedor principal a cero, eliminando completamente el espacio no deseado.
+
+---
+**TAREAS COMPLETADAS (Validadas por el PM)**
+---
+1. MEJORA Y REFINAMIENTO DE ANIMACIÓN DE BÚSQUEDA
+Estado: COMPLETADO
+Origen: Refinamiento UX
+Prioridad: Normal
+Área: Frontend | UI | CSS | JS
+Archivos involucrados: style.css, main.js
+
+Descripción:
+Se completó un ciclo de mejoras en la animación de la barra de búsqueda. Las implementaciones incluyen:
+- La adición de la animación de expansión/contracción de la barra al hacer foco, replicando el comportamiento de la v1.5.
+- La ocultación del menú de hamburguesa y la reducción del espacio superior para optimizar la vista de búsqueda.
+- La corrección final y definitiva del espaciado vertical entre la barra y los resultados, asegurando una alineación perfecta.
+
+2. INVESTIGAR CIERRE DE SESIÓN INESPERADO TRAS REFRESH
+Estado: COMPLETADO
 Origen: Reporte de Bug
 Prioridad: CRÍTICA
 Área: Frontend | Autenticación | Estado
@@ -11,10 +37,7 @@ Archivos involucrados: auth.js
 Descripción:
 Se ha implementado una corrección para prevenir una condición de carrera (`race condition`) durante la validación de la sesión. Se añadió un mecanismo de bloqueo (`lock`) en `localStorage` para asegurar que solo una pestaña o proceso de validación se comunique con el backend a la vez, evitando que validaciones concurrentes se invaliden entre sí.
 
----
-**TAREAS COMPLETADAS (Validadas por el PM)**
----
-1. CORRECCIÓN DEL SISTEMA DE BÚSQUEDA Y NAVEGACIÓN
+3. CORRECCIÓN DEL SISTEMA DE BÚSQUEDA Y NAVEGACIÓN
 Estado: COMPLETADO
 Origen: Múltiples reportes de bugs y regresiones.
 Prioridad: CRÍTICA

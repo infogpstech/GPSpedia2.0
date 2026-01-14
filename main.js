@@ -40,6 +40,22 @@ async function initializeApp() {
         navigation.filtrarContenido(searchInput.value);
     });
 
+    // --- LÓGICA DE ANIMACIÓN DE LA BARRA DE BÚSQUEDA ---
+    // Añade la clase 'search-active' al body cuando el input gana el foco.
+    searchInput.addEventListener('focus', () => {
+        document.body.classList.add('search-active');
+    });
+
+    // Elimina la clase 'search-active' del body cuando el input pierde el foco.
+    // Se utiliza un setTimeout para permitir que los eventos de clic en los resultados de búsqueda se registren
+    // antes de que la UI se revierta a su estado normal.
+    searchInput.addEventListener('blur', () => {
+        setTimeout(() => {
+            document.body.classList.remove('search-active');
+        }, 200); // 200ms de retardo
+    });
+
+
     // Hamburger menu listeners
     document.getElementById('hamburger-btn').addEventListener('click', ui.openSideMenu);
     document.getElementById('menu-overlay').addEventListener('click', ui.closeSideMenu);
