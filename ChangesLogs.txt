@@ -1,3 +1,34 @@
+**V4.9.2 - (MOBILE VIEWPORT & PHANTOM SPACE FIX) - 02/02/2026**
+**A. RESUMEN GENERAL:** Se implementó una solución arquitectónica para el manejo del viewport en dispositivos móviles y se corrigió el "espacio fantasma" durante la búsqueda activa, alineando el comportamiento con el estándar del proyecto.
+
+**B. Cambios Implementados:**
+
+1.  **Gestión Dinámica de Viewport (`main.js`):**
+    *   **Descripción:** Se añadió lógica utilizando `window.visualViewport` para calcular la altura real visible de la pantalla, descontando el espacio ocupado por el teclado virtual. Se actualiza la variable CSS `--app-height` dinámicamente.
+    *   **Líneas Afectadas:** 58-86.
+
+2.  **Refactorización del Modelo de Scroll (`style.css`):**
+    *   **Descripción:** Se cambió el scroll del `body` al contenedor principal `.container`. Se fijó la altura de `html` y `body` a `var(--app-height)`, eliminando el uso de `vh`.
+    *   **Líneas Afectadas:** 2-15, 54-58.
+
+3.  **Eliminación de Espacio Fantasma en Búsqueda (`style.css`, `index.html`):**
+    *   **Descripción:** Se eliminó el estilo en línea `margin-bottom` en `index.html`. En CSS, se cambió `visibility: hidden` por `display: none` para la cabecera en modo `search-active`, colapsando el espacio vacío que antes se preservaba.
+    *   **Líneas Afectadas en `index.html`:** 105.
+    *   **Líneas Afectadas en `style.css`:** 374-376, 400.
+
+4.  **Corrección de Alineación de Logo en Búsqueda (`style.css`):**
+    *   **Descripción:** Se ajustó la posición del logo dentro del input de búsqueda para que esté perfectamente centrado y alineado con la nueva altura de la barra.
+    *   **Líneas Afectadas:** 403, 422-426.
+
+5.  **Migración de Unidades `vh` a Relativas (`style.css`):**
+    *   **Descripción:** Se reemplazaron todas las ocurrencias de `90vh` por cálculos basados en `--app-height` para garantizar que los modales se ajusten correctamente al área visible real.
+    *   **Líneas Afectadas:** 766, 1012.
+
+**C. Impacto:**
+- **Usabilidad Móvil:** Los resultados de búsqueda son ahora completamente visibles y scrolleables incluso con el teclado abierto.
+- **Limpieza Visual:** Se ha eliminado el espacio muerto superior durante la búsqueda, maximizando el área útil.
+- **Robustez:** El sistema de layout ahora es independiente de las inconsistencias de altura de los navegadores móviles.
+
 **V4.9.1 - (MOBILE KEYBOARD LAYOUT FIX) - 01/02/2026**
 **A. RESUMEN GENERAL:** Se implementó una solución integral para corregir el layout de la búsqueda en dispositivos móviles, previniendo que el teclado virtual oculte los resultados y eliminando el espacio vertical excesivo.
 

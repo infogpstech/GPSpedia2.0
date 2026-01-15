@@ -55,6 +55,35 @@ async function initializeApp() {
         }, 200); // 200ms de retardo
     });
 
+    // --- LÓGICA DINÁMICA DE VIEWPORT PARA MÓVIL ---
+    /**
+     * Ajusta la altura de la aplicación basándose en el visualViewport.
+     * Esto es crítico para dispositivos móviles donde el teclado virtual
+     * reduce el área visible de la pantalla.
+     */
+    const handleViewportChange = () => {
+        if (!window.visualViewport) return;
+
+        const viewport = window.visualViewport;
+        const height = viewport.height;
+
+        // Establece la variable CSS --app-height en el elemento raíz.
+        // Se utiliza para definir la altura de html, body y .container.
+        document.documentElement.style.setProperty('--app-height', `${height}px`);
+
+        // Heurística para detectar si el teclado está abierto.
+        if (height < window.innerHeight * 0.85) {
+            document.body.classList.add('keyboard-open');
+        } else {
+            document.body.classList.remove('keyboard-open');
+        }
+    };
+
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', handleViewportChange);
+        window.visualViewport.addEventListener('scroll', handleViewportChange);
+        handleViewportChange(); // Ejecución inicial
+    }
 
     // Hamburger menu listeners
     document.getElementById('hamburger-btn').addEventListener('click', ui.openSideMenu);

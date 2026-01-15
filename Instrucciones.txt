@@ -1,7 +1,17 @@
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-1. **TÍTULO: Corrección de Causa Raíz de Fallos en Búsqueda y Modal**
+1. **TÍTULO: Corrección de espacio vacío y resultados ocultos en búsqueda móvil**
+   - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
+   - **TIPO:** Bug UI / Layout móvil / UX
+   - **ALCANCE:** Se implementó una solución arquitectónica que utiliza `visualViewport` para manejar la altura dinámica de la aplicación y un nuevo modelo de scroll en `.container`.
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Viewport Dinámico:** Implementación de listeners en `main.js` para actualizar `--app-height` basado en el área visible real.
+     - **Modelo de Scroll:** Refactorización de `style.css` para que el scroll principal ocurra en `.container`, permitiendo que el `body` permanezca fijo y no se vea afectado por el desplazamiento del teclado.
+     - **Espacio Fantasma:** Eliminación de la cabecera con `display: none` durante la búsqueda activa, colapsando el espacio vacío que antes se mantenía con `visibility: hidden`.
+     - **Corrección de Logo:** Ajuste de posicionamiento del logo dentro del campo de búsqueda para evitar desalineaciones en móviles.
+
+2. **TÍTULO: Corrección de Causa Raíz de Fallos en Búsqueda y Modal**
    - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
    - **TIPO:** Corrección de Causa Raíz / Bug de Datos / Bug Visual de CSS
    - **ALCANCE:** Se implementaron correcciones definitivas en el backend (`services/catalog/catalog.js`), frontend (`ui.js`) y CSS (`style.css`) basadas en una auditoría consolidada.
@@ -9,13 +19,6 @@
      - **Problema Video (Causa Raíz: Contrato de Datos Roto):** Se corrigió la discrepancia de nombres de propiedad entre el backend y el frontend. El servicio `catalog.js` ahora renombra `videoGuiaDesarmeUrl` a `Video` antes de enviar la respuesta. El `ui.js` fue ajustado para consumir esta propiedad (`Video`), solucionando la causa raíz de que el video no se visualizara.
      - **Problema Espaciado (Causa Raíz: Especificidad CSS):** Se añadió `!important` a la regla de CSS que anula el `margin-bottom` del `div#search-wrapper` en `style.css`. Esto asegura que el estilo en línea del `index.html` sea sobrescrito y el espacio extra se elimine correctamente.
 
-2. **TÍTULO: BACKLOG – Corrección de espacio vacío y resultados ocultos en búsqueda móvil**
-   - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
-   - **TIPO:** Bug UI / Layout móvil / UX
-   - **ALCANCE:** Se implementó una solución integral que combina CSS y JavaScript para gestionar dinámicamente el layout de la búsqueda en dispositivos móviles cuando el teclado virtual está activo.
-   - **DESCRIPCIÓN DETALLADA:**
-     - **CSS (`style.css`):** Se estableció una altura fija y consistente de `55px` para la barra de búsqueda. Se ajustó el `padding-top` del contenedor de resultados para eliminar el espacio excesivo y se optimizó el layout para pantallas pequeñas.
-     - **JavaScript (`main.js`):** Se implementó lógica para monitorear el `visualViewport`. Esta detecta la aparición del teclado, calcula la altura visible real y ajusta dinámicamente el `max-height` del contenedor de resultados para asegurar que el contenido permanezca visible y scrolleable. Se aseguró la correcta limpieza de listeners y estilos al finalizar la búsqueda.
 
 ---
 **TAREAS COMPLETADAS (Validadas por el PM)**

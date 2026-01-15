@@ -1,6 +1,7 @@
 /* Estilos Globales */
 html {
-    height: 100%;
+    height: var(--app-height, 100%);
+    overflow: hidden; /* Previene el scroll del html */
 }
 body {
     font-family: Arial, sans-serif;
@@ -10,7 +11,8 @@ body {
     color: var(--text-color);
     display: flex;
     flex-direction: column;
-    min-height: 100%;
+    height: var(--app-height, 100%);
+    overflow: hidden; /* El scroll se maneja en .container */
     transition: background-color 0.3s, color 0.3s;
 }
 
@@ -51,7 +53,9 @@ h1.app-title {
     margin: 0 auto;
     width: 100%;
     box-sizing: border-box;
-    flex: 1 0 auto;
+    flex: 1 1 auto;
+    overflow-y: auto; /* Único elemento con scroll principal */
+    -webkit-overflow-scrolling: touch;
 }
 .backBtn {
     margin-bottom: 15px;
@@ -367,8 +371,10 @@ input:checked + .slider:before {
 }
 
 /* --- ESTILOS DE BÚSQUEDA ACTIVA --- */
-body.search-active .app-title,
-body.search-active #header-controls,
+body.search-active .header-container {
+    display: none; /* Elimina el espacio fantasma del header */
+}
+
 body.search-active .footer {
     opacity: 0;
     visibility: hidden;
@@ -390,15 +396,15 @@ body.search-active #search-wrapper {
 }
 
 body.search-active .container {
-    /* Define explícitamente el padding superior y anula el inferior
-       para evitar el efecto aditivo de la regla .container general. */
-    padding: 60px 20px 0;
+    /* Ajuste dinámico del padding para compensar la barra de búsqueda fija.
+       Se elimina el padding superior excesivo ahora que el header no ocupa espacio. */
+    padding: 75px 20px 20px;
     transition: padding 0.35s ease-in-out;
 }
 
 body.search-active .search-container {
     position: fixed;
-    top: 15px;
+    top: 10px;
     left: 0;
     right: 0;
     padding: 0 20px;
@@ -411,11 +417,12 @@ body.search-active #searchInput {
     padding-left: 55px; /* Espacio para el logo */
     height: 48px;
     box-sizing: border-box;
+    background: var(--card-bg); /* Asegura contraste */
 }
 
 body.search-active .app-logo {
     position: fixed;
-    top: 22px;       /* 15px (search-container top) + 7px (para centrar) */
+    top: 17px;       /* 10px (search-container top) + 7px (para centrar) */
     left: 30px;      /* 20px (search-container padding) + 10px (margen interno) */
     max-width: 34px;
     z-index: 1501;   /* Por encima del input */
@@ -756,7 +763,7 @@ body.search-active .app-logo {
     max-width: 800px;
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    max-height: 90vh;
+    max-height: calc(var(--app-height, 100%) * 0.9);
     overflow-y: auto;
     transform: scale(0.95);
     transition: transform 0.3s ease;
@@ -1002,7 +1009,7 @@ body.search-active .app-logo {
 .info-modal-content {
     background-color: #fff; margin: auto; padding: 25px; border-radius: 10px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.25); width: 90%; max-width: 700px;
-    max-height: 90vh; overflow-y: auto; position: relative;
+    max-height: calc(var(--app-height, 100%) * 0.9); overflow-y: auto; position: relative;
 }
 .info-close-btn {
     color: #aaa; position: absolute; top: 10px; right: 20px; font-size: 28px;

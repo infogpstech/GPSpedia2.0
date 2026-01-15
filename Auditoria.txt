@@ -1,42 +1,43 @@
-**AUDITORÍA DEL 01/02/2026 - TAREA: BACKLOG – Corrección de espacio vacío y resultados ocultos en búsqueda móvil**
+**AUDITORÍA DEL 02/02/2026 - TAREA: BACKLOG – Corrección de espacio vacío y resultados ocultos en búsqueda móvil**
 
 **Archivos Auditados:**
-1.  `style.css`
-2.  `main.js`
+1.  `index.html`
+2.  `style.css`
+3.  `main.js`
+4.  `ui.js`
 
 **Contexto:**
-La auditoría se centra en la implementación actual de la barra de búsqueda y el layout en modo móvil para identificar las causas de los problemas descritos en el backlog y establecer una base para las correcciones planificadas.
+Se audita la implementación actual para identificar las causas del "espacio fantasma" y el ocultamiento de resultados por el teclado en dispositivos móviles durante la búsqueda activa.
 
 ---
-**1. Análisis de `style.css`**
-
-*   **Líneas 368-422 (`body.search-active`):**
-    *   **Hallazgo:** El principal causante del espaciado excesivo es la regla `padding: 60px 20px 0;` aplicada a `.container` cuando la búsqueda está activa. Este valor es estático y no se adapta a la altura real de la barra de búsqueda ni a la presencia del teclado móvil.
-    *   **Observación:** La regla `margin-bottom: 0 !important;` en `#search-wrapper` sugiere que se encontró un problema previo de especificidad con un estilo en línea, lo cual es una práctica frágil.
-
-*   **Líneas 164-173 (`.search-container`):**
-    *   **Hallazgo:** El contenedor de la barra de búsqueda no tiene una propiedad `height` definida. Su altura es implícita y depende del `padding` y `font-size` del `input` interno. Esto es la causa raíz de la inconsistencia de altura mencionada en la Tarea 2.
-
-*   **Líneas 414-422 (Posicionamiento en modo búsqueda):**
-    *   **Hallazgo:** El posicionamiento del logo y el input en modo fijo (`.search-active`) se basa en valores "mágicos" (`top: 22px`, `left: 30px`, etc.) que están acoplados a la altura implícita actual. Estos valores deberán ser recalculados una vez se establezca la altura fija de `55px`.
-
-*   **Media Queries:**
-    *   **Hallazgo:** No se encontraron media queries específicas que ajusten el layout de la búsqueda activa para pantallas muy pequeñas (ej. `<480px`), como se requiere en la Tarea 7. Las media queries existentes afectan componentes generales pero no el comportamiento específico de la búsqueda móvil.
+**1. Análisis de `index.html`**
+- **Línea 112:** El `#search-wrapper` tiene un estilo en línea `margin-bottom: 10px;`. Aunque existe una regla en `style.css` con `!important` para anularlo en `search-active`, la estructura general depende de márgenes manuales.
+- **Línea 90:** La estructura `.container` envuelve todo el contenido principal.
+- **Observación:** No hay contenedores específicos para manejar el scroll de forma independiente del body, lo que complica la gestión del teclado móvil.
 
 ---
-**2. Análisis de `main.js`**
+**2. Análisis de `style.css`**
+- **Líneas 2-15:** `html { height: 100%; }` y `body { min-height: 100%; }`. Se usa el modelo estándar pero sin soporte para variables de altura dinámica (`visualViewport`).
+- **Línea 48:** `.container` tiene `flex: 1 0 auto;`. Esto hace que el contenedor se estire para llenar el body, pero no limita su altura al viewport.
+- **Línea 388:** `body.search-active .container { padding: 60px 20px 0; }`. Este padding es estático. Si la altura del viewport cambia (teclado), el padding no se ajusta, lo que puede generar el "espacio vacío" o empujar el contenido fuera de la vista.
+- **Línea 394:** `body.search-active .search-container { position: fixed; top: 15px; }`. Posicionamiento fijo relativo al viewport.
+- **Hallazgo:** El scroll se maneja en el `body` (por defecto). Al abrir el teclado, el `body` se desplaza o se encoge dependiendo del navegador, y los elementos `fixed` pueden quedar mal posicionados o el contenido oculto.
 
-*   **Líneas 40-56 (Listeners de Búsqueda):**
-    *   **Hallazgo:** La única lógica de JavaScript relacionada con la búsqueda es la adición y eliminación de la clase `search-active` en el `body` en los eventos `focus` y `blur`.
-    *   **Observación:** No existe ninguna interacción con la API `visualViewport`.
+---
+**3. Análisis de `main.js`**
+- **Líneas 43-56:** Solo manejan el toggle de la clase `search-active`.
+- **Hallazgo Crítico:** Ausencia total de lógica para `visualViewport`. No hay detección de la altura real visible ni ajuste dinámico de variables CSS.
+- **Hallazgo de Regresión:** El `ChangesLogs.txt` menciona una versión 4.9.1 que corregía esto, pero el código actual (v4.8.1 según `index.html`) no refleja esos cambios. Se debe re-implementar siguiendo el patrón arquitectónico oficial.
 
-*   **Ausencia de Lógica de Teclado Móvil:**
-    *   **Hallazgo CRÍTICO:** El archivo carece por completo de la lógica necesaria para resolver el problema principal:
-        *   No hay listeners para el evento `resize` de `window.visualViewport`.
-        *   No se realiza ninguna comparación entre `window.innerHeight` y `window.visualViewport.height` para detectar si el teclado está visible.
-        *   No se calcula ni se aplica dinámicamente una `max-height` al contenedor de resultados para evitar que el teclado lo oculte.
-        *   La función `handleViewportChange` mencionada en el backlog no existe.
+---
+**4. Análisis de `ui.js`**
+- No se encontraron dependencias directas de `vh` o lógica de scroll que interfiera con la tarea. El renderizado de resultados en `mostrarResultadosDeBusqueda` (Líneas 538+) limpia el contenedor `#contenido`, lo cual es correcto.
 
 ---
 **Conclusión de la Auditoría:**
-La implementación actual es puramente cosmética y controlada por CSS. Falla en dispositivos móviles porque no tiene ninguna capacidad de reaccionar a los cambios de la ventana gráfica (`viewport`) cuando el teclado aparece. La solución requiere una implementación significativa de nueva lógica en `main.js` para gestionar el `visualViewport` y una refactorización de los estilos en `style.css` para que se basen en una altura de barra fija y consistente.
+La causa raíz es la falta de sincronización entre el layout CSS y el viewport real de dispositivos móviles. El uso de `padding-top` estático y la falta de un contenedor de scroll dedicado con altura dinámica impiden que los resultados se ajusten correctamente cuando aparece el teclado.
+
+**Riesgos Identificados:**
+- Romper la animación de expansión de la búsqueda al cambiar el modelo de scroll.
+- Conflictos de especificidad CSS con los estilos en línea existentes.
+- Incompatibilidad entre navegadores (Safari iOS vs Chrome Android) en el manejo del `visualViewport`.
