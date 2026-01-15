@@ -1211,7 +1211,11 @@ export function showApp(user) {
         inboxBtn.style.display = 'flex';
     }
 
-    mostrarCategorias();
+    // Protección de renderizado: No mostrar el catálogo si los datos no están listos.
+    const { catalogData } = getState();
+    if (catalogData && Array.isArray(catalogData.cortes) && catalogData.cortes.length > 0) {
+        mostrarCategorias();
+    }
 }
 
 export function showGlobalError(message) {

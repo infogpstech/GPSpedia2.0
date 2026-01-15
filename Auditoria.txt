@@ -348,3 +348,117 @@ AUDITORÍA - 2024-08-07 (AUDITORÍA FINAL DE CAUSA RAÍZ)
 
 **CONCLUSIÓN DE LA AUDITORÍA FINAL:**
 Las causas raíz han sido definitivamente identificadas y aisladas en el frontend. La corrección del video requiere una función de parseo de URL más robusta en `ui.js`, y la corrección del espaciado requiere una regla de CSS más específica.
+========================================
+AUDITORÍA - 29/01/2026 (LIMPIEZA DE REPOSITORIO)
+========================================
+
+**TAREA:** Limpieza del repositorio — eliminación de archivos de verificación y artefactos temporales.
+
+**ARCHIVOS A ELIMINAR:**
+
+1.  **Scripts de Verificación (`.py`):**
+    *   **Justificación:** Estos archivos son scripts de prueba y diagnóstico utilizados en tareas anteriores. No forman parte de la aplicación productiva y su permanencia genera ruido en el repositorio.
+    *   **Archivos:**
+        - `server.py`
+        - `verify_carousel_fix.py`
+        - `verify_full_fix.py`
+        - `verify_full_fix_v2.py`
+        - `verify_image_style_fix.py`
+        - `verify_load_fix.py`
+        - `verify_revert.py`
+        - `verify_revert_with_mock.py`
+        - `verify_ui.py`
+
+2.  **Imágenes de Verificación (`.png`):**
+    *   **Justificación:** Estas imágenes son capturas de pantalla y artefactos visuales generados durante procesos de depuración y verificación. No son recursos utilizados por la aplicación en producción.
+    *   **Archivos:**
+        - `carousel_fix_verification.png`
+        - `full_fix_verification_debug.png`
+        - `image_style_verification.png`
+        - `revert_error.png`
+        - `revert_error_mocked.png`
+
+**CONCLUSIÓN DE LA AUDITORÍA:**
+La eliminación de los archivos listados es segura y necesaria para mantener la higiene del repositorio. Ninguno de estos archivos es requerido para el funcionamiento de la aplicación.
+========================================
+AUDITORÍA - 30/01/2026 (CONDICIÓN DE CARRERA EN INICIALIZACIÓN)
+========================================
+
+**TAREA:** Corrección de condición de carrera en inicialización del catálogo.
+
+**ARCHIVOS REVISADOS:**
+- auth.js
+- ui.js
+
+**HALLAZGOS Y ANÁLISIS DE CAUSA RAÍZ:**
+
+1.  **Condición de Carrera en `loadInitialData` (`auth.js`):**
+    *   La función `loadInitialData` se invoca desde `checkSession` y `login`.
+    *   En un escenario de múltiples pestañas, `checkSession` puede ejecutarse casi simultáneamente en cada una, provocando múltiples llamadas concurrentes a `loadInitialData`.
+    *   No existe ningún mecanismo para prevenir estas ejecuciones múltiples. Cada llamada inicia una nueva petición de red para `fetchCatalogData`, resultando en un uso ineficiente de recursos y potencial inconsistencia de datos si las cargas terminan en momentos diferentes.
+    *   El `LOCK_KEY` actual en `checkSession` solo previene la validación de la sesión, pero no la carga de datos posterior. Se libera antes de que `loadInitialData` sea invocado.
+
+2.  **Sincronización Incorrecta con la UI (`auth.js` y `ui.js`):**
+    *   En `auth.js`, la función `handleLoginSuccess` llama a `showApp(user)` *antes* de que `loadInitialData` haya necesariamente completado.
+    *   `loadInitialData` es `async`, pero la llamada a `handleLoginSuccess` no siempre espera (`await`) a que se resuelva. Por ejemplo, en `checkSession`, la secuencia `await loadInitialData(); handleLoginSuccess(user);` es correcta, pero la arquitectura permite que `showApp` se ejecute prematuramente.
+    *   En `ui.js`, la función `showApp` llama inmediatamente a `mostrarCategorias()`, la cual depende directamente de que `catalogData` exista en el estado.
+    *   No hay ninguna guarda o verificación en `showApp` para confirmar que los datos del catálogo están disponibles antes de intentar renderizar los componentes que dependen de ellos.
+
+**CONCLUSIÓN DE LA AUDITORÍA:**
+La causa raíz de la inestabilidad es doble:
+a) **Falta de un singleton o mecanismo de bloqueo en `loadInitialData`:** Esto permite que la costosa operación de carga de datos se ejecute múltiples veces de forma concurrente.
+b) **Falta de sincronización entre la carga de datos y el renderizado de la UI:** La interfaz de usuario intenta renderizarse sin tener garantía de que los datos necesarios están disponibles, lo que lleva a renders vacíos o errores.
+
+La solución requiere implementar un patrón de promesa única para la carga de datos, extender el bloqueo de sesión para cubrir esta carga y añadir una guarda de protección en la capa de UI.
+
+======================================================================================
+AUDITORÍA DE CÓDIGO - 18/07/2024 10:30
+======================================================================================
+
+ARCHIVOS AUDITADOS:
+-------------------
+auth.js
+
+HALLAZGOS:
+----------
+Líneas 103-104: Se confirma la regresión identificada en la revisión de código. En el commit anterior, se omitieron las llamadas a `loadInitialData()` y `handleLoginSuccess(user)` dentro del bloque `if (valid)` en la función `checkSession`. Esta omisión interrumpe el flujo de carga de la aplicación para usuarios con una sesión existente.
+
+RESOLUCIÓN PROPUESTA:
+----------------------
+Restaurar las llamadas a `await loadInitialData();` y `handleLoginSuccess(user);` para asegurar que los datos del catálogo se carguen y la interfaz de usuario se renderice correctamente después de una validación de sesión exitosa.
+
+
+======================================================================================
+AUDITORÍA DE CÓDIGO (POST-REVISIÓN) - 18/07/2024 10:45
+======================================================================================
+
+ARCHIVOS AUDITADOS:
+-------------------
+auth.js
+
+HALLAZGOS:
+----------
+La revisión de código reveló dos problemas críticos:
+1. El archivo `auth.js` enviado a revisión contenía una versión incorrecta del código, sin la lógica de carga de datos en `checkSession`.
+2. El código correcto se encontraba erróneamente en un archivo de respaldo (`auth.js.bak`) que fue incluido en el commit.
+
+RESOLUCIÓN PROPUESTA:
+----------------------
+Restaurar el contenido de `auth.js.bak` a `auth.js` y eliminar el archivo de respaldo para asegurar la integridad del código y la limpieza del commit.
+
+
+======================================================================================
+AUDITORÍA DE CÓDIGO (CUARTO CICLO) - 18/07/2024 11:00
+======================================================================================
+
+ARCHIVOS AUDITADOS:
+-------------------
+auth.js
+
+HALLAZGOS:
+----------
+Líneas 98-101: Se ha confirmado un bug crítico en la función `checkSession`. El bloqueo de sesión (`LOCK_KEY`) se adquiere al inicio de la función pero no se libera en la ruta de código donde no existe una sesión (`!sessionData`). Esto causa que una pestaña sin sesión deje un bloqueo permanente en localStorage, impidiendo que otras pestañas puedan validar sus sesiones, lo que resulta en un fallo de carga de la aplicación.
+
+RESOLUCIÓN PROPUESTA:
+----------------------
+Añadir `localStorage.removeItem(LOCK_KEY);` inmediatamente antes del `return;` en el bloque `if (!sessionData)` para garantizar que el bloqueo siempre se libere, incluso cuando no hay una sesión que validar.
