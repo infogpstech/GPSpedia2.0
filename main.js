@@ -125,7 +125,27 @@ async function initializeApp() {
         });
     }
 
-    // 5. Start the application by checking the user's session
+    // 6. Dynamic viewport height handling for mobile keyboard
+    const setVisualViewportHeight = () => {
+        // Solo actuar si visualViewport es compatible.
+        if (window.visualViewport) {
+            const vh = window.visualViewport.height;
+            document.documentElement.style.setProperty('--app-height', `${vh}px`);
+        }
+    };
+
+    // La inicialización debe ocurrir después de que el DOM esté completamente cargado
+    // para asegurar que `visualViewport` esté disponible.
+    window.addEventListener('DOMContentLoaded', () => {
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', setVisualViewportHeight);
+            // Establecer la altura inicial solo si visualViewport es compatible.
+            setVisualViewportHeight();
+        }
+    });
+
+
+    // 7. Start the application by checking the user's session
     await auth.checkSession();
 }
 

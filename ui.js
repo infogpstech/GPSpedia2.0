@@ -154,14 +154,27 @@ function crearCarrusel(titulo, items, cardGenerator) {
 
 export function mostrarCategorias() {
     const { catalogData } = getState();
-    const { cortes, sortedCategories } = catalogData;
+
+    // Comentario: Esta función ahora puede ser llamada antes de que los datos estén listos.
+    // Se añade una guarda para asegurar que el catálogo y los cortes existan.
+    if (!catalogData || !catalogData.cortes || catalogData.cortes.length === 0) {
+        // En lugar de mostrar un error, se puede optar por no hacer nada o mostrar un indicador de carga simple,
+        // ya que la función `showApp` gestionará el estado de carga principal.
+        showNoResultsMessage("Esperando datos del catálogo..."); // Mensaje temporal mientras carga
+        return;
+    }
+
+    const { cortes } = catalogData;
 
     if (document.getElementById("searchInput").value.trim()) return;
 
     const cont = document.getElementById("contenido");
     cont.innerHTML = "";
 
-    mostrarUltimosAgregados();
+    // Solo mostrar "Últimos Agregados" si hay datos suficientes
+    if (cortes.length > 0) {
+        mostrarUltimosAgregados();
+    }
 
     // Comentario: Se implementa el ordenamiento de categorías por población.
     const categoriasPorPoblacion = [...new Set(cortes.map(c => c.categoria).filter(Boolean))]
@@ -1185,6 +1198,19 @@ export function showLoginScreen(reason = null) {
     document.getElementById('password').value = '';
 }
 
+// Función auxiliar para mostrar indicador de carga
+function showLoadingIndicator() {
+    const cont = document.getElementById("contenido");
+    if (cont) {
+        cont.innerHTML = `
+            <div style="text-align: center; padding: 40px;">
+                <div class="spinner"></div>
+                <p>Cargando catálogo...</p>
+            </div>
+        `;
+    }
+}
+
 export function showApp(user) {
     const splash = document.getElementById('splash-screen');
     splash.style.opacity = '0';
@@ -1211,7 +1237,19 @@ export function showApp(user) {
         inboxBtn.style.display = 'flex';
     }
 
-    mostrarCategorias();
+    // Comentario: Se implementa un mecanismo de sondeo (polling) para esperar los datos del catálogo.
+    // Esto resuelve la condición de carrera donde la UI intenta renderizar antes de que los datos estén disponibles.
+    showLoadingIndicator(); // Mostrar indicador de carga inmediatamente.
+
+    const dataCheckInterval = setInterval(() => {
+        const { catalogData } = getState();
+        // Comprobar si los datos del catálogo, específicamente los 'cortes', han sido cargados.
+        if (catalogData && catalogData.cortes && catalogData.cortes.length > 0) {
+            clearInterval(dataCheckInterval); // Detener el sondeo una vez que los datos están listos.
+            mostrarCategorias(); // Renderizar el contenido principal.
+        }
+        // Si no, el intervalo continuará ejecutándose y volverá a comprobar en el siguiente ciclo.
+    }, 100); // Comprobar cada 100ms.
 }
 
 export function showGlobalError(message) {

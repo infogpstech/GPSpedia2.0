@@ -1,6 +1,7 @@
 /* Estilos Globales */
 html {
-    height: 100%;
+    height: 100%; /* Fallback for browsers that don't support custom properties */
+    height: var(--app-height, 100%);
 }
 body {
     font-family: Arial, sans-serif;
@@ -8,13 +9,15 @@ body {
     padding: 0;
     background: var(--bg-color);
     color: var(--text-color);
+    /* Arquitectura de Layout: Body como contenedor flex que no se desborda */
     display: flex;
     flex-direction: column;
-    min-height: 100%;
+    height: 100%; /* El body ocupa el 100% de la altura de <html> (que es dinámica) */
     transition: background-color 0.3s, color 0.3s;
 }
 
 :root {
+    --app-height: 100vh; /* Default value */
     --bg-color: #f4f4f4;
     --text-color: #333;
     --card-bg: #fff;
@@ -51,7 +54,10 @@ h1.app-title {
     margin: 0 auto;
     width: 100%;
     box-sizing: border-box;
-    flex: 1 0 auto;
+    /* Arquitectura de Layout: Container es ahora el elemento que crece y permite scroll */
+    flex: 1 1 auto; /* Permite que el contenedor crezca y se encoja */
+    overflow-y: auto; /* El scroll vertical se manejará aquí, no en el body */
+    -webkit-overflow-scrolling: touch; /* Scrolling suave en iOS */
 }
 .backBtn {
     margin-bottom: 15px;

@@ -1,4 +1,33 @@
 ========================================
+AUDITORÍA - 30/01/2026 (ARQUITECTURA DE LAYOUT MÓVIL Y RACE CONDITION)
+========================================
+
+**TAREA:** Corrección estructural de layout móvil — espacio fantasma y contenido oculto por teclado.
+
+**ARCHIVOS REVISADOS:**
+- style.css
+- main.js
+- auth.js
+- ui.js
+
+**HALLAZGOS Y ANÁLISIS DE CAUSA RAÍZ:**
+
+1.  **Causa Raíz del Bug de Layout Móvil (`style.css`, `main.js`):**
+    *   **Problema:** Se identificó que la causa del "espacio fantasma" y del contenido oculto por el teclado en dispositivos móviles era el uso de `height: 100%` en los elementos `html` y `body`, combinado con la falta de un mecanismo para adaptar el layout al `visualViewport`. El viewport del navegador no se recalculaba cuando aparecía el teclado, por lo que el `body` mantenía una altura mayor a la visible.
+    *   **Análisis Concluyente:** La arquitectura de layout no era adecuada para aplicaciones web móviles modernas. El scroll estaba implícitamente en el `body`, y ningún contenedor principal estaba preparado para recalcular su altura visible dinámicamente.
+    *   **Solución Arquitectural Requerida:**
+        a. Modificar el `body` para que sea un contenedor flex no desplazable que ocupe el 100% de una altura de aplicación dinámica (definida por una variable CSS `--app-height`).
+        b. Designar el `.container` principal como el único elemento con scroll vertical (`overflow-y: auto`).
+        c. Implementar un script en `main.js` que escuche los eventos de `resize` del `window.visualViewport` y actualice la variable `--app-height` en tiempo real, asegurando que la altura de la aplicación siempre coincida con el área visible.
+
+2.  **Causa Raíz de Condición de Carrera en Renderizado Inicial (`ui.js`, `auth.js`):**
+    *   **Problema:** Durante la investigación y las pruebas, se descubrió una condición de carrera (`race condition`) no relacionada directamente con el layout, pero crítica para la estabilidad. La interfaz de usuario (`ui.js`) intentaba renderizar el catálogo antes de que los datos fueran cargados asincrónicamente por el módulo de autenticación (`auth.js`).
+    *   **Análisis Concluyente:** La función `showApp` en `ui.js` era llamada inmediatamente después de una validación de sesión exitosa, sin un mecanismo para esperar a que la promesa `fetchCatalogData` en `auth.js` se resolviera. Esto resultaba en un renderizado prematuro con un estado vacío.
+    *   **Solución Arquitectural Requerida:**
+        a. Desacoplar la carga de datos del renderizado inicial.
+        b. Modificar `auth.js` para que inicie la carga de datos (`loadInitialData`) pero no espere a que termine.
+        c. Modificar `ui.js` (`showApp`) para que, en lugar de renderizar inmediatamente, muestre un indicador de carga e inicie un mecanismo de sondeo (`polling` con `setInterval`) que verifique periódicamente si los datos del catálogo ya están disponibles en el estado global. Una vez que los datos existen, el sondeo se detiene y se procede con el renderizado del contenido.
+========================================
 AUDITORÍA - 22/01/2026 (CIERRE DE SESIÓN INESPERADO)
 ========================================
 
@@ -345,6 +374,3 @@ AUDITORÍA - 2024-08-07 (AUDITORÍA FINAL DE CAUSA RAÍZ)
     *   **Línea (aprox):** 111.
     *   **Análisis:** Se confirma que el `div` con `id="search-wrapper"` tiene un estilo en línea que incluye `margin-bottom: 10px;`. Este estilo, debido a su alta especificidad, no es anulado por las reglas generales en `style.css`.
     *   **Causa Raíz Conclusiva:** El estilo en línea es la causa directa del espaciado no deseado. La solución requiere una regla en `style.css` con la especificidad suficiente para anular este estilo en línea durante el estado de búsqueda activa.
-
-**CONCLUSIÓN DE LA AUDITORÍA FINAL:**
-Las causas raíz han sido definitivamente identificadas y aisladas en el frontend. La corrección del video requiere una función de parseo de URL más robusta en `ui.js`, y la corrección del espaciado requiere una regla de CSS más específica.

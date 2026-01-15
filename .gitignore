@@ -1,2 +1,5 @@
-*.log
-server.log
+node_modules/
+package-lock.json
+test-results/
+playwright-report/
+tests/mobile_keyboard_active.png

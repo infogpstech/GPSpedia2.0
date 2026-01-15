@@ -13,7 +13,8 @@ const SESSION_KEY = 'gpsepedia_session';
 function handleLoginSuccess(user) {
     localStorage.setItem(SESSION_KEY, JSON.stringify(user));
     setState({ currentUser: user });
-    showApp(user); // Muestra la UI principal inmediatamente
+    // Comentario: El `setTimeout` ya no es necesario. `showApp` ahora gestiona la espera de datos.
+    showApp(user);
 }
 
 async function loadInitialData() {
@@ -30,26 +31,27 @@ async function loadInitialData() {
 
         const sortedCategories = Object.keys(categoryCounts).sort((a, b) => categoryCounts[b] - categoryCounts[a]);
 
-        setState({
-            catalogData: {
-                ...catalogData,
-                sortedCategories: sortedCategories
-            }
-        });
+        const newCatalogData = {
+            ...catalogData,
+            sortedCategories: sortedCategories
+        };
 
-        // La UI ya está visible, esto solo refrescará el contenido si es necesario
-        // (asumiendo que las funciones de renderizado usan el estado actualizado)
+        setState({
+            catalogData: newCatalogData
+        });
+        // Comentario: La función ya no necesita devolver los datos. Su única responsabilidad es actualizar el estado global.
 
     } catch (error) {
         showGlobalError("Error al cargar los datos del catálogo. La funcionalidad puede ser limitada.");
-        // FIX: Set a default empty state to prevent fatal rendering errors
+        const defaultCatalogData = {
+            cortes: [],
+            tutoriales: [],
+            relay: [],
+            sortedCategories: []
+        };
+
         setState({
-            catalogData: {
-                cortes: [],
-                tutoriales: [],
-                relay: [],
-                sortedCategories: []
-            }
+            catalogData: defaultCatalogData
         });
     }
 }
@@ -57,23 +59,21 @@ async function loadInitialData() {
 
 export async function checkSession() {
     const LOCK_KEY = 'session_validation_lock';
-    const LOCK_TIMEOUT = 5000; // 5 segundos, tiempo durante el cual una pestaña puede bloquear a otras.
+    const LOCK_TIMEOUT = 5000;
 
     const lock = localStorage.getItem(LOCK_KEY);
     const now = Date.now();
 
-    // Si existe un bloqueo y no ha expirado, esta pestaña no intentará validar.
     if (lock && (now - parseInt(lock, 10)) < LOCK_TIMEOUT) {
         return;
     }
 
-    // Adquirir el bloqueo para esta pestaña.
     localStorage.setItem(LOCK_KEY, now.toString());
 
     const sessionData = localStorage.getItem(SESSION_KEY);
     if (!sessionData) {
         showLoginScreen();
-        localStorage.removeItem(LOCK_KEY); // Liberar bloqueo si no hay sesión
+        localStorage.removeItem(LOCK_KEY);
         return;
     }
 
@@ -82,7 +82,10 @@ export async function checkSession() {
         const { valid } = await apiValidateSession(user.ID, user.SessionToken);
 
         if (valid) {
-            await loadInitialData();
+            // Comentario: La carga de datos y la visualización de la app ahora ocurren en paralelo.
+            // `loadInitialData` actualiza el estado en segundo plano, mientras `handleLoginSuccess`
+            // muestra la UI, que esperará a que los datos estén listos.
+            loadInitialData();
             handleLoginSuccess(user);
         } else {
             logout("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
@@ -91,7 +94,6 @@ export async function checkSession() {
         showGlobalError(`Error de sesión: ${error.message}`);
         logout();
     } finally {
-        // Liberar el bloqueo para que otras pestañas puedan validar si es necesario.
         localStorage.removeItem(LOCK_KEY);
     }
 }
@@ -100,8 +102,9 @@ export async function login(username, password) {
     try {
         const result = await apiLogin(username, password);
         if (result && result.user) {
-            // FIX: Load data BEFORE showing the app to prevent race condition
-            await loadInitialData();
+            // Comentario: La lógica se simplifica. La carga de datos se inicia, y la UI se muestra inmediatamente.
+            // La UI (`showApp`) es ahora responsable de esperar a que los datos se carguen antes de renderizar el contenido.
+            loadInitialData();
             handleLoginSuccess(result.user);
         } else {
             throw new Error("Respuesta de login inválida.");

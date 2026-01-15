@@ -1,3 +1,25 @@
+**V4.9.1 - (MOBILE ARCHITECTURE REFACTOR & STABILITY) - 30/01/2026**
+**A. RESUMEN GENERAL:** Se implementó una refactorización integral de la arquitectura de layout móvil para corregir un bug crítico de "espacio fantasma" causado por el teclado en pantalla. Adicionalmente, se solucionó una condición de carrera (`race condition`) en el renderizado inicial de la aplicación, mejorando significativamente su estabilidad y robustez.
+
+**B. Cambios Implementados:**
+
+1.  **Refactorización de la Arquitectura de Layout Móvil:**
+    *   **Problema:** El uso de `height: 100%` en `html` y `body` no se adaptaba al `visualViewport` cuando el teclado aparecía, causando que el contenido quedara oculto.
+    *   **Solución (CSS):** Se modificó `style.css` para que el `body` actúe como un contenedor flex y el `.container` principal sea el único elemento con scroll (`overflow-y: auto`), ocupando el espacio disponible definido por una nueva variable CSS `--app-height`.
+    *   **Solución (JS):** Se añadió lógica en `main.js` para que escuche los eventos `resize` del `visualViewport` y actualice dinámicamente la variable `--app-height`, asegurando que el layout siempre se ajuste al área visible.
+    *   **Líneas Afectadas en `style.css`:** 1-13 (regla `html`), 14-25 (regla `body`), 57-65 (regla `.container`).
+    *   **Líneas Afectadas en `main.js`:** 129-145.
+
+2.  **Corrección de Condición de Carrera en el Renderizado Inicial:**
+    *   **Problema:** La interfaz de usuario (`ui.js`) intentaba renderizar el catálogo antes de que los datos fueran cargados asincrónicamente por `auth.js`, resultando en un renderizado prematuro con estado vacío.
+    *   **Solución (Arquitectura):** Se desacopló la carga de datos del renderizado. `auth.js` ahora inicia la carga de datos sin bloquear, y `ui.js` (`showApp`) muestra un indicador de carga y utiliza un sondeo (`setInterval`) para esperar a que los datos estén disponibles en el estado global antes de renderizar el contenido.
+    *   **Líneas Afectadas en `ui.js`:** 1222-1238 (función `showApp` refactorizada), 154-166 (función `mostrarCategorias` robustecida).
+    *   **Líneas Afectadas en `auth.js`:** 13-18 (función `handleLoginSuccess` simplificada), 80-120 (lógica de `checkSession` y `login` simplificada).
+
+**C. Impacto:**
+- **Layout Móvil Corregido:** Se ha eliminado completamente el bug del "espacio fantasma". La aplicación ahora se adapta de manera fluida y correcta a la presencia del teclado en pantalla en dispositivos móviles.
+- **Estabilidad y Robustez Mejoradas:** Se ha eliminado la condición de carrera, garantizando que la interfaz de usuario siempre se renderice con los datos correctos, lo que previene errores y mejora la experiencia del usuario.
+
 **V4.9.0 - (DEFINITIVE ROOT CAUSE FIX) - 29/01/2026**
 **A. RESUMEN GENERAL:** Se implementaron correcciones definitivas para las causas raíz de los problemas persistentes de visualización de video y espaciado de la barra de búsqueda, basadas en una auditoría correcta y consolidada del flujo de datos completo (backend y frontend).
 
