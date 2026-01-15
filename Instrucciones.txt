@@ -1,7 +1,13 @@
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-1. **TÍTULO: Corrección de Causa Raíz de Fallos en Búsqueda y Modal**
+1. **TÍTULO: Limpieza del repositorio — eliminación de archivos de verificación y artefactos temporales**
+   - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
+   - **TIPO:** Mantenimiento / Higiene de repositorio
+   - **ALCANCE:** Se eliminaron todos los scripts de verificación (.py) y las imágenes temporales (.png) del repositorio.
+   - **DESCRIPCIÓN DETALLADA:** De acuerdo con la auditoría, se eliminaron 9 scripts de Python y 5 imágenes PNG que eran artefactos de tareas de desarrollo y depuración anteriores. Esta acción reduce el ruido en el repositorio y elimina el riesgo de mantenimiento de archivos obsoletos, dejando únicamente los recursos necesarios para el funcionamiento de la aplicación productiva.
+
+2. **TÍTULO: Corrección de Causa Raíz de Fallos en Búsqueda y Modal**
    - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
    - **TIPO:** Corrección de Causa Raíz / Bug de Datos / Bug Visual de CSS
    - **ALCANCE:** Se implementaron correcciones definitivas en el backend (`services/catalog/catalog.js`), frontend (`ui.js`) y CSS (`style.css`) basadas en una auditoría consolidada.

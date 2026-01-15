@@ -348,3 +348,35 @@ AUDITORÍA - 2024-08-07 (AUDITORÍA FINAL DE CAUSA RAÍZ)
 
 **CONCLUSIÓN DE LA AUDITORÍA FINAL:**
 Las causas raíz han sido definitivamente identificadas y aisladas en el frontend. La corrección del video requiere una función de parseo de URL más robusta en `ui.js`, y la corrección del espaciado requiere una regla de CSS más específica.
+========================================
+AUDITORÍA - 29/01/2026 (LIMPIEZA DE REPOSITORIO)
+========================================
+
+**TAREA:** Limpieza del repositorio — eliminación de archivos de verificación y artefactos temporales.
+
+**ARCHIVOS A ELIMINAR:**
+
+1.  **Scripts de Verificación (`.py`):**
+    *   **Justificación:** Estos archivos son scripts de prueba y diagnóstico utilizados en tareas anteriores. No forman parte de la aplicación productiva y su permanencia genera ruido en el repositorio.
+    *   **Archivos:**
+        - `server.py`
+        - `verify_carousel_fix.py`
+        - `verify_full_fix.py`
+        - `verify_full_fix_v2.py`
+        - `verify_image_style_fix.py`
+        - `verify_load_fix.py`
+        - `verify_revert.py`
+        - `verify_revert_with_mock.py`
+        - `verify_ui.py`
+
+2.  **Imágenes de Verificación (`.png`):**
+    *   **Justificación:** Estas imágenes son capturas de pantalla y artefactos visuales generados durante procesos de depuración y verificación. No son recursos utilizados por la aplicación en producción.
+    *   **Archivos:**
+        - `carousel_fix_verification.png`
+        - `full_fix_verification_debug.png`
+        - `image_style_verification.png`
+        - `revert_error.png`
+        - `revert_error_mocked.png`
+
+**CONCLUSIÓN DE LA AUDITORÍA:**
+La eliminación de los archivos listados es segura y necesaria para mantener la higiene del repositorio. Ninguno de estos archivos es requerido para el funcionamiento de la aplicación.
