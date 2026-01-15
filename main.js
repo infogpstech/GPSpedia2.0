@@ -40,19 +40,49 @@ async function initializeApp() {
         navigation.filtrarContenido(searchInput.value);
     });
 
-    // --- LÓGICA DE ANIMACIÓN DE LA BARRA DE BÚSQUEDA ---
-    // Añade la clase 'search-active' al body cuando el input gana el foco.
+    // --- LÓGICA DE BÚSQUEDA MÓVIL Y TECLADO VIRTUAL ---
+
+    const contenido = document.getElementById('contenido');
+
+    // Función que se ejecuta cuando el visualViewport cambia (ej. al abrir/cerrar teclado).
+    const handleViewportChange = () => {
+        if (!document.body.classList.contains('search-active')) return;
+
+        // La altura del viewport visible.
+        const viewportHeight = window.visualViewport.height;
+
+        // Altura de la barra de búsqueda fija + un margen.
+        const searchBarOffset = 80; // Aprox 65px de padding + 15px de margen.
+
+        // Se establece la altura máxima del contenedor de resultados.
+        contenido.style.maxHeight = `${viewportHeight - searchBarOffset}px`;
+
+        // Se detecta si el teclado está abierto comparando la altura del viewport
+        // con la altura total de la ventana. Un umbral de 200px es seguro.
+        const isKeyboardOpen = window.innerHeight - viewportHeight > 200;
+        document.body.classList.toggle('keyboard-open', isKeyboardOpen);
+    };
+
+    // Al enfocar el input de búsqueda, se activa el modo búsqueda y se escucha por cambios en el viewport.
     searchInput.addEventListener('focus', () => {
         document.body.classList.add('search-active');
+        // Se añade el listener solo cuando es necesario.
+        window.visualViewport.addEventListener('resize', handleViewportChange);
+        // Se llama una vez para establecer el estado inicial.
+        handleViewportChange();
     });
 
-    // Elimina la clase 'search-active' del body cuando el input pierde el foco.
-    // Se utiliza un setTimeout para permitir que los eventos de clic en los resultados de búsqueda se registren
-    // antes de que la UI se revierta a su estado normal.
+    // Al perder el foco, se desactiva el modo búsqueda y se limpia todo.
     searchInput.addEventListener('blur', () => {
+        // Se usa un retardo para permitir clics en los resultados.
         setTimeout(() => {
             document.body.classList.remove('search-active');
-        }, 200); // 200ms de retardo
+            document.body.classList.remove('keyboard-open');
+
+            // Se limpia el listener y los estilos inline para restaurar el layout.
+            window.visualViewport.removeEventListener('resize', handleViewportChange);
+            contenido.style.maxHeight = '';
+        }, 200);
     });
 
 

@@ -390,10 +390,23 @@ body.search-active #search-wrapper {
 }
 
 body.search-active .container {
-    /* Define explícitamente el padding superior y anula el inferior
-       para evitar el efecto aditivo de la regla .container general. */
-    padding: 60px 20px 0;
+    /* Se restaura el padding por defecto del contenedor. La compensación
+       para la barra de búsqueda ahora la gestiona #contenido. */
+    padding: 20px;
     transition: padding 0.35s ease-in-out;
+}
+
+body.search-active #contenido {
+    /* Se añade un padding superior para dejar espacio a la barra de búsqueda fija,
+       evitando que el contenido quede oculto debajo de ella. */
+    padding-top: 65px;
+}
+
+/* --- ESTILOS PARA TECLADO MÓVIL ACTIVO --- */
+body.search-active.keyboard-open #contenido {
+    /* Cuando la búsqueda está activa y el teclado está abierto,
+       se habilita el scroll vertical en el contenedor de contenido. */
+    overflow-y: auto;
 }
 
 body.search-active .search-container {

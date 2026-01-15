@@ -9,8 +9,6 @@ import { routeAction, fetchCatalogData, login as apiLogin, validateSession as ap
 import { showLoginScreen, showApp, showGlobalError } from './ui.js';
 
 const SESSION_KEY = 'gpsepedia_session';
-let dataLoadInProgress = false;
-let dataLoadPromise = null;
 
 function handleLoginSuccess(user) {
     localStorage.setItem(SESSION_KEY, JSON.stringify(user));
@@ -19,40 +17,32 @@ function handleLoginSuccess(user) {
 }
 
 async function loadInitialData() {
-    if (dataLoadInProgress) {
-        return dataLoadPromise;
-    }
+    try {
+        const apiResponse = await fetchCatalogData();
+        const catalogData = apiResponse.data;
 
-    dataLoadInProgress = true;
+        const categoryCounts = catalogData.cortes.reduce((acc, item) => {
+            if (item.categoria) {
+                acc[item.categoria] = (acc[item.categoria] || 0) + 1;
+            }
+            return acc;
+        }, {});
 
-    const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Timeout de 10 segundos excedido al cargar datos.")), 10000)
-    );
+        const sortedCategories = Object.keys(categoryCounts).sort((a, b) => categoryCounts[b] - categoryCounts[a]);
 
-    dataLoadPromise = Promise.race([
-        (async () => {
-            const apiResponse = await fetchCatalogData();
-            const catalogData = apiResponse.data;
+        setState({
+            catalogData: {
+                ...catalogData,
+                sortedCategories: sortedCategories
+            }
+        });
 
-            const categoryCounts = catalogData.cortes.reduce((acc, item) => {
-                if (item.categoria) {
-                    acc[item.categoria] = (acc[item.categoria] || 0) + 1;
-                }
-                return acc;
-            }, {});
+        // La UI ya está visible, esto solo refrescará el contenido si es necesario
+        // (asumiendo que las funciones de renderizado usan el estado actualizado)
 
-            const sortedCategories = Object.keys(categoryCounts).sort((a, b) => categoryCounts[b] - categoryCounts[a]);
-
-            setState({
-                catalogData: {
-                    ...catalogData,
-                    sortedCategories: sortedCategories
-                }
-            });
-        })(),
-        timeoutPromise
-    ]).catch(error => {
-        showGlobalError(error.message || "Error al cargar los datos del catálogo.");
+    } catch (error) {
+        showGlobalError("Error al cargar los datos del catálogo. La funcionalidad puede ser limitada.");
+        // FIX: Set a default empty state to prevent fatal rendering errors
         setState({
             catalogData: {
                 cortes: [],
@@ -61,13 +51,7 @@ async function loadInitialData() {
                 sortedCategories: []
             }
         });
-        throw error; // Propagar el error para que los llamadores puedan manejarlo.
-    }).finally(() => {
-        dataLoadInProgress = false;
-        dataLoadPromise = null;
-    });
-
-    return dataLoadPromise;
+    }
 }
 
 
@@ -86,14 +70,14 @@ export async function checkSession() {
     // Adquirir el bloqueo para esta pestaña.
     localStorage.setItem(LOCK_KEY, now.toString());
 
-    try {
-        const sessionData = localStorage.getItem(SESSION_KEY);
-        if (!sessionData) {
-            showLoginScreen();
-            localStorage.removeItem(LOCK_KEY); // FIX: Asegurar que el bloqueo se libere siempre.
-            return;
-        }
+    const sessionData = localStorage.getItem(SESSION_KEY);
+    if (!sessionData) {
+        showLoginScreen();
+        localStorage.removeItem(LOCK_KEY); // Liberar bloqueo si no hay sesión
+        return;
+    }
 
+    try {
         const user = JSON.parse(sessionData);
         const { valid } = await apiValidateSession(user.ID, user.SessionToken);
 
