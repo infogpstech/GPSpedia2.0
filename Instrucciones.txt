@@ -1,13 +1,13 @@
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-1.  **TÍTULO: Corrección estructural de layout móvil y race condition de renderizado**
+1.  **TÍTULO: Refactorización de Arquitectura de Layout y Carga de Datos**
     -   **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
-    -   **TIPO:** Bug crítico de layout / Arquitectura UI móvil / Race Condition
-    -   **ALCANCE:** Se refactorizó la arquitectura de layout móvil para corregir el bug de "espacio fantasma" y se solucionó una condición de carrera en el renderizado inicial.
+    -   **TIPO:** Bug crítico de layout / Arquitectura UI / Race Condition / Robustez
+    -   **ALCANCE:** Se refactorizó la arquitectura de layout móvil, se solucionó una condición de carrera en el renderizado y se implementó un mecanismo de carga de datos robusto con manejo de errores y timeouts.
     -   **DESCRIPCIÓN DETALLADA:**
-        -   **Corrección de Layout Móvil:** Se modificó la arquitectura de CSS (`style.css`) y JavaScript (`main.js`) para utilizar el `visualViewport`. El `body` ahora es un contenedor flex no desplazable, el `.container` maneja el scroll, y la altura de la aplicación se ajusta dinámicamente a través de una variable CSS (`--app-height`), solucionando el problema del teclado en pantalla.
-        -   **Corrección de Race Condition:** Se refactorizó la inicialización de la aplicación en `auth.js` y `ui.js`. La UI ahora muestra un indicador de carga y espera activamente (mediante `polling`) a que los datos del catálogo estén disponibles antes de intentar renderizar el contenido, eliminando la condición de carrera y mejorando la estabilidad.
+        -   **Corrección de Layout Móvil:** Se modificó la arquitectura de CSS (`style.css`) y JavaScript (`main.js`) para utilizar el `visualViewport`, asegurando que el layout se adapte correctamente al teclado en pantalla.
+        -   **Corrección de Race Condition y Carga Robusta:** Se refactorizó la inicialización de la aplicación en `auth.js` y `ui.js`. La UI ahora muestra un indicador de carga y espera activamente (mediante `polling` con `timeout`) a que los datos del catálogo estén disponibles. Se manejan los casos de error (timeout) y de catálogo vacío, notificando al usuario y manteniendo la aplicación en un estado funcional. Se añadió un `dataLoadTimestamp` al estado para marcar la finalización de la carga.
 
 2.  **TÍTULO: Corrección de Causa Raíz de Fallos en Búsqueda y Modal**
     -   **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM

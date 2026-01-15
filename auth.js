@@ -37,7 +37,8 @@ async function loadInitialData() {
         };
 
         setState({
-            catalogData: newCatalogData
+            catalogData: newCatalogData,
+            dataLoadTimestamp: Date.now()
         });
         // Comentario: La función ya no necesita devolver los datos. Su única responsabilidad es actualizar el estado global.
 
@@ -51,7 +52,8 @@ async function loadInitialData() {
         };
 
         setState({
-            catalogData: defaultCatalogData
+            catalogData: defaultCatalogData,
+            dataLoadTimestamp: Date.now()
         });
     }
 }

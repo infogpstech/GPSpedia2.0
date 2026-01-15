@@ -1,3 +1,32 @@
+**V4.9.2 - (ROBUST DATA LOADING) - 31/01/2026**
+**A. RESUMEN GENERAL:** Se implementó una refactorización del mecanismo de carga de datos inicial para mejorar su robustez y la experiencia del usuario, basándose en una revisión de la solución de polling anterior.
+
+**B. Cambios Implementados:**
+
+1.  **Mecanismo de Polling Mejorado con Timeout (`ui.js`):**
+    *   **Problema:** El `setInterval` anterior para esperar los datos del catálogo no tenía un límite de tiempo, lo que podía llevar a un bucle infinito si la carga de datos fallaba.
+    *   **Solución:** Se refactorizó la función `showApp`. El nuevo mecanismo de `polling` ahora incluye un `timeout` máximo (15 segundos). Si los datos no están disponibles después de este tiempo, el `polling` se detiene, se notifica al usuario del error a través de `showGlobalError`, y se intenta renderizar la aplicación en un estado degradado.
+    *   **Líneas Afectadas en `ui.js`:** 1222-1256 (lógica de `showApp` reemplazada).
+
+2.  **Manejo de Catálogo Vacío (`ui.js`):**
+    *   **Problema:** El flujo no distinguía claramente entre "datos no cargados" y "catálogo vacío".
+    *   **Solución:** La nueva lógica en `showApp` ahora maneja explícitamente el caso en que `catalogData.cortes` es un array vacío, mostrando un mensaje informativo (`showNoResultsMessage`) en lugar de quedar en un estado de carga.
+    *   **Líneas Afectadas en `ui.js`:** 1238-1242.
+
+3.  **Señal de Carga de Datos (`auth.js`):**
+    *   **Problema:** No había una señal explícita en el estado para indicar que el proceso de carga de datos había finalizado.
+    *   **Solución:** Se modificó la función `loadInitialData` para que añada una marca de tiempo (`dataLoadTimestamp`) al estado global una vez que la carga de datos se completa (ya sea con éxito o con fallo).
+    *   **Líneas Afectadas en `auth.js`:** 40, 56.
+
+4.  **Limpieza de Código (`ui.js`):**
+    *   **Problema:** La función `showLoadingIndicator` estaba definida dos veces en el archivo.
+    *   **Solución:** Se eliminó la definición duplicada para mejorar la mantenibilidad del código.
+    *   **Líneas Afectadas en `ui.js`:** 1209-1220 (eliminadas).
+
+**C. Impacto:**
+- **Robustez y Fiabilidad:** La aplicación ahora es más resistente a fallos de red o del servidor durante la carga inicial, evitando bucles infinitos y manejando los errores de forma elegante.
+- **Mejora de la Experiencia de Usuario:** El usuario ahora recibe una notificación clara si los datos no se pueden cargar y se le presenta una aplicación en estado degradado en lugar de una pantalla de carga infinita.
+
 **V4.9.1 - (MOBILE ARCHITECTURE REFACTOR & STABILITY) - 30/01/2026**
 **A. RESUMEN GENERAL:** Se implementó una refactorización integral de la arquitectura de layout móvil para corregir un bug crítico de "espacio fantasma" causado por el teclado en pantalla. Adicionalmente, se solucionó una condición de carrera (`race condition`) en el renderizado inicial de la aplicación, mejorando significativamente su estabilidad y robustez.
 

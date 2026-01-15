@@ -1,4 +1,34 @@
 ========================================
+AUDITORÍA - 31/01/2026 (REFINAMIENTO DE ROBUSTEZ EN CARGA DE DATOS)
+========================================
+
+**TAREA:** Mejorar la robustez del mecanismo de carga de datos inicial.
+
+**ARCHIVOS REVISADOS:**
+- ui.js
+- auth.js
+
+**HALLAZGOS Y ANÁLISIS DE CAUSA RAÍZ (POST-REVISIÓN):**
+
+1.  **Polling Ineficiente y Sin Límites (`ui.js`):**
+    *   **Problema:** La implementación del `setInterval` en la función `showApp` para esperar los datos del catálogo, aunque funcional, carecía de un mecanismo de terminación en caso de fallo. Si la carga de datos fallaba por un error de red o del servidor, el `polling` continuaría indefinidamente en segundo plano.
+    *   **Análisis Concluyente:** La falta de un `timeout` representa un riesgo de consumo de recursos innecesario y no proporciona una experiencia de usuario clara en caso de fallo.
+
+2.  **Falta de Coordinación Explícita entre Módulos (`auth.js` -> `ui.js`):**
+    *   **Problema:** La comunicación entre el módulo de autenticación (que inicia la carga de datos) y el módulo de UI (que los consume) era implícita. La UI tenía que "adivinar" el estado de la carga mediante `polling`, lo cual es un patrón menos robusto que las alternativas.
+    *   **Análisis Concluyente:** Aunque se mantiene el desacoplamiento, la falta de una señal explícita (como una bandera en el estado o un sistema de eventos) hace que la lógica sea menos predecible.
+
+**SOLUCIÓN ARQUITECTURAL REQUERIDA (BASADA EN RECOMENDACIÓN):**
+- **Implementar un `polling` robusto en `ui.js`:**
+  a.  Modificar el `setInterval` en `showApp` para incluir un `timeout` máximo (ej. 15 segundos).
+  b.  Si se alcanza el `timeout`, el intervalo debe limpiarse (`clearInterval`).
+  c.  En caso de `timeout`, se debe mostrar un mensaje de error claro al usuario (`showGlobalError`) y, si es posible, renderizar la aplicación en un estado degradado pero funcional.
+  d.  Manejar explícitamente el caso en que los datos se cargan pero el catálogo está vacío (`catalogData.cortes` es un array vacío).
+- **Añadir Timestamp de Carga (`auth.js`):**
+  a.  Modificar la función `loadInitialData` para que, al completarse la carga (ya sea con éxito o сon fallo), se añada una marca de tiempo (`dataLoadTimestamp`) al estado global. Esto proporciona una señal explícita de que el proceso ha terminado.
+- **Limpieza de Código (`ui.js`):**
+  a.  Eliminar la definición duplicada de la función `showLoadingIndicator` para mejorar la mantenibilidad.
+========================================
 AUDITORÍA - 30/01/2026 (ARQUITECTURA DE LAYOUT MÓVIL Y RACE CONDITION)
 ========================================
 

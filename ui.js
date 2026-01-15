@@ -1198,19 +1198,6 @@ export function showLoginScreen(reason = null) {
     document.getElementById('password').value = '';
 }
 
-// Función auxiliar para mostrar indicador de carga
-function showLoadingIndicator() {
-    const cont = document.getElementById("contenido");
-    if (cont) {
-        cont.innerHTML = `
-            <div style="text-align: center; padding: 40px;">
-                <div class="spinner"></div>
-                <p>Cargando catálogo...</p>
-            </div>
-        `;
-    }
-}
-
 export function showApp(user) {
     const splash = document.getElementById('splash-screen');
     splash.style.opacity = '0';
@@ -1237,19 +1224,40 @@ export function showApp(user) {
         inboxBtn.style.display = 'flex';
     }
 
-    // Comentario: Se implementa un mecanismo de sondeo (polling) para esperar los datos del catálogo.
-    // Esto resuelve la condición de carrera donde la UI intenta renderizar antes de que los datos estén disponibles.
-    showLoadingIndicator(); // Mostrar indicador de carga inmediatamente.
+    // Mostrar indicador de carga
+    showLoadingIndicator();
 
-    const dataCheckInterval = setInterval(() => {
+    // Esperar a que los datos del catálogo estén disponibles
+    const startTime = Date.now();
+    const MAX_WAIT_TIME = 15000; // 15 segundos máximo
+    const CHECK_INTERVAL = 200; // Verificar cada 200ms
+
+    const checkDataInterval = setInterval(() => {
         const { catalogData } = getState();
-        // Comprobar si los datos del catálogo, específicamente los 'cortes', han sido cargados.
-        if (catalogData && catalogData.cortes && catalogData.cortes.length > 0) {
-            clearInterval(dataCheckInterval); // Detener el sondeo una vez que los datos están listos.
-            mostrarCategorias(); // Renderizar el contenido principal.
+        const elapsedTime = Date.now() - startTime;
+
+        // Caso 1: Datos disponibles y válidos
+        if (catalogData && catalogData.cortes) {
+            clearInterval(checkDataInterval);
+            if (catalogData.cortes.length > 0) {
+                mostrarCategorias();
+            } else {
+                // Catálogo vacío
+                showNoResultsMessage("El catálogo está vacío o no se pudieron cargar los datos.");
+            }
+            return;
         }
-        // Si no, el intervalo continuará ejecutándose y volverá a comprobar en el siguiente ciclo.
-    }, 100); // Comprobar cada 100ms.
+
+        // Caso 2: Tiempo agotado
+        if (elapsedTime >= MAX_WAIT_TIME) {
+            clearInterval(checkDataInterval);
+            showGlobalError("Tiempo de espera agotado. Verifica tu conexión e intenta recargar.");
+
+            // Forzar renderizado con estado actual (puede ser null o incompleto)
+            mostrarCategorias();
+            return;
+        }
+    }, CHECK_INTERVAL);
 }
 
 export function showGlobalError(message) {
