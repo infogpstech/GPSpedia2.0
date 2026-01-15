@@ -1,25 +1,21 @@
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-1. **TÍTULO: Corrección de condición de carrera en inicialización del catálogo**
-   - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
-   - **TIPO:** Bug / Arquitectura / Sincronización
-   - **ALCANCE:** Se refactorizaron los módulos `auth.js` y `ui.js` para eliminar una condición de carrera (`race condition`) durante la carga inicial de datos.
-   - **DESCRIPCIÓN DETALLADA:** Se implementó un patrón de promesa única (singleton) con timeout en `loadInitialData` para evitar cargas concurrentes. Se extendió el bloqueo de sesión para cubrir todo el proceso de inicialización y se añadió una guarda de protección en la UI para prevenir el renderizado de datos antes de que estén disponibles, asegurando un comportamiento estable en escenarios de múltiples pestañas.
-
-2. **TÍTULO: Limpieza del repositorio — eliminación de archivos de verificación y artefactos temporales**
-   - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
-   - **TIPO:** Mantenimiento / Higiene de repositorio
-   - **ALCANCE:** Se eliminaron todos los scripts de verificación (.py) y las imágenes temporales (.png) del repositorio.
-   - **DESCRIPCIÓN DETALLADA:** De acuerdo con la auditoría, se eliminaron 9 scripts de Python y 5 imágenes PNG que eran artefactos de tareas de desarrollo y depuración anteriores. Esta acción reduce el ruido en el repositorio y elimina el riesgo de mantenimiento de archivos obsoletos, dejando únicamente los recursos necesarios para el funcionamiento de la aplicación productiva.
-
-3. **TÍTULO: Corrección de Causa Raíz de Fallos en Búsqueda y Modal**
+1. **TÍTULO: Corrección de Causa Raíz de Fallos en Búsqueda y Modal**
    - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
    - **TIPO:** Corrección de Causa Raíz / Bug de Datos / Bug Visual de CSS
    - **ALCANCE:** Se implementaron correcciones definitivas en el backend (`services/catalog/catalog.js`), frontend (`ui.js`) y CSS (`style.css`) basadas en una auditoría consolidada.
    - **DESCRIPCIÓN DETALLADA:**
      - **Problema Video (Causa Raíz: Contrato de Datos Roto):** Se corrigió la discrepancia de nombres de propiedad entre el backend y el frontend. El servicio `catalog.js` ahora renombra `videoGuiaDesarmeUrl` a `Video` antes de enviar la respuesta. El `ui.js` fue ajustado para consumir esta propiedad (`Video`), solucionando la causa raíz de que el video no se visualizara.
      - **Problema Espaciado (Causa Raíz: Especificidad CSS):** Se añadió `!important` a la regla de CSS que anula el `margin-bottom` del `div#search-wrapper` en `style.css`. Esto asegura que el estilo en línea del `index.html` sea sobrescrito y el espacio extra se elimine correctamente.
+
+2. **TÍTULO: BACKLOG – Corrección de espacio vacío y resultados ocultos en búsqueda móvil**
+   - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
+   - **TIPO:** Bug UI / Layout móvil / UX
+   - **ALCANCE:** Se implementó una solución integral que combina CSS y JavaScript para gestionar dinámicamente el layout de la búsqueda en dispositivos móviles cuando el teclado virtual está activo.
+   - **DESCRIPCIÓN DETALLADA:**
+     - **CSS (`style.css`):** Se estableció una altura fija y consistente de `55px` para la barra de búsqueda. Se ajustó el `padding-top` del contenedor de resultados para eliminar el espacio excesivo y se optimizó el layout para pantallas pequeñas.
+     - **JavaScript (`main.js`):** Se implementó lógica para monitorear el `visualViewport`. Esta detecta la aparición del teclado, calcula la altura visible real y ajusta dinámicamente el `max-height` del contenedor de resultados para asegurar que el contenido permanezca visible y scrolleable. Se aseguró la correcta limpieza de listeners y estilos al finalizar la búsqueda.
 
 ---
 **TAREAS COMPLETADAS (Validadas por el PM)**
