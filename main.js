@@ -40,51 +40,19 @@ async function initializeApp() {
         navigation.filtrarContenido(searchInput.value);
     });
 
-    // --- LÓGICA DE ANIMACIÓN DE LA BARRA DE BÚSQUEDA Y TECLADO MÓVIL ---
-    const contenido = document.querySelector('.container');
-    const umbralTeclado = 0.8; // Si el viewport es menos del 80% del alto, el teclado está abierto
-
-    const handleViewportChange = () => {
-        const alturaVisible = window.visualViewport.height;
-        const alturaBarra = document.body.classList.contains('search-active') ? 55 : 0;
-        const alturaDisponible = alturaVisible - alturaBarra;
-
-        // Tarea 5: Detección de teclado
-        if (window.visualViewport.height / window.innerHeight < umbralTeclado) {
-            document.body.classList.add('keyboard-open');
-        } else {
-            document.body.classList.remove('keyboard-open');
-        }
-
-        // Tarea 4: Cálculo de altura y mínimo de seguridad
-        const nuevaAltura = Math.max(alturaDisponible, 100);
-        contenido.style.maxHeight = `${nuevaAltura}px`;
-        contenido.scrollTop = 0; // Tarea 5: Forzar scroll al inicio
-    };
-
-    // Tarea 6: Limpieza de listeners y estilos
-    const cleanupSearchListeners = () => {
-        window.visualViewport.removeEventListener('resize', handleViewportChange);
-        window.visualViewport.removeEventListener('scroll', handleViewportChange);
-        document.body.classList.remove('search-active', 'keyboard-open');
-        contenido.style.maxHeight = ''; // Limpiar estilo inline
-    };
-
+    // --- LÓGICA DE ANIMACIÓN DE LA BARRA DE BÚSQUEDA ---
+    // Añade la clase 'search-active' al body cuando el input gana el foco.
     searchInput.addEventListener('focus', () => {
         document.body.classList.add('search-active');
-        window.visualViewport.addEventListener('resize', handleViewportChange);
-        window.visualViewport.addEventListener('scroll', handleViewportChange);
-        // Llamada inicial para ajustar el layout
-        handleViewportChange();
     });
 
+    // Elimina la clase 'search-active' del body cuando el input pierde el foco.
+    // Se utiliza un setTimeout para permitir que los eventos de clic en los resultados de búsqueda se registren
+    // antes de que la UI se revierta a su estado normal.
     searchInput.addEventListener('blur', () => {
         setTimeout(() => {
-            // Solo limpiar si el foco no ha vuelto al input (ej. al cambiar de pestaña)
-            if (document.activeElement !== searchInput) {
-                cleanupSearchListeners();
-            }
-        }, 200); // Retardo para permitir clics en resultados
+            document.body.classList.remove('search-active');
+        }, 200); // 200ms de retardo
     });
 
 

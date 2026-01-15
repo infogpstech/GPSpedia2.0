@@ -170,9 +170,6 @@ h1.app-title {
     margin-left: auto;
     margin-right: auto;
     transition: all 0.35s ease-in-out;
-    height: 55px; /* Tarea 2: Altura fija para consistencia */
-    display: flex;
-    align-items: center;
 }
 
 #clear-search-btn {
@@ -207,7 +204,7 @@ body.search-active .search-container.has-text #clear-search-btn {
 
 .search-container input[type="text"] {
     width: 100%;
-    padding: 10px 40px 10px 15px; /* Padding vertical reducido para nueva altura */
+    padding: 12px 40px 12px 15px; /* Aumentado padding derecho para el botón X */
     border: 1px solid #ccc;
     border-radius: 8px;
     box-sizing: border-box;
@@ -393,59 +390,35 @@ body.search-active #search-wrapper {
 }
 
 body.search-active .container {
-    /* Tarea 1: Padding superior igual a la altura de la barra de búsqueda fija. */
-    padding: 55px 20px 0;
+    /* Define explícitamente el padding superior y anula el inferior
+       para evitar el efecto aditivo de la regla .container general. */
+    padding: 60px 20px 0;
     transition: padding 0.35s ease-in-out;
-    overflow-y: auto !important; /* Tarea 1: Asegura el scroll del contenido */
 }
 
 body.search-active .search-container {
     position: fixed;
-    top: 0; /* Tarea 2: Alineado a la parte superior */
+    top: 15px;
     left: 0;
     right: 0;
     padding: 0 20px;
     margin: 0;
     max-width: 100%;
     z-index: 1500;
-    height: 55px; /* Tarea 2: Altura fija y consistente */
-    background: var(--card-bg);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 body.search-active #searchInput {
     padding-left: 55px; /* Espacio para el logo */
-    height: 40px; /* Altura reducida para encajar en la barra */
+    height: 48px;
     box-sizing: border-box;
 }
 
 body.search-active .app-logo {
     position: fixed;
-    top: 12px;       /* Tarea 3: Centrado verticalmente en la barra de 55px */
+    top: 22px;       /* 15px (search-container top) + 7px (para centrar) */
     left: 30px;      /* 20px (search-container padding) + 10px (margen interno) */
-    max-width: 30px; /* Tarea 3: Tamaño reducido para encajar mejor */
+    max-width: 34px;
     z-index: 1501;   /* Por encima del input */
-}
-
-/* --- Tarea 7: Ajustes para pantallas pequeñas --- */
-@media (max-width: 480px) {
-    body.search-active .search-container {
-        height: 50px;
-    }
-    body.search-active .container {
-        padding-top: 50px;
-    }
-
-    body.search-active #searchInput {
-        height: 36px;
-        padding-left: 48px;
-    }
-
-    body.search-active .app-logo {
-        max-width: 28px;
-        top: 11px;
-        left: 28px;
-    }
 }
 
 
