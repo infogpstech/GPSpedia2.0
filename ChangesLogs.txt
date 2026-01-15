@@ -1,3 +1,28 @@
+**V4.9.1 - (MOBILE KEYBOARD LAYOUT FIX) - 01/02/2026**
+**A. RESUMEN GENERAL:** Se implementó una solución integral para corregir el layout de la búsqueda en dispositivos móviles, previniendo que el teclado virtual oculte los resultados y eliminando el espacio vertical excesivo.
+
+**B. Cambios Implementados:**
+
+1.  **Implementación de Altura Fija y Consistente para la Barra de Búsqueda (`style.css`):**
+    *   **Descripción:** Se estableció una altura fija de `55px` para el `.search-container` y se ajustaron los estilos internos (padding del input, posicionamiento del logo) para alinearse a esta nueva altura. Se añadió un fondo y sombra al contenedor en modo de búsqueda activa para mejorar la jerarquía visual.
+    *   **Líneas Afectadas en `style.css`:** 172-175, 207, 401-428.
+
+2.  **Ajuste Dinámico del Layout con `visualViewport` (`main.js`):**
+    *   **Descripción:** Se añadió nueva lógica de JavaScript que escucha los eventos `resize` y `scroll` del `window.visualViewport`. Esta lógica calcula la altura visible real de la pantalla (descontando el teclado) y aplica un `max-height` dinámico al contenedor de resultados (`.container`), asegurando que siempre sea visible.
+    *   **Líneas Afectadas en `main.js`:** 43-87.
+
+3.  **Detección de Teclado y Limpieza de Listeners (`main.js`):**
+    *   **Descripción:** Se implementó una función para detectar la presencia del teclado comparando `visualViewport.height` con `window.innerHeight`, añadiendo una clase `keyboard-open` al `body`. Se creó una función de limpieza (`cleanupSearchListeners`) que elimina todos los listeners y estilos en línea cuando el input de búsqueda pierde el foco, previniendo efectos residuales.
+    *   **Líneas Afectadas en `main.js`:** 51-57, 63-69.
+
+4.  **Optimización para Pantallas Pequeñas (`style.css`):**
+    *   **Descripción:** Se añadió una nueva media query que ajusta la altura de la barra de búsqueda y el padding del contenido para pantallas con un ancho menor a 480px, optimizando el espacio vertical disponible.
+    *   **Líneas Afectadas en `style.css`:** 431-449.
+
+**C. Impacto:**
+- **Funcionalidad en Móviles:** El layout de búsqueda ahora se adapta dinámicamente a la presencia del teclado virtual.
+- **Consistencia Visual:** La barra de búsqueda tiene una altura predecible y consistente, eliminando el espacio vertical excesivo.
+- **Robustez:** La gestión de listeners y estilos previene regresiones y asegura que el layout se restaure correctamente al finalizar la búsqueda.
 **V4.9.0 - (DEFINITIVE ROOT CAUSE FIX) - 29/01/2026**
 **A. RESUMEN GENERAL:** Se implementaron correcciones definitivas para las causas raíz de los problemas persistentes de visualización de video y espaciado de la barra de búsqueda, basadas en una auditoría correcta y consolidada del flujo de datos completo (backend y frontend).
 
@@ -480,15 +505,3 @@
 - **Funcionalidad de Navegación Restaurada:** Los usuarios ahora pueden navegar por el catálogo de manera lógica y predecible sin perder el contexto.
 - **Estabilidad de la UI:** Los modales ahora manejan correctamente los datos faltantes, evitando errores de renderizado.
 - **Consistencia Visual:** El diseño del modal de detalles ahora cumple con las especificaciones visuales del `README.md`.
-
-======================================================================================
-REGISTRO DE CAMBIOS - 18/07/2024 12:05
-======================================================================================
-
-ARCHIVOS MODIFICADOS:
----------------------
-main.js, style.css
-
-DESCRIPCIÓN:
-------------
-Se refactoriza el comportamiento de la búsqueda en móviles. Se implementa la API `visualViewport` en `main.js` para ajustar dinámicamente la altura del contenedor de resultados cuando aparece el teclado. Se refactoriza `style.css` para eliminar el layout conflictivo y se añade la clase `body.keyboard-open` para habilitar el scroll de forma condicional.

@@ -40,49 +40,51 @@ async function initializeApp() {
         navigation.filtrarContenido(searchInput.value);
     });
 
-    // --- LÓGICA DE BÚSQUEDA MÓVIL Y TECLADO VIRTUAL ---
+    // --- LÓGICA DE ANIMACIÓN DE LA BARRA DE BÚSQUEDA Y TECLADO MÓVIL ---
+    const contenido = document.querySelector('.container');
+    const umbralTeclado = 0.8; // Si el viewport es menos del 80% del alto, el teclado está abierto
 
-    const contenido = document.getElementById('contenido');
-
-    // Función que se ejecuta cuando el visualViewport cambia (ej. al abrir/cerrar teclado).
     const handleViewportChange = () => {
-        if (!document.body.classList.contains('search-active')) return;
+        const alturaVisible = window.visualViewport.height;
+        const alturaBarra = document.body.classList.contains('search-active') ? 55 : 0;
+        const alturaDisponible = alturaVisible - alturaBarra;
 
-        // La altura del viewport visible.
-        const viewportHeight = window.visualViewport.height;
+        // Tarea 5: Detección de teclado
+        if (window.visualViewport.height / window.innerHeight < umbralTeclado) {
+            document.body.classList.add('keyboard-open');
+        } else {
+            document.body.classList.remove('keyboard-open');
+        }
 
-        // Altura de la barra de búsqueda fija + un margen.
-        const searchBarOffset = 80; // Aprox 65px de padding + 15px de margen.
-
-        // Se establece la altura máxima del contenedor de resultados.
-        contenido.style.maxHeight = `${viewportHeight - searchBarOffset}px`;
-
-        // Se detecta si el teclado está abierto comparando la altura del viewport
-        // con la altura total de la ventana. Un umbral de 200px es seguro.
-        const isKeyboardOpen = window.innerHeight - viewportHeight > 200;
-        document.body.classList.toggle('keyboard-open', isKeyboardOpen);
+        // Tarea 4: Cálculo de altura y mínimo de seguridad
+        const nuevaAltura = Math.max(alturaDisponible, 100);
+        contenido.style.maxHeight = `${nuevaAltura}px`;
+        contenido.scrollTop = 0; // Tarea 5: Forzar scroll al inicio
     };
 
-    // Al enfocar el input de búsqueda, se activa el modo búsqueda y se escucha por cambios en el viewport.
+    // Tarea 6: Limpieza de listeners y estilos
+    const cleanupSearchListeners = () => {
+        window.visualViewport.removeEventListener('resize', handleViewportChange);
+        window.visualViewport.removeEventListener('scroll', handleViewportChange);
+        document.body.classList.remove('search-active', 'keyboard-open');
+        contenido.style.maxHeight = ''; // Limpiar estilo inline
+    };
+
     searchInput.addEventListener('focus', () => {
         document.body.classList.add('search-active');
-        // Se añade el listener solo cuando es necesario.
         window.visualViewport.addEventListener('resize', handleViewportChange);
-        // Se llama una vez para establecer el estado inicial.
+        window.visualViewport.addEventListener('scroll', handleViewportChange);
+        // Llamada inicial para ajustar el layout
         handleViewportChange();
     });
 
-    // Al perder el foco, se desactiva el modo búsqueda y se limpia todo.
     searchInput.addEventListener('blur', () => {
-        // Se usa un retardo para permitir clics en los resultados.
         setTimeout(() => {
-            document.body.classList.remove('search-active');
-            document.body.classList.remove('keyboard-open');
-
-            // Se limpia el listener y los estilos inline para restaurar el layout.
-            window.visualViewport.removeEventListener('resize', handleViewportChange);
-            contenido.style.maxHeight = '';
-        }, 200);
+            // Solo limpiar si el foco no ha vuelto al input (ej. al cambiar de pestaña)
+            if (document.activeElement !== searchInput) {
+                cleanupSearchListeners();
+            }
+        }, 200); // Retardo para permitir clics en resultados
     });
 
 
