@@ -20,12 +20,8 @@ function handleLoginSuccess(user) {
 async function loadInitialData() {
     try {
         const apiResponse = await fetchCatalogData();
-        // Verificación robusta de la respuesta
-        if (!apiResponse || !apiResponse.data || !Array.isArray(apiResponse.data.cortes)) {
-            throw new Error("Formato de datos del catálogo inválido.");
-        }
-
         const catalogData = apiResponse.data;
+
         const categoryCounts = catalogData.cortes.reduce((acc, item) => {
             if (item.categoria) {
                 acc[item.categoria] = (acc[item.categoria] || 0) + 1;
