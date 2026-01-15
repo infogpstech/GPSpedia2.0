@@ -1211,6 +1211,20 @@ function showLoadingIndicator() {
     }
 }
 
+// Nueva función dedicada para mostrar errores de carga de datos.
+function showDataLoadingError(message) {
+    const cont = document.getElementById("contenido");
+    if (cont) {
+        cont.innerHTML = `
+            <div style="text-align: center; padding: 20px; color: #888;">
+                <i class="fa-solid fa-cloud-exclamation fa-3x" style="margin-bottom: 15px;"></i>
+                <p>${message}</p>
+                <p style="font-size: 0.9em;">Verifica tu conexión a internet o intenta recargar la página.</p>
+            </div>
+        `;
+    }
+}
+
 export function showApp(user) {
     const splash = document.getElementById('splash-screen');
     splash.style.opacity = '0';
@@ -1255,8 +1269,8 @@ export function showApp(user) {
             if (catalogData.cortes.length > 0) {
                 mostrarCategorias();
             } else {
-                // Catálogo vacío
-                showNoResultsMessage("El catálogo está vacío o no se pudieron cargar los datos.");
+                // Catálogo vacío pero la carga fue exitosa.
+                showDataLoadingError("El catálogo está vacío o no contiene datos válidos.");
             }
             return;
         }
@@ -1264,10 +1278,9 @@ export function showApp(user) {
         // Caso 2: Tiempo agotado
         if (elapsedTime >= MAX_WAIT_TIME) {
             clearInterval(checkDataInterval);
-            showGlobalError("Tiempo de espera agotado. Verifica tu conexión e intenta recargar.");
-
-            // Forzar renderizado con estado actual (puede ser null o incompleto)
-            mostrarCategorias();
+            // Se reemplaza showGlobalError y la llamada forzada a mostrarCategorias
+            // por la nueva función de error dedicada.
+            showDataLoadingError("No se pudieron cargar los datos del catálogo.");
             return;
         }
     }, CHECK_INTERVAL);
