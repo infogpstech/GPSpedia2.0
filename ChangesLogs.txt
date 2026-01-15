@@ -1,3 +1,33 @@
+**V4.9.2 - (RACE CONDITION FIX) - 30/01/2026**
+**A. RESUMEN GENERAL:** Se implementó una refactorización arquitectónica para eliminar una condición de carrera (`race condition`) durante la inicialización de la aplicación, garantizando una carga de datos robusta y consistente, especialmente en escenarios de múltiples pestañas.
+
+**B. Cambios Implementados:**
+
+1.  **Implementación de Promesa Única para Carga de Datos (`auth.js`):**
+    *   **Problema:** Múltiples pestañas podían iniciar cargas de datos concurrentes, causando ineficiencias y potenciales inconsistencias.
+    *   **Solución:** Se introdujeron variables globales (`dataLoadInProgress`, `dataLoadPromise`) para implementar un patrón de promesa única (singleton). La función `loadInitialData` ahora asegura que solo una operación de carga de datos esté activa a la vez. Las llamadas subsecuentes mientras una carga está en curso reciben la promesa de la carga original.
+    *   **Líneas Afectadas en `auth.js`:** 13-15 (declaración de variables), 24-71 (nueva `loadInitialData`).
+
+2.  **Gestión de Timeout y Errores en Carga de Datos (`auth.js`):**
+    *   **Problema:** Una carga de datos fallida o demasiado lenta podía dejar la aplicación en un estado de bloqueo indefinido.
+    *   **Solución:** La nueva `loadInitialData` utiliza `Promise.race` para implementar un `timeout` de 10 segundos. Un bloque `finally` asegura que los flags de control (`dataLoadInProgress`, `dataLoadPromise`) se reseteen siempre, permitiendo reintentos futuros.
+    *   **Líneas Afectadas en `auth.js`:** 31-33, 66-70.
+
+3.  **Extensión del Bloqueo de Sesión (`auth.js`):**
+    *   **Problema:** El bloqueo de sesión (`LOCK_KEY`) se liberaba antes de iniciar la carga de datos, permitiendo que otra pestaña iniciara una carga paralela.
+    *   **Solución:** Se refactorizó la función `checkSession` para que la liberación del `LOCK_KEY` ocurra en un bloque `finally`, garantizando que el bloqueo persista durante todo el proceso de validación y carga de datos inicial.
+    *   **Líneas Afectadas en `auth.js`:** 88-112.
+
+4.  **Protección de Renderizado en la UI (`ui.js`):**
+    *   **Problema:** La UI intentaba renderizar el catálogo inmediatamente después del login, sin garantizar que los datos estuvieran disponibles, lo que podía resultar en una pantalla vacía.
+    *   **Solución:** Se añadió una guarda de protección en la función `showApp`. Ahora verifica que `catalogData` exista y contenga datos antes de invocar la función de renderizado `mostrarCategorias`.
+    *   **Líneas Afectadas en `ui.js`:** 1218-1221.
+
+**C. Impacto:**
+- **Estabilidad y Robustez:** Se ha eliminado la condición de carrera, asegurando que la inicialización de la aplicación sea predecible y estable en entornos de múltiples pestañas.
+- **Experiencia de Usuario Mejorada:** Se previene el renderizado de una UI vacía o incompleta, mejorando la percepción de fiabilidad del sistema.
+- **Eficiencia:** Se evita el consumo innecesario de recursos al prevenir múltiples cargas de datos simultáneas.
+
 **V4.9.1 - (REPO CLEANUP) - 29/01/2026**
 **A. RESUMEN GENERAL:** Se realizó una limpieza del repositorio para eliminar archivos de verificación y artefactos temporales que no forman parte de la aplicación productiva.
 
@@ -511,3 +541,53 @@
 - **Funcionalidad de Navegación Restaurada:** Los usuarios ahora pueden navegar por el catálogo de manera lógica y predecible sin perder el contexto.
 - **Estabilidad de la UI:** Los modales ahora manejan correctamente los datos faltantes, evitando errores de renderizado.
 - **Consistencia Visual:** El diseño del modal de detalles ahora cumple con las especificaciones visuales del `README.md`.
+
+======================================================================================
+REGISTRO DE CAMBIOS - 18/07/2024 10:35
+======================================================================================
+
+ARCHIVOS MODIFICADOS:
+---------------------
+auth.js
+
+LÍNEAS AFECTADAS:
+-----------------
+Líneas 103-104
+
+DESCRIPCIÓN:
+------------
+Se restaura la lógica de llamadas a `loadInitialData()` y `handleLoginSuccess()` dentro de la función `checkSession` para asegurar el flujo de carga correcto de la aplicación en sesiones validadas. Esta acción atiende la regresión identificada en la revisión de código anterior.
+
+
+======================================================================================
+REGISTRO DE CAMBIOS - 18/07/2024 10:45
+======================================================================================
+
+ARCHIVOS MODIFICADOS:
+---------------------
+auth.js
+
+LÍNEAS AFECTADAS:
+-----------------
+Líneas 103-104 (Restauradas)
+
+DESCRIPCIÓN:
+------------
+Se restaura el contenido correcto del archivo `auth.js` desde una copia de seguridad para corregir la regresión que impedía la carga de datos en sesiones validadas. Se elimina el archivo de respaldo del control de versiones.
+
+
+======================================================================================
+REGISTRO DE CAMBIOS - 18/07/2024 11:05
+======================================================================================
+
+ARCHIVOS MODIFICADOS:
+---------------------
+auth.js
+
+LÍNEAS AFECTADAS:
+-----------------
+Línea 100 (Añadida)
+
+DESCRIPCIÓN:
+------------
+Se corrige un bug crítico en la función `checkSession` donde el bloqueo de sesión (`LOCK_KEY`) no se liberaba si no existía una sesión de usuario. Se añadió la liberación del bloqueo para prevenir que pestañas sin sesión bloqueen indefinidamente a otras pestañas.
