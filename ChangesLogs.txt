@@ -1,3 +1,16 @@
+**V4.9.3 - (HOTFIX) - 31/01/2026**
+**A. RESUMEN GENERAL:** Se restauró una función auxiliar (`showLoadingIndicator`) que fue eliminada por error en la versión anterior. La eliminación de esta función causaba un `ReferenceError` fatal que impedía que la aplicación se cargara después del login.
+
+**B. Cambios Implementados:**
+
+1.  **Restauración de `showLoadingIndicator` (`ui.js`):**
+    *   **Problema:** Un `ReferenceError: showLoadingIndicator is not defined` bloqueaba la ejecución de la función `showApp`.
+    *   **Solución:** Se reintrodujo la definición de la función `showLoadingIndicator` en `ui.js`, justo antes de la función `showApp` que la utiliza.
+    *   **Líneas Afectadas en `ui.js`:** 1209-1220 (función restaurada).
+
+**C. Impacto:**
+- **Funcionalidad Crítica Restaurada:** La aplicación ahora puede cargarse y operar normalmente después del login. Se ha resuelto la regresión crítica.
+
 **V4.9.2 - (ROBUST DATA LOADING) - 31/01/2026**
 **A. RESUMEN GENERAL:** Se implementó una refactorización del mecanismo de carga de datos inicial para mejorar su robustez y la experiencia del usuario, basándose en una revisión de la solución de polling anterior.
 

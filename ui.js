@@ -1198,6 +1198,19 @@ export function showLoginScreen(reason = null) {
     document.getElementById('password').value = '';
 }
 
+// Función auxiliar para mostrar indicador de carga
+function showLoadingIndicator() {
+    const cont = document.getElementById("contenido");
+    if (cont) {
+        cont.innerHTML = `
+            <div style="text-align: center; padding: 40px;">
+                <div class="spinner"></div>
+                <p>Cargando catálogo...</p>
+            </div>
+        `;
+    }
+}
+
 export function showApp(user) {
     const splash = document.getElementById('splash-screen');
     splash.style.opacity = '0';
