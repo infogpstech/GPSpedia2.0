@@ -164,8 +164,8 @@ h1.app-title {
 /* --- ESTILOS DEL BUSCADOR --- */
 .search-container {
     position: relative; /* Contenedor para el botón de limpiar */
-    margin-bottom: 30px;
-    padding: 10px 0;
+    margin-bottom: 0; /* Controlado por #search-wrapper */
+    padding: 0; /* Reducido para compactar */
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
@@ -369,28 +369,31 @@ input:checked + .slider:before {
 /* --- ESTILOS DE BÚSQUEDA ACTIVA --- */
 body.search-active .app-title,
 body.search-active #header-controls,
-body.search-active #hamburger-btn,
-body.search-active .section-selector,
 body.search-active .footer {
     opacity: 0;
     visibility: hidden;
     transform: translateY(-20px);
-    max-height: 0; /* Colapsa el espacio vertical */
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    border: none !important;
+}
+
+/* Transición específica para los botones que deben ocultarse suavemente */
+body.search-active #hamburger-btn,
+body.search-active .section-selector {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-20px);
+    pointer-events: none; /* Asegura que no se pueda interactuar con ellos mientras están ocultos */
 }
 
 body.search-active #search-wrapper {
-    margin-bottom: 0; /* Elimina el margen inferior del contenedor del buscador */
+    margin-bottom: 0 !important; /* Anula el estilo en línea para eliminar el espacio */
     transition: margin-bottom 0.35s ease-in-out;
 }
 
 body.search-active .container {
-    padding-top: 0; /* Elimina el padding superior para juntar el contenido */
-    transition: padding-top 0.35s ease-in-out;
+    /* Define explícitamente el padding superior y anula el inferior
+       para evitar el efecto aditivo de la regla .container general. */
+    padding: 60px 20px 0;
+    transition: padding 0.35s ease-in-out;
 }
 
 body.search-active .search-container {

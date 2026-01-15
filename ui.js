@@ -647,7 +647,14 @@ export function mostrarDetalleModal(item) {
     headerDiv.style.cssText = "display: flex; justify-content: flex-end; align-items: center; margin-bottom: 10px;";
     const closeBtn = document.createElement("button");
     closeBtn.innerHTML = "&times;";
-    closeBtn.onclick = () => document.getElementById("modalDetalle").classList.remove("visible");
+    closeBtn.onclick = () => {
+        // Detener cualquier video de YouTube que se esté reproduciendo en el modal
+        const iframe = cont.querySelector('iframe');
+        if (iframe && iframe.contentWindow) {
+            iframe.contentWindow.postMessage('{"event":"command","func":"stopVideo","args":""}', '*');
+        }
+        document.getElementById("modalDetalle").classList.remove("visible");
+    };
     closeBtn.className = "info-close-btn";
     closeBtn.style.cssText = "position: static; font-size: 1.8em; padding: 0 10px;";
     headerDiv.appendChild(closeBtn);
@@ -740,11 +747,11 @@ export function mostrarDetalleModal(item) {
         })),
         { title: 'Apertura', content: item.apertura, img: item.imgApertura, colaborador: item.colaboradorApertura },
         { title: 'Cables de Alimentación', content: item.cableAlimen, img: item.imgCableAlimen, colaborador: item.colaboradorAlimen },
-        { title: 'Vídeo Guía de Desarme', videoUrl: item.Video }
+        { title: 'Vídeo Guía de Desarme', Video: item.Video }
     ];
 
     otherSections.forEach(sec => {
-        const hasContent = sec.isCorte || sec.content || sec.img || sec.videoUrl;
+        const hasContent = sec.isCorte || sec.content || sec.img || sec.Video;
         if (hasContent && sec.title) {
             createAccordionSection(accordionContainer, sec.title, sec, false, datosRelay);
         }
@@ -995,6 +1002,29 @@ function renderInboxDetail(item) {
     }
 }
 
+function getYouTubeEmbedUrl(url) {
+    if (!url) return null;
+    let videoId;
+    try {
+        const urlObj = new URL(url);
+        if (urlObj.hostname === 'youtu.be') {
+            videoId = urlObj.pathname.slice(1);
+        } else if (urlObj.hostname.includes('youtube.com')) {
+            videoId = urlObj.searchParams.get('v');
+        }
+    } catch (e) {
+        // Fallback for simple strings that might just be the ID
+        if (!url.includes('http') && url.length > 5) {
+            videoId = url;
+        }
+    }
+
+    if (videoId) {
+        return `https://www.youtube.com/embed/${videoId}?enablejsapi=1`;
+    }
+    return null; // Return null if no valid ID could be extracted
+}
+
 function createAccordionSection(container, title, sec, isOpen = false, datosRelay = []) {
     const btn = document.createElement("button");
     btn.className = "accordion-btn";
@@ -1037,13 +1067,15 @@ function createAccordionSection(container, title, sec, isOpen = false, datosRela
         panel.appendChild(colabDiv);
     }
 
-    if (sec.videoUrl) {
-        const videoLink = document.createElement('a');
-        videoLink.href = sec.videoUrl;
-        videoLink.target = '_blank';
-        videoLink.textContent = 'Ver Video Guía en YouTube';
-        videoLink.style.cssText = "display: block; margin-top: 10px; color: #007bff; font-weight: bold;";
-        panel.appendChild(videoLink);
+    if (sec.Video) {
+        const videoEmbedUrl = getYouTubeEmbedUrl(sec.Video);
+        if (videoEmbedUrl) {
+            const videoContainer = document.createElement('div');
+            const iframeId = `video-${Date.now()}`;
+            videoContainer.innerHTML = `<iframe id="${iframeId}" width="100%" height="315" src="${videoEmbedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 8px; margin-top: 10px;"></iframe>`;
+            panel.appendChild(videoContainer);
+            btn.dataset.iframeId = iframeId;
+        }
     }
 
     container.appendChild(btn);
@@ -1055,11 +1087,33 @@ function createAccordionSection(container, title, sec, isOpen = false, datosRela
     }
 
     btn.addEventListener("click", function() {
-        this.classList.toggle("active");
-        if (panel.style.maxHeight) {
-            panel.style.maxHeight = null;
-        } else {
-            panel.style.maxHeight = panel.scrollHeight + "px";
+        const isActive = this.classList.contains("active");
+
+        // Cerrar todos los paneles antes de abrir el nuevo
+        const allButtons = container.querySelectorAll(".accordion-btn");
+        allButtons.forEach(otherBtn => {
+            otherBtn.classList.remove("active");
+            otherBtn.nextElementSibling.style.maxHeight = null;
+        });
+
+        // Si el botón no estaba activo, ábrelo.
+        if (!isActive) {
+            this.classList.add("active");
+            // Esperar un ciclo de renderizado para asegurar que el iframe exista
+            setTimeout(() => {
+                panel.style.maxHeight = panel.scrollHeight + "px";
+            }, 0);
+        }
+    });
+
+    // Listener para pausar el video CUANDO la animación de cierre TERMINA
+    panel.addEventListener('transitionend', () => {
+        if (!panel.style.maxHeight) { // Si el panel está cerrado
+            const iframeId = btn.dataset.iframeId;
+            const iframe = iframeId ? document.getElementById(iframeId) : null;
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+            }
         }
     });
 }
@@ -1157,7 +1211,11 @@ export function showApp(user) {
         inboxBtn.style.display = 'flex';
     }
 
-    mostrarCategorias();
+    // Protección de renderizado: No mostrar el catálogo si los datos no están listos.
+    const { catalogData } = getState();
+    if (catalogData && Array.isArray(catalogData.cortes) && catalogData.cortes.length > 0) {
+        mostrarCategorias();
+    }
 }
 
 export function showGlobalError(message) {

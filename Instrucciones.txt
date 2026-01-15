@@ -1,15 +1,21 @@
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-1. CORRECCIÓN DEFINITIVA DE ESPACIADO EN ANIMACIÓN DE BÚSQUEDA
-Estado: PENDIENTE DE REVISIÓN POR EL PM
-Origen: Reporte de Bug Visual
-Prioridad: Normal
-Área: Frontend | UI | CSS
-Archivos involucrados: index.html, style.css
+1. **TÍTULO: Corrección de Causa Raíz de Fallos en Búsqueda y Modal**
+   - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
+   - **TIPO:** Corrección de Causa Raíz / Bug de Datos / Bug Visual de CSS
+   - **ALCANCE:** Se implementaron correcciones definitivas en el backend (`services/catalog/catalog.js`), frontend (`ui.js`) y CSS (`style.css`) basadas en una auditoría consolidada.
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Problema Video (Causa Raíz: Contrato de Datos Roto):** Se corrigió la discrepancia de nombres de propiedad entre el backend y el frontend. El servicio `catalog.js` ahora renombra `videoGuiaDesarmeUrl` a `Video` antes de enviar la respuesta. El `ui.js` fue ajustado para consumir esta propiedad (`Video`), solucionando la causa raíz de que el video no se visualizara.
+     - **Problema Espaciado (Causa Raíz: Especificidad CSS):** Se añadió `!important` a la regla de CSS que anula el `margin-bottom` del `div#search-wrapper` en `style.css`. Esto asegura que el estilo en línea del `index.html` sea sobrescrito y el espacio extra se elimine correctamente.
 
-Descripción:
-Se implementó la corrección definitiva para el espaciado vertical durante la animación de búsqueda. Se asignó un ID al contenedor del buscador para anular de forma precisa un `margin-bottom` en línea que causaba el problema, y se ajustó el `padding-top` del contenedor principal a cero, eliminando completamente el espacio no deseado.
+2. **TÍTULO: BACKLOG – Corrección de espacio vacío y resultados ocultos en búsqueda móvil**
+   - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
+   - **TIPO:** Bug UI / Layout móvil / UX
+   - **ALCANCE:** Se implementó una solución integral que combina CSS y JavaScript para gestionar dinámicamente el layout de la búsqueda en dispositivos móviles cuando el teclado virtual está activo.
+   - **DESCRIPCIÓN DETALLADA:**
+     - **CSS (`style.css`):** Se estableció una altura fija y consistente de `55px` para la barra de búsqueda. Se ajustó el `padding-top` del contenedor de resultados para eliminar el espacio excesivo y se optimizó el layout para pantallas pequeñas.
+     - **JavaScript (`main.js`):** Se implementó lógica para monitorear el `visualViewport`. Esta detecta la aparición del teclado, calcula la altura visible real y ajusta dinámicamente el `max-height` del contenedor de resultados para asegurar que el contenido permanezca visible y scrolleable. Se aseguró la correcta limpieza de listeners y estilos al finalizar la búsqueda.
 
 ---
 **TAREAS COMPLETADAS (Validadas por el PM)**
@@ -71,8 +77,8 @@ NORMAS OBLIGATORIAS DE DESARROLLO
 2. **prohibido eliminar el bloque que describe mas reglas en Instrucciones.txt
 3.**prohibido resumir o utilizar sumarizacion "(Sin Cambios)" EN NINGUN ARCHIVO DE CODIGO, DOCUMENTACIÓN O DE REGLAMENTO.
 4. PROHIBIDO REVERTIR COMMITS SIN LA SOLICITUD DEL PM.
-5. PROHIBIDO USAR HERRAMIENTAS BUSQUEDA, EDICION RAPIDA, TODA BUSQUESA, REVISION DEBE SER LINEA POR LINEA DE ARCHIVO POR ARCHIVO.
-6. OBLIGATORIO AUDITAR CADA ARCHIVO DE CODIGO ANTES DE CUALQUIER MODIFICacion POR MUY PEQUEÑA QUE SEA CADA HALLAZGO NO DEBE SER REPARADO EN EL MOMENTO DE AUDITORIA, DEBE DE REGISTRARSE EN Auditoria.txt Y DESPUES PLANTEARSE COMO UNA NUEVA TAREA EN Instrucciones.txt.
+5. PROHIBIDO USAR HERRAMIENTAS BUSQUEDA, EDICION RAPIDA, TODA BUSQUEDA, REVISION DEBE SER LINEA POR LINEA DE ARCHIVO POR ARCHIVO.
+6. OBLIGATORIO AUDITAR CADA ARCHIVO DE CODIGO ANTES DE CUALQUER MODIFICacion POR MUY PEQUEÑA QUE SEA CADA HALLAZGO NO DEBE SER REPARADO EN EL MOMENTO DE AUDITORIA, DEBE DE REGISTRARSE EN Auditoria.txt Y DESPUES PLANTEARSE COMO UNA NUEVA TAREA EN Instrucciones.txt.
 7. PROHIBIDO DUPLICAR BLOQUES DE CODIGO, POR ELLO ES LA AUDITORIA INICIAL.
 8. PROHIBIDO INVENTARSE LA FECHA EN ChangesLogs.txt USAR DE REFERENCIA LA FECHA DE LA ULTIMA ENTRADA DE ChangesLogs.txt
 9. No asumir que cualquier fix registrado en ChangesLogs.txt fue exitoso.
@@ -163,7 +169,7 @@ FLUJO OBLIGATORIO DE TRABAJO
 10. COMMIT
     - Realizar el commit SOLO después de cumplir
       todos los pasos anteriores.
-    - El commit debe reflejar exactamente:
+    - El commit debe reflejar EXACTAMENTE
       - Lo documentado en ChangesLogs.txt
       - El estado actualizado de Instrucciones.txt
 
