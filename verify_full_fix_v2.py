@@ -6,7 +6,8 @@ import json
 async def main():
     async with async_playwright() as p:
         browser = await p.chromium.launch()
-        context = await browser.new_context()
+        # CORRECTION: Disable service workers to prevent interference with API mocking.
+        context = await browser.new_context(service_workers="block")
         page = await context.new_page()
 
         # Capture and print all browser console logs
@@ -32,9 +33,34 @@ async def main():
                     return
 
                 if action == "getCatalogData":
-                     print(f"Mocking action: {action}")
-                     await route.fulfill(status=200, content_type="text/plain", body='{"cortes": [{"id":1, "marca":"Test"}], "tutoriales":[], "relay":[]}')
-                     return
+                    print(f"Mocking action: {action}")
+                    mock_catalog_data = {
+                        "cortes": [
+                            {
+                                "id": 1,
+                                "marca": "Honda",
+                                "modelo": "CR-V",
+                                "categoria": "Vehículos",
+                                "anoDesde": "2023",
+                                "anoHasta": "2024",
+                                "versionesAplicables": "Touring",
+                                "tipoEncendido": "Botón",
+                                "imagenVehiculo": "1_some_image_id_1",
+                                "tipoCorte1": "Paro de Motor",
+                                "ubicacionCorte1": "BCM, Conector Negro, Pin 5",
+                                "colorCableCorte1": "Amarillo",
+                                "imgCorte1": "1_some_image_id_2",
+                                "Video": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                            }
+                        ],
+                        "tutoriales": [],
+                        "relay": [],
+                        "logos": [
+                            {"nombreMarca": "Honda", "urlLogo": "1_honda_logo_id"}
+                        ]
+                    }
+                    await route.fulfill(status=200, content_type="application/json", body=json.dumps(mock_catalog_data))
+                    return
 
                 if action == "getUsers":
                     print(f"Mocking action: {action}")
@@ -46,34 +72,32 @@ async def main():
 
             await route.continue_()
 
-        await page.route("**/*", handle_route)
+        # Set up API mocking BEFORE navigation
+        await context.route("**/*", handle_route)
 
-        print("Navigating to index.html...")
+        # Set up localStorage BEFORE navigation using an init script
+        init_script = f"localStorage.setItem('gpsepedia_session', '{json.dumps(mock_session)}');"
+        await context.add_init_script(init_script)
+
+        print("Navigating to index.html (with mocks and session pre-configured)...")
         await page.goto("http://localhost:8000/index.html")
 
-        print("Injecting session data into localStorage...")
-        await page.evaluate(f'localStorage.setItem("gpsepedia_session", {json.dumps(mock_session)})')
+        # Wait for the app to initialize and show the main container
+        await expect(page.locator(".container")).to_be_visible(timeout=5000)
+        print("App container is visible.")
 
-        # Add debug hooks into the app's modules
-        await page.evaluate('''() => {
-            console.log('Attaching debug hooks...');
-            // We need to modify the imported modules, which is tricky.
-            // Awaiting the modules to load might be too late.
-            // Instead, we will directly hook into the functions on the window object
-            // after initializeApp runs.
-        }''')
+        # Click on the first card to open the modal
+        await page.locator(".card").first.click()
+        await expect(page.locator("#modalDetalle")).to_be_visible()
 
-        print("Reloading page to trigger startup logic...")
-        await page.reload()
+        # Click on the search bar
+        await page.locator("#searchInput").click()
 
-        # Manually trigger display logic to see if it works, bypassing the app's own flow
-        print("Forcing main container to be visible for debugging...")
-        await page.evaluate('document.querySelector(".container").style.display = "block"')
+        # Wait for the search animation to complete
+        await page.wait_for_timeout(500)
 
-        print("Waiting for 2 seconds to observe behavior...")
-        await asyncio.sleep(2)
-
-        screenshot_path = "full_fix_verification_debug.png"
+        # Take a screenshot of the final state
+        screenshot_path = "full_fix_verification.png"
         await page.screenshot(path=screenshot_path)
         print(f"Screenshot saved to {screenshot_path}")
 

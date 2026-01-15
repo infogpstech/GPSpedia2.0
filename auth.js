@@ -37,9 +37,8 @@ async function loadInitialData() {
             }
         });
 
-        // La UI ya está visible, esto solo refrescará el contenido si es necesario
-        // (asumiendo que las funciones de renderizado usan el estado actualizado)
-
+        // Ahora que los datos están en el estado, renderizar la vista inicial.
+        showApp(getState().currentUser);
     } catch (error) {
         showGlobalError("Error al cargar los datos del catálogo. La funcionalidad puede ser limitada.");
         // FIX: Set a default empty state to prevent fatal rendering errors
@@ -82,8 +81,8 @@ export async function checkSession() {
         const { valid } = await apiValidateSession(user.ID, user.SessionToken);
 
         if (valid) {
-            await loadInitialData();
             handleLoginSuccess(user);
+            await loadInitialData();
         } else {
             logout("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
         }

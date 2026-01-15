@@ -1,13 +1,14 @@
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-1. **TÍTULO: Corrección de Causa Raíz de Fallos en Búsqueda y Modal**
+1. **TÍTULO: Corrección Definitiva de Fallos en Búsqueda y Modal**
    - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
-   - **TIPO:** Corrección de Causa Raíz / Bug de Datos / Bug Visual de CSS
-   - **ALCANCE:** Se implementaron correcciones definitivas en el backend (`services/catalog/catalog.js`), frontend (`ui.js`) y CSS (`style.css`) basadas en una auditoría consolidada.
+   - **TIPO:** Corrección de Causa Raíz / Bug Visual de CSS / Race Condition / Refactor de Inicialización
+   - **ALCANCE:** Se implementaron correcciones definitivas en `style.css`, `ui.js` y `auth.js`.
    - **DESCRIPCIÓN DETALLADA:**
-     - **Problema Video (Causa Raíz: Contrato de Datos Roto):** Se corrigió la discrepancia de nombres de propiedad entre el backend y el frontend. El servicio `catalog.js` ahora renombra `videoGuiaDesarmeUrl` a `Video` antes de enviar la respuesta. El `ui.js` fue ajustado para consumir esta propiedad (`Video`), solucionando la causa raíz de que el video no se visualizara.
-     - **Problema Espaciado (Causa Raíz: Especificidad CSS):** Se añadió `!important` a la regla de CSS que anula el `margin-bottom` del `div#search-wrapper` en `style.css`. Esto asegura que el estilo en línea del `index.html` sea sobrescrito y el espacio extra se elimine correctamente.
+     - **Problema Espaciado (Causa Raíz: Efecto Aditivo de CSS):** Se corrigió el espaciado de la barra de búsqueda en `style.css` anulando explícitamente el `padding-bottom` heredado en la regla `body.search-active .container`.
+     - **Problema Video (Causa Raíz: Race Condition):** Se solucionó la no visualización del video en `ui.js` refactorizando el `event listener` del acordeón para usar `setTimeout(..., 0)`, lo que resuelve la condición de carrera al calcular la altura del panel.
+     - **Problema de Renderizado (Causa Raíz: Race Condition de Inicialización):** Se refactorizó el flujo de inicialización en `auth.js` para asegurar que `showApp()` (y por tanto, el renderizado de la UI) se ejecute solo después de que los datos del catálogo hayan sido cargados exitosamente.
 
 ---
 **TAREAS COMPLETADAS (Validadas por el PM)**

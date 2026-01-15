@@ -1088,18 +1088,21 @@ function createAccordionSection(container, title, sec, isOpen = false, datosRela
 
     btn.addEventListener("click", function() {
         const isActive = this.classList.contains("active");
-
-        // Cerrar todos los paneles antes de abrir el nuevo
         const allButtons = container.querySelectorAll(".accordion-btn");
+
+        // Primero, cerrar todos los paneles
         allButtons.forEach(otherBtn => {
-            otherBtn.classList.remove("active");
-            otherBtn.nextElementSibling.style.maxHeight = null;
+            if (otherBtn !== this || isActive) {
+                otherBtn.classList.remove("active");
+                otherBtn.nextElementSibling.style.maxHeight = null;
+            }
         });
 
-        // Si el botón no estaba activo, ábrelo.
+        // Si el panel no estaba activo, abrirlo
         if (!isActive) {
             this.classList.add("active");
-            // Esperar un ciclo de renderizado para asegurar que el iframe exista
+            // Usar setTimeout para posponer el cálculo de scrollHeight hasta el siguiente ciclo de eventos,
+            // dando tiempo al iframe para renderizarse y tener dimensiones.
             setTimeout(() => {
                 panel.style.maxHeight = panel.scrollHeight + "px";
             }, 0);

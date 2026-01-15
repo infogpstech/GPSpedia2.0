@@ -230,121 +230,35 @@ Los fracasos se deben a correcciones imprecisas en el commit anterior. La soluci
     - Asegurar que el cálculo de `scrollHeight` se realice correctamente para que el panel del video pueda expandirse y hacerse visible.
     - Mantener la lógica de control del video (pausa/detención) pero asegurar que se active en el contexto de un acordeón que funcione correctamente.
 ========================================
-AUDITORÍA - 2024-08-04 (IN-DEPTH AUDIT POST-FAILURE)
+AUDITORÍA - 28/01/2026 (RE-AUDITORÍA PROFUNDA POST-FRACASO)
 ========================================
 
-**TAREA:** Análisis de causa raíz de fallas persistentes en espaciado de búsqueda y visualización de video.
+**TAREA:** Análisis de causa raíz definitivo de las fallas persistentes en el espaciado de la barra de búsqueda y la visualización del video.
 
 **ARCHIVOS REVISADOS:**
 - style.css
 - ui.js
-
-**HALLAZGOS Y ANÁLISIS DE CAUSA RAÍZ:**
-
-1.  **TAREA — Espacio entre barra de búsqueda y resultados (INCOMPLETA):**
-    *   **Archivo:** `style.css`
-    *   **Línea (aprox):** 73 (`.container`), 395 (`body.search-active .container`)
-    *   **Causa Raíz (Conflicto de Especificidad / Efecto Aditivo):** El problema no es un conflicto directo, sino un efecto aditivo no considerado.
-        - La regla general `.container` aplica un `padding: 20px;` en todos los lados.
-        - La regla `body.search-active .container` establece `padding-top: 20px;`, pero no anula los otros paddings (left, right, bottom) definidos por la regla general.
-        - **Resultado:** El `padding-top` se establece correctamente, pero el `padding-bottom: 20px` de la regla general persiste, creando un espacio total mayor al deseado y dando la impresión de que el espacio superior no se redujo lo suficiente.
-    *   **Solución Propuesta:** La regla `body.search-active .container` debe ser más específica y definir todos los valores de padding para anular completamente la regla general (ej. `padding: 20px 20px 0;`).
-
-2.  **TAREA — Video guía en modal de detalle de corte (FRACASO):**
-    *   **Archivo:** `ui.js`
-    *   **Línea (aprox):** 1087 (dentro de `createAccordionSection`, en `btn.addEventListener`).
-    *   **Causa Raíz (Condición de Carrera - Race Condition):** El problema es una condición de carrera entre el cálculo del `scrollHeight` del panel y la carga del `iframe` del video.
-        - **Secuencia del Fallo:**
-            1.  El usuario hace clic en el botón del acordeón.
-            2.  El `event listener` se dispara *inmediatamente*.
-            3.  La línea `panel.style.maxHeight = panel.scrollHeight + "px";` se ejecuta. En este momento, el `iframe` que está dentro del `panel` aún no ha cargado su contenido (el reproductor de YouTube), por lo que su altura es `0`.
-            4.  El navegador calcula el `scrollHeight` del panel basándose únicamente en el contenido de texto (si lo hay), ignorando el video que aún no tiene dimensiones.
-            5.  El panel se anima a un `max-height` que es demasiado pequeño.
-            6.  El `iframe` finalmente carga y renderiza el video, pero como está dentro de un contenedor con `overflow: hidden` y un `max-height` insuficiente, permanece invisible.
-    *   **Solución Propuesta:** La lógica debe ser modificada para esperar a que el `iframe` haya cargado antes de calcular y aplicar el `scrollHeight`, o utilizar una técnica alternativa que no dependa del `scrollHeight` inicial, como usar Flexbox o un `max-height` suficientemente grande y fijo. La solución más robusta es desacoplar la animación de la carga del contenido.
-
-**CONCLUSIÓN DE LA AUDITORÍA PROFUNDA:**
-Se han identificado las causas raíz definitivas. El problema del espaciado es un efecto aditivo de CSS, y el del video es una condición de carrera clásica en el manejo de iframes. Las correcciones deben abordar estos problemas específicos.
-========================================
-AUDITORÍA - 2024-08-05 (AUDITORÍA EXCLUSIVA DE BACKEND)
-========================================
-
-**TAREA:** Verificar la correcta entrega del campo de la video guía desde el backend.
-
-**ARCHIVOS REVISADOS:**
-- Code.gs
-
-**HALLAZGOS Y ANÁLISIS DE CAUSA RAÍZ:**
-
-1.  **Análisis de `Code.gs`:**
-    *   **Hallazgo Crítico:** El archivo `Code.gs` es un servicio **legacy** post-migración. Su única y exclusiva funcionalidad actual es la de actuar como un receptor de logs (`logFrontend`).
-    *   **Evidencia Concluyente:** El código no contiene ninguna función, endpoint o lógica relacionada con la obtención o el envío de datos del catálogo (hoja "CORTES"). La estructura `switch` en la función `doPost` maneja únicamente la acción `logFrontend` y lanza un error explícito para cualquier otra acción, confirmando que la obtención de datos fue migrada a otro servicio.
-
-**CONCLUSIÓN DE LA AUDITORÍA DE BACKEND:**
-La auditoría del backend es concluyente: **el archivo `Code.gs` no es la fuente de los datos del catálogo y no tiene ninguna relación con el bug de la video guía.** La sospecha de que el backend estaba fallando es incorrecta.
-
-Este hallazgo refuerza la conclusión de la auditoría anterior: el problema reside exclusivamente en el frontend, específicamente en la condición de carrera (`race condition`) dentro del `event listener` del acordeón en `ui.js`.
-========================================
-AUDITORÍA - 2024-08-06 (AUDITORÍA CORRECTIVA Y CONSOLIDADA)
-========================================
-
-**TAREA:** Identificar las causas raíz definitivas de los fallos persistentes tras la corrección de un error de auditoría previo.
-
-**ARCHIVOS REVISADOS:**
-- README.md
-- services/catalog/catalog.js
-- index.html
-- style.css
-- ui.js
-
-**HALLAZGOS Y ANÁLISIS DE CAUSA RAÍZ CONSOLIDADOS:**
-
-1.  **Causa Raíz - Video Guía No se Visualiza (Backend + Frontend Mismatch):**
-    *   **Archivo Backend:** `services/catalog/catalog.js`
-    *   **Línea (aprox):** 281-310 (dentro de `handleGetCatalogData`).
-    *   **Análisis:** La auditoría del backend correcto (`catalog.js`) revela que el servicio lee correctamente la columna `videoGuiaDesarmeUrl` de la base de datos. Sin embargo, el objeto `vehicle` que se construye y se envía al frontend **mantiene el nombre de la propiedad como `videoGuiaDesarmeUrl`**.
-    *   **Archivo Frontend:** `ui.js`
-    *   **Línea (aprox):** 818 (dentro de `mostrarDetalleModal`).
-    *   **Análisis:** La lógica del frontend que construye las secciones del acordeón espera una propiedad llamada `videoUrl` (basado en la línea `videoUrl: item.Video`). Existe una inconsistencia adicional, ya que el código anterior esperaba `item.Video` (con 'V' mayúscula).
-    *   **Causa Raíz Conclusiva:** El problema es una **discrepancia en el contrato de datos** entre el backend y el frontend. El backend envía `videoGuiaDesarmeUrl`, mientras que el frontend espera `Video` o `videoUrl`. Como resultado, la condición `if (sec.videoUrl)` siempre es falsa, y la sección del acordeón del video nunca se crea.
-
-2.  **Causa Raíz - Espacio Incorrecto en Barra de Búsqueda (Especificidad CSS):**
-    *   **Archivo:** `index.html`
-    *   **Línea (aprox):** 111.
-    *   **Análisis:** La auditoría del HTML confirma la existencia de un `div` con `id="search-wrapper"` que tiene un estilo en línea: `style="...; margin-bottom: 10px;"`.
-    *   **Archivo:** `style.css`
-    *   **Análisis:** Debido a la alta especificidad de los estilos en línea, las reglas existentes en `style.css` para el estado `body.search-active` no son capaces de anular este `margin-bottom`.
-    *   **Causa Raíz Conclusiva:** El `margin-bottom` en línea del `div#search-wrapper` es la causa directa y única del espacio persistente. La solución requiere una regla de CSS con la especificidad suficiente para anularlo (ej. `body.search-active #search-wrapper`).
-
-**CONCLUSIÓN DE LA AUDITORÍA CONSOLIDADA:**
-Se han identificado las dos causas raíz definitivas y no relacionadas:
-1.  Un **contrato de datos roto** entre el microservicio `catalog.js` y el `ui.js` impide que se muestre el video.
-2.  Un **estilo en línea con alta especificidad** en `index.html` causa el problema de espaciado visual.
-
-Ambos problemas son ahora claramente entendidos y pueden ser corregidos de forma precisa.
-========================================
-AUDITORÍA - 2024-08-07 (AUDITORÍA FINAL DE CAUSA RAÍZ)
-========================================
-
-**TAREA:** Análisis definitivo de las causas raíz de los problemas persistentes del video y el espaciado.
-
-**ARCHIVOS REVISADOS:**
-- ui.js
 - index.html
 
-**HALLAZGOS Y ANÁLISIS DE CAUSA RAÍZ:**
+**HALLAZGOS Y ANÁLISIS DE CAUSA RAÍZ DEFINITIVOS:**
 
-1.  **Causa Raíz - Video No se Reproduce (Construcción de URL Embed):**
-    *   **Archivo:** `ui.js`
-    *   **Línea (aprox):** 1049 (dentro de `createAccordionSection`).
-    *   **Análisis:** La lógica para construir la URL del `iframe` es demasiado simple y frágil. La línea `sec.Video.replace("watch?v=", "embed/")` solo funciona para un formato de URL de YouTube específico. No maneja otros formatos válidos como `youtu.be/VIDEO_ID` o URLs que ya están en formato `embed`.
-    *   **Causa Raíz Conclusiva:** El frontend no está convirtiendo de manera robusta todas las posibles URLs de YouTube a un formato `embed` válido, lo que provoca que el `iframe` no pueda cargar el video.
+1.  **PROBLEMA 1: Espacio persistente debajo de la barra de búsqueda.**
+    *   **Causa Raíz (Efecto Aditivo de CSS):** Se confirma que el problema es un `padding-bottom` heredado.
+        *   **Archivo:** `style.css`, Línea ~73 (`.container`). Esta regla general aplica `padding: 20px;` en todos los lados.
+        *   **Archivo:** `style.css`, Línea ~395 (`body.search-active .container`). La regla actual (`padding-top: 20px;`) solo anula el padding superior. El `padding-bottom: 20px` de la regla general sigue activo, creando el espacio no deseado.
+    *   **Conclusión:** La corrección anterior fue incompleta. La solución definitiva es hacer la regla `body.search-active .container` más específica, definiendo explícitamente todos los valores de `padding` para anular por completo la regla general (ej. `padding: 60px 20px 0;`).
 
-2.  **Causa Raíz - Espacio en Barra de Búsqueda (Estilo en Línea):**
-    *   **Archivo:** `index.html`
-    *   **Línea (aprox):** 111.
-    *   **Análisis:** Se confirma que el `div` con `id="search-wrapper"` tiene un estilo en línea que incluye `margin-bottom: 10px;`. Este estilo, debido a su alta especificidad, no es anulado por las reglas generales en `style.css`.
-    *   **Causa Raíz Conclusiva:** El estilo en línea es la causa directa del espaciado no deseado. La solución requiere una regla en `style.css` con la especificidad suficiente para anular este estilo en línea durante el estado de búsqueda activa.
+2.  **PROBLEMA 2: El video guía no es visible en el modal.**
+    *   **Causa Raíz (Condición de Carrera - Race Condition):** Se confirma que la causa es una condición de carrera (`race condition`) en el `event listener` del acordeón.
+        *   **Archivo:** `ui.js`, Línea ~1087 (dentro del `addEventListener` en `createAccordionSection`).
+        *   **Secuencia del Fallo:**
+            1. El usuario hace clic en el botón del acordeón.
+            2. El `event listener` se ejecuta de inmediato.
+            3. La línea `panel.style.maxHeight = panel.scrollHeight + "px";` se ejecuta. En este instante, el `<iframe>` del video, aunque está en el DOM, aún no ha cargado su contenido y, por lo tanto, su altura es `0`.
+            4. El `scrollHeight` del panel se calcula basándose solo en el texto (si lo hay), resultando en un valor muy pequeño.
+            5. El panel se anima a este `max-height` insuficiente, ocultando el video que se carga momentos después dentro de un contenedor con `overflow: hidden`.
+    *   **Conclusión:** La corrección anterior fue insuficiente. La solución definitiva es refactorizar el `event listener` para posponer el cálculo del `scrollHeight` hasta el siguiente ciclo de eventos del navegador, dando tiempo al `<iframe>` para que comience a renderizarse. Esto se puede lograr de forma robusta utilizando `setTimeout(..., 0)`.
 
-**CONCLUSIÓN DE LA AUDITORÍA FINAL:**
-Las causas raíz han sido definitivamente identificadas y aisladas en el frontend. La corrección del video requiere una función de parseo de URL más robusta en `ui.js`, y la corrección del espaciado requiere una regla de CSS más específica.
+**PLAN DE ACCIÓN DERIVADO DE LA AUDITORÍA:**
+1.  **En `style.css`:** Modificar la regla `body.search-active .container` para que anule explícitamente el `padding-bottom`.
+2.  **En `ui.js`:** Refactorizar el `addEventListener` del acordeón para usar `setTimeout` y resolver la condición de carrera del `scrollHeight`.
