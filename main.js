@@ -65,7 +65,7 @@ async function initializeApp() {
     searchInput.addEventListener('blur', () => {
         setTimeout(() => {
             document.body.classList.remove('search-active');
-        }, 500); // 500ms de retardo
+        }, 200); // 200ms de retardo
     });
 
     // --- LÓGICA DINÁMICA DE VIEWPORT PARA MÓVIL ---

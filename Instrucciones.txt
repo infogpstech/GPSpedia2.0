@@ -185,16 +185,17 @@ INVALIDA el proceso completo.
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-1. **TÍTULO: Transición Ultra Fluida de Header y Búsqueda (v4.9.8)**
-   - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
-   - **TIPO:** Refactor Visual / UX / Estabilidad
-   - **ALCANCE:** Animación sin saltos, interpolación de logo y sincronización JS.
-   - **DESCRIPCIÓN DETALLADA:**
-     - **Arquitectura:** Header fixed permanente para estabilidad de coordenadas.
-     - **Interpolación:** Logo absolute base para movimiento continuo.
-     - **Sincronización:** Timeout de JS alineado con duraciones de CSS (500ms).
 
-1. **TÍTULO: Reparación de Precisión de Layout y Logo (v4.9.6)**
+1. **TÍTULO: EXTREME HEADER FINE-TUNING (v4.9.7)**
+   - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
+   - **TIPO:** Refinamiento Visual / UX
+   - **ALCANCE:** Suavizado de transiciones y estabilidad de desbordamiento.
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Animación:** Hiding fluido de botones de sección (cortes, tutoriales, relay).
+     - **Layout:** Bloqueo de overflow horizontal en header (100vw).
+     - **Logo:** Refactorización de la transición del logo (cubic-bezier).
+
+2. **TÍTULO: Reparación de Precisión de Layout y Logo (v4.9.6)**
    - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
    - **TIPO:** Refinamiento UI / Bugfix Layout / Unificación CSS
    - **ALCANCE:** Corrección milimétrica de centrado de logo y desbordamiento horizontal.
@@ -203,46 +204,6 @@ INVALIDA el proceso completo.
      - **Centrado Logo:** Implementación de centrado vertical dinámico (`top: 50%`, `transform: translateY(-50%)`) y escala del 95%.
      - **Layout:** Eliminación de `gap` en header activo para colapso total de espacio superior.
      - **Overflow:** Bloqueo estricto de desbordamiento horizontal en el encabezado fijo.
-
-2. **TÍTULO: Corrección de Regresiones del Header (v4.9.5)**
-   - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
-   - **TIPO:** Bugfix / UX / Regresión
-   - **ALCANCE:** Restauración completa de funcionalidades perdidas tras el refactor estructural.
-   - **DESCRIPCIÓN DETALLADA:**
-     - **Hamburger:** Restaurada visibilidad e interactividad mediante ajuste de z-index y capas.
-     - **Búsqueda:** Se implementó el botón "X" para limpiar términos y su lógica visual (`.has-text`).
-     - **Logo:** Corregida animación y visibilidad en modo búsqueda (ya no desaparece).
-     - **Pull-to-refresh:** Re-implementado mediante listeners de touch para permitir recarga manual en móviles.
-     - **Versión:** Sincronización global a v4.9.5.
-
-2. **TÍTULO: Restauración de Animaciones y Botón Hamburguesa**
-   - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
-   - **TIPO:** Fix UX / UI Regression / Animaciones
-   - **ALCANCE:** Restauración de la fluidez visual y componentes esenciales del header tras el refactor estructural.
-   - **DESCRIPCIÓN DETALLADA:**
-     - **Animaciones:** Se reemplazó `display: none` por transiciones de `opacity` y `max-height` para restaurar la suavidad entre estados de búsqueda.
-     - **Hamburger:** Se restauró la visibilidad y interactividad del botón de menú lateral.
-     - **Logo:** Se re-activó la animación de reducción y reposicionamiento del logo.
-     - **Estabilidad:** El fix de "espacio fantasma" se mantiene intacto mediante colapso de altura animado.
-
-2. **TÍTULO: Reconstrucción Extrema del Header y Fix de Espacio Fantasma**
-   - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
-   - **TIPO:** Refactor Estructural / Layout Móvil / UX
-   - **ALCANCE:** Reconstrucción integral del sistema de encabezado y búsqueda para eliminar redundancias y fallos de visualización en móviles.
-   - **DESCRIPCIÓN DETALLADA:**
-     - **HTML:** Implementación de `.main-header` como contenedor maestro unificado.
-     - **CSS:** Centralización de estilos y uso de `display: none !important` para colapsar espacio en modo búsqueda. Sincronización milimétrica del padding de resultados (70px).
-     - **JS:** Ajuste de `ui.js` para compatibilidad con la nueva jerarquía (mensaje de bienvenida).
-     - **Visual:** Eliminación total del hueco entre barra y resultados manteniendo la estética original.
-
-2. **TÍTULO: Corrección de Causa Raíz de Fallos en Búsqueda y Modal**
-   - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
-   - **TIPO:** Corrección de Causa Raíz / Bug de Datos / Bug Visual de CSS
-   - **ALCANCE:** Se implementaron correcciones definitivas en el backend (`services/catalog/catalog.js`), frontend (`ui.js`) y CSS (`style.css`) basadas en una auditoría consolidada.
-   - **DESCRIPCIÓN DETALLADA:**
-     - **Problema Video (Causa Raíz: Contrato de Datos Roto):** Se corrigió la discrepancia de nombres de propiedad entre el backend y el frontend. El servicio `catalog.js` ahora renombra `videoGuiaDesarmeUrl` a `Video` antes de enviar la respuesta. El `ui.js` fue ajustado para consumir esta propiedad (`Video`), solucionando la causa raíz de que el video no se visualizara.
-     - **Problema Espaciado (Causa Raíz: Especificidad CSS):** Se añadió `!important` a la regla de CSS que anula el `margin-bottom` del `div#search-wrapper` en `style.css`. Esto asegura que el estilo en línea del `index.html` sea sobrescrito y el espacio extra se elimine correctamente.
-
 
 ---
 **DERIVADO DE AUDITORÍA — NO EJECUTAR AÚN**
