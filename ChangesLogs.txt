@@ -1,3 +1,92 @@
+**V4.9.5 - (HEADER REGRESSION FIX) - 02/02/2026**
+**A. RESUMEN GENERAL:** Se corrigieron las regresiones funcionales y visuales introducidas tras la reconstrucción del encabezado. Se restauró el botón hamburguesa, el botón de limpieza de búsqueda y el gesto pull-to-refresh.
+
+**B. Cambios Implementados:**
+
+1.  **Restauración de Interactividad (style.css):**
+    *   **Descripción:** Se incrementó el `z-index` del `#hamburger-btn` (Línea 218) y se forzó la visibilidad del logo en modo búsqueda activa (Línea 408) para corregir el conflicto de ocultamiento.
+2.  **Lógica Funcional de Búsqueda (main.js):**
+    *   **Descripción:** Se implementó el toggle de la clase `.has-text` para el botón "X" y se vinculó su evento `click` para limpiar el input (Líneas 41-54).
+3.  **Restauración de Gesto de Recarga (main.js):**
+    *   **Descripción:** Se re-implementó manualmente el gesto "Pull-to-refresh" utilizando eventos de touch en el contenedor principal (Líneas 105-120).
+4.  **Sincronización de Versión:**
+    *   **Descripción:** Se normalizó la versión a la v4.9.5 en `index.html`, `README.md` y `ui.js`.
+
+**V4.9.4 - (HEADER ANIMATIONS RESTORE) - 02/02/2026**
+**A. RESUMEN GENERAL:** Se restauraron todas las animaciones y transiciones del encabezado y el botón hamburguesa, manteniendo la corrección del "espacio fantasma" lograda en la reconstrucción estructural anterior.
+
+**B. Cambios Implementados:**
+
+1.  **Restauración de Transiciones de Búsqueda (`style.css`):**
+    *   **Descripción:** Se reemplazó el uso de `display: none` por una combinación de `opacity`, `visibility`, `transform` y `max-height: 0`. Esto permite que el header superior se colapse suavemente durante la búsqueda sin dejar huecos muertos.
+    *   **Líneas Afectadas:** 353-366.
+
+2.  **Visibilidad del Botón Hamburguesa (`style.css`):**
+    *   **Descripción:** Se ajustaron los estilos de `#hamburger-btn` para asegurar su visibilidad y funcionalidad en dispositivos móviles, integrando transiciones de entrada/salida fluidas.
+    *   **Líneas Afectadas:** 207-213.
+
+3.  **Animación del Logo (`style.css`):**
+    *   **Descripción:** Se re-implementó la lógica de animación del logo para que se desvanezca en su posición original y aparezca en la barra de búsqueda de forma coordinada y con efectos de sombra adecuados.
+    *   **Líneas Afectadas:** 85, 403-414.
+
+**C. Impacto:**
+- **Experiencia de Usuario:** Se recupera la fluidez original del sistema, eliminando saltos visuales bruscos.
+- **Funcionalidad Móvil:** El menú lateral vuelve a ser accesible mediante el botón hamburguesa.
+- **Integridad Visual:** El logo es visible y se integra correctamente en el flujo de búsqueda.
+
+**V4.9.3 - (EXTREME HEADER REBUILD) - 02/02/2026**
+**A. RESUMEN GENERAL:** Se realizó una reconstrucción estructural profunda del encabezado y sistema de búsqueda para eliminar definitivamente el "espacio fantasma" y conflictos de layout acumulados, garantizando un código limpio y modular sin alterar el diseño visual.
+
+**B. Cambios Implementados:**
+
+1.  **Reconstrucción HTML del Header (`index.html`):**
+    *   **Descripción:** Se reemplazó la estructura fragmentada por un contenedor maestro único `.main-header`. Se unificó el Branding, controles de usuario y buscador en una jerarquía lógica y semántica.
+    *   **Líneas Afectadas:** 87-120.
+
+2.  **Rediseño del Layout CSS (`style.css`):**
+    *   **Descripción:** Se centralizaron todos los estilos en un bloque dedicado al Header. Se implementó una lógica de colapso total mediante `display: none !important` para elementos no esenciales en modo búsqueda, eliminando cualquier reserva de espacio "fantasma". Se ajustó el padding del `.container` para sincronizarse perfectamente con la altura de la barra fija.
+    *   **Líneas Afectadas:** 72-130, 349-380.
+
+3.  **Sincronización de Lógica UI (`ui.js`):**
+    *   **Descripción:** Se ajustó la función `showApp` para inyectar el mensaje de bienvenida en la nueva estructura del header.
+    *   **Líneas Afectadas:** 1200-1207.
+
+**C. Impacto:**
+- **Cero Espacio Fantasma:** La brecha entre la búsqueda y los resultados ha sido eliminada por completo mediante colapso estructural.
+- **Mantenibilidad:** El código del header es ahora legible, predecible y libre de parches inline o reglas contradictorias.
+- **Fidelidad Visual:** Se mantiene el 100% de la estética y animaciones originales requeridas por el proyecto.
+
+**V4.9.1 - (MOBILE VIEWPORT FIX) - 02/02/2026**
+**A. RESUMEN GENERAL:** Se implementó una solución arquitectónica para el manejo del viewport en dispositivos móviles, alineando el comportamiento con el estándar del proyecto.
+
+**B. Cambios Implementados:**
+
+1.  **Gestión Dinámica de Viewport (`main.js`):**
+    *   **Descripción:** Se añadió lógica utilizando `window.visualViewport` para calcular la altura real visible de la pantalla, descontando el espacio ocupado por el teclado virtual. Se actualiza la variable CSS `--app-height` dinámicamente.
+    *   **Líneas Afectadas:** 58-86.
+
+2.  **Refactorización del Modelo de Scroll (`style.css`):**
+    *   **Descripción:** Se cambió el scroll del `body` al contenedor principal `.container`. Se fijó la altura de `html` y `body` a `var(--app-height)`, eliminando el uso de `vh`.
+    *   **Líneas Afectadas:** 2-15, 54-58.
+
+3.  **Eliminación de Espacio Fantasma en Búsqueda (`style.css`, `index.html`):**
+    *   **Descripción:** Se eliminó el estilo en línea `margin-bottom` en `index.html`. En CSS, se cambió `visibility: hidden` por `display: none` para la cabecera en modo `search-active`, colapsando el espacio vacío que antes se preservaba.
+    *   **Líneas Afectadas en `index.html`:** 105.
+    *   **Líneas Afectadas en `style.css`:** 374-376, 400.
+
+4.  **Corrección de Alineación de Logo en Búsqueda (`style.css`):**
+    *   **Descripción:** Se ajustó la posición del logo dentro del input de búsqueda para que esté perfectamente centrado y alineado con la nueva altura de la barra.
+    *   **Líneas Afectadas:** 403, 422-426.
+
+5.  **Migración de Unidades `vh` a Relativas (`style.css`):**
+    *   **Descripción:** Se reemplazaron todas las ocurrencias de `90vh` por cálculos basados en `--app-height` para garantizar que los modales se ajusten correctamente al área visible real.
+    *   **Líneas Afectadas:** 766, 1012.
+
+**C. Impacto:**
+- **Usabilidad Móvil:** Los resultados de búsqueda son ahora completamente visibles y scrolleables incluso con el teclado abierto.
+- **Limpieza Visual:** Se ha eliminado el espacio muerto superior durante la búsqueda, maximizando el área útil.
+- **Robustez:** El sistema de layout ahora es independiente de las inconsistencias de altura de los navegadores móviles.
+
 **V4.9.1 - (MOBILE KEYBOARD LAYOUT FIX) - 01/02/2026**
 **A. RESUMEN GENERAL:** Se implementó una solución integral para corregir el layout de la búsqueda en dispositivos móviles, previniendo que el teclado virtual oculte los resultados y eliminando el espacio vertical excesivo.
 
@@ -505,3 +594,49 @@
 - **Funcionalidad de Navegación Restaurada:** Los usuarios ahora pueden navegar por el catálogo de manera lógica y predecible sin perder el contexto.
 - **Estabilidad de la UI:** Los modales ahora manejan correctamente los datos faltantes, evitando errores de renderizado.
 - **Consistencia Visual:** El diseño del modal de detalles ahora cumple con las especificaciones visuales del `README.md`.
+
+**V4.9.6 - (SURGICAL LAYOUT FIX) - 02/02/2026**
+**A. RESUMEN GENERAL:** Se realizaron ajustes quirúrgicos en el layout del encabezado para corregir el desbordamiento horizontal y mejorar la escala visual del logo en modo búsqueda, además de suavizar las transiciones de la interfaz.
+
+**B. Cambios Implementados:**
+
+1.  **Corrección de Desbordamiento y Layout (style.css):**
+    *   **Descripción:** Se aplicó `width: 100%`, `box-sizing: border-box` y `overflow-x: hidden` a `.main-header` durante la búsqueda activa. Esto previene que el desplazamiento del header fijo genere barras de scroll horizontal.
+    *   **Líneas Afectadas:** 388-390.
+
+2.  **Escalado y Alineación de Logo (style.css):**
+    *   **Descripción:** Se eliminó `max-width: 38px` y se estableció `height: 48px` para el logo en modo búsqueda, logrando una proporción del ~95% respecto a la barra de entrada. Se ajustó la posición vertical (`top: 10px`) para una alineación perfecta.
+    *   **Líneas Afectadas:** 406-412.
+
+3.  **Suavizado de Animaciones (style.css):**
+    *   **Descripción:** Se actualizó la transición de los elementos que se ocultan (selectores de sección, controles) para usar curvas de tiempo diferenciadas, evitando el colapso abrupto del espacio.
+    *   **Líneas Afectadas:** 372.
+
+4.  **Actualización de Versión:**
+    *   **Descripción:** Incremento de versión a v4.9.6 en `index.html`.
+    *   **Líneas Afectadas:** 7, 245.
+
+**C. Impacto:**
+- **Calidad Visual:** El logo ahora tiene una presencia proporcional y clara en la interfaz de búsqueda.
+- **Estabilidad de Layout:** Se eliminó el error de overflow horizontal reportado.
+- **Fluidez:** La transición entre el modo normal y el modo búsqueda es más armónica y menos intrusiva.
+
+**V4.9.6 - (PRECISION LAYOUT REPAIR) - 02/02/2026**
+**A. RESUMEN GENERAL:** Corrección crítica y quirúrgica del layout del encabezado en modo búsqueda. Se unificaron reglas conflictivas y se garantizó el centrado perfecto del logo dentro de la barra de búsqueda.
+
+**B. Cambios Implementados:**
+
+1.  **Unificación de Reglas (style.css):**
+    *   **Descripción:** Se consolidaron múltiples reglas de `body.search-active` en bloques lógicos y unificados (Header, Logo, Contenedores) para evitar conflictos de especificidad y herencia.
+    *   **Líneas Afectadas:** 358-428.
+
+2.  **Centrado Milimétrico del Logo (style.css):**
+    *   **Descripción:** Se eliminó el posicionamiento `fixed` disruptivo. Se implementó un centrado vertical dinámico mediante `absolute` y `transform: translateY(-50%)` relativo al header. Se ajustó la altura a `40px` (95% de la barra) para asegurar que el logo permanezca totalmente dentro del contenedor.
+    *   **Líneas Afectadas:** 406-417.
+
+3.  **Bloqueo de Desbordamiento y Gap (style.css):**
+    *   **Descripción:** Se aplicó `gap: 0` al header activo para eliminar el espacio de elementos colapsados. Se reforzó el control de desbordamiento horizontal con `overflow: hidden` y `box-sizing: border-box`.
+    *   **Líneas Afectadas:** 389.
+
+4.  **Sincronización de Versión:**
+    *   **Descripción:** Normalización a v4.9.6 en `index.html`.
