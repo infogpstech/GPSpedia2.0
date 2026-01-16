@@ -1198,6 +1198,13 @@ export function showApp(user) {
 
     if (user && user.Nombre_Usuario) {
         document.getElementById('menu-username').textContent = user.Nombre_Usuario;
+
+        // Mostrar mensaje de bienvenida en el nuevo header si existe
+        const welcomeMsg = document.getElementById('welcome-message');
+        if (welcomeMsg) {
+            welcomeMsg.textContent = `Hola, ${user.Nombre_Usuario}`;
+            welcomeMsg.style.display = 'block';
+        }
     }
 
     const devToolsBtn = document.getElementById('dev-tools-btn');

@@ -31,3 +31,28 @@
 
 **CONCLUSIÓN DE AUDITORÍA:**
 La causa real del "espacio fantasma" es la regla de padding estático en `style.css:400` que no está sincronizada con la altura real de la barra de búsqueda fija ni con el colapso del header. Además, existe una redundancia entre el posicionamiento `fixed` de la barra y el modelo de scroll del `.container`.
+
+**AUDITORÍA EXTREMA (02/02/2026): RECONSTRUCCIÓN DE HEADER**
+
+**1. AUDITORÍA DE index.html**
+- **Líneas 87-111:** Fragmentación del encabezado en múltiples divs (`header-container`, `search-wrapper`).
+- **Hallazgo:** El `#install-button` y `#search-wrapper` están fuera de `.header-container`, lo que dificulta el control unificado de visibilidad.
+- **Hallazgo:** El botón de hamburguesa (`#hamburger-btn`) está anidado dentro de `#search-wrapper`, lo que vincula su layout al buscador de forma innecesaria.
+- **Riesgo:** Estilos inline como `margin-bottom: 0 !important` en la línea 105 son parches de fragilidad estructural.
+
+**2. AUDITORÍA DE style.css (CRÍTICA)**
+- **Líneas 76-135:** Reglas dispersas para `.header-container` y sus hijos con múltiples media queries que redefinen `flex-direction`.
+- **Líneas 374-430:** El bloque `body.search-active` intenta forzar un nuevo layout mediante `position: fixed` en elementos que antes eran `relative`, causando saltos visuales y huecos.
+- **Hallazgo:** `.container` (Línea 50) tiene un padding base de 20px que se suma al padding de 60px de `search-active`, pero el modelo de scroll en `.container` hace que este padding superior sea "scrollable", dejando un hueco al tope.
+
+**3. AUDITORÍA DE main.js**
+- **Líneas 38-56:** Gestión de eventos de búsqueda (`focus`, `blur`) que activan clases de CSS.
+- **Líneas 64-85:** Lógica de `visualViewport` que inyecta variables de altura.
+- **Conflicto:** La clase `search-active` se quita con un `setTimeout` de 200ms, lo cual es asíncrono y puede desincronizarse con el cierre del teclado.
+
+**4. AUDITORÍA DE ui.js / navigation.js**
+- **ui.js:159, navigation.js:19:** Dependencia directa del ID `#searchInput`.
+- **Hallazgo:** No hay conflictos de lógica, pero cualquier cambio de ID en el HTML durante la reconstrucción requiere actualización inmediata aquí.
+
+**CONCLUSIÓN DE AUDITORÍA EXTREMA:**
+La fragmentación HTML del header impide una transición limpia a "modo búsqueda". Al ocultar el header original con `display: none`, el navegador recalcula el flujo de `.container`, pero la barra de búsqueda (al ser `fixed`) no rellena ese espacio de forma natural. Se requiere un contenedor maestro `.main-header` que encapsule todo lo superior.

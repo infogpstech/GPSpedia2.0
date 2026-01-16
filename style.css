@@ -72,14 +72,22 @@ h1.app-title {
     background: #e9f7ff;
 }
 
-/* --- ESTILOS DEL ENCABEZADO (Header) --- */
-.header-container {
+/* --- RECONSTRUCCIÓN EXTREMA DEL HEADER --- */
+.main-header {
+    background-color: var(--bg-color);
+    padding: 20px 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    transition: all 0.35s ease-in-out;
+    position: relative;
+    z-index: 1500;
+}
+
+.header-top {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Ajustado para espaciar los elementos */
-    flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
-    margin-bottom: 20px;
-    gap: 15px; /* Espacio entre el logo/título y los controles */
+    justify-content: space-between;
     transition: all 0.35s ease-in-out;
 }
 
@@ -87,113 +95,102 @@ h1.app-title {
     display: flex;
     align-items: center;
     gap: 15px;
-    transition: all 0.35s ease-in-out;
+}
+
+.title-welcome-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 .app-logo {
     max-width: 96px;
     height: auto;
     border-radius: 8px;
-    /* margin-right ya no es necesario gracias a 'gap' */
     transition: all 0.35s ease-in-out;
 }
+
 h1.app-title {
-    text-align: left;
     margin: 0;
     font-size: 2.2em;
-    color: #333;
+    color: var(--header-color) !important;
     transition: all 0.35s ease-in-out;
 }
 
-#header-controls {
-    transition: all 0.35s ease-in-out;
-}
-
-#install-button {
-    display: none; /* Oculto por defecto, JS lo mostrará */
-    position: fixed; /* Fijo en la pantalla */
-    top: 20px;       /* Distancia desde arriba */
-    right: 20px;      /* Distancia desde la derecha */
-    z-index: 1001;   /* Por encima de otros elementos */
-    padding: 10px 20px;
-    font-size: 1em;
+#welcome-message {
+    color: var(--text-color);
     font-weight: bold;
-    color: #fff;
-    background-color: #28a745; /* Verde para la acción de instalar */
+    font-size: 0.8em;
+    opacity: 0.8;
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#logout-button, #install-button {
     border: none;
+    padding: 8px 12px;
     border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
-    white-space: nowrap;
+    font-weight: bold;
+    font-size: 0.9em;
+    transition: background-color 0.3s;
 }
 
-#install-button:hover {
-    background-color: #218838;
-    transform: scale(1.05); /* Efecto de zoom ligero */
+#logout-button { background-color: #dc3545; color: white; }
+#install-button { background-color: #28a745; color: white; }
+
+.header-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    transition: all 0.35s ease-in-out;
 }
 
-@media (max-width: 680px) {
-    .header-container {
-        flex-direction: column; /* Apila los elementos verticalmente */
-        align-items: center; /* Centra los elementos */
-        justify-content: center;
-    }
-    .header-branding {
-        justify-content: center;
-        width: 100%;
-    }
-    h1.app-title {
-        font-size: 1.8em;
-    }
-    #header-controls {
-        margin-left: 0; /* Resetea el margen */
-        width: 100%;
-        justify-content: center; /* Centra los botones */
-    }
+.search-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-@media (max-width: 480px) {
-    #install-button {
-        top: 10px;
-        right: 10px;
-        padding: 8px 12px;
-        font-size: 0.9em;
-    }
-    #header-controls {
-        flex-direction: column; /* Apila el saludo y el botón de cerrar sesión */
-        align-items: center;
-    }
-}
-
-/* --- ESTILOS DEL BUSCADOR --- */
 .search-container {
-    position: relative; /* Contenedor para el botón de limpiar */
-    margin-bottom: 0; /* Controlado por #search-wrapper */
-    padding: 0; /* Reducido para compactar */
+    flex-grow: 1;
+    position: relative;
     max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.search-container input[type="text"] {
+    width: 100%;
+    padding: 12px 40px 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1em;
+    background: var(--card-bg);
+    color: var(--text-color);
     transition: all 0.35s ease-in-out;
 }
 
 #clear-search-btn {
     position: absolute;
-    right: 15px;
+    right: 10px;
     top: 50%;
     transform: translateY(-50%);
     background: #ccc;
     color: #fff;
     border: none;
     border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    font-size: 16px;
-    line-height: 24px;
-    text-align: center;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
     cursor: pointer;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.2s ease-in-out;
+    transition: opacity 0.2s;
 }
 
 .search-container.has-text #clear-search-btn {
@@ -201,25 +198,7 @@ h1.app-title {
     pointer-events: all;
 }
 
-body.search-active .search-container.has-text #clear-search-btn {
-    right: 35px; /* Ajuste de posición cuando la búsqueda está activa */
-}
-
-
-.search-container input[type="text"] {
-    width: 100%;
-    padding: 12px 40px 12px 15px; /* Aumentado padding derecho para el botón X */
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    box-sizing: border-box;
-    font-size: 1em;
-    transition: all 0.35s ease-in-out;
-}
-.search-container input[type="text"]:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-    outline: none;
-}
+/* --- ESTILOS DEL BUSCADOR --- */
 
 /* --- ESTILOS DEL MENÚ HAMBURGUESA --- */
 #hamburger-btn {
@@ -370,63 +349,47 @@ input:checked + .slider:before {
     transform: translateX(26px);
 }
 
-/* --- ESTILOS DE BÚSQUEDA ACTIVA --- */
-body.search-active .header-container {
-    display: none; /* Elimina el espacio fantasma del header */
-}
-
-body.search-active .footer {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-20px);
-}
-
-/* Transición específica para los botones que deben ocultarse suavemente */
+/* --- ESTILOS DE BÚSQUEDA ACTIVA (RECONSTRUCCIÓN) --- */
+body.search-active .header-top,
+body.search-active .section-selector,
 body.search-active #hamburger-btn,
-body.search-active .section-selector {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-20px);
-    pointer-events: none; /* Asegura que no se pueda interactuar con ellos mientras están ocultos */
+body.search-active .footer {
+    display: none !important; /* Colapso total de espacio */
 }
 
-body.search-active #search-wrapper {
-    margin-bottom: 0 !important; /* Anula el estilo en línea para eliminar el espacio */
-    transition: margin-bottom 0.35s ease-in-out;
-}
-
-body.search-active .container {
-    /* El padding-top debe ser exacto para la barra de búsqueda fija:
-       top (10px) + height (48px) = 58px. Se usa 60px para un margen sutil.
-       Se elimina el 'espacio fantasma' anterior de 75px. */
-    padding: 60px 20px 20px;
-    transition: padding 0.35s ease-in-out;
-}
-
-body.search-active .search-container {
+body.search-active .main-header {
+    padding: 10px 20px;
     position: fixed;
-    top: 10px;
+    top: 0;
     left: 0;
     right: 0;
-    padding: 0 20px;
-    margin: 0;
-    max-width: 100%;
-    z-index: 1500;
+    background: var(--bg-color);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+body.search-active .header-bottom {
+    gap: 0;
+}
+
+body.search-active .search-wrapper {
+    width: 100%;
 }
 
 body.search-active #searchInput {
-    padding-left: 55px; /* Espacio para el logo */
-    height: 48px;
-    box-sizing: border-box;
-    background: var(--card-bg); /* Asegura contraste */
+    padding-left: 55px;
 }
 
 body.search-active .app-logo {
     position: fixed;
-    top: 17px;       /* 10px (search-container top) + 7px (para centrar) */
-    left: 30px;      /* 20px (search-container padding) + 10px (margen interno) */
+    top: 17px;
+    left: 30px;
     max-width: 34px;
-    z-index: 1501;   /* Por encima del input */
+    z-index: 1600;
+}
+
+body.search-active .container {
+    /* El padding-top compensa el header fijo (10px padding + 48px input + 10px padding) */
+    padding-top: 70px;
 }
 
 
