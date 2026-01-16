@@ -96,18 +96,6 @@ FLUJO PRINCIPAL DE TRABAJO
 
 
 ---
-1. **TÍTULO: Ajuste Fino Extremo de Header y Búsqueda (v4.9.7)**
-   - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
-   - **TIPO:** Refinamiento UI / UX / Estabilidad
-   - **ALCANCE:** Animaciones fluidas, fijación de overflow y suavizado de logo.
-   - **DESCRIPCIÓN DETALLADA:**
-     - **Animaciones:** Sincronización de opacity/visibility y suavizado de max-height.
-     - **Layout:** Bloqueo estricto de overflow-x mediante max-width: 100vw.
-     - **Logo:** Interpolación suave mediante cubic-bezier para eliminar saltos.
------------------------------------------------
-EXTENSIÓN OBLIGATORIA POR CODE REVIEW
---------------------------------------------------
-
 Si el Code Review detecta:
 - Fallas
 - Bloqueantes
@@ -197,14 +185,14 @@ INVALIDA el proceso completo.
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-1. **TÍTULO: Ajuste Fino Extremo de Header y Búsqueda (v4.9.7)**
+1. **TÍTULO: Transición Ultra Fluida de Header y Búsqueda (v4.9.8)**
    - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
-   - **TIPO:** Refinamiento UI / UX / Estabilidad
-   - **ALCANCE:** Animaciones fluidas, fijación de overflow y suavizado de logo.
+   - **TIPO:** Refactor Visual / UX / Estabilidad
+   - **ALCANCE:** Animación sin saltos, interpolación de logo y sincronización JS.
    - **DESCRIPCIÓN DETALLADA:**
-     - **Animaciones:** Sincronización de opacity/visibility y suavizado de max-height.
-     - **Layout:** Bloqueo estricto de overflow-x mediante max-width: 100vw.
-     - **Logo:** Interpolación suave mediante cubic-bezier para eliminar saltos.
+     - **Arquitectura:** Header fixed permanente para estabilidad de coordenadas.
+     - **Interpolación:** Logo absolute base para movimiento continuo.
+     - **Sincronización:** Timeout de JS alineado con duraciones de CSS (500ms).
 
 1. **TÍTULO: Reparación de Precisión de Layout y Logo (v4.9.6)**
    - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
