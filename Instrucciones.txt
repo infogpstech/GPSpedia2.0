@@ -1,15 +1,15 @@
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-1. **TÍTULO: Ajustes Quirúrgicos de Layout y Logo (v4.9.6)**
+1. **TÍTULO: Reparación de Precisión de Layout y Logo (v4.9.6)**
    - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
-   - **TIPO:** Refinamiento UI / Bugfix Layout
-   - **ALCANCE:** Corrección final de desbordamiento horizontal y proporcionalidad del logo.
+   - **TIPO:** Refinamiento UI / Bugfix Layout / Unificación CSS
+   - **ALCANCE:** Corrección milimétrica de centrado de logo y desbordamiento horizontal.
    - **DESCRIPCIÓN DETALLADA:**
-     - **Overflow:** Eliminado scroll horizontal en `.main-header` mediante `box-sizing` y `width: 100%`.
-     - **Logo:** Ajustada altura a `48px` y posición a `top: 10px` para alineación visual con la barra.
-     - **Transiciones:** Suavizado el colapso de elementos del header con tiempos de transición graduados.
-     - **Versión:** Actualización a v4.9.6.
+     - **Unificación:** Consolidación de reglas CSS dispersas bajo `body.search-active` en un solo bloque coherente.
+     - **Centrado Logo:** Implementación de centrado vertical dinámico (`top: 50%`, `transform: translateY(-50%)`) y escala del 95%.
+     - **Layout:** Eliminación de `gap` en header activo para colapso total de espacio superior.
+     - **Overflow:** Bloqueo estricto de desbordamiento horizontal en el encabezado fijo.
 
 2. **TÍTULO: Corrección de Regresiones del Header (v4.9.5)**
    - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM

@@ -620,3 +620,23 @@
 - **Calidad Visual:** El logo ahora tiene una presencia proporcional y clara en la interfaz de búsqueda.
 - **Estabilidad de Layout:** Se eliminó el error de overflow horizontal reportado.
 - **Fluidez:** La transición entre el modo normal y el modo búsqueda es más armónica y menos intrusiva.
+
+**V4.9.6 - (PRECISION LAYOUT REPAIR) - 02/02/2026**
+**A. RESUMEN GENERAL:** Corrección crítica y quirúrgica del layout del encabezado en modo búsqueda. Se unificaron reglas conflictivas y se garantizó el centrado perfecto del logo dentro de la barra de búsqueda.
+
+**B. Cambios Implementados:**
+
+1.  **Unificación de Reglas (style.css):**
+    *   **Descripción:** Se consolidaron múltiples reglas de `body.search-active` en bloques lógicos y unificados (Header, Logo, Contenedores) para evitar conflictos de especificidad y herencia.
+    *   **Líneas Afectadas:** 358-428.
+
+2.  **Centrado Milimétrico del Logo (style.css):**
+    *   **Descripción:** Se eliminó el posicionamiento `fixed` disruptivo. Se implementó un centrado vertical dinámico mediante `absolute` y `transform: translateY(-50%)` relativo al header. Se ajustó la altura a `40px` (95% de la barra) para asegurar que el logo permanezca totalmente dentro del contenedor.
+    *   **Líneas Afectadas:** 406-417.
+
+3.  **Bloqueo de Desbordamiento y Gap (style.css):**
+    *   **Descripción:** Se aplicó `gap: 0` al header activo para eliminar el espacio de elementos colapsados. Se reforzó el control de desbordamiento horizontal con `overflow: hidden` y `box-sizing: border-box`.
+    *   **Líneas Afectadas:** 389.
+
+4.  **Sincronización de Versión:**
+    *   **Descripción:** Normalización a v4.9.6 en `index.html`.

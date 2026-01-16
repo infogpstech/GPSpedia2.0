@@ -355,7 +355,8 @@ input:checked + .slider:before {
     transform: translateX(26px);
 }
 
-/* --- ESTILOS DE BÚSQUEDA ACTIVA (RECONSTRUCCIÓN CON ANIMACIÓN) --- */
+/* --- ESTILOS DE BÚSQUEDA ACTIVA (UNIFICADOS) --- */
+/* Unificación de lógica de layout y animación para búsqueda activa */
 body.search-active .title-welcome-group,
 body.search-active .header-controls,
 body.search-active .section-selector,
@@ -364,7 +365,6 @@ body.search-active #hamburger-btn {
     visibility: hidden;
     transform: translateY(-10px);
     pointer-events: none;
-    /* Reducimos max-height gradualmente pero mantenemos el colapso */
     max-height: 0;
     margin: 0;
     padding: 0;
@@ -382,31 +382,34 @@ body.search-active .main-header {
     top: 0;
     left: 0;
     right: 0;
-    background: var(--bg-color);
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    height: auto;
     width: 100%;
     box-sizing: border-box;
-    overflow-x: hidden;
+    background: var(--bg-color);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 1500;
+    overflow: hidden; /* Fix desbordamiento horizontal */
+    gap: 0; /* Unificado: elimina espacio de elementos ocultos */
 }
 
-body.search-active .header-bottom {
+body.search-active .header-bottom,
+body.search-active .search-wrapper,
+body.search-active #searchInput {
     gap: 0;
-}
-
-body.search-active .search-wrapper {
     width: 100%;
 }
 
 body.search-active #searchInput {
-    padding-left: 55px;
+    padding-left: 55px; /* Espacio para el logo */
 }
 
+/* Regla única y unificada para el logo en modo búsqueda */
+/* Se posiciona de forma absoluta dentro del header fijo para centrado vertical milimétrico */
 body.search-active .app-logo {
-    position: fixed;
-    top: 10px;
+    position: absolute;
+    top: 50%;
     left: 30px;
-    height: 48px;
+    transform: translateY(-50%);
+    height: 40px; /* ≈5% menor que la altura del input (~42-45px) */
     width: auto;
     max-width: none;
     z-index: 2100;
@@ -416,16 +419,8 @@ body.search-active .app-logo {
     transition: all 0.35s ease-in-out;
 }
 
-/* El logo original en el flujo debe ocultarse suavemente */
-body.search-active .header-branding .app-logo {
-    opacity: 0;
-    visibility: hidden;
-    transform: scale(0.5);
-}
-
 body.search-active .container {
-    /* El padding-top compensa el header fijo (10px padding + 48px input + 10px padding) */
-    padding-top: 70px;
+    padding-top: 70px; /* Compensación del header fijo */
 }
 
 

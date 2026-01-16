@@ -109,3 +109,23 @@ La fragmentación HTML del header impide una transición limpia a "modo búsqued
 - **style.css (Línea 388):** Se aplicó `width: 100%`, `box-sizing: border-box` y `overflow-x: hidden` a `.main-header` en estado `search-active` para eliminar el scroll horizontal.
 - **style.css (Línea 372):** Se suavizó la transición de colapso del header usando curvas de tiempo diferenciadas: `opacity 0.3s ease-out, transform 0.3s ease-out, max-height 0.4s ease-in-out`.
 - **index.html:** Actualización de versión a v4.9.6.
+
+**AUDITORÍA DE REPARACIÓN DE PRECISIÓN (02/02/2026)**
+
+**1. AUDITORÍA DE style.css (ANÁLISIS DE FRACASO)**
+- **Hallazgo (Logo fuera de lugar):** Las reglas de la línea 405 (`body.search-active .app-logo`) y 420 (`body.search-active .header-branding .app-logo`) están en conflicto directo. La primera fuerza `position: fixed` y `opacity: 1`, mientras la segunda intenta ocultar el logo original. Esto rompe el flujo del flexbox y saca al logo de su contexto visual.
+- **Hallazgo (Desbordamiento):** Aunque se añadió `width: 100%` y `overflow-x: hidden`, el uso de `padding: 10px 20px` en un elemento `position: fixed` sin un control estricto de `box-sizing` y herencia puede seguir causando desbordamiento si el scroll del body no está totalmente bloqueado.
+- **Hallazgo (Animación):** El uso de `max-height: 0` en la línea 368 colapsa el espacio instantáneamente a pesar de la transición, lo que genera el salto visual reportado.
+- **Hallazgo (Falta de Unificación):** Existen 7 reglas separadas bajo `body.search-active` que controlan el mismo componente (Header). Esto viola la norma de unificación.
+
+**2. PLAN DE REPARACIÓN QUIRÚRGICA:**
+- Unificar todas las reglas de `body.search-active` que afectan al header en un bloque consolidado.
+- Eliminar el posicionamiento `fixed` redundante del logo; mantenerlo en el flujo o posicionarlo absolutamente *dentro* del header ya fijo.
+- Ajustar altura del logo a 40px (≈5% menor que los 42-44px del input) y centrarlo mediante `transform: translateY` o ajuste fino de `top`.
+- Bloquear scroll horizontal en `html` y `body` de forma redundante durante la búsqueda.
+
+**RESULTADOS DE REPARACIÓN DE PRECISIÓN (v4.9.6):**
+- **style.css (Línea 380-420):** Se unificaron todas las reglas de búsqueda activa. Se eliminó el posicionamiento `fixed` del logo y se reemplazó por `position: absolute` con `top: 50%` y `transform: translateY(-50%)` relativo al header, garantizando un centrado vertical milimétrico.
+- **style.css (Línea 389):** Se añadió `gap: 0` al header activo para asegurar que el centrado vertical no se vea afectado por elementos ocultos con `max-height: 0`.
+- **style.css (Línea 389-390):** Se consolidó el control de desbordamiento horizontal mediante `box-sizing: border-box` y `overflow: hidden`.
+- **index.html:** Actualización de versión a v4.9.6.
