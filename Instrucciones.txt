@@ -8,7 +8,7 @@
    - **DESCRIPCIÓN DETALLADA:**
      - **Viewport Dinámico:** Implementación de listeners en `main.js` para actualizar `--app-height` basado en el área visible real.
      - **Modelo de Scroll:** Refactorización de `style.css` para que el scroll principal ocurra en `.container`, permitiendo que el `body` permanezca fijo y no se vea afectado por el desplazamiento del teclado.
-     - **Espacio Fantasma:** Eliminación de la cabecera con `display: none` durante la búsqueda activa, colapsando el espacio vacío que antes se mantenía con `visibility: hidden`.
+     - **Espacio Fantasma (CORREGIDO):** Se sincronizó el padding del contenedor con la altura de la barra de búsqueda (60px) y se eliminaron estilos inline conflictivos.
      - **Corrección de Logo:** Ajuste de posicionamiento del logo dentro del campo de búsqueda para evitar desalineaciones en móviles.
 
 2. **TÍTULO: Corrección de Causa Raíz de Fallos en Búsqueda y Modal**
@@ -19,6 +19,21 @@
      - **Problema Video (Causa Raíz: Contrato de Datos Roto):** Se corrigió la discrepancia de nombres de propiedad entre el backend y el frontend. El servicio `catalog.js` ahora renombra `videoGuiaDesarmeUrl` a `Video` antes de enviar la respuesta. El `ui.js` fue ajustado para consumir esta propiedad (`Video`), solucionando la causa raíz de que el video no se visualizara.
      - **Problema Espaciado (Causa Raíz: Especificidad CSS):** Se añadió `!important` a la regla de CSS que anula el `margin-bottom` del `div#search-wrapper` en `style.css`. Esto asegura que el estilo en línea del `index.html` sea sobrescrito y el espacio extra se elimine correctamente.
 
+
+---
+**DERIVADO DE AUDITORÍA — NO EJECUTAR AÚN**
+---
+1. **ARCHIVO: style.css**
+   - Tarea: Recalcular el `padding-top` en `body.search-active .container` para que sea dinámico o coincida exactamente con la altura visual de la barra de búsqueda fija (top + height).
+   - Tarea: Evaluar el impacto de `height: var(--app-height)` en dispositivos sin soporte de `visualViewport` y proveer fallbacks.
+   - Tarea: Sincronizar el posicionamiento del logo (`.app-logo`) con la altura de la barra para evitar desalineaciones manuales.
+
+2. **ARCHIVO: main.js**
+   - Tarea: Investigar el uso de `transitionend` en lugar de `setTimeout` de 200ms para revertir la clase `search-active`, asegurando una transición fluida.
+   - Tarea: Debounce o limitar la ejecución de `handleViewportChange` para evitar recalculos excesivos durante el scroll.
+
+3. **ARCHIVO: index.html**
+   - Tarea: Eliminar estilos inline en `#search-wrapper` y centralizar todo el control en `style.css`.
 
 ---
 **TAREAS COMPLETADAS (Validadas por el PM)**

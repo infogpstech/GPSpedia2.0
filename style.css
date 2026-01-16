@@ -396,9 +396,10 @@ body.search-active #search-wrapper {
 }
 
 body.search-active .container {
-    /* Ajuste dinámico del padding para compensar la barra de búsqueda fija.
-       Se elimina el padding superior excesivo ahora que el header no ocupa espacio. */
-    padding: 75px 20px 20px;
+    /* El padding-top debe ser exacto para la barra de búsqueda fija:
+       top (10px) + height (48px) = 58px. Se usa 60px para un margen sutil.
+       Se elimina el 'espacio fantasma' anterior de 75px. */
+    padding: 60px 20px 20px;
     transition: padding 0.35s ease-in-out;
 }
 
