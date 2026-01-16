@@ -594,3 +594,29 @@
 - **Funcionalidad de Navegación Restaurada:** Los usuarios ahora pueden navegar por el catálogo de manera lógica y predecible sin perder el contexto.
 - **Estabilidad de la UI:** Los modales ahora manejan correctamente los datos faltantes, evitando errores de renderizado.
 - **Consistencia Visual:** El diseño del modal de detalles ahora cumple con las especificaciones visuales del `README.md`.
+
+**V4.9.6 - (SURGICAL LAYOUT FIX) - 02/02/2026**
+**A. RESUMEN GENERAL:** Se realizaron ajustes quirúrgicos en el layout del encabezado para corregir el desbordamiento horizontal y mejorar la escala visual del logo en modo búsqueda, además de suavizar las transiciones de la interfaz.
+
+**B. Cambios Implementados:**
+
+1.  **Corrección de Desbordamiento y Layout (style.css):**
+    *   **Descripción:** Se aplicó `width: 100%`, `box-sizing: border-box` y `overflow-x: hidden` a `.main-header` durante la búsqueda activa. Esto previene que el desplazamiento del header fijo genere barras de scroll horizontal.
+    *   **Líneas Afectadas:** 388-390.
+
+2.  **Escalado y Alineación de Logo (style.css):**
+    *   **Descripción:** Se eliminó `max-width: 38px` y se estableció `height: 48px` para el logo en modo búsqueda, logrando una proporción del ~95% respecto a la barra de entrada. Se ajustó la posición vertical (`top: 10px`) para una alineación perfecta.
+    *   **Líneas Afectadas:** 406-412.
+
+3.  **Suavizado de Animaciones (style.css):**
+    *   **Descripción:** Se actualizó la transición de los elementos que se ocultan (selectores de sección, controles) para usar curvas de tiempo diferenciadas, evitando el colapso abrupto del espacio.
+    *   **Líneas Afectadas:** 372.
+
+4.  **Actualización de Versión:**
+    *   **Descripción:** Incremento de versión a v4.9.6 en `index.html`.
+    *   **Líneas Afectadas:** 7, 245.
+
+**C. Impacto:**
+- **Calidad Visual:** El logo ahora tiene una presencia proporcional y clara en la interfaz de búsqueda.
+- **Estabilidad de Layout:** Se eliminó el error de overflow horizontal reportado.
+- **Fluidez:** La transición entre el modo normal y el modo búsqueda es más armónica y menos intrusiva.

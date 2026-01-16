@@ -69,3 +69,43 @@ La fragmentación HTML del header impide una transición limpia a "modo búsqued
 
 **3. AUDITORÍA DE VERSIONAMIENTO**
 - **Hallazgo:** Inconsistencias entre `index.html` (v4.9.2) y los logs. Se normalizó todo el proyecto a la versión v4.9.5.
+
+**AUDITORÍA DE AJUSTE FINO QUIRÚRGICO (02/02/2026)**
+
+**1. AUDITORÍA DE style.css**
+- **Hallazgo (Escala del Logo):** En la línea 406,  tiene . Con un input de aproximadamente 48px, esto representa un ~79% de la altura, lo cual es percibido como pequeño. Se debe ajustar a ~45px (95% de 48px).
+- **Hallazgo (Desbordamiento Horizontal):** En la línea 379,  usa . Si el ancho no está limitado a  o si hay un padding/margen externo, puede causar overflow. La falta de  global (o al menos en este elemento) es un riesgo.
+- **Hallazgo (Animación de Botones):** En las líneas 359-373, los botones de sección se ocultan con  y  de forma conjunta. El uso de  puede estar cortando la animación de opacidad prematuramente, causando el "salto visual". Se recomienda separar la lógica de animación o suavizar los tiempos.
+- **Hallazgo (Box-sizing):** No hay una regla universal de , lo que genera inconsistencias en el cálculo de anchos con padding.
+
+**2. AUDITORÍA DE index.html**
+- **Estructura:** La jerarquía  es correcta, pero el desbordamiento ocurre cuando  se vuelve  y el navegador no compensa el ancho de la barra de scroll si el viewport no está correctamente configurado.
+
+**3. AUDITORÍA DE main.js**
+- **Viewport:** La lógica de  es sólida, pero no interfiere directamente con los problemas visuales reportados, los cuales son puramente de CSS.
+
+**RESULTADOS DE EJECUCIÓN QUIRÚRGICA (v4.9.6):**
+- **style.css (Línea 406):** Se eliminó  y se estableció  con  para el logo en modo búsqueda, logrando la proporcionalidad requerida.
+- **style.css (Línea 388):** Se aplicó ,  y  a  en estado  para eliminar el scroll horizontal.
+- **style.css (Línea 372):** Se suavizó la transición de colapso del header usando curvas de tiempo diferenciadas: .
+- **index.html:** Actualización de versión a v4.9.6.
+
+**AUDITORÍA DE AJUSTE FINO QUIRÚRGICO (02/02/2026)**
+
+**1. AUDITORÍA DE style.css**
+- **Hallazgo (Escala del Logo):** En la línea 406, `body.search-active .app-logo` tiene `max-width: 38px`. Con un input de aproximadamente 48px, esto representa un ~79% de la altura, lo cual es percibido como pequeño. Se debe ajustar a ~45px (95% de 48px).
+- **Hallazgo (Desbordamiento Horizontal):** En la línea 379, `body.search-active .main-header` usa `left: 0; right: 0; position: fixed;`. Si el ancho no está limitado a `100%` o si hay un padding/margen externo, puede causar overflow. La falta de `box-sizing: border-box` global (o al menos en este elemento) es un riesgo.
+- **Hallazgo (Animación de Botones):** En las líneas 359-373, los botones de sección se ocultan con `opacity: 0` y `max-height: 0` de forma conjunta. El uso de `max-height: 0` puede estar cortando la animación de opacidad prematuramente, causando el "salto visual". Se recomienda separar la lógica de animación o suavizar los tiempos.
+- **Hallazgo (Box-sizing):** No hay una regla universal de `box-sizing: border-box`, lo que genera inconsistencias en el cálculo de anchos con padding.
+
+**2. AUDITORÍA DE index.html**
+- **Estructura:** La jerarquía `.main-header > .header-top + .header-bottom` es correcta, pero el desbordamiento ocurre cuando `main-header` se vuelve `fixed` y el navegador no compensa el ancho de la barra de scroll si el viewport no está correctamente configurado.
+
+**3. AUDITORÍA DE main.js**
+- **Viewport:** La lógica de `visualViewport` es sólida, pero no interfiere directamente con los problemas visuales reportados, los cuales son puramente de CSS.
+
+**RESULTADOS DE EJECUCIÓN QUIRÚRGICA (v4.9.6):**
+- **style.css (Líneas 406-412):** Se eliminó `max-width: 38px` y se estableció `height: 48px` con `width: auto` para el logo en modo búsqueda, logrando la proporcionalidad requerida.
+- **style.css (Línea 388):** Se aplicó `width: 100%`, `box-sizing: border-box` y `overflow-x: hidden` a `.main-header` en estado `search-active` para eliminar el scroll horizontal.
+- **style.css (Línea 372):** Se suavizó la transición de colapso del header usando curvas de tiempo diferenciadas: `opacity 0.3s ease-out, transform 0.3s ease-out, max-height 0.4s ease-in-out`.
+- **index.html:** Actualización de versión a v4.9.6.
