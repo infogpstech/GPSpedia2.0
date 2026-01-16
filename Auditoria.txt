@@ -1,47 +1,138 @@
-**AUDITORÍA GENERAL DEL PROYECTO GPSpedia v2.0**
+**AUDITORÍA PROFUNDA DEL 02/02/2026 - FALLA PERSISTENTE DE ESPACIO EN BÚSQUEDA MÓVIL**
 
-**Fecha de Auditoría:** 13/01/2026
+**1. AUDITORÍA DE index.html**
+- **Línea 105:** Presencia de estilo inline `margin-bottom: 0 !important` (aplicado dinámicamente o por parche previo) en `#search-wrapper`.
+- **Estructura de Contenedores:** El `#search-wrapper` está fuera del flujo de resultados pero dentro de `.container`. Al activar la búsqueda, se queda un "hueco" en el flujo del documento que `.container` compensa con padding.
+- **Tipo de Problema:** Control de layout mixto (inline + CSS).
 
-**Auditor Principal:** Jules
+**2. AUDITORÍA DE style.css (CRÍTICA)**
+- **Línea 400:** `body.search-active .container { padding: 75px 20px 20px; }`.
+    - **Conflicto:** El `padding-top` de 75px es estático. Si la barra de búsqueda tiene `top: 10px` y una altura de ~48px, el espacio total ocupado es ~58px. El padding de 75px impone un "espacio fantasma" de ~17px adicionales de forma obligatoria.
+- **Línea 374:** `body.search-active .header-container { display: none; }`.
+    - **Conflicto:** Aunque `display: none` colapsa el elemento, la regla en la línea 400 vuelve a empujar el contenido hacia abajo con un valor arbitrario.
+- **Líneas 2 y 11:** `height: var(--app-height, 100%);` aplicado a `html` y `body`.
+    - **Riesgo:** Si `--app-height` se calcula sobre el viewport total y no sobre el área útil sobre el teclado, el scroll del `.container` puede quedar bloqueado o inaccesible bajo el teclado.
+- **Líneas 404 y 420:** Uso de `position: fixed` con valores `top: 10px` y `top: 17px`.
+    - **Contradicción:** Se posiciona la barra fuera del flujo, pero se intenta reservar su espacio mediante padding en un contenedor que ahora maneja su propio scroll.
 
-**A. RESUMEN EJECUTIVO**
---------------------
-Esta auditoría de seguimiento se inició tras la notificación del usuario de que el problema de renderizado de imágenes de Google Drive persistía. Una re-auditoría exhaustiva del código fuente, centrada en la función `getImageUrl` del módulo `ui.js`, ha confirmado que la lógica de programación implementada es **robusta, correcta y no presenta errores evidentes**.
+**3. AUDITORÍA DE main.js**
+- **Líneas 55-57:** `setTimeout(() => { document.body.classList.remove('search-active'); }, 200);`.
+    - **Tipo de Problema:** Lógica de tiempo (magic number) que puede causar saltos visuales si el teclado tarda más en cerrar o si el usuario hace clic rápido.
+- **Líneas 63-86:** `handleViewportChange` se ejecuta en `resize` y `scroll` del `visualViewport`.
+    - **Tipo de Problema:** JS duplicado/redundante. Si el scroll está en `.container`, el scroll del `visualViewport` puede dispararse de forma inesperada en algunos navegadores móviles (Safari), recalculando la altura innecesariamente.
 
-La investigación concluye que la causa del problema recurrente **no reside en un defecto del código**, sino que probablemente se deba a uno de dos factores externos: un **caso de borde en el formato de los datos** de entrada que no ha sido contemplado, o un **problema de caché** en el entorno del cliente.
+**4. AUDITORÍA DE ui.js**
+- **Línea 538:** `mostrarResultadosDeBusqueda` limpia el contenedor.
+    - **Tipo de Problema:** No se detectan conflictos directos de layout, pero el renderizado masivo puede causar que el scroll del `.container` se resetee al tope en momentos inoportunos.
 
-**B. ANÁLISIS TÉCNICO DE `getImageUrl`**
------------------------------------------
-1.  **Robustez y Manejo de Errores:**
-    *   La función gestiona adecuadamente valores nulos, indefinidos o vacíos, devolviendo una imagen provisional (`placeholder`) para evitar fallos de renderizado.
-    *   Valida el formato del ID extraído para asegurar que solo se construyan URLs con caracteres válidos.
+**5. AUDITORÍA DE navigation.js**
+- **Línea 34:** `filtrarContenido` maneja el flujo de búsqueda.
+    - **Tipo de Problema:** No hay lógica que coordine el estado del teclado con la visibilidad de los resultados, delegando todo al CSS que, como se vio en el punto 2, tiene valores contradictorios.
 
-2.  **Lógica de Parseo de URLs:**
-    *   La función es **idempotente**: si recibe una URL ya construida, la utiliza directamente (si no es de Google Drive) o extrae el ID si es una URL de Google Drive.
-    *   Utiliza expresiones regulares para identificar y extraer el ID de los dos formatos de URL de compartición de Google Drive más comunes (`/file/d/...` y `?id=...`).
+**CONCLUSIÓN DE AUDITORÍA:**
+La causa real del "espacio fantasma" es la regla de padding estático en `style.css:400` que no está sincronizada con la altura real de la barra de búsqueda fija ni con el colapso del header. Además, existe una redundancia entre el posicionamiento `fixed` de la barra y el modelo de scroll del `.container`.
 
-3.  **Centralización del Código:**
-    *   Una búsqueda global (`grep`) ha confirmado que no existen otras implementaciones de construcción de URLs de Google Drive en el código activo de la aplicación. Toda la lógica está correctamente centralizada en esta función, lo cual es una buena práctica.
+**AUDITORÍA EXTREMA (02/02/2026): RECONSTRUCCIÓN DE HEADER**
 
-**C. HIPÓTESIS SOBRE LA CAUSA RAÍZ PERSISTENTE**
--------------------------------------------------
-Dado que el código es correcto, la persistencia del error se atribuye a las siguientes hipótesis:
+**1. AUDITORÍA DE index.html**
+- **Líneas 87-111:** Fragmentación del encabezado en múltiples divs (`header-container`, `search-wrapper`).
+- **Hallazgo:** El `#install-button` y `#search-wrapper` están fuera de `.header-container`, lo que dificulta el control unificado de visibilidad.
+- **Hallazgo:** El botón de hamburguesa (`#hamburger-btn`) está anidado dentro de `#search-wrapper`, lo que vincula su layout al buscador de forma innecesaria.
+- **Riesgo:** Estilos inline como `margin-bottom: 0 !important` en la línea 105 son parches de fragilidad estructural.
 
-1.  **Hipótesis Principal: Caso de Borde en los Datos:**
-    *   **Descripción:** El backend podría estar enviando un formato de URL de Google Drive atípico o no estándar que las expresiones regulares actuales no son capaces de procesar.
-    *   **Próximo Paso:** Se requiere una prueba funcional con un conjunto de datos de prueba más amplio, incluyendo todos los posibles formatos de URL que Google Drive puede generar, para validar esta hipótesis.
+**2. AUDITORÍA DE style.css (CRÍTICA)**
+- **Líneas 76-135:** Reglas dispersas para `.header-container` y sus hijos con múltiples media queries que redefinen `flex-direction`.
+- **Líneas 374-430:** El bloque `body.search-active` intenta forzar un nuevo layout mediante `position: fixed` en elementos que antes eran `relative`, causando saltos visuales y huecos.
+- **Hallazgo:** `.container` (Línea 50) tiene un padding base de 20px que se suma al padding de 60px de `search-active`, pero el modelo de scroll en `.container` hace que este padding superior sea "scrollable", dejando un hueco al tope.
 
-2.  **Hipótesis Secundaria: Problema de Caché:**
-    *   **Descripción:** Es posible que el Service Worker o la caché del navegador del cliente estén sirviendo una versión obsoleta del archivo `ui.js`, lo que impediría que las correcciones más recientes se apliquen.
-    *   **Próximo Paso:** La verificación funcional se realizará en un entorno controlado (Playwright) que por defecto utiliza un contexto de navegador limpio para mitigar este factor.
+**3. AUDITORÍA DE main.js**
+- **Líneas 38-56:** Gestión de eventos de búsqueda (`focus`, `blur`) que activan clases de CSS.
+- **Líneas 64-85:** Lógica de `visualViewport` que inyecta variables de altura.
+- **Conflicto:** La clase `search-active` se quita con un `setTimeout` de 200ms, lo cual es asíncrono y puede desincronizarse con el cierre del teclado.
 
-**D. PLAN DE ACCIÓN**
--------------------
-1.  **Verificación Funcional Rigurosa:** Ejecutar un script de prueba (Playwright) que renderice imágenes usando una variedad de formatos de URL de Google Drive para intentar reproducir el fallo.
-2.  **Análisis de Resultados:** Si la prueba falla con un formato de URL específico, se ajustará la expresión regular en `getImageUrl` para contemplar ese caso. Si todas las pruebas pasan, se concluirá con alta probabilidad que el problema reside en el entorno del cliente.
-3.  **Documentación Final:** Actualizar `ChangesLogs.txt` con el resultado final de la investigación y las acciones tomadas.
+**4. AUDITORÍA DE ui.js / navigation.js**
+- **ui.js:159, navigation.js:19:** Dependencia directa del ID `#searchInput`.
+- **Hallazgo:** No hay conflictos de lógica, pero cualquier cambio de ID en el HTML durante la reconstrucción requiere actualización inmediata aquí.
 
-**E. ESTADO ACTUAL**
-------------------
-- **Código Verificado:** El código JavaScript del frontend se considera correcto y estable.
-- **Investigación en Curso:** El foco se traslada de la auditoría de código a la verificación funcional y el análisis de datos para confirmar la causa raíz externa.
+**CONCLUSIÓN DE AUDITORÍA EXTREMA:**
+La fragmentación HTML del header impide una transición limpia a "modo búsqueda". Al ocultar el header original con `display: none`, el navegador recalcula el flujo de `.container`, pero la barra de búsqueda (al ser `fixed`) no rellena ese espacio de forma natural. Se requiere un contenedor maestro `.main-header` que encapsule todo lo superior.
+
+**AUDITORÍA DE RESTAURACIÓN DE REGRESIONES (02/02/2026)**
+
+**1. AUDITORÍA DE style.css**
+- **Hallazgo (Botón Hamburguesa):** El botón `#hamburger-btn` carecía de un z-index suficiente para ser interactivo sobre el nuevo layout. Se añadió `z-index: 1500`.
+- **Hallazgo (Logo en Búsqueda):** La regla `body.search-active .header-branding .app-logo` ocultaba el logo incluso cuando se intentaba posicionar con `fixed`. Se forzó visibilidad con `opacity: 1 !important` y `visibility: visible !important` en el estado fixed (Línea 408).
+
+**2. AUDITORÍA DE main.js**
+- **Hallazgo (Botón X):** La lógica para mostrar/ocultar el botón de limpieza de búsqueda (`#clear-search-btn`) mediante la clase `.has-text` no estaba implementada. Se añadió el listener en la línea 41.
+- **Hallazgo (Pull-to-refresh):** El cambio de scroll del `body` al `.container` desactivó el gesto nativo del navegador. Se restauró mediante listeners de `touchstart` y `touchend` calculando el desplazamiento vertical (Línea 105).
+
+**3. AUDITORÍA DE VERSIONAMIENTO**
+- **Hallazgo:** Inconsistencias entre `index.html` (v4.9.2) y los logs. Se normalizó todo el proyecto a la versión v4.9.5.
+
+**AUDITORÍA DE AJUSTE FINO QUIRÚRGICO (02/02/2026)**
+
+**1. AUDITORÍA DE style.css**
+- **Hallazgo (Escala del Logo):** En la línea 406,  tiene . Con un input de aproximadamente 48px, esto representa un ~79% de la altura, lo cual es percibido como pequeño. Se debe ajustar a ~45px (95% de 48px).
+- **Hallazgo (Desbordamiento Horizontal):** En la línea 379,  usa . Si el ancho no está limitado a  o si hay un padding/margen externo, puede causar overflow. La falta de  global (o al menos en este elemento) es un riesgo.
+- **Hallazgo (Animación de Botones):** En las líneas 359-373, los botones de sección se ocultan con  y  de forma conjunta. El uso de  puede estar cortando la animación de opacidad prematuramente, causando el "salto visual". Se recomienda separar la lógica de animación o suavizar los tiempos.
+- **Hallazgo (Box-sizing):** No hay una regla universal de , lo que genera inconsistencias en el cálculo de anchos con padding.
+
+**2. AUDITORÍA DE index.html**
+- **Estructura:** La jerarquía  es correcta, pero el desbordamiento ocurre cuando  se vuelve  y el navegador no compensa el ancho de la barra de scroll si el viewport no está correctamente configurado.
+
+**3. AUDITORÍA DE main.js**
+- **Viewport:** La lógica de  es sólida, pero no interfiere directamente con los problemas visuales reportados, los cuales son puramente de CSS.
+
+**RESULTADOS DE EJECUCIÓN QUIRÚRGICA (v4.9.6):**
+- **style.css (Línea 406):** Se eliminó  y se estableció  con  para el logo en modo búsqueda, logrando la proporcionalidad requerida.
+- **style.css (Línea 388):** Se aplicó ,  y  a  en estado  para eliminar el scroll horizontal.
+- **style.css (Línea 372):** Se suavizó la transición de colapso del header usando curvas de tiempo diferenciadas: .
+- **index.html:** Actualización de versión a v4.9.6.
+
+**AUDITORÍA DE AJUSTE FINO QUIRÚRGICO (02/02/2026)**
+
+**1. AUDITORÍA DE style.css**
+- **Hallazgo (Escala del Logo):** En la línea 406, `body.search-active .app-logo` tiene `max-width: 38px`. Con un input de aproximadamente 48px, esto representa un ~79% de la altura, lo cual es percibido como pequeño. Se debe ajustar a ~45px (95% de 48px).
+- **Hallazgo (Desbordamiento Horizontal):** En la línea 379, `body.search-active .main-header` usa `left: 0; right: 0; position: fixed;`. Si el ancho no está limitado a `100%` o si hay un padding/margen externo, puede causar overflow. La falta de `box-sizing: border-box` global (o al menos en este elemento) es un riesgo.
+- **Hallazgo (Animación de Botones):** En las líneas 359-373, los botones de sección se ocultan con `opacity: 0` y `max-height: 0` de forma conjunta. El uso de `max-height: 0` puede estar cortando la animación de opacidad prematuramente, causando el "salto visual". Se recomienda separar la lógica de animación o suavizar los tiempos.
+- **Hallazgo (Box-sizing):** No hay una regla universal de `box-sizing: border-box`, lo que genera inconsistencias en el cálculo de anchos con padding.
+
+**2. AUDITORÍA DE index.html**
+- **Estructura:** La jerarquía `.main-header > .header-top + .header-bottom` es correcta, pero el desbordamiento ocurre cuando `main-header` se vuelve `fixed` y el navegador no compensa el ancho de la barra de scroll si el viewport no está correctamente configurado.
+
+**3. AUDITORÍA DE main.js**
+- **Viewport:** La lógica de `visualViewport` es sólida, pero no interfiere directamente con los problemas visuales reportados, los cuales son puramente de CSS.
+
+**RESULTADOS DE EJECUCIÓN QUIRÚRGICA (v4.9.6):**
+- **style.css (Líneas 406-412):** Se eliminó `max-width: 38px` y se estableció `height: 48px` con `width: auto` para el logo en modo búsqueda, logrando la proporcionalidad requerida.
+- **style.css (Línea 388):** Se aplicó `width: 100%`, `box-sizing: border-box` y `overflow-x: hidden` a `.main-header` en estado `search-active` para eliminar el scroll horizontal.
+- **style.css (Línea 372):** Se suavizó la transición de colapso del header usando curvas de tiempo diferenciadas: `opacity 0.3s ease-out, transform 0.3s ease-out, max-height 0.4s ease-in-out`.
+- **index.html:** Actualización de versión a v4.9.6.
+
+**AUDITORÍA DE REPARACIÓN DE PRECISIÓN (02/02/2026)**
+
+**1. AUDITORÍA DE style.css (ANÁLISIS DE FRACASO)**
+- **Hallazgo (Logo fuera de lugar):** Las reglas de la línea 405 (`body.search-active .app-logo`) y 420 (`body.search-active .header-branding .app-logo`) están en conflicto directo. La primera fuerza `position: fixed` y `opacity: 1`, mientras la segunda intenta ocultar el logo original. Esto rompe el flujo del flexbox y saca al logo de su contexto visual.
+- **Hallazgo (Desbordamiento):** Aunque se añadió `width: 100%` y `overflow-x: hidden`, el uso de `padding: 10px 20px` en un elemento `position: fixed` sin un control estricto de `box-sizing` y herencia puede seguir causando desbordamiento si el scroll del body no está totalmente bloqueado.
+- **Hallazgo (Animación):** El uso de `max-height: 0` en la línea 368 colapsa el espacio instantáneamente a pesar de la transición, lo que genera el salto visual reportado.
+- **Hallazgo (Falta de Unificación):** Existen 7 reglas separadas bajo `body.search-active` que controlan el mismo componente (Header). Esto viola la norma de unificación.
+
+**2. PLAN DE REPARACIÓN QUIRÚRGICA:**
+- Unificar todas las reglas de `body.search-active` que afectan al header en un bloque consolidado.
+- Eliminar el posicionamiento `fixed` redundante del logo; mantenerlo en el flujo o posicionarlo absolutamente *dentro* del header ya fijo.
+- Ajustar altura del logo a 40px (≈5% menor que los 42-44px del input) y centrarlo mediante `transform: translateY` o ajuste fino de `top`.
+- Bloquear scroll horizontal en `html` y `body` de forma redundante durante la búsqueda.
+
+**RESULTADOS DE REPARACIÓN DE PRECISIÓN (v4.9.6):**
+- **style.css (Línea 380-420):** Se unificaron todas las reglas de búsqueda activa. Se eliminó el posicionamiento `fixed` del logo y se reemplazó por `position: absolute` con `top: 50%` y `transform: translateY(-50%)` relativo al header, garantizando un centrado vertical milimétrico.
+- **style.css (Línea 389):** Se añadió `gap: 0` al header activo para asegurar que el centrado vertical no se vea afectado por elementos ocultos con `max-height: 0`.
+- **style.css (Línea 389-390):** Se consolidó el control de desbordamiento horizontal mediante `box-sizing: border-box` y `overflow: hidden`.
+- **index.html:** Actualización de versión a v4.9.6.
+
+**AUDITORÍA DE REVERSIÓN Y CORRECCIÓN DE CODE REVIEW (03/02/2026)**
+
+- **Hallazgo 1 (Crítico):** La eliminación de `position: absolute` en el logo durante la búsqueda inhabilitó las propiedades `top/left`, rompiendo la alineación.
+- **Hallazgo 2 (Regresión):** El header debe ser `fixed` durante la búsqueda para cumplir con el diseño de barra fija (v4.9.1+). La eliminación total de `fixed` fue una regresión.
+- **Hallazgo 3 (Limpieza):** Presencia de archivos `.pyc` que deben ser eliminados antes de cualquier commit.
+- **Acción:** Se restaurará el `absolute` para el logo activo y el `fixed` para el header activo, manteniendo la base `relative/static` para evitar el "espacio fantasma" inicial de la v4.9.8.
