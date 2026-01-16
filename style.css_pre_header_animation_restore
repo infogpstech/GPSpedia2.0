@@ -82,7 +82,6 @@ h1.app-title {
     transition: all 0.35s ease-in-out;
     position: relative;
     z-index: 1500;
-    overflow: visible; /* Asegura que el logo animado sea visible */
 }
 
 .header-top {
@@ -129,7 +128,6 @@ h1.app-title {
     display: flex;
     align-items: center;
     gap: 10px;
-    transition: all 0.35s ease-in-out;
 }
 
 #logout-button, #install-button {
@@ -208,17 +206,13 @@ h1.app-title {
     border: none;
     font-size: 24px;
     cursor: pointer;
-    color: var(--text-color);
+    color: #333;
     padding: 10px;
     border-radius: 8px;
-    transition: background-color 0.2s, opacity 0.35s ease-in-out, visibility 0.35s ease-in-out;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1500;
+    transition: background-color 0.2s;
 }
 #hamburger-btn:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: #e0e0e0;
 }
 #side-menu {
     position: fixed;
@@ -355,25 +349,12 @@ input:checked + .slider:before {
     transform: translateX(26px);
 }
 
-/* --- ESTILOS DE BÚSQUEDA ACTIVA (RECONSTRUCCIÓN CON ANIMACIÓN) --- */
-body.search-active .title-welcome-group,
-body.search-active .header-controls,
+/* --- ESTILOS DE BÚSQUEDA ACTIVA (RECONSTRUCCIÓN) --- */
+body.search-active .header-top,
 body.search-active .section-selector,
-body.search-active #hamburger-btn {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-20px);
-    pointer-events: none;
-    /* Usamos max-height para colapsar el espacio sin usar display:none */
-    max-height: 0;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    transition: all 0.35s ease-in-out;
-}
-
+body.search-active #hamburger-btn,
 body.search-active .footer {
-    display: none !important;
+    display: none !important; /* Colapso total de espacio */
 }
 
 body.search-active .main-header {
@@ -384,7 +365,6 @@ body.search-active .main-header {
     right: 0;
     background: var(--bg-color);
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    height: auto;
 }
 
 body.search-active .header-bottom {
@@ -401,20 +381,10 @@ body.search-active #searchInput {
 
 body.search-active .app-logo {
     position: fixed;
-    top: 15px;
+    top: 17px;
     left: 30px;
-    max-width: 38px;
-    z-index: 2100;
-    filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.2));
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-
-/* El logo original en el flujo debe ocultarse suavemente */
-body.search-active .header-branding .app-logo {
-    opacity: 0;
-    visibility: hidden;
-    transform: scale(0.5);
+    max-width: 34px;
+    z-index: 1600;
 }
 
 body.search-active .container {

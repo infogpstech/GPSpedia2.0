@@ -1,7 +1,28 @@
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-1. **TÍTULO: Reconstrucción Extrema del Header y Fix de Espacio Fantasma**
+1. **TÍTULO: Corrección de Regresiones del Header (v4.9.5)**
+   - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
+   - **TIPO:** Bugfix / UX / Regresión
+   - **ALCANCE:** Restauración completa de funcionalidades perdidas tras el refactor estructural.
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Hamburger:** Restaurada visibilidad e interactividad mediante ajuste de z-index y capas.
+     - **Búsqueda:** Se implementó el botón "X" para limpiar términos y su lógica visual (`.has-text`).
+     - **Logo:** Corregida animación y visibilidad en modo búsqueda (ya no desaparece).
+     - **Pull-to-refresh:** Re-implementado mediante listeners de touch para permitir recarga manual en móviles.
+     - **Versión:** Sincronización global a v4.9.5.
+
+2. **TÍTULO: Restauración de Animaciones y Botón Hamburguesa**
+   - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
+   - **TIPO:** Fix UX / UI Regression / Animaciones
+   - **ALCANCE:** Restauración de la fluidez visual y componentes esenciales del header tras el refactor estructural.
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Animaciones:** Se reemplazó `display: none` por transiciones de `opacity` y `max-height` para restaurar la suavidad entre estados de búsqueda.
+     - **Hamburger:** Se restauró la visibilidad y interactividad del botón de menú lateral.
+     - **Logo:** Se re-activó la animación de reducción y reposicionamiento del logo.
+     - **Estabilidad:** El fix de "espacio fantasma" se mantiene intacto mediante colapso de altura animado.
+
+2. **TÍTULO: Reconstrucción Extrema del Header y Fix de Espacio Fantasma**
    - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
    - **TIPO:** Refactor Estructural / Layout Móvil / UX
    - **ALCANCE:** Reconstrucción integral del sistema de encabezado y búsqueda para eliminar redundancias y fallos de visualización en móviles.

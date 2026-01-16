@@ -1,10 +1,10 @@
-<!-- GPSpedia Frontend Component | Version: 4.9.5 -->
+<!-- GPSpedia Frontend Component | Version: 4.8.1 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GPSpedia v4.9.5</title>
+    <title>GPSpedia v4.8.1</title>
 <link rel="icon" href="https://drive.google.com/thumbnail?id=1NxBx-W_gWmcq3fA9zog6Dpe-WXpH_2e8&sz=w256">
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -84,40 +84,37 @@
 
 <div class="container" style="display: none;">
 
-  <!-- RECONSTRUCCIÓN EXTREMA DEL HEADER: Contenedor Maestro Único -->
-  <header class="main-header">
-      <!-- Fila 1: Branding y Controles -->
-      <div class="header-top">
-          <div class="header-branding">
+  <div class="header-container">
+      <div class="header-branding" style="flex-direction: column; align-items: flex-start;">
+          <div style="display: flex; align-items: center;">
               <img src="https://drive.google.com/thumbnail?id=1NxBx-W_gWmcq3fA9zog6Dpe-WXpH_2e8&sz=2048" alt="Logo de GPSpedia" class="app-logo">
-              <div class="title-welcome-group">
-                  <h1 class="app-title">GPSpedia</h1>
-                  <span id="welcome-message" style="display: none;"></span>
-              </div>
+              <h1 class="app-title">GPSpedia</h1>
           </div>
-          <div class="header-controls">
-              <button id="install-button" style="display: none;">Instalar</button>
-              <button id="logout-button" style="display: none;">Cerrar Sesión</button>
+          <div id="welcome-message-container" style="padding-left: 10px;">
+             <span id="welcome-message" style="display: none; color: #333; font-weight: bold; font-size: 0.8em;"></span>
           </div>
       </div>
-
-      <!-- Fila 2: Búsqueda y Navegación Principal -->
-      <div class="header-bottom">
-          <div class="search-wrapper">
-              <div class="search-container">
-                  <input type="text" id="searchInput" placeholder="Buscar Corte..." oninput="filtrarContenido(this.value)">
-                  <button id="clear-search-btn" title="Limpiar búsqueda">&times;</button>
-              </div>
-              <button id="hamburger-btn"><i class="fa-solid fa-bars"></i></button>
-          </div>
-
-          <nav class="section-selector">
-              <button id="btn-cortes" class="section-btn active">Cortes</button>
-              <button id="btn-tutoriales" class="section-btn">Tutoriales</button>
-              <button id="btn-relay" class="section-btn">Relay</button>
-          </nav>
+      <div id="header-controls" style="display: flex; align-items: center; gap: 15px;">
+          <button id="logout-button" style="display: none; background-color: #dc3545; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: background-color 0.3s;">Cerrar Sesión</button>
       </div>
-  </header>
+  </div>
+
+  <!-- El botón de instalación se mueve fuera del header-controls para que no se oculte con la búsqueda -->
+  <button id="install-button" style="display: none;">Instalar Aplicación</button>
+
+  <div id="search-wrapper" style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+      <div class="search-container" style="flex-grow: 1;">
+          <input type="text" id="searchInput" placeholder="Buscar Corte..." oninput="filtrarContenido(this.value)">
+          <button id="clear-search-btn" title="Limpiar búsqueda">&times;</button>
+      </div>
+      <button id="hamburger-btn"><i class="fa-solid fa-bars"></i></button>
+  </div>
+
+  <div class="section-selector">
+      <button id="btn-cortes" class="section-btn active">Cortes</button>
+      <button id="btn-tutoriales" class="section-btn">Tutoriales</button>
+      <button id="btn-relay" class="section-btn">Relay</button>
+  </div>
 
   <div id="contenido" class="content-section"></div>
   <div id="contenido-tutoriales" class="content-section" style="display: none;"></div>
@@ -242,7 +239,7 @@
 <script type="module" src="main.js"></script>
 
 <footer class="footer" style="display: none;">
-  Gpspedia v4.9.5 © 2026 todos los derechos reservados.
+  Gpspedia v4.7.3 © 2025 todos los derechos reservados.
   <div class="footer-links">
       <a id="footer-about-link">Sobre Nosotros</a>
       <a id="footer-contact-link">Contáctanos</a>

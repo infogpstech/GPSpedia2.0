@@ -56,3 +56,16 @@ La causa real del "espacio fantasma" es la regla de padding estático en `style.
 
 **CONCLUSIÓN DE AUDITORÍA EXTREMA:**
 La fragmentación HTML del header impide una transición limpia a "modo búsqueda". Al ocultar el header original con `display: none`, el navegador recalcula el flujo de `.container`, pero la barra de búsqueda (al ser `fixed`) no rellena ese espacio de forma natural. Se requiere un contenedor maestro `.main-header` que encapsule todo lo superior.
+
+**AUDITORÍA DE RESTAURACIÓN DE REGRESIONES (02/02/2026)**
+
+**1. AUDITORÍA DE style.css**
+- **Hallazgo (Botón Hamburguesa):** El botón `#hamburger-btn` carecía de un z-index suficiente para ser interactivo sobre el nuevo layout. Se añadió `z-index: 1500`.
+- **Hallazgo (Logo en Búsqueda):** La regla `body.search-active .header-branding .app-logo` ocultaba el logo incluso cuando se intentaba posicionar con `fixed`. Se forzó visibilidad con `opacity: 1 !important` y `visibility: visible !important` en el estado fixed (Línea 408).
+
+**2. AUDITORÍA DE main.js**
+- **Hallazgo (Botón X):** La lógica para mostrar/ocultar el botón de limpieza de búsqueda (`#clear-search-btn`) mediante la clase `.has-text` no estaba implementada. Se añadió el listener en la línea 41.
+- **Hallazgo (Pull-to-refresh):** El cambio de scroll del `body` al `.container` desactivó el gesto nativo del navegador. Se restauró mediante listeners de `touchstart` y `touchend` calculando el desplazamiento vertical (Línea 105).
+
+**3. AUDITORÍA DE VERSIONAMIENTO**
+- **Hallazgo:** Inconsistencias entre `index.html` (v4.9.2) y los logs. Se normalizó todo el proyecto a la versión v4.9.5.

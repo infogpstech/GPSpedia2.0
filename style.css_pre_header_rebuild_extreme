@@ -1,7 +1,6 @@
 /* Estilos Globales */
 html {
-    height: var(--app-height, 100%);
-    overflow: hidden; /* Previene el scroll del html */
+    height: 100%;
 }
 body {
     font-family: Arial, sans-serif;
@@ -11,8 +10,7 @@ body {
     color: var(--text-color);
     display: flex;
     flex-direction: column;
-    height: var(--app-height, 100%);
-    overflow: hidden; /* El scroll se maneja en .container */
+    min-height: 100%;
     transition: background-color 0.3s, color 0.3s;
 }
 
@@ -53,9 +51,7 @@ h1.app-title {
     margin: 0 auto;
     width: 100%;
     box-sizing: border-box;
-    flex: 1 1 auto;
-    overflow-y: auto; /* Único elemento con scroll principal */
-    -webkit-overflow-scrolling: touch;
+    flex: 1 0 auto;
 }
 .backBtn {
     margin-bottom: 15px;
@@ -72,23 +68,14 @@ h1.app-title {
     background: #e9f7ff;
 }
 
-/* --- RECONSTRUCCIÓN EXTREMA DEL HEADER --- */
-.main-header {
-    background-color: var(--bg-color);
-    padding: 20px 20px 0;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    transition: all 0.35s ease-in-out;
-    position: relative;
-    z-index: 1500;
-    overflow: visible; /* Asegura que el logo animado sea visible */
-}
-
-.header-top {
+/* --- ESTILOS DEL ENCABEZADO (Header) --- */
+.header-container {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: space-between; /* Ajustado para espaciar los elementos */
+    flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
+    margin-bottom: 20px;
+    gap: 15px; /* Espacio entre el logo/título y los controles */
     transition: all 0.35s ease-in-out;
 }
 
@@ -96,103 +83,113 @@ h1.app-title {
     display: flex;
     align-items: center;
     gap: 15px;
-}
-
-.title-welcome-group {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    transition: all 0.35s ease-in-out;
 }
 
 .app-logo {
     max-width: 96px;
     height: auto;
     border-radius: 8px;
+    /* margin-right ya no es necesario gracias a 'gap' */
     transition: all 0.35s ease-in-out;
 }
-
 h1.app-title {
+    text-align: left;
     margin: 0;
     font-size: 2.2em;
-    color: var(--header-color) !important;
+    color: #333;
     transition: all 0.35s ease-in-out;
 }
 
-#welcome-message {
-    color: var(--text-color);
+#header-controls {
+    transition: all 0.35s ease-in-out;
+}
+
+#install-button {
+    display: none; /* Oculto por defecto, JS lo mostrará */
+    position: fixed; /* Fijo en la pantalla */
+    top: 20px;       /* Distancia desde arriba */
+    right: 20px;      /* Distancia desde la derecha */
+    z-index: 1001;   /* Por encima de otros elementos */
+    padding: 10px 20px;
+    font-size: 1em;
     font-weight: bold;
-    font-size: 0.8em;
-    opacity: 0.8;
-}
-
-.header-controls {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    transition: all 0.35s ease-in-out;
-}
-
-#logout-button, #install-button {
+    color: #fff;
+    background-color: #28a745; /* Verde para la acción de instalar */
     border: none;
-    padding: 8px 12px;
     border-radius: 8px;
     cursor: pointer;
-    font-weight: bold;
-    font-size: 0.9em;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, transform 0.2s;
+    white-space: nowrap;
 }
 
-#logout-button { background-color: #dc3545; color: white; }
-#install-button { background-color: #28a745; color: white; }
-
-.header-bottom {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    transition: all 0.35s ease-in-out;
+#install-button:hover {
+    background-color: #218838;
+    transform: scale(1.05); /* Efecto de zoom ligero */
 }
 
-.search-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+@media (max-width: 680px) {
+    .header-container {
+        flex-direction: column; /* Apila los elementos verticalmente */
+        align-items: center; /* Centra los elementos */
+        justify-content: center;
+    }
+    .header-branding {
+        justify-content: center;
+        width: 100%;
+    }
+    h1.app-title {
+        font-size: 1.8em;
+    }
+    #header-controls {
+        margin-left: 0; /* Resetea el margen */
+        width: 100%;
+        justify-content: center; /* Centra los botones */
+    }
 }
 
+@media (max-width: 480px) {
+    #install-button {
+        top: 10px;
+        right: 10px;
+        padding: 8px 12px;
+        font-size: 0.9em;
+    }
+    #header-controls {
+        flex-direction: column; /* Apila el saludo y el botón de cerrar sesión */
+        align-items: center;
+    }
+}
+
+/* --- ESTILOS DEL BUSCADOR --- */
 .search-container {
-    flex-grow: 1;
-    position: relative;
+    position: relative; /* Contenedor para el botón de limpiar */
+    margin-bottom: 0; /* Controlado por #search-wrapper */
+    padding: 0; /* Reducido para compactar */
     max-width: 600px;
-    margin: 0 auto;
-    width: 100%;
-}
-
-.search-container input[type="text"] {
-    width: 100%;
-    padding: 12px 40px 12px 15px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 1em;
-    background: var(--card-bg);
-    color: var(--text-color);
+    margin-left: auto;
+    margin-right: auto;
     transition: all 0.35s ease-in-out;
 }
 
 #clear-search-btn {
     position: absolute;
-    right: 10px;
+    right: 15px;
     top: 50%;
     transform: translateY(-50%);
     background: #ccc;
     color: #fff;
     border: none;
     border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    font-size: 12px;
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    line-height: 24px;
+    text-align: center;
     cursor: pointer;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.2s;
+    transition: opacity 0.2s ease-in-out;
 }
 
 .search-container.has-text #clear-search-btn {
@@ -200,7 +197,25 @@ h1.app-title {
     pointer-events: all;
 }
 
-/* --- ESTILOS DEL BUSCADOR --- */
+body.search-active .search-container.has-text #clear-search-btn {
+    right: 35px; /* Ajuste de posición cuando la búsqueda está activa */
+}
+
+
+.search-container input[type="text"] {
+    width: 100%;
+    padding: 12px 40px 12px 15px; /* Aumentado padding derecho para el botón X */
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 1em;
+    transition: all 0.35s ease-in-out;
+}
+.search-container input[type="text"]:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    outline: none;
+}
 
 /* --- ESTILOS DEL MENÚ HAMBURGUESA --- */
 #hamburger-btn {
@@ -208,17 +223,13 @@ h1.app-title {
     border: none;
     font-size: 24px;
     cursor: pointer;
-    color: var(--text-color);
+    color: #333;
     padding: 10px;
     border-radius: 8px;
-    transition: background-color 0.2s, opacity 0.35s ease-in-out, visibility 0.35s ease-in-out;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1500;
+    transition: background-color 0.2s;
 }
 #hamburger-btn:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+    background-color: #e0e0e0;
 }
 #side-menu {
     position: fixed;
@@ -355,71 +366,59 @@ input:checked + .slider:before {
     transform: translateX(26px);
 }
 
-/* --- ESTILOS DE BÚSQUEDA ACTIVA (RECONSTRUCCIÓN CON ANIMACIÓN) --- */
-body.search-active .title-welcome-group,
-body.search-active .header-controls,
-body.search-active .section-selector,
-body.search-active #hamburger-btn {
+/* --- ESTILOS DE BÚSQUEDA ACTIVA --- */
+body.search-active .app-title,
+body.search-active #header-controls,
+body.search-active .footer {
     opacity: 0;
     visibility: hidden;
     transform: translateY(-20px);
-    pointer-events: none;
-    /* Usamos max-height para colapsar el espacio sin usar display:none */
-    max-height: 0;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    transition: all 0.35s ease-in-out;
 }
 
-body.search-active .footer {
-    display: none !important;
+/* Transición específica para los botones que deben ocultarse suavemente */
+body.search-active #hamburger-btn,
+body.search-active .section-selector {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-20px);
+    pointer-events: none; /* Asegura que no se pueda interactuar con ellos mientras están ocultos */
 }
 
-body.search-active .main-header {
-    padding: 10px 20px;
+body.search-active #search-wrapper {
+    margin-bottom: 0 !important; /* Anula el estilo en línea para eliminar el espacio */
+    transition: margin-bottom 0.35s ease-in-out;
+}
+
+body.search-active .container {
+    /* Define explícitamente el padding superior y anula el inferior
+       para evitar el efecto aditivo de la regla .container general. */
+    padding: 60px 20px 0;
+    transition: padding 0.35s ease-in-out;
+}
+
+body.search-active .search-container {
     position: fixed;
-    top: 0;
+    top: 15px;
     left: 0;
     right: 0;
-    background: var(--bg-color);
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    height: auto;
-}
-
-body.search-active .header-bottom {
-    gap: 0;
-}
-
-body.search-active .search-wrapper {
-    width: 100%;
+    padding: 0 20px;
+    margin: 0;
+    max-width: 100%;
+    z-index: 1500;
 }
 
 body.search-active #searchInput {
-    padding-left: 55px;
+    padding-left: 55px; /* Espacio para el logo */
+    height: 48px;
+    box-sizing: border-box;
 }
 
 body.search-active .app-logo {
     position: fixed;
-    top: 15px;
-    left: 30px;
-    max-width: 38px;
-    z-index: 2100;
-    filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.2));
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-
-/* El logo original en el flujo debe ocultarse suavemente */
-body.search-active .header-branding .app-logo {
-    opacity: 0;
-    visibility: hidden;
-    transform: scale(0.5);
-}
-
-body.search-active .container {
-    /* El padding-top compensa el header fijo (10px padding + 48px input + 10px padding) */
-    padding-top: 70px;
+    top: 22px;       /* 15px (search-container top) + 7px (para centrar) */
+    left: 30px;      /* 20px (search-container padding) + 10px (margen interno) */
+    max-width: 34px;
+    z-index: 1501;   /* Por encima del input */
 }
 
 
@@ -757,7 +756,7 @@ body.search-active .container {
     max-width: 800px;
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    max-height: calc(var(--app-height, 100%) * 0.9);
+    max-height: 90vh;
     overflow-y: auto;
     transform: scale(0.95);
     transition: transform 0.3s ease;
@@ -1003,7 +1002,7 @@ body.search-active .container {
 .info-modal-content {
     background-color: #fff; margin: auto; padding: 25px; border-radius: 10px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.25); width: 90%; max-width: 700px;
-    max-height: calc(var(--app-height, 100%) * 0.9); overflow-y: auto; position: relative;
+    max-height: 90vh; overflow-y: auto; position: relative;
 }
 .info-close-btn {
     color: #aaa; position: absolute; top: 10px; right: 20px; font-size: 28px;

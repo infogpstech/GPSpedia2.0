@@ -1,0 +1,103 @@
+CODE REVIEW - HEADER ANIMATIONS RESTORE
+===========================================
+
+--- File: index.html ---
+
+--- File: style.css ---
+--- style.css_pre_header_animation_restore	2026-01-16 02:40:11.180057669 +0000
++++ style.css	2026-01-16 02:45:07.104311859 +0000
+@@ -82,6 +82,7 @@
+     transition: all 0.35s ease-in-out;
+     position: relative;
+     z-index: 1500;
++    overflow: visible; /* Asegura que el logo animado sea visible */
+ }
+
+ .header-top {
+@@ -128,6 +129,7 @@
+     display: flex;
+     align-items: center;
+     gap: 10px;
++    transition: all 0.35s ease-in-out;
+ }
+
+ #logout-button, #install-button {
+@@ -206,10 +208,13 @@
+     border: none;
+     font-size: 24px;
+     cursor: pointer;
+-    color: #333;
++    color: var(--text-color);
+     padding: 10px;
+     border-radius: 8px;
+-    transition: background-color 0.2s;
++    transition: background-color 0.2s, opacity 0.35s ease-in-out, visibility 0.35s ease-in-out;
++    display: flex;
++    align-items: center;
++    justify-content: center;
+ }
+ #hamburger-btn:hover {
+     background-color: #e0e0e0;
+@@ -349,12 +354,24 @@
+     transform: translateX(26px);
+ }
+
+-/* --- ESTILOS DE BÚSQUEDA ACTIVA (RECONSTRUCCIÓN) --- */
++/* --- ESTILOS DE BÚSQUEDA ACTIVA (RECONSTRUCCIÓN CON ANIMACIÓN) --- */
+ body.search-active .header-top,
+ body.search-active .section-selector,
+-body.search-active #hamburger-btn,
++body.search-active #hamburger-btn {
++    opacity: 0;
++    visibility: hidden;
++    transform: translateY(-20px);
++    pointer-events: none;
++    /* Usamos max-height para colapsar el espacio sin usar display:none */
++    max-height: 0;
++    margin: 0;
++    padding: 0;
++    overflow: hidden;
++    transition: all 0.35s ease-in-out;
++}
++
+ body.search-active .footer {
+-    display: none !important; /* Colapso total de espacio */
++    display: none !important;
+ }
+
+ body.search-active .main-header {
+@@ -365,6 +382,7 @@
+     right: 0;
+     background: var(--bg-color);
+     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
++    height: auto;
+ }
+
+ body.search-active .header-bottom {
+@@ -385,6 +403,14 @@
+     left: 30px;
+     max-width: 34px;
+     z-index: 1600;
++    filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.2));
++}
++
++/* El logo original en el flujo debe ocultarse suavemente */
++body.search-active .header-branding .app-logo {
++    opacity: 0;
++    visibility: hidden;
++    transform: scale(0.5);
+ }
+
+ body.search-active .container {
+
+--- File: ui.js ---
+
+--- File: navigation.js ---
+
+--- File: main.js ---
+
+CONFIRMATION:
+✔ Phantom space fix is preserved using max-height: 0 instead of display: none.
+✔ Hamburger button is now visible and has smooth transitions.
+✔ Search bar and logo animations are restored and fluid.
+✔ No touches to cards, footer, or data logic.

@@ -36,22 +36,9 @@ async function initializeApp() {
     });
 
     const searchInput = document.getElementById('searchInput');
-    const clearSearchBtn = document.getElementById('clear-search-btn');
-
     searchInput.addEventListener('input', () => {
         navigation.filtrarContenido(searchInput.value);
-        // Toggle de la clase has-text para mostrar/ocultar el botón X
-        searchInput.parentElement.classList.toggle('has-text', searchInput.value.length > 0);
     });
-
-    if (clearSearchBtn) {
-        clearSearchBtn.addEventListener('click', () => {
-            searchInput.value = '';
-            searchInput.parentElement.classList.remove('has-text');
-            navigation.filtrarContenido('');
-            searchInput.focus();
-        });
-    }
 
     // --- LÓGICA DE ANIMACIÓN DE LA BARRA DE BÚSQUEDA ---
     // Añade la clase 'search-active' al body cuando el input gana el foco.
@@ -101,25 +88,6 @@ async function initializeApp() {
     // Hamburger menu listeners
     document.getElementById('hamburger-btn').addEventListener('click', ui.openSideMenu);
     document.getElementById('menu-overlay').addEventListener('click', ui.closeSideMenu);
-
-    // --- LÓGICA DE GESTO PULL-TO-REFRESH (Restaurada) ---
-    const container = document.querySelector('.container');
-    let touchStartY = 0;
-
-    container.addEventListener('touchstart', (e) => {
-        if (container.scrollTop === 0) {
-            touchStartY = e.touches[0].pageY;
-        }
-    }, { passive: true });
-
-    container.addEventListener('touchend', (e) => {
-        const touchEndY = e.changedTouches[0].pageY;
-        const distance = touchEndY - touchStartY;
-        // Si el usuario desliza más de 150px hacia abajo estando en el tope
-        if (container.scrollTop === 0 && distance > 150) {
-            window.location.reload();
-        }
-    }, { passive: true });
     document.getElementById('side-menu-logout-button').addEventListener('click', () => {
         ui.closeSideMenu();
         auth.logout();
