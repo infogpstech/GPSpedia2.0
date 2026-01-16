@@ -95,7 +95,16 @@ FLUJO PRINCIPAL DE TRABAJO
       lo auditado y documentado.
 
 
---------------------------------------------------
+---
+1. **TÍTULO: Ajuste Fino Extremo de Header y Búsqueda (v4.9.7)**
+   - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
+   - **TIPO:** Refinamiento UI / UX / Estabilidad
+   - **ALCANCE:** Animaciones fluidas, fijación de overflow y suavizado de logo.
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Animaciones:** Sincronización de opacity/visibility y suavizado de max-height.
+     - **Layout:** Bloqueo estricto de overflow-x mediante max-width: 100vw.
+     - **Logo:** Interpolación suave mediante cubic-bezier para eliminar saltos.
+-----------------------------------------------
 EXTENSIÓN OBLIGATORIA POR CODE REVIEW
 --------------------------------------------------
 
@@ -188,6 +197,15 @@ INVALIDA el proceso completo.
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
+1. **TÍTULO: Ajuste Fino Extremo de Header y Búsqueda (v4.9.7)**
+   - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
+   - **TIPO:** Refinamiento UI / UX / Estabilidad
+   - **ALCANCE:** Animaciones fluidas, fijación de overflow y suavizado de logo.
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Animaciones:** Sincronización de opacity/visibility y suavizado de max-height.
+     - **Layout:** Bloqueo estricto de overflow-x mediante max-width: 100vw.
+     - **Logo:** Interpolación suave mediante cubic-bezier para eliminar saltos.
+
 1. **TÍTULO: Reparación de Precisión de Layout y Logo (v4.9.6)**
    - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
    - **TIPO:** Refinamiento UI / Bugfix Layout / Unificación CSS

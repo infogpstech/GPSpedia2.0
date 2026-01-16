@@ -129,3 +129,16 @@ La fragmentación HTML del header impide una transición limpia a "modo búsqued
 - **style.css (Línea 389):** Se añadió `gap: 0` al header activo para asegurar que el centrado vertical no se vea afectado por elementos ocultos con `max-height: 0`.
 - **style.css (Línea 389-390):** Se consolidó el control de desbordamiento horizontal mediante `box-sizing: border-box` y `overflow: hidden`.
 - **index.html:** Actualización de versión a v4.9.6.
+
+
+**AUDITORÍA DE AJUSTE FINO EXTREMO (02/02/2026) - v4.9.7**
+
+**1. AUDITORÍA DE style.css**
+- **Hallazgo (Animación Botones):** Transiciones binarias de visibility causaban saltos. Se corrigió con delay en transition.
+- **Hallazgo (Desbordamiento):** Falta de restricción estricta en header fijo. Se corrigió con max-width: 100vw y box-sizing: border-box !important.
+- **Hallazgo (Logo):** El salto visual ocurría por transición genérica 'all'. Se refinó con propiedades específicas y cubic-bezier.
+
+**2. EJECUCIÓN:**
+- Unificación de reglas de búsqueda activa.
+- Ajuste de timings de 0.3s a 0.5s para suavidad.
+- Limpieza de redundancias en .main-header.
