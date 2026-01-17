@@ -1,4 +1,5 @@
-// GPSpedia Authentication Module
+// GPSpedia Authentication Module | Version: 2.1.0
+// FIX: Splash screen lento - Se invierte el flujo de carga
 // Responsibilities:
 // - Manage the entire user authentication lifecycle (login, logout, session validation).
 // - Interact with the API module for backend communication.
@@ -13,9 +14,10 @@ const SESSION_KEY = 'gpsepedia_session';
 function handleLoginSuccess(user) {
     localStorage.setItem(SESSION_KEY, JSON.stringify(user));
     setState({ currentUser: user });
-    showApp(user); // Muestra la UI principal inmediatamente
+    showApp(user); // ✅ Muestra la UI INMEDIATAMENTE
 }
 
+// ✅ NUEVA VERSIÓN: Carga asíncrona SIN bloquear la UI
 async function loadInitialData() {
     try {
         const apiResponse = await fetchCatalogData();
@@ -37,8 +39,8 @@ async function loadInitialData() {
             }
         });
 
-        // La UI ya está visible, esto solo refrescará el contenido si es necesario
-        // (asumiendo que las funciones de renderizado usan el estado actualizado)
+        // ✅ CRITICAL: La UI ya está visible, esto solo actualiza el contenido
+        console.log('[AUTH] Catálogo cargado exitosamente');
 
     } catch (error) {
         showGlobalError("Error al cargar los datos del catálogo. La funcionalidad puede ser limitada.");
@@ -48,6 +50,7 @@ async function loadInitialData() {
                 cortes: [],
                 tutoriales: [],
                 relay: [],
+                logos: [],
                 sortedCategories: []
             }
         });
@@ -57,7 +60,7 @@ async function loadInitialData() {
 
 export async function checkSession() {
     const LOCK_KEY = 'session_validation_lock';
-    const LOCK_TIMEOUT = 5000; // 5 segundos, tiempo durante el cual una pestaña puede bloquear a otras.
+    const LOCK_TIMEOUT = 5000; // 5 segundos
 
     const lock = localStorage.getItem(LOCK_KEY);
     const now = Date.now();
@@ -73,7 +76,7 @@ export async function checkSession() {
     const sessionData = localStorage.getItem(SESSION_KEY);
     if (!sessionData) {
         showLoginScreen();
-        localStorage.removeItem(LOCK_KEY); // Liberar bloqueo si no hay sesión
+        localStorage.removeItem(LOCK_KEY);
         return;
     }
 
@@ -82,8 +85,9 @@ export async function checkSession() {
         const { valid } = await apiValidateSession(user.ID, user.SessionToken);
 
         if (valid) {
-            await loadInitialData();
-            handleLoginSuccess(user);
+            // ✅ CRITICAL FIX: Invertir el orden - UI primero, datos después
+            handleLoginSuccess(user);  // Muestra la app INMEDIATAMENTE
+            loadInitialData();          // Carga en segundo plano (NO await)
         } else {
             logout("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
         }
@@ -91,7 +95,6 @@ export async function checkSession() {
         showGlobalError(`Error de sesión: ${error.message}`);
         logout();
     } finally {
-        // Liberar el bloqueo para que otras pestañas puedan validar si es necesario.
         localStorage.removeItem(LOCK_KEY);
     }
 }
@@ -100,9 +103,9 @@ export async function login(username, password) {
     try {
         const result = await apiLogin(username, password);
         if (result && result.user) {
-            // FIX: Load data BEFORE showing the app to prevent race condition
-            await loadInitialData();
-            handleLoginSuccess(result.user);
+            // ✅ CRITICAL FIX: UI primero, datos después
+            handleLoginSuccess(result.user);  // Muestra la app INMEDIATAMENTE
+            loadInitialData();                 // Carga en segundo plano (NO await)
         } else {
             throw new Error("Respuesta de login inválida.");
         }
@@ -113,6 +116,5 @@ export async function login(username, password) {
 
 export function logout(reason = null) {
     localStorage.removeItem(SESSION_KEY);
-    // localStorage.removeItem(SESSION_ID_KEY); // This key is not used in the new architecture
     showLoginScreen(reason);
 }
