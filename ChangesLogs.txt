@@ -640,3 +640,38 @@
 
 4.  **Sincronización de Versión:**
     *   **Descripción:** Normalización a v4.9.6 en `index.html`.
+
+**V4.9.7 - (CRITICAL FIXES BACKLOG) - 02/02/2026**
+**A. RESUMEN GENERAL:** Ejecución integral del backlog de correcciones críticas. Se optimizó el tiempo de arranque, se mejoró la precisión de la búsqueda, se robusteció la visualización de videos e inbox, y se incrementó la resolución de imágenes.
+
+**B. Cambios Implementados:**
+
+1.  **Optimización de Splash Screen (auth.js, state.js, ui.js):**
+    *   **auth.js:** Se eliminó el `await` de `loadInitialData()` en `checkSession` (Línea 84) y `login` (Línea 102), permitiendo mostrar la UI inmediatamente.
+    *   **state.js:** Se implementó un sistema de `subscribe` (Líneas 31-39) para notificar cambios de estado.
+    *   **ui.js:** Se añadió una guarda de estado de carga en `showApp` (Línea 1225) y una suscripción reactiva (Línea 1241) para renderizar el catálogo cuando los datos llegan en segundo plano.
+
+2.  **Corrección de Búsqueda Numérica (navigation.js):**
+    *   **Descripción:** Se limitó la detección de años al rango 1900-2100 (Línea 47). Se prioriza la coincidencia exacta de modelo sobre la de marca (Línea 84) para evitar colisiones en modelos como "2002".
+
+3.  **Mejora de Visualización de Videos (catalog.js, ui.js):**
+    *   **catalog.js:** Nueva función `normalizeYouTubeUrl` (Línea 596) para unificar formatos de URL e IDs.
+    *   **ui.js:** Refactorización de `getYouTubeEmbedUrl` (Línea 1007) para mayor robustez en la extracción de IDs de YouTube.
+
+4.  **Estabilización de Inbox (ui.js):**
+    *   **Descripción:** Se modificó `openInbox` (Línea 891) para extraer datos de múltiples claves posibles (`data`, `messages`, `items`), mejorando la compatibilidad con el backend.
+
+5.  **Refinamiento de Animaciones (style.css):**
+    *   **Descripción:** Se añadió `will-change` a los elementos del header (Líneas 373, 394) para habilitar aceleración por GPU y suavizar las transiciones de búsqueda.
+
+6.  **Consistencia de Resolución de Imágenes (ui.js):**
+    *   **Descripción:** Se incrementó el tamaño base de thumbnails a 400px (Línea 12) con lógica de duplicación para pantallas de alta densidad. Se aumentó el tamaño de imágenes en modales a 1200px (Líneas 861, 1054).
+
+7.  **Sincronización de Versión:**
+    *   **Descripción:** Actualización global a v4.9.7 en `index.html`.
+
+**C. Impacto:**
+- **Rendimiento:** Reducción drástica del tiempo de espera percibido en el Splash Screen.
+- **Usabilidad:** Búsqueda más inteligente y predecible.
+- **Calidad Visual:** Imágenes más nítidas y animaciones sin saltos.
+- **Robustez:** Mayor tolerancia a variaciones en la estructura de datos del backend.

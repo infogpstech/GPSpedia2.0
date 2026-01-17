@@ -283,3 +283,18 @@ Se completó un ciclo de correcciones que abordaron múltiples fallos en el sist
 - Eliminar una regresión que causaba la de-duplicación incorrecta de resultados.
 - Corregir un `SyntaxError` fatal que impedía la carga de la aplicación.
 - Implementar la corrección definitiva para el botón "Regresar", asegurando que devuelva al usuario a los resultados de la búsqueda de manera consistente, mediante el manejo correcto del estado de navegación anidado.
+
+---
+**TAREAS PENDIENTES DE REVISIÓN**
+---
+1. **TÍTULO: Correcciones Críticas GPSpedia (v4.9.7)**
+   - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
+   - **TIPO:** Optimización / Bugfix / UX / Robustez
+   - **ALCANCE:** Ejecución del backlog de 7 tareas críticas.
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Splash Screen:** Carga no bloqueante de datos en segundo plano mediante sistema de observadores en `state.js`.
+     - **Búsqueda:** Refinamiento de lógica de años (1900-2100) y priorización de modelos exactos.
+     - **Videos:** Normalización robusta de URLs de YouTube en backend y frontend.
+     - **Inbox:** Extracción resiliente de datos desde el API de feedback.
+     - **Animaciones:** Optimización GPU del header para evitar lag.
+     - **Imágenes:** Incremento de resolución para pantallas de alta densidad.

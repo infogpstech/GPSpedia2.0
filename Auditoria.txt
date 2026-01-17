@@ -129,3 +129,33 @@ La fragmentación HTML del header impide una transición limpia a "modo búsqued
 - **style.css (Línea 389):** Se añadió `gap: 0` al header activo para asegurar que el centrado vertical no se vea afectado por elementos ocultos con `max-height: 0`.
 - **style.css (Línea 389-390):** Se consolidó el control de desbordamiento horizontal mediante `box-sizing: border-box` y `overflow: hidden`.
 - **index.html:** Actualización de versión a v4.9.6.
+
+**AUDITORÍA BACKLOG CORRECCIONES CRÍTICAS (02/02/2026)**
+
+**1. TAREA 1 — OPTIMIZACIÓN SPLASH SCREEN (auth.js, state.js, ui.js)**
+- **Hallazgo (auth.js):** Las funciones `checkSession` (Línea 80) y `login` (Línea 98) bloquean la ejecución con `await loadInitialData()` antes de mostrar la aplicación.
+- **Hallazgo (state.js):** El sistema de estado es estático; no existe un patrón de observador para notificar a la UI cuando los datos han terminado de cargar en segundo plano.
+- **Hallazgo (ui.js):** La función `showApp` (Línea 1223) tiene una guarda que impide el renderizado si los datos no están listos, pero no ofrece un estado de carga alternativo.
+- **Riesgo:** Si se quita el `await`, la aplicación podría mostrarse vacía sin disparar el renderizado posterior. Se requiere implementar `subscribe` en `state.js`.
+
+**2. TAREA 2 — BÚSQUEDA DE MODELOS NUMÉRICOS (navigation.js)**
+- **Hallazgo:** El regex `/\b\d{4}\b/` (Línea 44) captura cualquier número de 4 dígitos como año sin validar rangos (ej. 0001 o 9999).
+- **Hallazgo:** No hay priorización de coincidencia exacta de modelo sobre coincidencia de año.
+- **Riesgo:** Colisiones en modelos que son números (ej. BMW 2002).
+
+**3. TAREA 3 — VISUALIZACIÓN DE VIDEOS (catalog.js, ui.js)**
+- **Hallazgo (catalog.js):** La normalización de YouTube es rudimentaria (Línea 306).
+- **Hallazgo (ui.js):** `getYouTubeEmbedUrl` (Línea 1005) no maneja todos los formatos de URL de YouTube (ej. compartidos, shorts).
+- **Riesgo:** Videos rotos o no reproducibles en el modal.
+
+**4. TAREA 4 — ESTABILIDAD DEL INBOX (ui.js)**
+- **Hallazgo:** `openInbox` (Línea 888) asume que los datos están siempre en `result.data`.
+- **Riesgo:** Fallo de carga si el backend cambia la estructura de respuesta o si los datos vienen en una clave distinta (ej. `messages`).
+
+**5. TAREA 5 — ANIMACIONES DEL HEADER (style.css)**
+- **Hallazgo:** Existen múltiples reglas bajo `body.search-active` que redefinen transiciones, lo que puede causar "lag" visual o cortes abruptos si `max-height` y `opacity` no están perfectamente sincronizados.
+- **Riesgo:** Experiencia de usuario entrecortada en móviles.
+
+**6. TAREA 6 — RESOLUCIÓN DE IMÁGENES (ui.js)**
+- **Hallazgo:** `getImageUrl` (Línea 12) usa un tamaño por defecto de 280px. En modales se usa 1000px.
+- **Riesgo:** Imágenes borrosas en dispositivos modernos con alta densidad de píxeles (Retina/OLED).

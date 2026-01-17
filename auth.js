@@ -82,8 +82,8 @@ export async function checkSession() {
         const { valid } = await apiValidateSession(user.ID, user.SessionToken);
 
         if (valid) {
-            await loadInitialData();
             handleLoginSuccess(user);
+            loadInitialData(); // Carga en segundo plano sin bloquear
         } else {
             logout("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
         }
@@ -100,9 +100,8 @@ export async function login(username, password) {
     try {
         const result = await apiLogin(username, password);
         if (result && result.user) {
-            // FIX: Load data BEFORE showing the app to prevent race condition
-            await loadInitialData();
             handleLoginSuccess(result.user);
+            loadInitialData(); // Carga en segundo plano sin bloquear
         } else {
             throw new Error("Respuesta de login inválida.");
         }

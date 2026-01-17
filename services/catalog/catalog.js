@@ -262,13 +262,9 @@ function handleGetCatalogData() {
                 categoryCounts[vehicle.categoria] = (categoryCounts[vehicle.categoria] || 0) + 1;
             }
 
-            // Se elimina la conversión de URLs. El backend ahora envía solo los IDs.
-if (vehicle.videoGuiaDesarmeUrl) {
-                if (!vehicle.videoGuiaDesarmeUrl.includes('embed')) {
-                    vehicle.Video = `https://www.youtube.com/embed/${vehicle.videoGuiaDesarmeUrl}`;
-                } else {
-                    vehicle.Video = vehicle.videoGuiaDesarmeUrl;
-                }
+            // Normalización robusta de URL de YouTube
+            if (vehicle.videoGuiaDesarmeUrl) {
+                vehicle.Video = normalizeYouTubeUrl(vehicle.videoGuiaDesarmeUrl);
                 delete vehicle.videoGuiaDesarmeUrl;
             }
             }
@@ -560,9 +556,6 @@ function normalizeAndValidateImageId(value) {
     }
 
     // Si no se pudo normalizar o validar, se considera inválido.
-    if (LOG_INVALID_IDS) {
-        console.log(`ID de imagen inválido o no normalizable detectado: "${originalValue}"`);
-    }
     invalidImageIdsFound.push(originalValue);
 
     return null;
@@ -595,6 +588,31 @@ function levenshteinDistance(a, b) {
     return matrix[b.length][a.length];
 }
 
+
+/**
+ * Normaliza cualquier formato de URL de YouTube a un formato de embed estable.
+ * Soporta URLs cortas, de búsqueda, de canal y IDs directos.
+ */
+function normalizeYouTubeUrl(url) {
+    if (!url) return null;
+    const trimmed = url.trim();
+    if (!trimmed) return null;
+
+    // Si ya es un ID de 11 caracteres (ej. dQw4w9WgXcQ)
+    if (trimmed.length === 11 && !trimmed.includes('/') && !trimmed.includes(':')) {
+        return `https://www.youtube.com/embed/${trimmed}?enablejsapi=1`;
+    }
+
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = trimmed.match(regExp);
+
+    const id = (match && match[2].length === 11) ? match[2] : trimmed;
+
+    // Si al final no parece un ID válido, devolver null o intentar usarlo como ID
+    if (id.length !== 11) return null;
+
+    return `https://www.youtube.com/embed/${id}?enablejsapi=1`;
+}
 
 function isYearInRangeV2(inputYear, anoDesde, anoHasta) {
     if (isNaN(inputYear)) return false;

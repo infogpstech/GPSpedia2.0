@@ -370,6 +370,7 @@ body.search-active #hamburger-btn {
     padding: 0;
     overflow: hidden;
     transition: opacity 0.3s ease-out, transform 0.3s ease-out, max-height 0.4s ease-in-out, visibility 0.3s;
+    will-change: opacity, transform, max-height;
 }
 
 body.search-active .footer {
@@ -389,6 +390,8 @@ body.search-active .main-header {
     z-index: 1500;
     overflow: hidden; /* Fix desbordamiento horizontal */
     gap: 0; /* Unificado: elimina espacio de elementos ocultos */
+    transition: padding 0.3s ease-out, background-color 0.3s ease;
+    will-change: padding, background-color;
 }
 
 body.search-active .header-bottom,
