@@ -86,16 +86,6 @@ FLUJO PRINCIPAL DE TRABAJO
 
 11. ACTUALIZACIÓN DE INSTRUCCIONES.TXT
     - Mover la tarea ejecutada a:
-      -> "TAREAS PENDIENTES DE REVISIÓN"
-    - NO eliminar tareas sin aprobación del PM.
-
-12. COMMIT
-    - Realizar UN SOLO commit por ciclo completo.
-    - El commit DEBE reflejar EXACTAMENTE
-      lo auditado y documentado.
-
-
---------------------------------------------------
 EXTENSIÓN OBLIGATORIA POR CODE REVIEW
 --------------------------------------------------
 
@@ -185,8 +175,6 @@ SI NO SE REGISTRA, NO EXISTE.
 El incumplimiento de CUALQUIER paso
 INVALIDA el proceso completo.
 
----
-**TAREAS PENDIENTES DE REVISIÓN**
 ---
 1. **TÍTULO: Reparación de Precisión de Layout y Logo (v4.9.6)**
    - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
@@ -283,3 +271,30 @@ Se completó un ciclo de correcciones que abordaron múltiples fallos en el sist
 - Eliminar una regresión que causaba la de-duplicación incorrecta de resultados.
 - Corregir un `SyntaxError` fatal que impedía la carga de la aplicación.
 - Implementar la corrección definitiva para el botón "Regresar", asegurando que devuelva al usuario a los resultados de la búsqueda de manera consistente, mediante el manejo correcto del estado de navegación anidado.
+
+---
+1. **TÍTULO: Correcciones Críticas GPSpedia (v4.9.7)**
+   - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
+   - **TIPO:** Optimización / Bugfix / UX / Robustez
+   - **ALCANCE:** Ejecución del backlog de 7 tareas críticas.
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Splash Screen:** Carga no bloqueante de datos en segundo plano mediante sistema de observadores en `state.js`.
+     - **Búsqueda:** Refinamiento de lógica de años (1900-2100) y priorización de modelos exactos.
+     - **Videos:** Normalización robusta de URLs de YouTube en backend y frontend.
+     - **Inbox:** Extracción resiliente de datos desde el API de feedback.
+     - **Animaciones:** Optimización GPU del header para evitar lag.
+     - **Imágenes:** Incremento de resolución para pantallas de alta densidad.
+
+---
+**TAREAS PENDIENTES DE REVISIÓN**
+---
+1. **TÍTULO: Finalización de Backlog y Nuevas Funcionalidades (v4.9.8)**
+   - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
+   - **TIPO:** Feature / Optimization / Bugfix
+   - **ALCANCE:** Entrega final de 7 tareas críticas + Dashboard + Edición + Sugerencia de Años.
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Dashboard:** Panel de actividad para roles autorizados.
+     - **Sugerencia de Años:** Interfaz de usuario para proponer datos.
+     - **Edición:** Acceso directo a edición desde el catálogo.
+     - **Rendimiento:** Implementación de Lazy Load e inicio reactivo.
+     - **Audit-Fix:** Resolución de errores de referencia y unificación de CSS.

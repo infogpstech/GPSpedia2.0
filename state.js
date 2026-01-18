@@ -28,6 +28,16 @@ export function getState() {
     return { ...state };
 }
 
+let listeners = [];
+
+export function subscribe(listener) {
+    listeners.push(listener);
+    return () => {
+        listeners = listeners.filter(l => l !== listener);
+    };
+}
+
 export function setState(newState) {
     state = { ...state, ...newState };
+    listeners.forEach(listener => listener(state));
 }

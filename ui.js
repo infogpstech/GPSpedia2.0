@@ -5,12 +5,12 @@
 // - Use document.createElement, not HTML strings.
 
 import { getFeedbackItems, replyToFeedback, markAsResolved } from './api-config.js';
-import { getState, setState } from './state.js';
+import { getState, setState, subscribe } from './state.js';
 
 const backSvg = '<svg style="width:20px;height:20px;margin-right:5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
 
-export function getImageUrl(fileId, size = 280) {
-    const placeholder = "https://placehold.co/280x200/cccccc/333333?text=Sin+Imagen";
+export function getImageUrl(fileId, size = 400) {
+    const placeholder = "https://placehold.co/400x300/cccccc/333333?text=Sin+Imagen";
 
     if (!fileId || typeof fileId !== 'string' || fileId.trim() === '') {
         return placeholder;
@@ -39,7 +39,9 @@ export function getImageUrl(fileId, size = 280) {
         return placeholder;
     }
 
-    const sizeParam = typeof size === 'number' ? `w${size}` : size;
+    // Optimización de resolución: duplicar tamaño para pantallas Retina si es pequeño
+    const finalSize = (typeof size === 'number' && size < 600) ? size * 2 : size;
+    const sizeParam = typeof finalSize === 'number' ? `w${finalSize}` : finalSize;
     return `https://drive.google.com/thumbnail?id=${id}&sz=${sizeParam}`;
 }
 
@@ -856,7 +858,7 @@ function renderRelayInfoModal(relayInfo) {
     content.appendChild(title);
 
     const img = document.createElement('img');
-    img.src = getImageUrl(relayInfo.imagen, 1000);
+    img.src = getImageUrl(relayInfo.imagen, 1200);
     img.style.width = '100%';
     content.appendChild(img);
 
@@ -875,7 +877,6 @@ function setupModal(modalId, openFn) {
 }
 
 export const openInbox = setupModal('inbox-modal', async () => {
-    console.log("Inbox: Opening inbox modal...");
     const modal = document.getElementById('inbox-modal');
     modal.style.display = 'flex';
     const listContainer = document.getElementById('inbox-list');
@@ -884,25 +885,21 @@ export const openInbox = setupModal('inbox-modal', async () => {
     detailContainer.innerHTML = '<p>Selecciona un item para ver los detalles.</p>';
 
     try {
-        console.log("Inbox: Fetching feedback items...");
         const result = await getFeedbackItems();
-        console.log("Inbox: API response received:", result);
 
-        if (result.status === 'success' && result.data) {
-            console.log("Inbox: API call successful. Data received:", result.data);
-            if (Array.isArray(result.data)) {
-                renderInboxList(result.data);
+        if (result.status === 'success') {
+            const data = result.data || result.messages || result.items || [];
+
+            if (Array.isArray(data)) {
+                renderInboxList(data);
             } else {
-                console.error("Inbox Error: result.data is not an array!", result.data);
                 listContainer.innerHTML = `<p style="color:red;">Error: El formato de los datos es incorrecto.</p>`;
             }
         } else {
-            console.error("Inbox Error: API call failed or data missing.", result);
             listContainer.innerHTML = `<p style="color:red;">Error: ${result.message || 'No se pudieron cargar los mensajes.'}</p>`;
         }
     } catch (error) {
         listContainer.innerHTML = `<p style="color:red;">Error de conexión al cargar mensajes.</p>`;
-        console.error("Error fetching feedback items:", error);
     }
 });
 
@@ -1004,25 +1001,29 @@ function renderInboxDetail(item) {
 
 function getYouTubeEmbedUrl(url) {
     if (!url) return null;
-    let videoId;
-    try {
-        const urlObj = new URL(url);
-        if (urlObj.hostname === 'youtu.be') {
-            videoId = urlObj.pathname.slice(1);
-        } else if (urlObj.hostname.includes('youtube.com')) {
-            videoId = urlObj.searchParams.get('v');
-        }
-    } catch (e) {
-        // Fallback for simple strings that might just be the ID
-        if (!url.includes('http') && url.length > 5) {
-            videoId = url;
-        }
+    const trimmed = url.trim();
+    if (!trimmed) return null;
+
+    // Si ya es un ID de 11 caracteres (ej. dQw4w9WgXcQ)
+    if (trimmed.length === 11 && !trimmed.includes('/') && !trimmed.includes(':')) {
+        return `https://www.youtube.com/embed/${trimmed}?enablejsapi=1`;
     }
 
-    if (videoId) {
-        return `https://www.youtube.com/embed/${videoId}?enablejsapi=1`;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = trimmed.match(regExp);
+
+    const id = (match && match[2].length === 11) ? match[2] : null;
+
+    if (id) {
+        return `https://www.youtube.com/embed/${id}?enablejsapi=1`;
     }
-    return null; // Return null if no valid ID could be extracted
+
+    // Fallback para casos donde el ID es pasado directamente pero no cumplió la primera condición
+    if (!trimmed.includes('/') && !trimmed.includes(':') && trimmed.length > 5) {
+        return `https://www.youtube.com/embed/${trimmed}?enablejsapi=1`;
+    }
+
+    return null;
 }
 
 function createAccordionSection(container, title, sec, isOpen = false, datosRelay = []) {
@@ -1043,7 +1044,7 @@ function createAccordionSection(container, title, sec, isOpen = false, datosRela
         }
 
         if (sec.img) {
-            const highResImgUrl = getImageUrl(sec.img, 1000);
+            const highResImgUrl = getImageUrl(sec.img, 1200);
             const imgContainer = document.createElement('div');
             imgContainer.className = 'image-container-with-feedback';
             const img = document.createElement("img");
@@ -1222,8 +1223,33 @@ export function showApp(user) {
     const { catalogData } = getState();
     if (catalogData && Array.isArray(catalogData.cortes) && catalogData.cortes.length > 0) {
         mostrarCategorias();
+    } else {
+        // Mostrar estado de carga si los datos aún no están listos
+        const cont = document.getElementById("contenido");
+        if (cont) {
+            cont.innerHTML = `
+                <div class="loading-data-container" style="text-align: center; padding: 50px 20px;">
+                    <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 2rem; color: var(--accent-color); margin-bottom: 15px;"></i>
+                    <p>Cargando catálogo...</p>
+                </div>
+            `;
+        }
     }
 }
+
+// Suscribirse a cambios de estado para renderizar el catálogo cuando los datos lleguen
+subscribe((state) => {
+    const splash = document.getElementById('splash-screen');
+    const isAppVisible = splash && splash.style.display === 'none';
+
+    if (isAppVisible && state.catalogData && Array.isArray(state.catalogData.cortes) && state.catalogData.cortes.length > 0) {
+        const cont = document.getElementById("contenido");
+        // Solo renderizar si el contenedor tiene el mensaje de carga o está vacío
+        if (cont && (cont.querySelector('.loading-data-container') || cont.innerHTML === "")) {
+             mostrarCategorias();
+        }
+    }
+});
 
 export function showGlobalError(message) {
     const toast = document.getElementById('error-toast');

@@ -42,7 +42,13 @@ export function filtrarContenido(textoBusqueda) {
 
     // --- LÓGICA DE FILTRADO MEJORADA ---
     const yearSearchMatch = busqueda.match(/\b\d{4}\b/);
-    const yearSearchTerm = yearSearchMatch ? parseInt(yearSearchMatch[0], 10) : null;
+    let yearSearchTerm = yearSearchMatch ? parseInt(yearSearchMatch[0], 10) : null;
+
+    // Limitar detección de años a rangos válidos (1900-2100)
+    if (yearSearchTerm && (yearSearchTerm < 1900 || yearSearchTerm > 2100)) {
+        yearSearchTerm = null;
+    }
+
     const nonYearBusqueda = yearSearchTerm ? busqueda.replace(yearSearchMatch[0], '').trim() : busqueda;
     const palabrasBusqueda = nonYearBusqueda.split(' ').filter(p => p);
 
@@ -75,7 +81,9 @@ export function filtrarContenido(textoBusqueda) {
 
     // Se considera una búsqueda de marca si solo hay una marca en los resultados
     // y el término de búsqueda coincide con el nombre de esa marca.
-    if (uniqueMarcasEnResultados.length === 1 && uniqueMarcasEnResultados[0].toLowerCase().includes(busqueda)) {
+    const exactModelMatch = datosFiltrados.some(item => item.modelo.toLowerCase() === busqueda);
+
+    if (!exactModelMatch && uniqueMarcasEnResultados.length === 1 && uniqueMarcasEnResultados[0].toLowerCase().includes(busqueda)) {
         mostrarResultadosDeBusqueda({ type: 'marca', query: textoBusqueda, results: uniqueMarcasEnResultados });
     } else {
         // En todos los demás casos (modelo, año, mixto), se muestran tarjetas de modelo.
