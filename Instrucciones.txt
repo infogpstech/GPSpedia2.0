@@ -263,13 +263,13 @@ Archivos involucrados: ui.js, navigation.js
      - **Layout:** Refinamiento de la unificación de búsqueda para garantizar ancho del 100% real.
      - **Versión:** Incremento a v4.9.9.
 
-2. **TÍTULO: Refinamiento de Estilos de Inbox (v4.9.11)**
+2. **TÍTULO: Reparación Definitiva y Alta Densidad de Inbox (v4.9.12)**
    - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
-   - **TIPO:** UI/UX Refinement
-   - **ALCANCE:** Optimización visual del módulo de Inbox.
+   - **TIPO:** UI/UX Repair / High Density
+   - **ALCANCE:** Corrección estructural y visual completa del módulo de Inbox.
    - **DESCRIPCIÓN DETALLADA:**
-     - **Simplificación:** Panel izquierdo ahora muestra solo asunto y tipo de mensaje.
-     - **Estilos:** Minimización de márgenes y rellenos en todo el módulo.
-     - **Tipografía:** Reducción del tamaño de fuente en títulos y elementos de lista.
-     - **Overflow:** Implementación de scroll independiente en el panel de detalles.
-     - **Calidad:** Eliminación de console.log de diagnóstico.
+     - **Estructura:** Eliminación de estilos inline en index.html que bloqueaban el diseño.
+     - **Densidad:** Reducción drástica de márgenes y paddings para maximizar área útil.
+     - **Tipografía:** Reducción de fuentes en títulos de modal, detalle e ítems.
+     - **Interactividad:** Implementación de paneles con scroll independiente y gaps mínimos.
+     - **Versionamiento:** Incremento a v4.9.12.

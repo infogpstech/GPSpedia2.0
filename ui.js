@@ -967,8 +967,8 @@ function renderInboxList(items) {
         itemDiv.innerHTML = `
             <i class="fa-solid ${iconClass}"></i>
             <div class="inbox-item-content">
-                <strong>${title}</strong>
-                <p>${tipoLabel}</p>
+                <strong class="inbox-item-title">${title}</strong>
+                <p class="inbox-item-type">${tipoLabel}</p>
             </div>
         `;
         itemDiv.addEventListener('click', () => {

@@ -745,3 +745,18 @@ v4.9.10
     - Línea 1165: Definición de .inbox-detail-title con font-size reducido (1.2em).
     - Línea 1174-1175: Reducción de padding en contenedores de mensajes de 15px a 10px.
     - Línea 1189, 1193: Reducción de márgenes y tamaño mínimo de textarea en acciones.
+
+**[02/02/2026] REPARACIÓN DEFINITIVA Y ALTA DENSIDAD DE INBOX (v4.9.12)**
+- index.html:
+    - Eliminación total de estilos inline en el modal de Inbox (#inbox-modal, #inbox-list, #inbox-detail).
+    - Implementación de estructura semántica con clases (.inbox-modal-title, .inbox-layout-wrapper).
+    - Actualización de versión global a v4.9.12.
+- ui.js:
+    - Normalización de clases en el renderizado de la lista (.inbox-item-title, .inbox-item-type).
+    - Asegurada la visualización de alta densidad (solo Asunto y Tipo).
+- style.css:
+    - Reescritura integral del bloque de estilos de Inbox para alta densidad.
+    - Reducción drástica de paddings (4px-6px) y gaps (8px-10px).
+    - Ajuste tipográfico: Títulos de modal (1.2rem), Títulos de detalle (1rem), Items (0.85rem).
+    - Implementación de scroll independiente y desbordamiento controlado en paneles divididos.
+    - Eliminación de espacios redundantes en botones de acción y áreas de texto.

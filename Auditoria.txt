@@ -240,3 +240,22 @@ La fragmentación HTML del header impide una transición limpia a "modo búsqued
 **RIESGOS Y EFECTOS COLATERALES:**
 - El cambio de flex: 2 en #inbox-detail puede causar problemas en pantallas pequeñas si no se maneja bien el overflow.
 - La reducción de márgenes puede afectar la legibilidad si es extrema.
+
+**AUDITORÍA DE REPARACIÓN DE ESTILOS DE INBOX (02/02/2026)**
+
+**1. AUDITORÍA DE index.html (INLINE STYLES)**
+- **Línea 141 (Modal Content):** style="max-width: 1100px;" (Se mantendrá o moverá a CSS).
+- **Línea 142 (Inbox Layout Wrapper):** gap: 20px; (Hallazgo: Margen excesivo. Requerimiento: Mínimo).
+- **Línea 143 (#inbox-list):** style="flex: 1; height: 60vh; overflow-y: auto; border-right: 1px solid #ccc; padding-right: 15px;" (Hallazgo: padding-right y borde con espacio. Requerimiento: Mínimo).
+- **Línea 146 (#inbox-detail):** style="flex: 2;" (Hallazgo: Falta control de desbordamiento en HTML, aunque se añadió en CSS).
+
+**2. AUDITORÍA DE style.css (HIGH DENSITY)**
+- **Línea 1122 (.inbox-item):** padding: 8px 10px; (Hallazgo: Aún puede ser menor. Requerimiento: Mínimo).
+- **Línea 1162 (#inbox-detail):** padding: 0 10px; (Hallazgo: padding lateral puede reducirse).
+- **Línea 1174 (.inbox-message-content):** padding: 10px; margin: 10px 0; (Hallazgo: Márgenes internos y externos altos. Requerimiento: Mínimo).
+
+**3. AUDITORÍA DE ui.js (CONSISTENCIA)**
+- Las funciones renderizan correctamente pero dependen de que el CSS no sea sobreescrito por los inline styles de index.html.
+
+**CONCLUSIÓN:**
+La falla de visibilidad de los cambios se debe a que los estilos inline en index.html preservan márgenes y gaps altos (20px y 15px) que contradicen la orden de "márgenes al mínimo". Se requiere removerlos y centralizar el control en style.css con valores de alta densidad (2px-5px).
