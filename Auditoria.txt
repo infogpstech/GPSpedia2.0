@@ -159,3 +159,8 @@ La fragmentación HTML del header impide una transición limpia a "modo búsqued
 **6. TAREA 6 — RESOLUCIÓN DE IMÁGENES (ui.js)**
 - **Hallazgo:** `getImageUrl` (Línea 12) usa un tamaño por defecto de 280px. En modales se usa 1000px.
 - **Riesgo:** Imágenes borrosas en dispositivos modernos con alta densidad de píxeles (Retina/OLED).
+
+**AUDITORÍA DE DESBORDAMIENTO DE BÚSQUEDA (02/02/2026)**
+- **Hallazgo 1 (Causa Raíz):** Falta reset global de `box-sizing: border-box`. El input `#searchInput` tiene `width: 100%` y un padding horizontal acumulado de hasta 95px en modo activo (55px izq + 40px der). Esto genera un desbordamiento de `width: 100% + 95px` sobre el contenedor padre.
+- **Hallazgo 2 (Layout Flex):** El contenedor `.search-wrapper` es un flexbox. En modo `search-active`, el botón `#hamburger-btn` se oculta con `visibility: hidden` y `max-height: 0`, pero su `width` original (o el de su contenedor) podría seguir afectando el cálculo del `flex-grow: 1` del `.search-container`, empujándolo hacia la derecha.
+- **Hallazgo 3 (Consolidación):** Existen reglas redundantes para `#searchInput` en las líneas 399 y 404 de `style.css` que deben ser unificadas.

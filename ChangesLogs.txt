@@ -700,3 +700,20 @@
     *   **Importaciones:** Agregados `routeAction` y `getActivityLogs`.
 7.  **Sincronización de Versión:**
     *   **Descripción:** Incremento global a v4.9.8 en `index.html`.
+
+**V4.9.9 - (SEARCH LAYOUT REPAIR) - 02/02/2026**
+**A. RESUMEN GENERAL:** Reparación definitiva del desbordamiento horizontal de la barra de búsqueda en modo activo. Se implementó un reset global de box-sizing y se refinaron las reglas de layout para garantizar la visibilidad total en dispositivos móviles.
+
+**B. Cambios Implementados:**
+
+1.  **Reset Global de Box-Sizing (style.css):**
+    *   **Descripción:** Se añadió `*, *::before, *::after { box-sizing: border-box; }` al inicio del archivo (Línea 2). Esto asegura que el padding y los bordes se incluyan dentro del cálculo del ancho total, eliminando el overflow de los inputs con `width: 100%`.
+2.  **Unificación de Layout de Búsqueda (style.css):**
+    *   **Consolidación:** Se refinaron las reglas de `body.search-active` (Líneas 399-408) para asegurar que el input ocupe el ancho disponible sin exceder los límites del contenedor padre (`.main-header`).
+    *   **Protección:** Adición explícita de `box-sizing: border-box` a `#searchInput` para redundancia de seguridad.
+3.  **Sincronización de Versión:**
+    *   **Descripción:** Actualización global a v4.9.9 en `index.html`.
+
+**C. Impacto:**
+- **Layout Móvil:** La barra de búsqueda ahora es 100% visible y centrada en móviles, sin cortes ni desbordamientos a la derecha.
+- **Mantenibilidad:** El uso de `border-box` previene futuros errores de layout al modificar padding o márgenes.

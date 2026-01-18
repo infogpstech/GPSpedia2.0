@@ -1,4 +1,8 @@
 /* Estilos Globales */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 html {
     height: var(--app-height, 100%);
     overflow: hidden; /* Previene el scroll del html */
@@ -395,14 +399,15 @@ body.search-active .main-header {
 }
 
 body.search-active .header-bottom,
-body.search-active .search-wrapper,
-body.search-active #searchInput {
-    gap: 0;
+body.search-active .search-wrapper {
     width: 100%;
+    gap: 0;
 }
 
 body.search-active #searchInput {
-    padding-left: 55px; /* Espacio para el logo */
+    width: 100%;
+    padding-left: 55px; /* Espacio para el logo centrado */
+    box-sizing: border-box; /* Garantiza que el padding no cause desbordamiento */
 }
 
 /* Regla única y unificada para el logo en modo búsqueda */
