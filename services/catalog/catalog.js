@@ -225,7 +225,6 @@ function handleGetCatalogData() {
     try {
         cachedData = cache.get(cacheKey);
     } catch (e) {
-        console.error("CATALOG-SERVICE: Error al leer la caché (get). Se procederá sin caché. Error: " + e.message);
         cachedData = null; // Asegurarse de que cachedData es null si falla
     }
 
@@ -235,7 +234,6 @@ function handleGetCatalogData() {
             const parsedData = JSON.parse(cachedData);
             return { status: 'success', data: parsedData, source: 'cache' };
         } catch (e) {
-            console.error("CATALOG-SERVICE: Datos de caché corruptos. Se procederá a leer de la hoja. Error: " + e.message);
             // Si el parseo falla, los datos están corruptos, así que se procede a leer de la fuente.
         }
     }
@@ -349,7 +347,6 @@ function handleGetCatalogData() {
     // try {
     //     cache.put(cacheKey, JSON.stringify(allData), 3600);
     // } catch (e) {
-    //     console.error("CATALOG-SERVICE: Error al escribir en la caché (put). La operación continuará. Error: " + e.message);
     // }
 
     return { status: 'success', data: allData, source: 'spreadsheet' };

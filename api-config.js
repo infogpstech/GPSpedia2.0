@@ -20,7 +20,7 @@ export const ACTION_TO_SERVICE_MAP = {
     'getSuggestion': 'WRITE', 'checkVehicle': 'WRITE', 'addCorte': 'WRITE', 'addOrUpdateCut': 'WRITE', 'addSupplementaryInfo': 'WRITE',
     'getUsers': 'USERS', 'createUser': 'USERS', 'updateUser': 'USERS', 'deleteUser': 'USERS', 'changePassword': 'USERS',
     'recordLike': 'FEEDBACK', 'reportProblem': 'FEEDBACK', 'sendContactForm': 'FEEDBACK', 'suggestYear': 'FEEDBACK',
-    'getFeedbackItems': 'FEEDBACK', 'replyToFeedback': 'FEEDBACK', 'markAsResolved': 'FEEDBACK',
+    'getFeedbackItems': 'FEEDBACK', 'replyToFeedback': 'FEEDBACK', 'markAsResolved': 'FEEDBACK', 'getActivityLogs': 'FEEDBACK',
     'migrateYearRanges': 'UTILITIES', 'migrateTimestamps': 'UTILITIES',
     'logFrontend': 'LEGACY'
 };
@@ -78,4 +78,8 @@ export async function replyToFeedback(itemId, itemType, replyText, responderName
 
 export async function markAsResolved(itemId) {
     return await routeAction('markAsResolved', { itemId });
+}
+
+export async function getActivityLogs() {
+    return await routeAction('getActivityLogs');
 }

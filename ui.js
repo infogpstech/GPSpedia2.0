@@ -893,16 +893,13 @@ export const openInbox = setupModal('inbox-modal', async () => {
             if (Array.isArray(data)) {
                 renderInboxList(data);
             } else {
-                console.error("Inbox Error: result data is not an array!", data);
                 listContainer.innerHTML = `<p style="color:red;">Error: El formato de los datos es incorrecto.</p>`;
             }
         } else {
-            console.error("Inbox Error: API call failed or data missing.", result);
             listContainer.innerHTML = `<p style="color:red;">Error: ${result.message || 'No se pudieron cargar los mensajes.'}</p>`;
         }
     } catch (error) {
         listContainer.innerHTML = `<p style="color:red;">Error de conexión al cargar mensajes.</p>`;
-        console.error("Error fetching feedback items:", error);
     }
 });
 

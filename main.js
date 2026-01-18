@@ -18,7 +18,6 @@ let deferredPrompt;
  * Main function to initialize the application.
  */
 async function initializeApp() {
-    console.log("GPSpedia Modular Initializing...");
 
     // 1. Expose modules to the global scope for inline event handlers in HTML
     window.routeAction = routeAction; // Exponer la función central de API
@@ -169,7 +168,6 @@ async function initializeApp() {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                console.log(`User response to the install prompt: ${outcome}`);
                 deferredPrompt = null;
                 installButton.style.display = 'none';
             }
@@ -181,8 +179,6 @@ async function initializeApp() {
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./service-worker.js')
-                .then(reg => console.log('Service Worker registered.', reg))
-                .catch(err => console.error('Service Worker registration failed:', err));
         });
     }
 
