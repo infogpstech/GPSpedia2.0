@@ -259,3 +259,25 @@ La fragmentación HTML del header impide una transición limpia a "modo búsqued
 
 **CONCLUSIÓN:**
 La falla de visibilidad de los cambios se debe a que los estilos inline en index.html preservan márgenes y gaps altos (20px y 15px) que contradicen la orden de "márgenes al mínimo". Se requiere removerlos y centralizar el control en style.css con valores de alta densidad (2px-5px).
+
+**AUDITORÍA DE LÓGICA DE FEEDBACK Y CONTACTO (02/02/2026)**
+
+**1. AUDITORÍA DE ui.js (Feedback Buttons)**
+- **Línea 789-800 (renderCutContent):** Hallazgo: Se crean los botones utilBtn y reportBtn pero NO se les asigna ningún event listener.
+- **Línea 760 (createAccordionSection):** Hallazgo: Llama a renderCutContent pero la firma actual no permite pasar el ID del vehículo ni el índice del corte fácilmente si no se actualiza.
+- **Modales de Información:** Hallazgo: Faltan funciones exportadas para abrir 'about-us-modal', 'contact-modal' y 'faq-modal' usando el patrón setupModal.
+
+**2. AUDITORÍA DE main.js (Orquestación)**
+- **Footer Links:** Hallazgo: No existen listeners para 'footer-about-link', 'footer-contact-link' ni 'footer-faq-link'.
+- **Formularios:** Hallazgo: No existe listener para el envío del formulario 'contact-form'.
+
+**3. AUDITORÍA DE api-config.js (API Helpers)**
+- **Acciones:** Hallazgo: Las acciones 'recordLike', 'reportProblem' y 'sendContactForm' están mapeadas a servicios pero no tienen funciones de conveniencia exportadas para ser usadas por ui.js o main.js.
+
+**CONCLUSIÓN:**
+La inactividad de los botones de feedback y contacto se debe a la ausencia total de event listeners y funciones controladoras. Se requiere implementar el patrón de UI optimista para feedback y la lógica de envío para contacto.
+
+**AUDITORÍA ADICIONAL: INBOX MODAL VEHICLE NAME (02/02/2026)**
+- **ui.js (renderInboxDetail):** Hallazgo: Se muestra item.vehicleId directamente.
+- **Requerimiento:** Buscar el modelo correspondiente en state.catalogData.cortes usando el ID.
+- **Riesgo:** Si el catálogo no está cargado o el vehículo fue eliminado, debe haber un fallback (mostrar el ID o 'Vehículo no encontrado').

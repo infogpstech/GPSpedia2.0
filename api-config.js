@@ -83,3 +83,15 @@ export async function markAsResolved(itemId) {
 export async function getActivityLogs() {
     return await routeAction('getActivityLogs');
 }
+
+export async function recordLike(vehicleId, corteIndex) {
+    return await routeAction('recordLike', { vehicleId, corteIndex });
+}
+
+export async function reportProblem(vehicleId, problemDescription) {
+    return await routeAction('reportProblem', { vehicleId, problem: problemDescription });
+}
+
+export async function sendContactForm(formData) {
+    return await routeAction('sendContactForm', formData);
+}

@@ -142,6 +142,11 @@ async function initializeApp() {
         });
     }
 
+    // Footer links listeners
+    document.getElementById('footer-about-link')?.addEventListener('click', ui.openAboutUs);
+    document.getElementById('footer-contact-link')?.addEventListener('click', ui.openContact);
+    document.getElementById('footer-faq-link')?.addEventListener('click', ui.openFAQ);
+
     // Dashboard button listener
     const dashboardBtn = document.getElementById('dashboard-btn');
     if (dashboardBtn) {
@@ -183,6 +188,37 @@ async function initializeApp() {
             }
         });
     }
+
+    // Contact form logic
+    document.getElementById('contact-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.textContent;
+
+        const formData = {
+            name: document.getElementById('contact-name').value,
+            email: document.getElementById('contact-email').value,
+            message: document.getElementById('contact-message').value,
+            userId: state.getState().currentUser?.ID
+        };
+
+        try {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Enviando...';
+
+            await routeAction('sendContactForm', formData);
+
+            alert('¡Gracias! Tu mensaje ha sido enviado correctamente.');
+            e.target.reset();
+            document.getElementById('contact-modal').style.display = 'none';
+        } catch (error) {
+            console.error('Error sending contact form:', error);
+            ui.showGlobalError('Hubo un error al enviar el mensaje. Por favor intenta más tarde.');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalBtnText;
+        }
+    });
 
 
     // 4. Register the service worker

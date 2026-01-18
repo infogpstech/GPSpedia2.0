@@ -4,7 +4,7 @@
 // - Contain all functions that directly manipulate the DOM.
 // - Use document.createElement, not HTML strings.
 
-import { getFeedbackItems, replyToFeedback, markAsResolved, getActivityLogs, routeAction } from './api-config.js';
+import { getFeedbackItems, replyToFeedback, markAsResolved, getActivityLogs, routeAction, recordLike, reportProblem } from './api-config.js';
 import { getState, setState, subscribe } from './state.js';
 
 const backSvg = '<svg style="width:20px;height:20px;margin-right:5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
@@ -734,7 +734,7 @@ export function mostrarDetalleModal(item) {
         const title = document.createElement('h4');
         title.innerHTML = `Corte Recomendado <span style="font-weight:normal; color:#666;">(Votos: ${recommendedCut.util})</span>`;
         recommendedSection.appendChild(title);
-        renderCutContent(recommendedSection, recommendedCut, datosRelay);
+        renderCutContent(recommendedSection, recommendedCut, datosRelay, item.id);
         cont.appendChild(recommendedSection);
     }
 
@@ -755,14 +755,14 @@ export function mostrarDetalleModal(item) {
     otherSections.forEach(sec => {
         const hasContent = sec.isCorte || sec.content || sec.img || sec.Video;
         if (hasContent && sec.title) {
-            createAccordionSection(accordionContainer, sec.title, sec, false, datosRelay);
+            createAccordionSection(accordionContainer, sec.title, sec, false, datosRelay, item.id);
         }
     });
 
     document.getElementById("modalDetalle").classList.add("visible");
 }
 
-function renderCutContent(container, cutData, datosRelay) {
+function renderCutContent(container, cutData, datosRelay, vehicleId) {
     const contentP = document.createElement('p');
     contentP.innerHTML = `<strong>Ubicación:</strong> ${cutData.ubicacion || 'No especificada'}<br>
                         <strong>Color de Cable:</strong> ${cutData.colorCable || 'No especificado'}`;
@@ -790,12 +790,42 @@ function renderCutContent(container, cutData, datosRelay) {
         utilBtn.className = 'feedback-btn-overlay util-btn';
         utilBtn.innerHTML = '<i class="fa-solid fa-thumbs-up"></i>';
         utilBtn.title = 'Marcar como útil';
+
+        // Optimistic UI for recordLike
+        utilBtn.onclick = (e) => {
+            e.stopPropagation();
+            if (utilBtn.classList.contains('liked')) return;
+            utilBtn.classList.add('liked');
+            utilBtn.style.backgroundColor = '#28a745';
+            recordLike(vehicleId, cutData.index).catch(err => {
+                console.error("Error reporting like:", err);
+                utilBtn.classList.remove('liked');
+                utilBtn.style.backgroundColor = '';
+            });
+        };
         feedbackOverlay.appendChild(utilBtn);
 
         const reportBtn = document.createElement('button');
         reportBtn.className = 'feedback-btn-overlay report-btn';
         reportBtn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
         reportBtn.title = 'Reportar un problema';
+
+        // Optimistic UI for reportProblem
+        reportBtn.onclick = (e) => {
+            e.stopPropagation();
+            const reason = window.prompt("Describe el problema con este corte:");
+            if (reason && reason.trim()) {
+                reportBtn.style.backgroundColor = '#dc3545';
+                reportBtn.disabled = true;
+                reportProblem(vehicleId, reason).then(() => {
+                    alert("Reporte enviado. Gracias por tu ayuda.");
+                }).catch(err => {
+                    console.error("Error reporting problem:", err);
+                    reportBtn.style.backgroundColor = '';
+                    reportBtn.disabled = false;
+                });
+            }
+        };
         feedbackOverlay.appendChild(reportBtn);
 
         imgContainer.appendChild(feedbackOverlay);
@@ -942,6 +972,18 @@ export const openDevTools = setupModal('dev-tools-modal', () => {
     document.getElementById('dev-tools-modal').style.display = 'flex';
 });
 
+export const openAboutUs = setupModal('about-us-modal', () => {
+    document.getElementById('about-us-modal').style.display = 'flex';
+});
+
+export const openContact = setupModal('contact-modal', () => {
+    document.getElementById('contact-modal').style.display = 'flex';
+});
+
+export const openFAQ = setupModal('faq-modal', () => {
+    document.getElementById('faq-modal').style.display = 'flex';
+});
+
 function renderInboxList(items) {
     const listContainer = document.getElementById('inbox-list');
     listContainer.innerHTML = '';
@@ -982,13 +1024,21 @@ function renderInboxList(items) {
 
 function renderInboxDetail(item) {
     const detailContainer = document.getElementById('inbox-detail');
-    const { currentUser } = getState();
+    const { currentUser, catalogData } = getState();
     const userName = currentUser ? currentUser.Nombre_Usuario : 'Usuario';
+
+    let vehicleLabel = item.vehicleId ? `ID: ${item.vehicleId}` : '';
+    if (item.vehicleId && catalogData && catalogData.cortes) {
+        const vehicle = catalogData.cortes.find(c => String(c.id) === String(item.vehicleId));
+        if (vehicle) {
+            vehicleLabel = `${vehicle.marca} ${vehicle.modelo} (${vehicle.anoDesde})`;
+        }
+    }
 
     detailContainer.innerHTML = `
         <h3 class="inbox-detail-title">${item.subject}</h3>
         <p><strong>De:</strong> ${item.user}</p>
-        ${item.vehicleId ? `<p><strong>ID Vehículo:</strong> ${item.vehicleId}</p>` : ''}
+        ${item.vehicleId ? `<p><strong>Vehículo:</strong> ${vehicleLabel}</p>` : ''}
         <div class="inbox-message-content">
             <pre>${item.content}</pre>
         </div>
@@ -1062,7 +1112,7 @@ function getYouTubeEmbedUrl(url) {
     return null;
 }
 
-function createAccordionSection(container, title, sec, isOpen = false, datosRelay = []) {
+function createAccordionSection(container, title, sec, isOpen = false, datosRelay = [], vehicleId = null) {
     const btn = document.createElement("button");
     btn.className = "accordion-btn";
     btn.innerHTML = `${title} <span class="accordion-arrow">▼</span>`;
@@ -1071,7 +1121,7 @@ function createAccordionSection(container, title, sec, isOpen = false, datosRela
     panel.className = "panel-desplegable";
 
     if (sec.isCorte) {
-        renderCutContent(panel, sec.data, datosRelay);
+        renderCutContent(panel, sec.data, datosRelay, vehicleId);
     } else {
         if (sec.content) {
             const contentP = document.createElement('p');
