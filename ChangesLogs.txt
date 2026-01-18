@@ -729,3 +729,19 @@ v4.9.10
   - Restauración del listener para el botón del Dashboard (línea 145).
 - Archivo index.html:
   - Actualización de la versión a v4.9.10 en el título y pie de página.
+
+**[02/02/2026] REFINAMIENTO DE ESTILOS DE INBOX (v4.9.11)**
+- ui.js:
+    - Líneas 930, 934: Eliminación de console.error según directivas de calidad.
+    - Línea 965: Actualización de la lógica para mostrar el tipo de mensaje en lugar de previsualización.
+    - Línea 971: Cambio de contenido de <p> por la etiqueta de tipo de mensaje.
+    - Línea 989: Adición de la clase 'inbox-detail-title' al título del detalle.
+- style.css:
+    - Línea 1115: Adición de padding minimalista al modal de inbox.
+    - Línea 1122: Reducción de padding en .inbox-item de 12px a 8px 10px.
+    - Línea 1151-1153: Reducción de font-size en títulos de items (0.9em) y ajuste de interlineado.
+    - Línea 1156-1158: Reducción de font-size en etiquetas de tipo (0.8em).
+    - Línea 1161-1163: Implementación de overflow-y: auto y max-height en #inbox-detail.
+    - Línea 1165: Definición de .inbox-detail-title con font-size reducido (1.2em).
+    - Línea 1174-1175: Reducción de padding en contenedores de mensajes de 15px a 10px.
+    - Línea 1189, 1193: Reducción de márgenes y tamaño mínimo de textarea en acciones.

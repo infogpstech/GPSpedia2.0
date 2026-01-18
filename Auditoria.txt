@@ -202,3 +202,41 @@ La fragmentación HTML del header impide una transición limpia a "modo búsqued
 6. **Hallazgo: Residuos de Desarrollo**
    - **Problema:** Presencia de archivos `.bak` y scripts de prueba en la raíz.
    - **Estado:** Eliminados.
+
+**AUDITORÍA DE ESTILOS DE INBOX (02/02/2026)**
+
+**1. AUDITORÍA DE ui.js (Sección Inbox)**
+- **Línea 972-977 (renderInboxList):**
+    - Hallazgo: El innerHTML de la tarjeta muestra el asunto (title) y una previsualización del contenido (contentPreview).
+    - Requerimiento: Mostrar solo asunto y tipo de mensaje.
+- **Línea 992 (renderInboxDetail):**
+    - Hallazgo: Se utiliza un h3 para el asunto.
+    - Requerimiento: Reducir tamaño de letra del título.
+- **Línea 930 (openInbox):**
+    - Hallazgo: Presencia de console.error.
+    - Requerimiento: Eliminar según directivas de calidad.
+
+**2. AUDITORÍA DE style.css (Sección Inbox)**
+- **Línea 1115 (.inbox-item):**
+    - Hallazgo: padding de 12px.
+    - Requerimiento: Minimizar márgenes internos.
+- **Línea 1150 (.inbox-item-content p):**
+    - Hallazgo: Estilos para el párrafo que actualmente muestra la previsualización.
+    - Requerimiento: Adaptar para etiqueta de tipo de mensaje.
+- **Línea 1158 (#inbox-detail h3):**
+    - Hallazgo: Estilo para el título del detalle sin tamaño de fuente explícito reducido.
+    - Requerimiento: Reducir tamaño de fuente.
+- **Línea 1162 (.inbox-message-content, .inbox-reply-content):**
+    - Hallazgo: padding de 15px y margin de 15px 0.
+    - Requerimiento: Minimizar márgenes y paddings.
+- **Línea 1180 (.inbox-actions):**
+    - Hallazgo: margin-top de 20px. Requerimiento: Minimizar.
+
+**3. AUDITORÍA DE index.html (Estructura Inbox)**
+- **Línea 260 (#inbox-list):** Hallazgo: overflow-y: auto presente.
+- **Línea 263 (#inbox-detail):** Hallazgo: No tiene overflow-y: auto.
+    - Requerimiento: Resolver desbordamiento del contenedor.
+
+**RIESGOS Y EFECTOS COLATERALES:**
+- El cambio de flex: 2 en #inbox-detail puede causar problemas en pantallas pequeñas si no se maneja bien el overflow.
+- La reducción de márgenes puede afectar la legibilidad si es extrema.

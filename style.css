@@ -1112,11 +1112,14 @@ body.search-active .container {
 }
 
 /* --- ESTILOS DEL MODAL DE INBOX --- */
+#inbox-modal .info-modal-content {
+    padding: 15px;
+}
 .inbox-item {
     display: flex;
     align-items: center;
-    gap: 15px;
-    padding: 12px;
+    gap: 10px;
+    padding: 8px 10px;
     border-bottom: 1px solid #eee;
     cursor: pointer;
     transition: background-color 0.2s;
@@ -1145,26 +1148,31 @@ body.search-active .container {
     flex-grow: 1;
 }
 .inbox-item-content strong {
-    font-size: 1em;
+    font-size: 0.9em;
+    display: block;
+    line-height: 1.2;
 }
 .inbox-item-content p {
-    font-size: 0.9em;
-    color: #666;
-    margin: 4px 0 0 0;
+    font-size: 0.8em;
+    color: #888;
+    margin: 2px 0 0 0;
 }
 #inbox-detail {
-    padding: 10px;
+    padding: 0 10px;
+    overflow-y: auto;
+    max-height: 60vh;
 }
-#inbox-detail h3 {
+.inbox-detail-title {
     margin-top: 0;
+    font-size: 1.2em;
     color: #007bff;
 }
 .inbox-message-content,
 .inbox-reply-content {
     background-color: #f5f5f5;
     border-radius: 8px;
-    padding: 15px;
-    margin: 15px 0;
+    padding: 10px;
+    margin: 10px 0;
 }
 .inbox-reply-content {
     border-left: 4px solid #28a745;
@@ -1178,16 +1186,16 @@ body.search-active .container {
     margin: 0;
 }
 .inbox-actions {
-    margin-top: 20px;
+    margin-top: 15px;
 }
 .inbox-actions textarea {
     width: 100%;
-    min-height: 100px;
-    padding: 10px;
+    min-height: 80px;
+    padding: 8px;
     border-radius: 5px;
     border: 1px solid #ccc;
     box-sizing: border-box;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 .inbox-actions button {
     background-color: #007bff;

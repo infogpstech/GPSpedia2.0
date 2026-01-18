@@ -927,11 +927,9 @@ export const openInbox = setupModal('inbox-modal', async () => {
             if (Array.isArray(data)) {
                 renderInboxList(data);
             } else {
-                console.error("Inbox Error: result data is not an array!", data);
                 listContainer.innerHTML = `<p style="color:red;">Error: El formato de los datos es incorrecto.</p>`;
             }
         } else {
-            console.error("Inbox Error: API call failed or data missing.", result);
             listContainer.innerHTML = `<p style="color:red;">Error: ${result.message || 'No se pudieron cargar los mensajes.'}</p>`;
         }
     } catch (error) {
@@ -964,15 +962,13 @@ function renderInboxList(items) {
 
         const iconClass = item.type === 'problem_report' ? 'fa-triangle-exclamation' : 'fa-envelope';
         const title = item.subject || `ID: ${item.id}`;
-        const contentPreview = (item.content && typeof item.content === 'string')
-            ? item.content.substring(0, 50) + '...'
-            : 'Sin contenido';
+        const tipoLabel = item.type === 'problem_report' ? 'Reporte de problema' : 'Mensaje de contacto';
 
         itemDiv.innerHTML = `
             <i class="fa-solid ${iconClass}"></i>
             <div class="inbox-item-content">
                 <strong>${title}</strong>
-                <p>${contentPreview}</p>
+                <p>${tipoLabel}</p>
             </div>
         `;
         itemDiv.addEventListener('click', () => {
@@ -990,7 +986,7 @@ function renderInboxDetail(item) {
     const userName = currentUser ? currentUser.Nombre_Usuario : 'Usuario';
 
     detailContainer.innerHTML = `
-        <h3>${item.subject}</h3>
+        <h3 class="inbox-detail-title">${item.subject}</h3>
         <p><strong>De:</strong> ${item.user}</p>
         ${item.vehicleId ? `<p><strong>ID Vehículo:</strong> ${item.vehicleId}</p>` : ''}
         <div class="inbox-message-content">

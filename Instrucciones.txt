@@ -262,3 +262,14 @@ Archivos involucrados: ui.js, navigation.js
      - **Reset:** Implementación de `box-sizing: border-box` global.
      - **Layout:** Refinamiento de la unificación de búsqueda para garantizar ancho del 100% real.
      - **Versión:** Incremento a v4.9.9.
+
+2. **TÍTULO: Refinamiento de Estilos de Inbox (v4.9.11)**
+   - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
+   - **TIPO:** UI/UX Refinement
+   - **ALCANCE:** Optimización visual del módulo de Inbox.
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Simplificación:** Panel izquierdo ahora muestra solo asunto y tipo de mensaje.
+     - **Estilos:** Minimización de márgenes y rellenos en todo el módulo.
+     - **Tipografía:** Reducción del tamaño de fuente en títulos y elementos de lista.
+     - **Overflow:** Implementación de scroll independiente en el panel de detalles.
+     - **Calidad:** Eliminación de console.log de diagnóstico.
