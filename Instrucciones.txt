@@ -86,16 +86,6 @@ FLUJO PRINCIPAL DE TRABAJO
 
 11. ACTUALIZACIÓN DE INSTRUCCIONES.TXT
     - Mover la tarea ejecutada a:
-      -> "TAREAS PENDIENTES DE REVISIÓN"
-    - NO eliminar tareas sin aprobación del PM.
-
-12. COMMIT
-    - Realizar UN SOLO commit por ciclo completo.
-    - El commit DEBE reflejar EXACTAMENTE
-      lo auditado y documentado.
-
-
---------------------------------------------------
 EXTENSIÓN OBLIGATORIA POR CODE REVIEW
 --------------------------------------------------
 
@@ -186,8 +176,6 @@ El incumplimiento de CUALQUIER paso
 INVALIDA el proceso completo.
 
 ---
-**TAREAS PENDIENTES DE REVISIÓN**
----
 *No hay tareas pendientes en esta sección.*
 
 ---
@@ -262,3 +250,15 @@ Origen: Múltiples reportes de bugs y regresiones.
 Prioridad: CRÍTICA
 Área: Frontend | Navegación | Búsqueda | UX
 Archivos involucrados: ui.js, navigation.js
+
+---
+**TAREAS PENDIENTES DE REVISIÓN**
+---
+1. **TÍTULO: Reparación de Layout de Búsqueda y Box-Sizing (v4.9.9)**
+   - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
+   - **TIPO:** Bugfix Layout / CSS Robustness
+   - **ALCANCE:** Corrección del desbordamiento horizontal de la barra de búsqueda.
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Reset:** Implementación de `box-sizing: border-box` global.
+     - **Layout:** Refinamiento de la unificación de búsqueda para garantizar ancho del 100% real.
+     - **Versión:** Incremento a v4.9.9.
