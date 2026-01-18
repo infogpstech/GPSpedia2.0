@@ -164,3 +164,41 @@ La fragmentación HTML del header impide una transición limpia a "modo búsqued
 - **Hallazgo 1 (Causa Raíz):** Falta reset global de `box-sizing: border-box`. El input `#searchInput` tiene `width: 100%` y un padding horizontal acumulado de hasta 95px en modo activo (55px izq + 40px der). Esto genera un desbordamiento de `width: 100% + 95px` sobre el contenedor padre.
 - **Hallazgo 2 (Layout Flex):** El contenedor `.search-wrapper` es un flexbox. En modo `search-active`, el botón `#hamburger-btn` se oculta con `visibility: hidden` y `max-height: 0`, pero su `width` original (o el de su contenedor) podría seguir afectando el cálculo del `flex-grow: 1` del `.search-container`, empujándolo hacia la derecha.
 - **Hallazgo 3 (Consolidación):** Existen reglas redundantes para `#searchInput` en las líneas 399 y 404 de `style.css` que deben ser unificadas.
+
+**AUDITORÍA DE FALLO DE CARGA DE INBOX (02/02/2026)**
+- **Hallazgo 1 (Conexión):** El sistema de Inbox depende de `getFeedbackItems` en `api-config.js`. La conexión es correcta a través de `routeAction` hacia el servicio `FEEDBACK`.
+- **Hallazgo 2 (Estructura de Datos):** La función `openInbox` en `ui.js` intenta extraer datos de varias claves (`data`, `messages`, `items`). Sin embargo, si el backend devuelve un error o un formato inesperado, la UI se queda en "Cargando mensajes..." o muestra un error genérico sin detalles.
+- **Hallazgo 3 (Integridad):** Se detectó que el Dashboard y otras funcionalidades operativas se perdieron o quedaron incompletas en archivos clave (`ui.js`, `main.js`) debido a errores en la aplicación de cambios previos. Esto afecta la estabilidad global.
+- **Hallazgo 4 (Robustez):** `renderInboxList` en `ui.js` realiza un `substring` sobre `item.content`. Si el contenido es nulo o no es una cadena, la función fallará silenciosamente, impidiendo el renderizado de la lista.
+- **Hallazgo 5 (Inicialización):** `setupModal` se ejecuta al nivel superior de `ui.js`. Si por alguna razón el DOM no está listo (aunque sea un módulo), la función retorna `undefined`, rompiendo los listeners en `main.js`.
+
+**RECOMENDACIÓN:** Refactorizar `setupModal` para búsqueda perezosa de elementos, mejorar la resiliencia de `renderInboxList` y restaurar la integridad de las funciones operativas (`openDashboard`).
+
+**AUDITORÍA TÉCNICA FINAL - REVISIÓN DE INTEGRIDAD (02/02/2026)**
+
+1. **Hallazgo: Desajuste de Contrato de Datos (Dashboard)**
+   - **Problema:** El backend (`feedback.js`) entrega claves en minúsculas (`timestamp`, `nombreUsuario`, `tipoActividad`, `detalle`). La implementación inicial en el frontend (`ui.js`) buscaba claves con PascalCase (`Timestamp`, `Usuario`, `Accion`, `Detalles`).
+   - **Impacto:** Las filas del Dashboard se mostraban vacías o con fechas inválidas en producción.
+   - **Estado:** Corregido en `ui.js`.
+
+2. **Hallazgo: Vulnerabilidad ante Hojas Faltantes (Inbox)**
+   - **Problema:** `handleGetFeedbackItems` fallaba catastróficamente si las hojas "Feedbacks" o "Contactanos" no existían, debido a llamadas directas a `getDataRange()` sobre objetos nulos.
+   - **Impacto:** Bloqueo total del sistema de Inbox con error 500 del servidor.
+   - **Estado:** Corregido en `feedback.js` con validaciones defensivas.
+
+3. **Hallazgo: Inconsistencia de Roles Administrativos**
+   - **Problema:** Existía ambigüedad entre el rol "Jefe" y el error tipográfico "Gefe" en la base de datos vs el código.
+   - **Impacto:** Usuarios con privilegios administrativos podían no ver los botones de gestión.
+   - **Estado:** Se unificaron ambos criterios en `ui.js`.
+
+4. **Hallazgo: Integridad del DOM (Modales)**
+   - **Problema:** El modal de Dashboard no estaba definido en el HTML, a pesar de estar referenciado en JS.
+   - **Estado:** Implementado en `index.html`.
+
+5. **Hallazgo: Riesgo de Regresión Visual (CSS)**
+   - **Problema:** La adición de `box-sizing: border-box` a nivel global (`*`) puede alterar el tamaño de elementos que dependen del comportamiento por defecto (`content-box`).
+   - **Revisión:** La mayoría de los componentes clave ya tenían esta propiedad declarada individualmente. Se mantiene la regla global por estándar de modernización, pero se requiere vigilancia.
+
+6. **Hallazgo: Residuos de Desarrollo**
+   - **Problema:** Presencia de archivos `.bak` y scripts de prueba en la raíz.
+   - **Estado:** Eliminados.

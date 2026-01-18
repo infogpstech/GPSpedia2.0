@@ -142,16 +142,6 @@ async function initializeApp() {
         });
     }
 
-    // Dashboard button listener
-    const dashboardBtn = document.getElementById('dashboard-btn');
-    if (dashboardBtn) {
-        dashboardBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            ui.openDashboard();
-            ui.closeSideMenu();
-        });
-    }
-
     // Dev Tools button listener
     const devToolsBtn = document.getElementById('dev-tools-btn');
     if (devToolsBtn) {
