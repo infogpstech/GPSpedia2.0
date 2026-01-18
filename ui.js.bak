@@ -4,7 +4,7 @@
 // - Contain all functions that directly manipulate the DOM.
 // - Use document.createElement, not HTML strings.
 
-import { getFeedbackItems, replyToFeedback, markAsResolved, getActivityLogs, routeAction } from './api-config.js';
+import { getFeedbackItems, replyToFeedback, markAsResolved } from './api-config.js';
 import { getState, setState, subscribe } from './state.js';
 
 const backSvg = '<svg style="width:20px;height:20px;margin-right:5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
@@ -867,48 +867,14 @@ function renderRelayInfoModal(relayInfo) {
 }
 
 function setupModal(modalId, openFn) {
-    return async (...args) => {
-        const modal = document.getElementById(modalId);
-        if (!modal) {
-            console.error(`Modal no encontrado: ${modalId}`);
-            return;
-        }
-
-        const closeBtn = modal.querySelector('.info-close-btn');
-        if (closeBtn && !closeBtn.dataset.listenerSet) {
-            closeBtn.addEventListener('click', () => modal.style.display = 'none');
-            closeBtn.dataset.listenerSet = 'true';
-        }
-
-        return await openFn(...args);
-    };
-}
-
-export const openDashboard = setupModal('dashboard-modal', async () => {
-    const modal = document.getElementById('dashboard-modal');
-    modal.style.display = 'flex';
-    const logContainer = document.getElementById('activity-logs');
-    logContainer.innerHTML = '<tr><td colspan="4">Cargando actividad...</td></tr>';
-
-    try {
-        const result = await getActivityLogs();
-        if (result.status === 'success') {
-            logContainer.innerHTML = '';
-            result.data.forEach(log => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${new Date(log.timestamp).toLocaleString()}</td>
-                    <td>${log.nombreUsuario}</td>
-                    <td>${log.tipoActividad}</td>
-                    <td>${log.detalle || ''}</td>
-                `;
-                logContainer.appendChild(tr);
-            });
-        }
-    } catch (error) {
-        logContainer.innerHTML = '<tr><td colspan="4" style="color:red;">Error al cargar actividad</td></tr>';
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    const closeBtn = modal.querySelector('.info-close-btn');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => modal.style.display = 'none');
     }
-});
+    return openFn;
+}
 
 export const openInbox = setupModal('inbox-modal', async () => {
     const modal = document.getElementById('inbox-modal');
@@ -927,15 +893,12 @@ export const openInbox = setupModal('inbox-modal', async () => {
             if (Array.isArray(data)) {
                 renderInboxList(data);
             } else {
-                console.error("Inbox Error: result data is not an array!", data);
                 listContainer.innerHTML = `<p style="color:red;">Error: El formato de los datos es incorrecto.</p>`;
             }
         } else {
-            console.error("Inbox Error: API call failed or data missing.", result);
             listContainer.innerHTML = `<p style="color:red;">Error: ${result.message || 'No se pudieron cargar los mensajes.'}</p>`;
         }
     } catch (error) {
-        console.error("Error fetching feedback items:", error);
         listContainer.innerHTML = `<p style="color:red;">Error de conexión al cargar mensajes.</p>`;
     }
 });
@@ -964,15 +927,12 @@ function renderInboxList(items) {
 
         const iconClass = item.type === 'problem_report' ? 'fa-triangle-exclamation' : 'fa-envelope';
         const title = item.subject || `ID: ${item.id}`;
-        const contentPreview = (item.content && typeof item.content === 'string')
-            ? item.content.substring(0, 50) + '...'
-            : 'Sin contenido';
 
         itemDiv.innerHTML = `
             <i class="fa-solid ${iconClass}"></i>
             <div class="inbox-item-content">
                 <strong>${title}</strong>
-                <p>${contentPreview}</p>
+                <p>${item.content.substring(0, 50)}...</p>
             </div>
         `;
         itemDiv.addEventListener('click', () => {
@@ -1257,11 +1217,6 @@ export function showApp(user) {
     const inboxBtn = document.getElementById('inbox-btn');
     if (inboxBtn && ['Desarrollador', 'Gefe', 'Supervisor'].includes(userRole)) {
         inboxBtn.style.display = 'flex';
-    }
-
-    const dashboardBtn = document.getElementById('dashboard-btn');
-    if (dashboardBtn && ['Desarrollador', 'Gefe', 'Supervisor'].includes(userRole)) {
-        dashboardBtn.style.display = 'flex';
     }
 
     // Protección de renderizado: No mostrar el catálogo si los datos no están listos.

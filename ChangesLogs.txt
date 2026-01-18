@@ -717,3 +717,15 @@
 **C. Impacto:**
 - **Layout Móvil:** La barra de búsqueda ahora es 100% visible y centrada en móviles, sin cortes ni desbordamientos a la derecha.
 - **Mantenibilidad:** El uso de `border-box` previene futuros errores de layout al modificar padding o márgenes.
+
+v4.9.10
+- Archivo ui.js:
+  - Refactorización de la función setupModal (línea 869) para implementar inicialización perezosa de elementos del DOM, garantizando que los modales funcionen incluso si el DOM no está completamente cargado al inicio.
+  - Robustecimiento de renderInboxList (línea 967) con validación de tipo para item.content, previniendo fallos en el renderizado si el contenido del mensaje es nulo o indefinido.
+  - Mejora en el manejo de errores de openInbox (línea 937) agregando registros en consola y mensajes descriptivos en la UI.
+  - Restauración de la función openDashboard (línea 887) y sus dependencias (getActivityLogs, routeAction).
+  - Sincronización de la visibilidad del botón dashboard-btn según el rol del usuario (línea 1261).
+- Archivo main.js:
+  - Restauración del listener para el botón del Dashboard (línea 145).
+- Archivo index.html:
+  - Actualización de la versión a v4.9.10 en el título y pie de página.
