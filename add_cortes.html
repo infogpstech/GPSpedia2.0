@@ -35,11 +35,19 @@
         .btn-secondary:hover { background-color: #5a6268; }
 
         /* Stage 1.5 - Matches */
-        #matches-container .match-card { border: 1px solid #e9ecef; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
-        .match-card h4 { margin: 0 0 10px; }
-        .inline-actions { margin-top: 15px; padding: 15px; background-color: #f8f9fa; border-radius: 8px; text-align: center; }
-        .inline-actions p { font-weight: 500; }
-        .inline-actions .btn { margin: 0 5px; }
+        #matches-container .match-card { border: 1px solid #e9ecef; border-radius: 10px; padding: 15px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .match-card-header { display: flex; gap: 15px; align-items: flex-start; }
+        .match-card-img { width: 120px; height: 90px; object-fit: cover; border-radius: 8px; background-color: #eee; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .match-card-info { flex-grow: 1; }
+        .match-card h4 { margin: 0 0 5px; color: #007bff; }
+        .match-cuts-info { background: #f1f3f5; padding: 10px; border-radius: 8px; font-size: 0.85em; }
+        .match-cuts-info h5 { margin: 0 0 8px; font-size: 1em; color: #495057; border-bottom: 1px solid #dee2e6; padding-bottom: 4px; }
+        .cut-item { margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
+        .cut-item i { color: #28a745; font-size: 0.9em; }
+
+        .inline-actions { margin-top: 10px; padding: 15px; background-color: #f8f9fa; border-radius: 8px; text-align: center; border: 1px solid #e9ecef; }
+        .inline-actions p { font-weight: 500; margin-bottom: 12px; color: #495057; }
+        .inline-actions .btn { margin: 5px; }
 
         /* Stage 3 - Accordion */
         .accordion-item { border: 1px solid #dee2e6; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
@@ -117,7 +125,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="btn-container"><button type="submit" class="btn btn-primary">Continuar</button></div>
+                <div class="btn-container">
+                    <button type="button" class="btn btn-secondary" onclick="window.showPhase(state.matches.length > 0 ? '1-5' : 1)">Volver</button>
+                    <button type="submit" class="btn btn-primary">Continuar</button>
+                </div>
             </form>
         </div>
 
@@ -166,6 +177,9 @@
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', init);
+
+        // Expose to window for inline onclicks in navigation
+        window.showPhase = showPhase;
 
         async function init() {
             const sessionData = localStorage.getItem(SESSION_KEY);
@@ -237,10 +251,12 @@
 
             toggleLoading(true);
             try {
-                const { matches } = await routeAction('checkVehicle', state.vehicleInfo);
-                state.matches = matches;
-                if (matches.length > 0) {
-                    displayMatches(matches);
+                const response = await routeAction('checkVehicle', state.vehicleInfo);
+                if (response.status === 'error') throw new Error(response.message);
+
+                state.matches = response.matches || [];
+                if (state.matches.length > 0) {
+                    displayMatches(state.matches);
                     showPhase('1-5');
                 } else {
                     proceedToStage2(null); // No matches, proceed to create new vehicle
@@ -270,29 +286,72 @@
         }
 
         // --- STAGE 1.5: DISPLAY MATCHES ---
+        function getImageUrl(url, size = 1000) {
+            if (!url) return '';
+            const match = url.match(/id=([^&]+)/);
+            const fileId = match ? match[1] : url;
+            if (fileId.length > 50 || fileId.includes('/')) return url;
+            return `https://lh3.googleusercontent.com/d/${fileId}=s${size}`;
+        }
+
+        function formatCutInfo(match) {
+            let cutsHtml = '';
+            for (let i = 1; i <= 3; i++) {
+                const type = match[`tipoCorte${i}`];
+                if (type) {
+                    cutsHtml += `<div class="cut-item"><i class="fas fa-check-circle"></i> <span>Corte ${i}: ${type}</span></div>`;
+                }
+            }
+            return cutsHtml || '<p>No hay cortes registrados aún.</p>';
+        }
+
         function displayMatches(matches) {
             const container = document.getElementById('matches-container');
-            container.innerHTML = '<h2>Se Encontraron Coincidencias</h2>';
+            container.innerHTML = '<h2>Vehículos Similares Encontrados</h2><p>Hemos encontrado registros que coinciden con tu búsqueda. Selecciona una opción:</p>';
+
             matches.forEach(match => {
-                const yearRange = match.anoHasta ? `${match.anoDesde} - ${match.anoHasta}` : match.anoDesde;
+                const yearRange = (match.anoHasta && match.anoHasta != match.anoDesde) ? `${match.anoDesde} - ${match.anoHasta}` : match.anoDesde;
                 const card = document.createElement('div');
                 card.className = 'match-card';
+
+                const vehicleImg = getImageUrl(match.imagenVehiculo, 400);
+
                 card.innerHTML = `
-                    <h4>${match.marca} ${match.modelo} (${yearRange})</h4>
-                    <p><strong>Encendido:</strong> ${match.tipoEncendido}</p>
+                    <div class="match-card-header">
+                        <img src="${vehicleImg}" class="match-card-img" onerror="this.src='https://via.placeholder.com/120x90?text=Sin+Imagen'">
+                        <div class="match-card-info">
+                            <h4>${match.marca} ${match.modelo} (${yearRange})</h4>
+                            <p><strong>Encendido:</strong> ${match.tipoEncendido}</p>
+                            <div class="match-cuts-info">
+                                <h5>Cortes Existentes:</h5>
+                                ${formatCutInfo(match)}
+                            </div>
+                        </div>
+                    </div>
                     <div class="inline-actions">
-                        <p>Este modelo ya existe, ¿qué deseas hacer?</p>
-                        <button class="btn btn-secondary" onclick="window.location.href='index.html'">Cancelar</button>
-                        <button class="btn btn-primary" onclick="proceedToStage2('${match.id}')">Agregar Nuevo Corte</button>
-                        <button class="btn btn-primary" onclick="proceedToStage3('${match.id}')">Info. Adicional</button>
+                        <p>¿Qué deseas hacer con este vehículo?</p>
+                        <button class="btn btn-secondary btn-back-stage1">Volver</button>
+                        <button class="btn btn-primary btn-add-cut" data-id="${match.id}">Agregar Nuevo Corte</button>
+                        <button class="btn btn-primary btn-add-info" data-id="${match.id}">Info. Adicional</button>
                     </div>
                 `;
                 container.appendChild(card);
             });
+
             const newVehicleOption = document.createElement('div');
             newVehicleOption.className = 'inline-actions';
-            newVehicleOption.innerHTML = `<p>¿No es ninguno de estos?</p><button class="btn btn-primary" onclick="proceedToStage2(null)">Crear Vehículo Nuevo</button>`;
+            newVehicleOption.innerHTML = `
+                <p>¿Ninguno coincide con lo que buscas?</p>
+                <button class="btn btn-secondary btn-back-stage1">Corregir Datos</button>
+                <button class="btn btn-primary btn-create-new">Crear Vehículo Nuevo</button>
+            `;
             container.appendChild(newVehicleOption);
+
+            // Attach listeners manually since it's a module
+            container.querySelectorAll('.btn-back-stage1').forEach(btn => btn.onclick = () => showPhase(1));
+            container.querySelectorAll('.btn-add-cut').forEach(btn => btn.onclick = () => proceedToStage2(btn.dataset.id));
+            container.querySelectorAll('.btn-add-info').forEach(btn => btn.onclick = () => proceedToStage3(btn.dataset.id));
+            container.querySelector('.btn-create-new').onclick = () => proceedToStage2(null);
         }
 
         // --- STAGE 2: ADD NEW CUT ---
