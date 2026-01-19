@@ -805,11 +805,17 @@ function renderCutContent(container, cutData, datosRelay, vehicleId) {
             e.stopPropagation();
             if (utilBtn.classList.contains('liked')) return;
 
+            const { currentUser } = getState();
+            if (!currentUser) {
+                showGlobalError("Debes estar conectado para votar.");
+                return;
+            }
+
             // UI Optimista
             utilBtn.classList.add('liked');
             utilBtn.style.backgroundColor = '#28a745';
 
-            recordLike(vehicleId, cutData.index).then(() => {
+            recordLike(vehicleId, cutData.index, currentUser.ID, currentUser.Nombre_Usuario).then(() => {
                 // Persistir en el estado local de la sesión
                 const currentState = getState();
                 const newLiked = [...(currentState.likedCortes || []), likeKey];
@@ -841,12 +847,19 @@ function renderCutContent(container, cutData, datosRelay, vehicleId) {
         reportBtn.onclick = (e) => {
             e.preventDefault();
             e.stopPropagation();
+
+            const { currentUser } = getState();
+            if (!currentUser) {
+                showGlobalError("Debes estar conectado para reportar.");
+                return;
+            }
+
             const reason = window.prompt("Describe el problema con este corte:");
             if (reason && reason.trim()) {
                 const originalColor = reportBtn.style.backgroundColor;
                 reportBtn.style.backgroundColor = '#dc3545';
                 reportBtn.disabled = true;
-                reportProblem(vehicleId, reason).then(() => {
+                reportProblem(vehicleId, reason, currentUser.ID, currentUser.Nombre_Usuario).then(() => {
                     alert("Reporte enviado. Gracias por tu ayuda.");
                 }).catch(err => {
                     console.error("Error reporting problem:", err);

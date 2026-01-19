@@ -33,10 +33,6 @@ export async function routeAction(action, payload = {}, serviceOverride = null) 
     let targetUrl = API_ENDPOINTS[service];
     if (!targetUrl) targetUrl = API_ENDPOINTS.LEGACY;
 
-    // Logging detallado para auditoría de errores silenciosos
-    console.log(`[API Request] Action: ${action} | Service: ${service}`);
-    console.log(`[API Payload]`, payload);
-
     try {
         const response = await fetch(targetUrl, {
             method: 'POST',
@@ -45,21 +41,15 @@ export async function routeAction(action, payload = {}, serviceOverride = null) 
             redirect: 'follow'
         });
 
-        if (!response.ok) {
-            console.error(`[API Error Response] Status: ${response.status}`);
-            throw new Error(`Error de red: ${response.status} ${response.statusText}`);
-        }
+        if (!response.ok) throw new Error(`Error de red: ${response.status} ${response.statusText}`);
 
         const text = await response.text();
         let result;
         try {
             result = JSON.parse(text);
         } catch (e) {
-            console.error("[API Parse Error] Text returned is not JSON:", text);
             throw new Error("La respuesta del servidor no tiene un formato válido.");
         }
-
-        console.log(`[API Success Response] Action: ${action}`, result);
 
         if (result.status === 'error') {
             const errorMessage = result.details ? `${result.message}: ${result.details.errorMessage}` : result.message;
@@ -67,7 +57,6 @@ export async function routeAction(action, payload = {}, serviceOverride = null) 
         }
         return result;
     } catch (error) {
-        console.error(`[API Exception] Action: ${action}`, error);
         throw error;
     }
 }
@@ -101,12 +90,12 @@ export async function getActivityLogs() {
     return await routeAction('getActivityLogs');
 }
 
-export async function recordLike(vehicleId, corteIndex) {
-    return await routeAction('recordLike', { vehicleId, corteIndex });
+export async function recordLike(vehicleId, corteIndex, userId, userName) {
+    return await routeAction('recordLike', { vehicleId, corteIndex, userId, userName });
 }
 
-export async function reportProblem(vehicleId, problemDescription) {
-    return await routeAction('reportProblem', { vehicleId, problem: problemDescription });
+export async function reportProblem(vehicleId, problemDescription, userId, userName) {
+    return await routeAction('reportProblem', { vehicleId, problemText: problemDescription, userId, userName });
 }
 
 export async function sendContactForm(formData) {

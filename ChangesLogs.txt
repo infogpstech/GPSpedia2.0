@@ -766,3 +766,7 @@ v4.9.13 (02/02/2026):
 - state.js: Adición de likedCortes: [] al estado inicial para persistencia durante la sesión (línea 24).
 - api-config.js: Inclusión de logging detallado en routeAction (líneas 36-67) para auditoría de ruteo y respuestas, y adición de redirect: 'follow' a fetch.
 - main.js: Estabilización de listeners de footer con preventDefault (líneas 146-155) y logging robusto en el formulario de contacto (líneas 204-228).
+v4.9.13 (02/02/2026) - Addendum:
+- api-config.js: Actualización de firmas de recordLike (línea 90) y reportProblem (línea 94) para incluir userId y userName. Corrección de clave 'problem' a 'problemText'.
+- ui.js: Inyección de datos de usuario (ID y Nombre_Usuario) en las llamadas a recordLike (línea 816) y reportProblem (línea 859). Eliminación de logs de diagnóstico en routeAction.
+- Instrucciones.txt: Marcado de tarea de estilos de Inbox como COMPLETADA por solicitud del usuario.

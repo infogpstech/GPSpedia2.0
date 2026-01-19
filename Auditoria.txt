@@ -302,3 +302,8 @@ La inactividad de los botones de feedback y contacto se debe a la ausencia total
 **HIPÓTESIS DE ERROR SILENCIOSO:**
 1. Reversión de UI optimista por fallo en recordLike: Posiblemente el backend rechaza los nombres de parámetros o falta el SessionToken en la petición si routeAction no lo incluye automáticamente.
 2. Fallo en listeners de footer: Posiblemente el footer está oculto o los IDs no coinciden exactamente con el HTML en tiempo de ejecución.
+
+**AUDITORÍA DE CONTRATO DE FEEDBACK (02/02/2026)**
+- **Hallazgo Crítico:** Las funciones recordLike y reportProblem fallaban porque el backend (services/feedback/feedback.js) requiere obligatoriamente userId y userName en el payload, los cuales no estaban siendo enviados.
+- **Hallazgo de Key:** reportProblem enviaba la clave 'problem' pero el backend esperaba 'problemText'.
+- **Resolución:** Se actualizaron api-config.js y ui.js para incluir userId y userName desde el estado global y corregir las claves de payload.
