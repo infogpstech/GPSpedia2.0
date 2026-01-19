@@ -33,33 +33,17 @@ export async function routeAction(action, payload = {}, serviceOverride = null) 
     let targetUrl = API_ENDPOINTS[service];
     if (!targetUrl) targetUrl = API_ENDPOINTS.LEGACY;
 
-    // Logging detallado para auditoría de errores silenciosos
-    console.log(`[API Request] Action: ${action} | Service: ${service}`);
-    console.log(`[API Payload]`, payload);
-
     try {
         const response = await fetch(targetUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify({ action, payload }),
-            redirect: 'follow'
+            body: JSON.stringify({ action, payload })
         });
 
-        if (!response.ok) {
-            console.error(`[API Error Response] Status: ${response.status}`);
-            throw new Error(`Error de red: ${response.status} ${response.statusText}`);
-        }
+        if (!response.ok) throw new Error(`Error de red: ${response.status} ${response.statusText}`);
 
         const text = await response.text();
-        let result;
-        try {
-            result = JSON.parse(text);
-        } catch (e) {
-            console.error("[API Parse Error] Text returned is not JSON:", text);
-            throw new Error("La respuesta del servidor no tiene un formato válido.");
-        }
-
-        console.log(`[API Success Response] Action: ${action}`, result);
+        const result = JSON.parse(text);
 
         if (result.status === 'error') {
             const errorMessage = result.details ? `${result.message}: ${result.details.errorMessage}` : result.message;
@@ -67,7 +51,6 @@ export async function routeAction(action, payload = {}, serviceOverride = null) 
         }
         return result;
     } catch (error) {
-        console.error(`[API Exception] Action: ${action}`, error);
         throw error;
     }
 }

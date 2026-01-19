@@ -760,3 +760,9 @@ v4.9.10
     - Ajuste tipográfico: Títulos de modal (1.2rem), Títulos de detalle (1rem), Items (0.85rem).
     - Implementación de scroll independiente y desbordamiento controlado en paneles divididos.
     - Eliminación de espacios redundantes en botones de acción y áreas de texto.
+v4.9.13 (02/02/2026):
+- style.css: Refactorización completa de la bandeja de entrada (líneas 1115-1245). Reducción de tamaños de fuente (titles de 1.2rem a 1.1rem, item-titles a 0.8rem). Minimización de márgenes y paddings. Implementación de scroll independiente para el detalle y control de desbordamiento en el modal.
+- ui.js: Actualización de renderInboxDetail (líneas 1067-1068) para usar clases CSS en metadatos. Implementación de persistencia de "Likes" mediante likedCortes y actualización optimista del contador local (líneas 792-818).
+- state.js: Adición de likedCortes: [] al estado inicial para persistencia durante la sesión (línea 24).
+- api-config.js: Inclusión de logging detallado en routeAction (líneas 36-67) para auditoría de ruteo y respuestas, y adición de redirect: 'follow' a fetch.
+- main.js: Estabilización de listeners de footer con preventDefault (líneas 146-155) y logging robusto en el formulario de contacto (líneas 204-228).

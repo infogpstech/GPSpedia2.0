@@ -254,7 +254,17 @@ Archivos involucrados: ui.js, navigation.js
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-1. **TÍTULO: Reparación de Layout de Búsqueda y Box-Sizing (v4.9.9)**
+1. **TÍTULO: Refactorización de estilos de bandeja de entrada y persistencia de Feedback (v4.9.13)**
+   - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
+   - **TIPO:** UI/UX & Feedback Logic
+   - **ALCANCE:** Estilos de Inbox de alta densidad, persistencia de Likes y corrección de Contacto.
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Estilo Inbox:** Reducción de fuentes (titles a 0.8rem-1.1rem), márgenes mínimos y scroll independiente por panel.
+     - **Lógica Feedback:** Persistencia de Likes en sesión vía `likedCortes`, UI optimista y logging en `api-config.js`.
+     - **Contacto:** Estabilización de listeners de footer y validación de formulario.
+     - **Versión:** Incremento a v4.9.13.
+
+2. **TÍTULO: Reparación de Layout de Búsqueda y Box-Sizing (v4.9.9)**
    - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
    - **TIPO:** Bugfix Layout / CSS Robustness
    - **ALCANCE:** Corrección del desbordamiento horizontal de la barra de búsqueda.

@@ -792,42 +792,15 @@ function renderCutContent(container, cutData, datosRelay, vehicleId) {
         utilBtn.title = 'Marcar como útil';
 
         // Optimistic UI for recordLike
-        // Check if already liked in this session
-        const { likedCortes, catalogData: catData } = getState();
-        const likeKey = `${vehicleId}-${cutData.index}`;
-        if (likedCortes && likedCortes.includes(likeKey)) {
-            utilBtn.classList.add('liked');
-            utilBtn.style.backgroundColor = '#28a745';
-        }
-
         utilBtn.onclick = (e) => {
-            e.preventDefault();
             e.stopPropagation();
             if (utilBtn.classList.contains('liked')) return;
-
-            // UI Optimista
             utilBtn.classList.add('liked');
             utilBtn.style.backgroundColor = '#28a745';
-
-            recordLike(vehicleId, cutData.index).then(() => {
-                // Persistir en el estado local de la sesión
-                const currentState = getState();
-                const newLiked = [...(currentState.likedCortes || []), likeKey];
-
-                // Actualizar contador localmente para respuesta inmediata en la UI
-                const newCatalog = { ...currentState.catalogData };
-                const vehicle = newCatalog.cortes.find(c => String(c.id) === String(vehicleId));
-                if (vehicle) {
-                    const countKey = `utilCorte${cutData.index}`;
-                    vehicle[countKey] = (parseInt(vehicle[countKey]) || 0) + 1;
-                }
-
-                setState({ likedCortes: newLiked, catalogData: newCatalog });
-            }).catch(err => {
+            recordLike(vehicleId, cutData.index).catch(err => {
                 console.error("Error reporting like:", err);
                 utilBtn.classList.remove('liked');
                 utilBtn.style.backgroundColor = '';
-                showGlobalError("No se pudo registrar tu reacción. Reintenta.");
             });
         };
         feedbackOverlay.appendChild(utilBtn);
@@ -839,20 +812,17 @@ function renderCutContent(container, cutData, datosRelay, vehicleId) {
 
         // Optimistic UI for reportProblem
         reportBtn.onclick = (e) => {
-            e.preventDefault();
             e.stopPropagation();
             const reason = window.prompt("Describe el problema con este corte:");
             if (reason && reason.trim()) {
-                const originalColor = reportBtn.style.backgroundColor;
                 reportBtn.style.backgroundColor = '#dc3545';
                 reportBtn.disabled = true;
                 reportProblem(vehicleId, reason).then(() => {
                     alert("Reporte enviado. Gracias por tu ayuda.");
                 }).catch(err => {
                     console.error("Error reporting problem:", err);
-                    reportBtn.style.backgroundColor = originalColor;
+                    reportBtn.style.backgroundColor = '';
                     reportBtn.disabled = false;
-                    showGlobalError("Error al enviar reporte.");
                 });
             }
         };
@@ -1067,8 +1037,8 @@ function renderInboxDetail(item) {
 
     detailContainer.innerHTML = `
         <h3 class="inbox-detail-title">${item.subject}</h3>
-        <p class="inbox-detail-meta"><strong>De:</strong> ${item.user}</p>
-        ${item.vehicleId ? `<p class="inbox-detail-meta"><strong>Vehículo:</strong> ${vehicleLabel}</p>` : ''}
+        <p><strong>De:</strong> ${item.user}</p>
+        ${item.vehicleId ? `<p><strong>Vehículo:</strong> ${vehicleLabel}</p>` : ''}
         <div class="inbox-message-content">
             <pre>${item.content}</pre>
         </div>

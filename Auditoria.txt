@@ -281,3 +281,24 @@ La inactividad de los botones de feedback y contacto se debe a la ausencia total
 - **ui.js (renderInboxDetail):** Hallazgo: Se muestra item.vehicleId directamente.
 - **Requerimiento:** Buscar el modelo correspondiente en state.catalogData.cortes usando el ID.
 - **Riesgo:** Si el catálogo no está cargado o el vehículo fue eliminado, debe haber un fallback (mostrar el ID o 'Vehículo no encontrado').
+
+**AUDITORÍA DE FALLAS EN FEEDBACK Y CONTACTO (02/02/2026)**
+
+**1. AUDITORÍA DE ui.js**
+- **Línea 794 (utilBtn.onclick):** Hallazgo: Se usa e.stopPropagation() pero NO e.preventDefault(). Si el botón está dentro de un contenedor con otros eventos, podría haber interferencias.
+- **Línea 815 (reportBtn.onclick):** Hallazgo: e.disabled = true/false (error de capitalización, debe ser lowercase true/false). Corregido en v4.9.13 pero verificar si persistió.
+- **Línea 818 (reportBtn.onclick):** Hallazgo: reportProblem(vehicleId, reason) usa 'reason' pero api-config.js espera 'problemDescription'. (Diferencia de nombres interna no afecta si se pasa por posición, pero verificar).
+- **Línea 1024 (renderInboxDetail):** Se agregó lógica para nombre de vehículo. Verificar si catalogData.cortes está disponible.
+
+**2. AUDITORÍA DE main.js**
+- **Línea 145-147 (Footer Listeners):** Hallazgo: Se usa ?.addEventListener. Si por alguna razón el elemento no existe en el DOM al momento de ejecución, el listener no se vincula.
+- **Línea 191 (Contact form listener):** Hallazgo: No se usa preventDefault() en el evento de click (si fuera un link), pero es un 'submit' de form, así que e.preventDefault() es correcto.
+- **Línea 209 (sendContactForm):** Se usa state.getState().currentUser?.ID. Verificar si ID es la clave correcta.
+
+**3. AUDITORÍA DE api-config.js**
+- **Línea 86 (recordLike):** Hallazgo: Payload es { vehicleId, corteIndex }. Confirmar con documentación si el backend espera 'id' o 'vehicle_id'.
+- **Línea 90 (reportProblem):** Hallazgo: Payload es { vehicleId, problem: problemDescription }.
+
+**HIPÓTESIS DE ERROR SILENCIOSO:**
+1. Reversión de UI optimista por fallo en recordLike: Posiblemente el backend rechaza los nombres de parámetros o falta el SessionToken en la petición si routeAction no lo incluye automáticamente.
+2. Fallo en listeners de footer: Posiblemente el footer está oculto o los IDs no coinciden exactamente con el HTML en tiempo de ejecución.
