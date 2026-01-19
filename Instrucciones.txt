@@ -175,6 +175,20 @@ SI NO SE REGISTRA, NO EXISTE.
 El incumplimiento de CUALQUIER paso
 INVALIDA el proceso completo.
 
+
+— ZONAS PROTEGIDAS (ACCESO RESTRINGIDO)
+===================================================================
+Las siguientes secciones del código y funcionalidades están
+bajo PROTECCIÓN CRÍTICA. Queda PROHIBIDA cualquier modificación
+de su funcionamiento, lógica o estilos sin autorización expresa.
+
+1. FORMULARIO AGREGAR CORTES (add_cortes.html):
+   - Etapa 1: Verificación de Vehículo.
+   - Etapa 1.5: Modal de Verificación (Anti-duplicado).
+   - Etapa 2: Registro de Nuevo Corte.
+
+Cualquier cambio en estas zonas invalidará el commit.
+
 ---
 *No hay tareas pendientes en esta sección.*
 

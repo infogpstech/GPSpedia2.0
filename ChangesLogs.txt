@@ -31,3 +31,12 @@
 - **add_cortes.html (JS):** Se añadió el toggle de carga en las tres etapas del formulario (Verificación, Registro de Corte, Información Suplementaria).
 - **Instrucciones.txt:** Se marcaron las tareas de la sesión como COMPLETADAS por solicitud directa del usuario.
 - **Versión:** Incremento global a v4.9.16.
+
+**Archivo: add_cortes.html (Actualización v3.2.0)**
+- **Líneas 75-76:** Se añadió el estilo `.info-msg` para mensajes informativos en el Paso 3.
+- **Línea 196:** Se agregó el contenedor `#supplementary-warnings` en el Paso 3.
+- **Líneas 500-512:** Se actualizó `proceedToStage3` para detectar si el vehículo seleccionado ya cuenta con información de apertura o cables de alimentación, mostrando avisos informativos al usuario.
+- **Versión:** Componente a v3.2.0, global a v4.9.17.
+
+**Archivo: Instrucciones.txt**
+- Se añadió la sección "ZONAS PROTEGIDAS" declarando las etapas 1, 1.5 y 2 de `add_cortes.html` como áreas de acceso restringido y prohibición de modificaciones.

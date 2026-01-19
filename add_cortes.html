@@ -1,4 +1,4 @@
-<!-- GPSpedia Frontend Component | Version: 3.1.0 -->
+<!-- GPSpedia Frontend Component | Version: 3.2.0 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -72,6 +72,9 @@
         .inline-actions { margin-top: 10px; padding: 15px; background-color: #f8f9fa; border-radius: 8px; text-align: center; border: 1px solid #e9ecef; }
         .inline-actions p { font-weight: 500; margin-bottom: 12px; color: #495057; }
         .inline-actions .btn { margin: 5px; }
+
+        .info-msg { background-color: #e9f7ff; color: #004085; padding: 10px 15px; border-radius: 8px; border-left: 4px solid #007bff; margin-bottom: 15px; font-size: 0.9em; display: flex; align-items: center; gap: 10px; }
+        .info-msg i { font-size: 1.2em; }
 
         /* --- ANIMACIONES DE CARGA EN BOTONES --- */
         .btn-loading {
@@ -190,6 +193,7 @@
         <div id="stage-3" class="form-phase">
             <h2>Paso 3: Información Suplementaria (Opcional)</h2>
             <p>El corte ha sido guardado. Puedes añadir detalles adicionales o finalizar.</p>
+            <div id="supplementary-warnings"></div>
             <form id="form-stage-3">
                 <div class="accordion">
                     <div class="accordion-item" id="apertura-accordion">
@@ -489,6 +493,19 @@
         // --- STAGE 3: SUPPLEMENTARY INFO ---
         function proceedToStage3(vehicleId) {
             state.selectedVehicleId = vehicleId;
+            const warningContainer = document.getElementById('supplementary-warnings');
+            warningContainer.innerHTML = '';
+
+            const match = state.matches.find(m => m.id.toString() === vehicleId.toString());
+            if (match) {
+                if (match.apertura || match.imgApertura) {
+                    warningContainer.innerHTML += `<div class="info-msg"><i class="fas fa-info-circle"></i> Este vehículo ya cuenta con información de apertura.</div>`;
+                }
+                if (match.cableAlimen || match.imgCableAlimen) {
+                    warningContainer.innerHTML += `<div class="info-msg"><i class="fas fa-info-circle"></i> Este vehículo ya cuenta con información de cables de alimentación.</div>`;
+                }
+            }
+
             document.getElementById('form-stage-3').reset();
             resetImagePreviews();
             showPhase(3);
