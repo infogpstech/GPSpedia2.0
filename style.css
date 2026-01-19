@@ -732,6 +732,38 @@ body.search-active .container {
     background: #0056b3;
 }
 
+/* --- ANIMACIONES DE CARGA EN BOTONES --- */
+.btn-loading {
+    position: relative !important;
+    color: transparent !important;
+    pointer-events: none !important;
+}
+
+.btn-loading::after {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    top: 50%;
+    left: 50%;
+    margin-top: -9px;
+    margin-left: -9px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin-button 0.6s linear infinite;
+    z-index: 5;
+}
+
+/* Spinner específico para el botón de login si se requiere otro color */
+#login-form button.btn-loading::after {
+    border-top-color: #fff; /* Se mantiene blanco sobre azul */
+}
+
+@keyframes spin-button {
+    to { transform: rotate(360deg); }
+}
+
 /* Modal */
 #modalDetalle {
     position: fixed;

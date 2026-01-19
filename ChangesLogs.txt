@@ -22,3 +22,12 @@
 - **Línea 342:** Se añadió el manejador `onerror` a las imágenes de los cortes para mostrar un placeholder en caso de fallo de carga.
 - **Línea 342:** Se integró la apertura de lightbox al hacer clic en las imágenes de los cortes, utilizando la URL de alta resolución (sz=1000).
 - **Versión:** Incremento de componente a v3.1.0 y global a v4.9.15.
+
+**Global: Animaciones de Carga en Botones (v4.9.16)**
+- **style.css:** Se añadió la clase `.btn-loading` con un spinner animado generado mediante pseudo-elementos (`::after`).
+- **add_cortes.html:** Se replicó el estilo `.btn-loading` en el bloque de estilos locales para consistencia en la página independiente.
+- **main.js:** Se implementó el toggle de la clase `.btn-loading` en los formularios de Login y Contacto durante el envío.
+- **ui.js:** Se integró la animación en los botones de Reportar Problema, Responder Feedback y Resolver Reporte.
+- **add_cortes.html (JS):** Se añadió el toggle de carga en las tres etapas del formulario (Verificación, Registro de Corte, Información Suplementaria).
+- **Instrucciones.txt:** Se marcaron las tareas de la sesión como COMPLETADAS por solicitud directa del usuario.
+- **Versión:** Incremento global a v4.9.16.
