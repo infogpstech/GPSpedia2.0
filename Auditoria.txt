@@ -202,3 +202,108 @@ La fragmentación HTML del header impide una transición limpia a "modo búsqued
 6. **Hallazgo: Residuos de Desarrollo**
    - **Problema:** Presencia de archivos `.bak` y scripts de prueba en la raíz.
    - **Estado:** Eliminados.
+
+**AUDITORÍA DE ESTILOS DE INBOX (02/02/2026)**
+
+**1. AUDITORÍA DE ui.js (Sección Inbox)**
+- **Línea 972-977 (renderInboxList):**
+    - Hallazgo: El innerHTML de la tarjeta muestra el asunto (title) y una previsualización del contenido (contentPreview).
+    - Requerimiento: Mostrar solo asunto y tipo de mensaje.
+- **Línea 992 (renderInboxDetail):**
+    - Hallazgo: Se utiliza un h3 para el asunto.
+    - Requerimiento: Reducir tamaño de letra del título.
+- **Línea 930 (openInbox):**
+    - Hallazgo: Presencia de console.error.
+    - Requerimiento: Eliminar según directivas de calidad.
+
+**2. AUDITORÍA DE style.css (Sección Inbox)**
+- **Línea 1115 (.inbox-item):**
+    - Hallazgo: padding de 12px.
+    - Requerimiento: Minimizar márgenes internos.
+- **Línea 1150 (.inbox-item-content p):**
+    - Hallazgo: Estilos para el párrafo que actualmente muestra la previsualización.
+    - Requerimiento: Adaptar para etiqueta de tipo de mensaje.
+- **Línea 1158 (#inbox-detail h3):**
+    - Hallazgo: Estilo para el título del detalle sin tamaño de fuente explícito reducido.
+    - Requerimiento: Reducir tamaño de fuente.
+- **Línea 1162 (.inbox-message-content, .inbox-reply-content):**
+    - Hallazgo: padding de 15px y margin de 15px 0.
+    - Requerimiento: Minimizar márgenes y paddings.
+- **Línea 1180 (.inbox-actions):**
+    - Hallazgo: margin-top de 20px. Requerimiento: Minimizar.
+
+**3. AUDITORÍA DE index.html (Estructura Inbox)**
+- **Línea 260 (#inbox-list):** Hallazgo: overflow-y: auto presente.
+- **Línea 263 (#inbox-detail):** Hallazgo: No tiene overflow-y: auto.
+    - Requerimiento: Resolver desbordamiento del contenedor.
+
+**RIESGOS Y EFECTOS COLATERALES:**
+- El cambio de flex: 2 en #inbox-detail puede causar problemas en pantallas pequeñas si no se maneja bien el overflow.
+- La reducción de márgenes puede afectar la legibilidad si es extrema.
+
+**AUDITORÍA DE REPARACIÓN DE ESTILOS DE INBOX (02/02/2026)**
+
+**1. AUDITORÍA DE index.html (INLINE STYLES)**
+- **Línea 141 (Modal Content):** style="max-width: 1100px;" (Se mantendrá o moverá a CSS).
+- **Línea 142 (Inbox Layout Wrapper):** gap: 20px; (Hallazgo: Margen excesivo. Requerimiento: Mínimo).
+- **Línea 143 (#inbox-list):** style="flex: 1; height: 60vh; overflow-y: auto; border-right: 1px solid #ccc; padding-right: 15px;" (Hallazgo: padding-right y borde con espacio. Requerimiento: Mínimo).
+- **Línea 146 (#inbox-detail):** style="flex: 2;" (Hallazgo: Falta control de desbordamiento en HTML, aunque se añadió en CSS).
+
+**2. AUDITORÍA DE style.css (HIGH DENSITY)**
+- **Línea 1122 (.inbox-item):** padding: 8px 10px; (Hallazgo: Aún puede ser menor. Requerimiento: Mínimo).
+- **Línea 1162 (#inbox-detail):** padding: 0 10px; (Hallazgo: padding lateral puede reducirse).
+- **Línea 1174 (.inbox-message-content):** padding: 10px; margin: 10px 0; (Hallazgo: Márgenes internos y externos altos. Requerimiento: Mínimo).
+
+**3. AUDITORÍA DE ui.js (CONSISTENCIA)**
+- Las funciones renderizan correctamente pero dependen de que el CSS no sea sobreescrito por los inline styles de index.html.
+
+**CONCLUSIÓN:**
+La falla de visibilidad de los cambios se debe a que los estilos inline en index.html preservan márgenes y gaps altos (20px y 15px) que contradicen la orden de "márgenes al mínimo". Se requiere removerlos y centralizar el control en style.css con valores de alta densidad (2px-5px).
+
+**AUDITORÍA DE LÓGICA DE FEEDBACK Y CONTACTO (02/02/2026)**
+
+**1. AUDITORÍA DE ui.js (Feedback Buttons)**
+- **Línea 789-800 (renderCutContent):** Hallazgo: Se crean los botones utilBtn y reportBtn pero NO se les asigna ningún event listener.
+- **Línea 760 (createAccordionSection):** Hallazgo: Llama a renderCutContent pero la firma actual no permite pasar el ID del vehículo ni el índice del corte fácilmente si no se actualiza.
+- **Modales de Información:** Hallazgo: Faltan funciones exportadas para abrir 'about-us-modal', 'contact-modal' y 'faq-modal' usando el patrón setupModal.
+
+**2. AUDITORÍA DE main.js (Orquestación)**
+- **Footer Links:** Hallazgo: No existen listeners para 'footer-about-link', 'footer-contact-link' ni 'footer-faq-link'.
+- **Formularios:** Hallazgo: No existe listener para el envío del formulario 'contact-form'.
+
+**3. AUDITORÍA DE api-config.js (API Helpers)**
+- **Acciones:** Hallazgo: Las acciones 'recordLike', 'reportProblem' y 'sendContactForm' están mapeadas a servicios pero no tienen funciones de conveniencia exportadas para ser usadas por ui.js o main.js.
+
+**CONCLUSIÓN:**
+La inactividad de los botones de feedback y contacto se debe a la ausencia total de event listeners y funciones controladoras. Se requiere implementar el patrón de UI optimista para feedback y la lógica de envío para contacto.
+
+**AUDITORÍA ADICIONAL: INBOX MODAL VEHICLE NAME (02/02/2026)**
+- **ui.js (renderInboxDetail):** Hallazgo: Se muestra item.vehicleId directamente.
+- **Requerimiento:** Buscar el modelo correspondiente en state.catalogData.cortes usando el ID.
+- **Riesgo:** Si el catálogo no está cargado o el vehículo fue eliminado, debe haber un fallback (mostrar el ID o 'Vehículo no encontrado').
+
+**AUDITORÍA DE FALLAS EN FEEDBACK Y CONTACTO (02/02/2026)**
+
+**1. AUDITORÍA DE ui.js**
+- **Línea 794 (utilBtn.onclick):** Hallazgo: Se usa e.stopPropagation() pero NO e.preventDefault(). Si el botón está dentro de un contenedor con otros eventos, podría haber interferencias.
+- **Línea 815 (reportBtn.onclick):** Hallazgo: e.disabled = true/false (error de capitalización, debe ser lowercase true/false). Corregido en v4.9.13 pero verificar si persistió.
+- **Línea 818 (reportBtn.onclick):** Hallazgo: reportProblem(vehicleId, reason) usa 'reason' pero api-config.js espera 'problemDescription'. (Diferencia de nombres interna no afecta si se pasa por posición, pero verificar).
+- **Línea 1024 (renderInboxDetail):** Se agregó lógica para nombre de vehículo. Verificar si catalogData.cortes está disponible.
+
+**2. AUDITORÍA DE main.js**
+- **Línea 145-147 (Footer Listeners):** Hallazgo: Se usa ?.addEventListener. Si por alguna razón el elemento no existe en el DOM al momento de ejecución, el listener no se vincula.
+- **Línea 191 (Contact form listener):** Hallazgo: No se usa preventDefault() en el evento de click (si fuera un link), pero es un 'submit' de form, así que e.preventDefault() es correcto.
+- **Línea 209 (sendContactForm):** Se usa state.getState().currentUser?.ID. Verificar si ID es la clave correcta.
+
+**3. AUDITORÍA DE api-config.js**
+- **Línea 86 (recordLike):** Hallazgo: Payload es { vehicleId, corteIndex }. Confirmar con documentación si el backend espera 'id' o 'vehicle_id'.
+- **Línea 90 (reportProblem):** Hallazgo: Payload es { vehicleId, problem: problemDescription }.
+
+**HIPÓTESIS DE ERROR SILENCIOSO:**
+1. Reversión de UI optimista por fallo en recordLike: Posiblemente el backend rechaza los nombres de parámetros o falta el SessionToken en la petición si routeAction no lo incluye automáticamente.
+2. Fallo en listeners de footer: Posiblemente el footer está oculto o los IDs no coinciden exactamente con el HTML en tiempo de ejecución.
+
+**AUDITORÍA DE CONTRATO DE FEEDBACK (02/02/2026)**
+- **Hallazgo Crítico:** Las funciones recordLike y reportProblem fallaban porque el backend (services/feedback/feedback.js) requiere obligatoriamente userId y userName en el payload, los cuales no estaban siendo enviados.
+- **Hallazgo de Key:** reportProblem enviaba la clave 'problem' pero el backend esperaba 'problemText'.
+- **Resolución:** Se actualizaron api-config.js y ui.js para incluir userId y userName desde el estado global y corregir las claves de payload.

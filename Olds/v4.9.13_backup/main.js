@@ -143,18 +143,9 @@ async function initializeApp() {
     }
 
     // Footer links listeners
-    document.getElementById('footer-about-link')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        ui.openAboutUs();
-    });
-    document.getElementById('footer-contact-link')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        ui.openContact();
-    });
-    document.getElementById('footer-faq-link')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        ui.openFAQ();
-    });
+    document.getElementById('footer-about-link')?.addEventListener('click', ui.openAboutUs);
+    document.getElementById('footer-contact-link')?.addEventListener('click', ui.openContact);
+    document.getElementById('footer-faq-link')?.addEventListener('click', ui.openFAQ);
 
     // Dashboard button listener
     const dashboardBtn = document.getElementById('dashboard-btn');
@@ -204,28 +195,25 @@ async function initializeApp() {
         const submitBtn = e.target.querySelector('button[type="submit"]');
         const originalBtnText = submitBtn.textContent;
 
-        const name = document.getElementById('contact-name').value;
-        const email = document.getElementById('contact-email').value;
-        const message = document.getElementById('contact-message').value;
-        const userId = state.getState().currentUser?.ID;
-
-        const formData = { name, email, message, userId };
-
-        console.log("[Contact Form] Submitting:", formData);
+        const formData = {
+            name: document.getElementById('contact-name').value,
+            email: document.getElementById('contact-email').value,
+            message: document.getElementById('contact-message').value,
+            userId: state.getState().currentUser?.ID
+        };
 
         try {
             submitBtn.disabled = true;
             submitBtn.textContent = 'Enviando...';
 
-            const result = await routeAction('sendContactForm', formData);
-            console.log("[Contact Form] Success:", result);
+            await routeAction('sendContactForm', formData);
 
             alert('¡Gracias! Tu mensaje ha sido enviado correctamente.');
             e.target.reset();
             document.getElementById('contact-modal').style.display = 'none';
         } catch (error) {
-            console.error('[Contact Form] Error:', error);
-            ui.showGlobalError(`Hubo un error al enviar el mensaje: ${error.message}`);
+            console.error('Error sending contact form:', error);
+            ui.showGlobalError('Hubo un error al enviar el mensaje. Por favor intenta más tarde.');
         } finally {
             submitBtn.disabled = false;
             submitBtn.textContent = originalBtnText;

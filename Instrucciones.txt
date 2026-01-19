@@ -186,7 +186,15 @@ INVALIDA el proceso completo.
 ---
 **TAREAS COMPLETADAS (Validadas por el PM)**
 ---
-1. **TÍTULO: Finalización de Backlog y Nuevas Funcionalidades (v4.9.8)**
+1. **TÍTULO: Refactorización de estilos de bandeja de entrada y corrección de metadatos (v4.9.13)**
+   - **ESTADO:** COMPLETADO
+   - **TIPO:** UI/UX
+   - **ALCANCE:** Estilos de Inbox de alta densidad y visualización de nombre de vehículo.
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Estilo Inbox:** Reducción de fuentes, márgenes mínimos y scroll independiente por panel.
+     - **Metadatos:** Conversión de ID de vehículo a Marca/Modelo/Año en el detalle del Inbox.
+
+2. **TÍTULO: Finalización de Backlog y Nuevas Funcionalidades (v4.9.8)**
    - **ESTADO:** COMPLETADO
    - **TIPO:** Feature / Optimization / Bugfix
    - **ALCANCE:** Entrega final de 7 tareas críticas + Dashboard + Edición + Sugerencia de Años.
@@ -262,3 +270,14 @@ Archivos involucrados: ui.js, navigation.js
      - **Reset:** Implementación de `box-sizing: border-box` global.
      - **Layout:** Refinamiento de la unificación de búsqueda para garantizar ancho del 100% real.
      - **Versión:** Incremento a v4.9.9.
+
+2. **TÍTULO: Reparación Definitiva y Alta Densidad de Inbox (v4.9.12)**
+   - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
+   - **TIPO:** UI/UX Repair / High Density
+   - **ALCANCE:** Corrección estructural y visual completa del módulo de Inbox.
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Estructura:** Eliminación de estilos inline en index.html que bloqueaban el diseño.
+     - **Densidad:** Reducción drástica de márgenes y paddings para maximizar área útil.
+     - **Tipografía:** Reducción de fuentes en títulos de modal, detalle e ítems.
+     - **Interactividad:** Implementación de paneles con scroll independiente y gaps mínimos.
+     - **Versionamiento:** Incremento a v4.9.12.

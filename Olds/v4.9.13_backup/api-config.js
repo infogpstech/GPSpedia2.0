@@ -37,19 +37,13 @@ export async function routeAction(action, payload = {}, serviceOverride = null) 
         const response = await fetch(targetUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify({ action, payload }),
-            redirect: 'follow'
+            body: JSON.stringify({ action, payload })
         });
 
         if (!response.ok) throw new Error(`Error de red: ${response.status} ${response.statusText}`);
 
         const text = await response.text();
-        let result;
-        try {
-            result = JSON.parse(text);
-        } catch (e) {
-            throw new Error("La respuesta del servidor no tiene un formato válido.");
-        }
+        const result = JSON.parse(text);
 
         if (result.status === 'error') {
             const errorMessage = result.details ? `${result.message}: ${result.details.errorMessage}` : result.message;
@@ -90,12 +84,12 @@ export async function getActivityLogs() {
     return await routeAction('getActivityLogs');
 }
 
-export async function recordLike(vehicleId, corteIndex, userId, userName) {
-    return await routeAction('recordLike', { vehicleId, corteIndex, userId, userName });
+export async function recordLike(vehicleId, corteIndex) {
+    return await routeAction('recordLike', { vehicleId, corteIndex });
 }
 
-export async function reportProblem(vehicleId, problemDescription, userId, userName) {
-    return await routeAction('reportProblem', { vehicleId, problemText: problemDescription, userId, userName });
+export async function reportProblem(vehicleId, problemDescription) {
+    return await routeAction('reportProblem', { vehicleId, problem: problemDescription });
 }
 
 export async function sendContactForm(formData) {

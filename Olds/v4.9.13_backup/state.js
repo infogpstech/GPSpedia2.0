@@ -21,8 +21,7 @@ let state = {
     uiState: {
         isModalOpen: false,
         isSearchActive: false
-    },
-    likedCortes: []
+    }
 };
 
 export function getState() {

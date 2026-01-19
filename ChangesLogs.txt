@@ -729,3 +729,44 @@ v4.9.10
   - Restauración del listener para el botón del Dashboard (línea 145).
 - Archivo index.html:
   - Actualización de la versión a v4.9.10 en el título y pie de página.
+
+**[02/02/2026] REFINAMIENTO DE ESTILOS DE INBOX (v4.9.11)**
+- ui.js:
+    - Líneas 930, 934: Eliminación de console.error según directivas de calidad.
+    - Línea 965: Actualización de la lógica para mostrar el tipo de mensaje en lugar de previsualización.
+    - Línea 971: Cambio de contenido de <p> por la etiqueta de tipo de mensaje.
+    - Línea 989: Adición de la clase 'inbox-detail-title' al título del detalle.
+- style.css:
+    - Línea 1115: Adición de padding minimalista al modal de inbox.
+    - Línea 1122: Reducción de padding en .inbox-item de 12px a 8px 10px.
+    - Línea 1151-1153: Reducción de font-size en títulos de items (0.9em) y ajuste de interlineado.
+    - Línea 1156-1158: Reducción de font-size en etiquetas de tipo (0.8em).
+    - Línea 1161-1163: Implementación de overflow-y: auto y max-height en #inbox-detail.
+    - Línea 1165: Definición de .inbox-detail-title con font-size reducido (1.2em).
+    - Línea 1174-1175: Reducción de padding en contenedores de mensajes de 15px a 10px.
+    - Línea 1189, 1193: Reducción de márgenes y tamaño mínimo de textarea en acciones.
+
+**[02/02/2026] REPARACIÓN DEFINITIVA Y ALTA DENSIDAD DE INBOX (v4.9.12)**
+- index.html:
+    - Eliminación total de estilos inline en el modal de Inbox (#inbox-modal, #inbox-list, #inbox-detail).
+    - Implementación de estructura semántica con clases (.inbox-modal-title, .inbox-layout-wrapper).
+    - Actualización de versión global a v4.9.12.
+- ui.js:
+    - Normalización de clases en el renderizado de la lista (.inbox-item-title, .inbox-item-type).
+    - Asegurada la visualización de alta densidad (solo Asunto y Tipo).
+- style.css:
+    - Reescritura integral del bloque de estilos de Inbox para alta densidad.
+    - Reducción drástica de paddings (4px-6px) y gaps (8px-10px).
+    - Ajuste tipográfico: Títulos de modal (1.2rem), Títulos de detalle (1rem), Items (0.85rem).
+    - Implementación de scroll independiente y desbordamiento controlado en paneles divididos.
+    - Eliminación de espacios redundantes en botones de acción y áreas de texto.
+v4.9.13 (02/02/2026):
+- style.css: Refactorización completa de la bandeja de entrada (líneas 1115-1245). Reducción de tamaños de fuente (titles de 1.2rem a 1.1rem, item-titles a 0.8rem). Minimización de márgenes y paddings. Implementación de scroll independiente para el detalle y control de desbordamiento en el modal.
+- ui.js: Actualización de renderInboxDetail (líneas 1067-1068) para usar clases CSS en metadatos. Implementación de persistencia de "Likes" mediante likedCortes y actualización optimista del contador local (líneas 792-818).
+- state.js: Adición de likedCortes: [] al estado inicial para persistencia durante la sesión (línea 24).
+- api-config.js: Inclusión de logging detallado en routeAction (líneas 36-67) para auditoría de ruteo y respuestas, y adición de redirect: 'follow' a fetch.
+- main.js: Estabilización de listeners de footer con preventDefault (líneas 146-155) y logging robusto en el formulario de contacto (líneas 204-228).
+v4.9.13 (02/02/2026) - Addendum:
+- api-config.js: Actualización de firmas de recordLike (línea 90) y reportProblem (línea 94) para incluir userId y userName. Corrección de clave 'problem' a 'problemText'.
+- ui.js: Inyección de datos de usuario (ID y Nombre_Usuario) en las llamadas a recordLike (línea 816) y reportProblem (línea 859). Eliminación de logs de diagnóstico en routeAction.
+- Instrucciones.txt: Marcado de tarea de estilos de Inbox como COMPLETADA por solicitud del usuario.
