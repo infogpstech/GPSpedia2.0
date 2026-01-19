@@ -16,3 +16,9 @@
 - **Líneas 204-217:** Se añadió una validación robusta para la generación del ID del vehículo. Si la fórmula copiada no devuelve un valor automáticamente, el script intenta re-aplicar la fórmula de la fila anterior o aplica `=ROW()-1` como fallback.
 
 **Estado de la Tarea:** PENDIENTE DE REVISIÓN POR EL PM.
+
+**Archivo: add_cortes.html (Actualización v3.1.0)**
+- **Líneas 48-61:** Se ajustó el estilo de `.cut-item-img` para que coincida exactamente con el tamaño (120x90) y diseño de la imagen del vehículo en la Etapa 1.5.
+- **Línea 342:** Se añadió el manejador `onerror` a las imágenes de los cortes para mostrar un placeholder en caso de fallo de carga.
+- **Línea 342:** Se integró la apertura de lightbox al hacer clic en las imágenes de los cortes, utilizando la URL de alta resolución (sz=1000).
+- **Versión:** Incremento de componente a v3.1.0 y global a v4.9.15.

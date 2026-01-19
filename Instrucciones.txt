@@ -262,15 +262,16 @@ Archivos involucrados: ui.js, navigation.js
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-1. **TÍTULO: Implementación de Modal de Verificación y Mejoras en Flujo de Cortes (v4.9.14)**
+1. **TÍTULO: Implementación de Modal de Verificación y Mejoras en Flujo de Cortes (v4.9.15)**
    - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
    - **TIPO:** Funcional | Estructural | UI/UX
    - **ALCANCE:** Formulario `add_cortes.html` y servicio `write.js`.
    - **DESCRIPCIÓN DETALLADA:**
-     - **Etapa 1.5:** Implementación completa del modal anti-duplicado con previsualización de imagen (sz=1000) y listado de cortes existentes.
+     - **Etapa 1.5:** Implementación completa del modal anti-duplicado con previsualización de imagen de vehículo y cortes (120x90).
+     - **Lightbox:** Integración de lightbox funcional para las imágenes de los cortes en la verificación.
      - **Navegación:** Corrección de botones inactivos y adición de navegación "Volver" entre todas las etapas.
      - **Backend:** Mejora en la lógica de generación de ID en `write.js` asegurando la presencia de fórmulas.
-     - **Versionamiento:** Proyecto actualizado a v4.9.14.
+     - **Versionamiento:** Proyecto actualizado a v4.9.15.
 
 2. **TÍTULO: Reparación de Layout de Búsqueda y Box-Sizing (v4.9.9)**
    - **ESTADO:** PENDIENTE DE REVISIÓN POR EL PM
