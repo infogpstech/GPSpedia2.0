@@ -200,6 +200,20 @@ function handleAddOrUpdateCut(payload) {
         SpreadsheetApp.flush();
         Utilities.sleep(1500); // Espera para asegurar que la fórmula se calcule.
         newId = sheet.getRange(rowIndex, COLS_CORTES.id).getValue();
+
+        // 6. Si el ID sigue vacío, intentar forzar la fórmula de la fila anterior o usar una genérica
+        if (!newId) {
+            const previousFormula = sheet.getRange(lastRow, COLS_CORTES.id).getFormula();
+            if (previousFormula) {
+                sheet.getRange(rowIndex, COLS_CORTES.id).setFormula(previousFormula);
+            } else {
+                // Fallback: Si no hay fórmula, usar una basada en la fila (común en este proyecto)
+                sheet.getRange(rowIndex, COLS_CORTES.id).setFormula(`=ROW()-1`);
+            }
+            SpreadsheetApp.flush();
+            Utilities.sleep(500);
+            newId = sheet.getRange(rowIndex, COLS_CORTES.id).getValue();
+        }
     }
 
     return { status: 'success', message: `Corte agregado exitosamente.`, vehicleId: newId };
