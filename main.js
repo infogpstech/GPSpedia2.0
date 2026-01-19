@@ -29,9 +29,14 @@ async function initializeApp() {
     // 2. Setup primary event listeners
     document.getElementById('login-form').addEventListener('submit', (e) => {
         e.preventDefault();
+        const btn = e.target.querySelector('button');
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
-        auth.login(username, password);
+
+        btn.classList.add('btn-loading');
+        auth.login(username, password).finally(() => {
+            btn.classList.remove('btn-loading');
+        });
     });
 
     const searchInput = document.getElementById('searchInput');
@@ -202,7 +207,6 @@ async function initializeApp() {
     document.getElementById('contact-form')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const submitBtn = e.target.querySelector('button[type="submit"]');
-        const originalBtnText = submitBtn.textContent;
 
         const name = document.getElementById('contact-name').value;
         const email = document.getElementById('contact-email').value;
@@ -214,8 +218,7 @@ async function initializeApp() {
         console.log("[Contact Form] Submitting:", formData);
 
         try {
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Enviando...';
+            submitBtn.classList.add('btn-loading');
 
             const result = await routeAction('sendContactForm', formData);
             console.log("[Contact Form] Success:", result);
@@ -227,8 +230,7 @@ async function initializeApp() {
             console.error('[Contact Form] Error:', error);
             ui.showGlobalError(`Hubo un error al enviar el mensaje: ${error.message}`);
         } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = originalBtnText;
+            submitBtn.classList.remove('btn-loading');
         }
     });
 

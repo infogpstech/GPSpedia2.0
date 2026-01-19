@@ -856,16 +856,14 @@ function renderCutContent(container, cutData, datosRelay, vehicleId) {
 
             const reason = window.prompt("Describe el problema con este corte:");
             if (reason && reason.trim()) {
-                const originalColor = reportBtn.style.backgroundColor;
-                reportBtn.style.backgroundColor = '#dc3545';
-                reportBtn.disabled = true;
+                reportBtn.classList.add('btn-loading');
                 reportProblem(vehicleId, reason, currentUser.ID, currentUser.Nombre_Usuario).then(() => {
                     alert("Reporte enviado. Gracias por tu ayuda.");
                 }).catch(err => {
                     console.error("Error reporting problem:", err);
-                    reportBtn.style.backgroundColor = originalColor;
-                    reportBtn.disabled = false;
                     showGlobalError("Error al enviar reporte.");
+                }).finally(() => {
+                    reportBtn.classList.remove('btn-loading');
                 });
             }
         };
@@ -1108,10 +1106,13 @@ function renderInboxDetail(item) {
             return;
         }
         try {
+            replyBtn.classList.add('btn-loading');
             await replyToFeedback(item.id, item.type, replyText, userName);
             openInbox();
         } catch (error) {
             showGlobalError(`Error al enviar respuesta: ${error.message}`);
+        } finally {
+            replyBtn.classList.remove('btn-loading');
         }
     });
 
@@ -1119,10 +1120,13 @@ function renderInboxDetail(item) {
     if (resolveBtn) {
         resolveBtn.addEventListener('click', async () => {
              try {
+                resolveBtn.classList.add('btn-loading');
                 await markAsResolved(item.id);
                 openInbox();
             } catch (error) {
                 showGlobalError(`Error al resolver: ${error.message}`);
+            } finally {
+                resolveBtn.classList.remove('btn-loading');
             }
         });
     }

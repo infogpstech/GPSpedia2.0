@@ -1,22 +1,32 @@
-**AUDITORÍA DE add_cortes.html (04/02/2026)**
+**AUDITORÍA DE BOTONES DE ENVÍO (04/02/2026)**
 
-- **Líneas 105-108:** El contenedor de matches (#matches-container) está vacío por defecto.
-- **Línea 233-247 (displayMatches):**
-    - Hallazgo: Los botones usan onclick con funciones que no son globales debido al script type="module". Esto los hace inactivos.
-    - Hallazgo: El botón "Cancelar" hace window.location.href='index.html', lo cual saca al usuario del flujo. Debería volver al Paso 1.
-    - Hallazgo: Faltan detalles de cortes existentes (Corte 1, 2, 3) e imagen del vehículo.
-    - Hallazgo: No hay un botón de "Volver" a la etapa 1 de forma explícita si el usuario quiere corregir datos.
-- **Línea 261 (proceedToStage2):**
-    - Hallazgo: No hay un botón para volver a la etapa 1 o 1.5 desde la etapa 2.
-- **Imagen Logic:** Faltan las funciones para construir las URLs de imagen con sz=1000.
-- **ID Generation (Backend write.js):**
-    - El prompt menciona que no se genera el ID. En write.js se usa copyTo y flush() con un sleep(1500). Si la fórmula no está en la primera columna del registro copiado, no funcionará.
-    - Hallazgo en write.js: clearContent se aplica a dataRange (cols 2 a lastColumn-1), preservando la col 1. Esto es correcto si la col 1 tiene la fórmula.
+**Archivos involucrados:**
+- index.html
+- style.css
+- add_cortes.html
+- ui.js
+- main.js
+- auth.js
 
-**PLAN DE ACCIÓN:**
-1. Modificar displayMatches para usar event listeners o exponer funciones a window.
-2. Agregar visualización de imagen y cortes en displayMatches.
-3. Implementar getImageUrl con sz=1000.
-4. Agregar botones de navegación "Volver".
-5. Asegurar que Stage 3 se active correctamente tras guardar en Stage 2.
-6. Revisar write.js para asegurar la presencia de la fórmula de ID si es necesario.
+**Botones identificados:**
+1. **Login:** `#login-form button` (index.html)
+2. **Contactos:** `#contact-form button` (index.html)
+3. **Inbox - Responder:** `#inbox-reply-btn` (ui.js, generado dinámicamente)
+4. **Inbox - Resolver:** `#inbox-resolve-btn` (ui.js, generado dinámicamente)
+5. **Reportar:** `.report-btn` (ui.js, generado dinámicamente)
+6. **Agregar Cortes - Verificación:** `#form-stage-1 button[type="submit"]` (add_cortes.html)
+7. **Agregar Cortes - Paso 2:** `#form-stage-2 button[type="submit"]` (add_cortes.html)
+8. **Agregar Cortes - Paso 3:** `#form-stage-3 button[type="submit"]` (add_cortes.html)
+
+**Requerimientos de animación:**
+- Clase `.btn-loading` en CSS para añadir spinner.
+- El botón de login tendrá su propio spinner con su color.
+- Modificar los handlers de JS para añadir/quitar la clase durante las peticiones asíncronas.
+
+**Zonas protegidas:**
+- PROHIBIDO modificar funcionamiento y estilos base. Solo se permite añadir la animación de carga.
+
+**HALLAZGOS:**
+- `ui.js`: El botón de reporte (`report-btn`) ya tiene un cambio de color manual en la línea 859. Se debe reemplazar por la clase de animación.
+- `add_cortes.html`: Tiene su propio bloque `<style>`. Se debe añadir allí también.
+- `style.css`: Se añadirá la clase global `.btn-loading`.
