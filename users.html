@@ -15,6 +15,9 @@
             --light-text: #fff;
             --error-color: #dc3545;
         }
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -50,15 +53,17 @@
             display: none; /* Chrome, Safari y Opera */
         }
         .user-table {
-            width: 100%;
+            width: max-content; /* Permite que la tabla tome su ancho natural */
+            min-width: 100%;   /* Pero al menos el 100% del contenedor */
             border-collapse: collapse;
             margin-top: 20px;
-            min-width: 600px; /* Asegura que haya algo que scrollear en pantallas pequeñas */
         }
         .user-table th, .user-table td {
-            padding: 12px;
+            padding: 15px; /* Incrementado para evitar reducción visual */
             border-bottom: 1px solid #ddd;
             text-align: left;
+            font-size: 1rem; /* Asegura tamaño de letra estándar */
+            white-space: nowrap; /* Evita saltos de línea indeseados */
         }
         .user-table th {
             background-color: #f8f9fa;
@@ -436,9 +441,15 @@ async function handleChangePasswordSubmit(e) {
     }
 
     try {
-        // Corrección de propiedad: se usa .ID en lugar de .Id_Usuario para coincidir con el contrato de sesión.
+        // Validación de ID de usuario antes de proceder
+        const userId = currentUser.ID || currentUser.id;
+        if (!userId) {
+            alert('Error: No se pudo identificar al usuario actual. Por favor reincie sesión.');
+            return;
+        }
+
         await postToAction('changePassword', {
-            userId: currentUser.ID,
+            userId: userId,
             currentPassword,
             newPassword,
             sessionToken: currentUser.SessionToken

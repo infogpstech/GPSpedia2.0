@@ -1,16 +1,12 @@
-**AUDITORÍA TÉCNICA - GESTIÓN DE USUARIOS (PHASE 2)**
+**AUDITORÍA TÉCNICA - GESTIÓN DE USUARIOS (PHASE 3 - FIX RECOVERY)**
 
 **Archivo: users.html**
-- **Líneas 145-149:** El script utiliza `const SESSION_KEY = 'gpsepedia_session';`.
-- **Líneas 152-159:** El `currentUser` se carga desde `localStorage.getItem(SESSION_KEY)`.
-- **Hallazgo (Contrato de Datos):** En `main.js` y `auth.js`, el objeto de usuario guardado en `localStorage` (bajo la misma clave) contiene la propiedad `ID` para el identificador único del usuario.
-- **Líneas 330-340:** La función `handleChangePasswordSubmit` utiliza `userId: currentUser.Id_Usuario`. Esta propiedad es `undefined` en el objeto de usuario estándar de la aplicación, lo que causa el fallo de la funcionalidad de cambio de contraseña. Debe cambiarse a `currentUser.ID`.
-- **Líneas 115-130:** La tabla de gestión de usuarios (`.user-table`) está directamente dentro de `.user-management-section`.
-- **Hallazgo (Overflow):** Al no tener un contenedor con scroll, la tabla desborda el ancho del viewport en dispositivos móviles. Se requiere envolver la tabla en un `div` con `overflow-x: auto` y ocultar la barra de desplazamiento visualmente para cumplir con el requisito de "scroll horizontal invisible".
+- **Hallazgo 1 (Password Button):** La función `handleChangePasswordSubmit` (Línea 420+) utiliza `currentUser.ID`. Aunque esta propiedad es la correcta según el contrato de datos, el usuario reporta que no funciona. Es posible que el objeto `currentUser` no se esté refrescando correctamente o que la variable global no sea accesible en el momento del submit si hubo un error previo.
+- **Hallazgo 2 (Table Styles):** La regla `.user-table { width: 100%; min-width: 600px; }` (Línea 50+) en combinación con `.table-scroll-container` causa que la tabla se ajuste al 100% del contenedor *y luego* se restrinja. El usuario reporta reducción de fuentes y márgenes. Esto sucede cuando el navegador intenta encajar la tabla en el ancho disponible antes de aplicar el scroll, o por falta de especificidad.
+- **Hallazgo 3 (CSS):** Se detectó la falta de `box-sizing: border-box` en `users.html`, lo que afecta el cálculo de paddings y anchos totales.
 
-**Archivo: auth.js**
-- **Líneas 11-14:** `localStorage.setItem(SESSION_KEY, JSON.stringify(user));` confirma que se usa la misma clave que en `users.html`.
-- **Líneas 85-90:** `apiValidateSession(user.ID, user.SessionToken)` confirma que la propiedad correcta es `ID`.
+**Archivo: services/users/users.js**
+- **Hallazgo 4 (Backend Logic):** La función `handleChangePassword` (Línea 260+) realiza la comparación `storedPassword.toLowerCase() !== currentPassword.toLowerCase()`. Esta lógica es incorrecta para contraseñas (que deben ser case-sensitive) y puede causar fallos inesperados si la contraseña original tiene mayúsculas.
 
 **Conclusión:**
-La reparación de la funcionalidad de cambio de contraseña es trivial (cambio de nombre de propiedad). La mejora de la tabla requiere una modificación estructural leve del HTML y la adición de reglas CSS específicas para el scroll invisible.
+Se requiere corregir la lógica de comparación en el backend y ajustar los estilos de la tabla para priorizar el ancho real del contenido sobre el ajuste porcentual.

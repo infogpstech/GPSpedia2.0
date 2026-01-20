@@ -18,7 +18,10 @@
 **CHANGES LOG - 04/02/2026**
 
 **Archivo: users.html**
-- **Línea 264:** Se corrigió la propiedad `currentUser.Id_Usuario` por `currentUser.ID` en la función `handleChangePasswordSubmit` para asegurar la funcionalidad del botón de cambio de contraseña.
-- **Líneas 50-60:** Se añadió la clase `.table-scroll-container` para envolver la tabla de usuarios, implementando scroll horizontal invisible (`scrollbar-width: none`).
+- **Líneas 436-455:** Implementada obtención robusta de `userId` (ID/id) y validación en el frontend para cambio de contraseña.
+- **Líneas 18-70:** Ajustes de CSS (box-sizing, padding, width: max-content) para asegurar que la tabla de usuarios no reduzca fuentes ni márgenes en móviles.
 
-**Versión:** Incremento a v4.9.19.
+**Archivo: services/users/users.js**
+- **Líneas 281-295:** Corregida lógica de backend para cambio de contraseña: comparación case-sensitive y ID string-matching.
+
+**Versión:** Incremento a v4.9.20.
