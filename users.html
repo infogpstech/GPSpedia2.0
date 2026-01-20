@@ -39,10 +39,21 @@
             padding-bottom: 10px;
             margin-bottom: 20px;
         }
+        /* Contenedor para scroll horizontal invisible */
+        .table-scroll-container {
+            width: 100%;
+            overflow-x: auto;
+            -ms-overflow-style: none;  /* IE y Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        .table-scroll-container::-webkit-scrollbar {
+            display: none; /* Chrome, Safari y Opera */
+        }
         .user-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            min-width: 600px; /* Asegura que haya algo que scrollear en pantallas pequeñas */
         }
         .user-table th, .user-table td {
             padding: 12px;
@@ -131,19 +142,21 @@
             <button id="create-user-btn" class="btn btn-primary">
                 <i class="fa-solid fa-plus"></i> Crear Nuevo Usuario
             </button>
-            <table class="user-table">
-                <thead>
-                    <tr>
-                        <th>Nombre de Usuario</th>
-                        <th>Nombre Completo</th>
-                        <th>Rol</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="user-list-tbody">
-                    <!-- User rows will be inserted here -->
-                </tbody>
-            </table>
+            <div class="table-scroll-container">
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>Nombre de Usuario</th>
+                            <th>Nombre Completo</th>
+                            <th>Rol</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-list-tbody">
+                        <!-- User rows will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -199,7 +212,7 @@
     </div>
 <script type="module">
 import { routeAction } from './api-config.js';
-// COMPONENT VERSION: 3.8.0
+// COMPONENT VERSION: 3.9.0
 // --- LÓGICA DE DEPURACIÓN REMOTA ---
 function remoteLog(level, message, data = {}) {
     fetch(SCRIPT_URL, {
@@ -423,8 +436,9 @@ async function handleChangePasswordSubmit(e) {
     }
 
     try {
+        // Corrección de propiedad: se usa .ID en lugar de .Id_Usuario para coincidir con el contrato de sesión.
         await postToAction('changePassword', {
-            userId: currentUser.Id_Usuario,
+            userId: currentUser.ID,
             currentPassword,
             newPassword,
             sessionToken: currentUser.SessionToken

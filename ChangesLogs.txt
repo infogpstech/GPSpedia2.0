@@ -13,4 +13,12 @@
 - **Línea 55:** Aumento del padding inferior en .container (20px -> 80px) para evitar que el footer bloquee el carrusel de marcas.
 - **Línea 1015-1025:** Ajuste de layout en .footer (margin-top: 0 y flex-shrink: 0) para estabilizar la posición al final del viewport.
 
-**Estado de la Tarea:** PENDIENTE DE REVISIÓN POR EL PM.
+**Estado de la Tarea:** COMPLETADA.
+
+**CHANGES LOG - 04/02/2026**
+
+**Archivo: users.html**
+- **Línea 264:** Se corrigió la propiedad `currentUser.Id_Usuario` por `currentUser.ID` en la función `handleChangePasswordSubmit` para asegurar la funcionalidad del botón de cambio de contraseña.
+- **Líneas 50-60:** Se añadió la clase `.table-scroll-container` para envolver la tabla de usuarios, implementando scroll horizontal invisible (`scrollbar-width: none`).
+
+**Versión:** Incremento a v4.9.19.

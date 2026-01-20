@@ -176,11 +176,9 @@ El incumplimiento de CUALQUIER paso
 INVALIDA el proceso completo.
 
 
-— ZONAS PROTEGIDAS (ACCESO RESTRINGIDO)
+— ZONAS SEGURAS (ACCESO RESTRINGIDO - PRECAUCIÓN)
 ===================================================================
-Las siguientes secciones del código y funcionalidades están
-bajo PROTECCIÓN CRÍTICA. Queda PROHIBIDA cualquier modificación
-de su funcionamiento, lógica o estilos sin autorización expresa.
+Las siguientes secciones del código y funcionalidades están bajo PROTECCIÓN CRÍTICA y se consideran ZONAS SEGURAS. Cualquier modificación de su funcionamiento, lógica o estilos requiere autorización expresa y auditoría rigurosa.
 
 1. FORMULARIO AGREGAR CORTES (add_cortes.html):
    - Etapa 1: Verificación de Vehículo.
@@ -189,8 +187,13 @@ de su funcionamiento, lógica o estilos sin autorización expresa.
 
 2. NAVEGACIÓN Y MENÚ LATERAL (index.html, main.js):
    - Listeners de navegación (Cortes, Tutoriales, Relay).
-   - Lógica de Modo Oscuro y persistencia.
-   - Modal de Dashboard y visualización de logs.
+   - Lógica de Modo Oscuro y persistencia del tema.
+   - Modal de Dashboard y visualización de logs de actividad.
+
+3. LAYOUT PRINCIPAL Y FOOTER (index.html, style.css):
+   - Estructura flex-column del body.
+   - Padding inferior del .container para evitar solapamiento con el footer.
+   - Visibilidad del carrusel de marcas en la página de inicio.
 
 Cualquier cambio en estas zonas invalidará el commit.
 
@@ -207,15 +210,21 @@ Cualquier cambio en estas zonas invalidará el commit.
 ---
 1. **TÍTULO: Implementación de Modal de Verificación y Mejoras en Flujo de Cortes (v4.9.15)**
    - **ESTADO:** COMPLETADO
-
----
-**TAREAS PENDIENTES DE REVISIÓN**
----
-1. **TÍTULO: Restauración de Funciones del Menú Hamburguesa, Modo Oscuro y Fix de Footer (v4.9.18)**
-   - **ESTADO:** PENDIENTE REVISIÓN POR EL MP
+2. **TÍTULO: Restauración de Funciones del Menú Hamburguesa, Modo Oscuro y Fix de Footer (v4.9.18)**
+   - **ESTADO:** COMPLETADO
    - **ALCANCE:** index.html, main.js, style.css
    - **DESCRIPCIÓN DETALLADA:**
      - **Navegación:** Restaurados y unificados los listeners para 'Cortes', 'Tutoriales' y 'Configuración Relay'.
      - **Dashboard:** Restaurada la funcionalidad completa del botón Dashboard.
      - **Modo Oscuro:** Implementada lógica con persistencia en localStorage e intercambio dinámico de logo.
      - **Layout:** Corregido bloqueo visual del carrusel de marcas mediante ajuste de padding y flex-shrink en el footer.
+
+---
+**TAREAS PENDIENTES DE REVISIÓN**
+---
+1. **TÍTULO: Funcionalidad de Cambio de Contraseña y Tabla Responsiva de Usuarios (v4.9.19)**
+   - **ESTADO:** PENDIENTE REVISIÓN POR EL MP
+   - **ALCANCE:** users.html
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Password:** Implementada funcionalidad en el botón de cambiar contraseña corrigiendo el ID de usuario.
+     - **Layout:** Implementado scroll horizontal invisible en la tabla de gestión de usuarios para evitar desbordamiento.
