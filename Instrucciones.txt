@@ -19,7 +19,7 @@ FLUJO PRINCIPAL DE TRABAJO
    - PROHIBIDO modificar código en esta etapa.
 
 2. REGISTRO DE HALLAZGOS
-   - Registrar TODOS los hallazdos en Auditoría.txt.
+   - Registrar TODOS los hallazgos en Auditoría.txt.
    - Crear nueva entrada o actualizar la existente.
    - PROHIBIDO eliminar información previa.
    - NO realizar correcciones durante la auditoría.

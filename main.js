@@ -13,6 +13,7 @@ import * as navigation from './navigation.js';
 import './lightbox.js';
 
 let deferredPrompt;
+let searchBlurTimeout;
 
 /**
  * Main function to initialize the application.
@@ -60,6 +61,7 @@ async function initializeApp() {
     // --- LÓGICA DE ANIMACIÓN DE LA BARRA DE BÚSQUEDA ---
     // Añade la clase 'search-active' al body cuando el input gana el foco.
     searchInput.addEventListener('focus', () => {
+        if (searchBlurTimeout) clearTimeout(searchBlurTimeout);
         document.body.classList.add('search-active');
     });
 
@@ -67,7 +69,7 @@ async function initializeApp() {
     // Se utiliza un setTimeout para permitir que los eventos de clic en los resultados de búsqueda se registren
     // antes de que la UI se revierta a su estado normal.
     searchInput.addEventListener('blur', () => {
-        setTimeout(() => {
+        searchBlurTimeout = setTimeout(() => {
             document.body.classList.remove('search-active');
         }, 200); // 200ms de retardo
     });
@@ -251,19 +253,15 @@ async function initializeApp() {
 
         const formData = { name, email, message, userId };
 
-        console.log("[Contact Form] Submitting:", formData);
-
         try {
             submitBtn.classList.add('btn-loading');
 
             const result = await routeAction('sendContactForm', formData);
-            console.log("[Contact Form] Success:", result);
 
             alert('¡Gracias! Tu mensaje ha sido enviado correctamente.');
             e.target.reset();
             document.getElementById('contact-modal').style.display = 'none';
         } catch (error) {
-            console.error('[Contact Form] Error:', error);
             ui.showGlobalError(`Hubo un error al enviar el mensaje: ${error.message}`);
         } finally {
             submitBtn.classList.remove('btn-loading');

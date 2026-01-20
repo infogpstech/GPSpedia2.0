@@ -9,3 +9,8 @@
 - **Líneas 118-140:** Se implementó la lógica funcional para el Modo Oscuro, incluyendo persistencia en localStorage e intercambio dinámico de la imagen del logo (.app-logo) entre el tema claro y oscuro (Logo_TemaOscuro.png).
 
 **Estado de la Tarea:** PENDIENTE DE REVISIÓN POR EL PM.
+
+**CHANGES LOG - CORRECCIÓN POST-CODE REVIEW - 04/02/2026**
+- Archivo main.js: Se implementó 'searchBlurTimeout' para estabilizar la clase 'search-active' en el body durante la limpieza de la barra de búsqueda.
+- Archivo Instrucciones.txt: Se corrigió error tipográfico "hallazdos" -> "hallazgos".
+- Archivo main.js: Se verificó la correcta vinculación del listener para el botón Dashboard.
