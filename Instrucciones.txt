@@ -220,12 +220,22 @@ Cualquier cambio en estas zonas invalidará el commit.
      - **Layout:** Corregido bloqueo visual del carrusel de marcas mediante ajuste de padding y flex-shrink en el footer.
 
 ---
-**TAREAS PENDIENTES DE REVISIÓN**
+**TAREAS COMPLETADAS (Validadas por el PM)**
 ---
 1. **TÍTULO: Reparación de Cambio de Contraseña y Mejora Visual de Tabla de Usuarios (v4.9.20)**
-   - **ESTADO:** PENDIENTE REVISIÓN POR EL MP
+   - **ESTADO:** COMPLETADO
    - **ALCANCE:** users.html, services/users/users.js
    - **DESCRIPCIÓN DETALLADA:**
      - **Frontend:** Corregida la obtención robusta del ID de usuario (ID/id) y validación previa al envío.
      - **Backend:** Corregida la comparación de contraseñas para ser case-sensitive (seguridad y compatibilidad).
      - **Layout:** Ajustados estilos de tabla para evitar reducción de fuentes y márgenes, manteniendo el scroll invisible funcional.
+
+---
+**TAREAS PENDIENTES DE REVISIÓN**
+---
+1. **TÍTULO: Actualización de Endpoint de Usuarios y Refinamiento Compacto de Tabla (v4.9.21)**
+   - **ESTADO:** PENDIENTE REVISIÓN POR EL MP
+   - **ALCANCE:** api-config.js, users.html
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Configuración:** Actualizado el URL del microservicio USERS a la nueva versión proporcionada.
+     - **Layout:** Refinamiento de la tabla de usuarios reduciendo paddings (8px 10px) y font-size (0.9rem) para un diseño más compacto y eficiente.

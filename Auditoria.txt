@@ -1,12 +1,19 @@
-**AUDITORÍA TÉCNICA - GESTIÓN DE USUARIOS (PHASE 3 - FIX RECOVERY)**
+**AUDITORÍA TÉCNICA - CONFIGURACIÓN DE MICROSERVICIOS Y REFINAMIENTO DE LAYOUT (PHASE 4)**
+
+**Hallazgo Principal:**
+El usuario ha solicitado dos cambios específicos:
+1. Actualización del URL del microservicio de Usuarios (`USERS`).
+   Nuevo URL: `https://script.google.com/macros/s/AKfycbwkO0vtJb4tnWdOfm7lipHULn29iki6Hdn13UX_fxrxOQuI7-bSSvjKFbb227bvCg/exec`
+2. Hacer la tabla de gestión de usuarios más compacta para minimizar el side-scrolling, reduciendo márgenes internos (padding) y externos.
+
+**Archivo: api-config.js**
+- **Línea 12:** Actualmente contiene la versión anterior del endpoint de `USERS`. Se actualizará al nuevo valor proporcionado.
 
 **Archivo: users.html**
-- **Hallazgo 1 (Password Button):** La función `handleChangePasswordSubmit` (Línea 420+) utiliza `currentUser.ID`. Aunque esta propiedad es la correcta según el contrato de datos, el usuario reporta que no funciona. Es posible que el objeto `currentUser` no se esté refrescando correctamente o que la variable global no sea accesible en el momento del submit si hubo un error previo.
-- **Hallazgo 2 (Table Styles):** La regla `.user-table { width: 100%; min-width: 600px; }` (Línea 50+) en combinación con `.table-scroll-container` causa que la tabla se ajuste al 100% del contenedor *y luego* se restrinja. El usuario reporta reducción de fuentes y márgenes. Esto sucede cuando el navegador intenta encajar la tabla en el ancho disponible antes de aplicar el scroll, o por falta de especificidad.
-- **Hallazgo 3 (CSS):** Se detectó la falta de `box-sizing: border-box` en `users.html`, lo que afecta el cálculo de paddings y anchos totales.
-
-**Archivo: services/users/users.js**
-- **Hallazgo 4 (Backend Logic):** La función `handleChangePassword` (Línea 260+) realiza la comparación `storedPassword.toLowerCase() !== currentPassword.toLowerCase()`. Esta lógica es incorrecta para contraseñas (que deben ser case-sensitive) y puede causar fallos inesperados si la contraseña original tiene mayúsculas.
+- **Líneas 64-69:** La regla `.user-table th, .user-table td` tiene `padding: 15px;` y `font-size: 1rem;`.
+- **Acción:** Reducir padding a `8px 10px` y `font-size` a `0.9rem`.
+- **Líneas 30-35:** `.user-management-section` tiene `padding: 25px;`.
+- **Acción:** Reducir a `15px` o similar para compactar el bloque.
 
 **Conclusión:**
-Se requiere corregir la lógica de comparación en el backend y ajustar los estilos de la tabla para priorizar el ancho real del contenido sobre el ajuste porcentual.
+Las modificaciones son precisas y buscan optimizar la densidad de información en la vista de administración. Se mantendrá el scroll invisible para casos de pantallas extremadamente estrechas.

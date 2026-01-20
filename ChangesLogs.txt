@@ -25,3 +25,13 @@
 - **Líneas 281-295:** Corregida lógica de backend para cambio de contraseña: comparación case-sensitive y ID string-matching.
 
 **Versión:** Incremento a v4.9.20.
+
+**CHANGES LOG - 04/02/2026**
+
+**Archivo: api-config.js**
+- **Línea 12:** Actualizado el endpoint del servicio `USERS` al nuevo URL proporcionado por el usuario.
+
+**Archivo: users.html**
+- **Líneas 33-70:** Se redujeron los márgenes internos de `.profile-section`, `.user-management-section` y las celdas de la tabla para un diseño más compacto. Se ajustó el tamaño de fuente de la tabla a `0.9rem`.
+
+**Versión:** Incremento a v4.9.21.
