@@ -1,16 +1,16 @@
 **CHANGES LOG - 04/02/2026**
 
 **Archivo: index.html**
-- **Líneas 152-175:** Se restauró el modal de Dashboard (#dashboard-modal) incluyendo la tabla de actividad y el contenedor #activity-logs.
-- **Versión:** Incremento a v4.9.18.
+- **Línea 1:** Actualización de versión a v4.9.18.
 
 **Archivo: main.js**
-- **Líneas 109-115:** Se refactorizaron y unificaron los listeners de navegación para los botones del menú hamburguesa (#menu-cortes, #menu-tutoriales, #menu-relay).
-- **Líneas 118-140:** Se implementó la lógica funcional para el Modo Oscuro, incluyendo persistencia en localStorage e intercambio dinámico de la imagen del logo (.app-logo) entre el tema claro y oscuro (Logo_TemaOscuro.png).
+- **Líneas 112-124:** Restauración y unificación de listeners de navegación (#menu-cortes, #menu-tutoriales, #menu-relay).
+- **Líneas 127-152:** Implementación robusta de Modo Oscuro con persistencia en localStorage e intercambio dinámico de logo.
+- **Líneas 62-72:** Estabilización de la clase 'search-active' mediante searchBlurTimeout (250ms).
+- **Líneas 206-214:** Restauración del listener para el botón Dashboard (#dashboard-btn).
+
+**Archivo: style.css**
+- **Línea 55:** Aumento del padding inferior en .container (20px -> 80px) para evitar que el footer bloquee el carrusel de marcas.
+- **Línea 1015-1025:** Ajuste de layout en .footer (margin-top: 0 y flex-shrink: 0) para estabilizar la posición al final del viewport.
 
 **Estado de la Tarea:** PENDIENTE DE REVISIÓN POR EL PM.
-
-**CHANGES LOG - CORRECCIÓN POST-CODE REVIEW - 04/02/2026**
-- Archivo main.js: Se implementó 'searchBlurTimeout' para estabilizar la clase 'search-active' en el body durante la limpieza de la barra de búsqueda.
-- Archivo Instrucciones.txt: Se corrigió error tipográfico "hallazdos" -> "hallazgos".
-- Archivo main.js: Se verificó la correcta vinculación del listener para el botón Dashboard.

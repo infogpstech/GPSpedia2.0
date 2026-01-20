@@ -59,19 +59,17 @@ async function initializeApp() {
     }
 
     // --- LÓGICA DE ANIMACIÓN DE LA BARRA DE BÚSQUEDA ---
-    // Añade la clase 'search-active' al body cuando el input gana el foco.
+    // Estabilización de la clase 'search-active' para evitar saltos visuales al limpiar búsqueda.
     searchInput.addEventListener('focus', () => {
         if (searchBlurTimeout) clearTimeout(searchBlurTimeout);
         document.body.classList.add('search-active');
     });
 
-    // Elimina la clase 'search-active' del body cuando el input pierde el foco.
-    // Se utiliza un setTimeout para permitir que los eventos de clic en los resultados de búsqueda se registren
-    // antes de que la UI se revierta a su estado normal.
     searchInput.addEventListener('blur', () => {
+        // Se utiliza un timeout para evitar el cierre inmediato al hacer clic en el botón de limpiar (X)
         searchBlurTimeout = setTimeout(() => {
             document.body.classList.remove('search-active');
-        }, 200); // 200ms de retardo
+        }, 250);
     });
 
     // --- LÓGICA DINÁMICA DE VIEWPORT PARA MÓVIL ---
@@ -109,22 +107,26 @@ async function initializeApp() {
     document.getElementById('menu-overlay').addEventListener('click', ui.closeSideMenu);
 
     // Navigation links in side menu - Unified Handlers
+    // Restauración de funciones para Cortes, Tutoriales y Relay
     ['cortes', 'tutoriales', 'relay'].forEach(section => {
-        document.getElementById(`menu-${section}`)?.addEventListener('click', (e) => {
-            e.preventDefault();
-            ui.mostrarSeccion(section);
-            ui.closeSideMenu();
-        });
+        const btn = document.getElementById(`menu-${section}`);
+        if (btn) {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                ui.mostrarSeccion(section);
+                ui.closeSideMenu();
+            });
+        }
     });
 
-    // Dark Mode Toggle Logic with Logo Swap
+    // Dark Mode Toggle Logic with Logo Swap and Persistence
     const darkModeToggle = document.getElementById('dark-mode-toggle');
     const appLogo = document.querySelector('.app-logo');
     const lightLogo = "https://drive.google.com/thumbnail?id=1NxBx-W_gWmcq3fA9zog6Dpe-WXpH_2e8&sz=2048";
     const darkLogo = "Logo_TemaOscuro.png";
 
     if (darkModeToggle) {
-        // Initial check and apply preference
+        // Carga inicial de preferencia desde localStorage
         if (localStorage.getItem('darkMode') === 'true') {
             document.body.classList.add('dark-mode');
             darkModeToggle.checked = true;
@@ -199,7 +201,7 @@ async function initializeApp() {
         ui.openFAQ();
     });
 
-    // Dashboard button listener
+    // Dashboard button listener - Restauración de funcionalidad
     const dashboardBtn = document.getElementById('dashboard-btn');
     if (dashboardBtn) {
         dashboardBtn.addEventListener('click', (e) => {

@@ -1,28 +1,33 @@
-**AUDITORÍA TÉCNICA DE RESTAURACIÓN DE MENÚ (04/02/2026)**
+**AUDITORÍA TÉCNICA - RESTAURACIÓN DE MENÚ Y MODO OSCURO (REVISIÓN PRIMERA TAREA)**
 
-**Resumen de la Tarea:**
-- Restauración de funciones de los botones: Cortes, Tutoriales, Configuración Relay, Dashboard y Modo oscuro.
-- Inserción del modal de Dashboard en index.html.
-- Implementación de lógica de Modo Oscuro con persistencia e intercambio de logo en main.js.
+**Archivo: main.js**
+- **Líneas 109-115:** Los listeners para `menu-cortes`, `menu-tutoriales` y `menu-relay` están presentes y utilizan un bucle unificado. Llaman a `ui.mostrarSeccion(section)` y `ui.closeSideMenu()`.
+- **Líneas 118-142:** La lógica de Modo Oscuro está presente. Utiliza el ID `dark-mode-toggle`. Cambia la clase `dark-mode` en el body y alterna el logo entre la URL de Drive y `Logo_TemaOscuro.png`. Persiste en `localStorage`.
+- **Líneas 179-186:** El listener para `dashboard-btn` está presente y llama a `ui.openDashboard()`.
+- **Hallazgo:** Todos los listeners solicitados PARECEN estar implementados. Si el usuario reporta que no tienen acción, podría deberse a:
+  a) Errores en las funciones de `ui.js` llamadas.
+  b) El script `main.js` se detiene antes de llegar a estas líneas por un error previo.
+  c) Los elementos no están en el DOM cuando se intenta añadir el listener (aunque están dentro de `DOMContentLoaded`).
 
-**Hallazgos de Auditoría:**
-1. **Navegación:** Se han restaurado los listeners en main.js. Se observan indicios de que un sistema jerárquico de navegación ya estaba presente en ui.js, lo que facilitó la integración.
-2. **Dashboard:** El modal restaurado en index.html cumple con la estructura requerida por ui.js para mostrar logs de actividad.
-3. **Modo Oscuro:** La lógica implementada en esta tarea es la única fuente de cambios para este componente en el commit actual. Se ha verificado que funciona con el toggle y persiste en localStorage.
+**Archivo: index.html**
+- **Línea 42:** `id="menu-cortes"` -> Correcto.
+- **Línea 44:** `id="menu-tutoriales"` -> Correcto.
+- **Línea 45:** `id="menu-relay"` -> Correcto.
+- **Línea 48:** `id="dashboard-btn"` -> Correcto.
+- **Línea 53:** `id="dark-mode-toggle"` -> Correcto.
+- **Hallazgo:** El modal del Dashboard (`#dashboard-modal`) está presente en las líneas 165-189.
 
-**Conclusión:**
-Los cambios se limitan estrictamente a lo solicitado en la tarea de restauración de botones del menú hamburguesa. No se han detectado efectos colaterales en otras secciones.
+**Archivo: style.css**
+- **Línea 13:** `body` tiene `height: var(--app-height, 100%)` y `overflow: hidden`.
+- **Línea 49:** `.container` tiene `flex: 1 1 auto` y `overflow-y: auto`.
+- **Línea 887:** `.footer` tiene `display: none` por defecto y `background-color: #333`.
+- **Hallazgo (Cinta/Bloqueo):** La "cinta" negra mencionada por el usuario es el `.footer`. Al ser un hermano de `.container` dentro de un flex column (`body`), el footer ocupa espacio en la parte inferior. Si el contenido del carrusel de marcas está al final del `.container`, y el `.container` tiene un padding o margin insuficiente, o si el footer está siendo forzado a una posición que tapa el contenido, puede causar el bloqueo visual.
+- **Efecto Colateral:** `body.search-active .footer { display: none !important; }` oculta el footer en modo búsqueda, pero el problema ocurre en la vista normal.
 
-**AUDITORÍA FINAL - TAREA: RESTAURACIÓN MENÚ Y MODO OSCURO - 04/02/2026**
-- Archivo index.html: Se verificó la correcta inserción del modal de Dashboard (#dashboard-modal) y el incremento de versión a v4.9.18. Estructura HTML íntegra.
-- Archivo main.js: Se auditó la refactorización de los listeners de navegación y la lógica de Modo Oscuro. No se detectaron conflictos con el sistema de autenticación ni con la lógica de búsqueda.
-- Comparación vs Backups: Confirmada la ausencia de cambios accidentales.
-- Verificación Funcional: Superada (Dashboard, Navegación y Modo Oscuro operativos).
+**Archivo: ui.js**
+- **Línea 930:** `mostrarSeccion` maneja el cambio de pestañas.
+- **Línea 830:** `openDashboard` abre el modal y carga los logs.
+- **Hallazgo:** La función `showApp` (Línea 801) activa el footer: `document.querySelector('.footer').style.display = 'block'`.
 
-**LIMPIEZA DE LOGS - 04/02/2026**
-- Archivo main.js: Se eliminaron los diagnostic console.log en el manejador del formulario de contacto para cumplir con las normas de calidad.
-
-**AUDITORÍA POST-CODE REVIEW - 04/02/2026**
-- Hallazgo: Falta implementación de 'searchBlurTimeout' en main.js para estabilizar la UI durante la limpieza de búsqueda.
-- Hallazgo: Se detectó error tipográfico "hallazdos" en Instrucciones.txt.
-- Verificación: El listener de Dashboard (#dashboard-btn) está presente en el código pero debe asegurarse su correcta persistencia.
+**Conclusión de Auditoría:**
+Los componentes lógicos están presentes. Se requiere verificación dinámica (Playwright) para identificar por qué el usuario percibe "falta de acción" y para diagnosticar el solapamiento visual del footer ("cinta").

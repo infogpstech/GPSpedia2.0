@@ -211,10 +211,11 @@ Cualquier cambio en estas zonas invalidará el commit.
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-1. **TÍTULO: Restauración de Funciones del Menú Hamburguesa y Modo Oscuro (v4.9.18)**
+1. **TÍTULO: Restauración de Funciones del Menú Hamburguesa, Modo Oscuro y Fix de Footer (v4.9.18)**
    - **ESTADO:** PENDIENTE REVISIÓN POR EL MP
-   - **ALCANCE:** index.html, main.js
+   - **ALCANCE:** index.html, main.js, style.css
    - **DESCRIPCIÓN DETALLADA:**
      - **Navegación:** Restaurados y unificados los listeners para 'Cortes', 'Tutoriales' y 'Configuración Relay'.
-     - **Dashboard:** Restaurado el modal de Dashboard (#dashboard-modal).
+     - **Dashboard:** Restaurada la funcionalidad completa del botón Dashboard.
      - **Modo Oscuro:** Implementada lógica con persistencia en localStorage e intercambio dinámico de logo.
+     - **Layout:** Corregido bloqueo visual del carrusel de marcas mediante ajuste de padding y flex-shrink en el footer.
