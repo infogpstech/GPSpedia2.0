@@ -40,3 +40,14 @@
 
 **Archivo: Instrucciones.txt**
 - Se añadió la sección "ZONAS PROTEGIDAS" declarando las etapas 1, 1.5 y 2 de `add_cortes.html` como áreas de acceso restringido y prohibición de modificaciones.
+
+**CHANGES LOG - 04/02/2026**
+
+**Archivo: index.html**
+- **Líneas 152-175:** Se restauró el modal de Dashboard (#dashboard-modal) incluyendo la tabla de actividad y el contenedor #activity-logs.
+
+**Archivo: main.js**
+- **Líneas 109-125:** Se añadieron los event listeners para los botones del menú hamburguesa: #menu-cortes, #menu-tutoriales y #menu-relay para restaurar la navegación.
+- **Líneas 128-147:** Se implementó la lógica de Modo Oscuro, incluyendo la inicialización desde localStorage y el listener para el toggle #dark-mode-toggle.
+
+**Estado de la Tarea:** PENDIENTE DE REVISIÓN POR EL PM.

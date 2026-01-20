@@ -307,4 +307,12 @@ Archivos involucrados: ui.js, navigation.js
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-*No hay tareas pendientes en esta sección.*
+1. **TÍTULO: Restauración de Funciones del Menú Hamburguesa y Modo Oscuro (v4.9.18)**
+   - **ESTADO:** PENDIENTE REVISIÓN POR EL MP
+   - **TIPO:** Funcional | UI/UX
+   - **ALCANCE:** index.html, main.js
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Navegación:** Restaurados los listeners para los botones 'Cortes', 'Tutoriales' y 'Configuración Relay' en el menú lateral.
+     - **Dashboard:** Restaurado el modal de Dashboard en el HTML, permitiendo la visualización de actividad para roles autorizados.
+     - **Modo Oscuro:** Implementada la lógica funcional para el toggle de tema oscuro con persistencia en localStorage.
+     - **Versionamiento:** Proyecto actualizado a v4.9.18.

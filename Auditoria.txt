@@ -30,3 +30,47 @@
 - `ui.js`: El botón de reporte (`report-btn`) ya tiene un cambio de color manual en la línea 859. Se debe reemplazar por la clase de animación.
 - `add_cortes.html`: Tiene su propio bloque `<style>`. Se debe añadir allí también.
 - `style.css`: Se añadirá la clase global `.btn-loading`.
+
+**AUDITORÍA DE BOTONES DEL MENÚ HAMBURGUESA Y MODO OSCURO (04/02/2026)**
+
+**Archivos involucrados:**
+- index.html
+- main.js
+- ui.js
+- style.css
+
+**Hallazgos en index.html:**
+- Líneas 44-46: Los enlaces 'menu-cortes', 'menu-tutoriales' y 'menu-relay' existen pero no tienen acciones asociadas en main.js.
+- Línea 55: El checkbox 'dark-mode-toggle' existe pero no tiene lógica de funcionamiento.
+- El modal 'dashboard-modal' (requerido por ui.js) está AUSENTE en el archivo.
+
+**Hallazgos en main.js:**
+- La función initializeApp no contiene listeners para 'menu-cortes', 'menu-tutoriales' o 'menu-relay'.
+- No existe lógica para inicializar o alternar el modo oscuro.
+- El listener para 'dashboard-btn' (línea 193) existe, pero fallará al no encontrar el modal en el DOM.
+
+**Hallazgos en ui.js:**
+- Línea 958: 'openDashboard' espera un modal con ID 'dashboard-modal' y un contenedor 'activity-logs'.
+- Línea 1413: 'closeSideMenu' está correctamente definida y exportada.
+- Línea 1418: 'mostrarSeccion' está correctamente definida y exportada, manejando las secciones 'cortes', 'tutoriales' y 'relay'.
+
+**Riesgos:**
+- La inserción del modal de Dashboard debe respetar los estilos de 'info-modal' para mantener la consistencia visual.
+- La lógica de modo oscuro debe persistir en localStorage para evitar parpadeos tras recargar la página.
+
+**AUDITORÍA PROFUNDA Y AUTOCRÍTICA DE CAMBIOS (04/02/2026)**
+
+**Archivos editados:**
+- index.html
+- main.js
+
+**Hallazgos de la auditoría:**
+1. **Modo Oscuro y Logo:** Se identificó que, aunque se implementó el cambio de tema, no se estaba realizando el intercambio del logo. La presencia de 'Logo_TemaOscuro.png' sugiere que es necesario realizar este cambio programáticamente para una experiencia de usuario completa.
+2. **Duplicidad de Código en Listeners:** Se detectó una leve redundancia al asignar listeners individuales para 'menu-cortes', 'menu-tutoriales' y 'menu-relay'. Se recomienda una refactorización para unificar estos handlers.
+3. **Modal de Dashboard:** La estructura insertada en 'index.html' es correcta y consistente con los estilos de 'info-modal'. Se confirmó que los encabezados coinciden con las claves de datos (timestamp, nombreUsuario, tipoActividad, detalle) utilizadas en 'ui.js'.
+4. **Zonas Protegidas:** Se confirma que no se ha realizado ninguna modificación en 'add_cortes.html', respetando las restricciones de seguridad.
+5. **Pruebas de Integridad:** El script 'verify_inbox_dashboard.py' fue corregido para alinearse con el contrato de datos real, permitiendo una verificación exitosa de las funciones restauradas.
+
+**Acciones correctivas a aplicar:**
+- Implementar intercambio de logo en la lógica de Modo Oscuro en 'main.js'.
+- Unificar la asignación de listeners para los enlaces del menú lateral para eliminar redundancia.

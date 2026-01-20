@@ -42,7 +42,7 @@ async def run():
             elif action == 'getActivityLogs':
                 await route.fulfill(status=200, body=json.dumps({
                     "status": "success",
-                    "data": [{"Timestamp": "2026-02-02T10:00:00Z", "Usuario": "Admin", "Accion": "Login", "Detalles": "Success"}]
+                    "data": [{"timestamp": "2026-02-02T10:00:00Z", "nombreUsuario": "Admin", "tipoActividad": "Login", "detalle": "Success"}]
                 }), content_type="application/json")
             else:
                 await route.continue_()

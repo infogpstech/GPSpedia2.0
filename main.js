@@ -106,6 +106,42 @@ async function initializeApp() {
     document.getElementById('hamburger-btn').addEventListener('click', ui.openSideMenu);
     document.getElementById('menu-overlay').addEventListener('click', ui.closeSideMenu);
 
+    // Navigation links in side menu - Unified Handlers
+    ['cortes', 'tutoriales', 'relay'].forEach(section => {
+        document.getElementById(`menu-${section}`)?.addEventListener('click', (e) => {
+            e.preventDefault();
+            ui.mostrarSeccion(section);
+            ui.closeSideMenu();
+        });
+    });
+
+    // Dark Mode Toggle Logic with Logo Swap
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+    const appLogo = document.querySelector('.app-logo');
+    const lightLogo = "https://drive.google.com/thumbnail?id=1NxBx-W_gWmcq3fA9zog6Dpe-WXpH_2e8&sz=2048";
+    const darkLogo = "Logo_TemaOscuro.png";
+
+    if (darkModeToggle) {
+        // Initial check and apply preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+            darkModeToggle.checked = true;
+            if (appLogo) appLogo.src = darkLogo;
+        }
+
+        darkModeToggle.addEventListener('change', () => {
+            if (darkModeToggle.checked) {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('darkMode', 'true');
+                if (appLogo) appLogo.src = darkLogo;
+            } else {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('darkMode', 'false');
+                if (appLogo) appLogo.src = lightLogo;
+            }
+        });
+    }
+
     // --- LÓGICA DE GESTO PULL-TO-REFRESH (Restaurada) ---
     const container = document.querySelector('.container');
     let touchStartY = 0;
