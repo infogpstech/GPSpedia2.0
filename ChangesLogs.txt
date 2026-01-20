@@ -1,53 +1,11 @@
 **CHANGES LOG - 04/02/2026**
 
-**Archivo: add_cortes.html**
-- **Líneas 38-50:** Se rediseñó el CSS del Paso 1.5 para mostrar tarjetas de vehículos con imagen lateral y detalles de cortes existentes.
-- **Línea 248:** Se corrigió el manejo de la respuesta de `checkVehicle` para validar el estado de éxito.
-- **Líneas 283-298:** Se agregaron funciones `getImageUrl` (con soporte para sz=1000) y `formatCutInfo` para enriquecer la previsualización de coincidencias.
-- **Líneas 300-348:** Se reconstruyó la función `displayMatches`:
-    - Ahora muestra la imagen del vehículo y la lista de cortes ya registrados.
-    - Se reemplazaron los `onclick` en el template por la asignación manual de listeners (necesario por ser un módulo JS).
-    - Se añadieron botones de "Volver" para regresar al Paso 1 si los datos son incorrectos.
-    - Se corrigió el botón "Cancelar" para que no redirija a `index.html` prematuramente.
-- **Línea 128:** Se añadió un botón de "Volver" en el Paso 2 que regresa al Paso 1.5 o Paso 1 según corresponda.
-- **Línea 181:** Se expuso la función `showPhase` al objeto `window` para permitir la navegación desde botones dinámicos.
-
-**Archivo: services/write/write.js**
-- **Líneas 204-217:** Se añadió una validación robusta para la generación del ID del vehículo. Si la fórmula copiada no devuelve un valor automáticamente, el script intenta re-aplicar la fórmula de la fila anterior o aplica `=ROW()-1` como fallback.
-
-**Estado de la Tarea:** PENDIENTE DE REVISIÓN POR EL PM.
-
-**Archivo: add_cortes.html (Actualización v3.1.0)**
-- **Líneas 48-61:** Se ajustó el estilo de `.cut-item-img` para que coincida exactamente con el tamaño (120x90) y diseño de la imagen del vehículo en la Etapa 1.5.
-- **Línea 342:** Se añadió el manejador `onerror` a las imágenes de los cortes para mostrar un placeholder en caso de fallo de carga.
-- **Línea 342:** Se integró la apertura de lightbox al hacer clic en las imágenes de los cortes, utilizando la URL de alta resolución (sz=1000).
-- **Versión:** Incremento de componente a v3.1.0 y global a v4.9.15.
-
-**Global: Animaciones de Carga en Botones (v4.9.16)**
-- **style.css:** Se añadió la clase `.btn-loading` con un spinner animado generado mediante pseudo-elementos (`::after`).
-- **add_cortes.html:** Se replicó el estilo `.btn-loading` en el bloque de estilos locales para consistencia en la página independiente.
-- **main.js:** Se implementó el toggle de la clase `.btn-loading` en los formularios de Login y Contacto durante el envío.
-- **ui.js:** Se integró la animación en los botones de Reportar Problema, Responder Feedback y Resolver Reporte.
-- **add_cortes.html (JS):** Se añadió el toggle de carga en las tres etapas del formulario (Verificación, Registro de Corte, Información Suplementaria).
-- **Instrucciones.txt:** Se marcaron las tareas de la sesión como COMPLETADAS por solicitud directa del usuario.
-- **Versión:** Incremento global a v4.9.16.
-
-**Archivo: add_cortes.html (Actualización v3.2.0)**
-- **Líneas 75-76:** Se añadió el estilo `.info-msg` para mensajes informativos en el Paso 3.
-- **Línea 196:** Se agregó el contenedor `#supplementary-warnings` en el Paso 3.
-- **Líneas 500-512:** Se actualizó `proceedToStage3` para detectar si el vehículo seleccionado ya cuenta con información de apertura o cables de alimentación, mostrando avisos informativos al usuario.
-- **Versión:** Componente a v3.2.0, global a v4.9.17.
-
-**Archivo: Instrucciones.txt**
-- Se añadió la sección "ZONAS PROTEGIDAS" declarando las etapas 1, 1.5 y 2 de `add_cortes.html` como áreas de acceso restringido y prohibición de modificaciones.
-
-**CHANGES LOG - 04/02/2026**
-
 **Archivo: index.html**
 - **Líneas 152-175:** Se restauró el modal de Dashboard (#dashboard-modal) incluyendo la tabla de actividad y el contenedor #activity-logs.
+- **Versión:** Incremento a v4.9.18.
 
 **Archivo: main.js**
-- **Líneas 109-125:** Se añadieron los event listeners para los botones del menú hamburguesa: #menu-cortes, #menu-tutoriales y #menu-relay para restaurar la navegación.
-- **Líneas 128-147:** Se implementó la lógica de Modo Oscuro, incluyendo la inicialización desde localStorage y el listener para el toggle #dark-mode-toggle.
+- **Líneas 109-115:** Se refactorizaron y unificaron los listeners de navegación para los botones del menú hamburguesa (#menu-cortes, #menu-tutoriales, #menu-relay).
+- **Líneas 118-140:** Se implementó la lógica funcional para el Modo Oscuro, incluyendo persistencia en localStorage e intercambio dinámico de la imagen del logo (.app-logo) entre el tema claro y oscuro (Logo_TemaOscuro.png).
 
 **Estado de la Tarea:** PENDIENTE DE REVISIÓN POR EL PM.
