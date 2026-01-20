@@ -35,3 +35,12 @@
 - **Líneas 33-70:** Se redujeron los márgenes internos de `.profile-section`, `.user-management-section` y las celdas de la tabla para un diseño más compacto. Se ajustó el tamaño de fuente de la tabla a `0.9rem`.
 
 **Versión:** Incremento a v4.9.21.
+
+**CHANGES LOG - 04/02/2026**
+
+**Archivo: users.html**
+- **Línea 188:** Se renombró el ID del campo de contraseña de `password-modal` a `user-password` en el formulario de creación/edición de usuario.
+- **Línea 191:** Se mantuvo el ID `password-modal` exclusivamente para el div del modal de cambio de contraseña, resolviendo un conflicto de duplicidad de IDs que impedía la apertura del modal.
+- **Línea 394:** Actualizada la referencia en el script para capturar el valor de la contraseña usando el nuevo ID `user-password`.
+
+**Versión:** Incremento a v4.9.22.

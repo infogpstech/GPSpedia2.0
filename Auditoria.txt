@@ -1,19 +1,19 @@
-**AUDITORÍA TÉCNICA - CONFIGURACIÓN DE MICROSERVICIOS Y REFINAMIENTO DE LAYOUT (PHASE 4)**
-
-**Hallazgo Principal:**
-El usuario ha solicitado dos cambios específicos:
-1. Actualización del URL del microservicio de Usuarios (`USERS`).
-   Nuevo URL: `https://script.google.com/macros/s/AKfycbwkO0vtJb4tnWdOfm7lipHULn29iki6Hdn13UX_fxrxOQuI7-bSSvjKFbb227bvCg/exec`
-2. Hacer la tabla de gestión de usuarios más compacta para minimizar el side-scrolling, reduciendo márgenes internos (padding) y externos.
-
-**Archivo: api-config.js**
-- **Línea 12:** Actualmente contiene la versión anterior del endpoint de `USERS`. Se actualizará al nuevo valor proporcionado.
+**AUDITORÍA TÉCNICA - GESTIÓN DE USUARIOS (PHASE 5)**
 
 **Archivo: users.html**
-- **Líneas 64-69:** La regla `.user-table th, .user-table td` tiene `padding: 15px;` y `font-size: 1rem;`.
-- **Acción:** Reducir padding a `8px 10px` y `font-size` a `0.9rem`.
-- **Líneas 30-35:** `.user-management-section` tiene `padding: 25px;`.
-- **Acción:** Reducir a `15px` o similar para compactar el bloque.
+- **Estado de Listeners:** El listener del botón `change-password-btn` está correctamente definido dentro de `setupEventListeners`. Sin embargo, si `displayProfile()` falla o hay un error de sintaxis previo, los listeners no se adjuntan.
+- **Acceso a Variables:** `currentUser` es una variable global. Se inicializa en `DOMContentLoaded`.
+- **Posible Falla de Modal:** El uso de `passwordModal.style.display = 'block'` depende de que la variable `passwordModal` (capturada en el scope de `setupEventListeners`) sea válida.
+- **Validación de ID:** Se utiliza `const userId = currentUser.ID || currentUser.id;`.
+
+**Archivo: services/users/users.js (Backend)**
+- **Lógica de Comparación:** Se utiliza `String(data[i][COLS_USERS.ID - 1]) === String(userId)`. Esto es correcto para evitar problemas de tipos.
+- **Seguridad:** La comparación de contraseñas es ahora case-sensitive: `storedPassword !== currentPassword`.
+
+**Hallazgos Pendientes de Verificar:**
+1. ¿Se abre realmente el modal al hacer clic? Si no, hay un error de JS silencioso.
+2. ¿La petición llega al backend? Si llega y falla, el error debe estar en la lógica de búsqueda de fila o en los permisos.
+3. El usuario reporta que "aún no funciona". Esto sugiere que la acción de clic no produce el resultado esperado (abrir modal o procesar cambio).
 
 **Conclusión:**
-Las modificaciones son precisas y buscan optimizar la densidad de información en la vista de administración. Se mantendrá el scroll invisible para casos de pantallas extremadamente estrechas.
+La auditoría no revela errores lógicos evidentes en el código actual, lo que sugiere una falla de entorno o un error de ejecución no capturado. Se requiere depuración dinámica.

@@ -185,8 +185,8 @@
                     <select id="role" required></select>
                 </div>
                 <div class="form-group">
-                    <label for="password-modal">Contraseña</label>
-                    <input type="password" id="password-modal">
+                    <label for="user-password">Contraseña</label>
+                    <input type="password" id="user-password">
                 </div>
                 <button type="submit" class="btn btn-primary">Guardar</button>
             </form>
@@ -391,7 +391,7 @@ async function handleUserFormSubmit(e) {
         Nombre_Completo: document.getElementById('fullname').value, // <-- AÑADIDO
         Nombre_Usuario: document.getElementById('username-modal').value,
         Privilegios: document.getElementById('role').value,
-        Password: document.getElementById('password-modal').value,
+        Password: document.getElementById('user-password').value,
     };
 
     try {

@@ -231,11 +231,21 @@ Cualquier cambio en estas zonas invalidará el commit.
      - **Layout:** Ajustados estilos de tabla para evitar reducción de fuentes y márgenes, manteniendo el scroll invisible funcional.
 
 ---
-**TAREAS PENDIENTES DE REVISIÓN**
+**TAREAS COMPLETADAS (Validadas por el PM)**
 ---
 1. **TÍTULO: Actualización de Endpoint de Usuarios y Refinamiento Compacto de Tabla (v4.9.21)**
-   - **ESTADO:** PENDIENTE REVISIÓN POR EL MP
+   - **ESTADO:** COMPLETADO
    - **ALCANCE:** api-config.js, users.html
    - **DESCRIPCIÓN DETALLADA:**
      - **Configuración:** Actualizado el URL del microservicio USERS a la nueva versión proporcionada.
      - **Layout:** Refinamiento de la tabla de usuarios reduciendo paddings (8px 10px) y font-size (0.9rem) para un diseño más compacto y eficiente.
+
+---
+**TAREAS PENDIENTES DE REVISIÓN**
+---
+1. **TÍTULO: Reparación Definitiva de Cambio de Contraseña (v4.9.22)**
+   - **ESTADO:** PENDIENTE REVISIÓN POR EL MP
+   - **ALCANCE:** users.html
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Bug Fix:** Identificada y corregida duplicidad de ID 'password-modal' que impedía la apertura del modal de cambio de contraseña.
+     - **Frontend:** Renombrado el campo de contraseña en el modal de edición de usuario a 'user-password' para resolver el conflicto de selectores.
