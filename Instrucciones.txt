@@ -265,6 +265,18 @@ Cualquier cambio en estas zonas invalidará el commit.
      - **Estabilidad:** Añadida validación de estado de carga para prevenir múltiples envíos concurrentes (anti-bloqueo).
 
 ---
+**TAREAS COMPLETADAS (Validadas por el PM)**
+---
+1. **TÍTULO: Carga Optimizada de Imágenes (Lazy Load) (v4.9.26)**
+   - **ESTADO:** COMPLETADO
+   - **ALCANCE:** ui.js, index.html
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Lazy Load:** Implementado `loading="lazy"` en todas las tarjetas del catálogo.
+     - **Resolución Adaptativa:** Definidas constantes de tamaño (300px para thumbnails, 800px para detalles).
+     - **Lightbox Optimizado:** Las imágenes de alta resolución (1600px) solo se cargan mediante un trigger on-click, eliminando la carga innecesaria en segundo plano.
+     - **Versionamiento:** Actualizada versión global a v4.9.26 y componente ui.js a v4.1.0.
+
+---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
 *No hay tareas pendientes en esta sección.*
