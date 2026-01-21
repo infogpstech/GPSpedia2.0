@@ -257,6 +257,13 @@ Cualquier cambio en estas zonas invalidará el commit.
      - **Perfil:** Añadida edición de nombre propio y bloqueo estricto de edición de username.
      - **Seguridad:** Reforzada validación de propiedad de cuenta y concurrencia (LockService).
 
+2. **TÍTULO: Animaciones de Carga y Anti-bloqueo en Gestión de Usuarios (v4.9.25)**
+   - **ESTADO:** COMPLETADO
+   - **ALCANCE:** users.html
+   - **DESCRIPCIÓN DETALLADA:**
+     - **UX/UI:** Implementada animación de carga (spinner) y desactivación física (disabled) en botones de: Crear Usuario, Editar Usuario, Cambiar Contraseña, Editar Nombre y Eliminar Usuario.
+     - **Estabilidad:** Añadida validación de estado de carga para prevenir múltiples envíos concurrentes (anti-bloqueo).
+
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---

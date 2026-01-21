@@ -78,3 +78,15 @@
 - **Líneas 4, 48:** Actualizada la versión del componente a v2.4.2.
 
 **Estado de la Tarea:** COMPLETADA.
+
+**CHANGES LOG - 04/02/2026**
+
+**Archivo: users.html**
+- Líneas 133-159: Añadidos estilos CSS para `.btn-loading` y la animación `spin-button`.
+- Líneas 366: Actualizado el listener de "Eliminar" para pasar el elemento del botón como argumento.
+- Líneas 440-474: Implementada lógica de carga y anti-bloqueo (`disabled` y `classList.contains('btn-loading')`) en `handleUserFormSubmit`.
+- Líneas 476-493: Implementada lógica de carga y anti-bloqueo en `deleteUser`.
+- Líneas 495-539: Implementada lógica de carga y anti-bloqueo en `handleChangePasswordSubmit`.
+- Líneas 541-572: Implementada lógica de carga y anti-bloqueo en `handleEditNameSubmit`.
+
+**Versión:** Incremento a v4.9.25.
