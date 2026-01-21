@@ -45,7 +45,7 @@ const COLS_ACTIVE_SESSIONS = {
 // ============================================================================
 
 function doGet(e) {
-    const defaultResponse = { status: 'success', message: 'GPSpedia Users-SERVICE v2.4.2 is active.' };
+    const defaultResponse = { status: 'success', message: 'GPSpedia Users-SERVICE v2.0.0 is active.' };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
         .setMimeType(ContentService.MimeType.TEXT);
 }

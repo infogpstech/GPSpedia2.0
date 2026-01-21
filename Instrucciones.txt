@@ -206,42 +206,48 @@ Cualquier cambio en estas zonas invalidará el commit.
 *No hay tareas pendientes en esta sección.*
 
 ---
-**DERIVADO DE AUDITORÍA — NO EJECUTAR AÚN**
+**DERIVADO DE AUDITORÍA (ROADMAP v2.0) — NO EJECUTAR AÚN**
 ---
-1. **TÍTULO: Sincronización de Versión Global v2.0**
-   - **ESTADO:** PENDIENTE
-   - **ALCANCE:** Global
-   - **DESCRIPCIÓN:** Sincronizar la versión global para que el próximo gran lanzamiento sea `v2.0`. Actualmente en `v4.9.26`. Evaluar si saltar a `v5.0` o ajustar la convención.
 
-2. **TÍTULO: Lógica de Backend para Gestión de Años y Votos**
+5. **TÍTULO: Lógica de Backend para Gestión de Años y Votos**
    - **ESTADO:** PENDIENTE
    - **ALCANCE:** Backend (Feedback Service)
    - **DESCRIPCIÓN:** Implementar la lógica de backend para registrar los votos de años y la hoja de cálculo para almacenar dichos votos.
 
-3. **TÍTULO: Dashboard de Desempeño para Supervisores**
+6. **TÍTULO: Dashboard de Desempeño para Supervisores**
    - **ESTADO:** PENDIENTE
    - **ALCANCE:** UI / Backend
-   - **DESCRIPCIÓN:** Crear la nueva sección de Dashboard de Desempeño específicamente para roles de Supervisor (más allá de los logs de actividad actuales).
+   - **DESCRIPCIÓN:** Crear la nueva sección de Dashboard de Desempeño específicamente para roles de Supervisor.
 
-4. **TÍTULO: Funcionalidad de Edición "In-Modal"**
+7. **TÍTULO: Funcionalidad de Edición "In-Modal"**
    - **ESTADO:** PENDIENTE
    - **ALCANCE:** Frontend (UI) / Backend
    - **DESCRIPCIÓN:** Permitir la edición de datos técnicos directamente desde el modal de detalles del vehículo.
 
-5. **TÍTULO: Lógica de Backend para el Sistema de Gestión de Feedback (Inbox)**
+8. **TÍTULO: Lógica de Backend para el Sistema de Gestión de Feedback (Inbox)**
    - **ESTADO:** PENDIENTE
    - **ALCANCE:** Backend (Feedback Service)
-   - **DESCRIPCIÓN:** Completar la lógica de backend para el procesamiento de mensajes en el Inbox (la interfaz frontend ya existe).
+   - **DESCRIPCIÓN:** Completar la lógica de backend para el procesamiento de mensajes en el Inbox.
 
-6. **TÍTULO: Expansión de Rango de Años por Feedback**
+9. **TÍTULO: Expansión de Rango de Años por Feedback**
    - **ESTADO:** PENDIENTE
    - **ALCANCE:** Frontend (UI) / Backend
-   - **DESCRIPCIÓN:** Implementar la interfaz de usuario para que los técnicos sugieran nuevos años para un corte y la lógica de backend que expande el rango de años evitando colisiones de generaciones.
+   - **DESCRIPCIÓN:** Implementar la interfaz para sugerir nuevos años y la lógica de backend para expansión de rangos.
 
 ---
 **TAREAS COMPLETADAS (Validadas por el PM)**
 ---
-1. **TÍTULO: Implementación de Modal de Verificación y Mejoras en Flujo de Cortes (v4.9.15)**
+1. **TÍTULO: Lanzamiento Global GPSpedia v2.0 (v2.0.0)**
+   - **ESTADO:** COMPLETADO
+   - **ALCANCE:** Global (Frontend y Backend)
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Versioning:** Sincronización de todos los archivos a la versión v2.0.0.
+     - **README:** Actualización integral con descripción funcional, flujos de registro y comparativa técnica.
+     - **UI Branding:** Actualización de footer y modal de login con la nueva identidad v2.0.
+     - **FAQ:** Implementación de lógica y estilos para el acordeón de preguntas frecuentes.
+     - **Sobre Nosotros:** Corrección de terminología técnica para tipos de cortes.
+
+2. **TÍTULO: Implementación de Modal de Verificación y Mejoras en Flujo de Cortes (v4.9.15)**
    - **ESTADO:** COMPLETADO
 2. **TÍTULO: Restauración de Funciones del Menú Hamburguesa, Modo Oscuro y Fix de Footer (v4.9.18)**
    - **ESTADO:** COMPLETADO
