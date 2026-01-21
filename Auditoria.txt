@@ -17,3 +17,32 @@
 
 **Conclusión:**
 La auditoría no revela errores lógicos evidentes en el código actual, lo que sugiere una falla de entorno o un error de ejecución no capturado. Se requiere depuración dinámica.
+
+**AUDITORÍA LÍNEA POR LÍNEA - TAREA RBAC (04/02/2026)**
+
+**Archivo: users.html**
+- L125-129: `displayProfile()` solo visualiza datos. Falta botón/lógica para "Cambiar Nombre" en perfil propio.
+- L249: `openUserModal()` no deshabilita el campo `username-modal` al editar. Incumple "Ningún usuario puede cambiar su nombre de usuario".
+- L268-270: `availableRoles` para 'Gefe' incluye 'Gefe'. Debe ser solo 'Supervisor' y 'Tecnico'.
+- L271: `availableRoles` para 'Supervisor' es 'Tecnico'. Correcto.
+- L290: `handleUserFormSubmit` permite enviar un nuevo `Nombre_Usuario` en actualizaciones.
+
+**Archivo: services/users/users.js**
+- L144: `handleGetUsers` no filtra por rol. Retorna todos los usuarios. Incumple visibilidad restringida por rol.
+- L173: `allowedRoles` para 'Gefe' permite crear 'Gefe'. Debe ser solo 'Supervisor' y 'Tecnico'.
+- L209: `canUpdate` para 'Gefe' permite editar casi todo. Debe ser solo 'Supervisor' y 'Tecnico'.
+- L218: `handleUpdateUser` permite cambiar `Nombre_Usuario`. Incumple restricción global.
+- L245: `canDelete` para 'Gefe' permite eliminar casi todo. Debe ser solo 'Supervisor' y 'Tecnico'.
+- L274: `handleChangePassword` no valida que el usuario que cambia la contraseña sea el mismo que el del `userId` o un admin con permisos. (Aunque el frontend envía el ID propio).
+
+**Hallazgos Críticos:**
+1. El filtrado de la tabla de usuarios debe ser tanto en Backend (seguridad) como en Frontend (UX).
+2. Se debe implementar `changeName` en el backend y frontend para cumplir con "Todos los roles pueden: Cambiar su propio nombre".
+
+**AUDITORÍA POST-CODE REVIEW (04/02/2026)**
+- Hallazgo: Duplicación de lógica de validación de sesión en `handleUpdateProfile`.
+- Solución: Crear función helper `getVerifiedSession(sessionToken)` que retorne un objeto con `userId` y `role`.
+- Hallazgo: `handleChangePassword` no valida propiedad de la cuenta.
+- Solución: Implementar validación cruzada entre `sessionToken` y `userId` en el backend.
+- Hallazgo: Archivos .bak en el repositorio.
+- Solución: Eliminar antes del submit final.

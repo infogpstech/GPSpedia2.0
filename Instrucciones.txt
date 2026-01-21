@@ -249,3 +249,12 @@ Cualquier cambio en estas zonas invalidará el commit.
    - **DESCRIPCIÓN DETALLADA:**
      - **Bug Fix:** Identificada y corregida duplicidad de ID 'password-modal' que impedía la apertura del modal de cambio de contraseña.
      - **Frontend:** Renombrado el campo de contraseña en el modal de edición de usuario a 'user-password' para resolver el conflicto de selectores.
+
+2. **TÍTULO: Implementación de Filtro por Rol y Edición de Perfil (v4.9.23)**
+   - **ESTADO:** PENDIENTE REVISIÓN POR EL MP
+   - **ALCANCE:** users.html, services/users/users.js
+   - **DESCRIPCIÓN DETALLADA:**
+     - **RBAC:** Implementado filtrado de visibilidad y acciones (CRUD) en el backend basado estrictamente en la jerarquía de roles.
+     - **Perfil:** Añadida la funcionalidad de edición de nombre propio en la sección "Mi Perfil".
+     - **Seguridad:** Centralizada la validación de sesiones y reforzada la seguridad en el cambio de contraseña y edición de perfil.
+     - **Restricciones:** Bloqueada la posibilidad de modificar nombres de usuario existentes tanto en el frontend como en el backend.

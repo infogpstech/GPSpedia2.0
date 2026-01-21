@@ -44,3 +44,21 @@
 - **Línea 394:** Actualizada la referencia en el script para capturar el valor de la contraseña usando el nuevo ID `user-password`.
 
 **Versión:** Incremento a v4.9.22.
+
+**CHANGES LOG - 04/02/2026**
+
+**Archivo: services/users/users.js**
+- Líneas 90-128: Implementada función `getVerifiedSession` para centralizar la validación de tokens y obtención de `userId` y `role`.
+- Líneas 142-154: Refactorizada la lógica de `handleGetUsers` para filtrar el listado según el rol del solicitante (Jefe solo ve Supervisor/Tecnico, Supervisor solo ve Tecnico).
+- Líneas 230-245: Actualizada la lógica de `handleUpdateUser` para prohibir el cambio de nombre de usuario y aplicar RBAC estricto en la modificación de roles.
+- Líneas 303-324: Añadida función `handleUpdateProfile` para permitir a los usuarios editar su propio nombre completo, con validación de propiedad de sesión.
+- Líneas 334-342: Reforzada la seguridad en `handleChangePassword` mediante la verificación de que el `userId` autenticado coincide con el solicitado.
+
+**Archivo: users.html**
+- Líneas 140-143: Añadido botón "Editar" para el nombre completo en la sección "Mi Perfil".
+- Líneas 199-211: Implementado modal `name-modal` para la edición del nombre del perfil.
+- Líneas 386: Deshabilitado el campo `username-modal` en el modal de edición de usuarios para cumplir con la restricción de no cambio de username.
+- Líneas 397: Actualizada la lógica de roles disponibles para roles 'Gefe' (Jefe) y 'Supervisor'.
+- Líneas 488-511: Implementada función `handleEditNameSubmit` para procesar el cambio de nombre del perfil propio.
+
+**Versión:** Incremento a v4.9.23.
