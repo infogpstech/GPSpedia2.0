@@ -58,3 +58,16 @@ La auditoría no revela errores lógicos evidentes en el código actual, lo que 
 - Hallazgo: Se requiere actualizar el endpoint de USERS al nuevo URL proporcionado.
 - Riesgo: Si el nuevo microservicio tiene un contrato distinto al auditado en la tarea anterior, las funciones de RBAC podrían fallar. Se asume que el contrato se mantiene igual.
 - Versión: Se incrementará la versión global a v4.9.24.
+
+**AUDITORÍA LÍNEA POR LÍNEA - TAREA ANIMACIONES DE CARGA (04/02/2026)**
+
+**Archivo: users.html**
+- Hallazgo: `users.html` no carga `style.css`, por lo que no tiene acceso a `.btn-loading`.
+- Solución: Copiar estilos de `.btn-loading` y `spin-button` al bloque `<style>` de `users.html`.
+- L389: `handleUserFormSubmit` - Falta lógica de estado de carga en el botón de submit.
+- L422: `deleteUser` - Falta lógica de estado de carga en el botón de eliminar.
+- L461: `handleChangePasswordSubmit` - Falta lógica de estado de carga en el botón de submit.
+- L486: `handleEditNameSubmit` - Falta lógica de estado de carga en el botón de submit.
+
+**Hallazgos Críticos:**
+1. Los botones de eliminar son dinámicos, por lo que se debe pasar la referencia del botón a la función `deleteUser` o manejarla localmente.

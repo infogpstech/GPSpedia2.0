@@ -129,33 +129,6 @@
             padding: 8px;
             box-sizing: border-box;
         }
-
-        /* --- ANIMACIONES DE CARGA EN BOTONES --- */
-        .btn-loading {
-            position: relative !important;
-            color: transparent !important;
-            pointer-events: none !important;
-        }
-
-        .btn-loading::after {
-            content: "";
-            position: absolute;
-            width: 18px;
-            height: 18px;
-            top: 50%;
-            left: 50%;
-            margin-top: -9px;
-            margin-left: -9px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin-button 0.6s linear infinite;
-            z-index: 5;
-        }
-
-        @keyframes spin-button {
-            to { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body>
@@ -363,7 +336,7 @@ function renderUserTable() {
         const deleteButton = document.createElement('button');
         deleteButton.className = 'btn btn-danger btn-sm';
         deleteButton.textContent = 'Eliminar';
-        deleteButton.addEventListener('click', (e) => deleteUser(user.ID, e.currentTarget));
+        deleteButton.addEventListener('click', () => deleteUser(user.ID));
         actionsCell.appendChild(deleteButton);
 
         row.appendChild(actionsCell);
@@ -437,66 +410,46 @@ function openUserModal(user = null) {
 
 async function handleUserFormSubmit(e) {
     e.preventDefault();
-    const submitBtn = e.target.querySelector('button[type="submit"]');
-    if (submitBtn.classList.contains('btn-loading')) return;
-
     const userId = document.getElementById('user-id').value;
     const userData = {
-        Nombre_Completo: document.getElementById('fullname').value,
+        Nombre_Completo: document.getElementById('fullname').value, // <-- AÑADIDO
         Nombre_Usuario: document.getElementById('username-modal').value,
         Privilegios: document.getElementById('role').value,
         Password: document.getElementById('user-password').value,
     };
 
     try {
-        submitBtn.classList.add('btn-loading');
-        submitBtn.disabled = true;
-
         if (userId) {
+            // SECURITY PATCH: Send sessionToken instead of role for backend verification
             await postToAction('updateUser', { userId, updates: userData, sessionToken: currentUser.SessionToken });
             alert('Usuario actualizado');
         } else {
+            // SECURITY PATCH: Send sessionToken instead of role for backend verification
             await postToAction('createUser', { newUser: userData, sessionToken: currentUser.SessionToken });
             alert('Usuario creado');
         }
         document.getElementById('user-modal').style.display = 'none';
-        await fetchUsers();
+        fetchUsers();
     } catch (error) {
         // Error handled in postToAction
-    } finally {
-        submitBtn.classList.remove('btn-loading');
-        submitBtn.disabled = false;
     }
 }
 
-async function deleteUser(userId, btnElement) {
-    if (btnElement && btnElement.classList.contains('btn-loading')) return;
-
+async function deleteUser(userId) {
     if (confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
         try {
-            if (btnElement) {
-                btnElement.classList.add('btn-loading');
-                btnElement.disabled = true;
-            }
+            // SECURITY PATCH: Send sessionToken for backend verification
             await postToAction('deleteUser', { userId, sessionToken: currentUser.SessionToken });
             alert('Usuario eliminado');
-            await fetchUsers();
+            fetchUsers();
         } catch (error) {
             // Error handled in postToAction
-        } finally {
-            if (btnElement) {
-                btnElement.classList.remove('btn-loading');
-                btnElement.disabled = false;
-            }
         }
     }
 }
 
 async function handleChangePasswordSubmit(e) {
     e.preventDefault();
-    const submitBtn = e.target.querySelector('button[type="submit"]');
-    if (submitBtn.classList.contains('btn-loading')) return;
-
     const currentPassword = document.getElementById('current-password').value;
     const newPassword = document.getElementById('new-password').value;
     const confirmPassword = document.getElementById('confirm-password').value;
@@ -512,9 +465,6 @@ async function handleChangePasswordSubmit(e) {
     }
 
     try {
-        submitBtn.classList.add('btn-loading');
-        submitBtn.disabled = true;
-
         const userId = currentUser.ID || currentUser.id;
         if (!userId) {
             alert('Error: No se pudo identificar al usuario actual. Por favor reincie sesión.');
@@ -531,24 +481,15 @@ async function handleChangePasswordSubmit(e) {
         document.getElementById('password-modal').style.display = 'none';
         document.getElementById('password-form').reset();
     } catch (error) {
-        // Error handled in postToAction
-    } finally {
-        submitBtn.classList.remove('btn-loading');
-        submitBtn.disabled = false;
+        // Error is already handled and alerted by postToAction
     }
 }
 
 async function handleEditNameSubmit(e) {
     e.preventDefault();
-    const submitBtn = e.target.querySelector('button[type="submit"]');
-    if (submitBtn.classList.contains('btn-loading')) return;
-
     const newFullname = document.getElementById('new-fullname').value;
 
     try {
-        submitBtn.classList.add('btn-loading');
-        submitBtn.disabled = true;
-
         const userId = currentUser.ID || currentUser.id;
         await postToAction('updateProfile', {
             userId: userId,
@@ -556,6 +497,7 @@ async function handleEditNameSubmit(e) {
             sessionToken: currentUser.SessionToken
         });
 
+        // Actualizar datos locales y UI
         currentUser.Nombre_Completo = newFullname;
         localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
         displayProfile();
@@ -563,10 +505,7 @@ async function handleEditNameSubmit(e) {
         alert('Nombre actualizado correctamente.');
         document.getElementById('name-modal').style.display = 'none';
     } catch (error) {
-        // Error handled
-    } finally {
-        submitBtn.classList.remove('btn-loading');
-        submitBtn.disabled = false;
+        // Error is already handled
     }
 }
 </script>
