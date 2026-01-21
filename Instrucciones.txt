@@ -195,6 +195,11 @@ Las siguientes secciones del código y funcionalidades están bajo PROTECCIÓN C
    - Padding inferior del .container para evitar solapamiento con el footer.
    - Visibilidad del carrusel de marcas en la página de inicio.
 
+4. GESTIÓN DE USUARIOS Y RBAC (users.html, services/users/users.js):
+   - Lógica de filtrado por rol (RBAC) en frontend y backend.
+   - Edición de perfil propio y restricciones de cambio de username.
+   - Modales de cambio de contraseña y edición de nombre.
+
 Cualquier cambio en estas zonas invalidará el commit.
 
 ---
@@ -241,20 +246,18 @@ Cualquier cambio en estas zonas invalidará el commit.
      - **Layout:** Refinamiento de la tabla de usuarios reduciendo paddings (8px 10px) y font-size (0.9rem) para un diseño más compacto y eficiente.
 
 ---
+**TAREAS COMPLETADAS (Validadas por el PM)**
+---
+1. **TÍTULO: Reparación de Cambio de Contraseña y RBAC (v4.9.22 - v4.9.24)**
+   - **ESTADO:** COMPLETADO
+   - **ALCANCE:** users.html, services/users/users.js, api-config.js
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Bug Fix:** Resuelta duplicidad de ID 'password-modal' y corregido ruteo de 'updateProfile'.
+     - **RBAC:** Implementado control de acceso jerárquico y filtrado de visibilidad en backend y frontend.
+     - **Perfil:** Añadida edición de nombre propio y bloqueo estricto de edición de username.
+     - **Seguridad:** Reforzada validación de propiedad de cuenta y concurrencia (LockService).
+
+---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-1. **TÍTULO: Reparación Definitiva de Cambio de Contraseña (v4.9.22)**
-   - **ESTADO:** PENDIENTE REVISIÓN POR EL MP
-   - **ALCANCE:** users.html
-   - **DESCRIPCIÓN DETALLADA:**
-     - **Bug Fix:** Identificada y corregida duplicidad de ID 'password-modal' que impedía la apertura del modal de cambio de contraseña.
-     - **Frontend:** Renombrado el campo de contraseña en el modal de edición de usuario a 'user-password' para resolver el conflicto de selectores.
-
-2. **TÍTULO: Implementación de Filtro por Rol y Edición de Perfil (v4.9.23)**
-   - **ESTADO:** PENDIENTE REVISIÓN POR EL MP
-   - **ALCANCE:** users.html, services/users/users.js
-   - **DESCRIPCIÓN DETALLADA:**
-     - **RBAC:** Implementado filtrado de visibilidad y acciones (CRUD) en el backend basado estrictamente en la jerarquía de roles.
-     - **Perfil:** Añadida la funcionalidad de edición de nombre propio en la sección "Mi Perfil".
-     - **Seguridad:** Centralizada la validación de sesiones y reforzada la seguridad en el cambio de contraseña y edición de perfil.
-     - **Restricciones:** Bloqueada la posibilidad de modificar nombres de usuario existentes tanto en el frontend como en el backend.
+*No hay tareas pendientes en esta sección.*
