@@ -71,3 +71,34 @@ La auditoría no revela errores lógicos evidentes en el código actual, lo que 
 
 **Hallazgos Críticos:**
 1. Los botones de eliminar son dinámicos, por lo que se debe pasar la referencia del botón a la función `deleteUser` o manejarla localmente.
+
+**AUDITORÍA LÍNEA POR LÍNEA - CARGA OPTIMIZADA DE IMÁGENES (15/05/2024)**
+
+**Archivo: ui.js**
+- L12: `getImageUrl` usa tamaño default 400. Tiene optimización Retina para < 600.
+- L112: `crearCarrusel` (Categorías) usa default 400. Debe usar SMALL.
+- L143: `crearCarrusel` (Marcas Vehículos) usa default 400. Debe usar SMALL.
+- L158: `crearCarrusel` (Marcas Motos) usa default 400. Debe usar SMALL.
+- L189: `mostrarMarcas` usa default 400 y `loading="lazy"`. Debe usar SMALL.
+- L214: `mostrarModelosPorMarca` usa default 400. Falta `loading="lazy"`. Debe usar SMALL.
+- L274: `mostrarModelos` usa default 400. Falta `loading="lazy"`. Debe usar SMALL.
+- L306: `mostrarTiposEncendido` usa default 400. Falta `loading="lazy"`. Debe usar SMALL.
+- L336: `mostrarVersiones` usa default 400. Falta `loading="lazy"`. Debe usar SMALL.
+- L371: `mostrarVersionesEquipamiento` usa default 400. Falta `loading="lazy"`. Debe usar SMALL.
+- L416: `mostrarResultadosDeBusqueda` (Marcas) usa default 400. Debe usar SMALL.
+- L433: `mostrarResultadosDeBusqueda` (Modelos) usa default 400. Falta `loading="lazy"`. Debe usar SMALL.
+- L469: `mostrarDetalleModal` (Logo) usa default 400. Puede usar SMALL.
+- L510: `mostrarDetalleModal` (Vehículo) usa default 400. Debe usar MEDIUM.
+- L576: `renderCutContent` (Corte) usa default 400. Debe usar MEDIUM.
+- L583: Lightbox usa la misma URL que el modal. Debe usar LARGE y cargar solo on-click.
+- L686: `renderRelayInfoModal` usa 1200.
+- L855: `createAccordionSection` (Corte/Apertura/Cable) usa 1200 para la vista de modal. Debe usar MEDIUM para el modal y LARGE para el lightbox.
+- L942: `mostrarUltimosAgregados` usa default 400 y `loading="lazy"`. Debe usar SMALL.
+- L1043: `mostrarTutorialesGrid` usa default 400. Falta `loading="lazy"`. Debe usar SMALL.
+- L1066: `mostrarRelayGrid` usa default 400. Falta `loading="lazy"`. Debe usar SMALL.
+- L1126: `mostrarDetalleRelayModal` usa default 400. Debe usar MEDIUM.
+
+**Hallazgos Críticos:**
+1. Inconsistencia en el uso de `loading="lazy"` en las tarjetas del catálogo.
+2. Imágenes de alta resolución (1200) se están cargando en los acordeones del modal de detalle antes de que el usuario las expanda o use el lightbox.
+3. El lightbox no tiene su propia lógica de carga de alta resolución, reutiliza la URL del modal (que es de baja/media calidad).

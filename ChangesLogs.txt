@@ -90,3 +90,20 @@
 - Líneas 541-572: Implementada lógica de carga y anti-bloqueo en `handleEditNameSubmit`.
 
 **Versión:** Incremento a v4.9.25.
+
+**CHANGES LOG - 21/01/2026**
+
+**Archivo: index.html**
+- **Línea 1:** Actualizada la versión del componente a v4.9.26.
+- **Línea 7:** Actualizada la versión global a v4.9.26 en el título.
+- **Línea 269:** Actualizada la versión en el footer a v4.9.26.
+
+**Archivo: ui.js**
+- **Línea 1:** Añadida versión del componente v4.1.0.
+- **Líneas 12-15:** Definidas constantes `IMG_SIZE_SMALL` (300), `IMG_SIZE_MEDIUM` (800) y `IMG_SIZE_LARGE` (1600).
+- **Líneas 188, 212, 231, 261, 300, 394, 443, 486, 548, 600, 632, 693, 1308, 1487, 1513:** Implementado uso de `IMG_SIZE_SMALL` en todas las tarjetas y carruseles del catálogo.
+- **Líneas 190, 214, 233, 264, 302, 396, 445, 488, 550, 602, 634, 1310, 1489, 1515:** Añadido atributo `loading="lazy"` a todas las imágenes del catálogo.
+- **Líneas 723, 793, 954, 1207, 1595:** Implementado uso de `IMG_SIZE_MEDIUM` para imágenes en modales de detalle.
+- **Líneas 802, 957, 1214, 1598:** Optimizada la carga del lightbox para generar la URL `IMG_SIZE_LARGE` (alta resolución) únicamente al hacer clic, evitando la precarga.
+
+**Versión:** Incremento a v4.9.26.
