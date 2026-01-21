@@ -62,3 +62,19 @@
 - Líneas 488-511: Implementada función `handleEditNameSubmit` para procesar el cambio de nombre del perfil propio.
 
 **Versión:** Incremento a v4.9.23.
+
+**CHANGES LOG - 04/02/2026**
+
+**Archivo: api-config.js**
+- **Línea 12:** Actualizado el endpoint del servicio `USERS` al nuevo URL proporcionado por el usuario.
+
+**Archivo: index.html**
+- **Líneas 7, 269:** Actualizada la versión global a v4.9.24.
+
+**Archivo: users.html**
+- **Línea 238:** Actualizada la versión del componente a v3.9.1.
+
+**Archivo: services/users/users.js**
+- **Líneas 4, 48:** Actualizada la versión del componente a v2.4.2.
+
+**Estado de la Tarea:** COMPLETADA.

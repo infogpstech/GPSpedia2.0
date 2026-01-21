@@ -52,3 +52,9 @@ La auditoría no revela errores lógicos evidentes en el código actual, lo que 
 2. **CASING ERROR:** La instrucción especifica `Tecnico_exterior`. Se está usando `Tecnico_Exterior` (E mayúscula).
 3. **ID GENERATION RISK:** `handleCreateUser` no tiene `LockService`. Riesgo de colisión de ID en creación concurrente.
 4. **ROLE REDUNDANCY:** 'Gefe' y 'Jefe' están ambos en código. Se mantendrán por compatibilidad pero se priorizará 'Jefe' en la UI si es posible (se mantiene soporte dual en backend).
+
+**AUDITORÍA TÉCNICA - ACTUALIZACIÓN ENDPOINT USERS (04/02/2026)**
+- Archivo: api-config.js
+- Hallazgo: Se requiere actualizar el endpoint de USERS al nuevo URL proporcionado.
+- Riesgo: Si el nuevo microservicio tiene un contrato distinto al auditado en la tarea anterior, las funciones de RBAC podrían fallar. Se asume que el contrato se mantiene igual.
+- Versión: Se incrementará la versión global a v4.9.24.

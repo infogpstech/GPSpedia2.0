@@ -1,7 +1,7 @@
 // ============================================================================
 // GPSPEDIA-USERS SERVICE (COMPATIBLE WITH DB V2.0)
 // ============================================================================
-// COMPONENT VERSION: 2.4.1
+// COMPONENT VERSION: 2.4.2
 
 // ============================================================================
 // CONFIGURACIÓN GLOBAL
@@ -45,7 +45,7 @@ const COLS_ACTIVE_SESSIONS = {
 // ============================================================================
 
 function doGet(e) {
-    const defaultResponse = { status: 'success', message: 'GPSpedia Users-SERVICE v2.4.1 is active.' };
+    const defaultResponse = { status: 'success', message: 'GPSpedia Users-SERVICE v2.4.2 is active.' };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
         .setMimeType(ContentService.MimeType.TEXT);
 }
