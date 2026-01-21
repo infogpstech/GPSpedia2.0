@@ -208,7 +208,35 @@ Cualquier cambio en estas zonas invalidará el commit.
 ---
 **DERIVADO DE AUDITORÍA — NO EJECUTAR AÚN**
 ---
-*No hay tareas pendientes en esta sección.*
+1. **TÍTULO: Sincronización de Versión Global v2.0**
+   - **ESTADO:** PENDIENTE
+   - **ALCANCE:** Global
+   - **DESCRIPCIÓN:** Sincronizar la versión global para que el próximo gran lanzamiento sea `v2.0`. Actualmente en `v4.9.26`. Evaluar si saltar a `v5.0` o ajustar la convención.
+
+2. **TÍTULO: Lógica de Backend para Gestión de Años y Votos**
+   - **ESTADO:** PENDIENTE
+   - **ALCANCE:** Backend (Feedback Service)
+   - **DESCRIPCIÓN:** Implementar la lógica de backend para registrar los votos de años y la hoja de cálculo para almacenar dichos votos.
+
+3. **TÍTULO: Dashboard de Desempeño para Supervisores**
+   - **ESTADO:** PENDIENTE
+   - **ALCANCE:** UI / Backend
+   - **DESCRIPCIÓN:** Crear la nueva sección de Dashboard de Desempeño específicamente para roles de Supervisor (más allá de los logs de actividad actuales).
+
+4. **TÍTULO: Funcionalidad de Edición "In-Modal"**
+   - **ESTADO:** PENDIENTE
+   - **ALCANCE:** Frontend (UI) / Backend
+   - **DESCRIPCIÓN:** Permitir la edición de datos técnicos directamente desde el modal de detalles del vehículo.
+
+5. **TÍTULO: Lógica de Backend para el Sistema de Gestión de Feedback (Inbox)**
+   - **ESTADO:** PENDIENTE
+   - **ALCANCE:** Backend (Feedback Service)
+   - **DESCRIPCIÓN:** Completar la lógica de backend para el procesamiento de mensajes en el Inbox (la interfaz frontend ya existe).
+
+6. **TÍTULO: Expansión de Rango de Años por Feedback**
+   - **ESTADO:** PENDIENTE
+   - **ALCANCE:** Frontend (UI) / Backend
+   - **DESCRIPCIÓN:** Implementar la interfaz de usuario para que los técnicos sugieran nuevos años para un corte y la lógica de backend que expande el rango de años evitando colisiones de generaciones.
 
 ---
 **TAREAS COMPLETADAS (Validadas por el PM)**
