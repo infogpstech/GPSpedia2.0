@@ -393,7 +393,7 @@ function openUserModal(user = null) {
     const roleSelect = document.getElementById('role');
     roleSelect.innerHTML = '';
     let availableRoles = [];
-    if (currentUser.Privilegios === 'Desarrollador') availableRoles = ['Desarrollador', 'Gefe', 'Supervisor', 'Tecnico', 'Tecnico_Exterior'];
+    if (currentUser.Privilegios === 'Desarrollador') availableRoles = ['Desarrollador', 'Gefe', 'Supervisor', 'Tecnico', 'Tecnico_exterior'];
     else if (currentUser.Privilegios === 'Gefe' || currentUser.Privilegios === 'Jefe') availableRoles = ['Supervisor', 'Tecnico'];
     else if (currentUser.Privilegios === 'Supervisor') availableRoles = ['Tecnico'];
 

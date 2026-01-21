@@ -169,19 +169,30 @@ function handleGetUsers(payload) {
 }
 
 function handleCreateUser(payload) {
+    const lock = LockService.getScriptLock();
+    try {
+        lock.waitLock(30000); // 30 seconds lock
+    } catch (e) {
+        throw new Error("El servidor está ocupado. Por favor intenta de nuevo en unos momentos.");
+    }
+
     const { newUser, sessionToken } = payload;
-    if (!newUser || !sessionToken) throw new Error("Datos insuficientes para crear el usuario. Se requiere sessionToken.");
+    if (!newUser || !sessionToken) {
+        lock.releaseLock();
+        throw new Error("Datos insuficientes para crear el usuario. Se requiere sessionToken.");
+    }
 
     const { role: creatorRole } = getVerifiedSession(sessionToken);
     const userSheet = getSpreadsheet().getSheetByName(SHEET_NAMES.USERS);
 
     const allowedRoles = {
-        'Desarrollador': ['Desarrollador', 'Gefe', 'Supervisor', 'Tecnico', 'Tecnico_Exterior'],
+        'Desarrollador': ['Desarrollador', 'Gefe', 'Supervisor', 'Tecnico', 'Tecnico_exterior'],
         'Gefe': ['Supervisor', 'Tecnico'],
         'Jefe': ['Supervisor', 'Tecnico'],
         'Supervisor': ['Tecnico']
     };
     if (!allowedRoles[creatorRole] || !allowedRoles[creatorRole].includes(newUser.Privilegios)) {
+        lock.releaseLock();
         throw new Error(`El rol '${creatorRole}' no tiene permisos para crear usuarios de tipo '${newUser.Privilegios}'.`);
     }
 
@@ -213,7 +224,7 @@ function handleCreateUser(payload) {
     const dataRange = userSheet.getRange(newRowNumber, COLS_USERS.Nombre_Usuario, 1, dataToWrite.length);
     dataRange.setValues([dataToWrite]);
 
-
+    lock.releaseLock();
     return { status: 'success', message: `Usuario '${newUsername}' creado.` };
 }
 
@@ -251,7 +262,7 @@ function handleUpdateUser(payload) {
             if (updates.Privilegios) {
                 // Verificar que el nuevo privilegio también esté permitido para el updater
                 const allowedRoles = {
-                    'Desarrollador': ['Desarrollador', 'Gefe', 'Supervisor', 'Tecnico', 'Tecnico_Exterior'],
+                    'Desarrollador': ['Desarrollador', 'Gefe', 'Supervisor', 'Tecnico', 'Tecnico_exterior'],
                     'Gefe': ['Supervisor', 'Tecnico'],
                     'Jefe': ['Supervisor', 'Tecnico'],
                     'Supervisor': ['Tecnico']

@@ -46,3 +46,9 @@ La auditoría no revela errores lógicos evidentes en el código actual, lo que 
 - Solución: Implementar validación cruzada entre `sessionToken` y `userId` en el backend.
 - Hallazgo: Archivos .bak en el repositorio.
 - Solución: Eliminar antes del submit final.
+
+**AUDITORÍA FINAL CRÍTICA (04/02/2026) - HALLAZGOS JULES**
+1. **API-CONFIG ERROR:** `updateProfile` falta en `ACTION_TO_SERVICE_MAP`. Error fatal al intentar editar nombre de perfil.
+2. **CASING ERROR:** La instrucción especifica `Tecnico_exterior`. Se está usando `Tecnico_Exterior` (E mayúscula).
+3. **ID GENERATION RISK:** `handleCreateUser` no tiene `LockService`. Riesgo de colisión de ID en creación concurrente.
+4. **ROLE REDUNDANCY:** 'Gefe' y 'Jefe' están ambos en código. Se mantendrán por compatibilidad pero se priorizará 'Jefe' en la UI si es posible (se mantiene soporte dual en backend).
