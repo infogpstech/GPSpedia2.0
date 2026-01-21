@@ -52,7 +52,7 @@ h1.app-title {
     color: var(--header-color) !important;
 }
 .container {
-    padding: 20px;
+    padding: 20px 20px 80px 20px; /* Aumento de padding inferior para evitar bloqueo del footer */
     max-width: 1240px;
     margin: 0 auto;
     width: 100%;
@@ -1012,13 +1012,14 @@ body.search-active .container {
 .footer {
     text-align: center;
     padding: 20px 0;
-    margin-top: 40px;
+    margin-top: 0; /* Ajustado para evitar espacio fantasma */
     background-color: #333;
     color: #fff;
     font-size: 0.9em;
     display: none; /* Oculto por defecto */
     width: 100%;
     transition: all 0.35s ease-in-out;
+    flex-shrink: 0; /* Garantiza que el footer no se colapse ni empuje excesivamente */
 }
 .footer-links {
     margin-top: 10px; /* Added margin to separate from copyright */

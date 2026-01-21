@@ -13,6 +13,7 @@ import * as navigation from './navigation.js';
 import './lightbox.js';
 
 let deferredPrompt;
+let searchBlurTimeout;
 
 /**
  * Main function to initialize the application.
@@ -58,18 +59,17 @@ async function initializeApp() {
     }
 
     // --- LÓGICA DE ANIMACIÓN DE LA BARRA DE BÚSQUEDA ---
-    // Añade la clase 'search-active' al body cuando el input gana el foco.
+    // Estabilización de la clase 'search-active' para evitar saltos visuales al limpiar búsqueda.
     searchInput.addEventListener('focus', () => {
+        if (searchBlurTimeout) clearTimeout(searchBlurTimeout);
         document.body.classList.add('search-active');
     });
 
-    // Elimina la clase 'search-active' del body cuando el input pierde el foco.
-    // Se utiliza un setTimeout para permitir que los eventos de clic en los resultados de búsqueda se registren
-    // antes de que la UI se revierta a su estado normal.
     searchInput.addEventListener('blur', () => {
-        setTimeout(() => {
+        // Se utiliza un timeout para evitar el cierre inmediato al hacer clic en el botón de limpiar (X)
+        searchBlurTimeout = setTimeout(() => {
             document.body.classList.remove('search-active');
-        }, 200); // 200ms de retardo
+        }, 250);
     });
 
     // --- LÓGICA DINÁMICA DE VIEWPORT PARA MÓVIL ---
@@ -105,6 +105,46 @@ async function initializeApp() {
     // Hamburger menu listeners
     document.getElementById('hamburger-btn').addEventListener('click', ui.openSideMenu);
     document.getElementById('menu-overlay').addEventListener('click', ui.closeSideMenu);
+
+    // Navigation links in side menu - Unified Handlers
+    // Restauración de funciones para Cortes, Tutoriales y Relay
+    ['cortes', 'tutoriales', 'relay'].forEach(section => {
+        const btn = document.getElementById(`menu-${section}`);
+        if (btn) {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                ui.mostrarSeccion(section);
+                ui.closeSideMenu();
+            });
+        }
+    });
+
+    // Dark Mode Toggle Logic with Logo Swap and Persistence
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+    const appLogo = document.querySelector('.app-logo');
+    const lightLogo = "https://drive.google.com/thumbnail?id=1NxBx-W_gWmcq3fA9zog6Dpe-WXpH_2e8&sz=2048";
+    const darkLogo = "Logo_TemaOscuro.png";
+
+    if (darkModeToggle) {
+        // Carga inicial de preferencia desde localStorage
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+            darkModeToggle.checked = true;
+            if (appLogo) appLogo.src = darkLogo;
+        }
+
+        darkModeToggle.addEventListener('change', () => {
+            if (darkModeToggle.checked) {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('darkMode', 'true');
+                if (appLogo) appLogo.src = darkLogo;
+            } else {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('darkMode', 'false');
+                if (appLogo) appLogo.src = lightLogo;
+            }
+        });
+    }
 
     // --- LÓGICA DE GESTO PULL-TO-REFRESH (Restaurada) ---
     const container = document.querySelector('.container');
@@ -161,7 +201,7 @@ async function initializeApp() {
         ui.openFAQ();
     });
 
-    // Dashboard button listener
+    // Dashboard button listener - Restauración de funcionalidad
     const dashboardBtn = document.getElementById('dashboard-btn');
     if (dashboardBtn) {
         dashboardBtn.addEventListener('click', (e) => {
@@ -215,19 +255,15 @@ async function initializeApp() {
 
         const formData = { name, email, message, userId };
 
-        console.log("[Contact Form] Submitting:", formData);
-
         try {
             submitBtn.classList.add('btn-loading');
 
             const result = await routeAction('sendContactForm', formData);
-            console.log("[Contact Form] Success:", result);
 
             alert('¡Gracias! Tu mensaje ha sido enviado correctamente.');
             e.target.reset();
             document.getElementById('contact-modal').style.display = 'none';
         } catch (error) {
-            console.error('[Contact Form] Error:', error);
             ui.showGlobalError(`Hubo un error al enviar el mensaje: ${error.message}`);
         } finally {
             submitBtn.classList.remove('btn-loading');

@@ -281,11 +281,15 @@ function handleChangePassword(payload) {
     data.shift();
 
     for (let i = 0; i < data.length; i++) {
-        if (data[i][COLS_USERS.ID - 1] == userId) {
+        // Comparación flexible del ID (soporta string o number)
+        if (String(data[i][COLS_USERS.ID - 1]) === String(userId)) {
             const storedPassword = String(data[i][COLS_USERS.Password - 1]);
-            if (storedPassword.toLowerCase() !== currentPassword.toLowerCase()) {
+
+            // FIX: Comparación case-sensitive para contraseñas.
+            if (storedPassword !== currentPassword) {
                 throw new Error("La contraseña actual es incorrecta.");
             }
+
             userSheet.getRange(i + 2, COLS_USERS.Password).setValue(newPassword);
             return { status: 'success', message: 'Contraseña actualizada correctamente.' };
         }

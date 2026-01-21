@@ -176,16 +176,24 @@ El incumplimiento de CUALQUIER paso
 INVALIDA el proceso completo.
 
 
-— ZONAS PROTEGIDAS (ACCESO RESTRINGIDO)
+— ZONAS SEGURAS (ACCESO RESTRINGIDO - PRECAUCIÓN)
 ===================================================================
-Las siguientes secciones del código y funcionalidades están
-bajo PROTECCIÓN CRÍTICA. Queda PROHIBIDA cualquier modificación
-de su funcionamiento, lógica o estilos sin autorización expresa.
+Las siguientes secciones del código y funcionalidades están bajo PROTECCIÓN CRÍTICA y se consideran ZONAS SEGURAS. Cualquier modificación de su funcionamiento, lógica o estilos requiere autorización expresa y auditoría rigurosa.
 
 1. FORMULARIO AGREGAR CORTES (add_cortes.html):
    - Etapa 1: Verificación de Vehículo.
    - Etapa 1.5: Modal de Verificación (Anti-duplicado).
    - Etapa 2: Registro de Nuevo Corte.
+
+2. NAVEGACIÓN Y MENÚ LATERAL (index.html, main.js):
+   - Listeners de navegación (Cortes, Tutoriales, Relay).
+   - Lógica de Modo Oscuro y persistencia del tema.
+   - Modal de Dashboard y visualización de logs de actividad.
+
+3. LAYOUT PRINCIPAL Y FOOTER (index.html, style.css):
+   - Estructura flex-column del body.
+   - Padding inferior del .container para evitar solapamiento con el footer.
+   - Visibilidad del carrusel de marcas en la página de inicio.
 
 Cualquier cambio en estas zonas invalidará el commit.
 
@@ -202,109 +210,42 @@ Cualquier cambio en estas zonas invalidará el commit.
 ---
 1. **TÍTULO: Implementación de Modal de Verificación y Mejoras en Flujo de Cortes (v4.9.15)**
    - **ESTADO:** COMPLETADO
-   - **TIPO:** Funcional | Estructural | UI/UX
-   - **ALCANCE:** Formulario `add_cortes.html` y servicio `write.js`.
+2. **TÍTULO: Restauración de Funciones del Menú Hamburguesa, Modo Oscuro y Fix de Footer (v4.9.18)**
+   - **ESTADO:** COMPLETADO
+   - **ALCANCE:** index.html, main.js, style.css
    - **DESCRIPCIÓN DETALLADA:**
-     - **Etapa 1.5:** Implementación completa del modal anti-duplicado con previsualización de imagen de vehículo y cortes (120x90).
-     - **Lightbox:** Integración de lightbox funcional para las imágenes de los cortes en la verificación.
-     - **Navegación:** Corrección de botones inactivos y adición de navegación "Volver" entre todas las etapas.
-     - **Backend:** Mejora en la lógica de generación de ID en `write.js` asegurando la presencia de fórmulas.
-     - **Versionamiento:** Proyecto actualizado a v4.9.15.
+     - **Navegación:** Restaurados y unificados los listeners para 'Cortes', 'Tutoriales' y 'Configuración Relay'.
+     - **Dashboard:** Restaurada la funcionalidad completa del botón Dashboard.
+     - **Modo Oscuro:** Implementada lógica con persistencia en localStorage e intercambio dinámico de logo.
+     - **Layout:** Corregido bloqueo visual del carrusel de marcas mediante ajuste de padding y flex-shrink en el footer.
 
-2. **TÍTULO: Reparación de Layout de Búsqueda y Box-Sizing (v4.9.9)**
+---
+**TAREAS COMPLETADAS (Validadas por el PM)**
+---
+1. **TÍTULO: Reparación de Cambio de Contraseña y Mejora Visual de Tabla de Usuarios (v4.9.20)**
    - **ESTADO:** COMPLETADO
-   - **TIPO:** Bugfix Layout / CSS Robustness
-   - **ALCANCE:** Corrección del desbordamiento horizontal de la barra de búsqueda.
+   - **ALCANCE:** users.html, services/users/users.js
    - **DESCRIPCIÓN DETALLADA:**
-     - **Reset:** Implementación de `box-sizing: border-box` global.
-     - **Layout:** Refinamiento de la unificación de búsqueda para garantizar ancho del 100% real.
-     - **Versión:** Incremento a v4.9.9.
+     - **Frontend:** Corregida la obtención robusta del ID de usuario (ID/id) y validación previa al envío.
+     - **Backend:** Corregida la comparación de contraseñas para ser case-sensitive (seguridad y compatibilidad).
+     - **Layout:** Ajustados estilos de tabla para evitar reducción de fuentes y márgenes, manteniendo el scroll invisible funcional.
 
-3. **TÍTULO: Reparación Definitiva y Alta Densidad de Inbox (v4.9.12)**
+---
+**TAREAS COMPLETADAS (Validadas por el PM)**
+---
+1. **TÍTULO: Actualización de Endpoint de Usuarios y Refinamiento Compacto de Tabla (v4.9.21)**
    - **ESTADO:** COMPLETADO
-   - **TIPO:** UI/UX Repair / High Density
-   - **ALCANCE:** Corrección estructural y visual completa del módulo de Inbox.
+   - **ALCANCE:** api-config.js, users.html
    - **DESCRIPCIÓN DETALLADA:**
-     - **Estructura:** Eliminación de estilos inline en index.html que bloqueaban el diseño.
-     - **Densidad:** Reducción drástica de márgenes y paddings para maximizar área útil.
-     - **Tipografía:** Reducción de fuentes en títulos de modal, detalle e ítems.
-     - **Interactividad:** Implementación de paneles con scroll independiente y gaps mínimos.
-     - **Versionamiento:** Incremento a v4.9.12.
-
-4. **TÍTULO: Refactorización de estilos de bandeja de entrada y corrección de metadatos (v4.9.13)**
-   - **ESTADO:** COMPLETADO
-   - **TIPO:** UI/UX
-   - **ALCANCE:** Estilos de Inbox de alta densidad y visualización de nombre de vehículo.
-   - **DESCRIPCIÓN DETALLADA:**
-     - **Estilo Inbox:** Reducción de fuentes, márgenes mínimos y scroll independiente por panel.
-     - **Metadatos:** Conversión de ID de vehículo a Marca/Modelo/Año en el detalle del Inbox.
-
-2. **TÍTULO: Finalización de Backlog y Nuevas Funcionalidades (v4.9.8)**
-   - **ESTADO:** COMPLETADO
-   - **TIPO:** Feature / Optimization / Bugfix
-   - **ALCANCE:** Entrega final de 7 tareas críticas + Dashboard + Edición + Sugerencia de Años.
-   - **DESCRIPCIÓN DETALLADA:**
-     - **Dashboard:** Panel de actividad para roles autorizados.
-     - **Sugerencia de Años:** Interfaz de usuario para proponer datos.
-     - **Edición:** Acceso directo a edición desde el catálogo.
-     - **Rendimiento:** Implementación de Lazy Load e inicio reactivo.
-     - **Audit-Fix:** Resolución de errores de referencia y unificación de CSS.
-
-2. **TÍTULO: Correcciones Críticas GPSpedia (v4.9.7)**
-   - **ESTADO:** COMPLETADO
-   - **TIPO:** Optimización / Bugfix / UX / Robustez
-   - **ALCANCE:** Ejecución del backlog de 7 tareas críticas.
-   - **DESCRIPCIÓN DETALLADA:**
-     - **Splash Screen:** Carga no bloqueante de datos en segundo plano mediante sistema de observadores en `state.js`.
-     - **Búsqueda:** Refinamiento de lógica de años (1900-2100) y priorización de modelos exactos.
-     - **Videos:** Normalización robusta de URLs de YouTube en backend y frontend.
-     - **Inbox:** Extracción resiliente de datos desde el API de feedback.
-     - **Animaciones:** Optimización GPU del header para evitar lag.
-     - **Imágenes:** Incremento de resolución para pantallas de alta densidad.
-
-3. **TÍTULO: Reparación de Precisión de Layout y Logo (v4.9.6)**
-   - **ESTADO:** COMPLETADO
-   - **TIPO:** Refinamiento UI / Bugfix Layout / Unificación CSS
-   - **ALCANCE:** Corrección milimétrica de centrado de logo y desbordamiento horizontal.
-
-4. **TÍTULO: Corrección de Regresiones del Header (v4.9.5)**
-   - **ESTADO:** COMPLETADO
-   - **TIPO:** Bugfix / UX / Regresión
-
-5. **TÍTULO: Restauración de Animaciones y Botón Hamburguesa**
-   - **ESTADO:** COMPLETADO
-   - **TIPO:** Fix UX / UI Regression / Animaciones
-
-6. **TÍTULO: Reconstrucción Extrema del Header y Fix de Espacio Fantasma**
-   - **ESTADO:** COMPLETADO
-   - **TIPO:** Refactor Estructural / Layout Móvil / UX
-
-7. **TÍTULO: Corrección de Causa Raíz de Fallos en Búsqueda y Modal**
-   - **ESTADO:** COMPLETADO
-   - **TIPO:** Corrección de Causa Raíz / Bug de Datos / Bug Visual de CSS
-
-8. MEJORA Y REFINAMIENTO DE ANIMACIÓN DE BÚSQUEDA
-Estado: COMPLETADO
-Origen: Refinamiento UX
-Prioridad: Normal
-Área: Frontend | UI | CSS | JS
-Archivos involucrados: style.css, main.js
-
-9. INVESTIGAR CIERRE DE SESIÓN INESPERADO TRAS REFRESH
-Estado: COMPLETADO
-Origen: Reporte de Bug
-Prioridad: CRÍTICA
-Área: Frontend | Autenticación | Estado
-Archivos involucrados: auth.js
-
-10. CORRECCIÓN DEL SISTEMA DE BÚSQUEDA Y NAVEGACIÓN
-Estado: COMPLETADO
-Origen: Múltiples reportes de bugs y regresiones.
-Prioridad: CRÍTICA
-Área: Frontend | Navegación | Búsqueda | UX
-Archivos involucrados: ui.js, navigation.js
+     - **Configuración:** Actualizado el URL del microservicio USERS a la nueva versión proporcionada.
+     - **Layout:** Refinamiento de la tabla de usuarios reduciendo paddings (8px 10px) y font-size (0.9rem) para un diseño más compacto y eficiente.
 
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-*No hay tareas pendientes en esta sección.*
+1. **TÍTULO: Reparación Definitiva de Cambio de Contraseña (v4.9.22)**
+   - **ESTADO:** PENDIENTE REVISIÓN POR EL MP
+   - **ALCANCE:** users.html
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Bug Fix:** Identificada y corregida duplicidad de ID 'password-modal' que impedía la apertura del modal de cambio de contraseña.
+     - **Frontend:** Renombrado el campo de contraseña en el modal de edición de usuario a 'user-password' para resolver el conflicto de selectores.

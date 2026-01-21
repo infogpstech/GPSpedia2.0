@@ -1,32 +1,19 @@
-**AUDITORÍA DE BOTONES DE ENVÍO (04/02/2026)**
+**AUDITORÍA TÉCNICA - GESTIÓN DE USUARIOS (PHASE 5)**
 
-**Archivos involucrados:**
-- index.html
-- style.css
-- add_cortes.html
-- ui.js
-- main.js
-- auth.js
+**Archivo: users.html**
+- **Estado de Listeners:** El listener del botón `change-password-btn` está correctamente definido dentro de `setupEventListeners`. Sin embargo, si `displayProfile()` falla o hay un error de sintaxis previo, los listeners no se adjuntan.
+- **Acceso a Variables:** `currentUser` es una variable global. Se inicializa en `DOMContentLoaded`.
+- **Posible Falla de Modal:** El uso de `passwordModal.style.display = 'block'` depende de que la variable `passwordModal` (capturada en el scope de `setupEventListeners`) sea válida.
+- **Validación de ID:** Se utiliza `const userId = currentUser.ID || currentUser.id;`.
 
-**Botones identificados:**
-1. **Login:** `#login-form button` (index.html)
-2. **Contactos:** `#contact-form button` (index.html)
-3. **Inbox - Responder:** `#inbox-reply-btn` (ui.js, generado dinámicamente)
-4. **Inbox - Resolver:** `#inbox-resolve-btn` (ui.js, generado dinámicamente)
-5. **Reportar:** `.report-btn` (ui.js, generado dinámicamente)
-6. **Agregar Cortes - Verificación:** `#form-stage-1 button[type="submit"]` (add_cortes.html)
-7. **Agregar Cortes - Paso 2:** `#form-stage-2 button[type="submit"]` (add_cortes.html)
-8. **Agregar Cortes - Paso 3:** `#form-stage-3 button[type="submit"]` (add_cortes.html)
+**Archivo: services/users/users.js (Backend)**
+- **Lógica de Comparación:** Se utiliza `String(data[i][COLS_USERS.ID - 1]) === String(userId)`. Esto es correcto para evitar problemas de tipos.
+- **Seguridad:** La comparación de contraseñas es ahora case-sensitive: `storedPassword !== currentPassword`.
 
-**Requerimientos de animación:**
-- Clase `.btn-loading` en CSS para añadir spinner.
-- El botón de login tendrá su propio spinner con su color.
-- Modificar los handlers de JS para añadir/quitar la clase durante las peticiones asíncronas.
+**Hallazgos Pendientes de Verificar:**
+1. ¿Se abre realmente el modal al hacer clic? Si no, hay un error de JS silencioso.
+2. ¿La petición llega al backend? Si llega y falla, el error debe estar en la lógica de búsqueda de fila o en los permisos.
+3. El usuario reporta que "aún no funciona". Esto sugiere que la acción de clic no produce el resultado esperado (abrir modal o procesar cambio).
 
-**Zonas protegidas:**
-- PROHIBIDO modificar funcionamiento y estilos base. Solo se permite añadir la animación de carga.
-
-**HALLAZGOS:**
-- `ui.js`: El botón de reporte (`report-btn`) ya tiene un cambio de color manual en la línea 859. Se debe reemplazar por la clase de animación.
-- `add_cortes.html`: Tiene su propio bloque `<style>`. Se debe añadir allí también.
-- `style.css`: Se añadirá la clase global `.btn-loading`.
+**Conclusión:**
+La auditoría no revela errores lógicos evidentes en el código actual, lo que sugiere una falla de entorno o un error de ejecución no capturado. Se requiere depuración dinámica.
