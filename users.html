@@ -137,7 +137,10 @@
         <div id="profile-section" class="profile-section">
             <h1>Mi Perfil</h1>
             <p><strong>Nombre de Usuario:</strong> <span id="profile-username"></span></p>
-            <p><strong>Nombre Completo:</strong> <span id="profile-fullname"></span></p>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                <p style="margin: 0;"><strong>Nombre Completo:</strong> <span id="profile-fullname"></span></p>
+                <button id="edit-name-btn" class="btn btn-warning" style="padding: 2px 8px; font-size: 0.8rem;">Editar</button>
+            </div>
             <p><strong>Rol:</strong> <span id="profile-role"></span></p>
             <button id="change-password-btn" class="btn btn-primary">Cambiar Contraseña</button>
         </div>
@@ -193,6 +196,21 @@
         </div>
     </div>
 
+    <!-- Edit Name Modal -->
+    <div id="name-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Editar Nombre</h2>
+            <form id="name-form">
+                <div class="form-group">
+                    <label for="new-fullname">Nombre Completo</label>
+                    <input type="text" id="new-fullname" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            </form>
+        </div>
+    </div>
+
     <!-- Change Password Modal -->
     <div id="password-modal" class="modal">
         <div class="modal-content">
@@ -217,7 +235,7 @@
     </div>
 <script type="module">
 import { routeAction } from './api-config.js';
-// COMPONENT VERSION: 3.9.0
+// COMPONENT VERSION: 3.9.1
 // --- LÓGICA DE DEPURACIÓN REMOTA ---
 function remoteLog(level, message, data = {}) {
     fetch(SCRIPT_URL, {
@@ -251,7 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
 
     const userRole = (currentUser.Privilegios || '').trim();
-    if (['Desarrollador', 'Gefe', 'Supervisor'].includes(userRole)) {
+    if (['Desarrollador', 'Gefe', 'Jefe', 'Supervisor'].includes(userRole)) {
         document.getElementById('user-management-section').style.display = 'block';
         fetchUsers();
     }
@@ -333,6 +351,10 @@ function setupEventListeners() {
 
     document.getElementById('create-user-btn').addEventListener('click', () => openUserModal());
     document.getElementById('change-password-btn').addEventListener('click', () => passwordModal.style.display = 'block');
+    document.getElementById('edit-name-btn').addEventListener('click', () => {
+        document.getElementById('new-fullname').value = currentUser.Nombre_Completo;
+        document.getElementById('name-modal').style.display = 'block';
+    });
 
     closeBtns.forEach(btn => {
         btn.parentElement.parentElement.onclick = (e) => {
@@ -346,8 +368,8 @@ function setupEventListeners() {
     });
 
     document.getElementById('user-form').addEventListener('submit', handleUserFormSubmit);
-    // FIX Tarea 23: Se añade el event listener faltante para el formulario de cambio de contraseña.
     document.getElementById('password-form').addEventListener('submit', handleChangePasswordSubmit);
+    document.getElementById('name-form').addEventListener('submit', handleEditNameSubmit);
 }
 
 function openUserModal(user = null) {
@@ -361,16 +383,18 @@ function openUserModal(user = null) {
             document.getElementById('user-id').value = user.ID;
             document.getElementById('fullname').value = user.Nombre_Completo;
             document.getElementById('username-modal').value = user.Nombre_Usuario;
+            document.getElementById('username-modal').disabled = true; // PROHIBIDO cambiar username
         } else {
             title.textContent = 'Crear Nuevo Usuario';
             document.getElementById('user-id').value = '';
+            document.getElementById('username-modal').disabled = false;
         }
 
     const roleSelect = document.getElementById('role');
     roleSelect.innerHTML = '';
     let availableRoles = [];
-    if (currentUser.Privilegios === 'Desarrollador') availableRoles = ['Desarrollador', 'Gefe', 'Supervisor', 'Tecnico', 'Tecnico_Exterior'];
-    else if (currentUser.Privilegios === 'Gefe') availableRoles = ['Gefe', 'Supervisor', 'Tecnico'];
+    if (currentUser.Privilegios === 'Desarrollador') availableRoles = ['Desarrollador', 'Gefe', 'Supervisor', 'Tecnico', 'Tecnico_exterior'];
+    else if (currentUser.Privilegios === 'Gefe' || currentUser.Privilegios === 'Jefe') availableRoles = ['Supervisor', 'Tecnico'];
     else if (currentUser.Privilegios === 'Supervisor') availableRoles = ['Tecnico'];
 
     availableRoles.forEach(role => {
@@ -441,7 +465,6 @@ async function handleChangePasswordSubmit(e) {
     }
 
     try {
-        // Validación de ID de usuario antes de proceder
         const userId = currentUser.ID || currentUser.id;
         if (!userId) {
             alert('Error: No se pudo identificar al usuario actual. Por favor reincie sesión.');
@@ -459,6 +482,30 @@ async function handleChangePasswordSubmit(e) {
         document.getElementById('password-form').reset();
     } catch (error) {
         // Error is already handled and alerted by postToAction
+    }
+}
+
+async function handleEditNameSubmit(e) {
+    e.preventDefault();
+    const newFullname = document.getElementById('new-fullname').value;
+
+    try {
+        const userId = currentUser.ID || currentUser.id;
+        await postToAction('updateProfile', {
+            userId: userId,
+            updates: { Nombre_Completo: newFullname },
+            sessionToken: currentUser.SessionToken
+        });
+
+        // Actualizar datos locales y UI
+        currentUser.Nombre_Completo = newFullname;
+        localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+        displayProfile();
+
+        alert('Nombre actualizado correctamente.');
+        document.getElementById('name-modal').style.display = 'none';
+    } catch (error) {
+        // Error is already handled
     }
 }
 </script>

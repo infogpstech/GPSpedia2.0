@@ -195,6 +195,11 @@ Las siguientes secciones del código y funcionalidades están bajo PROTECCIÓN C
    - Padding inferior del .container para evitar solapamiento con el footer.
    - Visibilidad del carrusel de marcas en la página de inicio.
 
+4. GESTIÓN DE USUARIOS Y RBAC (users.html, services/users/users.js):
+   - Lógica de filtrado por rol (RBAC) en frontend y backend.
+   - Edición de perfil propio y restricciones de cambio de username.
+   - Modales de cambio de contraseña y edición de nombre.
+
 Cualquier cambio en estas zonas invalidará el commit.
 
 ---
@@ -241,11 +246,18 @@ Cualquier cambio en estas zonas invalidará el commit.
      - **Layout:** Refinamiento de la tabla de usuarios reduciendo paddings (8px 10px) y font-size (0.9rem) para un diseño más compacto y eficiente.
 
 ---
+**TAREAS COMPLETADAS (Validadas por el PM)**
+---
+1. **TÍTULO: Reparación de Cambio de Contraseña y RBAC (v4.9.22 - v4.9.24)**
+   - **ESTADO:** COMPLETADO
+   - **ALCANCE:** users.html, services/users/users.js, api-config.js
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Bug Fix:** Resuelta duplicidad de ID 'password-modal' y corregido ruteo de 'updateProfile'.
+     - **RBAC:** Implementado control de acceso jerárquico y filtrado de visibilidad en backend y frontend.
+     - **Perfil:** Añadida edición de nombre propio y bloqueo estricto de edición de username.
+     - **Seguridad:** Reforzada validación de propiedad de cuenta y concurrencia (LockService).
+
+---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-1. **TÍTULO: Reparación Definitiva de Cambio de Contraseña (v4.9.22)**
-   - **ESTADO:** PENDIENTE REVISIÓN POR EL MP
-   - **ALCANCE:** users.html
-   - **DESCRIPCIÓN DETALLADA:**
-     - **Bug Fix:** Identificada y corregida duplicidad de ID 'password-modal' que impedía la apertura del modal de cambio de contraseña.
-     - **Frontend:** Renombrado el campo de contraseña en el modal de edición de usuario a 'user-password' para resolver el conflicto de selectores.
+*No hay tareas pendientes en esta sección.*
