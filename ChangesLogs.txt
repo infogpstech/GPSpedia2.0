@@ -137,3 +137,22 @@
 - **Actualización Global:** Sincronización de todos los microservicios (`auth`, `catalog`, `feedback`, `users`, `write`, `image`, `utilities`) a la versión v2.0.0.
 
 **Versión:** Lanzamiento Global GPSpedia v2.0.
+
+**CHANGES LOG - 05/02/2026**
+
+**Archivo: README.md**
+- Línea 46: Ajustada la descripción del sistema de Feedback para reflejar la funcionalidad real (Likes y Reportes) eliminando menciones a votos de utilidad en desarrollo.
+
+**Archivo: main.js**
+- Líneas 298-342: Implementada lógica global de seguridad: bloqueo de menú contextual, F12, Ctrl+Shift+I/J/C, Ctrl+U y zoom manual. Se añadió excepción de zoom para el Lightbox.
+
+**Archivo: users.html**
+- Líneas 574-591: Replicada lógica de seguridad para asegurar protección en la sección de gestión de usuarios.
+
+**Archivo: add_cortes.html**
+- Líneas 589-606: Replicada lógica de seguridad para asegurar protección en el formulario de registro de cortes.
+
+**Archivo: ChangeLog_v2.0_vs_v1.5.txt**
+- Creación del documento comparativo detallado de funcionalidades entre versiones.
+
+**Versión:** Mantenimiento de seguridad v2.0.1.

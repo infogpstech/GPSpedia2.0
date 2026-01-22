@@ -1,104 +1,91 @@
-**AUDITORÍA TÉCNICA - GESTIÓN DE USUARIOS (PHASE 5)**
+**AUDITORÍA TÉCNICA - TAREA 1: UNIFICAR README.md (05/02/2026)**
 
-**Archivo: users.html**
-- **Estado de Listeners:** El listener del botón `change-password-btn` está correctamente definido dentro de `setupEventListeners`. Sin embargo, si `displayProfile()` falla o hay un error de sintaxis previo, los listeners no se adjuntan.
-- **Acceso a Variables:** `currentUser` es una variable global. Se inicializa en `DOMContentLoaded`.
-- **Posible Falla de Modal:** El uso de `passwordModal.style.display = 'block'` depende de que la variable `passwordModal` (capturada en el scope de `setupEventListeners`) sea válida.
-- **Validación de ID:** Se utiliza `const userId = currentUser.ID || currentUser.id;`.
+**Archivo: README.md**
+- L10: "Navegación Inteligente" - Concuerda con la implementación en `ui.js` y `state.js`.
+- L11: "Buscador Avanzado" - Concuerda con la implementación en `main.js`.
+- L12: "Catálogo Optimizado" - Concuerda con el uso de `loading="lazy"` y constantes de tamaño en `ui.js`.
+- L13: "Detalle Técnico Exhaustivo" - Concuerda con el modal de detalles y vínculos a YouTube en `ui.js`.
+- L14: "Gestión de Feedback (Inbox)" - El frontend existe en `ui.js` (`getFeedbackItems`). El backend se encuentra ruteado en `api-config.js` a `FEEDBACK`. Sin embargo, `Instrucciones.txt` Tarea 8 dice "Lógica de Backend... PENDIENTE". Esto sugiere que aunque el endpoint existe, su lógica interna podría estar incompleta o en fase beta. Se mantendrá como característica v2.0 ya que el ruteo está presente.
+- L15: "Dashboard de Actividad" - Concuerda con `getActivityLogs` en `api-config.js` y `ui.js`.
+- L16: "Seguridad y Roles (RBAC)" - Concuerda con la implementación en `users.html` y `services/users/users.js`.
+- L22-31: Flujo de Registro - Concuerda con la lógica de 3 etapas en `add_cortes.html`.
+- L35-43: Arquitectura - Concuerda con la estructura de archivos y microservicios.
+- L47-59: Comparativa y Changelog - Refleja adecuadamente el salto tecnológico.
 
-**Archivo: services/users/users.js (Backend)**
-- **Lógica de Comparación:** Se utiliza `String(data[i][COLS_USERS.ID - 1]) === String(userId)`. Esto es correcto para evitar problemas de tipos.
-- **Seguridad:** La comparación de contraseñas es ahora case-sensitive: `storedPassword !== currentPassword`.
+**Hallazgos:**
+- El README parece estar bastante actualizado tras la revisión del 21/01/2026.
+- No se detectan bloques duplicados evidentes en el contenido actual (v2.0).
+- Se observa que la mención a "Votos de utilidad" en la comparativa (L55) contradice la Tarea 5 de `Instrucciones.txt` que la marca como PENDIENTE.
+- Se eliminarán menciones a funcionalidades marcadas explícitamente como PENDIENTES en el backlog de `Instrucciones.txt` para cumplir con "No documentar features no presentes en el código".
 
-**Hallazgos Pendientes de Verificar:**
-1. ¿Se abre realmente el modal al hacer clic? Si no, hay un error de JS silencioso.
-2. ¿La petición llega al backend? Si llega y falla, el error debe estar en la lógica de búsqueda de fila o en los permisos.
-3. El usuario reporta que "aún no funciona". Esto sugiere que la acción de clic no produce el resultado esperado (abrir modal o procesar cambio).
+**Acciones:**
+- Ajustar L55 (Feedback) para reflejar el estado actual (Likes/Reportes funcionales, Votos de años en desarrollo).
+- Consolidar cualquier información redundante si se encuentra durante la edición.
 
-**Conclusión:**
-La auditoría no revela errores lógicos evidentes en el código actual, lo que sugiere una falla de entorno o un error de ejecución no capturado. Se requiere depuración dinámica.
+--------------------------------------------------
 
-**AUDITORÍA LÍNEA POR LÍNEA - TAREA RBAC (04/02/2026)**
+**AUDITORÍA TÉCNICA - TAREA 2: SISTEMA ANTI-DEBUGGING (05/02/2026)**
 
-**Archivo: users.html**
-- L125-129: `displayProfile()` solo visualiza datos. Falta botón/lógica para "Cambiar Nombre" en perfil propio.
-- L249: `openUserModal()` no deshabilita el campo `username-modal` al editar. Incumple "Ningún usuario puede cambiar su nombre de usuario".
-- L268-270: `availableRoles` para 'Gefe' incluye 'Gefe'. Debe ser solo 'Supervisor' y 'Tecnico'.
-- L271: `availableRoles` para 'Supervisor' es 'Tecnico'. Correcto.
-- L290: `handleUserFormSubmit` permite enviar un nuevo `Nombre_Usuario` en actualizaciones.
+**Archivos involucrados:** `main.js`, `index.html`, `users.html`, `add_cortes.html`, `style.css`.
 
-**Archivo: services/users/users.js**
-- L144: `handleGetUsers` no filtra por rol. Retorna todos los usuarios. Incumple visibilidad restringida por rol.
-- L173: `allowedRoles` para 'Gefe' permite crear 'Gefe'. Debe ser solo 'Supervisor' y 'Tecnico'.
-- L209: `canUpdate` para 'Gefe' permite editar casi todo. Debe ser solo 'Supervisor' y 'Tecnico'.
-- L218: `handleUpdateUser` permite cambiar `Nombre_Usuario`. Incumple restricción global.
-- L245: `canDelete` para 'Gefe' permite eliminar casi todo. Debe ser solo 'Supervisor' y 'Tecnico'.
-- L274: `handleChangePassword` no valida que el usuario que cambia la contraseña sea el mismo que el del `userId` o un admin con permisos. (Aunque el frontend envía el ID propio).
-
-**Hallazgos Críticos:**
-1. El filtrado de la tabla de usuarios debe ser tanto en Backend (seguridad) como en Frontend (UX).
-2. Se debe implementar `changeName` en el backend y frontend para cumplir con "Todos los roles pueden: Cambiar su propio nombre".
-
-**AUDITORÍA POST-CODE REVIEW (04/02/2026)**
-- Hallazgo: Duplicación de lógica de validación de sesión en `handleUpdateProfile`.
-- Solución: Crear función helper `getVerifiedSession(sessionToken)` que retorne un objeto con `userId` y `role`.
-- Hallazgo: `handleChangePassword` no valida propiedad de la cuenta.
-- Solución: Implementar validación cruzada entre `sessionToken` y `userId` en el backend.
-- Hallazgo: Archivos .bak en el repositorio.
-- Solución: Eliminar antes del submit final.
-
-**AUDITORÍA FINAL CRÍTICA (04/02/2026) - HALLAZGOS JULES**
-1. **API-CONFIG ERROR:** `updateProfile` falta en `ACTION_TO_SERVICE_MAP`. Error fatal al intentar editar nombre de perfil.
-2. **CASING ERROR:** La instrucción especifica `Tecnico_exterior`. Se está usando `Tecnico_Exterior` (E mayúscula).
-3. **ID GENERATION RISK:** `handleCreateUser` no tiene `LockService`. Riesgo de colisión de ID en creación concurrente.
-4. **ROLE REDUNDANCY:** 'Gefe' y 'Jefe' están ambos en código. Se mantendrán por compatibilidad pero se priorizará 'Jefe' en la UI si es posible (se mantiene soporte dual en backend).
-
-**AUDITORÍA TÉCNICA - ACTUALIZACIÓN ENDPOINT USERS (04/02/2026)**
-- Archivo: api-config.js
-- Hallazgo: Se requiere actualizar el endpoint de USERS al nuevo URL proporcionado.
-- Riesgo: Si el nuevo microservicio tiene un contrato distinto al auditado en la tarea anterior, las funciones de RBAC podrían fallar. Se asume que el contrato se mantiene igual.
-- Versión: Se incrementará la versión global a v4.9.24.
-
-**AUDITORÍA LÍNEA POR LÍNEA - TAREA ANIMACIONES DE CARGA (04/02/2026)**
-
-**Archivo: users.html**
-- Hallazgo: `users.html` no carga `style.css`, por lo que no tiene acceso a `.btn-loading`.
-- Solución: Copiar estilos de `.btn-loading` y `spin-button` al bloque `<style>` de `users.html`.
-- L389: `handleUserFormSubmit` - Falta lógica de estado de carga en el botón de submit.
-- L422: `deleteUser` - Falta lógica de estado de carga en el botón de eliminar.
-- L461: `handleChangePasswordSubmit` - Falta lógica de estado de carga en el botón de submit.
-- L486: `handleEditNameSubmit` - Falta lógica de estado de carga en el botón de submit.
+**Hallazgos:**
+- `main.js` L206: Ya existe un bloque de seguridad que bloquea menú contextual, F12, Ctrl+U y zoom.
+- Sin embargo, la Tarea 2 solicita una implementación "que no rompa funcionalidades normales" y "especialmente en la versión PWA".
+- El bloqueo de zoom debe permitir excepciones para el lightbox.
+- El bloqueo actual en `main.js` es:
+```javascript
+// Global security and interaction blocking
+document.addEventListener('contextmenu', event => event.preventDefault());
+document.onkeydown = function(e) {
+    if(e.keyCode == 123) return false; // F12
+    if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
+    if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false;
+    if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) return false;
+    if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
+};
+// Block zoom
+document.addEventListener('wheel', function(e) {
+    if (e.ctrlKey) e.preventDefault();
+}, { passive: false });
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && (e.keyCode == 61 || e.keyCode == 107 || e.keyCode == 173 || e.keyCode == 109 || e.keyCode == 187 || e.keyCode == 189)) {
+        e.preventDefault();
+    }
+});
+```
+- Falta la excepción para el lightbox.
+- Falta asegurar que estas restricciones se apliquen de forma consistente en todas las páginas (aunque `main.js` se carga en casi todas, `users.html` y `add_cortes.html` podrían no tenerlo si no importan `main.js` o si tienen su propia lógica).
+- `index.html` carga `main.js`.
+- `users.html` NO carga `main.js`. Tiene su propio `<script>`.
+- `add_cortes.html` NO carga `main.js`. Tiene su propio `<script>`.
 
 **Hallazgos Críticos:**
-1. Los botones de eliminar son dinámicos, por lo que se debe pasar la referencia del botón a la función `deleteUser` o manejarla localmente.
+1. Los bloqueos de seguridad no están presentes en `users.html` ni en `add_cortes.html`.
+2. El bloqueo de zoom en `main.js` no tiene la excepción para el lightbox.
 
-**AUDITORÍA LÍNEA POR LÍNEA - CARGA OPTIMIZADA DE IMÁGENES (15/05/2024)**
+**Acciones:**
+- Crear una función de seguridad unificada o replicar el bloque en los archivos necesarios.
+- Implementar la lógica de excepción de zoom detectando la visibilidad del lightbox.
+- Usar `isLightboxVisible` (si existe en el estado) para controlar el zoom.
 
-**Archivo: ui.js**
-- L12: `getImageUrl` usa tamaño default 400. Tiene optimización Retina para < 600.
-- L112: `crearCarrusel` (Categorías) usa default 400. Debe usar SMALL.
-- L143: `crearCarrusel` (Marcas Vehículos) usa default 400. Debe usar SMALL.
-- L158: `crearCarrusel` (Marcas Motos) usa default 400. Debe usar SMALL.
-- L189: `mostrarMarcas` usa default 400 y `loading="lazy"`. Debe usar SMALL.
-- L214: `mostrarModelosPorMarca` usa default 400. Falta `loading="lazy"`. Debe usar SMALL.
-- L274: `mostrarModelos` usa default 400. Falta `loading="lazy"`. Debe usar SMALL.
-- L306: `mostrarTiposEncendido` usa default 400. Falta `loading="lazy"`. Debe usar SMALL.
-- L336: `mostrarVersiones` usa default 400. Falta `loading="lazy"`. Debe usar SMALL.
-- L371: `mostrarVersionesEquipamiento` usa default 400. Falta `loading="lazy"`. Debe usar SMALL.
-- L416: `mostrarResultadosDeBusqueda` (Marcas) usa default 400. Debe usar SMALL.
-- L433: `mostrarResultadosDeBusqueda` (Modelos) usa default 400. Falta `loading="lazy"`. Debe usar SMALL.
-- L469: `mostrarDetalleModal` (Logo) usa default 400. Puede usar SMALL.
-- L510: `mostrarDetalleModal` (Vehículo) usa default 400. Debe usar MEDIUM.
-- L576: `renderCutContent` (Corte) usa default 400. Debe usar MEDIUM.
-- L583: Lightbox usa la misma URL que el modal. Debe usar LARGE y cargar solo on-click.
-- L686: `renderRelayInfoModal` usa 1200.
-- L855: `createAccordionSection` (Corte/Apertura/Cable) usa 1200 para la vista de modal. Debe usar MEDIUM para el modal y LARGE para el lightbox.
-- L942: `mostrarUltimosAgregados` usa default 400 y `loading="lazy"`. Debe usar SMALL.
-- L1043: `mostrarTutorialesGrid` usa default 400. Falta `loading="lazy"`. Debe usar SMALL.
-- L1066: `mostrarRelayGrid` usa default 400. Falta `loading="lazy"`. Debe usar SMALL.
-- L1126: `mostrarDetalleRelayModal` usa default 400. Debe usar MEDIUM.
+--------------------------------------------------
 
-**Hallazgos Críticos:**
-1. Inconsistencia en el uso de `loading="lazy"` en las tarjetas del catálogo.
-2. Imágenes de alta resolución (1200) se están cargando en los acordeones del modal de detalle antes de que el usuario las expanda o use el lightbox.
-3. El lightbox no tiene su propia lógica de carga de alta resolución, reutiliza la URL del modal (que es de baja/media calidad).
+**AUDITORÍA TÉCNICA - TAREA 3: COMPATIBILIDAD PWA (05/02/2026)**
+
+**Archivo: manifest.json**
+- `display: standalone` es ideal para Android/iOS.
+- `icons` incluyen 192 y 512, estándar para PWA.
+- `theme_color` y `background_color` presentes.
+
+**Archivo: service-worker.js**
+- Implementa estrategia Network-First.
+- `self.skipWaiting()` y `self.clients.claim()` aseguran actualización rápida.
+
+**Hallazgos:**
+- **Android:** Compatibilidad completa (Chrome/Edge). Soporta instalación y notificaciones (aunque no se usan activamente).
+- **iOS:** Compatibilidad parcial. Requiere Safari y "Añadir a pantalla de inicio". No soporta `splash screens` automáticas sin etiquetas `<link rel="apple-touch-startup-image">` adicionales. El `manifest.json` es ignorado parcialmente por iOS antes de versiones recientes.
+- **HarmonyOS:** Basado en Android (EMUI), compatibilidad similar a Android mediante navegadores basados en Chromium.
+
+**Limitaciones Identificadas:**
+1. iOS requiere metatags específicos en el `<head>` para una experiencia "App-like" fluida (ej. `apple-mobile-web-app-capable`).
+2. El zoom bloqueado podría afectar la accesibilidad en iOS si el usuario tiene activadas funciones de asistencia, aunque el bloqueo vía JS suele respetarse.
