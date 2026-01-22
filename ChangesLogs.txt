@@ -156,3 +156,11 @@
 - Creación del documento comparativo detallado de funcionalidades entre versiones.
 
 **Versión:** Mantenimiento de seguridad v2.0.1.
+
+**CHANGES LOG - 05/02/2026**
+
+**Archivos: main.js, users.html, add_cortes.html**
+- Implementado bloqueo de gestos de zoom (pinch-to-zoom) mediante listeners de 'touchstart' y 'touchmove'.
+- En main.js se mantiene la excepción para permitir zoom táctil cuando el lightbox está visible.
+
+**Versión:** Mantenimiento de seguridad v2.0.2.

@@ -340,6 +340,20 @@ async function initializeApp() {
         }
     });
 
+    // Bloqueo de Zoom por gestos (Touch)
+    // EXCEPCIÓN: Se permite zoom si el lightbox está visible.
+    document.addEventListener('touchstart', (e) => {
+        if (e.touches.length > 1 && !isLightboxVisible()) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+
+    document.addEventListener('touchmove', (e) => {
+        if (e.touches.length > 1 && !isLightboxVisible()) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+
     // 5. Start the application by checking the user's session
     await auth.checkSession();
 }
