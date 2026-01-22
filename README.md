@@ -43,7 +43,7 @@ La plataforma ha migrado a una arquitectura desacoplada basada en:
 | **Base de Datos** | Mapa de columnas dinámico y frágil. | Mapa fijo y estricto, alta integridad. |
 | **Imágenes** | Carga directa de URLs de Drive, lenta. | Proxy seguro con Lazy Load y 3 tamaños optimizados. |
 | **Búsqueda** | Básica por texto. | Avanzada con iconos y filtros jerárquicos. |
-| **Feedback** | "Likes" generales por vehículo. | "Votos de utilidad" por corte individual. |
+| **Feedback** | "Likes" generales por vehículo. | Likes y Reportes por corte. |
 | **Administración** | Básica. | Inbox centralizado y Dashboard de actividad. |
 | **Móviles** | Layout rígido. | UI Responsive adaptada con VisualViewport API. |
 
