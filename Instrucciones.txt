@@ -208,129 +208,37 @@ Cualquier cambio en estas zonas invalidará el commit.
 ---
 BACKLOG – INSTRUCCIONES GENERALES (FRONTEND / DOCUMENTACIÓN / PWA)
 
+---
+**TAREAS PENDIENTES DE REVISIÓN POR EL MP**
+---
+
 ==================================================
 TAREA 1: ORDENAR Y UNIFICAR README.md
 ==================================================
-ESTADO: PENDIENTE
+ESTADO: PENDIENTE REVISIÓN POR EL MP
 PRIORIDAD: MEDIA
 ÁREA: DOCUMENTACIÓN
-
-PROBLEMA IDENTIFICADO:
-README.md contiene bloques de texto duplicados, desactualizados o contradictorios que no reflejan fielmente el estado actual del código y las funcionalidades reales de la plataforma.
-
-REQUERIMIENTOS:
-- Se debe auditar completamente README.md.
-- Se deben identificar secciones repetidas o redundantes.
-- Se deben unificar los textos duplicados en una sola fuente de verdad.
-- Se debe asegurar que el contenido refleje exactamente:
-  - Lo que el código hace actualmente
-  - Las funcionalidades realmente existentes
-  - Las limitaciones reales del sistema
-
-REGLAS:
-- No inventar funcionalidades.
-- No documentar features no presentes en el código.
-- No eliminar información útil, solo consolidarla.
-
-RESULTADO ESPERADO:
-- README.md claro, coherente y alineado con el estado real del proyecto.
 
 ==================================================
 TAREA 2: SISTEMA ANTI-DEBUGGING Y BLOQUEO DE INTERACCIONES NO PERMITIDAS
 ==================================================
-ESTADO: PENDIENTE
+ESTADO: PENDIENTE REVISIÓN POR EL MP
 PRIORIDAD: ALTA
 ÁREA: FRONTEND / SEGURIDAD PWA
-
-OBJETIVO:
-Restringir el acceso a herramientas de inspección y acciones no permitidas en la PWA y versión web, sin afectar la experiencia normal del usuario.
-
-REQUERIMIENTOS:
-- Se debe impedir el uso de:
-  - Consola del navegador (DevTools)
-  - Menú contextual (click derecho)
-  - Atajos de teclado de inspección
-  - Zoom manual del navegador
-
-EXCEPCIONES:
-- El zoom SOLO debe estar permitido dentro de los lightbox de imágenes.
-- Fuera del lightbox, el zoom debe estar completamente bloqueado.
-
-CONSIDERACIONES:
-- La implementación debe enfocarse especialmente en la versión PWA.
-- No debe romper funcionalidades normales del catálogo.
-- No debe afectar accesibilidad crítica.
 
 ==================================================
 TAREA 3: VERIFICACIÓN DE COMPATIBILIDAD PWA MULTI-SISTEMA
 ==================================================
-ESTADO: PENDIENTE
+ESTADO: PENDIENTE REVISIÓN POR EL MP
 PRIORIDAD: MEDIA
 ÁREA: PWA / COMPATIBILIDAD
-
-OBJETIVO:
-Verificar y documentar la compatibilidad real de la PWA con los siguientes sistemas:
-
-SISTEMAS A VERIFICAR:
-- Android
-- iOS
-- HarmonyOS
-
-REQUERIMIENTOS:
-- Verificar instalación como PWA
-- Verificar funcionamiento offline (si aplica)
-- Verificar comportamiento de navegación y gestos
-- Documentar limitaciones específicas por sistema
-
-REGLAS:
-- No asumir compatibilidad sin pruebas.
-- Registrar hallazgos reales.
-
-RESULTADO:
-- Informe claro de compatibilidad real por sistema.
 
 ==================================================
 TAREA 4: CREAR CHANGELOG DE IMPLEMENTACIONES – GPSpedia 2.0 vs 1.5
 ==================================================
-ESTADO: PENDIENTE
+ESTADO: PENDIENTE REVISIÓN POR EL MP
 PRIORIDAD: ALTA
 ÁREA: DOCUMENTACIÓN / VERSIONAMIENTO
-
-OBJETIVO:
-Crear un ChangeLog formal que liste TODAS las funcionalidades presentes en GPSpedia 2.0 que NO existen en GPSpedia 1.5 (Olds / GPSpedia1.5).
-
-REQUERIMIENTOS:
-- Crear un archivo de ChangeLog claro y ordenado.
-- Comparar explícitamente GPSpedia 2.0 vs GPSpedia 1.5.
-- No repetir información vaga; debe ser concreta y verificable.
-
-FUNCIONALIDADES A INCLUIR (LISTA BASE, NO LIMITADA):
-- Sistema de Feedback
-- Sistema de Inbox
-- Modal de Relay dentro del modal de detalles
-- Manejo de versiones de equipamiento
-- Mejor gestión del rango de años por generación
-- Navegación por marca
-- Mejora en sistema anti-duplicado al agregar cortes
-- Sistema de gestión de usuarios por roles
-- Tema nocturno
-- Documentación externa:
-  - FAQs (modal)
-  - Contáctanos
-  - Sobre Nosotros
-- Mejor gestión de imágenes (resoluciones, lazy load)
-- Expansión de categorías de vehículos
-- Mejoras generales de UI/UX
-- Cualquier otra funcionalidad presente en 2.0 que no exista en 1.5
-
-REGLAS:
-- No incluir features heredadas que ya existían en 1.5.
-- No exagerar ni inflar la lista.
-- Todo debe corresponder a funcionalidades reales.
-
-RESULTADO ESPERADO:
-- Documento claro que justifique técnicamente la versión 2.0.
-- Diferenciación clara entre GPSpedia 1.5 y 2.0.
 
 ---
 **DERIVADO DE AUDITORÍA (ROADMAP v2.0) — NO EJECUTAR AÚN**

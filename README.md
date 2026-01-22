@@ -6,53 +6,80 @@ GPSpedia es una Aplicación Web Progresiva (PWA) de alto rendimiento diseñada e
 ## 2. Características Principales (v2.0)
 - **Navegación Inteligente:** Flujo jerárquico guiado por Categoría -> Marca -> Modelo -> Versión -> Año.
 - **Buscador Avanzado:** Barra de búsqueda con detección automática de marcas, modelos y años, integrada con iconos visuales de cada fabricante.
-- **Catálogo Optimizado:** Visualización de tarjetas con carga diferida (Lazy Load) y resoluciones adaptativas para minimizar el consumo de datos en dispositivos móviles.
-- **Detalle Técnico Exhaustivo:** Modales con información granular de múltiples cortes, diagramas de relay vinculados y guías de vídeo integradas (YouTube).
-- **Gestión de Feedback (Inbox):** Sistema integrado para que los técnicos reporten problemas o sugieran mejoras, con una bandeja de entrada para la administración centralizada.
-- **Dashboard de Actividad:** Registro en tiempo real de las acciones de los usuarios para auditoría y control de calidad.
-- **Seguridad y Roles (RBAC):** Jerarquía de permisos (Jefe, Supervisor, Técnico) que restringe el acceso a la gestión de usuarios y funciones administrativas.
+- **Catálogo Optimizado:** Visualización de tarjetas con carga diferida (Lazy Load) y resoluciones adaptativas (300px, 800px, 1600px).
+- **Detalle Técnico Exhaustivo:** Modales con información granular de múltiples cortes, diagramas de relay vinculados y guías de vídeo integradas.
+- **Gestión de Feedback (Inbox):** Sistema integrado para reportes de problemas y sugerencias, con bandeja de entrada administrativa.
+- **Dashboard de Actividad:** Registro en tiempo real de las acciones de los usuarios para auditoría.
+- **Seguridad y Roles (RBAC):** Jerarquía de permisos (Desarrollador, Jefe/Gefe, Supervisor, Tecnico/Tecnico_exterior).
 
-## 3. Flujo de Registro de Nuevos Cortes
-El sistema implementa un proceso de tres etapas para garantizar la calidad y unicidad de los datos:
+## 3. Arquitectura del Sistema
+La plataforma utiliza una arquitectura desacoplada basada en microservicios para garantizar escalabilidad y mantenimiento independiente:
 
-1.  **Etapa 1 - Verificación Anti-duplicado:**
-    - El usuario ingresa Marca, Modelo, Año y Tipo de Encendido.
-    - El sistema busca coincidencias exactas y parciales para evitar registros redundantes.
-    - Si se encuentran similitudes, se presenta un asistente que permite al usuario decidir si desea agregar información a un registro existente o crear uno nuevo.
-2.  **Etapa 2 - Información Técnica Base:**
-    - Registro de imágenes del vehículo y del corte.
-    - Definición de la ubicación exacta y el color del cable.
-    - Selección de la configuración de relay necesaria desde la biblioteca técnica.
-3.  **Etapa 3 - Información Suplementaria:**
-    - Adición de detalles de apertura de puertas.
-    - Ubicación de cables de alimentación constante.
-    - Notas importantes sobre el desarme o advertencias específicas del modelo.
+### Componentes de Backend (Google Apps Script)
+El sistema se compone de **7 microservicios independientes**:
+1.  **Auth:** Gestión de autenticación y validación de sesiones.
+2.  **Catalog:** Provee datos técnicos de solo lectura (Cortes, Logos, Tutoriales, Relay).
+3.  **Write:** Maneja la creación y actualización de registros técnicos.
+4.  **Users:** Administración de usuarios y control de acceso (RBAC).
+5.  **Feedback:** Procesa likes, reportes de problemas y logs de actividad (Inbox/Dashboard).
+6.  **Utilities:** Funciones de mantenimiento y migración de datos.
+7.  **Legacy:** Servicio de compatibilidad y log centralizado.
 
-## 4. Arquitectura del Sistema
-La plataforma ha migrado a una arquitectura desacoplada basada en:
-- **Frontend:** HTML5, CSS3 (con soporte nativo para Modo Oscuro) y JavaScript Modular.
-- **Backend:** Microservicios independientes en Google Apps Script (Auth, Catalog, Feedback, Users, Write, Image, Utilities).
-- **Base de Datos:** Google Sheets granular (v2.0) con más de 35 columnas de datos técnicos.
-- **Almacenamiento:** Google Drive gestionado a través de un Proxy Seguro de imágenes.
+*Nota: Aunque existe un servicio de Image en el backend para futuras implementaciones de proxy seguro, la versión actual del frontend consume directamente las miniaturas de Google Drive para optimizar la velocidad de respuesta.*
+
+### Componentes de Frontend
+- **HTML5/CSS3/JS Modular:** Interfaz responsive con soporte nativo para Modo Oscuro.
+- **api-config.js:** Única fuente de verdad para la configuración de endpoints y ruteo de acciones.
+- **state.js:** Gestión de estado centralizada (Store).
+
+---
+
+## 4. Instrucciones de Despliegue
+
+### Paso 1: Desplegar los Microservicios
+Para cada uno de los 7 servicios en la carpeta `services/`:
+1.  Cree un nuevo proyecto en [Apps Script](https://script.google.com/create).
+2.  Copie el código del archivo `.js` correspondiente (ej. `services/auth/auth.js`).
+3.  Configure el `SPREADSHEET_ID` en el script si es necesario.
+4.  Despliegue como **Web App**:
+    - **Execute as:** Me
+    - **Who has access:** Anyone
+5.  Copie la **Web App URL** generada.
+
+### Paso 2: Configurar el Frontend
+1.  Abra `api-config.js`.
+2.  Actualice el objeto `API_ENDPOINTS` con las URLs obtenidas en el paso anterior.
+    ```javascript
+    export const API_ENDPOINTS = {
+        AUTH:     "URL_SERVICIO_AUTH",
+        CATALOG:  "URL_SERVICIO_CATALOG",
+        // ... completar el resto
+    };
+    ```
+
+### Paso 3: Alojamiento del Frontend
+Suba los archivos del raíz (`index.html`, `style.css`, `main.js`, `api-config.js`, etc.) a su servidor web o a un proyecto principal de Apps Script que actúe como host.
+
+---
 
 ## 5. Comparativa GPSpedia 1.5 vs 2.0
 
 | Característica | GPSpedia 1.5 (Olds) | GPSpedia 2.0 |
 | :--- | :--- | :--- |
-| **Estructura** | Monolítica, difícil de mantener. | Modular (Microservicios), escalable. |
-| **Base de Datos** | Mapa de columnas dinámico y frágil. | Mapa fijo y estricto, alta integridad. |
-| **Imágenes** | Carga directa de URLs de Drive, lenta. | Proxy seguro con Lazy Load y 3 tamaños optimizados. |
-| **Búsqueda** | Básica por texto. | Avanzada con iconos y filtros jerárquicos. |
-| **Feedback** | "Likes" generales por vehículo. | "Votos de utilidad" por corte individual. |
-| **Administración** | Básica. | Inbox centralizado y Dashboard de actividad. |
-| **Móviles** | Layout rígido. | UI Responsive adaptada con VisualViewport API. |
+| **Estructura** | Monolítica. | Modular (7 Microservicios). |
+| **Imágenes** | Carga directa (Lenta). | Lazy Load y Multi-resolución optimizada. |
+| **Seguridad** | Básica. | RBAC jerárquico y validación de tokens. |
+| **Funciones** | Consulta básica. | Inbox, Dashboard, FAQ y Sistema de Feedback. |
 
-## 6. Changelog v2.0
-- **Nueva UI/UX:** Rediseño completo de la interfaz con carruseles y transiciones fluidas.
-- **Optimización de Rendimiento:** Implementación de constantes de tamaño de imagen (300px, 800px, 1600px) y carga diferida.
-- **Seguridad:** Implementación de tokens de sesión y validación jerárquica de roles.
-- **Correcciones Técnicas:** Estandarización de términos de corte (Bomba, Señal, Ignición) y reparación del sistema de FAQ.
-- **Modularización:** Separación total de la lógica de negocio del renderizado de UI.
+---
+
+## 6. Changelog resumido (v2.0)
+- **Migración a Microservicios:** Separación total de lógica de negocio.
+- **Sistema de Roles:** Implementación estricta de permisos por jerarquía.
+- **Optimización UI:** Carga asíncrona de datos y componentes visuales reactivos.
+- **Modo Oscuro:** Implementación completa con persistencia.
+
+*Para un historial detallado de cambios, consulte `ChangesLogs.txt`.*
 
 ---
 *GPSpedia v2.0 - 2026 todos los derechos reservados.*

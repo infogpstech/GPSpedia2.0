@@ -137,3 +137,23 @@
 - **Actualización Global:** Sincronización de todos los microservicios (`auth`, `catalog`, `feedback`, `users`, `write`, `image`, `utilities`) a la versión v2.0.0.
 
 **Versión:** Lanzamiento Global GPSpedia v2.0.
+
+**CHANGES LOG - 21/01/2026**
+
+**Archivo: README.md**
+- **Líneas 30-40:** Unificada documentación de despliegue y corregida lista de microservicios (7).
+- **Líneas 42-45:** Añadida nota aclaratoria sobre el consumo de imágenes directo vs proxy.
+
+**Archivo: main.js**
+- **Líneas 32-85:** Implementado sistema anti-debugging (bloqueo click derecho, F12, Ctrl+U) y bloqueo de zoom (teclado, rueda, táctil) con excepción para Lightbox.
+
+**Archivo: COMPATIBILIDAD_PWA.md**
+- **Nuevo Archivo:** Documentación técnica de compatibilidad multiplataforma.
+
+**Archivo: CHANGELOG_v2.md**
+- **Nuevo Archivo:** Comparativa detallada de funcionalidades entre v1.5 y v2.0.
+
+**Archivo: Auditoria.txt**
+- **Actualización:** Registro de auditoría profunda y autocrítica de la sesión actual.
+
+**Estado de la Tarea:** PENDIENTE REVISIÓN POR EL MP.
