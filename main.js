@@ -1,4 +1,4 @@
-// GPSpedia Main Orchestration Module
+// GPSpedia Main Orchestration Module | Version: 2.0.0
 // Responsibilities:
 // - Import all feature modules.
 // - Initialize the application and set up global event listeners.
@@ -124,6 +124,23 @@ async function initializeApp() {
     const appLogo = document.querySelector('.app-logo');
     const lightLogo = "https://drive.google.com/thumbnail?id=1NxBx-W_gWmcq3fA9zog6Dpe-WXpH_2e8&sz=2048";
     const darkLogo = "Logo_TemaOscuro.png";
+
+    // --- LÓGICA DE ACORDEÓN PARA FAQ ---
+    document.querySelectorAll('.accordion-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const item = header.parentElement;
+            const isActive = item.classList.contains('active');
+
+            // Cerrar otros
+            document.querySelectorAll('.accordion-item').forEach(otherItem => {
+                otherItem.classList.remove('active');
+            });
+
+            if (!isActive) {
+                item.classList.add('active');
+            }
+        });
+    });
 
     if (darkModeToggle) {
         // Carga inicial de preferencia desde localStorage

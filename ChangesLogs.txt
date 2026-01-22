@@ -90,3 +90,50 @@
 - Líneas 541-572: Implementada lógica de carga y anti-bloqueo en `handleEditNameSubmit`.
 
 **Versión:** Incremento a v4.9.25.
+
+**CHANGES LOG - 21/01/2026**
+
+**Archivo: index.html**
+- **Línea 1:** Actualizada la versión del componente a v4.9.26.
+- **Línea 7:** Actualizada la versión global a v4.9.26 en el título.
+- **Línea 269:** Actualizada la versión en el footer a v4.9.26.
+
+**Archivo: ui.js**
+- **Línea 1:** Añadida versión del componente v4.1.0.
+- **Líneas 12-15:** Definidas constantes `IMG_SIZE_SMALL` (300), `IMG_SIZE_MEDIUM` (800) y `IMG_SIZE_LARGE` (1600).
+- **Líneas 188, 212, 231, 261, 300, 394, 443, 486, 548, 600, 632, 693, 1308, 1487, 1513:** Implementado uso de `IMG_SIZE_SMALL` en todas las tarjetas y carruseles del catálogo.
+- **Líneas 190, 214, 233, 264, 302, 396, 445, 488, 550, 602, 634, 1310, 1489, 1515:** Añadido atributo `loading="lazy"` a todas las imágenes del catálogo.
+- **Líneas 723, 793, 954, 1207, 1595:** Implementado uso de `IMG_SIZE_MEDIUM` para imágenes en modales de detalle.
+- **Líneas 802, 957, 1214, 1598:** Optimizada la carga del lightbox para generar la URL `IMG_SIZE_LARGE` (alta resolución) únicamente al hacer clic, evitando la precarga.
+
+**Versión:** Incremento a v4.9.26.
+
+**CHANGES LOG - 21/01/2026**
+
+**Archivo: README.md**
+- **Líneas 1-60:** Reescritura total del documento para reflejar las capacidades de la versión 2.0.
+- **Secciones añadidas:** Descripción General, Características Principales, Flujo de Registro, Arquitectura, Comparativa v1.5 vs v2.0 y Changelog.
+- **Limpieza:** Eliminación de planes de implementación y checklists obsoletos.
+
+**Archivo: index.html**
+- **Línea 1:** Actualizada la versión del componente a v2.0.0.
+- **Línea 7:** Actualizada la versión global a v2.0 en el título.
+- **Línea 82:** Añadido número de versión v2.0 al modal de login (small text).
+- **Línea 213:** Actualizada la terminología de cortes en "Sobre Nosotros" (Bomba, Señal, Ignición).
+- **Línea 272:** Actualizada la versión y branding en el footer a "GPSpedia v2.0".
+
+**Archivo: main.js**
+- **Línea 1:** Actualizada la versión del componente a v2.0.0.
+- **Líneas 128-142:** Implementada lógica de acordeón para la sección de FAQ en la página principal.
+
+**Archivo: style.css**
+- **Línea 1:** Actualizada la versión del componente a v2.0.0.
+- **Líneas 960-991:** Añadidos estilos para el acordeón de FAQ y animaciones de iconos.
+
+**Archivos de Código (JS/HTML):**
+- **Actualización Global:** Sincronización de todos los archivos (`add_cortes.html`, `users.html`, `auth.js`, `state.js`, `navigation.js`, `ui.js`, `api-config.js`) a la versión v2.0.0.
+
+**Archivos de Backend (Services):**
+- **Actualización Global:** Sincronización de todos los microservicios (`auth`, `catalog`, `feedback`, `users`, `write`, `image`, `utilities`) a la versión v2.0.0.
+
+**Versión:** Lanzamiento Global GPSpedia v2.0.

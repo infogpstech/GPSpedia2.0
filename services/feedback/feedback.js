@@ -83,7 +83,7 @@ function doGet(e) {
     }
     const defaultResponse = {
         status: 'success',
-        message: 'GPSpedia Feedback-SERVICE v1.2.1 is active.'
+        message: 'GPSpedia Feedback-SERVICE v2.0.0 is active.'
     };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
         .setMimeType(ContentService.MimeType.TEXT);

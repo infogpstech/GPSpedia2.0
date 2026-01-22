@@ -206,14 +206,48 @@ Cualquier cambio en estas zonas invalidará el commit.
 *No hay tareas pendientes en esta sección.*
 
 ---
-**DERIVADO DE AUDITORÍA — NO EJECUTAR AÚN**
+**DERIVADO DE AUDITORÍA (ROADMAP v2.0) — NO EJECUTAR AÚN**
 ---
-*No hay tareas pendientes en esta sección.*
+
+5. **TÍTULO: Lógica de Backend para Gestión de Años y Votos**
+   - **ESTADO:** PENDIENTE
+   - **ALCANCE:** Backend (Feedback Service)
+   - **DESCRIPCIÓN:** Implementar la lógica de backend para registrar los votos de años y la hoja de cálculo para almacenar dichos votos.
+
+6. **TÍTULO: Dashboard de Desempeño para Supervisores**
+   - **ESTADO:** PENDIENTE
+   - **ALCANCE:** UI / Backend
+   - **DESCRIPCIÓN:** Crear la nueva sección de Dashboard de Desempeño específicamente para roles de Supervisor.
+
+7. **TÍTULO: Funcionalidad de Edición "In-Modal"**
+   - **ESTADO:** PENDIENTE
+   - **ALCANCE:** Frontend (UI) / Backend
+   - **DESCRIPCIÓN:** Permitir la edición de datos técnicos directamente desde el modal de detalles del vehículo.
+
+8. **TÍTULO: Lógica de Backend para el Sistema de Gestión de Feedback (Inbox)**
+   - **ESTADO:** PENDIENTE
+   - **ALCANCE:** Backend (Feedback Service)
+   - **DESCRIPCIÓN:** Completar la lógica de backend para el procesamiento de mensajes en el Inbox.
+
+9. **TÍTULO: Expansión de Rango de Años por Feedback**
+   - **ESTADO:** PENDIENTE
+   - **ALCANCE:** Frontend (UI) / Backend
+   - **DESCRIPCIÓN:** Implementar la interfaz para sugerir nuevos años y la lógica de backend para expansión de rangos.
 
 ---
 **TAREAS COMPLETADAS (Validadas por el PM)**
 ---
-1. **TÍTULO: Implementación de Modal de Verificación y Mejoras en Flujo de Cortes (v4.9.15)**
+1. **TÍTULO: Lanzamiento Global GPSpedia v2.0 (v2.0.0)**
+   - **ESTADO:** COMPLETADO
+   - **ALCANCE:** Global (Frontend y Backend)
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Versioning:** Sincronización de todos los archivos a la versión v2.0.0.
+     - **README:** Actualización integral con descripción funcional, flujos de registro y comparativa técnica.
+     - **UI Branding:** Actualización de footer y modal de login con la nueva identidad v2.0.
+     - **FAQ:** Implementación de lógica y estilos para el acordeón de preguntas frecuentes.
+     - **Sobre Nosotros:** Corrección de terminología técnica para tipos de cortes.
+
+2. **TÍTULO: Implementación de Modal de Verificación y Mejoras en Flujo de Cortes (v4.9.15)**
    - **ESTADO:** COMPLETADO
 2. **TÍTULO: Restauración de Funciones del Menú Hamburguesa, Modo Oscuro y Fix de Footer (v4.9.18)**
    - **ESTADO:** COMPLETADO
@@ -263,6 +297,18 @@ Cualquier cambio en estas zonas invalidará el commit.
    - **DESCRIPCIÓN DETALLADA:**
      - **UX/UI:** Implementada animación de carga (spinner) y desactivación física (disabled) en botones de: Crear Usuario, Editar Usuario, Cambiar Contraseña, Editar Nombre y Eliminar Usuario.
      - **Estabilidad:** Añadida validación de estado de carga para prevenir múltiples envíos concurrentes (anti-bloqueo).
+
+---
+**TAREAS COMPLETADAS (Validadas por el PM)**
+---
+1. **TÍTULO: Carga Optimizada de Imágenes (Lazy Load) (v4.9.26)**
+   - **ESTADO:** COMPLETADO
+   - **ALCANCE:** ui.js, index.html
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Lazy Load:** Implementado `loading="lazy"` en todas las tarjetas del catálogo.
+     - **Resolución Adaptativa:** Definidas constantes de tamaño (300px para thumbnails, 800px para detalles).
+     - **Lightbox Optimizado:** Las imágenes de alta resolución (1600px) solo se cargan mediante un trigger on-click, eliminando la carga innecesaria en segundo plano.
+     - **Versionamiento:** Actualizada versión global a v4.9.26 y componente ui.js a v4.1.0.
 
 ---
 **TAREAS PENDIENTES DE REVISIÓN**

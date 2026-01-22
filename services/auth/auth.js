@@ -72,7 +72,7 @@ function doGet(e) {
     // Comportamiento por defecto si no está en modo de depuración
     const defaultResponse = {
         status: 'success',
-        message: 'GPSpedia Auth-SERVICE v2.2.2 is active.'
+        message: 'GPSpedia Auth-SERVICE v2.0.0 is active.'
     };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
         .setMimeType(ContentService.MimeType.TEXT);

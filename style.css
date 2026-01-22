@@ -1,3 +1,4 @@
+/* GPSpedia Styles | Version: 2.0.0 */
 /* Estilos Globales */
 *, *::before, *::after {
     box-sizing: border-box;
@@ -956,8 +957,39 @@ body.search-active .container {
     width: 20px;
     height: 20px;
 }
-.accordion-btn.active .accordion-arrow {
+.accordion-btn.active .accordion-arrow,
+.accordion-item.active .accordion-header i {
     transform: rotate(180deg); /* Flecha hacia arriba */
+}
+
+/* --- ESTILOS PARA ACORDEÓN DE FAQ --- */
+.accordion-item .accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, padding 0.3s ease;
+    padding: 0 15px;
+}
+
+.accordion-item.active .accordion-content {
+    max-height: 200px; /* Suficiente para el contenido */
+    padding: 10px 15px;
+}
+
+.accordion-header {
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: var(--button-bg);
+    color: var(--button-text);
+    border-radius: 8px;
+    margin-top: 5px;
+    font-weight: bold;
+}
+
+.accordion-header i {
+    transition: transform 0.3s ease;
 }
 .panel-desplegable {
     padding: 0 18px;

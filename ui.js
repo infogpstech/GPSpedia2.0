@@ -1,4 +1,4 @@
-// GPSpedia UI Module
+// GPSpedia UI Module | Version: 2.0.0
 // Responsibilities:
 // - Render UI components based on state.
 // - Contain all functions that directly manipulate the DOM.
@@ -8,6 +8,11 @@ import { getFeedbackItems, replyToFeedback, markAsResolved, getActivityLogs, rou
 import { getState, setState, subscribe } from './state.js';
 
 const backSvg = '<svg style="width:20px;height:20px;margin-right:5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
+
+// Constants for optimized image loading
+export const IMG_SIZE_SMALL = 300;   // Cards and thumbnails
+export const IMG_SIZE_MEDIUM = 800;  // Modal details
+export const IMG_SIZE_LARGE = 1600;  // Lightbox / High Resolution
 
 export function getImageUrl(fileId, size = 400) {
     const placeholder = "https://placehold.co/400x300/cccccc/333333?text=Sin+Imagen";
@@ -180,8 +185,9 @@ export function mostrarCategorias() {
         card.className = "card";
         card.onclick = () => mostrarMarcas(cat);
         const img = document.createElement("img");
-        img.src = getImageUrl(ejemplo?.imagenVehiculo);
+        img.src = getImageUrl(ejemplo?.imagenVehiculo, IMG_SIZE_SMALL);
         img.alt = `Categoría ${cat}`;
+        img.loading = "lazy";
         card.appendChild(img);
         const overlay = document.createElement("div");
         overlay.className = "overlay";
@@ -203,8 +209,9 @@ export function mostrarCategorias() {
         // Cambio Crítico: Corregir el flujo de navegación para que vaya de Marca -> Modelos.
         card.onclick = () => mostrarModelosPorMarca(marca);
         const img = document.createElement("img");
-        img.src = getImageUrl(logoUrl);
+        img.src = getImageUrl(logoUrl, IMG_SIZE_SMALL);
         img.alt = `Marca ${marca}`;
+        img.loading = "lazy";
         card.appendChild(img);
         return card;
     });
@@ -221,8 +228,9 @@ export function mostrarCategorias() {
         card.className = "card brand-logo-item";
         card.onclick = () => mostrarModelos('Motocicletas', marca);
         const img = document.createElement("img");
-        img.src = getImageUrl(logoUrl);
+        img.src = getImageUrl(logoUrl, IMG_SIZE_SMALL);
         img.alt = `Marca ${marca}`;
+        img.loading = "lazy";
         card.appendChild(img);
         return card;
     });
@@ -250,7 +258,7 @@ export function mostrarMarcas(categoria) {
         logoContainer.onclick = () => mostrarModelos(categoria, m);
 
         const img = document.createElement("img");
-        img.src = getImageUrl(logoUrl) || 'https://placehold.co/120x80/cccccc/333333?text=Sin+Logo';
+        img.src = getImageUrl(logoUrl, IMG_SIZE_SMALL) || 'https://placehold.co/120x80/cccccc/333333?text=Sin+Logo';
         img.alt = `Marca ${m}`;
         img.loading = "lazy";
 
@@ -289,8 +297,9 @@ export function mostrarModelosPorMarca(marca) {
         // Comentario: Se utiliza la nueva función "hub" para decidir el siguiente paso.
         card.onclick = () => navegarADetallesDeModelo(ejemplo.categoria, marca, ejemplo.modelo);
         const img = document.createElement("img");
-        img.src = getImageUrl(ejemplo.imagenVehiculo);
+        img.src = getImageUrl(ejemplo.imagenVehiculo, IMG_SIZE_SMALL);
         img.alt = `Modelo ${ejemplo.modelo}`;
+        img.loading = "lazy";
         card.appendChild(img);
         const overlay = document.createElement("div");
         overlay.className = "overlay";
@@ -381,7 +390,11 @@ export function mostrarModelos(categoria, marca, versionEquipamiento = null) {
         const card = document.createElement("div"); card.className = "card";
         // Comentario: Se utiliza la nueva función "hub" para decidir el siguiente paso.
         card.onclick = () => navegarADetallesDeModelo(categoria, marca, ejemplo.modelo);
-        const img = document.createElement("img"); img.src = getImageUrl(ejemplo.imagenVehiculo); img.alt = `Modelo ${ejemplo.modelo}`; card.appendChild(img);
+        const img = document.createElement("img");
+        img.src = getImageUrl(ejemplo.imagenVehiculo, IMG_SIZE_SMALL);
+        img.alt = `Modelo ${ejemplo.modelo}`;
+        img.loading = "lazy";
+        card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay";
         overlay.innerHTML = `<div>${ejemplo.modelo}</div>`;
         card.appendChild(overlay);
@@ -427,8 +440,9 @@ export function mostrarTiposEncendido(categoria, marca, versionEquipamiento, mod
         card.onclick = () => mostrarVersiones(vehiculos.filter(v => v.tipoEncendido === tipo), categoria, marca, modelo);
 
         const img = document.createElement("img");
-        img.src = getImageUrl(ejemplo.imagenVehiculo);
+        img.src = getImageUrl(ejemplo.imagenVehiculo, IMG_SIZE_SMALL);
         img.alt = tipo;
+        img.loading = "lazy";
         card.appendChild(img);
 
         const overlay = document.createElement("div");
@@ -468,7 +482,11 @@ export function mostrarVersiones(filas, categoria, marca, modelo) {
     filas.forEach(item => {
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarDetalleModal(item);
-        const img = document.createElement("img"); img.src = getImageUrl(item.imagenVehiculo); img.alt = `Corte ${item.anoDesde}`; card.appendChild(img);
+        const img = document.createElement("img");
+        img.src = getImageUrl(item.imagenVehiculo, IMG_SIZE_SMALL);
+        img.alt = `Corte ${item.anoDesde}`;
+        img.loading = "lazy";
+        card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay";
         const yearRange = item.anoHasta ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
         overlay.innerHTML = `<div style="font-weight:bold;">${yearRange || modelo}</div><div style="font-size:0.8em;">${item.tipoEncendido || ''}</div>`;
@@ -527,8 +545,9 @@ export function mostrarVersionesEquipamiento(categoria, marca, modelo) {
         card.onclick = () => mostrarVersiones(vehiculosDeVersion, categoria, marca, modelo);
 
         const img = document.createElement("img");
-        img.src = getImageUrl(ejemplo?.imagenVehiculo);
+        img.src = getImageUrl(ejemplo?.imagenVehiculo, IMG_SIZE_SMALL);
         img.alt = `Versión ${version}`;
+        img.loading = "lazy";
         card.appendChild(img);
 
         const overlay = document.createElement("div");
@@ -578,8 +597,9 @@ export function mostrarResultadosDeBusqueda({ type, query, results }) {
             card.onclick = () => mostrarModelosPorMarca(marca);
 
             const img = document.createElement("img");
-            img.src = getImageUrl(logoUrl);
+            img.src = getImageUrl(logoUrl, IMG_SIZE_SMALL);
             img.alt = `Marca ${marca}`;
+            img.loading = "lazy";
             card.appendChild(img);
             grid.appendChild(card);
         });
@@ -609,8 +629,9 @@ export function mostrarResultadosDeBusqueda({ type, query, results }) {
             };
 
             const img = document.createElement("img");
-            img.src = getImageUrl(ejemplo.imagenVehiculo);
+            img.src = getImageUrl(ejemplo.imagenVehiculo, IMG_SIZE_SMALL);
             img.alt = `Modelo ${ejemplo.modelo}`;
+            img.loading = "lazy";
             card.appendChild(img);
 
             const overlay = document.createElement("div");
@@ -669,7 +690,7 @@ export function mostrarDetalleModal(item) {
     const logoUrl = getLogoUrlForMarca(item.marca, item.categoria);
     if (logoUrl) {
         const logoImg = document.createElement("img");
-        logoImg.src = getImageUrl(logoUrl);
+        logoImg.src = getImageUrl(logoUrl, IMG_SIZE_SMALL);
         logoImg.alt = `Logo ${item.marca}`;
         logoImg.className = 'brand-logo-modal';
         // El tamaño se controla ahora desde style.css para mantener la consistencia.
@@ -699,7 +720,7 @@ export function mostrarDetalleModal(item) {
 
     if (item.imagenVehiculo) {
         const imgVehiculo = document.createElement("img");
-        imgVehiculo.src = getImageUrl(item.imagenVehiculo);
+        imgVehiculo.src = getImageUrl(item.imagenVehiculo, IMG_SIZE_MEDIUM);
         imgVehiculo.className = 'img-vehiculo-modal';
         cont.appendChild(imgVehiculo);
     }
@@ -769,15 +790,16 @@ function renderCutContent(container, cutData, datosRelay, vehicleId) {
     container.appendChild(contentP);
 
     if (cutData.img) {
-        const highResImgUrl = getImageUrl(cutData.img);
+        const mediumImgUrl = getImageUrl(cutData.img, IMG_SIZE_MEDIUM);
 
         const imgContainer = document.createElement('div');
         imgContainer.className = 'image-container-with-feedback';
 
         const img = document.createElement("img");
-        img.src = highResImgUrl;
+        img.src = mediumImgUrl;
         img.className = 'img-corte image-with-container';
         img.onclick = () => {
+            const highResImgUrl = getImageUrl(cutData.img, IMG_SIZE_LARGE);
             document.getElementById('lightboxImg').src = highResImgUrl;
             document.getElementById('lightbox').classList.add('visible');
         };
@@ -929,8 +951,13 @@ function renderRelayInfoModal(relayInfo) {
     content.appendChild(title);
 
     const img = document.createElement('img');
-    img.src = getImageUrl(relayInfo.imagen, 1200);
+    img.src = getImageUrl(relayInfo.imagen, IMG_SIZE_MEDIUM);
     img.style.width = '100%';
+    img.onclick = () => {
+        const highResImgUrl = getImageUrl(relayInfo.imagen, IMG_SIZE_LARGE);
+        document.getElementById('lightboxImg').src = highResImgUrl;
+        document.getElementById('lightbox').classList.add('visible');
+    };
     content.appendChild(img);
 
     modal.appendChild(content);
@@ -1177,13 +1204,14 @@ function createAccordionSection(container, title, sec, isOpen = false, datosRela
         }
 
         if (sec.img) {
-            const highResImgUrl = getImageUrl(sec.img, 1200);
+            const mediumImgUrl = getImageUrl(sec.img, IMG_SIZE_MEDIUM);
             const imgContainer = document.createElement('div');
             imgContainer.className = 'image-container-with-feedback';
             const img = document.createElement("img");
-            img.src = highResImgUrl;
+            img.src = mediumImgUrl;
             img.className = 'img-corte image-with-container';
             img.onclick = () => {
+                const highResImgUrl = getImageUrl(sec.img, IMG_SIZE_LARGE);
                 document.getElementById('lightboxImg').src = highResImgUrl;
                 document.getElementById('lightbox').classList.add('visible');
             };
@@ -1277,7 +1305,7 @@ function mostrarUltimosAgregados() {
         card.onclick = () => mostrarDetalleModal(item);
 
         const img = document.createElement("img");
-        img.src = getImageUrl(item.imagenVehiculo);
+        img.src = getImageUrl(item.imagenVehiculo, IMG_SIZE_SMALL);
         img.alt = `${item.marca} ${item.modelo}`;
         img.loading = "lazy";
         card.appendChild(img);
@@ -1456,8 +1484,9 @@ function mostrarTutorialesGrid() {
         card.className = "card";
         card.onclick = () => mostrarDetalleTutorialModal(item);
         const img = document.createElement("img");
-        img.src = getImageUrl(item.Imagen);
+        img.src = getImageUrl(item.Imagen, IMG_SIZE_SMALL);
         img.alt = item.Tema;
+        img.loading = "lazy";
         card.appendChild(img);
         const overlay = document.createElement("div");
         overlay.className = "overlay";
@@ -1481,8 +1510,9 @@ function mostrarRelayGrid() {
         card.className = "card";
         card.onclick = () => mostrarDetalleRelayModal(item);
         const img = document.createElement("img");
-        img.src = getImageUrl(item.imagen);
+        img.src = getImageUrl(item.imagen, IMG_SIZE_SMALL);
         img.alt = item.configuracion;
+        img.loading = "lazy";
         card.appendChild(img);
         const overlay = document.createElement("div");
         overlay.className = "overlay";
@@ -1562,9 +1592,14 @@ function mostrarDetalleRelayModal(item) {
     // Comentario: Se refactoriza para usar appendChild y evitar `innerHTML +=` que es propenso a errores.
     if (item.imagen) {
         const img = document.createElement("img");
-        img.src = getImageUrl(item.imagen);
+        img.src = getImageUrl(item.imagen, IMG_SIZE_MEDIUM);
         img.style.width = "100%";
         img.style.borderRadius = "8px";
+        img.onclick = () => {
+            const highResImgUrl = getImageUrl(item.imagen, IMG_SIZE_LARGE);
+            document.getElementById('lightboxImg').src = highResImgUrl;
+            document.getElementById('lightbox').classList.add('visible');
+        };
         cont.appendChild(img);
     }
 
