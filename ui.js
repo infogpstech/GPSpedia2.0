@@ -378,9 +378,20 @@ export function mostrarModelos(categoria, marca, versionEquipamiento = null) {
     const { catalogData } = getState();
     const { cortes } = catalogData;
 
-    setState({ navigationState: { level: "modelos", categoria, marca, versionEquipamiento } });
+    const previousState = getState().navigationState || {};
+    setState({ navigationState: { level: "modelos", categoria, marca, versionEquipamiento, previousState } });
     const cont = document.getElementById("contenido");
-    const backAction = versionEquipamiento ? `window.ui.mostrarVersionesEquipamiento('${categoria}', '${marca}')` : `window.ui.mostrarMarcas('${categoria}')`;
+
+    // Lógica dinámica para el botón "Volver"
+    let backAction;
+    if (versionEquipamiento) {
+        backAction = `window.ui.mostrarVersionesEquipamiento('${categoria}', '${marca}')`;
+    } else if (previousState.level === 'modelosPorMarca') {
+        backAction = `window.ui.mostrarModelosPorMarca('${marca}')`;
+    } else {
+        backAction = `window.ui.mostrarMarcas('${categoria}')`;
+    }
+
     cont.innerHTML = `<span class="backBtn" onclick="${backAction}">${backSvg} Volver</span><h4>Modelos de ${marca} ${versionEquipamiento || ''}</h4>`;
 
     let modelosFiltrados = cortes.filter(item => item.categoria === categoria && item.marca === marca);

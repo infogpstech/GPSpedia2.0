@@ -608,21 +608,31 @@
             if (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) { e.preventDefault(); return false; }
             if (e.ctrlKey && e.keyCode === 85) { e.preventDefault(); return false; }
         });
+
+        // Bloqueo de Zoom manual con excepción para Lightbox
+        const isLightboxVisible = () => {
+            const lightbox = document.getElementById('lightbox');
+            return lightbox && lightbox.classList.contains('visible');
+        };
+
         document.addEventListener('wheel', (e) => {
-            if (e.ctrlKey) e.preventDefault();
+            if (e.ctrlKey && !isLightboxVisible()) e.preventDefault();
         }, { passive: false });
+
         document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey) {
+            if (e.ctrlKey && !isLightboxVisible()) {
                 if ([61, 107, 173, 109, 187, 189, 48, 96].includes(e.keyCode)) {
                     e.preventDefault();
                 }
             }
         });
+
         document.addEventListener('touchstart', (e) => {
-            if (e.touches.length > 1) e.preventDefault();
+            if (e.touches.length > 1 && !isLightboxVisible()) e.preventDefault();
         }, { passive: false });
+
         document.addEventListener('touchmove', (e) => {
-            if (e.touches.length > 1) e.preventDefault();
+            if (e.touches.length > 1 && !isLightboxVisible()) e.preventDefault();
         }, { passive: false });
     </script>
 </body>

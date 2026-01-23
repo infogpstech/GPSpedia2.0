@@ -175,3 +175,18 @@ El Corte Recomendado no carga su imagen porque `renderCutContent` le asigna `dat
 - Implementar reglas CSS globales para `user-select: none`.
 - Permitir excepciones para elementos de entrada (`input`, `textarea`) para asegurar la usabilidad.
 - Replicar en `users.html` y `add_cortes.html` para mantener la consistencia en toda la aplicación.
+
+--------------------------------------------------
+**AUTO-AUDITORÍA POST-IMPLEMENTACIÓN (06/02/2026)**
+
+**Hallazgos:**
+1. **Archivo style.css:** La regla de excepción para `user-select: text` no incluye el elemento `select`. Esto podría dificultar la interacción con menús desplegables en algunos navegadores si se hereda el `none` del body.
+2. **Archivo index.html (L107):** El input de búsqueda conserva un atributo `oninput="filtrarContenido(this.value)"` que es redundante con el event listener de `main.js`. Además, `filtrarContenido` no está expuesto globalmente (está bajo `window.navigation`), lo que causaría un error en consola al escribir.
+3. **Archivo add_cortes.html:** La lógica de bloqueo de zoom replicada no incluye la excepción `isLightboxVisible`. Esto impide que el técnico haga zoom en las imágenes de verificación dentro de esta sección, rompiendo una funcionalidad crítica de revisión de fotos.
+4. **Archivo ui.js (L376):** La función `mostrarModelos` mantiene un botón "Volver" con lógica hardcodeada que no consulta `previousState`. Aunque funcional bajo el flujo normal, es inconsistente con el resto de la refactorización.
+
+**Acciones Correctoras:**
+- Añadir `select` a las excepciones de `user-select` en todos los archivos.
+- Eliminar el `oninput` redundante en `index.html`.
+- Implementar la excepción de zoom por lightbox en `add_cortes.html`.
+- Refactorizar `mostrarModelos` para usar `previousState` en su botón de regreso.

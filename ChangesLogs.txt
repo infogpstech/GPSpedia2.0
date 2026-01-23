@@ -226,3 +226,19 @@
 - **Líneas 12-24:** Replicadas reglas de prevención de selección de texto en el bloque de estilos interno.
 
 **Versión:** Corrección de navegación y UI v2.0.8.
+
+**CHANGES LOG - 06/02/2026 (Post-Auditoría)**
+
+**Archivo: style.css**
+- **Línea 34:** Añadido elemento `select` a las excepciones de `user-select: text`.
+
+**Archivo: index.html**
+- **Línea 112:** Eliminado atributo `oninput` redundante en el buscador.
+
+**Archivo: add_cortes.html**
+- **Líneas 615-645:** Implementada excepción `isLightboxVisible` en la lógica de bloqueo de zoom táctil y manual.
+
+**Archivo: ui.js**
+- **Líneas 381-395:** Refactorizada `mostrarModelos` para usar `previousState` y asegurar consistencia en el botón "Volver".
+
+**Versión:** Finalización de auditoría y correcciones v2.0.8.

@@ -27,7 +27,7 @@ body {
 }
 
 /* Excepciones para permitir entrada de texto */
-input, textarea {
+input, textarea, select {
     -webkit-user-select: text;
     -moz-user-select: text;
     -ms-user-select: text;
