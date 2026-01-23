@@ -1,4 +1,4 @@
-<!-- GPSpedia Frontend Component | Version: 2.0.0 -->
+<!-- GPSpedia Frontend Component | Version: 2.0.8 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -24,6 +24,18 @@
             margin: 0;
             background-color: var(--background-color);
             color: var(--text-color);
+            /* Prevención de selección de texto y asistente de Google */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        /* Excepciones para permitir entrada de texto */
+        input, textarea, select {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
         }
         .container {
             padding: 20px;

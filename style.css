@@ -1,4 +1,4 @@
-/* GPSpedia Styles | Version: 2.0.0 */
+/* GPSpedia Styles | Version: 2.0.8 */
 /* Estilos Globales */
 *, *::before, *::after {
     box-sizing: border-box;
@@ -19,6 +19,19 @@ body {
     height: var(--app-height, 100%);
     overflow: hidden; /* El scroll se maneja en .container */
     transition: background-color 0.3s, color 0.3s;
+    /* Prevención de selección de texto y asistente de Google */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Excepciones para permitir entrada de texto */
+input, textarea {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
 }
 
 :root {

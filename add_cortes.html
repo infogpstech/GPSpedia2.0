@@ -1,4 +1,4 @@
-<!-- GPSpedia Frontend Component | Version: 2.0.0 -->
+<!-- GPSpedia Frontend Component | Version: 2.0.8 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -9,7 +9,22 @@
     <link rel="manifest" href="manifest.json">
     <style>
         /* General Styles */
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 15px; color: #343a40; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8f9fa; margin: 0; padding: 15px; color: #343a40;
+            /* Prevención de selección de texto y asistente de Google */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+        /* Excepciones para permitir entrada de texto */
+        input, textarea, select {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
         .container { max-width: 800px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
         h1, h2 { text-align: center; color: #007bff; margin-bottom: 20px; font-weight: 600; }
         h2 { font-size: 1.4em; color: #495057; }

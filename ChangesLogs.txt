@@ -207,3 +207,22 @@
 - Se limpió el backlog para reflejar el estado actual del proyecto.
 
 **Estado Final de la Sesión:** EXITOSO.
+
+**CHANGES LOG - 06/02/2026**
+
+**Archivo: ui.js**
+- **Líneas 280-291:** Actualizada `mostrarModelosPorMarca` para capturar `previousState` y manejar dinámicamente el botón "Volver" (regreso a búsqueda o página principal).
+- **Líneas 416-424:** Actualizada `mostrarTiposEncendido` para detectar si el origen es `modelosPorMarca` y retornar correctamente a la lista global de modelos de la marca.
+- **Líneas 481-483:** Añadido caso en `mostrarVersiones` para retornar a `mostrarModelosPorMarca` si ese era el nivel previo.
+- **Líneas 532-540:** Modificada `mostrarVersionesEquipamiento` para capturar estado previo y corregir la navegación circular hacia atrás.
+
+**Archivo: style.css**
+- **Líneas 22-31:** Implementadas reglas de `user-select: none` en el body y excepciones de `user-select: text` en inputs/textareas para evitar asistentes de selección móviles.
+
+**Archivo: users.html**
+- **Líneas 27-39:** Replicadas reglas de prevención de selección de texto en el bloque de estilos interno.
+
+**Archivo: add_cortes.html**
+- **Líneas 12-24:** Replicadas reglas de prevención de selección de texto en el bloque de estilos interno.
+
+**Versión:** Corrección de navegación y UI v2.0.8.

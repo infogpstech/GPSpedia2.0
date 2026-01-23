@@ -238,7 +238,12 @@ Cualquier cambio en estas zonas invalidará el commit.
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-*No hay tareas pendientes en esta sección.*
+10. **TÍTULO: Corrección de Navegación por Marca y UI (v2.0.8)**
+   - **ESTADO:** PENDIENTE REVISION POR EL MP
+   - **ALCANCE:** ui.js, style.css, users.html, add_cortes.html
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Navegación:** Implementada lógica de estado previo para asegurar que el regreso desde niveles profundos (años, versiones) respete el punto de entrada (Carrusel de Marcas o Búsqueda) evitando bucles de categorías.
+     - **UI:** Implementada prevención global de selección de texto mediante CSS `user-select: none` para optimizar experiencia móvil y evitar asistentes de búsqueda emergentes, manteniendo excepciones para campos de entrada.
 
 ---
 **DERIVADO DE AUDITORÍA (ROADMAP v2.0) — NO EJECUTAR AÚN**
