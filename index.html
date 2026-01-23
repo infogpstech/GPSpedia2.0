@@ -1,10 +1,10 @@
-<!-- GPSpedia Frontend Component | Version: 4.4.0 -->
+<!-- GPSpedia Frontend Component | Version: 2.0.0 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GPSpedia | Catálogo Técnico</title>
+    <title>GPSpedia v2.0</title>
 <link rel="icon" href="https://drive.google.com/thumbnail?id=1NxBx-W_gWmcq3fA9zog6Dpe-WXpH_2e8&sz=w256">
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -42,6 +42,7 @@
         <a href="#" id="menu-relay" class="menu-link"><i class="fa-solid fa-microchip"></i> Configuración Relay</a>
         <a href="users.html" class="menu-link"><i class="fa-solid fa-users-cog"></i> Mi Perfil / Usuarios</a>
         <a href="#" id="inbox-btn" class="menu-link" style="display: none;"><i class="fa-solid fa-inbox"></i> Inbox</a>
+        <a href="#" id="dashboard-btn" class="menu-link" style="display: none;"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
         <a href="#" id="dev-tools-btn" class="menu-link" style="display: none;"><i class="fa-solid fa-code"></i> Desarrollador</a>
     </nav>
     <div class="theme-switch-wrapper">
@@ -77,6 +78,9 @@
             </div>
             <button type="submit">Acceder</button>
             <p id="login-error" style="color: red; display: none;"></p>
+            <div style="text-align: center; margin-top: 20px;">
+                <small style="color: rgba(255,255,255,0.5);">v2.0</small>
+            </div>
         </form>
         <a href="#" id="forgot-password-link" style="color: #a0cfff; text-decoration: none; margin-top: 15px; display: inline-block;">¿Olvidaste tu contraseña?</a>
     </div>
@@ -84,37 +88,40 @@
 
 <div class="container" style="display: none;">
 
-  <div class="header-container">
-      <div class="header-branding" style="flex-direction: column; align-items: flex-start;">
-          <div style="display: flex; align-items: center;">
+  <!-- RECONSTRUCCIÓN EXTREMA DEL HEADER: Contenedor Maestro Único -->
+  <header class="main-header">
+      <!-- Fila 1: Branding y Controles -->
+      <div class="header-top">
+          <div class="header-branding">
               <img src="https://drive.google.com/thumbnail?id=1NxBx-W_gWmcq3fA9zog6Dpe-WXpH_2e8&sz=2048" alt="Logo de GPSpedia" class="app-logo">
-              <h1 class="app-title">GPSpedia</h1>
+              <div class="title-welcome-group">
+                  <h1 class="app-title">GPSpedia</h1>
+                  <span id="welcome-message" style="display: none;"></span>
+              </div>
           </div>
-          <div id="welcome-message-container" style="padding-left: 10px;">
-             <span id="welcome-message" style="display: none; color: #333; font-weight: bold; font-size: 0.8em;"></span>
+          <div class="header-controls">
+              <button id="install-button" style="display: none;">Instalar</button>
+              <button id="logout-button" style="display: none;">Cerrar Sesión</button>
           </div>
       </div>
-      <div id="header-controls" style="display: flex; align-items: center; gap: 15px;">
-          <button id="logout-button" style="display: none; background-color: #dc3545; color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: background-color 0.3s;">Cerrar Sesión</button>
+
+      <!-- Fila 2: Búsqueda y Navegación Principal -->
+      <div class="header-bottom">
+          <div class="search-wrapper">
+              <div class="search-container">
+                  <input type="text" id="searchInput" placeholder="Buscar Corte..." oninput="filtrarContenido(this.value)">
+                  <button id="clear-search-btn" title="Limpiar búsqueda">&times;</button>
+              </div>
+              <button id="hamburger-btn"><i class="fa-solid fa-bars"></i></button>
+          </div>
+
+          <nav class="section-selector">
+              <button id="btn-cortes" class="section-btn active">Cortes</button>
+              <button id="btn-tutoriales" class="section-btn">Tutoriales</button>
+              <button id="btn-relay" class="section-btn">Relay</button>
+          </nav>
       </div>
-  </div>
-
-  <!-- El botón de instalación se mueve fuera del header-controls para que no se oculte con la búsqueda -->
-  <button id="install-button" style="display: none;">Instalar Aplicación</button>
-
-  <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-      <div class="search-container" style="flex-grow: 1;">
-          <input type="text" id="searchInput" placeholder="Buscar Corte..." oninput="filtrarContenido(this.value)">
-          <button id="clear-search-btn" title="Limpiar búsqueda">&times;</button>
-      </div>
-      <button id="hamburger-btn"><i class="fa-solid fa-bars"></i></button>
-  </div>
-
-  <div class="section-selector">
-      <button id="btn-cortes" class="section-btn active">Cortes</button>
-      <button id="btn-tutoriales" class="section-btn">Tutoriales</button>
-      <button id="btn-relay" class="section-btn">Relay</button>
-  </div>
+  </header>
 
   <div id="contenido" class="content-section"></div>
   <div id="contenido-tutoriales" class="content-section" style="display: none;"></div>
@@ -131,16 +138,39 @@
 
 <!-- ========= MODAL DE INBOX ========= -->
 <div id="inbox-modal" class="info-modal">
-    <div class="info-modal-content" style="max-width: 1100px;">
+    <div class="info-modal-content" id="inbox-modal-content">
         <span class="info-close-btn">&times;</span>
-        <h2><i class="fa-solid fa-inbox"></i> Bandeja de Entrada</h2>
-        <div style="display: flex; gap: 20px;">
-            <div id="inbox-list" style="flex: 1; height: 60vh; overflow-y: auto; border-right: 1px solid #ccc; padding-right: 15px;">
+        <h2 class="inbox-modal-title"><i class="fa-solid fa-inbox"></i> Bandeja de Entrada</h2>
+        <div class="inbox-layout-wrapper">
+            <div id="inbox-list">
                 <!-- List of items will be rendered here -->
             </div>
-            <div id="inbox-detail" style="flex: 2;">
+            <div id="inbox-detail">
                 <!-- Detail of selected item will be rendered here -->
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========= MODAL DE DASHBOARD ========= -->
+<div id="dashboard-modal" class="info-modal">
+    <div class="info-modal-content" style="max-width: 900px;">
+        <span class="info-close-btn">&times;</span>
+        <h2 class="inbox-modal-title"><i class="fa-solid fa-chart-line"></i> Panel de Actividad</h2>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #eee; text-align: left;">
+                        <th style="padding: 10px;">Fecha</th>
+                        <th style="padding: 10px;">Usuario</th>
+                        <th style="padding: 10px;">Actividad</th>
+                        <th style="padding: 10px;">Detalle</th>
+                    </tr>
+                </thead>
+                <tbody id="activity-logs">
+                    <!-- Logs will be rendered here -->
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
@@ -183,7 +213,7 @@
     <hr>
     <h4>¿Qué ofrece GPSpedia?</h4>
     <p><strong>🔧 Información de cortes vehiculares:</strong> Identificación de puntos de corte eléctrico e ignición. Detalles claros sobre ubicación, color del cable y tipo de corte recomendado.</p>
-    <p><strong>🚗 Tipos de cortes disponibles:</strong> Paro de motor (apagado remoto) y apertura de puertas.</p>
+    <p><strong>🚗 Tipos de cortes disponibles:</strong> Bomba de combustible, señal al botón, corte de ignición y apertura de puertas.</p>
     <hr>
     <h4>Configuraciones de Relay</h4>
     <p>GPSpedia incluye una sección dedicada a configuraciones de relay, donde se explican de forma visual y descriptiva la función de cada pin, su uso recomendado y diagramas claros para facilitar la correcta conexión.</p>
@@ -239,7 +269,7 @@
 <script type="module" src="main.js"></script>
 
 <footer class="footer" style="display: none;">
-  Gpspedia v4.4.0 © 2025 todos los derechos reservados.
+  GPSpedia v2.0 © 2026 todos los derechos reservados.
   <div class="footer-links">
       <a id="footer-about-link">Sobre Nosotros</a>
       <a id="footer-contact-link">Contáctanos</a>

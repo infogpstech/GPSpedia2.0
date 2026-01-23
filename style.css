@@ -1,6 +1,12 @@
+/* GPSpedia Styles | Version: 2.0.0 */
 /* Estilos Globales */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 html {
-    height: 100%;
+    height: var(--app-height, 100%);
+    overflow: hidden; /* Previene el scroll del html */
 }
 body {
     font-family: Arial, sans-serif;
@@ -10,7 +16,8 @@ body {
     color: var(--text-color);
     display: flex;
     flex-direction: column;
-    min-height: 100%;
+    height: var(--app-height, 100%);
+    overflow: hidden; /* El scroll se maneja en .container */
     transition: background-color 0.3s, color 0.3s;
 }
 
@@ -46,12 +53,14 @@ h1.app-title {
     color: var(--header-color) !important;
 }
 .container {
-    padding: 20px;
+    padding: 20px 20px 80px 20px; /* Aumento de padding inferior para evitar bloqueo del footer */
     max-width: 1240px;
     margin: 0 auto;
     width: 100%;
     box-sizing: border-box;
-    flex: 1 0 auto;
+    flex: 1 1 auto;
+    overflow-y: auto; /* Único elemento con scroll principal */
+    -webkit-overflow-scrolling: touch;
 }
 .backBtn {
     margin-bottom: 15px;
@@ -68,14 +77,23 @@ h1.app-title {
     background: #e9f7ff;
 }
 
-/* --- ESTILOS DEL ENCABEZADO (Header) --- */
-.header-container {
+/* --- RECONSTRUCCIÓN EXTREMA DEL HEADER --- */
+.main-header {
+    background-color: var(--bg-color);
+    padding: 20px 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    transition: all 0.35s ease-in-out;
+    position: relative;
+    z-index: 1500;
+    overflow: visible; /* Asegura que el logo animado sea visible */
+}
+
+.header-top {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Ajustado para espaciar los elementos */
-    flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
-    margin-bottom: 20px;
-    gap: 15px; /* Espacio entre el logo/título y los controles */
+    justify-content: space-between;
     transition: all 0.35s ease-in-out;
 }
 
@@ -83,113 +101,103 @@ h1.app-title {
     display: flex;
     align-items: center;
     gap: 15px;
-    transition: all 0.35s ease-in-out;
+}
+
+.title-welcome-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
 .app-logo {
     max-width: 96px;
     height: auto;
     border-radius: 8px;
-    /* margin-right ya no es necesario gracias a 'gap' */
     transition: all 0.35s ease-in-out;
 }
+
 h1.app-title {
-    text-align: left;
     margin: 0;
     font-size: 2.2em;
-    color: #333;
+    color: var(--header-color) !important;
     transition: all 0.35s ease-in-out;
 }
 
-#header-controls {
-    transition: all 0.35s ease-in-out;
-}
-
-#install-button {
-    display: none; /* Oculto por defecto, JS lo mostrará */
-    position: fixed; /* Fijo en la pantalla */
-    top: 20px;       /* Distancia desde arriba */
-    right: 20px;      /* Distancia desde la derecha */
-    z-index: 1001;   /* Por encima de otros elementos */
-    padding: 10px 20px;
-    font-size: 1em;
+#welcome-message {
+    color: var(--text-color);
     font-weight: bold;
-    color: #fff;
-    background-color: #28a745; /* Verde para la acción de instalar */
+    font-size: 0.8em;
+    opacity: 0.8;
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.35s ease-in-out;
+}
+
+#logout-button, #install-button {
     border: none;
+    padding: 8px 12px;
     border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
-    white-space: nowrap;
+    font-weight: bold;
+    font-size: 0.9em;
+    transition: background-color 0.3s;
 }
 
-#install-button:hover {
-    background-color: #218838;
-    transform: scale(1.05); /* Efecto de zoom ligero */
+#logout-button { background-color: #dc3545; color: white; }
+#install-button { background-color: #28a745; color: white; }
+
+.header-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    transition: all 0.35s ease-in-out;
 }
 
-@media (max-width: 680px) {
-    .header-container {
-        flex-direction: column; /* Apila los elementos verticalmente */
-        align-items: center; /* Centra los elementos */
-        justify-content: center;
-    }
-    .header-branding {
-        justify-content: center;
-        width: 100%;
-    }
-    h1.app-title {
-        font-size: 1.8em;
-    }
-    #header-controls {
-        margin-left: 0; /* Resetea el margen */
-        width: 100%;
-        justify-content: center; /* Centra los botones */
-    }
+.search-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-@media (max-width: 480px) {
-    #install-button {
-        top: 10px;
-        right: 10px;
-        padding: 8px 12px;
-        font-size: 0.9em;
-    }
-    #header-controls {
-        flex-direction: column; /* Apila el saludo y el botón de cerrar sesión */
-        align-items: center;
-    }
-}
-
-/* --- ESTILOS DEL BUSCADOR --- */
 .search-container {
-    position: relative; /* Contenedor para el botón de limpiar */
-    margin-bottom: 30px;
-    padding: 10px 0;
+    flex-grow: 1;
+    position: relative;
     max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.search-container input[type="text"] {
+    width: 100%;
+    padding: 12px 40px 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1em;
+    background: var(--card-bg);
+    color: var(--text-color);
     transition: all 0.35s ease-in-out;
 }
 
 #clear-search-btn {
     position: absolute;
-    right: 15px;
+    right: 10px;
     top: 50%;
     transform: translateY(-50%);
     background: #ccc;
     color: #fff;
     border: none;
     border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    font-size: 16px;
-    line-height: 24px;
-    text-align: center;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
     cursor: pointer;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.2s ease-in-out;
+    transition: opacity 0.2s;
 }
 
 .search-container.has-text #clear-search-btn {
@@ -197,25 +205,7 @@ h1.app-title {
     pointer-events: all;
 }
 
-body.search-active .search-container.has-text #clear-search-btn {
-    right: 35px; /* Ajuste de posición cuando la búsqueda está activa */
-}
-
-
-.search-container input[type="text"] {
-    width: 100%;
-    padding: 12px 40px 12px 15px; /* Aumentado padding derecho para el botón X */
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    box-sizing: border-box;
-    font-size: 1em;
-    transition: all 0.35s ease-in-out;
-}
-.search-container input[type="text"]:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-    outline: none;
-}
+/* --- ESTILOS DEL BUSCADOR --- */
 
 /* --- ESTILOS DEL MENÚ HAMBURGUESA --- */
 #hamburger-btn {
@@ -223,13 +213,17 @@ body.search-active .search-container.has-text #clear-search-btn {
     border: none;
     font-size: 24px;
     cursor: pointer;
-    color: #333;
+    color: var(--text-color);
     padding: 10px;
     border-radius: 8px;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, opacity 0.35s ease-in-out, visibility 0.35s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1500;
 }
 #hamburger-btn:hover {
-    background-color: #e0e0e0;
+    background-color: rgba(0, 0, 0, 0.05);
 }
 #side-menu {
     position: fixed;
@@ -366,50 +360,76 @@ input:checked + .slider:before {
     transform: translateX(26px);
 }
 
-/* --- ESTILOS DE BÚSQUEDA ACTIVA --- */
-body.search-active .app-title,
-body.search-active #header-controls,
+/* --- ESTILOS DE BÚSQUEDA ACTIVA (UNIFICADOS) --- */
+/* Unificación de lógica de layout y animación para búsqueda activa */
+body.search-active .title-welcome-group,
+body.search-active .header-controls,
 body.search-active .section-selector,
-body.search-active .footer {
+body.search-active #hamburger-btn {
     opacity: 0;
     visibility: hidden;
-    transform: translateY(-20px);
-    max-height: 0; /* Colapsa el espacio vertical */
-    margin-top: 0 !important;
-    margin-bottom: 0 !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
-    border: none !important;
+    transform: translateY(-10px);
+    pointer-events: none;
+    max-height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out, max-height 0.4s ease-in-out, visibility 0.3s;
+    will-change: opacity, transform, max-height;
 }
 
-body.search-active .container {
-    padding-top: 80px; /* Crea espacio para la barra de búsqueda fija */
-    transition: padding-top 0.35s ease-in-out;
+body.search-active .footer {
+    display: none !important;
 }
 
-body.search-active .search-container {
+body.search-active .main-header {
+    padding: 10px 20px;
     position: fixed;
-    top: 15px;
+    top: 0;
     left: 0;
     right: 0;
-    padding: 0 20px;
-    margin: 0;
-    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--bg-color);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     z-index: 1500;
+    overflow: hidden; /* Fix desbordamiento horizontal */
+    gap: 0; /* Unificado: elimina espacio de elementos ocultos */
+    transition: padding 0.3s ease-out, background-color 0.3s ease;
+    will-change: padding, background-color;
+}
+
+body.search-active .header-bottom,
+body.search-active .search-wrapper {
+    width: 100%;
+    gap: 0;
 }
 
 body.search-active #searchInput {
-    padding-left: 55px; /* Espacio para el logo */
-    height: 48px;
-    box-sizing: border-box;
+    width: 100%;
+    padding-left: 55px; /* Espacio para el logo centrado */
+    box-sizing: border-box; /* Garantiza que el padding no cause desbordamiento */
 }
 
+/* Regla única y unificada para el logo en modo búsqueda */
+/* Se posiciona de forma absoluta dentro del header fijo para centrado vertical milimétrico */
 body.search-active .app-logo {
-    position: fixed;
-    top: 22px;       /* 15px (search-container top) + 7px (para centrar) */
-    left: 30px;      /* 20px (search-container padding) + 10px (margen interno) */
-    max-width: 34px;
-    z-index: 1501;   /* Por encima del input */
+    position: absolute;
+    top: 50%;
+    left: 30px;
+    transform: translateY(-50%);
+    height: 40px; /* ≈5% menor que la altura del input (~42-45px) */
+    width: auto;
+    max-width: none;
+    z-index: 2100;
+    filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.2));
+    opacity: 1 !important;
+    visibility: visible !important;
+    transition: all 0.35s ease-in-out;
+}
+
+body.search-active .container {
+    padding-top: 70px; /* Compensación del header fijo */
 }
 
 
@@ -713,6 +733,38 @@ body.search-active .app-logo {
     background: #0056b3;
 }
 
+/* --- ANIMACIONES DE CARGA EN BOTONES --- */
+.btn-loading {
+    position: relative !important;
+    color: transparent !important;
+    pointer-events: none !important;
+}
+
+.btn-loading::after {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    top: 50%;
+    left: 50%;
+    margin-top: -9px;
+    margin-left: -9px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin-button 0.6s linear infinite;
+    z-index: 5;
+}
+
+/* Spinner específico para el botón de login si se requiere otro color */
+#login-form button.btn-loading::after {
+    border-top-color: #fff; /* Se mantiene blanco sobre azul */
+}
+
+@keyframes spin-button {
+    to { transform: rotate(360deg); }
+}
+
 /* Modal */
 #modalDetalle {
     position: fixed;
@@ -747,7 +799,7 @@ body.search-active .app-logo {
     max-width: 800px;
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    max-height: 90vh;
+    max-height: calc(var(--app-height, 100%) * 0.9);
     overflow-y: auto;
     transform: scale(0.95);
     transition: transform 0.3s ease;
@@ -774,13 +826,19 @@ body.search-active .app-logo {
     margin: 0; /* Anula el 'margin: auto' de la regla genérica */
 }
 
+/* Comentario: Ajustes de tamaño según la nueva solicitud de diseño. */
+.brand-logo-modal {
+    height: 44px !important; /* Aumento del 10% desde 40px */
+    width: auto !important;
+}
+
 .image-with-container {
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .img-vehiculo-modal {
-    max-width: 250px;
+    max-width: 225px; /* Reducción del 10% desde 250px */
     width: auto;
     height: auto;
     margin: 10px auto;
@@ -818,13 +876,24 @@ body.search-active .app-logo {
     display: block; /* Cambiado para permitir que el contenedor se ajuste al 100% */
     margin: 10px auto;
 }
+/* Comentario: Se ajusta el posicionamiento para mayor precisión en la esquina. */
 .image-container-with-feedback .feedback-overlay {
     position: absolute;
-    bottom: 10px;
-    right: 10px;
+    bottom: 5px; /* Reducido para estar más cerca del borde */
+    right: 5px;  /* Reducido para estar más cerca del borde */
     display: flex;
     flex-direction: row;
     gap: 8px;
+}
+/* Comentario: Se añade una nueva clase para el párrafo del colaborador para garantizar su propio espacio. */
+.colaborador-info {
+    display: block;
+    width: 100%;
+    font-style: italic;
+    color: #888;
+    margin-top: 15px;
+    text-align: left;
+    font-size: 0.8em;
 }
 .feedback-btn-overlay {
     background-color: rgba(0, 0, 0, 0.6);
@@ -888,8 +957,39 @@ body.search-active .app-logo {
     width: 20px;
     height: 20px;
 }
-.accordion-btn.active .accordion-arrow {
+.accordion-btn.active .accordion-arrow,
+.accordion-item.active .accordion-header i {
     transform: rotate(180deg); /* Flecha hacia arriba */
+}
+
+/* --- ESTILOS PARA ACORDEÓN DE FAQ --- */
+.accordion-item .accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, padding 0.3s ease;
+    padding: 0 15px;
+}
+
+.accordion-item.active .accordion-content {
+    max-height: 200px; /* Suficiente para el contenido */
+    padding: 10px 15px;
+}
+
+.accordion-header {
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: var(--button-bg);
+    color: var(--button-text);
+    border-radius: 8px;
+    margin-top: 5px;
+    font-weight: bold;
+}
+
+.accordion-header i {
+    transition: transform 0.3s ease;
 }
 .panel-desplegable {
     padding: 0 18px;
@@ -944,13 +1044,14 @@ body.search-active .app-logo {
 .footer {
     text-align: center;
     padding: 20px 0;
-    margin-top: 40px;
+    margin-top: 0; /* Ajustado para evitar espacio fantasma */
     background-color: #333;
     color: #fff;
     font-size: 0.9em;
     display: none; /* Oculto por defecto */
     width: 100%;
     transition: all 0.35s ease-in-out;
+    flex-shrink: 0; /* Garantiza que el footer no se colapse ni empuje excesivamente */
 }
 .footer-links {
     margin-top: 10px; /* Added margin to separate from copyright */
@@ -976,7 +1077,7 @@ body.search-active .app-logo {
 .info-modal-content {
     background-color: #fff; margin: auto; padding: 25px; border-radius: 10px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.25); width: 90%; max-width: 700px;
-    max-height: 90vh; overflow-y: auto; position: relative;
+    max-height: calc(var(--app-height, 100%) * 0.9); overflow-y: auto; position: relative;
 }
 .info-close-btn {
     color: #aaa; position: absolute; top: 10px; right: 20px; font-size: 28px;
@@ -1073,4 +1174,144 @@ body.search-active .app-logo {
     z-index: 4001;
     font-size: 1em;
     cursor: pointer;
+}
+
+/* --- ESTILOS DEL MODAL DE INBOX (ALTA DENSIDAD) --- */
+#inbox-modal-content {
+    padding: 10px !important;
+    max-width: 1000px !important;
+    width: 95% !important;
+    max-height: 90vh !important;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.inbox-modal-title {
+    font-size: 1.1rem !important;
+    margin: 0 0 8px 0 !important;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #eee;
+    flex-shrink: 0;
+}
+.inbox-layout-wrapper {
+    display: flex;
+    gap: 8px;
+    height: calc(100% - 40px);
+    overflow: hidden;
+}
+#inbox-list {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border-right: 1px solid #eee;
+    padding-right: 4px;
+}
+#inbox-detail {
+    flex: 2;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-left: 4px;
+}
+.inbox-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 5px;
+    border-bottom: 1px solid #f5f5f5;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-bottom: 1px;
+}
+.inbox-item:hover {
+    background-color: #f9f9f9;
+}
+.inbox-item.active {
+    background-color: #e9f7ff;
+    border-left: 2px solid #007bff;
+}
+.inbox-item.resolved {
+    opacity: 0.5;
+}
+.inbox-item.replied .inbox-item-content .inbox-item-title::after {
+    content: ' (Rep)';
+    color: #28a745;
+    font-size: 0.7em;
+}
+.inbox-item i {
+    color: #007bff;
+    font-size: 0.8em;
+}
+.inbox-item-content {
+    flex-grow: 1;
+    overflow: hidden;
+}
+.inbox-item-title {
+    font-size: 0.8rem !important;
+    display: block;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.inbox-item-type {
+    font-size: 0.7rem !important;
+    color: #999;
+    margin: 0 !important;
+}
+.inbox-detail-title {
+    margin: 0 0 4px 0 !important;
+    font-size: 0.9rem !important;
+    color: #007bff;
+    line-height: 1.2;
+}
+.inbox-detail-meta {
+    font-size: 0.8rem;
+    color: #666;
+    margin: 0 0 4px 0 !important;
+}
+.inbox-message-content,
+.inbox-reply-content {
+    background-color: #f8f8f8;
+    border-radius: 4px;
+    padding: 4px 6px;
+    margin: 4px 0;
+    font-size: 0.85rem;
+}
+.inbox-reply-content {
+    border-left: 3px solid #28a745;
+}
+.inbox-message-content pre,
+.inbox-reply-content pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: inherit;
+    margin: 0;
+}
+.inbox-actions {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #eee;
+}
+.inbox-actions textarea {
+    width: 100%;
+    min-height: 50px;
+    padding: 4px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    box-sizing: border-box;
+    margin-bottom: 4px;
+    font-size: 0.8rem;
+}
+.inbox-actions button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    margin-right: 5px;
+}
+.inbox-actions button.resolve-btn {
+    background-color: #28a745;
 }

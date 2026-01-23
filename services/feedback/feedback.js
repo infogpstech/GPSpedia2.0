@@ -83,7 +83,7 @@ function doGet(e) {
     }
     const defaultResponse = {
         status: 'success',
-        message: 'GPSpedia Feedback-SERVICE v1.2.1 is active.'
+        message: 'GPSpedia Feedback-SERVICE v2.0.0 is active.'
     };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
         .setMimeType(ContentService.MimeType.TEXT);
@@ -121,6 +121,9 @@ function doPost(e) {
                 break;
             case 'markAsResolved':
                 response = handleMarkAsResolved(payload);
+                break;
+            case 'getActivityLogs':
+                response = handleGetActivityLogs(payload);
                 break;
             default:
                 throw new Error(`Acción desconocida en Feedback Service: ${action}`);
@@ -464,4 +467,27 @@ function handleMarkAsResolved(payload) {
     }
 
     return { status: 'success', message: 'Reporte marcado como resuelto.' };
+}
+
+function handleGetActivityLogs(payload) {
+    const sheet = getSpreadsheet().getSheetByName(SHEET_NAMES.ACTIVIDAD_USUARIO);
+    if (!sheet) return { status: 'success', data: [] };
+
+    const data = sheet.getDataRange().getValues();
+    if (data.length <= 1) return { status: 'success', data: [] };
+
+    data.shift(); // Remove headers
+
+    // Reverse and take last 100 logs
+    const logs = data.map(row => ({
+        id: row[COLS_ACTIVIDAD_USUARIO.id - 1],
+        timestamp: row[COLS_ACTIVIDAD_USUARIO.timestamp - 1],
+        idUsuario: row[COLS_ACTIVIDAD_USUARIO.idUsuario - 1],
+        nombreUsuario: row[COLS_ACTIVIDAD_USUARIO.nombreUsuario - 1],
+        tipoActividad: row[COLS_ACTIVIDAD_USUARIO.tipoActividad - 1],
+        idElementoAsociado: row[COLS_ACTIVIDAD_USUARIO.idElementoAsociado - 1],
+        detalle: row[COLS_ACTIVIDAD_USUARIO.detalle - 1]
+    })).reverse().slice(0, 100);
+
+    return { status: 'success', data: logs };
 }

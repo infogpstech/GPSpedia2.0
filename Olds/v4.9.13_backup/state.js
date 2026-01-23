@@ -1,4 +1,4 @@
-// GPSpedia State Management Module | Version: 2.0.0
+// GPSpedia State Management Module
 // Responsibilities:
 // - Act as the single source of truth for all application data.
 // - Provide getter and setter functions to manage state mutations.
@@ -21,8 +21,7 @@ let state = {
     uiState: {
         isModalOpen: false,
         isSearchActive: false
-    },
-    likedCortes: []
+    }
 };
 
 export function getState() {

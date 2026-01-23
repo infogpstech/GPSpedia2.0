@@ -1,4 +1,4 @@
-// GPSpedia UI Module | Version: 2.0.0
+// GPSpedia UI Module
 // Responsibilities:
 // - Render UI components based on state.
 // - Contain all functions that directly manipulate the DOM.
@@ -8,11 +8,6 @@ import { getFeedbackItems, replyToFeedback, markAsResolved, getActivityLogs, rou
 import { getState, setState, subscribe } from './state.js';
 
 const backSvg = '<svg style="width:20px;height:20px;margin-right:5px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>';
-
-// Constants for optimized image loading
-export const IMG_SIZE_SMALL = 300;   // Cards and thumbnails
-export const IMG_SIZE_MEDIUM = 800;  // Modal details
-export const IMG_SIZE_LARGE = 1600;  // Lightbox / High Resolution
 
 export function getImageUrl(fileId, size = 400) {
     const placeholder = "https://placehold.co/400x300/cccccc/333333?text=Sin+Imagen";
@@ -185,13 +180,12 @@ export function mostrarCategorias() {
         card.className = "card";
         card.onclick = () => mostrarMarcas(cat);
         const img = document.createElement("img");
-        img.src = getImageUrl(ejemplo?.imagenVehiculo, IMG_SIZE_SMALL);
+        img.src = getImageUrl(ejemplo?.imagenVehiculo);
         img.alt = `Categoría ${cat}`;
-        img.loading = "lazy";
         card.appendChild(img);
         const overlay = document.createElement("div");
         overlay.className = "overlay";
-        overlay.innerHTML = `<div class="overlay-text-primary">${cat}</div>`;
+        overlay.innerHTML = cat;
         card.appendChild(overlay);
         return card;
     });
@@ -209,9 +203,8 @@ export function mostrarCategorias() {
         // Cambio Crítico: Corregir el flujo de navegación para que vaya de Marca -> Modelos.
         card.onclick = () => mostrarModelosPorMarca(marca);
         const img = document.createElement("img");
-        img.src = getImageUrl(logoUrl, IMG_SIZE_SMALL);
+        img.src = getImageUrl(logoUrl);
         img.alt = `Marca ${marca}`;
-        img.loading = "lazy";
         card.appendChild(img);
         return card;
     });
@@ -228,9 +221,8 @@ export function mostrarCategorias() {
         card.className = "card brand-logo-item";
         card.onclick = () => mostrarModelos('Motocicletas', marca);
         const img = document.createElement("img");
-        img.src = getImageUrl(logoUrl, IMG_SIZE_SMALL);
+        img.src = getImageUrl(logoUrl);
         img.alt = `Marca ${marca}`;
-        img.loading = "lazy";
         card.appendChild(img);
         return card;
     });
@@ -258,7 +250,7 @@ export function mostrarMarcas(categoria) {
         logoContainer.onclick = () => mostrarModelos(categoria, m);
 
         const img = document.createElement("img");
-        img.src = getImageUrl(logoUrl, IMG_SIZE_SMALL) || 'https://placehold.co/120x80/cccccc/333333?text=Sin+Logo';
+        img.src = getImageUrl(logoUrl) || 'https://placehold.co/120x80/cccccc/333333?text=Sin+Logo';
         img.alt = `Marca ${m}`;
         img.loading = "lazy";
 
@@ -297,13 +289,12 @@ export function mostrarModelosPorMarca(marca) {
         // Comentario: Se utiliza la nueva función "hub" para decidir el siguiente paso.
         card.onclick = () => navegarADetallesDeModelo(ejemplo.categoria, marca, ejemplo.modelo);
         const img = document.createElement("img");
-        img.src = getImageUrl(ejemplo.imagenVehiculo, IMG_SIZE_SMALL);
+        img.src = getImageUrl(ejemplo.imagenVehiculo);
         img.alt = `Modelo ${ejemplo.modelo}`;
-        img.loading = "lazy";
         card.appendChild(img);
         const overlay = document.createElement("div");
         overlay.className = "overlay";
-        overlay.innerHTML = `<div class="overlay-text-primary">${ejemplo.modelo}</div>`;
+        overlay.innerHTML = `<div>${ejemplo.modelo}</div>`;
         card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -390,13 +381,9 @@ export function mostrarModelos(categoria, marca, versionEquipamiento = null) {
         const card = document.createElement("div"); card.className = "card";
         // Comentario: Se utiliza la nueva función "hub" para decidir el siguiente paso.
         card.onclick = () => navegarADetallesDeModelo(categoria, marca, ejemplo.modelo);
-        const img = document.createElement("img");
-        img.src = getImageUrl(ejemplo.imagenVehiculo, IMG_SIZE_SMALL);
-        img.alt = `Modelo ${ejemplo.modelo}`;
-        img.loading = "lazy";
-        card.appendChild(img);
+        const img = document.createElement("img"); img.src = getImageUrl(ejemplo.imagenVehiculo); img.alt = `Modelo ${ejemplo.modelo}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay";
-        overlay.innerHTML = `<div class="overlay-text-primary">${ejemplo.modelo}</div>`;
+        overlay.innerHTML = `<div>${ejemplo.modelo}</div>`;
         card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -440,14 +427,13 @@ export function mostrarTiposEncendido(categoria, marca, versionEquipamiento, mod
         card.onclick = () => mostrarVersiones(vehiculos.filter(v => v.tipoEncendido === tipo), categoria, marca, modelo);
 
         const img = document.createElement("img");
-        img.src = getImageUrl(ejemplo.imagenVehiculo, IMG_SIZE_SMALL);
+        img.src = getImageUrl(ejemplo.imagenVehiculo);
         img.alt = tipo;
-        img.loading = "lazy";
         card.appendChild(img);
 
         const overlay = document.createElement("div");
         overlay.className = "overlay";
-        overlay.innerHTML = `<div class="overlay-text-primary">${tipo}</div>`;
+        overlay.innerHTML = tipo;
         card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -482,11 +468,7 @@ export function mostrarVersiones(filas, categoria, marca, modelo) {
     filas.forEach(item => {
         const card = document.createElement("div"); card.className = "card";
         card.onclick = () => mostrarDetalleModal(item);
-        const img = document.createElement("img");
-        img.src = getImageUrl(item.imagenVehiculo, IMG_SIZE_SMALL);
-        img.alt = `Corte ${item.anoDesde}`;
-        img.loading = "lazy";
-        card.appendChild(img);
+        const img = document.createElement("img"); img.src = getImageUrl(item.imagenVehiculo); img.alt = `Corte ${item.anoDesde}`; card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay";
         const yearRange = item.anoHasta ? `${item.anoDesde} - ${item.anoHasta}` : item.anoDesde;
         overlay.innerHTML = `<div style="font-weight:bold;">${yearRange || modelo}</div><div style="font-size:0.8em;">${item.tipoEncendido || ''}</div>`;
@@ -545,15 +527,14 @@ export function mostrarVersionesEquipamiento(categoria, marca, modelo) {
         card.onclick = () => mostrarVersiones(vehiculosDeVersion, categoria, marca, modelo);
 
         const img = document.createElement("img");
-        img.src = getImageUrl(ejemplo?.imagenVehiculo, IMG_SIZE_SMALL);
+        img.src = getImageUrl(ejemplo?.imagenVehiculo);
         img.alt = `Versión ${version}`;
-        img.loading = "lazy";
         card.appendChild(img);
 
         const overlay = document.createElement("div");
         overlay.className = "overlay";
         // Comentario: La tarjeta ahora muestra el nombre de la versión y los tipos de encendido asociados.
-        overlay.innerHTML = `<div class="overlay-text-primary">${version}</div><div class="overlay-text-secondary">${tiposDeEncendidoEnVersion}</div>`;
+        overlay.innerHTML = `<div>${version}</div><div style="font-size:0.8em; opacity:0.8;">${tiposDeEncendidoEnVersion}</div>`;
         card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -597,9 +578,8 @@ export function mostrarResultadosDeBusqueda({ type, query, results }) {
             card.onclick = () => mostrarModelosPorMarca(marca);
 
             const img = document.createElement("img");
-            img.src = getImageUrl(logoUrl, IMG_SIZE_SMALL);
+            img.src = getImageUrl(logoUrl);
             img.alt = `Marca ${marca}`;
-            img.loading = "lazy";
             card.appendChild(img);
             grid.appendChild(card);
         });
@@ -629,9 +609,8 @@ export function mostrarResultadosDeBusqueda({ type, query, results }) {
             };
 
             const img = document.createElement("img");
-            img.src = getImageUrl(ejemplo.imagenVehiculo, IMG_SIZE_SMALL);
+            img.src = getImageUrl(ejemplo.imagenVehiculo);
             img.alt = `Modelo ${ejemplo.modelo}`;
-            img.loading = "lazy";
             card.appendChild(img);
 
             const overlay = document.createElement("div");
@@ -646,7 +625,7 @@ export function mostrarResultadosDeBusqueda({ type, query, results }) {
 
             const diferenciador = version || tiposEncendido;
 
-            overlay.innerHTML = `<div class="overlay-text-primary">${ejemplo.marca} ${ejemplo.modelo}</div><div class="overlay-text-secondary">${diferenciador}</div>`;
+            overlay.innerHTML = `<div>${ejemplo.marca} ${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8;">${diferenciador}</div>`;
             card.appendChild(overlay);
             grid.appendChild(card);
         });
@@ -690,7 +669,7 @@ export function mostrarDetalleModal(item) {
     const logoUrl = getLogoUrlForMarca(item.marca, item.categoria);
     if (logoUrl) {
         const logoImg = document.createElement("img");
-        logoImg.src = getImageUrl(logoUrl, IMG_SIZE_SMALL);
+        logoImg.src = getImageUrl(logoUrl);
         logoImg.alt = `Logo ${item.marca}`;
         logoImg.className = 'brand-logo-modal';
         // El tamaño se controla ahora desde style.css para mantener la consistencia.
@@ -720,7 +699,7 @@ export function mostrarDetalleModal(item) {
 
     if (item.imagenVehiculo) {
         const imgVehiculo = document.createElement("img");
-        imgVehiculo.src = getImageUrl(item.imagenVehiculo, IMG_SIZE_MEDIUM);
+        imgVehiculo.src = getImageUrl(item.imagenVehiculo);
         imgVehiculo.className = 'img-vehiculo-modal';
         cont.appendChild(imgVehiculo);
     }
@@ -755,8 +734,7 @@ export function mostrarDetalleModal(item) {
         const title = document.createElement('h4');
         title.innerHTML = `Corte Recomendado <span style="font-weight:normal; color:#666;">(Votos: ${recommendedCut.util})</span>`;
         recommendedSection.appendChild(title);
-        // El corte recomendado se carga de inmediato (isLazy = false)
-        renderCutContent(recommendedSection, recommendedCut, datosRelay, item.id, false);
+        renderCutContent(recommendedSection, recommendedCut, datosRelay, item.id);
         cont.appendChild(recommendedSection);
     }
 
@@ -784,28 +762,22 @@ export function mostrarDetalleModal(item) {
     document.getElementById("modalDetalle").classList.add("visible");
 }
 
-function renderCutContent(container, cutData, datosRelay, vehicleId, isLazy = false) {
+function renderCutContent(container, cutData, datosRelay, vehicleId) {
     const contentP = document.createElement('p');
     contentP.innerHTML = `<strong>Ubicación:</strong> ${cutData.ubicacion || 'No especificada'}<br>
                         <strong>Color de Cable:</strong> ${cutData.colorCable || 'No especificado'}`;
     container.appendChild(contentP);
 
     if (cutData.img) {
+        const highResImgUrl = getImageUrl(cutData.img);
+
         const imgContainer = document.createElement('div');
         imgContainer.className = 'image-container-with-feedback';
 
         const img = document.createElement("img");
-        const imgUrl = getImageUrl(cutData.img, IMG_SIZE_MEDIUM);
-
-        if (isLazy) {
-            img.dataset.src = imgUrl;
-        } else {
-            img.src = imgUrl;
-        }
-
+        img.src = highResImgUrl;
         img.className = 'img-corte image-with-container';
         img.onclick = () => {
-            const highResImgUrl = getImageUrl(cutData.img, IMG_SIZE_LARGE);
             document.getElementById('lightboxImg').src = highResImgUrl;
             document.getElementById('lightbox').classList.add('visible');
         };
@@ -820,48 +792,15 @@ function renderCutContent(container, cutData, datosRelay, vehicleId, isLazy = fa
         utilBtn.title = 'Marcar como útil';
 
         // Optimistic UI for recordLike
-        // Check if already liked in this session
-        const { likedCortes, catalogData: catData } = getState();
-        const likeKey = `${vehicleId}-${cutData.index}`;
-        if (likedCortes && likedCortes.includes(likeKey)) {
-            utilBtn.classList.add('liked');
-            utilBtn.style.backgroundColor = '#28a745';
-        }
-
         utilBtn.onclick = (e) => {
-            e.preventDefault();
             e.stopPropagation();
             if (utilBtn.classList.contains('liked')) return;
-
-            const { currentUser } = getState();
-            if (!currentUser) {
-                showGlobalError("Debes estar conectado para votar.");
-                return;
-            }
-
-            // UI Optimista
             utilBtn.classList.add('liked');
             utilBtn.style.backgroundColor = '#28a745';
-
-            recordLike(vehicleId, cutData.index, currentUser.ID, currentUser.Nombre_Usuario).then(() => {
-                // Persistir en el estado local de la sesión
-                const currentState = getState();
-                const newLiked = [...(currentState.likedCortes || []), likeKey];
-
-                // Actualizar contador localmente para respuesta inmediata en la UI
-                const newCatalog = { ...currentState.catalogData };
-                const vehicle = newCatalog.cortes.find(c => String(c.id) === String(vehicleId));
-                if (vehicle) {
-                    const countKey = `utilCorte${cutData.index}`;
-                    vehicle[countKey] = (parseInt(vehicle[countKey]) || 0) + 1;
-                }
-
-                setState({ likedCortes: newLiked, catalogData: newCatalog });
-            }).catch(err => {
+            recordLike(vehicleId, cutData.index).catch(err => {
                 console.error("Error reporting like:", err);
                 utilBtn.classList.remove('liked');
                 utilBtn.style.backgroundColor = '';
-                showGlobalError("No se pudo registrar tu reacción. Reintenta.");
             });
         };
         feedbackOverlay.appendChild(utilBtn);
@@ -873,25 +812,17 @@ function renderCutContent(container, cutData, datosRelay, vehicleId, isLazy = fa
 
         // Optimistic UI for reportProblem
         reportBtn.onclick = (e) => {
-            e.preventDefault();
             e.stopPropagation();
-
-            const { currentUser } = getState();
-            if (!currentUser) {
-                showGlobalError("Debes estar conectado para reportar.");
-                return;
-            }
-
             const reason = window.prompt("Describe el problema con este corte:");
             if (reason && reason.trim()) {
-                reportBtn.classList.add('btn-loading');
-                reportProblem(vehicleId, reason, currentUser.ID, currentUser.Nombre_Usuario).then(() => {
+                reportBtn.style.backgroundColor = '#dc3545';
+                reportBtn.disabled = true;
+                reportProblem(vehicleId, reason).then(() => {
                     alert("Reporte enviado. Gracias por tu ayuda.");
                 }).catch(err => {
                     console.error("Error reporting problem:", err);
-                    showGlobalError("Error al enviar reporte.");
-                }).finally(() => {
-                    reportBtn.classList.remove('btn-loading');
+                    reportBtn.style.backgroundColor = '';
+                    reportBtn.disabled = false;
                 });
             }
         };
@@ -957,13 +888,8 @@ function renderRelayInfoModal(relayInfo) {
     content.appendChild(title);
 
     const img = document.createElement('img');
-    img.src = getImageUrl(relayInfo.imagen, IMG_SIZE_MEDIUM);
+    img.src = getImageUrl(relayInfo.imagen, 1200);
     img.style.width = '100%';
-    img.onclick = () => {
-        const highResImgUrl = getImageUrl(relayInfo.imagen, IMG_SIZE_LARGE);
-        document.getElementById('lightboxImg').src = highResImgUrl;
-        document.getElementById('lightbox').classList.add('visible');
-    };
     content.appendChild(img);
 
     modal.appendChild(content);
@@ -1111,8 +1037,8 @@ function renderInboxDetail(item) {
 
     detailContainer.innerHTML = `
         <h3 class="inbox-detail-title">${item.subject}</h3>
-        <p class="inbox-detail-meta"><strong>De:</strong> ${item.user}</p>
-        ${item.vehicleId ? `<p class="inbox-detail-meta"><strong>Vehículo:</strong> ${vehicleLabel}</p>` : ''}
+        <p><strong>De:</strong> ${item.user}</p>
+        ${item.vehicleId ? `<p><strong>Vehículo:</strong> ${vehicleLabel}</p>` : ''}
         <div class="inbox-message-content">
             <pre>${item.content}</pre>
         </div>
@@ -1139,13 +1065,10 @@ function renderInboxDetail(item) {
             return;
         }
         try {
-            replyBtn.classList.add('btn-loading');
             await replyToFeedback(item.id, item.type, replyText, userName);
             openInbox();
         } catch (error) {
             showGlobalError(`Error al enviar respuesta: ${error.message}`);
-        } finally {
-            replyBtn.classList.remove('btn-loading');
         }
     });
 
@@ -1153,13 +1076,10 @@ function renderInboxDetail(item) {
     if (resolveBtn) {
         resolveBtn.addEventListener('click', async () => {
              try {
-                resolveBtn.classList.add('btn-loading');
                 await markAsResolved(item.id);
                 openInbox();
             } catch (error) {
                 showGlobalError(`Error al resolver: ${error.message}`);
-            } finally {
-                resolveBtn.classList.remove('btn-loading');
             }
         });
     }
@@ -1201,8 +1121,7 @@ function createAccordionSection(container, title, sec, isOpen = false, datosRela
     panel.className = "panel-desplegable";
 
     if (sec.isCorte) {
-        // Los cortes dentro de acordeones son diferidos (isLazy = true)
-        renderCutContent(panel, sec.data, datosRelay, vehicleId, true);
+        renderCutContent(panel, sec.data, datosRelay, vehicleId);
     } else {
         if (sec.content) {
             const contentP = document.createElement('p');
@@ -1211,13 +1130,13 @@ function createAccordionSection(container, title, sec, isOpen = false, datosRela
         }
 
         if (sec.img) {
+            const highResImgUrl = getImageUrl(sec.img, 1200);
             const imgContainer = document.createElement('div');
             imgContainer.className = 'image-container-with-feedback';
             const img = document.createElement("img");
-            img.dataset.src = getImageUrl(sec.img, IMG_SIZE_MEDIUM);
+            img.src = highResImgUrl;
             img.className = 'img-corte image-with-container';
             img.onclick = () => {
-                const highResImgUrl = getImageUrl(sec.img, IMG_SIZE_LARGE);
                 document.getElementById('lightboxImg').src = highResImgUrl;
                 document.getElementById('lightbox').classList.add('visible');
             };
@@ -1249,24 +1168,8 @@ function createAccordionSection(container, title, sec, isOpen = false, datosRela
     container.appendChild(btn);
     container.appendChild(panel);
 
-    const loadAccordionImages = () => {
-        const imgs = panel.querySelectorAll('img[data-src]');
-        imgs.forEach(img => {
-            if (!img.src) {
-                img.onload = () => {
-                    // Actualizar maxHeight si el panel sigue abierto
-                    if (btn.classList.contains('active')) {
-                        panel.style.maxHeight = panel.scrollHeight + "px";
-                    }
-                };
-                img.src = img.dataset.src;
-            }
-        });
-    };
-
     if (isOpen) {
         btn.classList.add("active");
-        loadAccordionImages();
         panel.style.maxHeight = panel.scrollHeight + "px";
     }
 
@@ -1283,7 +1186,6 @@ function createAccordionSection(container, title, sec, isOpen = false, datosRela
         // Si el botón no estaba activo, ábrelo.
         if (!isActive) {
             this.classList.add("active");
-            loadAccordionImages();
             // Esperar un ciclo de renderizado para asegurar que el iframe exista
             setTimeout(() => {
                 panel.style.maxHeight = panel.scrollHeight + "px";
@@ -1328,7 +1230,7 @@ function mostrarUltimosAgregados() {
         card.onclick = () => mostrarDetalleModal(item);
 
         const img = document.createElement("img");
-        img.src = getImageUrl(item.imagenVehiculo, IMG_SIZE_SMALL);
+        img.src = getImageUrl(item.imagenVehiculo);
         img.alt = `${item.marca} ${item.modelo}`;
         img.loading = "lazy";
         card.appendChild(img);
@@ -1507,9 +1409,8 @@ function mostrarTutorialesGrid() {
         card.className = "card";
         card.onclick = () => mostrarDetalleTutorialModal(item);
         const img = document.createElement("img");
-        img.src = getImageUrl(item.Imagen, IMG_SIZE_SMALL);
+        img.src = getImageUrl(item.Imagen);
         img.alt = item.Tema;
-        img.loading = "lazy";
         card.appendChild(img);
         const overlay = document.createElement("div");
         overlay.className = "overlay";
@@ -1533,9 +1434,8 @@ function mostrarRelayGrid() {
         card.className = "card";
         card.onclick = () => mostrarDetalleRelayModal(item);
         const img = document.createElement("img");
-        img.src = getImageUrl(item.imagen, IMG_SIZE_SMALL);
+        img.src = getImageUrl(item.imagen);
         img.alt = item.configuracion;
-        img.loading = "lazy";
         card.appendChild(img);
         const overlay = document.createElement("div");
         overlay.className = "overlay";
@@ -1615,14 +1515,9 @@ function mostrarDetalleRelayModal(item) {
     // Comentario: Se refactoriza para usar appendChild y evitar `innerHTML +=` que es propenso a errores.
     if (item.imagen) {
         const img = document.createElement("img");
-        img.src = getImageUrl(item.imagen, IMG_SIZE_MEDIUM);
+        img.src = getImageUrl(item.imagen);
         img.style.width = "100%";
         img.style.borderRadius = "8px";
-        img.onclick = () => {
-            const highResImgUrl = getImageUrl(item.imagen, IMG_SIZE_LARGE);
-            document.getElementById('lightboxImg').src = highResImgUrl;
-            document.getElementById('lightbox').classList.add('visible');
-        };
         cont.appendChild(img);
     }
 

@@ -1,3 +1,4 @@
+<!-- GPSpedia Frontend Component | Version: 2.0.0 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -15,6 +16,9 @@
             --light-text: #fff;
             --error-color: #dc3545;
         }
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -28,10 +32,10 @@
         }
         .profile-section, .user-management-section {
             background: var(--card-background);
-            padding: 25px;
+            padding: 15px; /* Reducido de 25px para mayor compactación */
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
+            margin-bottom: 20px; /* Reducido de 30px */
         }
         h1, h2 {
             color: var(--secondary-color);
@@ -39,15 +43,28 @@
             padding-bottom: 10px;
             margin-bottom: 20px;
         }
-        .user-table {
+        /* Contenedor para scroll horizontal invisible */
+        .table-scroll-container {
             width: 100%;
+            overflow-x: auto;
+            -ms-overflow-style: none;  /* IE y Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        .table-scroll-container::-webkit-scrollbar {
+            display: none; /* Chrome, Safari y Opera */
+        }
+        .user-table {
+            width: max-content; /* Permite que la tabla tome su ancho natural */
+            min-width: 100%;   /* Pero al menos el 100% del contenedor */
             border-collapse: collapse;
             margin-top: 20px;
         }
         .user-table th, .user-table td {
-            padding: 12px;
+            padding: 8px 10px; /* Reducido para hacer la tabla más compacta */
             border-bottom: 1px solid #ddd;
             text-align: left;
+            font-size: 0.9rem; /* Tamaño optimizado para densidad de datos */
+            white-space: nowrap; /* Evita saltos de línea indeseados */
         }
         .user-table th {
             background-color: #f8f9fa;
@@ -113,6 +130,33 @@
             padding: 8px;
             box-sizing: border-box;
         }
+
+        /* --- ANIMACIONES DE CARGA EN BOTONES --- */
+        .btn-loading {
+            position: relative !important;
+            color: transparent !important;
+            pointer-events: none !important;
+        }
+
+        .btn-loading::after {
+            content: "";
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            top: 50%;
+            left: 50%;
+            margin-top: -9px;
+            margin-left: -9px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin-button 0.6s linear infinite;
+            z-index: 5;
+        }
+
+        @keyframes spin-button {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -121,7 +165,10 @@
         <div id="profile-section" class="profile-section">
             <h1>Mi Perfil</h1>
             <p><strong>Nombre de Usuario:</strong> <span id="profile-username"></span></p>
-            <p><strong>Nombre Completo:</strong> <span id="profile-fullname"></span></p>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                <p style="margin: 0;"><strong>Nombre Completo:</strong> <span id="profile-fullname"></span></p>
+                <button id="edit-name-btn" class="btn btn-warning" style="padding: 2px 8px; font-size: 0.8rem;">Editar</button>
+            </div>
             <p><strong>Rol:</strong> <span id="profile-role"></span></p>
             <button id="change-password-btn" class="btn btn-primary">Cambiar Contraseña</button>
         </div>
@@ -131,19 +178,21 @@
             <button id="create-user-btn" class="btn btn-primary">
                 <i class="fa-solid fa-plus"></i> Crear Nuevo Usuario
             </button>
-            <table class="user-table">
-                <thead>
-                    <tr>
-                        <th>Nombre de Usuario</th>
-                        <th>Nombre Completo</th>
-                        <th>Rol</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="user-list-tbody">
-                    <!-- User rows will be inserted here -->
-                </tbody>
-            </table>
+            <div class="table-scroll-container">
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>Nombre de Usuario</th>
+                            <th>Nombre Completo</th>
+                            <th>Rol</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-list-tbody">
+                        <!-- User rows will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -167,10 +216,25 @@
                     <select id="role" required></select>
                 </div>
                 <div class="form-group">
-                    <label for="password-modal">Contraseña</label>
-                    <input type="password" id="password-modal">
+                    <label for="user-password">Contraseña</label>
+                    <input type="password" id="user-password">
                 </div>
                 <button type="submit" class="btn btn-primary">Guardar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Name Modal -->
+    <div id="name-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Editar Nombre</h2>
+            <form id="name-form">
+                <div class="form-group">
+                    <label for="new-fullname">Nombre Completo</label>
+                    <input type="text" id="new-fullname" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
             </form>
         </div>
     </div>
@@ -199,7 +263,7 @@
     </div>
 <script type="module">
 import { routeAction } from './api-config.js';
-// COMPONENT VERSION: 3.8.0
+// COMPONENT VERSION: 3.9.1
 // --- LÓGICA DE DEPURACIÓN REMOTA ---
 function remoteLog(level, message, data = {}) {
     fetch(SCRIPT_URL, {
@@ -233,7 +297,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
 
     const userRole = (currentUser.Privilegios || '').trim();
-    if (['Desarrollador', 'Gefe', 'Supervisor'].includes(userRole)) {
+    if (['Desarrollador', 'Gefe', 'Jefe', 'Supervisor'].includes(userRole)) {
         document.getElementById('user-management-section').style.display = 'block';
         fetchUsers();
     }
@@ -300,7 +364,7 @@ function renderUserTable() {
         const deleteButton = document.createElement('button');
         deleteButton.className = 'btn btn-danger btn-sm';
         deleteButton.textContent = 'Eliminar';
-        deleteButton.addEventListener('click', () => deleteUser(user.ID));
+        deleteButton.addEventListener('click', (e) => deleteUser(user.ID, e.currentTarget));
         actionsCell.appendChild(deleteButton);
 
         row.appendChild(actionsCell);
@@ -315,6 +379,10 @@ function setupEventListeners() {
 
     document.getElementById('create-user-btn').addEventListener('click', () => openUserModal());
     document.getElementById('change-password-btn').addEventListener('click', () => passwordModal.style.display = 'block');
+    document.getElementById('edit-name-btn').addEventListener('click', () => {
+        document.getElementById('new-fullname').value = currentUser.Nombre_Completo;
+        document.getElementById('name-modal').style.display = 'block';
+    });
 
     closeBtns.forEach(btn => {
         btn.parentElement.parentElement.onclick = (e) => {
@@ -328,8 +396,8 @@ function setupEventListeners() {
     });
 
     document.getElementById('user-form').addEventListener('submit', handleUserFormSubmit);
-    // FIX Tarea 23: Se añade el event listener faltante para el formulario de cambio de contraseña.
     document.getElementById('password-form').addEventListener('submit', handleChangePasswordSubmit);
+    document.getElementById('name-form').addEventListener('submit', handleEditNameSubmit);
 }
 
 function openUserModal(user = null) {
@@ -343,16 +411,18 @@ function openUserModal(user = null) {
             document.getElementById('user-id').value = user.ID;
             document.getElementById('fullname').value = user.Nombre_Completo;
             document.getElementById('username-modal').value = user.Nombre_Usuario;
+            document.getElementById('username-modal').disabled = true; // PROHIBIDO cambiar username
         } else {
             title.textContent = 'Crear Nuevo Usuario';
             document.getElementById('user-id').value = '';
+            document.getElementById('username-modal').disabled = false;
         }
 
     const roleSelect = document.getElementById('role');
     roleSelect.innerHTML = '';
     let availableRoles = [];
-    if (currentUser.Privilegios === 'Desarrollador') availableRoles = ['Desarrollador', 'Gefe', 'Supervisor', 'Tecnico', 'Tecnico_Exterior'];
-    else if (currentUser.Privilegios === 'Gefe') availableRoles = ['Gefe', 'Supervisor', 'Tecnico'];
+    if (currentUser.Privilegios === 'Desarrollador') availableRoles = ['Desarrollador', 'Gefe', 'Supervisor', 'Tecnico', 'Tecnico_exterior'];
+    else if (currentUser.Privilegios === 'Gefe' || currentUser.Privilegios === 'Jefe') availableRoles = ['Supervisor', 'Tecnico'];
     else if (currentUser.Privilegios === 'Supervisor') availableRoles = ['Tecnico'];
 
     availableRoles.forEach(role => {
@@ -368,46 +438,66 @@ function openUserModal(user = null) {
 
 async function handleUserFormSubmit(e) {
     e.preventDefault();
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    if (submitBtn.classList.contains('btn-loading')) return;
+
     const userId = document.getElementById('user-id').value;
     const userData = {
-        Nombre_Completo: document.getElementById('fullname').value, // <-- AÑADIDO
+        Nombre_Completo: document.getElementById('fullname').value,
         Nombre_Usuario: document.getElementById('username-modal').value,
         Privilegios: document.getElementById('role').value,
-        Password: document.getElementById('password-modal').value,
+        Password: document.getElementById('user-password').value,
     };
 
     try {
+        submitBtn.classList.add('btn-loading');
+        submitBtn.disabled = true;
+
         if (userId) {
-            // SECURITY PATCH: Send sessionToken instead of role for backend verification
             await postToAction('updateUser', { userId, updates: userData, sessionToken: currentUser.SessionToken });
             alert('Usuario actualizado');
         } else {
-            // SECURITY PATCH: Send sessionToken instead of role for backend verification
             await postToAction('createUser', { newUser: userData, sessionToken: currentUser.SessionToken });
             alert('Usuario creado');
         }
         document.getElementById('user-modal').style.display = 'none';
-        fetchUsers();
+        await fetchUsers();
     } catch (error) {
         // Error handled in postToAction
+    } finally {
+        submitBtn.classList.remove('btn-loading');
+        submitBtn.disabled = false;
     }
 }
 
-async function deleteUser(userId) {
+async function deleteUser(userId, btnElement) {
+    if (btnElement && btnElement.classList.contains('btn-loading')) return;
+
     if (confirm('¿Estás seguro de que quieres eliminar este usuario?')) {
         try {
-            // SECURITY PATCH: Send sessionToken for backend verification
+            if (btnElement) {
+                btnElement.classList.add('btn-loading');
+                btnElement.disabled = true;
+            }
             await postToAction('deleteUser', { userId, sessionToken: currentUser.SessionToken });
             alert('Usuario eliminado');
-            fetchUsers();
+            await fetchUsers();
         } catch (error) {
             // Error handled in postToAction
+        } finally {
+            if (btnElement) {
+                btnElement.classList.remove('btn-loading');
+                btnElement.disabled = false;
+            }
         }
     }
 }
 
 async function handleChangePasswordSubmit(e) {
     e.preventDefault();
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    if (submitBtn.classList.contains('btn-loading')) return;
+
     const currentPassword = document.getElementById('current-password').value;
     const newPassword = document.getElementById('new-password').value;
     const confirmPassword = document.getElementById('confirm-password').value;
@@ -423,8 +513,17 @@ async function handleChangePasswordSubmit(e) {
     }
 
     try {
+        submitBtn.classList.add('btn-loading');
+        submitBtn.disabled = true;
+
+        const userId = currentUser.ID || currentUser.id;
+        if (!userId) {
+            alert('Error: No se pudo identificar al usuario actual. Por favor reincie sesión.');
+            return;
+        }
+
         await postToAction('changePassword', {
-            userId: currentUser.Id_Usuario,
+            userId: userId,
             currentPassword,
             newPassword,
             sessionToken: currentUser.SessionToken
@@ -433,9 +532,68 @@ async function handleChangePasswordSubmit(e) {
         document.getElementById('password-modal').style.display = 'none';
         document.getElementById('password-form').reset();
     } catch (error) {
-        // Error is already handled and alerted by postToAction
+        // Error handled in postToAction
+    } finally {
+        submitBtn.classList.remove('btn-loading');
+        submitBtn.disabled = false;
     }
 }
+
+async function handleEditNameSubmit(e) {
+    e.preventDefault();
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    if (submitBtn.classList.contains('btn-loading')) return;
+
+    const newFullname = document.getElementById('new-fullname').value;
+
+    try {
+        submitBtn.classList.add('btn-loading');
+        submitBtn.disabled = true;
+
+        const userId = currentUser.ID || currentUser.id;
+        await postToAction('updateProfile', {
+            userId: userId,
+            updates: { Nombre_Completo: newFullname },
+            sessionToken: currentUser.SessionToken
+        });
+
+        currentUser.Nombre_Completo = newFullname;
+        localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+        displayProfile();
+
+        alert('Nombre actualizado correctamente.');
+        document.getElementById('name-modal').style.display = 'none';
+    } catch (error) {
+        // Error handled
+    } finally {
+        submitBtn.classList.remove('btn-loading');
+        submitBtn.disabled = false;
+    }
+}
+
+// --- LÓGICA DE SEGURIDAD Y BLOQUEO DE INTERACCIONES ---
+document.addEventListener('contextmenu', event => event.preventDefault());
+document.addEventListener('keydown', (e) => {
+    if (e.keyCode === 123) { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) { e.preventDefault(); return false; }
+    if (e.ctrlKey && e.keyCode === 85) { e.preventDefault(); return false; }
+});
+document.addEventListener('wheel', (e) => {
+    if (e.ctrlKey) e.preventDefault();
+}, { passive: false });
+document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey) {
+        if ([61, 107, 173, 109, 187, 189, 48, 96].includes(e.keyCode)) {
+            e.preventDefault();
+        }
+    }
+});
+document.addEventListener('touchstart', (e) => {
+    if (e.touches.length > 1) e.preventDefault();
+}, { passive: false });
+document.addEventListener('touchmove', (e) => {
+    if (e.touches.length > 1) e.preventDefault();
+}, { passive: false });
 </script>
 </body>
 </html>

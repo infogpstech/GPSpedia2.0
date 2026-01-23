@@ -1,4 +1,4 @@
-// GPSpedia Authentication Module
+// GPSpedia Authentication Module | Version: 2.0.0
 // Responsibilities:
 // - Manage the entire user authentication lifecycle (login, logout, session validation).
 // - Interact with the API module for backend communication.
@@ -56,25 +56,43 @@ async function loadInitialData() {
 
 
 export async function checkSession() {
+    const LOCK_KEY = 'session_validation_lock';
+    const LOCK_TIMEOUT = 5000; // 5 segundos, tiempo durante el cual una pestaña puede bloquear a otras.
+
+    const lock = localStorage.getItem(LOCK_KEY);
+    const now = Date.now();
+
+    // Si existe un bloqueo y no ha expirado, esta pestaña no intentará validar.
+    if (lock && (now - parseInt(lock, 10)) < LOCK_TIMEOUT) {
+        return;
+    }
+
+    // Adquirir el bloqueo para esta pestaña.
+    localStorage.setItem(LOCK_KEY, now.toString());
+
     const sessionData = localStorage.getItem(SESSION_KEY);
     if (!sessionData) {
         showLoginScreen();
+        localStorage.removeItem(LOCK_KEY); // Liberar bloqueo si no hay sesión
         return;
     }
 
     try {
         const user = JSON.parse(sessionData);
         const { valid } = await apiValidateSession(user.ID, user.SessionToken);
+
         if (valid) {
-            // FIX: Load data BEFORE showing the app to prevent race condition
-            await loadInitialData();
             handleLoginSuccess(user);
+            loadInitialData(); // Carga en segundo plano sin bloquear
         } else {
             logout("Tu sesión ha expirado. Por favor, inicia sesión de nuevo.");
         }
     } catch (error) {
         showGlobalError(`Error de sesión: ${error.message}`);
         logout();
+    } finally {
+        // Liberar el bloqueo para que otras pestañas puedan validar si es necesario.
+        localStorage.removeItem(LOCK_KEY);
     }
 }
 
@@ -82,9 +100,8 @@ export async function login(username, password) {
     try {
         const result = await apiLogin(username, password);
         if (result && result.user) {
-            // FIX: Load data BEFORE showing the app to prevent race condition
-            await loadInitialData();
             handleLoginSuccess(result.user);
+            loadInitialData(); // Carga en segundo plano sin bloquear
         } else {
             throw new Error("Respuesta de login inválida.");
         }

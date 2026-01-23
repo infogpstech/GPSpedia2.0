@@ -1,138 +1,143 @@
-**AUDITORÍA PROFUNDA DEL 02/02/2026 - FALLA PERSISTENTE DE ESPACIO EN BÚSQUEDA MÓVIL**
+**AUDITORÍA TÉCNICA - TAREA 1: UNIFICAR README.md (05/02/2026)**
 
-**1. AUDITORÍA DE index.html**
-- **Línea 105:** Presencia de estilo inline `margin-bottom: 0 !important` (aplicado dinámicamente o por parche previo) en `#search-wrapper`.
-- **Estructura de Contenedores:** El `#search-wrapper` está fuera del flujo de resultados pero dentro de `.container`. Al activar la búsqueda, se queda un "hueco" en el flujo del documento que `.container` compensa con padding.
-- **Tipo de Problema:** Control de layout mixto (inline + CSS).
+**Archivo: README.md**
+- L10: "Navegación Inteligente" - Concuerda con la implementación en `ui.js` y `state.js`.
+- L11: "Buscador Avanzado" - Concuerda con la implementación en `main.js`.
+- L12: "Catálogo Optimizado" - Concuerda con el uso de `loading="lazy"` y constantes de tamaño en `ui.js`.
+- L13: "Detalle Técnico Exhaustivo" - Concuerda con el modal de detalles y vínculos a YouTube en `ui.js`.
+- L14: "Gestión de Feedback (Inbox)" - El frontend existe en `ui.js` (`getFeedbackItems`). El backend se encuentra ruteado en `api-config.js` a `FEEDBACK`. Sin embargo, `Instrucciones.txt` Tarea 8 dice "Lógica de Backend... PENDIENTE". Esto sugiere que aunque el endpoint existe, su lógica interna podría estar incompleta o en fase beta. Se mantendrá como característica v2.0 ya que el ruteo está presente.
+- L15: "Dashboard de Actividad" - Concuerda con `getActivityLogs` en `api-config.js` y `ui.js`.
+- L16: "Seguridad y Roles (RBAC)" - Concuerda con la implementación en `users.html` y `services/users/users.js`.
+- L22-31: Flujo de Registro - Concuerda con la lógica de 3 etapas en `add_cortes.html`.
+- L35-43: Arquitectura - Concuerda con la estructura de archivos y microservicios.
+- L47-59: Comparativa y Changelog - Refleja adecuadamente el salto tecnológico.
 
-**2. AUDITORÍA DE style.css (CRÍTICA)**
-- **Línea 400:** `body.search-active .container { padding: 75px 20px 20px; }`.
-    - **Conflicto:** El `padding-top` de 75px es estático. Si la barra de búsqueda tiene `top: 10px` y una altura de ~48px, el espacio total ocupado es ~58px. El padding de 75px impone un "espacio fantasma" de ~17px adicionales de forma obligatoria.
-- **Línea 374:** `body.search-active .header-container { display: none; }`.
-    - **Conflicto:** Aunque `display: none` colapsa el elemento, la regla en la línea 400 vuelve a empujar el contenido hacia abajo con un valor arbitrario.
-- **Líneas 2 y 11:** `height: var(--app-height, 100%);` aplicado a `html` y `body`.
-    - **Riesgo:** Si `--app-height` se calcula sobre el viewport total y no sobre el área útil sobre el teclado, el scroll del `.container` puede quedar bloqueado o inaccesible bajo el teclado.
-- **Líneas 404 y 420:** Uso de `position: fixed` con valores `top: 10px` y `top: 17px`.
-    - **Contradicción:** Se posiciona la barra fuera del flujo, pero se intenta reservar su espacio mediante padding en un contenedor que ahora maneja su propio scroll.
+**Hallazgos:**
+- El README parece estar bastante actualizado tras la revisión del 21/01/2026.
+- No se detectan bloques duplicados evidentes en el contenido actual (v2.0).
+- Se observa que la mención a "Votos de utilidad" en la comparativa (L55) contradice la Tarea 5 de `Instrucciones.txt` que la marca como PENDIENTE.
+- Se eliminarán menciones a funcionalidades marcadas explícitamente como PENDIENTES en el backlog de `Instrucciones.txt` para cumplir con "No documentar features no presentes en el código".
 
-**3. AUDITORÍA DE main.js**
-- **Líneas 55-57:** `setTimeout(() => { document.body.classList.remove('search-active'); }, 200);`.
-    - **Tipo de Problema:** Lógica de tiempo (magic number) que puede causar saltos visuales si el teclado tarda más en cerrar o si el usuario hace clic rápido.
-- **Líneas 63-86:** `handleViewportChange` se ejecuta en `resize` y `scroll` del `visualViewport`.
-    - **Tipo de Problema:** JS duplicado/redundante. Si el scroll está en `.container`, el scroll del `visualViewport` puede dispararse de forma inesperada en algunos navegadores móviles (Safari), recalculando la altura innecesariamente.
+**Acciones:**
+- Ajustar L55 (Feedback) para reflejar el estado actual (Likes/Reportes funcionales, Votos de años en desarrollo).
+- Consolidar cualquier información redundante si se encuentra durante la edición.
 
-**4. AUDITORÍA DE ui.js**
-- **Línea 538:** `mostrarResultadosDeBusqueda` limpia el contenedor.
-    - **Tipo de Problema:** No se detectan conflictos directos de layout, pero el renderizado masivo puede causar que el scroll del `.container` se resetee al tope en momentos inoportunos.
+--------------------------------------------------
 
-**5. AUDITORÍA DE navigation.js**
-- **Línea 34:** `filtrarContenido` maneja el flujo de búsqueda.
-    - **Tipo de Problema:** No hay lógica que coordine el estado del teclado con la visibilidad de los resultados, delegando todo al CSS que, como se vio en el punto 2, tiene valores contradictorios.
+**AUDITORÍA TÉCNICA - TAREA 2: SISTEMA ANTI-DEBUGGING (05/02/2026)**
 
-**CONCLUSIÓN DE AUDITORÍA:**
-La causa real del "espacio fantasma" es la regla de padding estático en `style.css:400` que no está sincronizada con la altura real de la barra de búsqueda fija ni con el colapso del header. Además, existe una redundancia entre el posicionamiento `fixed` de la barra y el modelo de scroll del `.container`.
+**Archivos involucrados:** `main.js`, `index.html`, `users.html`, `add_cortes.html`, `style.css`.
 
-**AUDITORÍA EXTREMA (02/02/2026): RECONSTRUCCIÓN DE HEADER**
+**Hallazgos:**
+- `main.js` L206: Ya existe un bloque de seguridad que bloquea menú contextual, F12, Ctrl+U y zoom.
+- Sin embargo, la Tarea 2 solicita una implementación "que no rompa funcionalidades normales" y "especialmente en la versión PWA".
+- El bloqueo de zoom debe permitir excepciones para el lightbox.
+- El bloqueo actual en `main.js` es:
+```javascript
+// Global security and interaction blocking
+document.addEventListener('contextmenu', event => event.preventDefault());
+document.onkeydown = function(e) {
+    if(e.keyCode == 123) return false; // F12
+    if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
+    if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false;
+    if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) return false;
+    if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
+};
+// Block zoom
+document.addEventListener('wheel', function(e) {
+    if (e.ctrlKey) e.preventDefault();
+}, { passive: false });
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && (e.keyCode == 61 || e.keyCode == 107 || e.keyCode == 173 || e.keyCode == 109 || e.keyCode == 187 || e.keyCode == 189)) {
+        e.preventDefault();
+    }
+});
+```
+- Falta la excepción para el lightbox.
+- Falta asegurar que estas restricciones se apliquen de forma consistente en todas las páginas (aunque `main.js` se carga en casi todas, `users.html` y `add_cortes.html` podrían no tenerlo si no importan `main.js` o si tienen su propia lógica).
+- `index.html` carga `main.js`.
+- `users.html` NO carga `main.js`. Tiene su propio `<script>`.
+- `add_cortes.html` NO carga `main.js`. Tiene su propio `<script>`.
 
-**1. AUDITORÍA DE index.html**
-- **Líneas 87-111:** Fragmentación del encabezado en múltiples divs (`header-container`, `search-wrapper`).
-- **Hallazgo:** El `#install-button` y `#search-wrapper` están fuera de `.header-container`, lo que dificulta el control unificado de visibilidad.
-- **Hallazgo:** El botón de hamburguesa (`#hamburger-btn`) está anidado dentro de `#search-wrapper`, lo que vincula su layout al buscador de forma innecesaria.
-- **Riesgo:** Estilos inline como `margin-bottom: 0 !important` en la línea 105 son parches de fragilidad estructural.
+**Hallazgos Críticos:**
+1. Los bloqueos de seguridad no están presentes en `users.html` ni en `add_cortes.html`.
+2. El bloqueo de zoom en `main.js` no tiene la excepción para el lightbox.
 
-**2. AUDITORÍA DE style.css (CRÍTICA)**
-- **Líneas 76-135:** Reglas dispersas para `.header-container` y sus hijos con múltiples media queries que redefinen `flex-direction`.
-- **Líneas 374-430:** El bloque `body.search-active` intenta forzar un nuevo layout mediante `position: fixed` en elementos que antes eran `relative`, causando saltos visuales y huecos.
-- **Hallazgo:** `.container` (Línea 50) tiene un padding base de 20px que se suma al padding de 60px de `search-active`, pero el modelo de scroll en `.container` hace que este padding superior sea "scrollable", dejando un hueco al tope.
+**Acciones:**
+- Crear una función de seguridad unificada o replicar el bloque en los archivos necesarios.
+- Implementar la lógica de excepción de zoom detectando la visibilidad del lightbox.
+- Usar `isLightboxVisible` (si existe en el estado) para controlar el zoom.
 
-**3. AUDITORÍA DE main.js**
-- **Líneas 38-56:** Gestión de eventos de búsqueda (`focus`, `blur`) que activan clases de CSS.
-- **Líneas 64-85:** Lógica de `visualViewport` que inyecta variables de altura.
-- **Conflicto:** La clase `search-active` se quita con un `setTimeout` de 200ms, lo cual es asíncrono y puede desincronizarse con el cierre del teclado.
+--------------------------------------------------
 
-**4. AUDITORÍA DE ui.js / navigation.js**
-- **ui.js:159, navigation.js:19:** Dependencia directa del ID `#searchInput`.
-- **Hallazgo:** No hay conflictos de lógica, pero cualquier cambio de ID en el HTML durante la reconstrucción requiere actualización inmediata aquí.
+**AUDITORÍA TÉCNICA - TAREA 3: COMPATIBILIDAD PWA (05/02/2026)**
 
-**CONCLUSIÓN DE AUDITORÍA EXTREMA:**
-La fragmentación HTML del header impide una transición limpia a "modo búsqueda". Al ocultar el header original con `display: none`, el navegador recalcula el flujo de `.container`, pero la barra de búsqueda (al ser `fixed`) no rellena ese espacio de forma natural. Se requiere un contenedor maestro `.main-header` que encapsule todo lo superior.
+**Archivo: manifest.json**
+- `display: standalone` es ideal para Android/iOS.
+- `icons` incluyen 192 y 512, estándar para PWA.
+- `theme_color` y `background_color` presentes.
 
-**AUDITORÍA DE RESTAURACIÓN DE REGRESIONES (02/02/2026)**
+**Archivo: service-worker.js**
+- Implementa estrategia Network-First.
+- `self.skipWaiting()` y `self.clients.claim()` aseguran actualización rápida.
 
-**1. AUDITORÍA DE style.css**
-- **Hallazgo (Botón Hamburguesa):** El botón `#hamburger-btn` carecía de un z-index suficiente para ser interactivo sobre el nuevo layout. Se añadió `z-index: 1500`.
-- **Hallazgo (Logo en Búsqueda):** La regla `body.search-active .header-branding .app-logo` ocultaba el logo incluso cuando se intentaba posicionar con `fixed`. Se forzó visibilidad con `opacity: 1 !important` y `visibility: visible !important` en el estado fixed (Línea 408).
+**Hallazgos:**
+- **Android:** Compatibilidad completa (Chrome/Edge). Soporta instalación y notificaciones (aunque no se usan activamente).
+- **iOS:** Compatibilidad parcial. Requiere Safari y "Añadir a pantalla de inicio". No soporta `splash screens` automáticas sin etiquetas `<link rel="apple-touch-startup-image">` adicionales. El `manifest.json` es ignorado parcialmente por iOS antes de versiones recientes.
+- **HarmonyOS:** Basado en Android (EMUI), compatibilidad similar a Android mediante navegadores basados en Chromium.
 
-**2. AUDITORÍA DE main.js**
-- **Hallazgo (Botón X):** La lógica para mostrar/ocultar el botón de limpieza de búsqueda (`#clear-search-btn`) mediante la clase `.has-text` no estaba implementada. Se añadió el listener en la línea 41.
-- **Hallazgo (Pull-to-refresh):** El cambio de scroll del `body` al `.container` desactivó el gesto nativo del navegador. Se restauró mediante listeners de `touchstart` y `touchend` calculando el desplazamiento vertical (Línea 105).
+**Limitaciones Identificadas:**
+1. iOS requiere metatags específicos en el `<head>` para una experiencia "App-like" fluida (ej. `apple-mobile-web-app-capable`).
+2. El zoom bloqueado podría afectar la accesibilidad en iOS si el usuario tiene activadas funciones de asistencia, aunque el bloqueo vía JS suele respetarse.
 
-**3. AUDITORÍA DE VERSIONAMIENTO**
-- **Hallazgo:** Inconsistencias entre `index.html` (v4.9.2) y los logs. Se normalizó todo el proyecto a la versión v4.9.5.
+--------------------------------------------------
+**AUDITORÍA LÍNEA POR LÍNEA - MEJORAS DE RENDIMIENTO Y ROBUSTEZ (05/02/2026)**
 
-**AUDITORÍA DE AJUSTE FINO QUIRÚRGICO (02/02/2026)**
+**Archivo: ui.js**
+- L188: `img.src` - Falta `loading="lazy"` en Categorías.
+- L212: `img.src` - Falta `loading="lazy"` en Marcas Vehículos.
+- L231: `img.src` - Falta `loading="lazy"` en Marcas Motos.
+- L261: `img.src` - Ya tiene `loading="lazy"` pero usa fallback manual.
+- L303: `innerHTML` - Contiene `style="padding-top: 10px;"`. Incumple separación de preocupaciones.
+- L399: `innerHTML` - Contiene `style="padding-top: 10px;"`. Incumple separación de preocupaciones.
+- L445: `img.loading = "lazy"` - Presente.
+- L488: `img.loading = "lazy"` - Presente.
+- L492: `innerHTML` - Contiene `style="padding-top: 10px;"`.
+- L556: `innerHTML` - Contiene `style="padding-top: 10px;"`.
+- L602: `img.loading = "lazy"` - Presente.
+- L634: `img.loading = "lazy"` - Presente.
+- L648: `innerHTML` - Contiene `style="padding-top: 10px;"`.
+- L799: `img.dataset.src` - Implementación de lazy load en acordeones. Correcto.
+- L1211: `img.dataset.src` - Implementación de lazy load en acordeones. Correcto.
+- L1250-1280: Lógica de `maxHeight` - El uso de `setTimeout(..., 0)` y el cálculo estático de `scrollHeight` no contempla el tiempo de carga de las imágenes asíncronas una vez se les asigna el `src`.
 
-**1. AUDITORÍA DE style.css**
-- **Hallazgo (Escala del Logo):** En la línea 406,  tiene . Con un input de aproximadamente 48px, esto representa un ~79% de la altura, lo cual es percibido como pequeño. Se debe ajustar a ~45px (95% de 48px).
-- **Hallazgo (Desbordamiento Horizontal):** En la línea 379,  usa . Si el ancho no está limitado a  o si hay un padding/margen externo, puede causar overflow. La falta de  global (o al menos en este elemento) es un riesgo.
-- **Hallazgo (Animación de Botones):** En las líneas 359-373, los botones de sección se ocultan con  y  de forma conjunta. El uso de  puede estar cortando la animación de opacidad prematuramente, causando el "salto visual". Se recomienda separar la lógica de animación o suavizar los tiempos.
-- **Hallazgo (Box-sizing):** No hay una regla universal de , lo que genera inconsistencias en el cálculo de anchos con padding.
+**Archivo: style.css**
+- L642-654: `.overlay` - Tiene padding fijo. El `padding-top` adicional en JS es redundante o contradictorio. Se debe unificar en una clase hija o ajustar el padding general.
 
-**2. AUDITORÍA DE index.html**
-- **Estructura:** La jerarquía  es correcta, pero el desbordamiento ocurre cuando  se vuelve  y el navegador no compensa el ancho de la barra de scroll si el viewport no está correctamente configurado.
+**Hallazgos Críticos:**
+1. Varias funciones de renderizado de tarjetas no tienen `loading="lazy"`.
+2. El cálculo de altura de los acordeones fallará visualmente (el panel se cortará) si la imagen no está en caché y tarda >0ms en cargar.
+3. Estilos en línea duplicados en múltiples funciones de `ui.js`.
 
-**3. AUDITORÍA DE main.js**
-- **Viewport:** La lógica de  es sólida, pero no interfiere directamente con los problemas visuales reportados, los cuales son puramente de CSS.
+**Acciones:**
+- Crear respaldo de `ui.js` y `style.css`.
+- Implementar `img.loading = "lazy"` de forma sistemática.
+- Refactorizar `loadAccordionImages` para que actualice el `maxHeight` del panel padre tras el evento `onload` de cada imagen.
+- Mover estilos de texto del overlay a `style.css`.
 
-**RESULTADOS DE EJECUCIÓN QUIRÚRGICA (v4.9.6):**
-- **style.css (Línea 406):** Se eliminó  y se estableció  con  para el logo en modo búsqueda, logrando la proporcionalidad requerida.
-- **style.css (Línea 388):** Se aplicó ,  y  a  en estado  para eliminar el scroll horizontal.
-- **style.css (Línea 372):** Se suavizó la transición de colapso del header usando curvas de tiempo diferenciadas: .
-- **index.html:** Actualización de versión a v4.9.6.
+--------------------------------------------------
+**AUDITORÍA LÍNEA POR LÍNEA - FIX CARGA IMÁGENES CORTES (05/02/2026)**
 
-**AUDITORÍA DE AJUSTE FINO QUIRÚRGICO (02/02/2026)**
+**Archivo: ui.js**
+- L758: Llamada a `renderCutContent` para el Corte Recomendado. Esta sección es visible de inmediato en el modal.
+- L786: Definición de `renderCutContent`. Actualmente usa `img.dataset.src` incondicionalmente (L797).
+- L1196: Llamada a `renderCutContent` dentro de `createAccordionSection`. Esta sección está oculta inicialmente.
 
-**1. AUDITORÍA DE style.css**
-- **Hallazgo (Escala del Logo):** En la línea 406, `body.search-active .app-logo` tiene `max-width: 38px`. Con un input de aproximadamente 48px, esto representa un ~79% de la altura, lo cual es percibido como pequeño. Se debe ajustar a ~45px (95% de 48px).
-- **Hallazgo (Desbordamiento Horizontal):** En la línea 379, `body.search-active .main-header` usa `left: 0; right: 0; position: fixed;`. Si el ancho no está limitado a `100%` o si hay un padding/margen externo, puede causar overflow. La falta de `box-sizing: border-box` global (o al menos en este elemento) es un riesgo.
-- **Hallazgo (Animación de Botones):** En las líneas 359-373, los botones de sección se ocultan con `opacity: 0` y `max-height: 0` de forma conjunta. El uso de `max-height: 0` puede estar cortando la animación de opacidad prematuramente, causando el "salto visual". Se recomienda separar la lógica de animación o suavizar los tiempos.
-- **Hallazgo (Box-sizing):** No hay una regla universal de `box-sizing: border-box`, lo que genera inconsistencias en el cálculo de anchos con padding.
+**Hallazgo Crítico:**
+El Corte Recomendado no carga su imagen porque `renderCutContent` le asigna `dataset.src`, pero al no estar dentro de un acordeón, la función `loadAccordionImages` nunca se ejecuta para él. Esto causa que el `src` permanezca vacío.
 
-**2. AUDITORÍA DE index.html**
-- **Estructura:** La jerarquía `.main-header > .header-top + .header-bottom` es correcta, pero el desbordamiento ocurre cuando `main-header` se vuelve `fixed` y el navegador no compensa el ancho de la barra de scroll si el viewport no está correctamente configurado.
-
-**3. AUDITORÍA DE main.js**
-- **Viewport:** La lógica de `visualViewport` es sólida, pero no interfiere directamente con los problemas visuales reportados, los cuales son puramente de CSS.
-
-**RESULTADOS DE EJECUCIÓN QUIRÚRGICA (v4.9.6):**
-- **style.css (Líneas 406-412):** Se eliminó `max-width: 38px` y se estableció `height: 48px` con `width: auto` para el logo en modo búsqueda, logrando la proporcionalidad requerida.
-- **style.css (Línea 388):** Se aplicó `width: 100%`, `box-sizing: border-box` y `overflow-x: hidden` a `.main-header` en estado `search-active` para eliminar el scroll horizontal.
-- **style.css (Línea 372):** Se suavizó la transición de colapso del header usando curvas de tiempo diferenciadas: `opacity 0.3s ease-out, transform 0.3s ease-out, max-height 0.4s ease-in-out`.
-- **index.html:** Actualización de versión a v4.9.6.
-
-**AUDITORÍA DE REPARACIÓN DE PRECISIÓN (02/02/2026)**
-
-**1. AUDITORÍA DE style.css (ANÁLISIS DE FRACASO)**
-- **Hallazgo (Logo fuera de lugar):** Las reglas de la línea 405 (`body.search-active .app-logo`) y 420 (`body.search-active .header-branding .app-logo`) están en conflicto directo. La primera fuerza `position: fixed` y `opacity: 1`, mientras la segunda intenta ocultar el logo original. Esto rompe el flujo del flexbox y saca al logo de su contexto visual.
-- **Hallazgo (Desbordamiento):** Aunque se añadió `width: 100%` y `overflow-x: hidden`, el uso de `padding: 10px 20px` en un elemento `position: fixed` sin un control estricto de `box-sizing` y herencia puede seguir causando desbordamiento si el scroll del body no está totalmente bloqueado.
-- **Hallazgo (Animación):** El uso de `max-height: 0` en la línea 368 colapsa el espacio instantáneamente a pesar de la transición, lo que genera el salto visual reportado.
-- **Hallazgo (Falta de Unificación):** Existen 7 reglas separadas bajo `body.search-active` que controlan el mismo componente (Header). Esto viola la norma de unificación.
-
-**2. PLAN DE REPARACIÓN QUIRÚRGICA:**
-- Unificar todas las reglas de `body.search-active` que afectan al header en un bloque consolidado.
-- Eliminar el posicionamiento `fixed` redundante del logo; mantenerlo en el flujo o posicionarlo absolutamente *dentro* del header ya fijo.
-- Ajustar altura del logo a 40px (≈5% menor que los 42-44px del input) y centrarlo mediante `transform: translateY` o ajuste fino de `top`.
-- Bloquear scroll horizontal en `html` y `body` de forma redundante durante la búsqueda.
-
-**RESULTADOS DE REPARACIÓN DE PRECISIÓN (v4.9.6):**
-- **style.css (Línea 380-420):** Se unificaron todas las reglas de búsqueda activa. Se eliminó el posicionamiento `fixed` del logo y se reemplazó por `position: absolute` con `top: 50%` y `transform: translateY(-50%)` relativo al header, garantizando un centrado vertical milimétrico.
-- **style.css (Línea 389):** Se añadió `gap: 0` al header activo para asegurar que el centrado vertical no se vea afectado por elementos ocultos con `max-height: 0`.
-- **style.css (Línea 389-390):** Se consolidó el control de desbordamiento horizontal mediante `box-sizing: border-box` y `overflow: hidden`.
-- **index.html:** Actualización de versión a v4.9.6.
-
-**AUDITORÍA DE REVERSIÓN Y CORRECCIÓN DE CODE REVIEW (03/02/2026)**
-
-- **Hallazgo 1 (Crítico):** La eliminación de `position: absolute` en el logo durante la búsqueda inhabilitó las propiedades `top/left`, rompiendo la alineación.
-- **Hallazgo 2 (Regresión):** El header debe ser `fixed` durante la búsqueda para cumplir con el diseño de barra fija (v4.9.1+). La eliminación total de `fixed` fue una regresión.
-- **Hallazgo 3 (Limpieza):** Presencia de archivos `.pyc` que deben ser eliminados antes de cualquier commit.
-- **Acción:** Se restaurará el `absolute` para el logo activo y el `fixed` para el header activo, manteniendo la base `relative/static` para evitar el "espacio fantasma" inicial de la v4.9.8.
+**Solución:**
+1. Modificar `renderCutContent(container, cutData, datosRelay, vehicleId, isLazy = false)` para aceptar un parámetro de carga diferida.
+2. En `renderCutContent`, usar `img.src` si `isLazy` es falso, y `img.dataset.src` si es verdadero.
+3. Actualizar la llamada en L758 para pasar `false` (o dejar por defecto).
+4. Actualizar la llamada en L1196 para pasar `true`.

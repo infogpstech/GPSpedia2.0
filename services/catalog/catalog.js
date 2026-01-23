@@ -92,7 +92,7 @@ function doGet(e) {
     }
     const defaultResponse = {
         status: 'success',
-        message: 'GPSpedia Catalog-SERVICE v2.4.0 is active.'
+        message: 'GPSpedia Catalog-SERVICE v2.0.0 is active.'
     };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
         .setMimeType(ContentService.MimeType.TEXT);
@@ -225,7 +225,6 @@ function handleGetCatalogData() {
     try {
         cachedData = cache.get(cacheKey);
     } catch (e) {
-        console.error("CATALOG-SERVICE: Error al leer la caché (get). Se procederá sin caché. Error: " + e.message);
         cachedData = null; // Asegurarse de que cachedData es null si falla
     }
 
@@ -235,7 +234,6 @@ function handleGetCatalogData() {
             const parsedData = JSON.parse(cachedData);
             return { status: 'success', data: parsedData, source: 'cache' };
         } catch (e) {
-            console.error("CATALOG-SERVICE: Datos de caché corruptos. Se procederá a leer de la hoja. Error: " + e.message);
             // Si el parseo falla, los datos están corruptos, así que se procede a leer de la fuente.
         }
     }
@@ -262,9 +260,11 @@ function handleGetCatalogData() {
                 categoryCounts[vehicle.categoria] = (categoryCounts[vehicle.categoria] || 0) + 1;
             }
 
-            // Se elimina la conversión de URLs. El backend ahora envía solo los IDs.
-            if (vehicle.videoGuiaDesarmeUrl && !vehicle.videoGuiaDesarmeUrl.includes('embed')) {
-                vehicle.videoGuiaDesarmeUrl = `https://www.youtube.com/embed/${vehicle.videoGuiaDesarmeUrl}`;
+            // Normalización robusta de URL de YouTube
+            if (vehicle.videoGuiaDesarmeUrl) {
+                vehicle.Video = normalizeYouTubeUrl(vehicle.videoGuiaDesarmeUrl);
+                delete vehicle.videoGuiaDesarmeUrl;
+            }
             }
 
             const cortes = [
@@ -347,7 +347,6 @@ function handleGetCatalogData() {
     // try {
     //     cache.put(cacheKey, JSON.stringify(allData), 3600);
     // } catch (e) {
-    //     console.error("CATALOG-SERVICE: Error al escribir en la caché (put). La operación continuará. Error: " + e.message);
     // }
 
     return { status: 'success', data: allData, source: 'spreadsheet' };
@@ -554,9 +553,6 @@ function normalizeAndValidateImageId(value) {
     }
 
     // Si no se pudo normalizar o validar, se considera inválido.
-    if (LOG_INVALID_IDS) {
-        console.log(`ID de imagen inválido o no normalizable detectado: "${originalValue}"`);
-    }
     invalidImageIdsFound.push(originalValue);
 
     return null;
@@ -589,6 +585,31 @@ function levenshteinDistance(a, b) {
     return matrix[b.length][a.length];
 }
 
+
+/**
+ * Normaliza cualquier formato de URL de YouTube a un formato de embed estable.
+ * Soporta URLs cortas, de búsqueda, de canal y IDs directos.
+ */
+function normalizeYouTubeUrl(url) {
+    if (!url) return null;
+    const trimmed = url.trim();
+    if (!trimmed) return null;
+
+    // Si ya es un ID de 11 caracteres (ej. dQw4w9WgXcQ)
+    if (trimmed.length === 11 && !trimmed.includes('/') && !trimmed.includes(':')) {
+        return `https://www.youtube.com/embed/${trimmed}?enablejsapi=1`;
+    }
+
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = trimmed.match(regExp);
+
+    const id = (match && match[2].length === 11) ? match[2] : trimmed;
+
+    // Si al final no parece un ID válido, devolver null o intentar usarlo como ID
+    if (id.length !== 11) return null;
+
+    return `https://www.youtube.com/embed/${id}?enablejsapi=1`;
+}
 
 function isYearInRangeV2(inputYear, anoDesde, anoHasta) {
     if (isNaN(inputYear)) return false;
