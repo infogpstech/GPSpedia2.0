@@ -191,7 +191,7 @@ export function mostrarCategorias() {
         card.appendChild(img);
         const overlay = document.createElement("div");
         overlay.className = "overlay";
-        overlay.innerHTML = cat;
+        overlay.innerHTML = `<div class="overlay-text-primary">${cat}</div>`;
         card.appendChild(overlay);
         return card;
     });
@@ -303,7 +303,7 @@ export function mostrarModelosPorMarca(marca) {
         card.appendChild(img);
         const overlay = document.createElement("div");
         overlay.className = "overlay";
-        overlay.innerHTML = `<div>${ejemplo.modelo}</div>`;
+        overlay.innerHTML = `<div class="overlay-text-primary">${ejemplo.modelo}</div>`;
         card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -396,7 +396,7 @@ export function mostrarModelos(categoria, marca, versionEquipamiento = null) {
         img.loading = "lazy";
         card.appendChild(img);
         const overlay = document.createElement("div"); overlay.className = "overlay";
-        overlay.innerHTML = `<div>${ejemplo.modelo}</div>`;
+        overlay.innerHTML = `<div class="overlay-text-primary">${ejemplo.modelo}</div>`;
         card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -447,7 +447,7 @@ export function mostrarTiposEncendido(categoria, marca, versionEquipamiento, mod
 
         const overlay = document.createElement("div");
         overlay.className = "overlay";
-        overlay.innerHTML = tipo;
+        overlay.innerHTML = `<div class="overlay-text-primary">${tipo}</div>`;
         card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -553,7 +553,7 @@ export function mostrarVersionesEquipamiento(categoria, marca, modelo) {
         const overlay = document.createElement("div");
         overlay.className = "overlay";
         // Comentario: La tarjeta ahora muestra el nombre de la versión y los tipos de encendido asociados.
-        overlay.innerHTML = `<div>${version}</div><div style="font-size:0.8em; opacity:0.8;">${tiposDeEncendidoEnVersion}</div>`;
+        overlay.innerHTML = `<div class="overlay-text-primary">${version}</div><div class="overlay-text-secondary">${tiposDeEncendidoEnVersion}</div>`;
         card.appendChild(overlay);
         grid.appendChild(card);
     });
@@ -646,7 +646,7 @@ export function mostrarResultadosDeBusqueda({ type, query, results }) {
 
             const diferenciador = version || tiposEncendido;
 
-            overlay.innerHTML = `<div>${ejemplo.marca} ${ejemplo.modelo}</div><div style="font-size:0.8em; opacity:0.8;">${diferenciador}</div>`;
+            overlay.innerHTML = `<div class="overlay-text-primary">${ejemplo.marca} ${ejemplo.modelo}</div><div class="overlay-text-secondary">${diferenciador}</div>`;
             card.appendChild(overlay);
             grid.appendChild(card);
         });
@@ -755,7 +755,8 @@ export function mostrarDetalleModal(item) {
         const title = document.createElement('h4');
         title.innerHTML = `Corte Recomendado <span style="font-weight:normal; color:#666;">(Votos: ${recommendedCut.util})</span>`;
         recommendedSection.appendChild(title);
-        renderCutContent(recommendedSection, recommendedCut, datosRelay, item.id);
+        // El corte recomendado se carga de inmediato (isLazy = false)
+        renderCutContent(recommendedSection, recommendedCut, datosRelay, item.id, false);
         cont.appendChild(recommendedSection);
     }
 
@@ -783,20 +784,25 @@ export function mostrarDetalleModal(item) {
     document.getElementById("modalDetalle").classList.add("visible");
 }
 
-function renderCutContent(container, cutData, datosRelay, vehicleId) {
+function renderCutContent(container, cutData, datosRelay, vehicleId, isLazy = false) {
     const contentP = document.createElement('p');
     contentP.innerHTML = `<strong>Ubicación:</strong> ${cutData.ubicacion || 'No especificada'}<br>
                         <strong>Color de Cable:</strong> ${cutData.colorCable || 'No especificado'}`;
     container.appendChild(contentP);
 
     if (cutData.img) {
-        const mediumImgUrl = getImageUrl(cutData.img, IMG_SIZE_MEDIUM);
-
         const imgContainer = document.createElement('div');
         imgContainer.className = 'image-container-with-feedback';
 
         const img = document.createElement("img");
-        img.src = mediumImgUrl;
+        const imgUrl = getImageUrl(cutData.img, IMG_SIZE_MEDIUM);
+
+        if (isLazy) {
+            img.dataset.src = imgUrl;
+        } else {
+            img.src = imgUrl;
+        }
+
         img.className = 'img-corte image-with-container';
         img.onclick = () => {
             const highResImgUrl = getImageUrl(cutData.img, IMG_SIZE_LARGE);
@@ -1195,7 +1201,8 @@ function createAccordionSection(container, title, sec, isOpen = false, datosRela
     panel.className = "panel-desplegable";
 
     if (sec.isCorte) {
-        renderCutContent(panel, sec.data, datosRelay, vehicleId);
+        // Los cortes dentro de acordeones son diferidos (isLazy = true)
+        renderCutContent(panel, sec.data, datosRelay, vehicleId, true);
     } else {
         if (sec.content) {
             const contentP = document.createElement('p');
@@ -1204,11 +1211,10 @@ function createAccordionSection(container, title, sec, isOpen = false, datosRela
         }
 
         if (sec.img) {
-            const mediumImgUrl = getImageUrl(sec.img, IMG_SIZE_MEDIUM);
             const imgContainer = document.createElement('div');
             imgContainer.className = 'image-container-with-feedback';
             const img = document.createElement("img");
-            img.src = mediumImgUrl;
+            img.dataset.src = getImageUrl(sec.img, IMG_SIZE_MEDIUM);
             img.className = 'img-corte image-with-container';
             img.onclick = () => {
                 const highResImgUrl = getImageUrl(sec.img, IMG_SIZE_LARGE);
@@ -1243,8 +1249,24 @@ function createAccordionSection(container, title, sec, isOpen = false, datosRela
     container.appendChild(btn);
     container.appendChild(panel);
 
+    const loadAccordionImages = () => {
+        const imgs = panel.querySelectorAll('img[data-src]');
+        imgs.forEach(img => {
+            if (!img.src) {
+                img.onload = () => {
+                    // Actualizar maxHeight si el panel sigue abierto
+                    if (btn.classList.contains('active')) {
+                        panel.style.maxHeight = panel.scrollHeight + "px";
+                    }
+                };
+                img.src = img.dataset.src;
+            }
+        });
+    };
+
     if (isOpen) {
         btn.classList.add("active");
+        loadAccordionImages();
         panel.style.maxHeight = panel.scrollHeight + "px";
     }
 
@@ -1261,6 +1283,7 @@ function createAccordionSection(container, title, sec, isOpen = false, datosRela
         // Si el botón no estaba activo, ábrelo.
         if (!isActive) {
             this.classList.add("active");
+            loadAccordionImages();
             // Esperar un ciclo de renderizado para asegurar que el iframe exista
             setTimeout(() => {
                 panel.style.maxHeight = panel.scrollHeight + "px";

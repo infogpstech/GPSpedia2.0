@@ -164,3 +164,46 @@
 - En main.js se mantiene la excepción para permitir zoom táctil cuando el lightbox está visible.
 
 **Versión:** Mantenimiento de seguridad v2.0.2.
+
+**CHANGES LOG - 05/02/2026**
+
+**Archivo: ui.js**
+- Línea 787: Modificada la función `renderCutContent` para aceptar un parámetro `isLazy` (default false).
+- Línea 798-805: Implementada lógica condicional en `renderCutContent` para asignar `img.src` (carga inmediata) o `img.dataset.src` (carga diferida) según el contexto.
+- Línea 759: Actualizada la llamada del Corte Recomendado para usar carga inmediata (`isLazy = false`).
+- Línea 1205: Actualizada la llamada de Cortes Alternativos dentro de acordeones para usar carga diferida (`isLazy = true`).
+
+**Versión:** Corrección de carga de imágenes v2.0.4.
+
+**CHANGES LOG - 05/02/2026**
+
+**Documentación: Instrucciones.txt**
+- Limpieza y reestructuración integral de la sección de tareas.
+- Movidas las Tareas 1-5 a la sección "TAREAS COMPLETADAS (Validadas por el PM)".
+- El historial ahora refleja con precisión los hitos de la versión 2.0 y sus parches de seguridad/rendimiento.
+
+**Versión:** Consolidación de documentación v2.0.5.
+
+**CHANGES LOG - 05/02/2026**
+
+**Documentación: Auditoria.txt**
+- Registro detallado de la solución al bug de imágenes en modales.
+- Documentación del flujo de carga híbrida (eager/lazy).
+
+**Versión:** Finalización de sesión v2.0.6.
+
+**CHANGES LOG - 05/02/2026**
+
+**Archivo: ui.js**
+- Línea 194, 306, 400, 451, 494, 558, 652: Actualizada la jerarquía visual de los overlays para usar las clases .overlay-text-primary y .overlay-text-secondary, eliminando el uso de estilos inline.
+- Línea 1324, 1500, 1526: Aplicadas las clases de overlay a las secciones de Últimos Agregados, Tutoriales y Relay Grid para consistencia total en el catálogo.
+
+**Versión:** Finalización y estandarización v2.0.7.
+
+**CHANGES LOG - 05/02/2026**
+
+**Documentación: Instrucciones.txt**
+- Se marcaron todas las tareas de la sesión (Seguridad, Documentación, Rendimiento y Bug Fix) como COMPLETADAS.
+- Se limpió el backlog para reflejar el estado actual del proyecto.
+
+**Estado Final de la Sesión:** EXITOSO.
