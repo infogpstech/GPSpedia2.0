@@ -1,0 +1,43 @@
+# RELEASE NOTES - GPSpedia 2.0 (Estandarizado)
+
+## RESUMEN DE LA VERSIÓN
+GPSpedia 2.0 representa una evolución crítica desde la versión 1.5, migrando de una arquitectura monolítica a una estructura de microservicios modular y robusta. Esta versión se centra en la optimización del rendimiento móvil, la seguridad de la información y una experiencia de usuario técnica superior.
+
+---
+
+## 1. MEJORAS DE ARQUITECTURA Y BACKEND
+- **Modularidad por Microservicios:** Separación de responsabilidades en servicios independientes (Auth, Catalog, Feedback, Users, Write, Utilities, Image).
+- **Ruteo Centralizado:** Implementación de `api-config.js` como fuente única de verdad para endpoints, mejorando la mantenibilidad.
+- **Manejo de Errores Robusto:** Sistema dinámico de captura de errores del backend con visualización de mensajes descriptivos para el técnico.
+- **Sesiones Persistentes:** Implementación de tokens de sesión con validación asíncrona no bloqueante.
+
+## 2. SEGURIDAD Y PROTECCIÓN (SAFE ZONES)
+- **Implementación de RBAC:** Control de acceso basado en roles (Desarrollador, Jefe/Gefe, Supervisor, Técnico) con jerarquía estricta de visibilidad y edición.
+- **Sistema Anti-Debugging Global:**
+  - Bloqueo de menú contextual (click derecho).
+  - Deshabilitación de atajos de DevTools (F12, Ctrl+Shift+I/J/C).
+  - Bloqueo de visualización de código fuente (Ctrl+U).
+- **Protección de Diseño PWA:** Bloqueo de zoom manual (pinch/teclado/rueda) para asegurar la integridad visual del catálogo, con excepción inteligente para el Lightbox.
+- **Seguridad en Perfiles:** Edición propia de nombre y contraseña con restricción absoluta al cambio de nombre de usuario.
+
+## 3. OPTIMIZACIÓN DE RENDIMIENTO (Performance)
+- **Gestión Tiered de Imágenes:** Introducción de constantes de resolución (300px, 800px, 1600px) para adaptar el consumo de datos según el contexto (tarjeta vs modal vs lightbox).
+- **Carga Diferida (Lazy Load):** Implementación sistemática de `loading="lazy"` en todas las tarjetas de marcas y modelos.
+- **Carga Híbrida en Modales:** Las imágenes de cortes en secciones ocultas (acordeones) solo se cargan al expandirse, reduciendo el tiempo de renderizado inicial.
+- **Optimización de Viewport:** Uso de la API `visualViewport` para ajustar dinámicamente el layout ante la apertura del teclado virtual en dispositivos móviles.
+
+## 4. EXPERIENCIA DE USUARIO Y NAVEGACIÓN
+- **Navegación Inteligente y Contextual:** Refactorización del flujo de navegación para recordar el punto de entrada. El botón "Volver" ahora diferencia entre navegación por marca (Carrusel) y navegación por categoría.
+- **Interfaz de Alta Densidad:** Diseño compacto en tablas y modales (Inbox) para mostrar más información técnica en pantallas pequeñas sin saturar.
+- **Modo Oscuro Nativo:** Persistencia de tema en `localStorage` con intercambio dinámico de branding y logos optimizados.
+- **Buscador Avanzado:** Filtro en tiempo real con detección automática de marcas e iconos visuales de fabricantes.
+- **Secciones Complementarias:** Implementación de acordeones para FAQ, Sobre Nosotros con terminología técnica estandarizada y guías de vídeo integradas (YouTube).
+
+## 5. NUEVAS FUNCIONALIDADES DE ADMINISTRACIÓN
+- **Módulo de Inbox:** Bandeja de entrada centralizada para gestionar reportes de fallas y sugerencias directamente desde el catálogo.
+- **Sistema de Feedback Granular:** Capacidad de dar "Like" o "Reportar" por cada punto de corte individual, permitiendo la mejora colaborativa de los datos.
+- **Dashboard de Actividad:** Registro y visualización en tiempo real de logs de actividad de usuarios para auditoría técnica.
+- **Asistente de Cortes Anti-duplicado:** Lógica inteligente en `add_cortes.html` que verifica duplicados antes de permitir la creación de nuevos registros.
+
+---
+*GPSpedia 2.0 - Tecnología Vehicular de Alto Rendimiento*

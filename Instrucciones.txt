@@ -245,7 +245,10 @@ Cualquier cambio en estas zonas invalidará el commit.
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-*No hay tareas pendientes en esta sección.*
+11. **TÍTULO: Auditoría Total y Release Notes v2.0**
+   - **ESTADO:** COMPLETADO
+   - **ALCANCE:** Global (Documentación)
+   - **DESCRIPCIÓN DETALLADA:** Comparativa técnica exhaustiva entre versiones 1.5 y 2.0. Creación de \`RELEASE NOTES.txt\` consolidando todas las nuevas features y mejoras de rendimiento/seguridad.
 
 ---
 **DERIVADO DE AUDITORÍA (ROADMAP v2.0) — NO EJECUTAR AÚN**

@@ -251,3 +251,11 @@
 - Estandarización de mensajes de estado en los microservicios de backend (`Auth`, `Catalog`, `Feedback`, `Users`, `Write`, `Utilities`, `Image`) a la versión **v2.0**.
 
 **Versión:** Estandarización GPSpedia v2.0.
+
+**CHANGES LOG - 06/02/2026 (Auditoría Final)**
+
+**Documentación:**
+- Creación de `RELEASE NOTES.txt` con el detalle exhaustivo de mejoras técnicas y funcionales de la versión 2.0 vs 1.5.
+- Registro de hitos en arquitectura, seguridad, rendimiento y administración.
+
+**Versión:** Consolidación final v2.0.
