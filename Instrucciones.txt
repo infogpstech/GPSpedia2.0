@@ -206,188 +206,45 @@ Cualquier cambio en estas zonas invalidará el commit.
 *No hay tareas pendientes en esta sección.*
 
 ---
-BACKLOG – INSTRUCCIONES GENERALES (FRONTEND / DOCUMENTACIÓN / PWA)
-
-==================================================
-5. **TÍTULO: Lógica de Backend para Gestión de Años y Votos**
-   - **ESTADO:** PENDIENTE
-   - **ALCANCE:** Backend (Feedback Service)
-   - **DESCRIPCIÓN:** Implementar la lógica de backend para registrar los votos de años y la hoja de cálculo para almacenar dichos votos.
-
-6. **TÍTULO: Dashboard de Desempeño para Supervisores**
-   - **ESTADO:** PENDIENTE
-   - **ALCANCE:** UI / Backend
-   - **DESCRIPCIÓN:** Crear la nueva sección de Dashboard de Desempeño específicamente para roles de Supervisor.
-
-7. **TÍTULO: Funcionalidad de Edición "In-Modal"**
-   - **ESTADO:** PENDIENTE
-   - **ALCANCE:** Frontend (UI) / Backend
-   - **DESCRIPCIÓN:** Permitir la edición de datos técnicos directamente desde el modal de detalles del vehículo.
-
-8. **TÍTULO: Lógica de Backend para el Sistema de Gestión de Feedback (Inbox)**
-   - **ESTADO:** PENDIENTE
-   - **ALCANCE:** Backend (Feedback Service)
-   - **DESCRIPCIÓN:** Completar la lógica de backend para el procesamiento de mensajes en el Inbox.
-
-9. **TÍTULO: Expansión de Rango de Años por Feedback**
-   - **ESTADO:** PENDIENTE
-   - **ALCANCE:** Frontend (UI) / Backend
-   - **DESCRIPCIÓN:** Implementar la interfaz para sugerir nuevos años y la lógica de backend para expansión de rangos.
-
 ---
 **TAREAS COMPLETADAS (Validadas por el PM)**
 ---
 1. **TÍTULO: Lanzamiento Global GPSpedia v2.0 (v2.0.0)**
    - **ESTADO:** COMPLETADO
    - **ALCANCE:** Global (Frontend y Backend)
-   - **DESCRIPCIÓN DETALLADA:**
-     - **Versioning:** Sincronización de todos los archivos a la versión v2.0.0.
-     - **README:** Actualización integral con descripción funcional, flujos de registro y comparativa técnica.
-     - **UI Branding:** Actualización de footer y modal de login con la nueva identidad v2.0.
-     - **FAQ:** Implementación de lógica y estilos para el acordeón de preguntas frecuentes.
-     - **Sobre Nosotros:** Corrección de terminología técnica para tipos de cortes.
+   - **DESCRIPCIÓN DETALLADA:** Versioning, README integral, UI Branding v2.0, FAQ Accordion, Terminología técnica.
 
-2. **TÍTULO: Implementación de Modal de Verificación y Mejoras en Flujo de Cortes (v4.9.15)**
-   - **ESTADO:** COMPLETADO
-2. **TÍTULO: Restauración de Funciones del Menú Hamburguesa, Modo Oscuro y Fix de Footer (v4.9.18)**
+2. **TÍTULO: Reparación de Funciones del Menú, Modo Oscuro y Footer (v4.9.18)**
    - **ESTADO:** COMPLETADO
    - **ALCANCE:** index.html, main.js, style.css
-   - **DESCRIPCIÓN DETALLADA:**
-     - **Navegación:** Restaurados y unificados los listeners para 'Cortes', 'Tutoriales' y 'Configuración Relay'.
-     - **Dashboard:** Restaurada la funcionalidad completa del botón Dashboard.
-     - **Modo Oscuro:** Implementada lógica con persistencia en localStorage e intercambio dinámico de logo.
-     - **Layout:** Corregido bloqueo visual del carrusel de marcas mediante ajuste de padding y flex-shrink en el footer.
+   - **DESCRIPCIÓN DETALLADA:** Restauración de navegación, Dashboard y persistencia de Modo Oscuro.
 
----
-**TAREAS COMPLETADAS (Validadas por el PM)**
----
-1. **TÍTULO: Reparación de Cambio de Contraseña y Mejora Visual de Tabla de Usuarios (v4.9.20)**
-   - **ESTADO:** COMPLETADO
-   - **ALCANCE:** users.html, services/users/users.js
-   - **DESCRIPCIÓN DETALLADA:**
-     - **Frontend:** Corregida la obtención robusta del ID de usuario (ID/id) y validación previa al envío.
-     - **Backend:** Corregida la comparación de contraseñas para ser case-sensitive (seguridad y compatibilidad).
-     - **Layout:** Ajustados estilos de tabla para evitar reducción de fuentes y márgenes, manteniendo el scroll invisible funcional.
-
----
-**TAREAS COMPLETADAS (Validadas por el PM)**
----
-1. **TÍTULO: Actualización de Endpoint de Usuarios y Refinamiento Compacto de Tabla (v4.9.21)**
-   - **ESTADO:** COMPLETADO
-   - **ALCANCE:** api-config.js, users.html
-   - **DESCRIPCIÓN DETALLADA:**
-     - **Configuración:** Actualizado el URL del microservicio USERS a la nueva versión proporcionada.
-     - **Layout:** Refinamiento de la tabla de usuarios reduciendo paddings (8px 10px) y font-size (0.9rem) para un diseño más compacto y eficiente.
-
----
-**TAREAS COMPLETADAS (Validadas por el PM)**
----
-1. **TÍTULO: Reparación de Cambio de Contraseña y RBAC (v4.9.22 - v4.9.24)**
+3. **TÍTULO: Gestión de Usuarios, RBAC y Seguridad (v4.9.20 - v4.9.25)**
    - **ESTADO:** COMPLETADO
    - **ALCANCE:** users.html, services/users/users.js, api-config.js
-   - **DESCRIPCIÓN DETALLADA:**
-     - **Bug Fix:** Resuelta duplicidad de ID 'password-modal' y corregido ruteo de 'updateProfile'.
-     - **RBAC:** Implementado control de acceso jerárquico y filtrado de visibilidad en backend y frontend.
-     - **Perfil:** Añadida edición de nombre propio y bloqueo estricto de edición de username.
-     - **Seguridad:** Reforzada validación de propiedad de cuenta y concurrencia (LockService).
+   - **DESCRIPCIÓN DETALLADA:** Cambio de contraseña case-sensitive, filtrado RBAC, edición de perfil, animaciones de carga (spinners).
 
-2. **TÍTULO: Animaciones de Carga y Anti-bloqueo en Gestión de Usuarios (v4.9.25)**
+4. **TÍTULO: Refinamiento de UI, PWA y Sistema Anti-Debugging (v2.0.4)**
    - **ESTADO:** COMPLETADO
-   - **ALCANCE:** users.html
+   - **ALCANCE:** Global (Frontend, Documentación)
    - **DESCRIPCIÓN DETALLADA:**
-     - **UX/UI:** Implementada animación de carga (spinner) y desactivación física (disabled) en botones de: Crear Usuario, Editar Usuario, Cambiar Contraseña, Editar Nombre y Eliminar Usuario.
-     - **Estabilidad:** Añadida validación de estado de carga para prevenir múltiples envíos concurrentes (anti-bloqueo).
+     - **Seguridad:** Bloqueo de DevTools, click derecho, Ctrl+U y Zoom manual (con excepción en Lightbox).
+     - **Rendimiento:** Implementación de native lazy-load y carga híbrida (eager/lazy) para imágenes de cortes.
+     - **Robustez:** Recálculo dinámico de altura en acordeones mediante eventos 'onload'.
+     - **Estética:** Estandarización de overlays mediante clases CSS (.overlay-text-primary/secondary).
+     - **Documentación:** Unificación de README.md y creación de ChangeLog técnico v1.5 vs v2.0.
+     - **Compatibilidad:** Verificación de PWA en Android, iOS y HarmonyOS.
 
 ---
-**TAREAS COMPLETADAS (Validadas por el PM)**
----
-1. **TÍTULO: Carga Optimizada de Imágenes (Lazy Load) (v4.9.26)**
-   - **ESTADO:** COMPLETADO
-   - **ALCANCE:** ui.js, index.html
-   - **DESCRIPCIÓN DETALLADA:**
-     - **Lazy Load:** Implementado `loading="lazy"` en todas las tarjetas del catálogo.
-     - **Resolución Adaptativa:** Definidas constantes de tamaño (300px para thumbnails, 800px para detalles).
-     - **Lightbox Optimizado:** Las imágenes de alta resolución (1600px) solo se cargan mediante un trigger on-click, eliminando la carga innecesaria en segundo plano.
-     - **Versionamiento:** Actualizada versión global a v4.9.26 y componente ui.js a v4.1.0.
-
----
----
-**TAREAS COMPLETADAS (Validadas por el PM)**
----
-1. **TÍTULO: Reparación de Carga de Imágenes y Refinamiento UI (v2.0.4)**
-   - **ESTADO:** COMPLETADO
-   - **ALCANCE:** ui.js, style.css, README.md, main.js
-   - **DESCRIPCIÓN DETALLADA:**
-     - **Fix Crítico:** Resuelto bug de imágenes no cargadas en "Corte Recomendado" mediante la implementación de carga condicional (isLazy).
-     - **Rendimiento:** Implementado loading="lazy" en el 100% del catálogo.
-     - **Robustez:** Refactorizada expansión de acordeones con listener 'onload' para evitar cortes visuales.
-     - **Estándares:** Centralizada jerarquía visual en clases CSS (.overlay-text-primary/secondary).
-     - **Seguridad:** Bloqueo de zoom manual y anti-debugging unificado.
-     - **Documentación:** Unificación de README.md y creación de ChangeLog comparativo.
-
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
 *No hay tareas pendientes en esta sección.*
 
-PRIORIDAD: ALTA
-ÁREA: DOCUMENTACIÓN / VERSIONAMIENTO
-
-OBJETIVO:
-Crear un ChangeLog formal que liste TODAS las funcionalidades presentes en GPSpedia 2.0 que NO existen en GPSpedia 1.5 (Olds / GPSpedia1.5).
-
-REQUERIMIENTOS:
-- Crear un archivo de ChangeLog claro y ordenado.
-- Comparar explícitamente GPSpedia 2.0 vs GPSpedia 1.5.
-- No repetir información vaga; debe ser concreta y verificable.
-
-FUNCIONALIDADES A INCLUIR (LISTA BASE, NO LIMITADA):
-- Sistema de Feedback
-- Sistema de Inbox
-- Modal de Relay dentro del modal de detalles
-- Manejo de versiones de equipamiento
-- Mejor gestión del rango de años por generación
-- Navegación por marca
-- Mejora en sistema anti-duplicado al agregar cortes
-- Sistema de gestión de usuarios por roles
-- Tema nocturno
-- Documentación externa:
-  - FAQs (modal)
-  - Contáctanos
-  - Sobre Nosotros
-- Mejor gestión de imágenes (resoluciones, lazy load)
-- Expansión de categorías de vehículos
-- Mejoras generales de UI/UX
-- Cualquier otra funcionalidad presente en 2.0 que no exista en 1.5
-
-REGLAS:
-- No incluir features heredadas que ya existían en 1.5.
-- No exagerar ni inflar la lista.
-- Todo debe corresponder a funcionalidades reales.
-
-RESULTADO ESPERADO:
-- Documento claro que justifique técnicamente la versión 2.0.
-- Diferenciación clara entre GPSpedia 1.5 y 2.0.
-
 ---
 **DERIVADO DE AUDITORÍA (ROADMAP v2.0) — NO EJECUTAR AÚN**
 ---
-
-*No hay tareas pendientes en esta sección.*
-
-TAREA 5: CORRECCIÓN Y VERIFICACIÓN DE LAZY LOAD Y TAMAÑOS DE IMAGEN EN UI.JS
-==================================================
-ESTADO: PENDIENTE REVISIÓN POR EL PM
-PRIORIDAD: ALTA
-ÁREA: FRONTEND / RENDIMIENTO
-
-OBJETIVO:
-Optimizar la carga de imágenes y asegurar la visibilidad del contenido técnico prioritario.
-
-REQUERIMIENTOS:
-- Implementar loading="lazy" en el 100% de las tarjetas del catálogo.
-- Refactorizar renderCutContent para soportar carga inmediata (Corte Recomendado) y diferida (Acordeones).
-- Eliminar el riesgo de cortes visuales en acordeones mediante actualización dinámica de altura tras la descarga de imágenes.
-- Estandarizar la jerarquía visual de los overlays mediante clases CSS.
-
-RESULTADO ESPERADO:
-- Sistema de carga híbrido (eager/lazy) que prioriza el contenido visible y optimiza el oculto.
+5. TÍTULO: Lógica de Backend para Gestión de Años y Votos (PENDIENTE)
+6. TÍTULO: Dashboard de Desempeño para Supervisores (PENDIENTE)
+7. TÍTULO: Funcionalidad de Edición 'In-Modal' (PENDIENTE)
+8. TÍTULO: Lógica de Backend para Feedback Inbox (PENDIENTE)
+9. TÍTULO: Expansión de Rango de Años por Feedback (PENDIENTE)
