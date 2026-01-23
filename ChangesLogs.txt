@@ -259,3 +259,15 @@
 - Registro de hitos en arquitectura, seguridad, rendimiento y administración.
 
 **Versión:** Consolidación final v2.0.
+
+**CHANGES LOG - 06/02/2026 (Expansión de Notas)**
+
+**Documentación:**
+- Refactorización exhaustiva de `RELEASE NOTES.txt` para incluir features técnicas detalladas:
+  - Lógica de Corte Recomendado por votos de utilidad.
+  - Modales de diagramas de Relay vinculados.
+  - Identificación de técnicos colaboradores.
+  - Soporte para variantes de cortes múltiples.
+  - Sistema de verificación anti-duplicado en 3 etapas.
+
+**Versión:** Consolidación final v2.0 (Full Features).
