@@ -1,4 +1,4 @@
-// GPSpedia UI Module | Version: 2.0.8
+// GPSpedia UI Module | Version: 2.0
 // Responsibilities:
 // - Render UI components based on state.
 // - Contain all functions that directly manipulate the DOM.

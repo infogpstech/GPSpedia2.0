@@ -242,3 +242,12 @@
 - **Líneas 381-395:** Refactorizada `mostrarModelos` para usar `previousState` y asegurar consistencia en el botón "Volver".
 
 **Versión:** Finalización de auditoría y correcciones v2.0.8.
+
+**CHANGES LOG - 06/02/2026 (Estandarización)**
+
+**Global:**
+- Sincronización de la versión a **v2.0** en todos los encabezados de archivos JS, CSS y HTML.
+- Actualización de la versión visible en el modal de login y el footer de `index.html` a **v2.0**.
+- Estandarización de mensajes de estado en los microservicios de backend (`Auth`, `Catalog`, `Feedback`, `Users`, `Write`, `Utilities`, `Image`) a la versión **v2.0**.
+
+**Versión:** Estandarización GPSpedia v2.0.

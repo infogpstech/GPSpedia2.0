@@ -92,7 +92,7 @@ function doGet(e) {
     }
     const defaultResponse = {
         status: 'success',
-        message: 'GPSpedia Catalog-SERVICE v2.0.0 is active.'
+        message: 'GPSpedia Catalog-SERVICE v2.0 is active.'
     };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
         .setMimeType(ContentService.MimeType.TEXT);
