@@ -164,3 +164,13 @@
 - En main.js se mantiene la excepción para permitir zoom táctil cuando el lightbox está visible.
 
 **Versión:** Mantenimiento de seguridad v2.0.2.
+
+**CHANGES LOG - 05/02/2026**
+
+**Archivo: ui.js**
+- Línea 787: Modificada la función `renderCutContent` para aceptar un parámetro `isLazy` (default false).
+- Línea 798-805: Implementada lógica condicional en `renderCutContent` para asignar `img.src` (carga inmediata) o `img.dataset.src` (carga diferida) según el contexto.
+- Línea 759: Actualizada la llamada del Corte Recomendado para usar carga inmediata (`isLazy = false`).
+- Línea 1205: Actualizada la llamada de Cortes Alternativos dentro de acordeones para usar carga diferida (`isLazy = true`).
+
+**Versión:** Corrección de carga de imágenes v2.0.4.

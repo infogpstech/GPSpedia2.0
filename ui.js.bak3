@@ -755,8 +755,7 @@ export function mostrarDetalleModal(item) {
         const title = document.createElement('h4');
         title.innerHTML = `Corte Recomendado <span style="font-weight:normal; color:#666;">(Votos: ${recommendedCut.util})</span>`;
         recommendedSection.appendChild(title);
-        // El corte recomendado se carga de inmediato (isLazy = false)
-        renderCutContent(recommendedSection, recommendedCut, datosRelay, item.id, false);
+        renderCutContent(recommendedSection, recommendedCut, datosRelay, item.id);
         cont.appendChild(recommendedSection);
     }
 
@@ -784,7 +783,7 @@ export function mostrarDetalleModal(item) {
     document.getElementById("modalDetalle").classList.add("visible");
 }
 
-function renderCutContent(container, cutData, datosRelay, vehicleId, isLazy = false) {
+function renderCutContent(container, cutData, datosRelay, vehicleId) {
     const contentP = document.createElement('p');
     contentP.innerHTML = `<strong>Ubicación:</strong> ${cutData.ubicacion || 'No especificada'}<br>
                         <strong>Color de Cable:</strong> ${cutData.colorCable || 'No especificado'}`;
@@ -795,14 +794,7 @@ function renderCutContent(container, cutData, datosRelay, vehicleId, isLazy = fa
         imgContainer.className = 'image-container-with-feedback';
 
         const img = document.createElement("img");
-        const imgUrl = getImageUrl(cutData.img, IMG_SIZE_MEDIUM);
-
-        if (isLazy) {
-            img.dataset.src = imgUrl;
-        } else {
-            img.src = imgUrl;
-        }
-
+        img.dataset.src = getImageUrl(cutData.img, IMG_SIZE_MEDIUM);
         img.className = 'img-corte image-with-container';
         img.onclick = () => {
             const highResImgUrl = getImageUrl(cutData.img, IMG_SIZE_LARGE);
@@ -1201,8 +1193,7 @@ function createAccordionSection(container, title, sec, isOpen = false, datosRela
     panel.className = "panel-desplegable";
 
     if (sec.isCorte) {
-        // Los cortes dentro de acordeones son diferidos (isLazy = true)
-        renderCutContent(panel, sec.data, datosRelay, vehicleId, true);
+        renderCutContent(panel, sec.data, datosRelay, vehicleId);
     } else {
         if (sec.content) {
             const contentP = document.createElement('p');

@@ -311,89 +311,24 @@ BACKLOG – INSTRUCCIONES GENERALES (FRONTEND / DOCUMENTACIÓN / PWA)
      - **Versionamiento:** Actualizada versión global a v4.9.26 y componente ui.js a v4.1.0.
 
 ---
+---
+**TAREAS COMPLETADAS (Validadas por el PM)**
+---
+1. **TÍTULO: Reparación de Carga de Imágenes y Refinamiento UI (v2.0.4)**
+   - **ESTADO:** COMPLETADO
+   - **ALCANCE:** ui.js, style.css, README.md, main.js
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Fix Crítico:** Resuelto bug de imágenes no cargadas en "Corte Recomendado" mediante la implementación de carga condicional (isLazy).
+     - **Rendimiento:** Implementado loading="lazy" en el 100% del catálogo.
+     - **Robustez:** Refactorizada expansión de acordeones con listener 'onload' para evitar cortes visuales.
+     - **Estándares:** Centralizada jerarquía visual en clases CSS (.overlay-text-primary/secondary).
+     - **Seguridad:** Bloqueo de zoom manual y anti-debugging unificado.
+     - **Documentación:** Unificación de README.md y creación de ChangeLog comparativo.
+
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-TAREA 1: ORDENAR Y UNIFICAR README.md
-==================================================
-ESTADO: PENDIENTE REVISIÓN POR EL PM
-PRIORIDAD: MEDIA
-ÁREA: DOCUMENTACIÓN
+*No hay tareas pendientes en esta sección.*
 
-PROBLEMA IDENTIFICADO:
-README.md contiene bloques de texto duplicados, desactualizados o contradictorios que no reflejan fielmente el estado actual del código y las funcionalidades reales de la plataforma.
-
-REQUERIMIENTOS:
-- Se debe auditar completamente README.md.
-- Se deben identificar secciones repetidas o redundantes.
-- Se deben unificar los textos duplicados en una sola fuente de verdad.
-- Se debe asegurar que el contenido refleje exactamente:
-  - Lo que el código hace actualmente
-  - Las funcionalidades realmente existentes
-  - Las limitaciones reales del sistema
-
-REGLAS:
-- No inventar funcionalidades.
-- No documentar features no presentes en el código.
-- No eliminar información útil, solo consolidarla.
-
-RESULTADO ESPERADO:
-- README.md claro, coherente y alineado con el estado real del proyecto.
-
-TAREA 2: SISTEMA ANTI-DEBUGGING Y BLOQUEO DE INTERACCIONES NO PERMITIDAS
-==================================================
-ESTADO: PENDIENTE REVISIÓN POR EL PM
-PRIORIDAD: ALTA
-ÁREA: FRONTEND / SEGURIDAD PWA
-
-OBJETIVO:
-Restringir el acceso a herramientas de inspección y acciones no permitidas en la PWA y versión web, sin afectar la experiencia normal del usuario.
-
-REQUERIMIENTOS:
-- Se debe impedir el uso de:
-  - Consola del navegador (DevTools)
-  - Menú contextual (click derecho)
-  - Atajos de teclado de inspección
-  - Zoom manual del navegador
-
-EXCEPCIONES:
-- El zoom SOLO debe estar permitido dentro de los lightbox de imágenes.
-- Fuera del lightbox, el zoom debe estar completamente bloqueado.
-
-CONSIDERACIONES:
-- La implementación debe enfocarse especialmente en la versión PWA.
-- No debe romper funcionalidades normales del catálogo.
-- No debe afectar accesibilidad crítica.
-
-TAREA 3: VERIFICACIÓN DE COMPATIBILIDAD PWA MULTI-SISTEMA
-==================================================
-ESTADO: PENDIENTE REVISIÓN POR EL PM
-PRIORIDAD: MEDIA
-ÁREA: PWA / COMPATIBILIDAD
-
-OBJETIVO:
-Verificar y documentar la compatibilidad real de la PWA con los siguientes sistemas:
-
-SISTEMAS A VERIFICAR:
-- Android
-- iOS
-- HarmonyOS
-
-REQUERIMIENTOS:
-- Verificar instalación como PWA
-- Verificar funcionamiento offline (si aplica)
-- Verificar comportamiento de navegación y gestos
-- Documentar limitaciones específicas por sistema
-
-REGLAS:
-- No asumir compatibilidad sin pruebas.
-- Registrar hallazgos reales.
-
-RESULTADO:
-- Informe claro de compatibilidad real por sistema.
-
-TAREA 4: CREAR CHANGELOG DE IMPLEMENTACIONES – GPSpedia 2.0 vs 1.5
-==================================================
-ESTADO: PENDIENTE REVISIÓN POR EL PM
 PRIORIDAD: ALTA
 ÁREA: DOCUMENTACIÓN / VERSIONAMIENTO
 
@@ -438,3 +373,21 @@ RESULTADO ESPERADO:
 ---
 
 *No hay tareas pendientes en esta sección.*
+
+TAREA 5: CORRECCIÓN Y VERIFICACIÓN DE LAZY LOAD Y TAMAÑOS DE IMAGEN EN UI.JS
+==================================================
+ESTADO: PENDIENTE REVISIÓN POR EL PM
+PRIORIDAD: ALTA
+ÁREA: FRONTEND / RENDIMIENTO
+
+OBJETIVO:
+Optimizar la carga de imágenes y asegurar la visibilidad del contenido técnico prioritario.
+
+REQUERIMIENTOS:
+- Implementar loading="lazy" en el 100% de las tarjetas del catálogo.
+- Refactorizar renderCutContent para soportar carga inmediata (Corte Recomendado) y diferida (Acordeones).
+- Eliminar el riesgo de cortes visuales en acordeones mediante actualización dinámica de altura tras la descarga de imágenes.
+- Estandarizar la jerarquía visual de los overlays mediante clases CSS.
+
+RESULTADO ESPERADO:
+- Sistema de carga híbrido (eager/lazy) que prioriza el contenido visible y optimiza el oculto.

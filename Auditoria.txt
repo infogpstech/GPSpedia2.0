@@ -124,3 +124,20 @@ document.addEventListener('keydown', function(e) {
 - Implementar `img.loading = "lazy"` de forma sistemática.
 - Refactorizar `loadAccordionImages` para que actualice el `maxHeight` del panel padre tras el evento `onload` de cada imagen.
 - Mover estilos de texto del overlay a `style.css`.
+
+--------------------------------------------------
+**AUDITORÍA LÍNEA POR LÍNEA - FIX CARGA IMÁGENES CORTES (05/02/2026)**
+
+**Archivo: ui.js**
+- L758: Llamada a `renderCutContent` para el Corte Recomendado. Esta sección es visible de inmediato en el modal.
+- L786: Definición de `renderCutContent`. Actualmente usa `img.dataset.src` incondicionalmente (L797).
+- L1196: Llamada a `renderCutContent` dentro de `createAccordionSection`. Esta sección está oculta inicialmente.
+
+**Hallazgo Crítico:**
+El Corte Recomendado no carga su imagen porque `renderCutContent` le asigna `dataset.src`, pero al no estar dentro de un acordeón, la función `loadAccordionImages` nunca se ejecuta para él. Esto causa que el `src` permanezca vacío.
+
+**Solución:**
+1. Modificar `renderCutContent(container, cutData, datosRelay, vehicleId, isLazy = false)` para aceptar un parámetro de carga diferida.
+2. En `renderCutContent`, usar `img.src` si `isLazy` es falso, y `img.dataset.src` si es verdadero.
+3. Actualizar la llamada en L758 para pasar `false` (o dejar por defecto).
+4. Actualizar la llamada en L1196 para pasar `true`.
