@@ -235,10 +235,20 @@ Cualquier cambio en estas zonas invalidará el commit.
      - **Documentación:** Unificación de README.md y creación de ChangeLog técnico v1.5 vs v2.0.
      - **Compatibilidad:** Verificación de PWA en Android, iOS y HarmonyOS.
 
+10. **TÍTULO: Corrección de Navegación por Marca y UI (v2.0.8)**
+   - **ESTADO:** COMPLETADO
+   - **ALCANCE:** ui.js, style.css, users.html, add_cortes.html
+   - **DESCRIPCIÓN DETALLADA:**
+     - **Navegación:** Implementada lógica de estado previo para asegurar que el regreso desde niveles profundos (años, versiones) respete el punto de entrada (Carrusel de Marcas o Búsqueda) evitando bucles de categorías.
+     - **UI:** Implementada prevención global de selección de texto mediante CSS `user-select: none` para optimizar experiencia móvil y evitar asistentes de búsqueda emergentes, manteniendo excepciones para campos de entrada.
+
 ---
 **TAREAS PENDIENTES DE REVISIÓN**
 ---
-*No hay tareas pendientes en esta sección.*
+11. **TÍTULO: Auditoría Total y Release Notes v2.0 (Full Features)**
+   - **ESTADO:** COMPLETADO
+   - **ALCANCE:** Global (Documentación)
+   - **DESCRIPCIÓN DETALLADA:** Auditoría integral comparativa v1.5 vs v2.0. Creación de `RELEASE NOTES.txt` detallando todas las mejoras: arquitectura modular, seguridad RBAC, optimización de imágenes/lazy load, navegación contextual, sistema de votos y "Corte Recomendado", modales de Relay, crédito a colaboradores y asistente anti-duplicado.
 
 ---
 **DERIVADO DE AUDITORÍA (ROADMAP v2.0) — NO EJECUTAR AÚN**
