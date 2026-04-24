@@ -1,4 +1,4 @@
-// GPSpedia UI Module | Version: 2.0.0
+// GPSpedia UI Module | Version: 2.0
 // Responsibilities:
 // - Render UI components based on state.
 // - Contain all functions that directly manipulate the DOM.
@@ -277,11 +277,18 @@ export function mostrarModelosPorMarca(marca) {
     const { catalogData } = getState();
     const { cortes } = catalogData;
 
-    // Se establece el estado de navegación actual
-    setState({ navigationState: { level: "modelosPorMarca", marca: marca } });
+    // Se establece el estado de navegación actual capturando el estado previo.
+    const previousState = getState().navigationState || {};
+    setState({ navigationState: { level: "modelosPorMarca", marca: marca, previousState } });
     const cont = document.getElementById("contenido");
-    // Se limpia el contenido y se añade el botón de regreso a la página principal
-    cont.innerHTML = `<span class="backBtn" onclick="window.navigation.irAPaginaPrincipal()">${backSvg} Volver</span><h4>Modelos de ${marca}</h4>`;
+
+    // Lógica dinámica para el botón "Volver": regresa a búsqueda si ese era el origen.
+    const backAction = previousState.level === 'busqueda'
+        ? 'window.ui.regresarABusqueda()'
+        : 'window.navigation.irAPaginaPrincipal()';
+
+    // Se limpia el contenido y se añade el botón de regreso dinámico.
+    cont.innerHTML = `<span class="backBtn" onclick="${backAction}">${backSvg} Volver</span><h4>Modelos de ${marca}</h4>`;
 
     // Se filtran los cortes para obtener todos los modelos de la marca seleccionada, excluyendo motocicletas
     const modelosFiltrados = cortes.filter(item => item.marca === marca && item.categoria && !['motocicletas', 'motos'].includes(item.categoria.toLowerCase()));
@@ -371,9 +378,20 @@ export function mostrarModelos(categoria, marca, versionEquipamiento = null) {
     const { catalogData } = getState();
     const { cortes } = catalogData;
 
-    setState({ navigationState: { level: "modelos", categoria, marca, versionEquipamiento } });
+    const previousState = getState().navigationState || {};
+    setState({ navigationState: { level: "modelos", categoria, marca, versionEquipamiento, previousState } });
     const cont = document.getElementById("contenido");
-    const backAction = versionEquipamiento ? `window.ui.mostrarVersionesEquipamiento('${categoria}', '${marca}')` : `window.ui.mostrarMarcas('${categoria}')`;
+
+    // Lógica dinámica para el botón "Volver"
+    let backAction;
+    if (versionEquipamiento) {
+        backAction = `window.ui.mostrarVersionesEquipamiento('${categoria}', '${marca}')`;
+    } else if (previousState.level === 'modelosPorMarca') {
+        backAction = `window.ui.mostrarModelosPorMarca('${marca}')`;
+    } else {
+        backAction = `window.ui.mostrarMarcas('${categoria}')`;
+    }
+
     cont.innerHTML = `<span class="backBtn" onclick="${backAction}">${backSvg} Volver</span><h4>Modelos de ${marca} ${versionEquipamiento || ''}</h4>`;
 
     let modelosFiltrados = cortes.filter(item => item.categoria === categoria && item.marca === marca);
@@ -413,9 +431,15 @@ export function mostrarTiposEncendido(categoria, marca, versionEquipamiento, mod
 
     // Comentario: Lógica dinámica para el botón "Volver".
     // Regresa a `mostrarVersionesEquipamiento` si ese fue el paso anterior, si no, a `mostrarModelos`.
-    const backAction = previousState.level === 'versionesEquipamiento'
-        ? `window.ui.mostrarVersionesEquipamiento('${categoria}', '${marca}', '${modelo}')`
-        : `window.ui.mostrarModelos('${categoria}', '${marca}')`;
+    // Se añade soporte para el flujo de navegación por marca (modelosPorMarca).
+    let backAction;
+    if (previousState.level === 'versionesEquipamiento') {
+        backAction = `window.ui.mostrarVersionesEquipamiento('${categoria}', '${marca}', '${modelo}')`;
+    } else if (previousState.level === 'modelosPorMarca') {
+        backAction = `window.ui.mostrarModelosPorMarca('${marca}')`;
+    } else {
+        backAction = `window.ui.mostrarModelos('${categoria}', '${marca}')`;
+    }
 
     cont.innerHTML = `<span class="backBtn" onclick="${backAction}">${backSvg} Volver</span><h4>Tipos de Encendido para ${modelo} ${versionEquipamiento || ''}</h4>`;
 
@@ -472,6 +496,9 @@ export function mostrarVersiones(filas, categoria, marca, modelo) {
         backAction = `window.ui.mostrarTiposEncendido('${categoria}', '${marca}', ${veq}, '${modelo}')`;
     } else if (previousState.level === 'versionesEquipamiento') {
         backAction = `window.ui.mostrarVersionesEquipamiento('${categoria}', '${marca}', '${modelo}')`;
+    } else if (previousState.level === 'modelosPorMarca') {
+        // Soporte para el flujo de navegación por marca (modelosPorMarca).
+        backAction = `window.ui.mostrarModelosPorMarca('${marca}')`;
     } else {
         // Fallback seguro, regresa a la lista de modelos.
         backAction = `window.ui.mostrarModelos('${categoria}', '${marca}')`;
@@ -520,10 +547,16 @@ export function mostrarVersionesEquipamiento(categoria, marca, modelo) {
     const { catalogData } = getState();
     const { cortes } = catalogData;
 
-    setState({ navigationState: { level: "versionesEquipamiento", categoria, marca, modelo } });
+    const previousState = getState().navigationState || {};
+    setState({ navigationState: { level: "versionesEquipamiento", categoria, marca, modelo, previousState } });
     const cont = document.getElementById("contenido");
-    // Comentario: El botón de regreso ahora apunta a la selección de modelos de la marca, que es el paso anterior lógico.
-    const backAction = `window.ui.mostrarModelos('${categoria}', '${marca}')`;
+
+    // Comentario: Lógica dinámica para el botón "Volver".
+    // Se añade soporte para el flujo de navegación por marca (modelosPorMarca).
+    const backAction = previousState.level === 'modelosPorMarca'
+        ? `window.ui.mostrarModelosPorMarca('${marca}')`
+        : `window.ui.mostrarModelos('${categoria}', '${marca}')`;
+
     cont.innerHTML = `<span class="backBtn" onclick="${backAction}">${backSvg} Volver</span><h4>Versiones de ${modelo}</h4>`;
 
     // Comentario: Se filtra por modelo específico para mostrar solo las versiones relevantes.

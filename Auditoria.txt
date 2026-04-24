@@ -141,3 +141,52 @@ El Corte Recomendado no carga su imagen porque `renderCutContent` le asigna `dat
 2. En `renderCutContent`, usar `img.src` si `isLazy` es falso, y `img.dataset.src` si es verdadero.
 3. Actualizar la llamada en L758 para pasar `false` (o dejar por defecto).
 4. Actualizar la llamada en L1196 para pasar `true`.
+
+--------------------------------------------------
+**AUDITORÍA TÉCNICA - TAREA 1: CORRECCIÓN DE NAVEGACIÓN (06/02/2026)**
+
+**Archivo: ui.js**
+- L221: La navegación por marca inicia en `mostrarModelosPorMarca(marca)`.
+- L288: `mostrarModelosPorMarca` establece `navigationState.level = "modelosPorMarca"`.
+- L291: Botón "Volver" en `mostrarModelosPorMarca` apunta a `irAPaginaPrincipal()`. Correcto.
+- L335, L346, L351: `navegarADetallesDeModelo` redirige a sub-pantallas sin preservar explícitamente el origen `modelosPorMarca`.
+- L399-402: `mostrarTiposEncendido` botón "Volver" asume que el paso previo fue `versionesEquipamiento` o `modelos`. Si se llegó desde `modelosPorMarca`, regresará a `mostrarModelos` (con filtro de categoría), lo cual es el fallo reportado.
+- L445-453: `mostrarVersiones` botón "Volver" tiene el mismo problema de fallback a `mostrarModelos`.
+- L505: `mostrarVersionesEquipamiento` tiene el botón "Volver" hardcodeado a `mostrarModelos`.
+
+**Hallazgos Críticos:**
+1. Las funciones de sub-navegación (`mostrarTiposEncendido`, `mostrarVersiones`, `mostrarVersionesEquipamiento`) no contemplan el flujo de "Búsqueda por Marca" (`modelosPorMarca`) al construir su botón de regreso.
+2. `mostrarModelos` siempre regresa a `mostrarMarcas(categoria)`, lo que rompe el flujo si el usuario no seleccionó una categoría inicialmente.
+
+**Acciones:**
+- Actualizar la lógica de `backAction` en todas las funciones de sub-navegación para verificar si el `previousState.level` es `modelosPorMarca`.
+- Si el origen es `modelosPorMarca`, el botón "Volver" debe llamar a `window.ui.mostrarModelosPorMarca(marca)`.
+
+--------------------------------------------------
+**AUDITORÍA TÉCNICA - TAREA 2: PREVENCIÓN DE SELECCIÓN DE TEXTO (06/02/2026)**
+
+**Archivos involucrados:** `style.css`, `users.html`, `add_cortes.html`.
+
+**Hallazgos:**
+- Ninguno de los archivos CSS o bloques `<style>` implementa `user-select: none`.
+- Esto permite la selección accidental de texto y activa el asistente de búsqueda de Google en móviles, afectando la experiencia de catálogo.
+
+**Acciones:**
+- Implementar reglas CSS globales para `user-select: none`.
+- Permitir excepciones para elementos de entrada (`input`, `textarea`) para asegurar la usabilidad.
+- Replicar en `users.html` y `add_cortes.html` para mantener la consistencia en toda la aplicación.
+
+--------------------------------------------------
+**AUTO-AUDITORÍA POST-IMPLEMENTACIÓN (06/02/2026)**
+
+**Hallazgos:**
+1. **Archivo style.css:** La regla de excepción para `user-select: text` no incluye el elemento `select`. Esto podría dificultar la interacción con menús desplegables en algunos navegadores si se hereda el `none` del body.
+2. **Archivo index.html (L107):** El input de búsqueda conserva un atributo `oninput="filtrarContenido(this.value)"` que es redundante con el event listener de `main.js`. Además, `filtrarContenido` no está expuesto globalmente (está bajo `window.navigation`), lo que causaría un error en consola al escribir.
+3. **Archivo add_cortes.html:** La lógica de bloqueo de zoom replicada no incluye la excepción `isLightboxVisible`. Esto impide que el técnico haga zoom en las imágenes de verificación dentro de esta sección, rompiendo una funcionalidad crítica de revisión de fotos.
+4. **Archivo ui.js (L376):** La función `mostrarModelos` mantiene un botón "Volver" con lógica hardcodeada que no consulta `previousState`. Aunque funcional bajo el flujo normal, es inconsistente con el resto de la refactorización.
+
+**Acciones Correctoras:**
+- Añadir `select` a las excepciones de `user-select` en todos los archivos.
+- Eliminar el `oninput` redundante en `index.html`.
+- Implementar la excepción de zoom por lightbox en `add_cortes.html`.
+- Refactorizar `mostrarModelos` para usar `previousState` en su botón de regreso.

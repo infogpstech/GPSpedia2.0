@@ -49,7 +49,7 @@ function doGet(e) {
         return ContentService.createTextOutput(JSON.stringify(serviceState, null, 2))
             .setMimeType(ContentService.MimeType.TEXT);
     }
-    const defaultResponse = { status: 'success', message: 'GPSpedia Write-SERVICE v2.0.0 is active.' };
+    const defaultResponse = { status: 'success', message: 'GPSpedia Write-SERVICE v2.0 is active.' };
     return ContentService.createTextOutput(JSON.stringify(defaultResponse))
         .setMimeType(ContentService.MimeType.TEXT);
 }
